@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% set root_prefix = "../" %}
+
+{% block title %}{{ title }} - Change History{% endblock %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+<p style="margin-bottom: 1rem;">
+  <a href="https://code.claude.com/docs/en/{{ slug }}">View current documentation</a>
+</p>
+
+{% if entries %}
+  {% for entry in entries %}
+  <div class="entry">
+    <div class="entry-header">
+      <span class="badge badge-{{ entry.change_type }}">{{ entry.change_type }}</span>
+      <a class="entry-title" href="../changes/{{ entry.date }}.html">{{ entry.date }}</a>
+    </div>
+    <div class="entry-meta">
+      {% if entry.summary %}
+        +{{ entry.summary.lines_added }} / -{{ entry.summary.lines_removed }} lines
+        {% if entry.summary.sections_changed %}
+          &middot; Sections: {{ entry.summary.sections_changed | join(", ") }}
+        {% endif %}
+      {% endif %}
+    </div>
+
+    {% if entry.diff %}
+    <div class="diff-container">
+      {% set line_count = diff_line_count(entry.diff) %}
+      {% if line_count > large_diff_threshold %}
+      <details>
+        <summary>Show diff ({{ line_count }} lines)</summary>
+        <div data-diff>{{ entry.diff }}</div>
+      </details>
+      {% else %}
+      <div data-diff>{{ entry.diff }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <p>No changes recorded for this page yet.</p>
+  </div>
+{% endif %}
+{% endblock %}

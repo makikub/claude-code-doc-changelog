@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set root_prefix = "" %}
+
+{% block title %}Claude Code Docs Changelog{% endblock %}
+
+{% block content %}
+{% if date_summaries %}
+  {% for ds in date_summaries %}
+  <div class="date-group">
+    <div class="date-header">
+      <h3><a href="changes/{{ ds.date }}.html">{{ ds.date }}</a></h3>
+      <span class="count">{{ ds.total }} change{{ "s" if ds.total != 1 else "" }}</span>
+    </div>
+    {% for entry in ds.entries %}
+    <div class="entry">
+      <div class="entry-header">
+        <span class="badge badge-{{ entry.change_type }}">{{ entry.change_type }}</span>
+        <a class="entry-title" href="pages/{{ entry.slug }}.html">{{ entry.title }}</a>
+      </div>
+      <div class="entry-meta">
+        {% if entry.summary %}
+          +{{ entry.summary.lines_added }} / -{{ entry.summary.lines_removed }} lines
+          {% if entry.summary.sections_changed %}
+            &middot; Sections: {{ entry.summary.sections_changed | join(", ") }}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <h2>No changes detected yet</h2>
+    <p>Changes will appear here after the first documentation update is detected.</p>
+  </div>
+{% endif %}
+{% endblock %}

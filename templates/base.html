@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Claude Code Docs Changelog{% endblock %}</title>
+  <meta name="description" content="Daily changelog tracking changes to the Claude Code documentation.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html@3.4.48/bundles/css/diff2html.min.css">
+  <link rel="stylesheet" href="{{ root_prefix }}assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="{{ root_prefix }}index.html">Claude Code Docs Changelog</a></h1>
+      <p>Daily automated tracker for <a href="https://code.claude.com/docs/en/overview">Claude Code documentation</a> changes.</p>
+      <nav>
+        <a href="{{ root_prefix }}index.html">Timeline</a>
+        <a href="https://github.com/masakikubota/claude-code-doc-log">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <p>Automatically updated daily. Data sourced from <a href="https://code.claude.com/docs/en/overview">code.claude.com</a>.</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/diff2html@3.4.48/bundles/js/diff2html-ui.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('[data-diff]').forEach(function(el) {
+        var diffString = el.textContent;
+        el.textContent = '';
+        var configuration = {
+          drawFileList: false,
+          matching: 'words',
+          outputFormat: 'line-by-line',
+          highlight: false,
+        };
+        var diff2htmlUi = new Diff2HtmlUI(el, diffString, configuration);
+        diff2htmlUi.draw();
+      });
+    });
+  </script>
+</body>
+</html>
