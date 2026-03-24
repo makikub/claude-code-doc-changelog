@@ -323,6 +323,102 @@ details summary:hover { text-decoration: underline; }
 .d2h-wrapper { font-size: 0.8rem; }
 .d2h-file-header { display: none; }
 
+/* diff2html dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .d2h-file-wrapper {
+    background: var(--bg-secondary);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  .d2h-file-diff {
+    background: var(--bg-secondary);
+  }
+
+  .d2h-code-line,
+  .d2h-code-side-line {
+    background: var(--bg-secondary);
+    color: var(--text);
+  }
+
+  .d2h-code-line-ctn {
+    color: var(--text);
+  }
+
+  .d2h-ins {
+    background: var(--added-bg);
+    border-color: #1b4721;
+  }
+
+  .d2h-ins .d2h-code-line-ctn {
+    color: var(--text);
+  }
+
+  .d2h-ins .d2h-code-line-prefix {
+    color: var(--added-text);
+  }
+
+  .d2h-ins ins,
+  .d2h-code-line-ctn ins {
+    background: rgba(63, 185, 80, 0.3);
+    text-decoration: none;
+  }
+
+  .d2h-del {
+    background: var(--removed-bg);
+    border-color: #6e3630;
+  }
+
+  .d2h-del .d2h-code-line-ctn {
+    color: var(--text);
+  }
+
+  .d2h-del .d2h-code-line-prefix {
+    color: var(--removed-text);
+  }
+
+  .d2h-del del,
+  .d2h-code-line-ctn del {
+    background: rgba(248, 81, 73, 0.3);
+    text-decoration: none;
+  }
+
+  .d2h-info {
+    background: #1c2128;
+    color: var(--text-secondary);
+    border-color: var(--border);
+  }
+
+  .d2h-code-linenumber {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-color: var(--border);
+  }
+
+  .d2h-ins .d2h-code-linenumber {
+    background: var(--added-bg);
+    color: var(--text-secondary);
+    border-color: #1b4721;
+  }
+
+  .d2h-del .d2h-code-linenumber {
+    background: var(--removed-bg);
+    color: var(--text-secondary);
+    border-color: #6e3630;
+  }
+
+  .d2h-tag {
+    background: var(--bg);
+    color: var(--text-secondary);
+    border-color: var(--border);
+  }
+
+  .d2h-emptyplaceholder {
+    background: #1c2128;
+    border-color: var(--border);
+  }
+}
+
 .pagination {
   display: flex;
   justify-content: space-between;
