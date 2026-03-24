@@ -389,6 +389,17 @@ Limitations
 
 ​
 
+What sandboxing does not cover
+
+The sandbox isolates Bash subprocesses. Other tools operate under different boundaries:
+
+  * **Built-in file tools** : Read, Edit, and Write use the permission system directly rather than running through the sandbox. See [permissions](</docs/en/permissions>).
+  * **Computer use on Desktop** : when Claude opens apps and controls your screen on macOS, it runs on your actual desktop rather than in an isolated environment. Per-app permission prompts gate each application. See [computer use](</docs/en/desktop#let-claude-use-your-computer>).
+
+##
+
+​
+
 See also
 
   * [Security](</docs/en/security>) \- Comprehensive security features and best practices

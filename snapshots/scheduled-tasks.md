@@ -1,6 +1,28 @@
 Scheduled tasks require Claude Code v2.1.72 or later. Check your version with `claude --version`.
 
-Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](</docs/en/channels>): your CI can push the failure into the session directly. Tasks are session-scoped: they live in the current Claude Code process and are gone when you exit. For durable scheduling that survives restarts and runs without an active terminal session, see [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) or [GitHub Actions](</docs/en/github-actions>).
+Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](</docs/en/channels>): your CI can push the failure into the session directly. Tasks are session-scoped: they live in the current Claude Code process and are gone when you exit. For durable scheduling that survives restarts, use [Cloud](</docs/en/web-scheduled-tasks>) or [Desktop](</docs/en/desktop#schedule-recurring-tasks>) scheduled tasks, or [GitHub Actions](</docs/en/github-actions>).
+
+##
+
+​
+
+Compare scheduling options
+
+Claude Code offers three ways to schedule recurring work:
+
+| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop#schedule-recurring-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)
+---|---|---|---
+Runs on| Anthropic cloud| Your machine| Your machine
+Requires machine on| No| Yes| Yes
+Requires open session| No| No| Yes
+Persistent across restarts| Yes| Yes| No (session-scoped)
+Access to local files| No (fresh clone)| Yes| Yes
+MCP servers| Connectors configured per task| [Config files](</docs/en/mcp>) and connectors| Inherits from session
+Permission prompts| No (runs autonomously)| Configurable per task| Inherits from session
+Customizable schedule| Via `/schedule` in the CLI| Yes| Yes
+Minimum interval| 1 hour| 1 minute| 1 minute
+
+Use **cloud tasks** for work that should run reliably without your machine. Use **Desktop tasks** when you need access to local files and tools. Use **`/loop`** for quick polling during a session.
 
 ##
 
@@ -141,7 +163,7 @@ The offset is derived from the task ID, so the same task always gets the same of
 
 Three-day expiry
 
-Recurring tasks automatically expire 3 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) for durable scheduling.
+Recurring tasks automatically expire 3 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>) or [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) for durable scheduling.
 
 ##
 
@@ -182,4 +204,8 @@ Session-scoped scheduling has inherent constraints:
   * No catch-up for missed fires. If a task’s scheduled time passes while Claude is busy on a long-running request, it fires once when Claude becomes idle, not once per missed interval.
   * No persistence across restarts. Restarting Claude Code clears all session-scoped tasks.
 
-For cron-driven automation that needs to run unattended, use a [GitHub Actions workflow](</docs/en/github-actions>) with a `schedule` trigger, or [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) if you want a graphical setup flow.
+For cron-driven automation that needs to run unattended:
+
+  * [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>): run on Anthropic-managed infrastructure
+  * [GitHub Actions](</docs/en/github-actions>): use a `schedule` trigger in CI
+  * [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>): run locally on your machine

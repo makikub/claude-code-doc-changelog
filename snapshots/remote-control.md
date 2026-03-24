@@ -216,10 +216,27 @@ Common causes:
 
 ​
 
+Choose the right approach
+
+Claude Code offers several ways to work when you’re not at your terminal. They differ in what triggers the work, where Claude runs, and how much you need to set up.
+
+| Trigger| Claude runs on| Setup| Best for
+---|---|---|---|---
+[Dispatch](</docs/en/desktop#sessions-from-dispatch>)| Message a task from the Claude mobile app| Your machine (Desktop)| [Pair the mobile app with Desktop](<https://support.claude.com/en/articles/13947068>)| Delegating work while you’re away, minimal setup
+[Remote Control](</docs/en/remote-control>)| Drive a running session from [claude.ai/code](<https://claude.ai/code>) or the Claude mobile app| Your machine (CLI or VS Code)| Run `claude remote-control`| Steering in-progress work from another device
+[Channels](</docs/en/channels>)| Push events from a chat app like Telegram or Discord, or your own server| Your machine (CLI)| [Install a channel plugin](</docs/en/channels#quickstart>) or [build your own](</docs/en/channels-reference>)| Reacting to external events like CI failures or chat messages
+[Slack](</docs/en/slack>)| Mention `@Claude` in a team channel| Anthropic cloud| [Install the Slack app](</docs/en/slack#setting-up-claude-code-in-slack>) with [Claude Code on the web](</docs/en/claude-code-on-the-web>) enabled| PRs and reviews from team chat
+[Scheduled tasks](</docs/en/scheduled-tasks>)| Set a schedule| [CLI](</docs/en/scheduled-tasks>), [Desktop](</docs/en/desktop#schedule-recurring-tasks>), or [cloud](</docs/en/web-scheduled-tasks>)| Pick a frequency| Recurring automation like daily reviews
+
+##
+
+​
+
 Related resources
 
   * [Claude Code on the web](</docs/en/claude-code-on-the-web>): run sessions in Anthropic-managed cloud environments instead of on your machine
   * [Channels](</docs/en/channels>): forward Telegram or Discord into a session so Claude reacts to messages while you’re away
+  * [Dispatch](</docs/en/desktop#sessions-from-dispatch>): message a task from your phone and it can spawn a Desktop session to handle it
   * [Authentication](</docs/en/authentication>): set up `/login` and manage credentials for claude.ai
   * [CLI reference](</docs/en/cli-reference>): full list of flags and commands including `claude remote-control`
   * [Security](</docs/en/security>): how Remote Control sessions fit into the Claude Code security model

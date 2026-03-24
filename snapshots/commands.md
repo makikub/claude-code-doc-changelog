@@ -52,6 +52,7 @@ Command| Purpose
 `/review`| Deprecated. Install the [`code-review` plugin](<https://github.com/anthropics/claude-code-marketplace/blob/main/code-review/README.md>) instead: `claude plugin install code-review@claude-code-marketplace`
 `/rewind`| Rewind the conversation and/or code to a previous point, or summarize from a selected message. See [checkpointing](</docs/en/checkpointing>). Alias: `/checkpoint`
 `/sandbox`| Toggle [sandbox mode](</docs/en/sandboxing>). Available on supported platforms only
+`/schedule [description]`| Create, update, list, or run [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>). Claude walks you through the setup conversationally
 `/security-review`| Analyze pending changes on the current branch for security vulnerabilities. Reviews the git diff and identifies risks like injection, auth issues, and data exposure
 `/skills`| List available [skills](</docs/en/skills>)
 `/stats`| Visualize daily usage, session history, streaks, and model preferences

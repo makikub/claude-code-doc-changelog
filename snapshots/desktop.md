@@ -2,15 +2,17 @@ The Code tab within the Claude Desktop app lets you use Claude Code through a gr
 
   * Visual diff review with inline comments
   * Live app preview with dev servers
+  * Computer use to open apps and control your screen on macOS
   * GitHub PR monitoring with auto-fix and auto-merge
   * Parallel sessions with automatic Git worktree isolation
+  * Dispatch integration: send a task from your phone, get a session here
   * Scheduled tasks that run Claude on a recurring schedule
   * Connectors for GitHub, Slack, Linear, and more
   * Local, SSH, and cloud environments
 
 New to Desktop? Start with [Get started](</docs/en/desktop-quickstart>) to install the app and make your first edit.
 
-This page covers working with code, managing sessions, extending Claude Code, scheduled tasks, and configuration. It also includes a CLI comparison and troubleshooting.
+This page covers working with code, computer use, managing sessions, extending Claude Code, scheduled tasks, and configuration. It also includes a CLI comparison and troubleshooting.
 
 ##
 
@@ -131,9 +133,70 @@ PR monitoring requires the [GitHub CLI (`gh`)](<https://cli.github.com/>) to be 
 
 ​
 
+Let Claude use your computer
+
+Computer use lets Claude open your apps, control your screen, and work directly on your machine the way you would. Ask Claude to test a native app in the iOS simulator, interact with a desktop tool that has no CLI, or automate something that only works through a GUI.
+
+Computer use is a research preview on macOS that requires a Pro or Max plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running.
+
+Computer use is off by default. Enable it in Settings and grant the required macOS permissions before Claude can control your screen.
+
+Unlike the [sandboxed Bash tool](</docs/en/sandboxing>), computer use runs on your actual desktop with access to whatever you approve. Claude checks each action and flags potential prompt injection from on-screen content, but the trust boundary is different. See the [computer use safety guide](<https://support.claude.com/en/articles/14128542>) for best practices.
+
+###
+
+​
+
+When computer use applies
+
+Claude has several ways to interact with an app or service, and computer use is the broadest and slowest. It tries the most precise tool first:
+
+  * If you have a connector for a service, Claude uses the connector.
+  * If the task is a shell command, Claude uses Bash.
+  * If the task is browser work and you have [Claude in Chrome](</docs/en/chrome>) set up, Claude uses that.
+  * If none of those apply, Claude uses computer use.
+
+The per-app access tiers reinforce this: browsers are capped at view-only, and terminals and IDEs at click-only, steering Claude toward the dedicated tool even when computer use is active. Screen control is reserved for things nothing else can reach, like native apps, hardware control panels, the iOS simulator, or proprietary tools without an API.
+
+###
+
+​
+
+Enable computer use
+
+Computer use is off by default. If you ask Claude to do something that needs it while it’s off, Claude tells you it could do the task if you enable computer use in Settings. To enable it, open **Settings > Desktop app > General** and toggle **Computer use** on. Before the toggle takes effect, you need to grant two macOS system permissions:
+
+  * **Accessibility** : lets Claude click, type, and scroll
+  * **Screen Recording** : lets Claude see what’s on your screen
+
+The Settings page shows the current status of each permission. If either is denied, click the badge to open the relevant System Settings pane.
+
+###
+
+​
+
+App permissions
+
+The first time Claude needs to use an app, a prompt appears in your session. Click **Allow for this session** or **Deny**. Approvals last for the current session, or 30 minutes in Dispatch-spawned sessions. The prompt also shows what level of control Claude gets for that app. These tiers are fixed by app category and can’t be changed:
+
+Tier| What Claude can do| Applies to
+---|---|---
+View only| See the app in screenshots| Browsers, trading platforms
+Click only| Click and scroll, but not type or use keyboard shortcuts| Terminals, IDEs
+Full control| Click, type, drag, and use keyboard shortcuts| Everything else
+
+Apps with broad reach like Terminal, Finder, and System Settings show an extra warning in the prompt so you know what approving them grants. You can configure two settings in **Settings > Desktop app > General**:
+
+  * **Denied apps** : add apps here to reject them without prompting. Claude may still affect a denied app indirectly through actions in an allowed app, but it can’t interact with the denied app directly.
+  * **Unhide apps when Claude finishes** : while Claude is working, your other windows are hidden so it interacts with only the approved app. When Claude finishes, hidden windows are restored unless you turn this setting off.
+
+##
+
+​
+
 Manage sessions
 
-Each session is an independent conversation with its own context and changes. You can run multiple sessions in parallel or send work to the cloud.
+Each session is an independent conversation with its own context and changes. You can run multiple sessions in parallel, send work to the cloud, or let Dispatch start sessions for you from your phone.
 
 ###
 
@@ -166,6 +229,14 @@ The **Continue in** menu, accessible from the VS Code icon in the bottom right o
   * **Claude Code on the Web** : sends your local session to continue running remotely. Desktop pushes your branch, generates a summary of the conversation, and creates a new remote session with the full context. You can then choose to archive the local session or keep it. This requires a clean working tree, and is not available for SSH sessions.
   * **Your IDE** : opens your project in a supported IDE at the current working directory.
 
+###
+
+​
+
+Sessions from Dispatch
+
+[Dispatch](<https://support.claude.com/en/articles/13947068>) is a persistent conversation with Claude that lives in the [Cowork](<https://claude.com/product/cowork#dispatch-and-computer-use>) tab. You message Dispatch a task, and it decides how to handle it. A task can end up as a Code session in two ways: you ask for one directly, such as “open a Claude Code session and fix the login bug”, or Dispatch decides the task is development work and spawns one on its own. Tasks that typically route to Code include fixing bugs, updating dependencies, running tests, or opening pull requests. Research, document editing, and spreadsheet work stay in Cowork. Either way, the Code session appears in the Code tab’s sidebar with a **Dispatch** badge. You get a push notification on your phone when it finishes or needs your approval. If you have computer use enabled, Dispatch-spawned Code sessions can use it too. App approvals in those sessions expire after 30 minutes and re-prompt, rather than lasting the full session like regular Code sessions. For setup, pairing, and Dispatch settings, see the [Dispatch help article](<https://support.claude.com/en/articles/13947068>). Dispatch requires a Pro or Max plan and is not available on Team or Enterprise plans. Dispatch is one of several ways to work with Claude when you’re away from your terminal. See [Platforms and integrations](</docs/en/platforms#work-when-you-are-away-from-your-terminal>) to compare it with Remote Control, Channels, Slack, and scheduled tasks.
+
 ##
 
 ​
@@ -180,7 +251,7 @@ Connect external services, add reusable workflows, customize Claude’s behavior
 
 Connect external tools
 
-For local and SSH sessions, click the **+** button next to the prompt box and select **Connectors** to add integrations like Google Calendar, Slack, GitHub, Linear, Notion, and more. You can add connectors before or during a session. Connectors are not available for remote sessions. To manage or disconnect connectors, go to Settings → Connectors in the desktop app, or select **Manage connectors** from the Connectors menu in the prompt box. Once connected, Claude can read your calendar, send messages, create issues, and interact with your tools directly. You can ask Claude what connectors are configured in your session. Connectors are [MCP servers](</docs/en/mcp>) with a graphical setup flow. Use them for quick integration with supported services. For integrations not listed in Connectors, add MCP servers manually via [settings files](</docs/en/mcp#installing-mcp-servers>). You can also [create custom connectors](<https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp>).
+For local and SSH sessions, click the **+** button next to the prompt box and select **Connectors** to add integrations like Google Calendar, Slack, GitHub, Linear, Notion, and more. You can add connectors before or during a session. The **+** button is not available in remote sessions, but [scheduled tasks](</docs/en/web-scheduled-tasks>) configure connectors at task creation time. To manage or disconnect connectors, go to Settings → Connectors in the desktop app, or select **Manage connectors** from the Connectors menu in the prompt box. Once connected, Claude can read your calendar, send messages, create issues, and interact with your tools directly. You can ask Claude what connectors are configured in your session. Connectors are [MCP servers](</docs/en/mcp>) with a graphical setup flow. Use them for quick integration with supported services. For integrations not listed in Connectors, add MCP servers manually via [settings files](</docs/en/mcp#installing-mcp-servers>). You can also [create custom connectors](<https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp>).
 
 ###
 
@@ -377,11 +448,40 @@ Ask AI
 
 Schedule recurring tasks
 
-Scheduled tasks start a new local session automatically at a time and frequency you choose. Use them for recurring work like daily code reviews, dependency update checks, or morning briefings that pull from your calendar and inbox. Tasks run on your machine, so the desktop app must be open and your computer awake for them to fire. See How scheduled tasks run for details on missed runs and catch-up behavior.
+By default, scheduled tasks start a new session automatically at a time and frequency you choose. Use them for recurring work like daily code reviews, dependency update checks, or morning briefings that pull from your calendar and inbox.
 
-By default, scheduled tasks run against whatever state your working directory is in, including uncommitted changes. Enable the worktree toggle in the prompt input to give each run its own isolated Git worktree, the same way parallel sessions work.
+###
 
-To create a scheduled task, click **Schedule** in the sidebar, then **\+ New task**. Configure these fields:
+​
+
+Compare scheduling options
+
+Claude Code offers three ways to schedule recurring work:
+
+| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop#schedule-recurring-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)
+---|---|---|---
+Runs on| Anthropic cloud| Your machine| Your machine
+Requires machine on| No| Yes| Yes
+Requires open session| No| No| Yes
+Persistent across restarts| Yes| Yes| No (session-scoped)
+Access to local files| No (fresh clone)| Yes| Yes
+MCP servers| Connectors configured per task| [Config files](</docs/en/mcp>) and connectors| Inherits from session
+Permission prompts| No (runs autonomously)| Configurable per task| Inherits from session
+Customizable schedule| Via `/schedule` in the CLI| Yes| Yes
+Minimum interval| 1 hour| 1 minute| 1 minute
+
+Use **cloud tasks** for work that should run reliably without your machine. Use **Desktop tasks** when you need access to local files and tools. Use **`/loop`** for quick polling during a session.
+
+The Schedule page supports two kinds of tasks:
+
+  * **Local tasks** : run on your machine. They have direct access to your local files and tools, but the desktop app must be open and your computer awake for them to run.
+  * **Remote tasks** : run on Anthropic-managed cloud infrastructure. They keep running even when your computer is off, but work against a fresh clone of your repository rather than your local checkout.
+
+Both kinds appear in the same task grid. Click **New task** to pick which kind to create. The rest of this section covers local tasks; for remote tasks, see [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>). See How scheduled tasks run for details on missed runs and catch-up behavior for local tasks.
+
+By default, local scheduled tasks run against whatever state your working directory is in, including uncommitted changes. Enable the worktree toggle in the prompt input to give each run its own isolated Git worktree, the same way parallel sessions work.
+
+To create a local scheduled task, click **Schedule** in the sidebar, click **New task** , and choose **New local task**. Configure these fields:
 
 Field| Description
 ---|---
@@ -412,7 +512,7 @@ For intervals the picker doesn’t offer (every 15 minutes, first of each month,
 
 How scheduled tasks run
 
-Scheduled tasks run locally on your machine. Desktop checks the schedule every minute while the app is open and starts a fresh session when a task is due, independent of any manual sessions you have open. Each task gets a fixed delay of up to 10 minutes after the scheduled time to stagger API traffic. The delay is deterministic: the same task always starts at the same offset. When a task fires, you get a desktop notification and a new session appears under a **Scheduled** section in the sidebar. Open it to see what Claude did, review changes, or respond to permission prompts. The session works like any other: Claude can edit files, run commands, create commits, and open pull requests. Tasks only run while the desktop app is running and your computer is awake. If your computer sleeps through a scheduled time, the run is skipped. To prevent idle-sleep, enable **Keep computer awake** in Settings under **Desktop app → General**. Closing the laptop lid still puts it to sleep.
+Local scheduled tasks run on your machine. Desktop checks the schedule every minute while the app is open and starts a fresh session when a task is due, independent of any manual sessions you have open. Each task gets a fixed delay of up to 10 minutes after the scheduled time to stagger API traffic. The delay is deterministic: the same task always starts at the same offset. When a task fires, you get a desktop notification and a new session appears under a **Scheduled** section in the sidebar. Open it to see what Claude did, review changes, or respond to permission prompts. The session works like any other: Claude can edit files, run commands, create commits, and open pull requests. Tasks only run while the desktop app is running and your computer is awake. If your computer sleeps through a scheduled time, the run is skipped. To prevent idle-sleep, enable **Keep computer awake** in Settings under **Desktop app → General**. Closing the laptop lid still puts it to sleep. For tasks that need to run even when your computer is off, use a [remote task](</docs/en/web-scheduled-tasks>) instead.
 
 ###
 
@@ -585,16 +685,16 @@ This table shows the desktop app equivalent for common CLI flags. Flags not list
 
 CLI| Desktop equivalent
 ---|---
-`--model sonnet`| model dropdown next to the send button, before starting a session
-`--resume`, `--continue`| click a session in the sidebar
-`--permission-mode`| mode selector next to the send button
+`--model sonnet`| Model dropdown next to the send button, before starting a session
+`--resume`, `--continue`| Click a session in the sidebar
+`--permission-mode`| Mode selector next to the send button
 `--dangerously-skip-permissions`| Bypass permissions mode. Enable in Settings → Claude Code → “Allow bypass permissions mode”. Enterprise admins can disable this setting.
-`--add-dir`| add multiple repos with the **+** button in remote sessions
-`--allowedTools`, `--disallowedTools`| not available in Desktop
-`--verbose`| not available. Check system logs: Console.app on macOS, Event Viewer → Windows Logs → Application on Windows
-`--print`, `--output-format`| not available. Desktop is interactive only.
-`ANTHROPIC_MODEL` env var| model dropdown next to the send button
-`MAX_THINKING_TOKENS` env var| set in shell profile; applies to local sessions. See environment configuration.
+`--add-dir`| Add multiple repos with the **+** button in remote sessions
+`--allowedTools`, `--disallowedTools`| Not available in Desktop
+`--verbose`| Not available. Check system logs: Console.app on macOS, Event Viewer → Windows Logs → Application on Windows
+`--print`, `--output-format`| Not available. Desktop is interactive only.
+`ANTHROPIC_MODEL` env var| Model dropdown next to the send button
+`MAX_THINKING_TOKENS` env var| Set in shell profile; applies to local sessions. See environment configuration.
 
 ###
 
@@ -622,17 +722,19 @@ This table compares core capabilities between the CLI and Desktop. For a full li
 
 Feature| CLI| Desktop
 ---|---|---
-Permission modes| all modes including `dontAsk`| Ask permissions, Auto accept edits, Plan mode, and Bypass permissions via Settings
+Permission modes| All modes including `dontAsk`| Ask permissions, Auto accept edits, Plan mode, and Bypass permissions via Settings
 `--dangerously-skip-permissions`| CLI flag| Bypass permissions mode. Enable in Settings → Claude Code → “Allow bypass permissions mode”
-[Third-party providers](</docs/en/third-party-integrations>)| Bedrock, Vertex, Foundry| not available. Desktop connects to Anthropic’s API directly.
-[MCP servers](</docs/en/mcp>)| configure in settings files| Connectors UI for local and SSH sessions, or settings files
-[Plugins](</docs/en/plugins>)| `/plugin` command| plugin manager UI
-@mention files| text-based| with autocomplete
-File attachments| not available| images, PDFs
-Session isolation| [`--worktree`](</docs/en/cli-reference>) flag| automatic worktrees
-Multiple sessions| separate terminals| sidebar tabs
-Recurring tasks| cron jobs, CI pipelines| scheduled tasks
-Scripting and automation| [`--print`](</docs/en/cli-reference>), [Agent SDK](</docs/en/headless>)| not available
+[Third-party providers](</docs/en/third-party-integrations>)| Bedrock, Vertex, Foundry| Not available. Desktop connects to Anthropic’s API directly.
+[MCP servers](</docs/en/mcp>)| Configure in settings files| Connectors UI for local and SSH sessions, or settings files
+[Plugins](</docs/en/plugins>)| `/plugin` command| Plugin manager UI
+@mention files| Text-based| With autocomplete
+File attachments| Not available| Images, PDFs
+Session isolation| [`--worktree`](</docs/en/cli-reference>) flag| Automatic worktrees
+Multiple sessions| Separate terminals| Sidebar tabs
+Recurring tasks| Cron jobs, CI pipelines| Scheduled tasks
+Computer use| Not available| App and screen control on macOS
+Dispatch integration| Not available| Dispatch sessions in the sidebar
+Scripting and automation| [`--print`](</docs/en/cli-reference>), [Agent SDK](</docs/en/headless>)| Not available
 
 ###
 
