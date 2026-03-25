@@ -441,4 +441,114 @@ footer {
   font-size: 0.8rem;
   color: var(--text-secondary);
 }
+
+/* ===== Mobile diff visibility fixes ===== */
+@media (max-width: 768px) {
+  .d2h-code-linenumber {
+    display: none !important;
+  }
+
+  .d2h-code-wrapper *,
+  .d2h-diff-table * {
+    position: static !important;
+    left: auto !important;
+  }
+
+  .d2h-wrapper {
+    font-size: 0.72rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .d2h-file-wrapper {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+
+  .d2h-code-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .d2h-diff-table {
+    width: 100%;
+    table-layout: auto;
+  }
+
+  .d2h-code-line-ctn {
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+
+  .d2h-ins {
+    background-color: #c6efce !important;
+    border-color: #6cc070 !important;
+  }
+
+  .d2h-ins .d2h-code-line-ctn {
+    background-color: #c6efce !important;
+    border-left: 3px solid var(--added-text);
+    padding-left: 4px;
+  }
+
+  .d2h-del {
+    background-color: #ffc7ce !important;
+    border-color: #e06c75 !important;
+  }
+
+  .d2h-del .d2h-code-line-ctn {
+    background-color: #ffc7ce !important;
+    border-left: 3px solid var(--removed-text);
+    padding-left: 4px;
+  }
+
+  .d2h-ins ins,
+  .d2h-code-line-ctn ins {
+    background-color: rgba(40, 167, 69, 0.4) !important;
+    text-decoration: none;
+  }
+
+  .d2h-del del,
+  .d2h-code-line-ctn del {
+    background-color: rgba(220, 53, 69, 0.35) !important;
+    text-decoration: none;
+  }
+
+  .diff-container {
+    margin-top: 0.5rem;
+  }
+}
+
+/* ===== Mobile + dark mode combined ===== */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+  .d2h-ins {
+    background-color: #1a3a2a !important;
+    border-color: #2d6a4f !important;
+  }
+
+  .d2h-ins .d2h-code-line-ctn {
+    background-color: #1a3a2a !important;
+  }
+
+  .d2h-del {
+    background-color: #3d1a1e !important;
+    border-color: #8b3a3a !important;
+  }
+
+  .d2h-del .d2h-code-line-ctn {
+    background-color: #3d1a1e !important;
+  }
+
+  .d2h-ins ins,
+  .d2h-code-line-ctn ins {
+    background-color: rgba(63, 185, 80, 0.45) !important;
+  }
+
+  .d2h-del del,
+  .d2h-code-line-ctn del {
+    background-color: rgba(248, 81, 73, 0.4) !important;
+  }
+}
 """
