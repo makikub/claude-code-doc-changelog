@@ -487,6 +487,7 @@ Shortcut| Reason
 ---|---
 Ctrl+C| Hardcoded interrupt/cancel
 Ctrl+D| Hardcoded exit
+Ctrl+M| Identical to Enter in terminals (both send CR)
 
 ##
 

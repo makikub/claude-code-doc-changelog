@@ -175,6 +175,8 @@ Setting to `0` deletes all existing transcripts at startup and disables session 
 `includeCoAuthoredBy`| **Deprecated** : Use `attribution` instead. Whether to include the `co-authored-by Claude` byline in git commits and pull requests (default: `true`)| `false`
 `includeGitInstructions`| Include built-in commit and PR workflow instructions and the git status snapshot in Claude’s system prompt (default: `true`). Set to `false` to remove both, for example when using your own git workflow skills. The `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS` environment variable takes precedence over this setting when set| `false`
 `permissions`| See table below for structure of permissions.|
+`autoMode`| Customize what the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier blocks and allows. Contains `environment`, `allow`, and `soft_deny` arrays of prose rules. See [Configure the auto mode classifier](</docs/en/permissions#configure-the-auto-mode-classifier>). Not read from shared project settings| `{"environment": ["Trusted repo: github.example.com/acme"]}`
+`disableAutoMode`| Set to `"disable"` to prevent [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) from being activated. Removes `auto` from the `Shift+Tab` cycle and rejects `--permission-mode auto` at startup. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `"disable"`
 `hooks`| Configure custom commands to run at lifecycle events. See [hooks documentation](</docs/en/hooks>) for format| See [hooks](</docs/en/hooks>)
 `disableAllHooks`| Disable all [hooks](</docs/en/hooks>) and any custom [status line](</docs/en/statusline>)| `true`
 `allowManagedHooksOnly`| (Managed settings only) Prevent loading of user, project, and plugin hooks. Only allows managed hooks and SDK hooks. See Hook configuration| `true`
@@ -260,8 +262,8 @@ Keys| Description| Example
 `ask`| Array of permission rules to ask for confirmation upon tool use. See Permission rule syntax below| `[ "Bash(git push *)" ]`
 `deny`| Array of permission rules to deny tool use. Use this to exclude sensitive files from Claude Code access. See Permission rule syntax and [Bash permission limitations](</docs/en/permissions#tool-specific-permission-rules>)| `[ "WebFetch", "Bash(curl *)", "Read(./.env)", "Read(./secrets/**)" ]`
 `additionalDirectories`| Additional [working directories](</docs/en/permissions#working-directories>) that Claude has access to| `[ "../docs/" ]`
-`defaultMode`| Default [permission mode](</docs/en/permissions#permission-modes>) when opening Claude Code| `"acceptEdits"`
-`disableBypassPermissionsMode`| Set to `"disable"` to prevent `bypassPermissions` mode from being activated. This disables the `--dangerously-skip-permissions` command-line flag. See [managed settings](</docs/en/permissions#managed-only-settings>)| `"disable"`
+`defaultMode`| Default [permission mode](</docs/en/permission-modes>) when opening Claude Code| `"acceptEdits"`
+`disableBypassPermissionsMode`| Set to `"disable"` to prevent `bypassPermissions` mode from being activated. Disables the `--dangerously-skip-permissions` flag. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `"disable"`
 
 ###
 
@@ -521,7 +523,7 @@ Settings apply in order of precedence. From highest to lowest:
   5. **User settings** (`~/.claude/settings.json`)
      * Personal global settings
 
-This hierarchy ensures that organizational policies are always enforced while still allowing teams and individuals to customize their experience. For example, if your user settings allow `Bash(npm run *)` but a project’s shared settings deny it, the project setting takes precedence and the command is blocked.
+This hierarchy ensures that organizational policies are always enforced while still allowing teams and individuals to customize their experience. The same precedence applies whether you run Claude Code from the CLI, the [VS Code extension](</docs/en/vs-code>), or a [JetBrains IDE](</docs/en/jetbrains>). For example, if your user settings allow `Bash(npm run *)` but a project’s shared settings deny it, the project setting takes precedence and the command is blocked.
 
 **Array settings merge across scopes.** When the same array-valued setting (such as `sandbox.filesystem.allowWrite` or `permissions.allow`) appears in multiple scopes, the arrays are **concatenated and deduplicated** , not replaced. This means lower-priority scopes can add entries without overriding those set by higher-priority scopes, and vice versa. For example, if managed settings set `allowWrite` to `["/opt/company-tools"]` and a user adds `["~/.kube"]`, both paths are included in the final configuration.
 

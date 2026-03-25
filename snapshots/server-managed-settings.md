@@ -45,7 +45,7 @@ In [Claude.ai](<https://claude.ai>), navigate to **Admin Settings > Claude Code 
 
 Define your settings
 
-Add your configuration as JSON. All [settings available in `settings.json`](</docs/en/settings#available-settings>) are supported, including [hooks](</docs/en/hooks>), [environment variables](</docs/en/env-vars>), and [managed-only settings](</docs/en/permissions#managed-only-settings>) like `disableBypassPermissionsMode`.This example enforces a permission deny list and prevents users from bypassing permissions:
+Add your configuration as JSON. All [settings available in `settings.json`](</docs/en/settings#available-settings>) are supported, including [hooks](</docs/en/hooks>), [environment variables](</docs/en/env-vars>), and [managed-only settings](</docs/en/permissions#managed-only-settings>) like `allowManagedPermissionRulesOnly`.This example enforces a permission deny list and prevents users from bypassing permissions:
 
 Report incorrect code
 
@@ -86,7 +86,25 @@ Ask AI
       }
     }
 
-Because hooks execute shell commands, users see a security approval dialog before they’re applied.
+To configure the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier so it knows which repos, buckets, and domains your organization trusts:
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+    {
+      "autoMode": {
+        "environment": [
+          "Source control: github.example.com/acme-corp and all repos under it",
+          "Trusted cloud buckets: s3://acme-build-artifacts, gs://acme-ml-datasets",
+          "Trusted internal domains: *.corp.example.com"
+        ]
+      }
+    }
+
+Because hooks execute shell commands, users see a security approval dialog before they’re applied. See [Configure the auto mode classifier](</docs/en/permissions#configure-the-auto-mode-classifier>) for how the `autoMode` entries affect what the classifier blocks and important warnings about the `allow` and `soft_deny` fields.
 
 3
 

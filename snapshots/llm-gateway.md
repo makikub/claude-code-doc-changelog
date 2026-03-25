@@ -45,6 +45,12 @@ By default, Claude Code will use standard model names for the selected API forma
 
 LiteLLM configuration
 
+LiteLLM PyPI versions 1.82.7 and 1.82.8 were compromised with credential-stealing malware. Do not install these versions. If you have already installed them:
+
+  * Remove the package
+  * Rotate all credentials on affected systems
+  * Follow the remediation steps in [BerriAI/litellm#24518](<https://github.com/BerriAI/litellm/issues/24518>)
+
 LiteLLM is a third-party proxy service. Anthropic doesn’t endorse, maintain, or audit LiteLLM’s security or functionality. This guide is provided for informational purposes and may become outdated. Use at your own discretion.
 
 ###
