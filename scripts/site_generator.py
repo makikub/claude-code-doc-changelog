@@ -471,15 +471,8 @@ footer {
     -webkit-overflow-scrolling: touch;
   }
 
-  .d2h-diff-table {
-    width: 100%;
-    table-layout: auto;
-  }
-
   .d2h-code-line-ctn {
-    white-space: pre-wrap;
-    word-break: break-all;
-    overflow-wrap: break-word;
+    white-space: pre;
   }
 
   .d2h-ins {
