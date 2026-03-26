@@ -10,13 +10,15 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1><a href="{{ root_prefix }}index.html">Claude Code Docs Changelog</a></h1>
-      <p>Daily automated tracker for <a href="https://code.claude.com/docs/en/overview">Claude Code documentation</a> changes.</p>
-      <nav>
-        <a href="{{ root_prefix }}index.html">Timeline</a>
-        <a href="https://github.com/masakikubota/claude-code-doc-log">GitHub</a>
-      </nav>
+    <header class="site-header">
+      <div class="header-top">
+        <h1><a href="{{ root_prefix }}index.html">Claude Code Docs Changelog</a></h1>
+        <nav>
+          <a href="{{ root_prefix }}index.html">Timeline</a>
+          <a href="https://github.com/masakikubota/claude-code-doc-log">GitHub</a>
+        </nav>
+      </div>
+      <p class="site-description">Daily automated tracker for <a href="https://code.claude.com/docs/en/overview">Claude Code documentation</a> changes.</p>
     </header>
 
     <main>
@@ -27,6 +29,8 @@
       <p>Automatically updated daily. Data sourced from <a href="https://code.claude.com/docs/en/overview">code.claude.com</a>.</p>
     </footer>
   </div>
+
+  <button id="back-to-top" aria-label="Back to top" title="Back to top">&#8593;</button>
 
   <script src="https://cdn.jsdelivr.net/npm/diff2html@3.4.48/bundles/js/diff2html-ui.min.js"></script>
   <script>
@@ -43,6 +47,31 @@
         var diff2htmlUi = new Diff2HtmlUI(el, diffString, configuration);
         diff2htmlUi.draw();
       });
+
+      /* Prevent summary toggle when clicking links inside summary */
+      document.querySelectorAll('summary a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+      });
+
+      /* Back to Top button */
+      var backToTop = document.getElementById('back-to-top');
+      if (backToTop) {
+        var scrollTicking = false;
+        window.addEventListener('scroll', function() {
+          if (!scrollTicking) {
+            requestAnimationFrame(function() {
+              backToTop.classList.toggle('visible', window.scrollY > 300);
+              scrollTicking = false;
+            });
+            scrollTicking = true;
+          }
+        });
+        backToTop.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
 
       /* Mobile: detect horizontal overflow and show scroll shadow */
       if (window.innerWidth <= 768) {

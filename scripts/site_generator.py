@@ -185,6 +185,10 @@ def _get_css() -> str:
   }
 }
 
+html {
+  scroll-padding-top: 5rem;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
@@ -200,37 +204,47 @@ body {
   padding: 2rem 1rem;
 }
 
-header {
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
-  padding-bottom: 1rem;
-  margin-bottom: 2rem;
+  margin: 0 -1rem;
+  padding: 1rem 1rem 0.75rem;
 }
 
-header h1 {
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-top h1 {
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-header h1 a {
+.header-top h1 a {
   color: var(--text);
   text-decoration: none;
 }
 
-header p {
+.site-description {
   color: var(--text-secondary);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
 
 nav {
-  margin-top: 0.5rem;
   font-size: 0.875rem;
+  display: flex;
+  gap: 1rem;
 }
 
 nav a {
   color: var(--accent);
   text-decoration: none;
-  margin-right: 1rem;
 }
 
 nav a:hover { text-decoration: underline; }
@@ -244,28 +258,59 @@ h2 {
 
 a { color: var(--accent); }
 
-.date-group {
-  margin-bottom: 2rem;
+details.date-group {
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
-.date-header {
+details.date-group[open] {
+  margin-bottom: 1.5rem;
+}
+
+summary.date-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  background: var(--bg-secondary);
+  user-select: none;
 }
 
-.date-header h3 {
+summary.date-header::-webkit-details-marker {
+  display: none;
+}
+
+summary.date-header::before {
+  content: '\25B6';
+  font-size: 0.6rem;
+  transition: transform 0.2s ease;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+details.date-group[open] > summary.date-header::before {
+  transform: rotate(90deg);
+}
+
+summary.date-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.date-header .count {
+summary.date-header .count {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  background: var(--bg-secondary);
+  background: var(--bg);
   padding: 0.125rem 0.5rem;
   border-radius: 1rem;
+}
+
+.date-entries {
+  padding: 0 1rem;
 }
 
 .badge {
@@ -310,14 +355,14 @@ a { color: var(--accent); }
   margin-top: 0.75rem;
 }
 
-details summary {
+.diff-container details summary {
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--accent);
   margin-bottom: 0.5rem;
 }
 
-details summary:hover { text-decoration: underline; }
+.diff-container details summary:hover { text-decoration: underline; }
 
 /* Override diff2html for consistency */
 .d2h-wrapper { font-size: 0.8rem; }
@@ -436,14 +481,75 @@ details summary:hover { text-decoration: underline; }
 
 footer {
   margin-top: 3rem;
-  padding-top: 1rem;
+  padding: 1.5rem 0;
   border-top: 1px solid var(--border);
   font-size: 0.8rem;
   color: var(--text-secondary);
+  text-align: center;
+}
+
+/* --- Back to Top Button --- */
+#back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#back-to-top:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  #back-to-top {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* ===== Mobile diff visibility fixes ===== */
 @media (max-width: 768px) {
+  .site-header {
+    padding: 0.5rem 1rem;
+  }
+
+  .site-description {
+    display: none;
+  }
+
+  .header-top h1 {
+    font-size: 1.1rem;
+  }
+
+  #back-to-top {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+
   .d2h-code-linenumber {
     display: none !important;
   }
