@@ -5,28 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Claude Code Docs Changelog{% endblock %}</title>
   <meta name="description" content="Daily changelog tracking changes to the Claude Code documentation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html@3.4.48/bundles/css/diff2html.min.css">
   <link rel="stylesheet" href="{{ root_prefix }}assets/style.css">
 </head>
 <body>
-  <div class="container">
-    <header class="site-header">
+  <header class="site-header">
+    <div class="header-inner">
       <div class="header-top">
-        <h1><a href="{{ root_prefix }}index.html">Claude Code Docs Changelog</a></h1>
-        <nav>
-          <a href="{{ root_prefix }}index.html">Timeline</a>
-          <a href="https://github.com/masakikubota/claude-code-doc-log">GitHub</a>
+        <a href="{{ root_prefix }}index.html" class="logo">
+          <span class="logo-mark">&Delta;</span>
+          <span class="logo-text">Docs Changelog</span>
+        </a>
+        <nav class="header-nav">
+          <a href="{{ root_prefix }}index.html" class="{% block nav_timeline %}{% endblock %}">Timeline</a>
+          <a href="{{ root_prefix }}pages/index.html" class="{% block nav_pages %}{% endblock %}">Pages</a>
+          <a href="https://github.com/masakikubota/claude-code-doc-log" class="nav-external">GitHub</a>
         </nav>
       </div>
-      <p class="site-description">Daily automated tracker for <a href="https://code.claude.com/docs/en/overview">Claude Code documentation</a> changes.</p>
-    </header>
+      <p class="site-tagline">Tracking daily changes to <a href="https://code.claude.com/docs/en/overview">Claude Code documentation</a></p>
+    </div>
+  </header>
 
+  <div class="container">
     <main>
       {% block content %}{% endblock %}
     </main>
 
     <footer>
-      <p>Automatically updated daily. Data sourced from <a href="https://code.claude.com/docs/en/overview">code.claude.com</a>.</p>
+      <p>Updated daily via GitHub Actions. Source: <a href="https://code.claude.com/docs/en/overview">code.claude.com</a></p>
     </footer>
   </div>
 
@@ -75,7 +84,7 @@
 
       /* Mobile: detect horizontal overflow and show scroll shadow */
       if (window.innerWidth <= 768) {
-        var SCROLL_TOLERANCE = 2; /* sub-pixel rounding tolerance */
+        var SCROLL_TOLERANCE = 2;
 
         var checkOverflows = function(root) {
           root.querySelectorAll('.d2h-code-wrapper').forEach(function(w) {

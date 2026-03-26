@@ -1,23 +1,35 @@
 {% extends "base.html" %}
 {% set root_prefix = "../" %}
 
-{% block title %}Changes on {{ date }} - Claude Code Docs Changelog{% endblock %}
+{% block title %}Changes on {{ date | format_date }} - Claude Code Docs Changelog{% endblock %}
+{% block nav_timeline %}is-active{% endblock %}
 
 {% block content %}
-<h2>Changes on {{ date }}</h2>
+<div class="page-header">
+  <div class="page-breadcrumb"><a href="../index.html">Timeline</a> / {{ date | format_date }}</div>
+  <h2>Changes on <time datetime="{{ date }}">{{ date | format_date }}</time></h2>
+  <p class="page-subtitle">{{ entries | length }} change{{ "s" if entries | length != 1 else "" }} detected</p>
+</div>
 
+<div class="daily-entries">
 {% for entry in entries %}
-<div class="entry">
+<div class="entry type-{{ entry.change_type }}">
   <div class="entry-header">
     <span class="badge badge-{{ entry.change_type }}">{{ entry.change_type }}</span>
     <a class="entry-title" href="../pages/{{ entry.slug }}.html">{{ entry.title }}</a>
-    <a href="https://code.claude.com/docs/en/{{ entry.slug }}" style="font-size:0.8rem; margin-left:auto;">View current</a>
+    <a class="entry-link" href="https://code.claude.com/docs/en/{{ entry.slug }}">View current &rarr;</a>
   </div>
   <div class="entry-meta">
     {% if entry.summary %}
-      +{{ entry.summary.lines_added }} / -{{ entry.summary.lines_removed }} lines
+      <span>+{{ entry.summary.lines_added }} / -{{ entry.summary.lines_removed }}</span>
+      {% if entry.summary.lines_added > 0 or entry.summary.lines_removed > 0 %}
+      <span class="magnitude">
+        <span class="mag-added" style="--n: {{ entry.summary.lines_added }}"></span>
+        <span class="mag-removed" style="--n: {{ entry.summary.lines_removed }}"></span>
+      </span>
+      {% endif %}
       {% if entry.summary.sections_changed %}
-        &middot; Sections: {{ entry.summary.sections_changed | join(", ") }}
+        <span class="sections-info">{{ entry.summary.sections_changed | join(", ") }}</span>
       {% endif %}
     {% endif %}
   </div>
@@ -37,16 +49,17 @@
   {% endif %}
 </div>
 {% endfor %}
+</div>
 
 <div class="pagination">
   <span>
     {% if prev_date %}
-      <a href="{{ prev_date }}.html">&larr; {{ prev_date }}</a>
+      <a href="{{ prev_date }}.html">&larr; {{ prev_date | format_date }}</a>
     {% endif %}
   </span>
   <span>
     {% if next_date %}
-      <a href="{{ next_date }}.html">{{ next_date }} &rarr;</a>
+      <a href="{{ next_date }}.html">{{ next_date | format_date }} &rarr;</a>
     {% endif %}
   </span>
 </div>

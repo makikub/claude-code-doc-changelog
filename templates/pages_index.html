@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% set root_prefix = "../" %}
+
+{% block title %}Tracked Pages - Claude Code Docs Changelog{% endblock %}
+{% block nav_pages %}is-active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2>Tracked Pages</h2>
+  <p class="page-subtitle">{{ pages | length }} documentation pages with recorded changes</p>
+</div>
+
+{% if pages %}
+<div class="pages-grid">
+  {% for page in pages %}
+  <a href="{{ page.slug }}.html" class="page-card">
+    <div class="page-card-title">{{ page.title }}</div>
+    <div class="page-card-meta">
+      <span>{{ page.change_count }} change{{ "s" if page.change_count != 1 else "" }}</span>
+      <span>{{ page.latest_date | format_date }}</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>No pages tracked yet.</p>
+</div>
+{% endif %}
+{% endblock %}
