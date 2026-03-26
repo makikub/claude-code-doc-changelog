@@ -43,6 +43,42 @@
         var diff2htmlUi = new Diff2HtmlUI(el, diffString, configuration);
         diff2htmlUi.draw();
       });
+
+      /* Mobile: detect horizontal overflow and show scroll shadow */
+      if (window.innerWidth <= 768) {
+        var SCROLL_TOLERANCE = 2; /* sub-pixel rounding tolerance */
+
+        var checkOverflows = function(root) {
+          root.querySelectorAll('.d2h-code-wrapper').forEach(function(w) {
+            var fw = w.closest('.d2h-file-wrapper');
+            if (!fw) return;
+            var over = w.scrollWidth > w.clientWidth;
+            var atEnd = w.scrollLeft + w.clientWidth >= w.scrollWidth - SCROLL_TOLERANCE;
+            fw.classList.toggle('has-overflow', over && !atEnd);
+          });
+        };
+        checkOverflows(document);
+
+        document.querySelectorAll('details').forEach(function(d) {
+          d.addEventListener('toggle', function() {
+            if (d.open) setTimeout(function() { checkOverflows(d); }, 50);
+          });
+        });
+
+        document.querySelectorAll('.d2h-code-wrapper').forEach(function(w) {
+          var ticking = false;
+          w.addEventListener('scroll', function() {
+            if (!ticking) {
+              requestAnimationFrame(function() {
+                var fw = w.closest('.d2h-file-wrapper');
+                if (fw) checkOverflows(fw);
+                ticking = false;
+              });
+              ticking = true;
+            }
+          });
+        });
+      }
     });
   </script>
 </body>

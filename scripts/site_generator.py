@@ -464,6 +464,19 @@ footer {
     border-left: none;
     border-right: none;
     border-radius: 0;
+    position: relative;
+  }
+
+  .d2h-file-wrapper.has-overflow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2rem;
+    background: linear-gradient(to right, transparent, var(--bg));
+    pointer-events: none;
+    z-index: 1;
   }
 
   .d2h-code-wrapper {
@@ -471,8 +484,30 @@ footer {
     -webkit-overflow-scrolling: touch;
   }
 
+  .d2h-code-wrapper::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .d2h-code-wrapper::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+
+  .d2h-code-wrapper::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .d2h-code-line {
+    display: block;
+    white-space: normal;
+    padding: 0 0.5em;
+  }
+
   .d2h-code-line-ctn {
-    white-space: pre;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: normal;
+    display: inline;
   }
 
   .d2h-ins {
@@ -511,6 +546,8 @@ footer {
 
   .diff-container {
     margin-top: 0.5rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
   }
 }
 
