@@ -6,28 +6,30 @@
 {% block content %}
 {% if date_summaries %}
   {% for ds in date_summaries %}
-  <div class="date-group">
-    <div class="date-header">
+  <details class="date-group" {{ "open" if loop.first else "" }}>
+    <summary class="date-header">
       <h3><a href="changes/{{ ds.date }}.html">{{ ds.date }}</a></h3>
       <span class="count">{{ ds.total }} change{{ "s" if ds.total != 1 else "" }}</span>
-    </div>
-    {% for entry in ds.entries %}
-    <div class="entry">
-      <div class="entry-header">
-        <span class="badge badge-{{ entry.change_type }}">{{ entry.change_type }}</span>
-        <a class="entry-title" href="pages/{{ entry.slug }}.html">{{ entry.title }}</a>
-      </div>
-      <div class="entry-meta">
-        {% if entry.summary %}
-          +{{ entry.summary.lines_added }} / -{{ entry.summary.lines_removed }} lines
-          {% if entry.summary.sections_changed %}
-            &middot; Sections: {{ entry.summary.sections_changed | join(", ") }}
+    </summary>
+    <div class="date-entries">
+      {% for entry in ds.entries %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="badge badge-{{ entry.change_type }}">{{ entry.change_type }}</span>
+          <a class="entry-title" href="pages/{{ entry.slug }}.html">{{ entry.title }}</a>
+        </div>
+        <div class="entry-meta">
+          {% if entry.summary %}
+            +{{ entry.summary.lines_added }} / -{{ entry.summary.lines_removed }} lines
+            {% if entry.summary.sections_changed %}
+              &middot; Sections: {{ entry.summary.sections_changed | join(", ") }}
+            {% endif %}
           {% endif %}
-        {% endif %}
+        </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
+  </details>
   {% endfor %}
 {% else %}
   <div class="empty-state">
