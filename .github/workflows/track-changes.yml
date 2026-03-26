@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '0 9 * * *'  # Daily at 09:00 UTC
   workflow_dispatch:       # Manual trigger
+  push:
+    branches: [main]
+    paths:
+      - 'templates/**'
+      - 'scripts/site_generator.py'
+      - 'scripts/config.py'
 
 permissions:
   contents: write
@@ -31,11 +37,13 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Fetch and compare documentation
+        if: github.event_name != 'push'
         run: python -m scripts.fetch
         env:
           PYTHONUNBUFFERED: '1'
 
       - name: Check for changes
+        if: github.event_name != 'push'
         id: check
         run: |
           git add snapshots/ changelog/
@@ -46,12 +54,16 @@ jobs:
           fi
 
       - name: Commit changes
-        if: steps.check.outputs.changes == 'true'
+        if: github.event_name != 'push' && steps.check.outputs.changes == 'true'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git commit -m "docs: update snapshots $(date -u +%Y-%m-%d)"
           git push
+
+      - name: Generate site (design changes only)
+        if: github.event_name == 'push'
+        run: python -m scripts.site_generator
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
