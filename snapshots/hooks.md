@@ -29,6 +29,8 @@ Event| When it fires
 `TaskCompleted`| When a task is being marked as completed
 `InstructionsLoaded`| When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session
 `ConfigChange`| When a configuration file changes during a session
+`CwdChanged`| When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv
+`FileChanged`| When a watched file changes on disk. The `matcher` field specifies which filenames to watch
 `WorktreeCreate`| When a worktree is being created via `--worktree` or `isolation: "worktree"`. Replaces default git behavior
 `WorktreeRemove`| When a worktree is being removed, either at session exit or when a subagent finishes
 `PreCompact`| Before context compaction
@@ -196,6 +198,8 @@ Event| What the matcher filters| Example matcher values
 `PreCompact`, `PostCompact`| what triggered compaction| `manual`, `auto`
 `SubagentStop`| agent type| same values as `SubagentStart`
 `ConfigChange`| configuration source| `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills`
+`CwdChanged`| no matcher support| always fires on every directory change
+`FileChanged`| filename (basename of the changed file)| `.envrc`, `.env`, any filename you want to watch
 `StopFailure`| error type| `rate_limit`, `authentication_failed`, `billing_error`, `invalid_request`, `server_error`, `max_output_tokens`, `unknown`
 `InstructionsLoaded`| load reason| `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`
 `Elicitation`| MCP server name| your configured MCP server names
@@ -226,7 +230,7 @@ Ask AI
       }
     }
 
-`UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCompleted`, `WorktreeCreate`, and `WorktreeRemove` don’t support matchers and always fire on every occurrence. If you add a `matcher` field to these events, it is silently ignored.
+`UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, and `CwdChanged` don’t support matchers and always fire on every occurrence. If you add a `matcher` field to these events, it is silently ignored.
 
 ####
 
@@ -318,6 +322,7 @@ Field| Required| Description
 ---|---|---
 `command`| yes| Shell command to execute
 `async`| no| If `true`, runs in the background without blocking. See Run hooks in the background
+`shell`| no| Shell to use for this hook. Accepts `"bash"` (default) or `"powershell"`. Setting `"powershell"` runs the command via PowerShell on Windows. Does not require `CLAUDE_CODE_USE_POWERSHELL_TOOL` since hooks spawn PowerShell directly
 
 ####
 
@@ -600,6 +605,8 @@ Hook event| Can block?| What happens on exit 2
 `SubagentStart`| No| Shows stderr to user only
 `SessionStart`| No| Shows stderr to user only
 `SessionEnd`| No| Shows stderr to user only
+`CwdChanged`| No| Shows stderr to user only
+`FileChanged`| No| Shows stderr to user only
 `PreCompact`| No| Shows stderr to user only
 `PostCompact`| No| Shows stderr to user only
 `Elicitation`| Yes| Denies the elicitation
@@ -671,10 +678,10 @@ UserPromptSubmit, PostToolUse, PostToolUseFailure, Stop, SubagentStop, ConfigCha
 TeammateIdle, TaskCompleted| Exit code or `continue: false`| Exit code 2 blocks the action with stderr feedback. JSON `{"continue": false, "stopReason": "..."}` also stops the teammate entirely, matching `Stop` hook behavior
 PreToolUse| `hookSpecificOutput`| `permissionDecision` (allow/deny/ask), `permissionDecisionReason`
 PermissionRequest| `hookSpecificOutput`| `decision.behavior` (allow/deny)
-WorktreeCreate| stdout path| Hook prints absolute path to created worktree. Non-zero exit fails creation
+WorktreeCreate| path return| Command hook prints path on stdout; HTTP hook returns `hookSpecificOutput.worktreePath`. Hook failure or missing path fails creation
 Elicitation| `hookSpecificOutput`| `action` (accept/decline/cancel), `content` (form field values for accept)
 ElicitationResult| `hookSpecificOutput`| `action` (accept/decline/cancel), `content` (form field values override)
-WorktreeRemove, Notification, SessionEnd, PreCompact, PostCompact, InstructionsLoaded, StopFailure| None| No decision control. Used for side effects like logging or cleanup
+WorktreeRemove, Notification, SessionEnd, PreCompact, PostCompact, InstructionsLoaded, StopFailure, CwdChanged, FileChanged| None| No decision control. Used for side effects like logging or cleanup
 
 Here are examples of each pattern in action:
 
@@ -855,7 +862,7 @@ Ask AI
 
 Any variables written to this file will be available in all subsequent Bash commands that Claude Code executes during the session.
 
-`CLAUDE_ENV_FILE` is available for SessionStart hooks. Other hook types do not have access to this variable.
+`CLAUDE_ENV_FILE` is available for SessionStart, CwdChanged, and FileChanged hooks. Other hook types do not have access to this variable.
 
 ###
 
@@ -1845,9 +1852,104 @@ Ask AI
 
 ​
 
+CwdChanged
+
+Runs when the working directory changes during a session, for example when Claude executes a `cd` command. Use this to react to directory changes: reload environment variables, activate project-specific toolchains, or run setup scripts automatically. Pairs with FileChanged for tools like [direnv](<https://direnv.net/>) that manage per-directory environment. CwdChanged hooks have access to `CLAUDE_ENV_FILE`. Variables written to that file persist into subsequent Bash commands for the session, just as in SessionStart hooks. Only `type: "command"` hooks are supported. CwdChanged does not support matchers and fires on every directory change.
+
+####
+
+​
+
+CwdChanged input
+
+In addition to the common input fields, CwdChanged hooks receive `old_cwd` and `new_cwd`.
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+    {
+      "session_id": "abc123",
+      "transcript_path": "/Users/.../.claude/projects/.../transcript.jsonl",
+      "cwd": "/Users/my-project/src",
+      "hook_event_name": "CwdChanged",
+      "old_cwd": "/Users/my-project",
+      "new_cwd": "/Users/my-project/src"
+    }
+
+####
+
+​
+
+CwdChanged output
+
+In addition to the JSON output fields available to all hooks, CwdChanged hooks can return `watchPaths` to dynamically set which file paths FileChanged watches:
+
+Field| Description
+---|---
+`watchPaths`| Array of absolute paths. Replaces the current dynamic watch list (paths from your `matcher` configuration are always watched). Returning an empty array clears the dynamic list, which is typical when entering a new directory
+
+CwdChanged hooks have no decision control. They cannot block the directory change.
+
+###
+
+​
+
+FileChanged
+
+Runs when a watched file changes on disk. The `matcher` field in your hook configuration controls which filenames to watch: it is a pipe-separated list of basenames (filenames without directory paths, for example `".envrc|.env"`). The same `matcher` value is also used to filter which hooks run when a file changes, matching against the basename of the changed file. Useful for reloading environment variables when project configuration files are modified. FileChanged hooks have access to `CLAUDE_ENV_FILE`. Variables written to that file persist into subsequent Bash commands for the session, just as in SessionStart hooks. Only `type: "command"` hooks are supported.
+
+####
+
+​
+
+FileChanged input
+
+In addition to the common input fields, FileChanged hooks receive `file_path` and `event`.
+
+Field| Description
+---|---
+`file_path`| Absolute path to the file that changed
+`event`| What happened: `"change"` (file modified), `"add"` (file created), or `"unlink"` (file deleted)
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+    {
+      "session_id": "abc123",
+      "transcript_path": "/Users/.../.claude/projects/.../transcript.jsonl",
+      "cwd": "/Users/my-project",
+      "hook_event_name": "FileChanged",
+      "file_path": "/Users/my-project/.envrc",
+      "event": "change"
+    }
+
+####
+
+​
+
+FileChanged output
+
+In addition to the JSON output fields available to all hooks, FileChanged hooks can return `watchPaths` to dynamically update which file paths are watched:
+
+Field| Description
+---|---
+`watchPaths`| Array of absolute paths. Replaces the current dynamic watch list (paths from your `matcher` configuration are always watched). Use this when your hook script discovers additional files to watch based on the changed file
+
+FileChanged hooks have no decision control. They cannot block the file change from occurring.
+
+###
+
+​
+
 WorktreeCreate
 
-When you run `claude --worktree` or a [subagent uses `isolation: "worktree"`](</docs/en/sub-agents#choose-the-subagent-scope>), Claude Code creates an isolated working copy using `git worktree`. If you configure a WorktreeCreate hook, it replaces the default git behavior, letting you use a different version control system like SVN, Perforce, or Mercurial. The hook must print the absolute path to the created worktree directory on stdout. Claude Code uses this path as the working directory for the isolated session. This example creates an SVN working copy and prints the path for Claude Code to use. Replace the repository URL with your own:
+When you run `claude --worktree` or a [subagent uses `isolation: "worktree"`](</docs/en/sub-agents#choose-the-subagent-scope>), Claude Code creates an isolated working copy using `git worktree`. If you configure a WorktreeCreate hook, it replaces the default git behavior, letting you use a different version control system like SVN, Perforce, or Mercurial. The hook must return the absolute path to the created worktree directory. Claude Code uses this path as the working directory for the isolated session. Command hooks print it on stdout; HTTP hooks return it via `hookSpecificOutput.worktreePath`. This example creates an SVN working copy and prints the path for Claude Code to use. Replace the repository URL with your own:
 
 Report incorrect code
 
@@ -1900,7 +2002,12 @@ Ask AI
 
 WorktreeCreate output
 
-The hook must print the absolute path to the created worktree directory on stdout. If the hook fails or produces no output, worktree creation fails with an error. WorktreeCreate hooks do not use the standard allow/block decision model. Instead, the hook’s success or failure determines the outcome. Only `type: "command"` hooks are supported.
+WorktreeCreate hooks do not use the standard allow/block decision model. Instead, the hook’s success or failure determines the outcome. The hook must return the absolute path to the created worktree directory:
+
+  * **Command hooks** (`type: "command"`): print the path on stdout.
+  * **HTTP hooks** (`type: "http"`): return `{ "hookSpecificOutput": { "hookEventName": "WorktreeCreate", "worktreePath": "/absolute/path" } }` in the response body.
+
+If the hook fails or produces no path, worktree creation fails with an error.
 
 ###
 
@@ -1908,7 +2015,7 @@ The hook must print the absolute path to the created worktree directory on stdou
 
 WorktreeRemove
 
-The cleanup counterpart to WorktreeCreate. This hook fires when a worktree is being removed, either when you exit a `--worktree` session and choose to remove it, or when a subagent with `isolation: "worktree"` finishes. For git-based worktrees, Claude handles cleanup automatically with `git worktree remove`. If you configured a WorktreeCreate hook for a non-git version control system, pair it with a WorktreeRemove hook to handle cleanup. Without one, the worktree directory is left on disk. Claude Code passes the path that WorktreeCreate printed on stdout as `worktree_path` in the hook input. This example reads that path and removes the directory:
+The cleanup counterpart to WorktreeCreate. This hook fires when a worktree is being removed, either when you exit a `--worktree` session and choose to remove it, or when a subagent with `isolation: "worktree"` finishes. For git-based worktrees, Claude handles cleanup automatically with `git worktree remove`. If you configured a WorktreeCreate hook for a non-git version control system, pair it with a WorktreeRemove hook to handle cleanup. Without one, the worktree directory is left on disk. Claude Code passes the path returned by WorktreeCreate as `worktree_path` in the hook input. This example reads that path and removes the directory:
 
 Report incorrect code
 
@@ -1953,7 +2060,7 @@ Ask AI
       "worktree_path": "/Users/.../my-project/.claude/worktrees/feature-auth"
     }
 
-WorktreeRemove hooks have no decision control. They cannot block worktree removal but can perform cleanup tasks like removing version control state or archiving changes. Hook failures are logged in debug mode only. Only `type: "command"` hooks are supported.
+WorktreeRemove hooks have no decision control. They cannot block worktree removal but can perform cleanup tasks like removing version control state or archiving changes. Hook failures are logged in debug mode only.
 
 ###
 
@@ -2249,22 +2356,25 @@ In addition to command and HTTP hooks, Claude Code supports prompt-based hooks (
   * `TaskCompleted`
   * `UserPromptSubmit`
 
-Events that only support `type: "command"` hooks:
+Events that support `command` and `http` hooks but not `prompt` or `agent`:
 
   * `ConfigChange`
+  * `CwdChanged`
   * `Elicitation`
   * `ElicitationResult`
+  * `FileChanged`
   * `InstructionsLoaded`
   * `Notification`
   * `PostCompact`
   * `PreCompact`
   * `SessionEnd`
-  * `SessionStart`
   * `StopFailure`
   * `SubagentStart`
   * `TeammateIdle`
   * `WorktreeCreate`
   * `WorktreeRemove`
+
+`SessionStart` supports only `command` hooks.
 
 ###
 
@@ -2584,6 +2694,37 @@ Keep these practices in mind when writing hooks:
   * **Block path traversal** : check for `..` in file paths
   * **Use absolute paths** : specify full paths for scripts, using `"$CLAUDE_PROJECT_DIR"` for the project root
   * **Skip sensitive files** : avoid `.env`, `.git/`, keys, etc.
+
+##
+
+​
+
+Windows PowerShell tool
+
+On Windows, you can run individual hooks in PowerShell by setting `"shell": "powershell"` on a command hook. Hooks spawn PowerShell directly, so this works regardless of whether `CLAUDE_CODE_USE_POWERSHELL_TOOL` is set. Claude Code auto-detects `pwsh.exe` (PowerShell 7+) with a fallback to `powershell.exe` (5.1).
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+    {
+      "hooks": {
+        "PostToolUse": [
+          {
+            "matcher": "Write",
+            "hooks": [
+              {
+                "type": "command",
+                "shell": "powershell",
+                "command": "Write-Host 'File written'"
+              }
+            ]
+          }
+        ]
+      }
+    }
 
 ##
 

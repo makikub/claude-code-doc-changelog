@@ -116,9 +116,31 @@ For a more structured approach to organizing instructions, see `.claude/rules/`.
 
 ​
 
+AGENTS.md
+
+Claude Code reads `CLAUDE.md`, not `AGENTS.md`. If your repository already uses `AGENTS.md` for other coding agents, create a `CLAUDE.md` that imports it so both tools read the same instructions without duplicating them. You can also add Claude-specific instructions below the import. Claude loads the imported file at session start, then appends the rest:
+
+CLAUDE.md
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+    @AGENTS.md
+
+    ## Claude Code
+
+    Use plan mode for changes under `src/billing/`.
+
+###
+
+​
+
 How CLAUDE.md files load
 
-Claude Code reads CLAUDE.md files by walking up the directory tree from your current working directory, checking each directory along the way. This means if you run Claude Code in `foo/bar/`, it loads instructions from both `foo/bar/CLAUDE.md` and `foo/CLAUDE.md`. Claude also discovers CLAUDE.md files in subdirectories under your current working directory. Instead of loading them at launch, they are included when Claude reads files in those subdirectories. If you work in a large monorepo where other teams’ CLAUDE.md files get picked up, use `claudeMdExcludes` to skip them.
+Claude Code reads CLAUDE.md files by walking up the directory tree from your current working directory, checking each directory along the way. This means if you run Claude Code in `foo/bar/`, it loads instructions from both `foo/bar/CLAUDE.md` and `foo/CLAUDE.md`. Claude also discovers CLAUDE.md files in subdirectories under your current working directory. Instead of loading them at launch, they are included when Claude reads files in those subdirectories. If you work in a large monorepo where other teams’ CLAUDE.md files get picked up, use `claudeMdExcludes` to skip them. Block-level HTML comments (`<!-- maintainer notes -->`) in CLAUDE.md files are stripped before the content is injected into Claude’s context. Use them to leave notes for human maintainers without spending context tokens on them. Comments inside code blocks are preserved. When you open a CLAUDE.md file directly with the Read tool, comments remain visible.
 
 ####
 

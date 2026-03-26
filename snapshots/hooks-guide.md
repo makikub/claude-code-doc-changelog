@@ -67,6 +67,7 @@ Hooks let you run code at key points in Claude Code’s lifecycle: format files 
   * Block edits to protected files
   * Re-inject context after compaction
   * Audit configuration changes
+  * Reload environment when directory or files change
   * Auto-approve specific permission prompts
 
 ###
@@ -328,6 +329,61 @@ The matcher filters by configuration type: `user_settings`, `project_settings`, 
 
 ​
 
+Reload environment when directory or files change
+
+Some projects set different environment variables depending on which directory you are in. Tools like [direnv](<https://direnv.net/>) do this automatically in your shell, but Claude’s Bash tool does not pick up those changes on its own. A `CwdChanged` hook fixes this: it runs each time Claude changes directory, so you can reload the correct variables for the new location. The hook writes the updated values to `CLAUDE_ENV_FILE`, which Claude Code applies before each Bash command. Add this to `~/.claude/settings.json`:
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+    {
+      "hooks": {
+        "CwdChanged": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "direnv export bash >> \"$CLAUDE_ENV_FILE\""
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+To react to specific files instead of every directory change, use `FileChanged` with a `matcher` listing the filenames to watch (pipe-separated). The `matcher` both configures which files to watch and filters which hooks run. This example watches `.envrc` and `.env` for changes in the current directory:
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+    {
+      "hooks": {
+        "FileChanged": [
+          {
+            "matcher": ".envrc|.env",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "direnv export bash >> \"$CLAUDE_ENV_FILE\""
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+See the [CwdChanged](</docs/en/hooks#cwdchanged>) and [FileChanged](</docs/en/hooks#filechanged>) reference entries for input schemas, `watchPaths` output, and `CLAUDE_ENV_FILE` details.
+
+###
+
+​
+
 Auto-approve specific permission prompts
 
 Skip the approval dialog for tool calls you always allow. This example auto-approves `ExitPlanMode`, the tool Claude calls when it finishes presenting a plan and asks to proceed, so you aren’t prompted every time a plan is ready. Unlike the exit-code examples above, auto-approval requires your hook to write a JSON decision to stdout. A `PermissionRequest` hook fires when Claude Code is about to show a permission dialog, and returning `"behavior": "allow"` answers it on your behalf. The matcher scopes the hook to `ExitPlanMode` only, so no other prompts are affected. Add this to `~/.claude/settings.json`:
@@ -401,6 +457,8 @@ Event| When it fires
 `TaskCompleted`| When a task is being marked as completed
 `InstructionsLoaded`| When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session
 `ConfigChange`| When a configuration file changes during a session
+`CwdChanged`| When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv
+`FileChanged`| When a watched file changes on disk. The `matcher` field specifies which filenames to watch
 `WorktreeCreate`| When a worktree is being created via `--worktree` or `isolation: "worktree"`. Replaces default git behavior
 `WorktreeRemove`| When a worktree is being removed, either at session exit or when a subagent finishes
 `PreCompact`| Before context compaction
@@ -557,7 +615,8 @@ Event| What the matcher filters| Example matcher values
 `InstructionsLoaded`| load reason| `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`
 `Elicitation`| MCP server name| your configured MCP server names
 `ElicitationResult`| MCP server name| same values as `Elicitation`
-`UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`| no matcher support| always fires on every occurrence
+`FileChanged`| filename (basename of the changed file)| `.envrc`, `.env`, any filename you want to watch
+`UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`| no matcher support| always fires on every occurrence
 
 A few more examples showing matchers on different event types:
 

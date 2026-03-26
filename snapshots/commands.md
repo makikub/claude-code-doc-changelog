@@ -1,4 +1,4 @@
-Type `/` in Claude Code to see all available commands, or type `/` followed by any letters to filter. Not all commands are visible to every user. Some depend on your platform, plan, or environment. For example, `/desktop` only appears on macOS and Windows, `/upgrade` and `/privacy-settings` are only available on Pro and Max plans, and `/terminal-setup` is hidden when your terminal natively supports its keybindings. Claude Code also includes [bundled skills](</docs/en/skills#bundled-skills>) like `/simplify`, `/batch`, and `/debug` that appear alongside built-in commands when you type `/`. To create your own commands, see [skills](</docs/en/skills>). In the table below, `<arg>` indicates a required argument and `[arg]` indicates an optional one.
+Type `/` in Claude Code to see all available commands, or type `/` followed by any letters to filter. Not all commands are visible to every user. Some depend on your platform, plan, or environment. For example, `/desktop` only appears on macOS and Windows, `/upgrade` and `/privacy-settings` are only available on Pro and Max plans, and `/terminal-setup` is hidden when your terminal natively supports its keybindings. Claude Code also includes [bundled skills](</docs/en/skills#bundled-skills>) like `/simplify`, `/batch`, `/debug`, and `/loop` that appear alongside built-in commands when you type `/`. To create your own commands, see [skills](</docs/en/skills>). In the table below, `<arg>` indicates a required argument and `[arg]` indicates an optional one.
 
 Command| Purpose
 ---|---
@@ -11,7 +11,7 @@ Command| Purpose
 `/compact [instructions]`| Compact conversation with optional focus instructions
 `/config`| Open the [Settings](</docs/en/settings>) interface to adjust theme, model, [output style](</docs/en/output-styles>), and other preferences. Alias: `/settings`
 `/context`| Visualize current context usage as a colored grid. Shows optimization suggestions for context-heavy tools, memory bloat, and capacity warnings
-`/copy [N]`| Copy the last assistant response to clipboard. Pass a number `N` to copy the Nth-latest response: `/copy 2` copies the second-to-last. When code blocks are present, shows an interactive picker to select individual blocks or the full response
+`/copy [N]`| Copy the last assistant response to clipboard. Pass a number `N` to copy the Nth-latest response: `/copy 2` copies the second-to-last. When code blocks are present, shows an interactive picker to select individual blocks or the full response. Press `w` in the picker to write the selection to a file instead of the clipboard, which is useful over SSH
 `/cost`| Show token usage statistics. See [cost tracking guide](</docs/en/costs#using-the-cost-command>) for subscription-specific details
 `/desktop`| Continue the current session in the Claude Code Desktop app. macOS and Windows only. Alias: `/app`
 `/diff`| Open an interactive diff viewer showing uncommitted changes and per-turn diffs. Use left/right arrows to switch between the current git diff and individual Claude turns, and up/down to browse files
@@ -39,7 +39,7 @@ Command| Purpose
 `/model [model]`| Select or change the AI model. For models that support it, use left/right arrows to [adjust effort level](</docs/en/model-config#adjust-effort-level>). The change takes effect immediately without waiting for the current response to finish
 `/passes`| Share a free week of Claude Code with friends. Only visible if your account is eligible
 `/permissions`| View or update [permissions](</docs/en/permissions#manage-permissions>). Alias: `/allowed-tools`
-`/plan`| Enter plan mode directly from the prompt
+`/plan [description]`| Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug`
 `/plugin`| Manage Claude Code [plugins](</docs/en/plugins>)
 `/pr-comments [PR]`| Fetch and display comments from a GitHub pull request. Automatically detects the PR for the current branch, or pass a PR URL or number. Requires the `gh` CLI
 `/privacy-settings`| View and update your privacy settings. Only available for Pro and Max plan subscribers
@@ -49,14 +49,14 @@ Command| Purpose
 `/remote-env`| Configure the default remote environment for [web sessions started with `--remote`](</docs/en/claude-code-on-the-web#environment-configuration>)
 `/rename [name]`| Rename the current session and show the name on the prompt bar. Without a name, auto-generates one from conversation history
 `/resume [session]`| Resume a conversation by ID or name, or open the session picker. Alias: `/continue`
-`/review`| Deprecated. Install the [`code-review` plugin](<https://github.com/anthropics/claude-code-marketplace/blob/main/code-review/README.md>) instead: `claude plugin install code-review@claude-code-marketplace`
+`/review`| Deprecated. Install the [`code-review` plugin](<https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review>) instead: `claude plugin install code-review@claude-plugins-official`
 `/rewind`| Rewind the conversation and/or code to a previous point, or summarize from a selected message. See [checkpointing](</docs/en/checkpointing>). Alias: `/checkpoint`
 `/sandbox`| Toggle [sandbox mode](</docs/en/sandboxing>). Available on supported platforms only
 `/schedule [description]`| Create, update, list, or run [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>). Claude walks you through the setup conversationally
 `/security-review`| Analyze pending changes on the current branch for security vulnerabilities. Reviews the git diff and identifies risks like injection, auth issues, and data exposure
 `/skills`| List available [skills](</docs/en/skills>)
 `/stats`| Visualize daily usage, session history, streaks, and model preferences
-`/status`| Open the Settings interface (Status tab) showing version, model, account, and connectivity
+`/status`| Open the Settings interface (Status tab) showing version, model, account, and connectivity. Works while Claude is responding, without waiting for the current response to finish
 `/statusline`| Configure Claude Code’s [status line](</docs/en/statusline>). Describe what you want, or run without arguments to auto-configure from your shell prompt
 `/stickers`| Order Claude Code stickers
 `/tasks`| List and manage background tasks

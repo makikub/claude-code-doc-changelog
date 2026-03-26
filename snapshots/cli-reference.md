@@ -22,6 +22,7 @@ Command| Description| Example
 `claude agents`| List all configured [subagents](</docs/en/sub-agents>), grouped by source| `claude agents`
 `claude auto-mode defaults`| Print the built-in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier rules as JSON. Use `claude auto-mode config` to see your effective config with settings applied| `claude auto-mode defaults > rules.json`
 `claude mcp`| Configure Model Context Protocol (MCP) servers| See the [Claude Code MCP documentation](</docs/en/mcp>).
+`claude plugin`| Manage Claude Code [plugins](</docs/en/plugins>). Alias: `claude plugins`. See [plugin reference](</docs/en/plugins-reference#cli-commands-reference>) for subcommands| `claude plugin install code-review@claude-plugins-official`
 `claude remote-control`| Start a [Remote Control](</docs/en/remote-control>) server to control Claude Code from Claude.ai or the Claude app. Runs in server mode (no local interactive session). See [Server mode flags](</docs/en/remote-control#server-mode>)| `claude remote-control --name "My Project"`
 
 ##

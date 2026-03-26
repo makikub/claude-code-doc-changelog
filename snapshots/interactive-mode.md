@@ -21,13 +21,13 @@ General controls
 Shortcut| Description| Context
 ---|---|---
 `Ctrl+C`| Cancel current input or generation| Standard interrupt
-`Ctrl+F`| Kill all background agents. Press twice within 3 seconds to confirm| Background agent control
+`Ctrl+X Ctrl+K`| Kill all background agents. Press twice within 3 seconds to confirm| Background agent control
 `Ctrl+D`| Exit Claude Code session| EOF signal
-`Ctrl+G`| Open in default text editor| Edit your prompt or custom response in your default text editor
+`Ctrl+G` or `Ctrl+X Ctrl+E`| Open in default text editor| Edit your prompt or custom response in your default text editor. `Ctrl+X Ctrl+E` is the readline-native binding
 `Ctrl+L`| Clear terminal screen| Keeps conversation history
 `Ctrl+O`| Toggle verbose output| Shows detailed tool usage and execution. Also expands MCP read and search calls, which collapse to a single line like “Queried slack” by default
 `Ctrl+R`| Reverse search command history| Search through previous commands interactively
-`Ctrl+V` or `Cmd+V` (iTerm2) or `Alt+V` (Windows)| Paste image from clipboard| Pastes an image or path to an image file
+`Ctrl+V` or `Cmd+V` (iTerm2) or `Alt+V` (Windows)| Paste image from clipboard| Inserts an `[Image #N]` chip at the cursor so you can reference it positionally in your prompt
 `Ctrl+B`| Background running tasks| Backgrounds bash commands and agents. Tmux users press twice
 `Ctrl+T`| Toggle task list| Show or hide the task list in the terminal status area
 `Left/Right arrows`| Cycle through dialog tabs| Navigate between tabs in permission dialogs and menus
@@ -36,6 +36,7 @@ Shortcut| Description| Context
 `Shift+Tab` or `Alt+M` (some configurations)| Cycle permission modes| Cycle through `default`, `acceptEdits`, `plan`, and any modes you have enabled, such as `auto` or `bypassPermissions`. See [permission modes](</docs/en/permission-modes>).
 `Option+P` (macOS) or `Alt+P` (Windows/Linux)| Switch model| Switch models without clearing your prompt
 `Option+T` (macOS) or `Alt+T` (Windows/Linux)| Toggle extended thinking| Enable or disable extended thinking mode. Run `/terminal-setup` first to enable this shortcut
+`Option+O` (macOS) or `Alt+O` (Windows/Linux)| Toggle fast mode| Enable or disable [fast mode](</docs/en/fast-mode>)
 
 ###
 
@@ -91,6 +92,19 @@ Shortcut| Description| Notes
 `/` at start| Command or skill| See built-in commands and [skills](</docs/en/skills>)
 `!` at start| Bash mode| Run commands directly and add execution output to the session
 `@`| File path mention| Trigger file path autocomplete
+
+###
+
+​
+
+Transcript viewer
+
+When the transcript viewer is open (toggled with `Ctrl+O`), these shortcuts are available. `Ctrl+E` can be rebound via [`transcript:toggleShowAll`](</docs/en/keybindings>).
+
+Shortcut| Description
+---|---
+`Ctrl+E`| Toggle show all content
+`q`, `Ctrl+C`, `Esc`| Exit transcript view. `Ctrl+C` and `Esc` can be rebound via [`transcript:exit`](</docs/en/keybindings>); `q` is not rebindable
 
 ###
 
@@ -256,7 +270,7 @@ When Claude Code runs a command in the background, it runs the command asynchron
 
 **Key features:**
 
-  * Output is buffered and Claude can retrieve it using the TaskOutput tool
+  * Output is written to a file and Claude can retrieve it using the Read tool
   * Background tasks have unique IDs for tracking and output retrieval
   * Background tasks are automatically cleaned up when Claude Code exits
   * Background tasks are automatically terminated if output exceeds 5GB, with a note in stderr explaining why

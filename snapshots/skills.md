@@ -16,7 +16,7 @@ Skill| Purpose
 ---|---
 `/batch <instruction>`| Orchestrate large-scale changes across a codebase in parallel. Researches the codebase, decomposes the work into 5 to 30 independent units, and presents a plan. Once approved, spawns one background agent per unit in an isolated [git worktree](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>). Each agent implements its unit, runs tests, and opens a pull request. Requires a git repository. Example: `/batch migrate src/ from Solid to React`
 `/claude-api`| Load Claude API reference material for your project’s language (Python, TypeScript, Java, Go, Ruby, C#, PHP, or cURL) and Agent SDK reference for Python and TypeScript. Covers tool use, streaming, batches, structured outputs, and common pitfalls. Also activates automatically when your code imports `anthropic`, `@anthropic-ai/sdk`, or `claude_agent_sdk`
-`/debug [description]`| Troubleshoot your current Claude Code session by reading the session debug log. Optionally describe the issue to focus the analysis
+`/debug [description]`| Enable debug logging for the current session and troubleshoot issues by reading the session debug log. Debug logging is off by default unless you started with `claude --debug`, so running `/debug` mid-session starts capturing logs from that point forward. Optionally describe the issue to focus the analysis
 `/loop [interval] <prompt>`| Run a prompt repeatedly on an interval while the session stays open. Useful for polling a deployment, babysitting a PR, or periodically re-running another skill. Example: `/loop 5m check if the deploy finished`. See [Run prompts on a schedule](</docs/en/scheduled-tasks>)
 `/simplify [focus]`| Review your recently changed files for code reuse, quality, and efficiency issues, then fix them. Spawns three review agents in parallel, aggregates their findings, and applies fixes. Pass text to focus on specific concerns: `/simplify focus on memory efficiency`
 
@@ -245,6 +245,7 @@ Field| Required| Description
 `context`| No| Set to `fork` to run in a forked subagent context.
 `agent`| No| Which subagent type to use when `context: fork` is set.
 `hooks`| No| Hooks scoped to this skill’s lifecycle. See [Hooks in skills and agents](</docs/en/hooks#hooks-in-skills-and-agents>) for configuration format.
+`shell`| No| Shell to use for `!`command`` blocks in this skill. Accepts `bash` (default) or `powershell`. Setting `powershell` runs inline shell commands via PowerShell on Windows. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`.
 
 ####
 

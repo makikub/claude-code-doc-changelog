@@ -129,7 +129,7 @@ Ask AI
       }
     }
 
-**Option 2: WSL** Both WSL 1 and WSL 2 are supported. WSL 2 supports [sandboxing](</docs/en/sandboxing>) for enhanced security. WSL 1 does not support sandboxing.
+Claude Code can also run PowerShell natively on Windows as an opt-in preview. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>) for setup and limitations. **Option 2: WSL** Both WSL 1 and WSL 2 are supported. WSL 2 supports [sandboxing](</docs/en/sandboxing>) for enhanced security. WSL 1 does not support sandboxing.
 
 ###
 

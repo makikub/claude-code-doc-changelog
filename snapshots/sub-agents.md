@@ -208,7 +208,7 @@ Ask AI
       }
     }'
 
-The `--agents` flag accepts JSON with the same frontmatter fields as file-based subagents: `description`, `prompt`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `memory`, `effort`, `background`, and `isolation`. Use `prompt` for the system prompt, equivalent to the markdown body in file-based subagents. **Plugin subagents** come from [plugins](</docs/en/plugins>) you’ve installed. They appear in `/agents` alongside your custom subagents. See the [plugin components reference](</docs/en/plugins-reference#agents>) for details on creating plugin subagents.
+The `--agents` flag accepts JSON with the same frontmatter fields as file-based subagents: `description`, `prompt`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `initialPrompt`, `memory`, `effort`, `background`, and `isolation`. Use `prompt` for the system prompt, equivalent to the markdown body in file-based subagents. **Plugin subagents** come from [plugins](</docs/en/plugins>) you’ve installed. They appear in `/agents` alongside your custom subagents. See the [plugin components reference](</docs/en/plugins-reference#agents>) for details on creating plugin subagents.
 
 For security reasons, plugin subagents do not support the `hooks`, `mcpServers`, or `permissionMode` frontmatter fields. These fields are ignored when loading agents from a plugin. If you need them, copy the agent file into `.claude/agents/` or `~/.claude/agents/`. You can also add rules to [`permissions.allow`](</docs/en/settings#permission-settings>) in `settings.json` or `settings.local.json`, but these rules apply to the entire session, not just the plugin subagent.
 
@@ -264,6 +264,7 @@ Field| Required| Description
 `background`| No| Set to `true` to always run this subagent as a background task. Default: `false`
 `effort`| No| Effort level when this subagent is active. Overrides the session effort level. Default: inherits from session. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only)
 `isolation`| No| Set to `worktree` to run the subagent in a temporary [git worktree](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>), giving it an isolated copy of the repository. The worktree is automatically cleaned up if the subagent makes no changes
+`initialPrompt`| No| Auto-submitted as the first user turn when this agent runs as the main session agent (via `--agent` or the `agent` setting). [Commands](</docs/en/commands>) and [skills](</docs/en/skills>) are processed. Prepended to any user-provided prompt
 
 ###
 
@@ -277,6 +278,13 @@ The `model` field controls which [AI model](</docs/en/model-config>) the subagen
   * **Full model ID** : Use a full model ID such as `claude-opus-4-6` or `claude-sonnet-4-6`. Accepts the same values as the `--model` flag
   * **inherit** : Use the same model as the main conversation
   * **Omitted** : If not specified, defaults to `inherit` (uses the same model as the main conversation)
+
+When Claude invokes a subagent, it can also pass a `model` parameter for that specific invocation. Claude Code resolves the subagent’s model in this order:
+
+  1. The [`CLAUDE_CODE_SUBAGENT_MODEL`](</docs/en/model-config#environment-variables>) environment variable, if set
+  2. The per-invocation `model` parameter
+  3. The subagent definition’s `model` frontmatter
+  4. The main conversation’s model
 
 ###
 

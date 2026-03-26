@@ -81,7 +81,7 @@ Aspect| CLAUDE.md| Skill
 **Can trigger workflows**|  No| Yes, with `/<name>`
 **Best for**|  ”Always do X” rules| Reference material, invocable workflows
 
-**Put it in CLAUDE.md** if Claude should always know it: coding conventions, build commands, project structure, “never do X” rules.**Put it in a skill** if it’s reference material Claude needs sometimes (API docs, style guides) or a workflow you trigger with `/<name>` (deploy, review, release).**Rule of thumb:** Keep CLAUDE.md under 200 lines. If it’s growing, move reference content to skills or split into [`.claude/rules/`](</docs/en/memory#organize-rules-with-clauderules>) files.
+**Put it in CLAUDE.md** if Claude should always know it: coding conventions, build commands, project structure, “never do X” rules.**Put it in a skill** if it’s reference material Claude needs sometimes (API docs, style guides) or a workflow you trigger with `/<name>` (deploy, review, release).**Rule of thumb:** Keep CLAUDE.md under 200 lines. If it’s growing, move reference content to skills or split into [`.claude/rules/`](</docs/en/memory#organize-rules-with-claude/rules/>) files.
 
 All three store instructions, but they load differently:
 

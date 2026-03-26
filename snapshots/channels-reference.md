@@ -863,7 +863,7 @@ The local dialog closes and the tool runs. Claude’s reply comes back through t
 
 Package as a plugin
 
-To make your channel installable and shareable, wrap it in a [plugin](</docs/en/plugins>) and publish it to a [marketplace](</docs/en/plugin-marketplaces>). Users install it with `/plugin install`, then enable it per session with `--channels plugin:<name>@<marketplace>`. A channel published to your own marketplace still needs `--dangerously-load-development-channels` to run, since it isn’t on the [approved allowlist](</docs/en/channels#supported-channels>). To get it added, [submit it to the official marketplace](</docs/en/plugins#submit-your-plugin-to-the-official-marketplace>). Channel plugins go through security review before being approved.
+To make your channel installable and shareable, wrap it in a [plugin](</docs/en/plugins>) and publish it to a [marketplace](</docs/en/plugin-marketplaces>). Users install it with `/plugin install`, then enable it per session with `--channels plugin:<name>@<marketplace>`. A channel published to your own marketplace still needs `--dangerously-load-development-channels` to run, since it isn’t on the [approved allowlist](</docs/en/channels#supported-channels>). To get it added, [submit it to the official marketplace](</docs/en/plugins#submit-your-plugin-to-the-official-marketplace>). Channel plugins go through security review before being approved. On Team and Enterprise plans, an admin can instead include your plugin in the organization’s own [`allowedChannelPlugins`](</docs/en/channels#restrict-which-channel-plugins-can-run>) list, which replaces the default Anthropic allowlist.
 
 ##
 
