@@ -47,12 +47,6 @@ Define your settings
 
 Add your configuration as JSON. All [settings available in `settings.json`](</docs/en/settings#available-settings>) are supported, including [hooks](</docs/en/hooks>), [environment variables](</docs/en/env-vars>), and [managed-only settings](</docs/en/permissions#managed-only-settings>) like `allowManagedPermissionRulesOnly`.This example enforces a permission deny list and prevents users from bypassing permissions:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "permissions": {
         "deny": [
@@ -66,12 +60,6 @@ Ask AI
     }
 
 Hooks use the same format as in `settings.json`.This example runs an audit script after every file edit across the organization:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -87,12 +75,6 @@ Ask AI
     }
 
 To configure the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier so it knows which repos, buckets, and domains your organization trusts:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "autoMode": {

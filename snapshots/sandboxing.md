@@ -93,19 +93,7 @@ On **macOS** , sandboxing works out of the box using the built-in Seatbelt frame
 
   * Fedora
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     sudo apt-get install bubblewrap socat
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     sudo dnf install bubblewrap socat
 
@@ -116,12 +104,6 @@ Ask AI
 Enable sandboxing
 
 You can enable sandboxing by running the `/sandbox` command:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /sandbox
 
@@ -153,12 +135,6 @@ Granting subprocess write access to specific paths
 
 By default, sandboxed commands can only write to the current working directory. If subprocess commands like `kubectl`, `terraform`, or `npm` need to write outside the project directory, use `sandbox.filesystem.allowWrite` to grant access to specific paths:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "sandbox": {
         "enabled": true,
@@ -177,12 +153,6 @@ Prefix| Meaning| Example
 `./` or no prefix| Relative to the project root for project settings, or to `~/.claude` for user settings| `./output` in `.claude/settings.json` resolves to `<project-root>/output`
 
 The older `//path` prefix for absolute paths still works. If you previously used single-slash `/path` expecting project-relative resolution, switch to `./path`. This syntax differs from [Read and Edit permission rules](</docs/en/permissions#read-and-edit>), which use `//path` for absolute and `/path` for project-relative. Sandbox filesystem paths use standard conventions: `/tmp/build` is an absolute path. You can also deny write or read access using `sandbox.filesystem.denyWrite` and `sandbox.filesystem.denyRead`. These are merged with any paths from `Edit(...)` and `Read(...)` permission rules. To re-allow reading specific paths within a denied region, use `sandbox.filesystem.allowRead`, which takes precedence over `denyRead`. When `allowManagedReadPathsOnly` is enabled in managed settings, only managed `allowRead` entries are respected; user, project, and local `allowRead` entries are ignored. For example, to block reading from the entire home directory while still allowing reads from the current project, add this to your project’s `.claude/settings.json`:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "sandbox": {
@@ -318,12 +288,6 @@ For organizations requiring advanced network security, you can implement a custo
   * Log all network requests
   * Integrate with existing security infrastructure
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "sandbox": {
         "network": {
@@ -364,12 +328,6 @@ Best practices
 Open source
 
 The sandbox runtime is available as an open source npm package for use in your own agent projects. This enables the broader AI agent community to build safer, more secure autonomous systems. This can also be used to sandbox other programs you may wish to run. For example, to sandbox an MCP server you could run:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     npx @anthropic-ai/sandbox-runtime <command-to-sandbox>
 

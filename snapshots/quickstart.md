@@ -31,53 +31,23 @@ To install Claude Code, use one of the following methods:
 
 **macOS, Linux, WSL:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    curl -fsSL https://claude.ai/install.sh | bash
+     curl -fsSL https://claude.ai/install.sh | bash
 
 **Windows PowerShell:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    irm https://claude.ai/install.ps1 | iex
+     irm https://claude.ai/install.ps1 | iex
 
 **Windows CMD:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 
 **Windows requires[Git for Windows](<https://git-scm.com/downloads/win>).** Install it first if you don’t have it.
 
 Native installations automatically update in the background to keep you on the latest version.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     brew install --cask claude-code
 
 Homebrew installations do not auto-update. Run `brew upgrade claude-code` periodically to get the latest features and security fixes.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     winget install Anthropic.ClaudeCode
 
@@ -91,20 +61,8 @@ Step 2: Log in to your account
 
 Claude Code requires an account to use. When you start an interactive session with the `claude` command, you’ll need to log in:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude
     # You'll be prompted to log in on first use
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /login
     # Follow the prompts to log in with your account
@@ -125,12 +83,6 @@ Step 3: Start your first session
 
 Open your terminal in any project directory and start Claude Code:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     cd /path/to/your/project
     claude
 
@@ -146,63 +98,21 @@ Step 4: Ask your first question
 
 Let’s start with understanding your codebase. Try one of these commands:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     what does this project do?
 
 Claude will analyze your files and provide a summary. You can also ask more specific questions:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     what technologies does this project use?
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     where is the main entry point?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     explain the folder structure
 
 You can also ask Claude about its own capabilities:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     what can Claude Code do?
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     how do I create custom skills in Claude Code?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     can Claude Code work with Docker?
 
@@ -215,12 +125,6 @@ Claude Code reads your project files as needed. You don’t have to manually add
 Step 5: Make your first code change
 
 Now let’s make Claude Code do some actual coding. Try a simple task:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     add a hello world function to the main file
 
@@ -241,45 +145,15 @@ Step 6: Use Git with Claude Code
 
 Claude Code makes Git operations conversational:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     what files have I changed?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     commit my changes with a descriptive message
 
 You can also prompt for more complex Git operations:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     create a new branch called feature/quickstart
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     show me the last 5 commits
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     help me resolve merge conflicts
 
@@ -291,21 +165,9 @@ Step 7: Fix a bug or add a feature
 
 Claude is proficient at debugging and feature implementation. Describe what you want in natural language:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     add input validation to the user registration form
 
 Or fix existing issues:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     there's a bug where users can submit empty forms - fix it
 
@@ -324,41 +186,17 @@ Step 8: Test out other common workflows
 
 There are a number of ways to work with Claude: **Refactor code**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     refactor the authentication module to use async/await instead of callbacks
 
 **Write tests**
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     write unit tests for the calculator functions
 
 **Update documentation**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     update the README with installation instructions
 
 **Code review**
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     review my changes and suggest improvements
 
@@ -402,12 +240,6 @@ Use step-by-step instructions
 
 Break complex tasks into steps:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     1. create a new database table for user profiles
     2. create an API endpoint to get and update user profiles
     3. build a webpage that allows users to see and edit their information
@@ -416,19 +248,7 @@ Let Claude explore first
 
 Before making changes, let Claude understand your code:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     analyze the database schema
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     build a dashboard showing products that are most frequently returned by our UK customers
 

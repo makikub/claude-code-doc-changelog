@@ -28,65 +28,29 @@ The full-featured CLI for working with Claude Code directly in your terminal. Ed
 
 **macOS, Linux, WSL:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    curl -fsSL https://claude.ai/install.sh | bash
+     curl -fsSL https://claude.ai/install.sh | bash
 
 **Windows PowerShell:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    irm https://claude.ai/install.ps1 | iex
+     irm https://claude.ai/install.ps1 | iex
 
 **Windows CMD:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 
 **Windows requires[Git for Windows](<https://git-scm.com/downloads/win>).** Install it first if you don’t have it.
 
 Native installations automatically update in the background to keep you on the latest version.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     brew install --cask claude-code
 
 Homebrew installations do not auto-update. Run `brew upgrade claude-code` periodically to get the latest features and security fixes.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     winget install Anthropic.ClaudeCode
 
 WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
 
 Then start Claude Code in any project:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     cd your-project
     claude
@@ -126,12 +90,6 @@ Automate the work you keep putting off
 
 Claude Code handles the tedious tasks that eat up your day: writing tests for untested code, fixing lint errors across a project, resolving merge conflicts, updating dependencies, and writing release notes.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude "write tests for the auth module, run them, and fix any failures"
 
 Build features and fix bugs
@@ -141,12 +99,6 @@ Describe what you want in plain language. Claude Code plans the approach, writes
 Create commits and pull requests
 
 Claude Code works directly with git. It stages changes, writes commit messages, creates branches, and opens pull requests.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude "commit my changes with a descriptive message"
 
@@ -167,12 +119,6 @@ Spawn [multiple Claude Code agents](</docs/en/sub-agents>) that work on differen
 Pipe, script, and automate with the CLI
 
 Claude Code is composable and follows the Unix philosophy. Pipe logs into it, run it in CI, or chain it with other tools:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Analyze recent log output
     tail -200 app.log | claude -p "Slack me if you see any anomalies"

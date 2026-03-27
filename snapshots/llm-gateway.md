@@ -81,12 +81,6 @@ Authentication methods
 
 Simplest method using a fixed API key:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Set in environment
     export ANTHROPIC_AUTH_TOKEN=sk-litellm-static-key
 
@@ -105,12 +99,6 @@ For rotating keys or per-user authentication:
 
   1. Create an API key helper script:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     # ~/bin/get-litellm-key.sh
 
@@ -125,23 +113,11 @@ Ask AI
 
   2. Configure Claude Code settings to use the helper:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "apiKeyHelper": "~/bin/get-litellm-key.sh"
     }
 
   3. Set token refresh interval:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Refresh every hour (3600000 ms)
     export CLAUDE_CODE_API_KEY_HELPER_TTL_MS=3600000
@@ -155,12 +131,6 @@ This value will be sent as `Authorization` and `X-Api-Key` headers. The `apiKeyH
 Unified endpoint (recommended)
 
 Using LiteLLM’s [Anthropic format endpoint](<https://docs.litellm.ai/docs/anthropic_unified>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export ANTHROPIC_BASE_URL=https://litellm-server:4000
 
@@ -180,23 +150,11 @@ Provider-specific pass-through endpoints (alternative)
 
 Using [pass-through endpoint](<https://docs.litellm.ai/docs/pass_through/anthropic_completion>):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export ANTHROPIC_BASE_URL=https://litellm-server:4000/anthropic
 
 ##### Amazon Bedrock through LiteLLM
 
 Using [pass-through endpoint](<https://docs.litellm.ai/docs/pass_through/bedrock>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export ANTHROPIC_BEDROCK_BASE_URL=https://litellm-server:4000/bedrock
     export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1
@@ -205,12 +163,6 @@ Ask AI
 ##### Google Vertex AI through LiteLLM
 
 Using [pass-through endpoint](<https://docs.litellm.ai/docs/pass_through/vertex_ai>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export ANTHROPIC_VERTEX_BASE_URL=https://litellm-server:4000/vertex_ai/v1
     export ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id

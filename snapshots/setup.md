@@ -45,65 +45,29 @@ To install Claude Code, use one of the following methods:
 
 **macOS, Linux, WSL:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    curl -fsSL https://claude.ai/install.sh | bash
+     curl -fsSL https://claude.ai/install.sh | bash
 
 **Windows PowerShell:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    irm https://claude.ai/install.ps1 | iex
+     irm https://claude.ai/install.ps1 | iex
 
 **Windows CMD:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
-    curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 
 **Windows requires[Git for Windows](<https://git-scm.com/downloads/win>).** Install it first if you don’t have it.
 
 Native installations automatically update in the background to keep you on the latest version.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     brew install --cask claude-code
 
 Homebrew installations do not auto-update. Run `brew upgrade claude-code` periodically to get the latest features and security fixes.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     winget install Anthropic.ClaudeCode
 
 WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
 
 After installation completes, open a terminal in the project you want to work in and start Claude Code:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude
 
@@ -116,12 +80,6 @@ If you encounter any issues during installation, see the [troubleshooting guide]
 Set up on Windows
 
 Claude Code on Windows requires [Git for Windows](<https://git-scm.com/downloads/win>) or WSL. You can launch `claude` from PowerShell, CMD, or Git Bash. Claude Code uses Git Bash internally to run commands. You do not need to run PowerShell as Administrator. **Option 1: Native Windows with Git Bash** Install [Git for Windows](<https://git-scm.com/downloads/win>), then run the install command from PowerShell or CMD. If Claude Code can’t find your Git Bash installation, set the path in your [settings.json file](</docs/en/settings>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "env": {
@@ -139,21 +97,9 @@ Alpine Linux and musl-based distributions
 
 The native installer on Alpine and other musl/uClibc-based distributions requires `libgcc`, `libstdc++`, and `ripgrep`. Install these using your distribution’s package manager, then set `USE_BUILTIN_RIPGREP=0`. This example installs the required packages on Alpine:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     apk add libgcc libstdc++ ripgrep
 
 Then set `USE_BUILTIN_RIPGREP` to `0` in your [`settings.json`](</docs/en/settings#available-settings>) file:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "env": {
@@ -169,21 +115,9 @@ Verify your installation
 
 After installing, confirm Claude Code is working:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --version
 
 For a more detailed check of your installation and configuration, run [`claude doctor`](</docs/en/troubleshooting#get-more-help>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude doctor
 
@@ -226,12 +160,6 @@ Control which release channel Claude Code follows for auto-updates and `claude u
 
 Configure this via `/config` → **Auto-update channel** , or add it to your [settings.json file](</docs/en/settings>):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "autoUpdatesChannel": "stable"
     }
@@ -246,12 +174,6 @@ Disable auto-updates
 
 Set `DISABLE_AUTOUPDATER` to `"1"` in the `env` key of your [`settings.json`](</docs/en/settings#available-settings>) file:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "env": {
         "DISABLE_AUTOUPDATER": "1"
@@ -265,12 +187,6 @@ Ask AI
 Update manually
 
 To apply an update immediately without waiting for the next background check, run:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude update
 
@@ -296,27 +212,9 @@ The native installer accepts either a specific version number or a release chann
 
   * Windows CMD
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     curl -fsSL https://claude.ai/install.sh | bash
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     irm https://claude.ai/install.ps1 | iex
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 
@@ -328,27 +226,9 @@ To install the stable version:
 
   * Windows CMD
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     curl -fsSL https://claude.ai/install.sh | bash -s stable
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     & ([scriptblock]::Create((irm https://claude.ai/install.ps1))) stable
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd stable && del install.cmd
 
@@ -360,27 +240,9 @@ To install a specific version number:
 
   * Windows CMD
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     curl -fsSL https://claude.ai/install.sh | bash -s 1.0.58
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     & ([scriptblock]::Create((irm https://claude.ai/install.ps1))) 1.0.58
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd 1.0.58 && del install.cmd
 
@@ -400,12 +262,6 @@ Migrate from npm to native
 
 If you previously installed Claude Code with npm, switch to the native installer:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Install the native binary
     curl -fsSL https://claude.ai/install.sh | bash
 
@@ -421,12 +277,6 @@ You can also run `claude install` from an existing npm installation to install t
 Install with npm
 
 If you need npm installation for compatibility reasons, you must have [Node.js 18+](<https://nodejs.org/en/download>) installed. Install the package globally:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     npm install -g @anthropic-ai/claude-code
 
@@ -465,20 +315,8 @@ Remove the Claude Code binary and version files:
 
   * Windows PowerShell
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     rm -f ~/.local/bin/claude
     rm -rf ~/.local/share/claude
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     Remove-Item -Path "$env:USERPROFILE\.local\bin\claude.exe" -Force
     Remove-Item -Path "$env:USERPROFILE\.local\share\claude" -Recurse -Force
@@ -491,12 +329,6 @@ Homebrew installation
 
 Remove the Homebrew cask:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     brew uninstall --cask claude-code
 
 ###
@@ -507,12 +339,6 @@ WinGet installation
 
 Remove the WinGet package:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     winget uninstall Anthropic.ClaudeCode
 
 ###
@@ -522,12 +348,6 @@ Ask AI
 npm
 
 Remove the global npm package:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     npm uninstall -g @anthropic-ai/claude-code
 
@@ -545,12 +365,6 @@ To remove Claude Code settings and cached data:
 
   * Windows PowerShell
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Remove user settings and state
     rm -rf ~/.claude
     rm ~/.claude.json
@@ -558,12 +372,6 @@ Ask AI
     # Remove project-specific settings (run from your project directory)
     rm -rf .claude
     rm -f .mcp.json
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Remove user settings and state
     Remove-Item -Path "$env:USERPROFILE\.claude" -Recurse -Force

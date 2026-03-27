@@ -61,12 +61,6 @@ Create the plugin directory
 
 Every plugin lives in its own directory containing a manifest and your skills, agents, or hooks. Create one now:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     mkdir my-first-plugin
 
 2
@@ -75,23 +69,11 @@ Create the plugin manifest
 
 The manifest file at `.claude-plugin/plugin.json` defines your plugin’s identity: its name, description, and version. Claude Code uses this metadata to display your plugin in the plugin manager.Create the `.claude-plugin` directory inside your plugin folder:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     mkdir my-first-plugin/.claude-plugin
 
 Then create `my-first-plugin/.claude-plugin/plugin.json` with this content:
 
 my-first-plugin/.claude-plugin/plugin.json
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
     "name": "my-first-plugin",
@@ -117,23 +99,11 @@ Add a skill
 
 Skills live in the `skills/` directory. Each skill is a folder containing a `SKILL.md` file. The folder name becomes the skill name, prefixed with the plugin’s namespace (`hello/` in a plugin named `my-first-plugin` creates `/my-first-plugin:hello`).Create a skill directory in your plugin folder:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     mkdir -p my-first-plugin/skills/hello
 
 Then create `my-first-plugin/skills/hello/SKILL.md` with this content:
 
 my-first-plugin/skills/hello/SKILL.md
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ---
     description: Greet the user with a friendly message
@@ -148,21 +118,9 @@ Test your plugin
 
 Run Claude Code with the `--plugin-dir` flag to load your plugin:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --plugin-dir ./my-first-plugin
 
 Once Claude Code starts, try your new skill:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /my-first-plugin:hello
 
@@ -178,12 +136,6 @@ Make your skill dynamic by accepting user input. The `$ARGUMENTS` placeholder ca
 
 my-first-plugin/skills/hello/SKILL.md
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ---
     description: Greet the user with a personalized message
     ---
@@ -193,12 +145,6 @@ Ask AI
     Greet the user named "$ARGUMENTS" warmly and ask how you can help them today. Make the greeting personal and encouraging.
 
 Run `/reload-plugins` to pick up the changes, then try the skill with your name:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /my-first-plugin:hello Alex
 
@@ -251,12 +197,6 @@ Add Skills to your plugin
 
 Plugins can include [Agent Skills](</docs/en/skills>) to extend Claude’s capabilities. Skills are model-invoked: Claude automatically uses them based on the task context. Add a `skills/` directory at your plugin root with Skill folders containing `SKILL.md` files:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     my-plugin/
     ├── .claude-plugin/
     │   └── plugin.json
@@ -265,12 +205,6 @@ Ask AI
             └── SKILL.md
 
 Each `SKILL.md` needs frontmatter with `name` and `description` fields, followed by instructions:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ---
     name: code-review
@@ -297,12 +231,6 @@ LSP (Language Server Protocol) plugins give Claude real-time code intelligence. 
 
 .lsp.json
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "go": {
         "command": "gopls",
@@ -324,12 +252,6 @@ Ship default settings with your plugin
 Plugins can include a `settings.json` file at the plugin root to apply default configuration when the plugin is enabled. Currently, only the `agent` key is supported. Setting `agent` activates one of the plugin’s [custom agents](</docs/en/sub-agents>) as the main thread, applying its system prompt, tool restrictions, and model. This lets a plugin change how Claude Code behaves by default when enabled.
 
 settings.json
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "agent": "security-reviewer"
@@ -353,12 +275,6 @@ Test your plugins locally
 
 Use the `--plugin-dir` flag to test plugins during development. This loads your plugin directly without requiring installation.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --plugin-dir ./my-plugin
 
 When a `--plugin-dir` plugin has the same name as an installed marketplace plugin, the local copy takes precedence for that session. This lets you test changes to a plugin you already have installed without uninstalling it first. Marketplace plugins force-enabled by managed settings are the only exception and cannot be overridden. As you make changes to your plugin, run `/reload-plugins` to pick up the updates without restarting. This reloads plugins, skills, agents, hooks, plugin MCP servers, and plugin LSP servers. Test your plugin components:
@@ -368,12 +284,6 @@ When a `--plugin-dir` plugin has the same name as an installed marketplace plugi
   * Verify hooks work as expected
 
 You can load multiple plugins at once by specifying the flag multiple times:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --plugin-dir ./plugin-one --plugin-dir ./plugin-two
 
@@ -437,23 +347,11 @@ Create the plugin structure
 
 Create a new plugin directory:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     mkdir -p my-plugin/.claude-plugin
 
 Create the manifest file at `my-plugin/.claude-plugin/plugin.json`:
 
 my-plugin/.claude-plugin/plugin.json
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "my-plugin",
@@ -466,12 +364,6 @@ Ask AI
 Copy your existing files
 
 Copy your existing configurations to the plugin directory:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Copy commands
     cp -r .claude/commands my-plugin/
@@ -488,23 +380,11 @@ Migrate hooks
 
 If you have hooks in your settings, create a hooks directory:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     mkdir my-plugin/hooks
 
 Create `my-plugin/hooks/hooks.json` with your hooks configuration. Copy the `hooks` object from your `.claude/settings.json` or `settings.local.json`, since the format is the same. The command receives hook input as JSON on stdin, so use `jq` to extract the file path:
 
 my-plugin/hooks/hooks.json
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -522,12 +402,6 @@ Ask AI
 Test your migrated plugin
 
 Load your plugin to verify everything works:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --plugin-dir ./my-plugin
 

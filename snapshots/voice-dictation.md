@@ -18,22 +18,10 @@ Enable voice dictation
 
 Run `/voice` to toggle voice dictation on. The first time you enable it, Claude Code runs a microphone check. On macOS, this triggers the system microphone permission prompt for your terminal if it has never been granted.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /voice
     Voice mode enabled. Hold Space to record. Dictation language: en (/config to change).
 
 Voice dictation persists across sessions. Run `/voice` again to turn it off, or set it directly in your [user settings file](</docs/en/settings>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "voiceEnabled": true
@@ -52,12 +40,6 @@ Hold `Space` to start recording. Claude Code detects a held key by watching for 
 To skip the warmup, rebind to a modifier combination like `meta+k`. Modifier combos start recording on the first keypress.
 
 Your speech appears in the prompt as you speak, dimmed until the transcript is finalized. Release `Space` to stop recording and finalize the text. The transcript is inserted at your cursor position and the cursor stays at the end of the inserted text, so you can mix typing and dictation in any order. Hold `Space` again to append another recording, or move the cursor first to insert speech elsewhere in the prompt:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     > refactor the auth middleware to ▮
       # hold Space, speak "use the new token validation helper"
@@ -100,12 +82,6 @@ Ukrainian| `uk`
 
 Set the language in `/config` or directly in settings. You can use either the [BCP 47 language code](<https://en.wikipedia.org/wiki/IETF_language_tag>) or the language name:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "language": "japanese"
     }
@@ -119,12 +95,6 @@ If your `language` setting is not in the supported list, `/voice` warns you on e
 Rebind the push-to-talk key
 
 The push-to-talk key is bound to `voice:pushToTalk` in the `Chat` context and defaults to `Space`. Rebind it in [`~/.claude/keybindings.json`](</docs/en/keybindings>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "bindings": [

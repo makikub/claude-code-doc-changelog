@@ -16,12 +16,6 @@ Environment variables
 
 Claude Code respects standard proxy environment variables:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # HTTPS proxy (recommended)
     export HTTPS_PROXY=https://proxy.example.com:8080
 
@@ -45,12 +39,6 @@ Basic authentication
 
 If your proxy requires basic authentication, include credentials in the proxy URL:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export HTTPS_PROXY=http://username:password@proxy.example.com:8080
 
 Avoid hardcoding passwords in scripts. Use environment variables or secure credential storage instead.
@@ -65,12 +53,6 @@ Custom CA certificates
 
 If your enterprise environment uses custom CAs for HTTPS connections (whether through a proxy or direct API access), configure Claude Code to trust them:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem
 
 ##
@@ -80,12 +62,6 @@ Ask AI
 mTLS authentication
 
 For enterprise environments requiring client certificate authentication:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Client certificate for authentication
     export CLAUDE_CODE_CLIENT_CERT=/path/to/client-cert.pem

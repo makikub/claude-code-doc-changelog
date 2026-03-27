@@ -65,12 +65,6 @@ The fastest way to get started is to add a minimal job to your `.gitlab-ci.yml` 
      * Add `ANTHROPIC_API_KEY` (masked, protected as needed)
   2. **Add a Claude job to`.gitlab-ci.yml`**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     stages:
       - ai
 
@@ -140,12 +134,6 @@ Turn issues into MRs
 
 In an issue comment:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     @claude implement this feature based on the issue description
 
 Claude analyzes the issue and codebase, writes changes in a branch, and opens an MR for review.
@@ -158,12 +146,6 @@ Get implementation help
 
 In an MR discussion:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     @claude suggest a concrete approach to cache the results of this API call
 
 Claude proposes changes, adds code with appropriate caching, and updates the MR.
@@ -175,12 +157,6 @@ Claude proposes changes, adds code with appropriate caching, and updates the MR.
 Fix bugs quickly
 
 In an issue or MR comment:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     @claude fix the TypeError in the user dashboard component
 
@@ -233,12 +209,6 @@ Configure AWS to allow GitLab CI jobs to assume an IAM role via OIDC (no static 
 
 Add variables in Settings → CI/CD → Variables:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # For AWS Bedrock:
     - AWS_ROLE_TO_ASSUME
     - AWS_REGION
@@ -281,12 +251,6 @@ Configure Google Cloud to allow GitLab CI jobs to impersonate a service account 
 
 Add variables in Settings → CI/CD → Variables:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # For Google Vertex AI:
     - GCP_WORKLOAD_IDENTITY_PROVIDER
     - GCP_SERVICE_ACCOUNT
@@ -307,12 +271,6 @@ Below are ready-to-use snippets you can adapt to your pipeline.
 ​
 
 Basic .gitlab-ci.yml (Claude API)
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     stages:
       - ai
@@ -355,12 +313,6 @@ AWS Bedrock job example (OIDC)
 
   * `AWS_ROLE_TO_ASSUME`: ARN of the IAM role for Bedrock access
   * `AWS_REGION`: Bedrock region (for example, `us-west-2`)
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude-bedrock:
       stage: ai
@@ -413,12 +365,6 @@ Google Vertex AI job example (Workload Identity Federation)
   * `GCP_WORKLOAD_IDENTITY_PROVIDER`: Full provider resource name
   * `GCP_SERVICE_ACCOUNT`: Service account email
   * `CLOUD_ML_REGION`: Vertex region (for example, `us-east5`)
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude-vertex:
       stage: ai

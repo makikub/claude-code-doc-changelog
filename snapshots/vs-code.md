@@ -90,12 +90,6 @@ Reference files and folders
 
 Use @-mentions to give Claude context about specific files or folders. When you type `@` followed by a file or folder name, Claude reads that content and can answer questions about it or make changes to it. Claude Code supports fuzzy matching, so you can type partial names to find what you need:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     > Explain the logic in @auth (fuzzy matches auth.js, AuthService.ts, etc.)
     > What's in @src/components/ (include a trailing slash for folders)
 
@@ -228,12 +222,6 @@ Automate browser tasks with Chrome
 
 Connect Claude to your Chrome browser to test web apps, debug with console logs, and automate browser workflows without leaving VS Code. This requires the [Claude in Chrome extension](<https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn>) version 1.0.36 or higher. Type `@browser` in the prompt box followed by what you want Claude to do:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     @browser go to localhost:3000 and check the console for errors
 
 You can also open the attachment menu to select specific browser tools like opening a new tab or reading page content. Claude opens new tabs for browser tasks and shares your browser’s login state, so it can access any site you’re already signed into. For setup instructions, the full list of capabilities, and troubleshooting, see [Use Claude Code with Chrome](</docs/en/chrome>).
@@ -268,12 +256,6 @@ Launch a VS Code tab from other tools
 
 The extension registers a URI handler at `vscode://anthropic.claude-code/open`. Use it to open a new Claude Code tab from your own tooling: a shell alias, a browser bookmarklet, or any script that can open a URL. If VS Code isn’t already running, opening the URL launches it first. If VS Code is already running, the URL opens in whichever window is currently focused. Invoke the handler with your operating system’s URL opener. On macOS:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     open "vscode://anthropic.claude-code/open"
 
 Use `xdg-open` on Linux or `start` on Windows. The handler accepts two optional query parameters:
@@ -284,12 +266,6 @@ Parameter| Description
 `session`| A session ID to resume instead of starting a new conversation. The session must belong to the workspace currently open in VS Code. If the session isn’t found, a fresh conversation starts instead. If the session is already open in a tab, that tab is focused. To capture a session ID programmatically, see [Continue conversations](</docs/en/headless#continue-conversations>).
 
 For example, to open a tab pre-filled with “review my changes”:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     vscode://anthropic.claude-code/open?prompt=review%20my%20changes
 
@@ -398,12 +374,6 @@ Connect to external tools with MCP
 
 MCP (Model Context Protocol) servers give Claude access to external tools, databases, and APIs. To add an MCP server, open the integrated terminal (`Ctrl+`` or `Cmd+``) and run:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude mcp add --transport http github https://api.githubcopilot.com/mcp/
 
 Once configured, ask Claude to use the tools (e.g., “Review PR #456”). To manage MCP servers without leaving VS Code, type `/mcp` in the chat panel. The MCP management dialog lets you enable or disable servers, reconnect to a server, and manage OAuth authentication. See the [MCP documentation](</docs/en/mcp>) for available servers.
@@ -424,12 +394,6 @@ Create commits and pull requests
 
 Claude can stage changes, write commit messages, and create pull requests based on your work:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     > commit my changes with a descriptive message
     > create a pr for this feature
     > summarize the changes I've made to the auth module
@@ -443,12 +407,6 @@ When creating pull requests, Claude generates descriptions based on the actual c
 Use git worktrees for parallel tasks
 
 Use the `--worktree` (`-w`) flag to start Claude in an isolated worktree with its own files and branch:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --worktree feature-auth
 
@@ -568,12 +526,6 @@ To uninstall the Claude Code extension:
   3. Click **Uninstall**
 
 To also remove extension data and reset all settings:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     rm -rf ~/.vscode/globalStorage/anthropic.claude-code
 

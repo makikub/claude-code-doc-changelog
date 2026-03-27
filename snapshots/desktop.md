@@ -205,7 +205,7 @@ Each session is an independent conversation with its own context and changes. Yo
 
 Work in parallel with sessions
 
-Click **\+ New session** in the sidebar to work on multiple tasks in parallel. For Git repositories, each session gets its own isolated copy of your project using [Git worktrees](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>), so changes in one session don’t affect other sessions until you commit them. Worktrees are stored in `<project-root>/.claude/worktrees/` by default. You can change this to a custom directory in Settings → Claude Code under “Worktree location”. You can also set a branch prefix that gets prepended to every worktree branch name, which is useful for keeping Claude-created branches organized. To remove a worktree when you’re done, hover over the session in the sidebar and click the archive icon.
+Click **\+ New session** in the sidebar to work on multiple tasks in parallel. For Git repositories, each session gets its own isolated copy of your project using [Git worktrees](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>), so changes in one session don’t affect other sessions until you commit them. Worktrees are stored in `<project-root>/.claude/worktrees/` by default. You can change this to a custom directory in Settings → Claude Code under “Worktree location”. You can also set a branch prefix that gets prepended to every worktree branch name, which is useful for keeping Claude-created branches organized. To remove a worktree when you’re done, hover over the session in the sidebar and click the archive icon. To include gitignored files like `.env` in new worktrees, create a [`.worktreeinclude` file](</docs/en/common-workflows#copy-gitignored-files-to-worktrees>) in your project root.
 
 Session isolation requires [Git](<https://git-scm.com/downloads>). Most Macs include Git by default. Run `git --version` in Terminal to check. On Windows, Git is required for the Code tab to work: [download Git for Windows](<https://git-scm.com/downloads/win>), install it, and restart the app. If you run into Git errors, try a Cowork session to help troubleshoot your setup.
 
@@ -278,12 +278,6 @@ Configure preview servers
 
 Claude automatically detects your dev server setup and stores the configuration in `.claude/launch.json` at the root of the folder you selected when starting the session. Preview uses this folder as its working directory, so if you selected a parent folder, subfolders with their own dev servers won’t be detected automatically. To work with a subfolder’s server, either start a session in that folder directly or add a configuration manually. To customize how your server starts, for example to use `yarn dev` instead of `npm run dev` or to change the port, edit the file manually or click **Edit configuration** in the Preview dropdown to open it in your code editor. The file supports JSON with comments.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "version": "0.0.1",
       "configurations": [
@@ -305,12 +299,6 @@ You can define multiple configurations to run different servers from the same pr
 Auto-verify changes
 
 When `autoVerify` is enabled, Claude automatically verifies code changes after editing files. It takes screenshots, checks for errors, and confirms changes work before completing its response. Auto-verify is on by default. Disable it per-project by adding `"autoVerify": false` to `.claude/launch.json`, or toggle it from the **Preview** dropdown menu.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "version": "0.0.1",
@@ -374,12 +362,6 @@ These configurations show common setups for different project types:
 
 This configuration runs a Next.js app using Yarn on port 3000:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "version": "0.0.1",
       "configurations": [
@@ -393,12 +375,6 @@ Ask AI
     }
 
 For a monorepo with a frontend and an API server, define multiple configurations. The frontend uses `autoPort: true` so it picks a free port if 3000 is taken, while the API server requires port 8080 exactly:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "version": "0.0.1",
@@ -424,12 +400,6 @@ Ask AI
     }
 
 To run a Node.js script directly instead of using a package manager command, use the `program` field:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "version": "0.0.1",
@@ -862,12 +832,6 @@ The Cowork tab requires Apple Silicon (M1 or later) on macOS. On Windows, Cowork
 ”Branch doesn’t exist yet” when opening in CLI
 
 Remote sessions can create branches that don’t exist on your local machine. Click the branch name in the session toolbar to copy it, then fetch it locally:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     git fetch origin <branch-name>
     git checkout <branch-name>

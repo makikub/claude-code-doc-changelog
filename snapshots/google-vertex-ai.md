@@ -38,12 +38,6 @@ Setup
 
 Enable the Vertex AI API in your GCP project:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Set your project ID
     gcloud config set project YOUR-PROJECT-ID
 
@@ -81,12 +75,6 @@ When authenticating, Claude Code will automatically use the project ID from the 
 
 Set the following environment variables:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Enable Vertex AI integration
     export CLAUDE_CODE_USE_VERTEX=1
     export CLOUD_ML_REGION=global
@@ -117,12 +105,6 @@ Pin specific model versions for every deployment. If you use model aliases (`son
 
 Set these environment variables to specific Vertex AI model IDs:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-4-6'
     export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
@@ -135,12 +117,6 @@ Primary model| `claude-sonnet-4-6`
 Small/fast model| `claude-haiku-4-5@20251001`
 
 To customize models further:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export ANTHROPIC_MODEL='claude-opus-4-6'
     export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'

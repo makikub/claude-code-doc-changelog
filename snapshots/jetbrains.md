@@ -65,19 +65,7 @@ From External Terminals
 
 Use the `/ide` command in any external terminal to connect Claude Code to your JetBrains IDE and activate all features:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /ide
 

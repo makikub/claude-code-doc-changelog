@@ -32,12 +32,6 @@ Schedule a recurring prompt with /loop
 
 The `/loop` [bundled skill](</docs/en/skills#bundled-skills>) is the quickest way to schedule a recurring prompt. Pass an optional interval and a prompt, and Claude sets up a cron job that fires in the background while the session stays open.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /loop 5m check if the deployment finished and tell me what happened
 
 Claude parses the interval, converts it to a cron expression, schedules the job, and confirms the cadence and job ID.
@@ -66,12 +60,6 @@ Loop over another command
 
 The scheduled prompt can itself be a command or skill invocation. This is useful for re-running a workflow you’ve already packaged.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /loop 20m /review-pr 1234
 
 Each time the job fires, Claude runs `/review-pr 1234` as if you had typed it.
@@ -84,19 +72,7 @@ Set a one-time reminder
 
 For one-shot reminders, describe what you want in natural language instead of using `/loop`. Claude schedules a single-fire task that deletes itself after running.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     remind me at 3pm to push the release branch
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     in 45 minutes, check whether the integration tests passed
 
@@ -110,19 +86,7 @@ Manage scheduled tasks
 
 Ask Claude in natural language to list or cancel tasks, or reference the underlying tools directly.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     what scheduled tasks do I have?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     cancel the deploy check job
 

@@ -80,12 +80,6 @@ Bash command changes not tracked
 
 Checkpointing does not track files modified by bash commands. For example, if Claude Code runs:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     rm file.txt
     mv old.txt new.txt
     cp source.txt dest.txt

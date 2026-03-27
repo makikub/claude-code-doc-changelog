@@ -48,12 +48,6 @@ You can configure your model in several ways, listed in order of priority:
 
 Example usage:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Start with Opus
     claude --model opus
 
@@ -61,12 +55,6 @@ Ask AI
     /model sonnet
 
 Example settings file:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
         "permissions": {
@@ -82,12 +70,6 @@ Ask AI
 Restrict model selection
 
 Enterprise administrators can use `availableModels` in [managed or policy settings](</docs/en/settings#settings-files>) to restrict which models users can select. When `availableModels` is set, users cannot switch to models not in the list via `/model`, `--model` flag, Config tool, or `ANTHROPIC_MODEL` environment variable.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "availableModels": ["sonnet", "haiku"]
@@ -113,12 +95,6 @@ To fully control the model experience, use `availableModels` together with the `
   * **model** : sets the explicit model override, taking precedence over the Default
 
 This example ensures all users run Sonnet 4.6 and can only choose between Sonnet and Haiku:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "model": "sonnet",
@@ -199,12 +175,6 @@ API and pay-as-you-go| Full access| Full access
 
 To disable 1M context entirely, set `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`. This removes 1M model variants from the model picker. See [environment variables](</docs/en/env-vars>). The 1M context window uses standard model pricing with no premium for tokens beyond 200K. For plans where extended context is included with your subscription, usage remains covered by your subscription. For plans that access extended context through extra usage, tokens are billed to extra usage. If your account supports 1M context, the option appears in the model picker (`/model`) in the latest versions of Claude Code. If you don’t see it, try restarting your session. You can also use the `[1m]` suffix with model aliases or full model names:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Use the opus[1m] or sonnet[1m] alias
     /model opus[1m]
     /model sonnet[1m]
@@ -230,12 +200,6 @@ You can see which model you’re currently using in several ways:
 Add a custom model option
 
 Use `ANTHROPIC_CUSTOM_MODEL_OPTION` to add a single custom entry to the `/model` picker without replacing the built-in aliases. This is useful for LLM gateway deployments or testing model IDs that Claude Code does not list by default. This example sets all three variables to make a gateway-routed Opus deployment selectable:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export ANTHROPIC_CUSTOM_MODEL_OPTION="my-gateway/claude-opus-4-6"
     export ANTHROPIC_CUSTOM_MODEL_OPTION_NAME="Opus via Gateway"
@@ -280,12 +244,6 @@ Foundry| `export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6'`
 
 Apply the same pattern for `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. For current and legacy model IDs across all providers, see [Models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>). To upgrade users to a new model version, update these environment variables and redeploy. To enable extended context for a pinned model, append `[1m]` to the model ID in `ANTHROPIC_DEFAULT_OPUS_MODEL` or `ANTHROPIC_DEFAULT_SONNET_MODEL`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6[1m]'
 
 The `[1m]` suffix applies the 1M context window to all usage of that alias, including `opusplan`. Claude Code strips the suffix before sending the model ID to your provider. Only append `[1m]` when the underlying model supports 1M context, such as Opus 4.6 or Sonnet 4.6.
@@ -318,12 +276,6 @@ Capability value| Enables
 
 When `_SUPPORTED_CAPABILITIES` is set, listed capabilities are enabled and unlisted capabilities are disabled for the matching pinned model. When the variable is unset, Claude Code falls back to built-in detection based on the model ID. This example pins Opus to a Bedrock custom model ARN, sets a friendly name, and declares its capabilities:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export ANTHROPIC_DEFAULT_OPUS_MODEL='arn:aws:bedrock:us-east-1:123456789012:custom-model/abc'
     export ANTHROPIC_DEFAULT_OPUS_MODEL_NAME='Opus via Bedrock'
     export ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION='Opus 4.6 routed through a Bedrock custom endpoint'
@@ -336,12 +288,6 @@ Ask AI
 Override model IDs per version
 
 The family-level environment variables above configure one model ID per family alias. If you need to map several versions within the same family to distinct provider IDs, use the `modelOverrides` setting instead. `modelOverrides` maps individual Anthropic model IDs to the provider-specific strings that Claude Code sends to your provider’s API. When a user selects a mapped model in the `/model` picker, Claude Code uses your configured value instead of the built-in default. This lets enterprise administrators route each model version to a specific Bedrock inference profile ARN, Vertex AI version name, or Foundry deployment name for governance, cost allocation, or regional routing. Set `modelOverrides` in your [settings file](</docs/en/settings#settings-files>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "modelOverrides": {

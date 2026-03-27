@@ -37,7 +37,7 @@ Getting started
 
   1. Visit [claude.ai/code](<https://claude.ai/code>)
   2. Connect your GitHub account
-  3. Install the Claude GitHub app in your repositories
+  3. Install the Claude GitHub App in your repositories
   4. Select your default environment
   5. Submit your coding task
   6. Review changes in diff view, iterate with comments, then create a pull request
@@ -75,6 +75,36 @@ This lets you refine changes through multiple rounds of feedback without creatin
 
 ​
 
+Auto-fix pull requests
+
+Claude can watch a pull request and automatically respond to CI failures and review comments. Claude subscribes to GitHub activity on the PR, and when a check fails or a reviewer leaves a comment, Claude investigates and pushes a fix if one is clear.
+
+Auto-fix requires the Claude GitHub App to be installed on your repository. If you haven’t already, install it from the [GitHub App page](<https://github.com/apps/claude>) or when prompted during setup.
+
+There are a few ways to turn on auto-fix depending on where the PR came from and what device you’re using:
+
+  * **PRs created in Claude Code on the web** : open the CI status bar and select **Auto-fix**
+  * **From the mobile app** : tell Claude to auto-fix the PR, for example “watch this PR and fix any CI failures or review comments”
+  * **Any existing PR** : paste the PR URL into a session and tell Claude to auto-fix it
+
+###
+
+​
+
+How Claude responds to PR activity
+
+When auto-fix is active, Claude receives GitHub events for the PR including new review comments and CI check failures. For each event, Claude investigates and decides how to proceed:
+
+  * **Clear fixes** : if Claude is confident in a fix and it doesn’t conflict with earlier instructions, Claude makes the change, pushes it, and explains what was done in the session
+  * **Ambiguous requests** : if a reviewer’s comment could be interpreted multiple ways or involves something architecturally significant, Claude asks you before acting
+  * **Duplicate or no-action events** : if an event is a duplicate or requires no change, Claude notes it in the session and moves on
+
+Claude may reply to review comment threads on GitHub as part of resolving them. These replies are posted using your GitHub account, so they appear under your username, but each reply is labeled as coming from Claude Code so reviewers know it was written by the agent and not by you directly.
+
+##
+
+​
+
 Moving tasks between web and terminal
 
 You can start new tasks on the web from your terminal, or pull web sessions into your terminal to continue locally. Web sessions persist even if you close your laptop, and you can monitor them from anywhere including the Claude mobile app.
@@ -89,12 +119,6 @@ From terminal to web
 
 Start a web session from the command line with the `--remote` flag:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --remote "Fix the authentication bug in src/auth/login.ts"
 
 This creates a new web session on claude.ai. The task runs in the cloud while you continue working locally. Use `/tasks` to check progress, or open the session on claude.ai or the Claude mobile app to interact directly. From there you can steer Claude, provide feedback, or answer questions just like any other conversation.
@@ -107,31 +131,13 @@ Tips for remote tasks
 
 **Plan locally, execute remotely** : For complex tasks, start Claude in plan mode to collaborate on the approach, then send work to the web:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --permission-mode plan
 
 In plan mode, Claude can only read files and explore the codebase. Once you’re satisfied with the plan, start a remote session for autonomous execution:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --remote "Execute the migration plan in docs/migration-plan.md"
 
 This pattern gives you control over the strategy while letting Claude execute autonomously in the cloud. **Run tasks in parallel** : Each `--remote` command creates its own web session that runs independently. You can kick off multiple tasks and they’ll all run simultaneously in separate sessions:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --remote "Fix the flaky test in auth.spec.ts"
     claude --remote "Update the API documentation"
@@ -254,12 +260,6 @@ Checking available tools
 
 To see what’s pre-installed in your environment, ask Claude Code to run:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     check-tools
 
 This command displays:
@@ -315,12 +315,6 @@ Claude operates entirely through the terminal and CLI tools available in the env
 
 Environment variables must be specified as key-value pairs, in [`.env` format](<https://www.dotenv.org/>). For example:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     API_KEY=your_api_key
     DEBUG=true
 
@@ -335,12 +329,6 @@ A setup script is a Bash script that runs when a new cloud session starts, befor
 To check what’s already installed before adding it to your script, ask Claude to run `check-tools` in a cloud session.
 
 To add a setup script, open the environment settings dialog and enter your script in the **Setup script** field. This example installs the `gh` CLI, which isn’t in the default image:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     #!/bin/bash
     apt update && apt install -y gh
@@ -374,23 +362,11 @@ Dependency management
 
 Custom environment images and snapshots are not yet supported. Use setup scripts to install packages when a session starts, or [SessionStart hooks](</docs/en/hooks#sessionstart>) for dependency installation that should also run in local environments. SessionStart hooks have known limitations. To configure automatic dependency installation with a setup script, open your environment settings and add a script:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     npm install
     pip install -r requirements.txt
 
 Alternatively, you can use SessionStart hooks in your repository’s `.claude/settings.json` file for dependency installation that should also run in local environments:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -409,12 +385,6 @@ Ask AI
     }
 
 Create the corresponding script at `scripts/install_pkgs.sh`:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     #!/bin/bash
 

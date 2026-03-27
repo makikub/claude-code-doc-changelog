@@ -40,12 +40,6 @@ You can start a dedicated Remote Control server, start an interactive session wi
 
 Navigate to your project directory and run:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude remote-control
 
 The process stays running in your terminal in server mode, waiting for remote connections. It displays a session URL you can use to connect from another device, and you can press spacebar to show a QR code for quick access from your phone. While a remote session is active, the terminal shows connection status and tool activity.Available flags:
@@ -62,21 +56,9 @@ Flag| Description
 
 To start a normal interactive Claude Code session with Remote Control enabled, use the `--remote-control` flag (or `--rc`):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --remote-control
 
 Optionally pass a name for the session:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --remote-control "My Project"
 
@@ -84,21 +66,9 @@ This gives you a full interactive session in your terminal that you can also con
 
 If you’re already in a Claude Code session and want to continue it remotely, use the `/remote-control` (or `/rc`) command:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /remote-control
 
 Pass a name as an argument to set a custom session title:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /remote-control My Project
 
@@ -169,6 +139,30 @@ Troubleshooting
 
 ​
 
+”Remote Control requires a claude.ai subscription”
+
+You’re not authenticated with a claude.ai account. Run `claude auth login` and choose the claude.ai option. If `ANTHROPIC_API_KEY` is set in your environment, unset it first.
+
+###
+
+​
+
+”Remote Control requires a full-scope login token”
+
+You’re authenticated with a long-lived token from `claude setup-token` or the `CLAUDE_CODE_OAUTH_TOKEN` environment variable. These tokens are limited to inference-only and cannot establish Remote Control sessions. Run `claude auth login` to authenticate with a full-scope session token instead.
+
+###
+
+​
+
+”Unable to determine your organization for Remote Control eligibility”
+
+Your cached account information is stale or incomplete. Run `claude auth login` to refresh it.
+
+###
+
+​
+
 ”Remote Control is not yet enabled for your account”
 
 The eligibility check can fail with certain environment variables present:
@@ -197,12 +191,6 @@ This error has three distinct causes. Run `/status` first to see which login met
 ”Remote credentials fetch failed”
 
 Claude Code could not obtain a short-lived credential from the Anthropic API to establish the connection. Re-run with `--verbose` to see the full error:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude remote-control --verbose
 

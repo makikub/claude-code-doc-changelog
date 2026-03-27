@@ -18,23 +18,11 @@ Suppose you’ve just joined a new project and need to understand its structure 
 
 Navigate to the project root directory
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     cd /path/to/project
 
 2
 
 Start Claude Code
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude
 
@@ -42,39 +30,15 @@ Ask AI
 
 Ask for a high-level overview
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     give me an overview of this codebase
 
 4
 
 Dive deeper into specific components
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     explain the main architecture patterns used here
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     what are the key data models?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     how is authentication handled?
 
@@ -96,35 +60,17 @@ Suppose you need to locate code related to a specific feature or functionality.
 
 Ask Claude to find relevant files
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     find the files that handle user authentication
 
 2
 
 Get context on how components interact
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     how do these authentication files work together?
 
 3
 
 Understand the execution flow
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     trace the login process from front-end to database
 
@@ -148,35 +94,17 @@ Suppose you’ve encountered an error message and need to find and fix its sourc
 
 Share the error with Claude
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     I'm seeing an error when I run npm test
 
 2
 
 Ask for fix recommendations
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     suggest a few ways to fix the @ts-ignore in user.ts
 
 3
 
 Apply the fix
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     update user.ts to add the null check you suggested
 
@@ -200,23 +128,11 @@ Suppose you need to update old code to use modern patterns and practices.
 
 Identify legacy code for refactoring
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     find deprecated API usage in our codebase
 
 2
 
 Get refactoring recommendations
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     suggest how to refactor utils.js to use modern JavaScript features
 
@@ -224,23 +140,11 @@ Ask AI
 
 Apply the changes safely
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     refactor utils.js to use ES2024 features while maintaining the same behavior
 
 4
 
 Verify the refactoring
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     run tests for the refactored code
 
@@ -264,12 +168,6 @@ Suppose you want to use specialized AI subagents to handle specific tasks more e
 
 View available subagents
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /agents
 
 This shows all available subagents and lets you create new ones.
@@ -280,19 +178,7 @@ Use subagents automatically
 
 Claude Code automatically delegates appropriate tasks to specialized subagents:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     review my recent code changes for security issues
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     run all tests and fix any failures
 
@@ -300,31 +186,13 @@ Ask AI
 
 Explicitly request specific subagents
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     use the code-reviewer subagent to check the auth module
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     have the debugger subagent investigate why users can't log in
 
 4
 
 Create custom subagents for your workflow
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /agents
 
@@ -370,21 +238,9 @@ How to use Plan Mode
 
 **Turn on Plan Mode during a session** You can switch into Plan Mode during a session using **Shift+Tab** to cycle through permission modes. If you are in Normal Mode, **Shift+Tab** first switches into Auto-Accept Mode, indicated by `⏵⏵ accept edits on` at the bottom of the terminal. A subsequent **Shift+Tab** will switch into Plan Mode, indicated by `⏸ plan mode on`. **Start a new session in Plan Mode** To start a new session in Plan Mode, use the `--permission-mode plan` flag:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --permission-mode plan
 
 **Run “headless” queries in Plan Mode** You can also run a query in Plan Mode directly with `-p` (that is, in [“headless mode”](</docs/en/headless>)):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --permission-mode plan -p "Analyze the authentication system and suggest improvements"
 
@@ -394,37 +250,13 @@ Ask AI
 
 Example: Planning a complex refactor
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --permission-mode plan
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     I need to refactor our authentication system to use OAuth2. Create a detailed migration plan.
 
 Claude analyzes the current implementation and create a comprehensive plan. Refine with follow-ups:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     What about backward compatibility?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     How should we handle database migration?
 
@@ -437,12 +269,6 @@ When you accept a plan, Claude automatically names the session from the plan con
 ​
 
 Configure Plan Mode as default
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     // .claude/settings.json
     {
@@ -467,23 +293,11 @@ Suppose you need to add tests for uncovered code.
 
 Identify untested code
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     find functions in NotificationsService.swift that are not covered by tests
 
 2
 
 Generate test scaffolding
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     add tests for the notification service
 
@@ -491,23 +305,11 @@ Ask AI
 
 Add meaningful test cases
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     add test cases for edge conditions in the notification service
 
 4
 
 Run and verify tests
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     run the new tests and fix any failures
 
@@ -527,35 +329,17 @@ You can create pull requests by asking Claude directly (“create a pr for my ch
 
 Summarize your changes
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     summarize the changes I've made to the authentication module
 
 2
 
 Generate a pull request
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     create a pr
 
 3
 
 Review and refine
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     enhance the PR description with more context about the security improvements
 
@@ -575,23 +359,11 @@ Suppose you need to add or update documentation for your code.
 
 Identify undocumented code
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     find functions without proper JSDoc comments in the auth module
 
 2
 
 Generate documentation
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     add JSDoc comments to the undocumented functions in auth.js
 
@@ -599,23 +371,11 @@ Ask AI
 
 Review and enhance
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     improve the generated documentation with more context and examples
 
 4
 
 Verify documentation
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     check if the documentation follows our project standards
 
@@ -649,27 +409,9 @@ You can use any of these methods:
 
 Ask Claude to analyze the image
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     What does this image show?
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Describe the UI elements in this screenshot
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     Are there any problematic elements in this diagram?
 
@@ -677,19 +419,7 @@ Ask AI
 
 Use images for context
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Here's a screenshot of the error. What's causing it?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     This is our current database schema. How should we modify it for the new feature?
 
@@ -697,19 +427,7 @@ Ask AI
 
 Get code suggestions from visual content
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Generate CSS to match this design mockup
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     What HTML structure would recreate this component?
 
@@ -735,12 +453,6 @@ Use @ to quickly include files or directories without waiting for Claude to read
 
 Reference a single file
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Explain the logic in @src/utils/auth.js
 
 This includes the full content of the file in the conversation.
@@ -749,12 +461,6 @@ This includes the full content of the file in the conversation.
 
 Reference a directory
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     What's the structure of @src/components?
 
 This provides a directory listing with file information.
@@ -762,12 +468,6 @@ This provides a directory listing with file information.
 3
 
 Reference MCP resources
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     Show me the data from @github:repos/owner/repo/issues
 
@@ -851,21 +551,9 @@ Name the session
 
 Name a session at startup with `-n`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude -n auth-refactor
 
 Or use `/rename` during a session, which also shows the name on the prompt bar:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /rename auth-refactor
 
@@ -877,21 +565,9 @@ Resume by name later
 
 From the command line:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --resume auth-refactor
 
 Or from inside an active session:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /resume auth-refactor
 
@@ -951,12 +627,6 @@ Run parallel Claude Code sessions with Git worktrees
 
 When working on multiple tasks at once, you need each Claude session to have its own copy of the codebase so changes don’t collide. Git worktrees solve this by creating separate working directories that each have their own files and branch, while sharing the same repository history and remote connections. This means you can have Claude working on a feature in one worktree while fixing a bug in another, without either session interfering with the other. Use the `--worktree` (`-w`) flag to create an isolated worktree and start Claude in it. The value you pass becomes the worktree directory name and branch name:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Start Claude in a worktree named "feature-auth"
     # Creates .claude/worktrees/feature-auth/ with a new branch
     claude --worktree feature-auth
@@ -965,12 +635,6 @@ Ask AI
     claude --worktree bugfix-123
 
 If you omit the name, Claude generates a random one automatically:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Auto-generates a name like "bright-running-fox"
     claude --worktree
@@ -1004,15 +668,25 @@ Add `.claude/worktrees/` to your `.gitignore` to prevent worktree contents from 
 
 ​
 
+Copy gitignored files to worktrees
+
+Git worktrees are fresh checkouts, so they don’t include untracked files like `.env` or `.env.local` from your main repository. To automatically copy these files when Claude creates a worktree, add a `.worktreeinclude` file to your project root. The file uses `.gitignore` syntax to list which files to copy. Only files that match a pattern and are also gitignored get copied, so tracked files are never duplicated.
+
+.worktreeinclude
+
+    .env
+    .env.local
+    config/secrets.json
+
+This applies to worktrees created with `--worktree`, subagent worktrees, and parallel sessions in the [desktop app](</docs/en/desktop#work-in-parallel-with-sessions>).
+
+###
+
+​
+
 Manage worktrees manually
 
 For more control over worktree location and branch configuration, create worktrees with Git directly. This is useful when you need to check out a specific existing branch or place the worktree outside the repository.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Create a worktree with a new branch
     git worktree add ../project-feature-a -b feature-a
@@ -1061,12 +735,6 @@ Open `~/.claude/settings.json` and add a `Notification` hook that calls your pla
 
   * Windows
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "Notification": [
@@ -1083,12 +751,6 @@ Ask AI
       }
     }
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "Notification": [
@@ -1104,12 +766,6 @@ Ask AI
         ]
       }
     }
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -1166,12 +822,6 @@ Add Claude to your verification process
 
 Suppose you want to use Claude Code as a linter or code reviewer. **Add Claude to your build script:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     // package.json
     {
         ...
@@ -1195,12 +845,6 @@ Pipe in, pipe out
 
 Suppose you want to pipe data into Claude, and get back data in a structured format. **Pipe data through Claude:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     cat build-error.txt | claude -p 'concisely explain the root cause of this build error' > output.txt
 
 Tips:
@@ -1221,12 +865,6 @@ Suppose you need Claude’s output in a specific format, especially when integra
 
 Use text format (default)
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     cat data.txt | claude -p 'summarize this data' --output-format text > summary.txt
 
 This outputs just Claude’s plain text response (default behavior).
@@ -1235,12 +873,6 @@ This outputs just Claude’s plain text response (default behavior).
 
 Use JSON format
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     cat code.py | claude -p 'analyze this code for bugs' --output-format json > analysis.json
 
 This outputs a JSON array of messages with metadata including cost and duration.
@@ -1248,12 +880,6 @@ This outputs a JSON array of messages with metadata including cost and duration.
 3
 
 Use streaming JSON format
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     cat log.txt | claude -p 'parse this log file for errors' --output-format stream-json
 
@@ -1300,51 +926,15 @@ Claude has built-in access to its documentation and can answer questions about i
 
 Example questions
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     can Claude Code create pull requests?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     how does Claude Code handle permissions?
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     what skills are available?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     how do I use MCP with Claude Code?
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     how do I configure Claude Code for Amazon Bedrock?
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     what are the limitations of Claude Code?
 

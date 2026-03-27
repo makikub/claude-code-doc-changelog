@@ -20,12 +20,6 @@ Field| Description
 
 This example binds `Ctrl+E` to open an external editor in the chat context, and unbinds `Ctrl+U`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "$schema": "https://www.schemastore.org/claude-code-keybindings.json",
       "$docs": "https://code.claude.com/docs/en/keybindings",
@@ -123,6 +117,7 @@ Action| Default| Description
 `chat:fastMode`| Meta+O| Toggle fast mode
 `chat:thinkingToggle`| Cmd+T / Meta+T| Toggle extended thinking
 `chat:submit`| Enter| Submit message
+`chat:newline`| (unbound)| Insert a newline without submitting
 `chat:undo`| Ctrl+_| Undo last action
 `chat:externalEditor`| Ctrl+G, Ctrl+X Ctrl+E| Open in external editor
 `chat:stash`| Ctrl+S| Stash current prompt
@@ -406,12 +401,6 @@ Use modifier keys with the `+` separator:
 
 For example:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ctrl+k          Single key with modifier
     shift+tab       Shift + Tab
     meta+p          Command/Meta + P
@@ -432,12 +421,6 @@ A standalone uppercase letter implies Shift. For example, `K` is equivalent to `
 Chords
 
 Chords are sequences of keystrokes separated by spaces:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ctrl+k ctrl+s   Press Ctrl+K, release, then Ctrl+S
 
@@ -462,12 +445,6 @@ Unbind default shortcuts
 
 Set an action to `null` to unbind a default shortcut:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "bindings": [
         {
@@ -478,6 +455,23 @@ Ask AI
         }
       ]
     }
+
+This also works for chord bindings. Unbinding every chord that shares a prefix frees that prefix for use as a single-key binding:
+
+    {
+      "bindings": [
+        {
+          "context": "Chat",
+          "bindings": {
+            "ctrl+x ctrl+k": null,
+            "ctrl+x ctrl+e": null,
+            "ctrl+x": "chat:newline"
+          }
+        }
+      ]
+    }
+
+If you unbind some but not all chords on a prefix, pressing the prefix still enters chord-wait mode for the remaining bindings.
 
 ##
 

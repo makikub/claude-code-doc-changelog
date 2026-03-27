@@ -50,12 +50,6 @@ Amazon Bedrock
 
 Route Bedrock traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Enable Bedrock
     export CLAUDE_CODE_USE_BEDROCK=1
     export AWS_REGION=us-east-1
@@ -64,12 +58,6 @@ Ask AI
     export HTTPS_PROXY='https://proxy.example.com:8080'
 
 Route Bedrock traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Enable Bedrock
     export CLAUDE_CODE_USE_BEDROCK=1
@@ -90,12 +78,6 @@ Microsoft Foundry
 
 Route Foundry traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Enable Microsoft Foundry
     export CLAUDE_CODE_USE_FOUNDRY=1
     export ANTHROPIC_FOUNDRY_RESOURCE=your-resource
@@ -105,12 +87,6 @@ Ask AI
     export HTTPS_PROXY='https://proxy.example.com:8080'
 
 Route Foundry traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Enable Microsoft Foundry
     export CLAUDE_CODE_USE_FOUNDRY=1
@@ -131,12 +107,6 @@ Google Vertex AI
 
 Route Vertex AI traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Enable Vertex
     export CLAUDE_CODE_USE_VERTEX=1
     export CLOUD_ML_REGION=us-east5
@@ -146,12 +116,6 @@ Ask AI
     export HTTPS_PROXY='https://proxy.example.com:8080'
 
 Route Vertex AI traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Enable Vertex
     export CLAUDE_CODE_USE_VERTEX=1

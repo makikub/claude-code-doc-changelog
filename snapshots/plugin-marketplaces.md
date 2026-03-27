@@ -27,12 +27,6 @@ This example creates a marketplace with one plugin: a `/quality-review` skill fo
 
 Create the directory structure
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     mkdir -p my-marketplace/.claude-plugin
     mkdir -p my-marketplace/plugins/quality-review-plugin/.claude-plugin
     mkdir -p my-marketplace/plugins/quality-review-plugin/skills/quality-review
@@ -44,12 +38,6 @@ Create the skill
 Create a `SKILL.md` file that defines what the `/quality-review` skill does.
 
 my-marketplace/plugins/quality-review-plugin/skills/quality-review/SKILL.md
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ---
     description: Review code for bugs, security, and performance
@@ -72,12 +60,6 @@ Create a `plugin.json` file that describes the plugin. The manifest goes in the 
 
 my-marketplace/plugins/quality-review-plugin/.claude-plugin/plugin.json
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "quality-review-plugin",
       "description": "Adds a /quality-review skill for quick code reviews",
@@ -91,12 +73,6 @@ Create the marketplace file
 Create the marketplace catalog that lists your plugin.
 
 my-marketplace/.claude-plugin/marketplace.json
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "my-plugins",
@@ -118,12 +94,6 @@ Add and install
 
 Add the marketplace and install the plugin.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /plugin marketplace add ./my-marketplace
     /plugin install quality-review-plugin@my-plugins
 
@@ -132,12 +102,6 @@ Ask AI
 Try it out
 
 Select some code in your editor and run your new command.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /quality-review
 
@@ -152,12 +116,6 @@ To learn more about what plugins can do, including hooks, agents, MCP servers, a
 Create the marketplace file
 
 Create `.claude-plugin/marketplace.json` in your repository root. This file defines your marketplace’s name, owner information, and a list of plugins with their sources. Each plugin entry needs at minimum a `name` and `source` (where to fetch it from). See the full schema below for all available fields.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "company-tools",
@@ -310,12 +268,6 @@ Relative paths
 
 For plugins in the same repository, use a path starting with `./`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "my-plugin",
       "source": "./plugins/my-plugin"
@@ -331,12 +283,6 @@ Relative paths only work when users add your marketplace via Git (GitHub, GitLab
 
 GitHub repositories
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "github-plugin",
       "source": {
@@ -346,12 +292,6 @@ Ask AI
     }
 
 You can pin to a specific branch, tag, or commit:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "github-plugin",
@@ -375,12 +315,6 @@ Field| Type| Description
 
 Git repositories
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "git-plugin",
       "source": {
@@ -390,12 +324,6 @@ Ask AI
     }
 
 You can pin to a specific branch, tag, or commit:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "git-plugin",
@@ -421,12 +349,6 @@ Git subdirectories
 
 Use `git-subdir` to point to a plugin that lives inside a subdirectory of a git repository. Claude Code uses a sparse, partial clone to fetch only the subdirectory, minimizing bandwidth for large monorepos.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "my-plugin",
       "source": {
@@ -437,12 +359,6 @@ Ask AI
     }
 
 You can pin to a specific branch, tag, or commit:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "my-plugin",
@@ -472,12 +388,6 @@ npm packages
 
 Plugins distributed as npm packages are installed using `npm install`. This works with any package on the public npm registry or a private registry your team hosts.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "my-npm-plugin",
       "source": {
@@ -487,12 +397,6 @@ Ask AI
     }
 
 To pin to a specific version, add the `version` field:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "my-npm-plugin",
@@ -504,12 +408,6 @@ Ask AI
     }
 
 To install from a private or internal registry, add the `registry` field:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "my-npm-plugin",
@@ -534,12 +432,6 @@ Field| Type| Description
 Advanced plugin entries
 
 This example shows a plugin entry using many of the optional fields, including custom paths for commands, agents, hooks, and MCP servers:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "enterprise-tools",
@@ -638,12 +530,6 @@ Host on other git services
 
 Any git hosting service works, such as GitLab, Bitbucket, and self-hosted servers. Users add with the full repository URL:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /plugin marketplace add https://gitlab.com/company/plugins.git
 
 ###
@@ -662,12 +548,6 @@ Bitbucket| `BITBUCKET_TOKEN`| App password or repository access token
 
 Set the token in your shell configuration (for example, `.bashrc`, `.zshrc`) or pass it when running Claude Code:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
 
 For CI/CD environments, configure the token as a secret environment variable. GitHub Actions automatically provides `GITHUB_TOKEN` for repositories in the same organization.
@@ -679,12 +559,6 @@ For CI/CD environments, configure the token as a secret environment variable. Gi
 Test locally before distribution
 
 Test your marketplace locally before sharing:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /plugin marketplace add ./my-local-marketplace
     /plugin install test-plugin@my-local-marketplace
@@ -699,12 +573,6 @@ Require marketplaces for your team
 
 You can configure your repository so team members are automatically prompted to install your marketplace when they trust the project folder. Add your marketplace to `.claude/settings.json`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "extraKnownMarketplaces": {
         "company-tools": {
@@ -717,12 +585,6 @@ Ask AI
     }
 
 You can also specify which plugins should be enabled by default:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "enabledPlugins": {
@@ -740,12 +602,6 @@ For full configuration options, see [Plugin settings](</docs/en/settings#plugin-
 Pre-populate plugins for containers
 
 For container images and CI environments, you can pre-populate a plugins directory at build time so Claude Code starts with marketplaces and plugins already available, without cloning anything at runtime. Set the `CLAUDE_CODE_PLUGIN_SEED_DIR` environment variable to point at this directory. To layer multiple seed directories, separate paths with `:` on Unix or `;` on Windows. Claude Code searches each directory in order, and the first seed that contains a given marketplace or plugin cache wins. The seed directory mirrors the structure of `~/.claude/plugins`:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     $CLAUDE_CODE_PLUGIN_SEED_DIR/
       known_marketplaces.json
@@ -781,23 +637,11 @@ Common configurations
 
 Disable all marketplace additions:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "strictKnownMarketplaces": []
     }
 
 Allow specific marketplaces only:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "strictKnownMarketplaces": [
@@ -819,12 +663,6 @@ Ask AI
 
 Allow all marketplaces from an internal git server using regex pattern matching on the host:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "strictKnownMarketplaces": [
         {
@@ -835,12 +673,6 @@ Ask AI
     }
 
 Allow filesystem-based marketplaces from a specific directory using regex pattern matching on the path:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "strictKnownMarketplaces": [
@@ -892,12 +724,6 @@ The plugin’s `plugin.json` must declare a different `version` at each pinned r
 
 ##### Example
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "stable-tools",
       "plugins": [
@@ -911,12 +737,6 @@ Ask AI
         }
       ]
     }
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "latest-tools",
@@ -936,12 +756,6 @@ Ask AI
 
 Assign each marketplace to the appropriate user group through managed settings. For example, the stable group receives:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "extraKnownMarketplaces": {
         "stable-tools": {
@@ -954,12 +768,6 @@ Ask AI
     }
 
 The early-access group receives `latest-tools` instead:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "extraKnownMarketplaces": {
@@ -980,41 +788,17 @@ Validation and testing
 
 Test your marketplace before sharing. Validate your marketplace JSON syntax:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude plugin validate .
 
 Or from within Claude Code:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /plugin validate .
 
 Add the marketplace for testing:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /plugin marketplace add ./path/to/marketplace
 
 Install a test plugin to verify everything works:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /plugin install test-plugin@marketplace-name
 
@@ -1103,12 +887,6 @@ Git operations time out
 
 **Symptoms** : Plugin installation or marketplace updates fail with a timeout error like “Git clone timed out after 120s” or “Git pull timed out after 120s”. **Cause** : Claude Code uses a 120-second timeout for all git operations, including cloning plugin repositories and pulling marketplace updates. Large repositories or slow network connections may exceed this limit. **Solution** : Increase the timeout using the `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` environment variable. The value is in milliseconds:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=300000  # 5 minutes
 
 ###
@@ -1120,12 +898,6 @@ Plugins with relative paths fail in URL-based marketplaces
 **Symptoms** : Added a marketplace via URL (such as `https://example.com/marketplace.json`), but plugins with relative path sources like `"./plugins/my-plugin"` fail to install with “path not found” errors. **Cause** : URL-based marketplaces only download the `marketplace.json` file itself. They do not download plugin files from the server. Relative paths in the marketplace entry reference files on the remote server that were not downloaded. **Solutions** :
 
   * **Use external sources** : Change plugin entries to use GitHub, npm, or git URL sources instead of relative paths:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
         { "name": "my-plugin", "source": { "source": "github", "repo": "owner/repo" } }
 

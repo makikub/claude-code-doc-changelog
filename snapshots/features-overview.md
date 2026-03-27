@@ -154,7 +154,7 @@ Pattern| How it works| Example
 
 Understand context costs
 
-Every feature you add consumes some of Claude’s context. Too much can fill up your context window, but it can also add noise that makes Claude less effective; skills may not trigger correctly, or Claude may lose track of your conventions. Understanding these trade-offs helps you build an effective setup.
+Every feature you add consumes some of Claude’s context. Too much can fill up your context window, but it can also add noise that makes Claude less effective; skills may not trigger correctly, or Claude may lose track of your conventions. Understanding these trade-offs helps you build an effective setup. For an interactive view of how these features combine in a running session, see [Explore the context window](</docs/en/context-window>).
 
 ###
 
@@ -168,7 +168,7 @@ Feature| When it loads| What loads| Context cost
 ---|---|---|---
 **CLAUDE.md**|  Session start| Full content| Every request
 **Skills**|  Session start + when used| Descriptions at start, full content when used| Low (descriptions every request)*
- **MCP servers**|  Session start| All tool definitions and schemas| Every request
+ **MCP servers**|  Session start| Tool names; full schemas on demand| Low until a tool is used
 **Subagents**|  When spawned| Fresh context with specified skills| Isolated from main session
 **Hooks**|  On trigger| Nothing (runs externally)| Zero, unless hook returns additional context
 
@@ -200,7 +200,7 @@ Skills are extra capabilities in Claude’s toolkit. They can be reference mater
 
 Use `disable-model-invocation: true` for skills with side effects. This saves context and ensures only you trigger them.
 
-**When:** Session start.**What loads:** All tool definitions and JSON schemas from connected servers.**Context cost:** [Tool search](</docs/en/mcp#scale-with-mcp-tool-search>) (enabled by default) loads MCP tools up to 10% of context and defers the rest until needed.**Reliability note:** MCP connections can fail silently mid-session. If a server disconnects, its tools disappear without warning. Claude may try to use a tool that no longer exists. If you notice Claude failing to use an MCP tool it previously could access, check the connection with `/mcp`.
+**When:** Session start.**What loads:** Tool names from connected servers. Full JSON schemas stay deferred until Claude needs a specific tool.**Context cost:** [Tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is on by default, so idle MCP tools consume minimal context.**Reliability note:** MCP connections can fail silently mid-session. If a server disconnects, its tools disappear without warning. Claude may try to use a tool that no longer exists. If you notice Claude failing to use an MCP tool it previously could access, check the connection with `/mcp`.
 
 Run `/mcp` to see token costs per server. Disconnect servers you’re not actively using.
 

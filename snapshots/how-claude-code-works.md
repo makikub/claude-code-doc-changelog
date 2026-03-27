@@ -55,7 +55,7 @@ This guide focuses on the terminal. Claude Code also runs in [VS Code](</docs/en
   * **Your terminal.** Any command you could run: build tools, git, package managers, system utilities, scripts. If you can do it from the command line, Claude can too.
   * **Your git state.** Current branch, uncommitted changes, and recent commit history.
   * **Your[CLAUDE.md](</docs/en/memory>).** A markdown file where you store project-specific instructions, conventions, and context that Claude should know every session.
-  * **[Auto memory](</docs/en/memory#auto-memory>).** Learnings Claude saves automatically as you work, like project patterns and your preferences. The first 200 lines of MEMORY.md are loaded at the start of each session.
+  * **[Auto memory](</docs/en/memory#auto-memory>).** Learnings Claude saves automatically as you work, like project patterns and your preferences. The first 200 lines or 25KB of MEMORY.md, whichever comes first, load at the start of each session.
   * **Extensions you configure.** [MCP servers](</docs/en/mcp>) for external services, [skills](</docs/en/skills>) for workflows, [subagents](</docs/en/sub-agents>) for delegated work, and [Claude in Chrome](</docs/en/chrome>) for browser interaction.
 
 Because Claude sees your whole project, it can work across it. When you ask Claude to “fix the authentication bug,” it searches for relevant files, reads multiple files to understand context, makes coordinated edits across them, runs tests to verify the fix, and commits the changes if you ask. This is different from inline code assistants that only see the current file.
@@ -114,12 +114,6 @@ Resume or fork sessions
 
 When you resume a session with `claude --continue` or `claude --resume`, you pick up where you left off using the same session ID. New messages append to the existing conversation. Your full conversation history is restored, but session-scoped permissions are not. You’ll need to re-approve those. To branch off and try a different approach without affecting the original session, use the `--fork-session` flag:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --continue --fork-session
 
 This creates a new session ID while preserving the conversation history up to that point. The original session remains unchanged. Like resume, forked sessions don’t inherit session-scoped permissions. **Same session in multiple terminals** : If you resume the same session in multiple terminals, both terminals write to the same session file. Messages from both get interleaved, like two people writing in the same notebook. Nothing corrupts, but the conversation becomes jumbled. Each terminal only sees its own messages during the session, but if you resume that session later, you’ll see everything interleaved. For parallel work from the same starting point, use `--fork-session` to give each terminal its own clean session.
@@ -130,7 +124,7 @@ This creates a new session ID while preserving the conversation history up to th
 
 The context window
 
-Claude’s context window holds your conversation history, file contents, command outputs, [CLAUDE.md](</docs/en/memory>), [auto memory](</docs/en/memory#auto-memory>), loaded skills, and system instructions. As you work, context fills up. Claude compacts automatically, but instructions from early in the conversation can get lost. Put persistent rules in CLAUDE.md, and run `/context` to see what’s using space.
+Claude’s context window holds your conversation history, file contents, command outputs, [CLAUDE.md](</docs/en/memory>), [auto memory](</docs/en/memory#auto-memory>), loaded skills, and system instructions. As you work, context fills up. Claude compacts automatically, but instructions from early in the conversation can get lost. Put persistent rules in CLAUDE.md, and run `/context` to see what’s using space. For an interactive walkthrough of what loads and when, see [Explore the context window](</docs/en/context-window>).
 
 ####
 
@@ -138,7 +132,7 @@ Claude’s context window holds your conversation history, file contents, comman
 
 When context fills up
 
-Claude Code manages context automatically as you approach the limit. It clears older tool outputs first, then summarizes the conversation if needed. Your requests and key code snippets are preserved; detailed instructions from early in the conversation may be lost. Put persistent rules in CLAUDE.md rather than relying on conversation history. To control what’s preserved during compaction, add a “Compact Instructions” section to CLAUDE.md or run `/compact` with a focus (like `/compact focus on the API changes`). Run `/context` to see what’s using space. MCP servers add tool definitions to every request, so a few servers can consume significant context before you start working. Run `/mcp` to check per-server costs.
+Claude Code manages context automatically as you approach the limit. It clears older tool outputs first, then summarizes the conversation if needed. Your requests and key code snippets are preserved; detailed instructions from early in the conversation may be lost. Put persistent rules in CLAUDE.md rather than relying on conversation history. To control what’s preserved during compaction, add a “Compact Instructions” section to CLAUDE.md or run `/compact` with a focus (like `/compact focus on the API changes`). Run `/context` to see what’s using space. MCP tool definitions are deferred by default and loaded on demand via [tool search](</docs/en/mcp#scale-with-mcp-tool-search>), so only tool names consume context until Claude uses a specific tool. Run `/mcp` to check per-server costs.
 
 ####
 
@@ -209,21 +203,9 @@ It’s a conversation
 
 Claude Code is conversational. You don’t need perfect prompts. Start with what you want, then refine:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Fix the login bug
 
 [Claude investigates, tries something]
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     That's not quite right. The issue is in the session handling.
 
@@ -245,12 +227,6 @@ Be specific upfront
 
 The more precise your initial prompt, the fewer corrections you’ll need. Reference specific files, mention constraints, and point to example patterns.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     The checkout flow is broken for users with expired cards.
     Check src/payments/ for the issue, especially token refresh.
     Write a failing test first, then fix it.
@@ -265,12 +241,6 @@ Give Claude something to verify against
 
 Claude performs better when it can check its own work. Include test cases, paste screenshots of expected UI, or define the output you want.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Implement validateEmail. Test cases: '[[email protected]](</cdn-cgi/l/email-protection>)' → true,
     'invalid' → false, '[[email protected]](</cdn-cgi/l/email-protection>)' → false. Run the tests after.
 
@@ -284,12 +254,6 @@ Explore before implementing
 
 For complex problems, separate research from coding. Use plan mode (`Shift+Tab` twice) to analyze the codebase first:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Read src/auth/ and understand how we handle sessions.
     Then create a plan for adding OAuth support.
 
@@ -302,12 +266,6 @@ Review the plan, refine it through conversation, then let Claude implement. This
 Delegate, don’t dictate
 
 Think of delegating to a capable colleague. Give context and direction, then trust Claude to figure out the details:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     The checkout flow is broken for users with expired cards.
     The relevant code is in src/payments/. Can you investigate and fix it?

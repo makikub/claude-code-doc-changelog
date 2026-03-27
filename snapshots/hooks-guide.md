@@ -16,12 +16,6 @@ Add the hook to your settings
 
 Open `~/.claude/settings.json` and add a `Notification` hook. The example below uses `osascript` for macOS; see Get notified when Claude needs input for Linux and Windows commands.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "Notification": [
@@ -84,12 +78,6 @@ Get a desktop notification whenever Claude finishes working and needs your input
 
   * Windows (PowerShell)
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "Notification": [
@@ -106,12 +94,6 @@ Ask AI
       }
     }
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "Notification": [
@@ -127,12 +109,6 @@ Ask AI
         ]
       }
     }
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -157,12 +133,6 @@ Ask AI
 Auto-format code after edits
 
 Automatically run [Prettier](<https://prettier.io/>) on every file Claude edits, so formatting stays consistent without manual intervention. This hook uses the `PostToolUse` event with an `Edit|Write` matcher, so it runs only after file-editing tools. The command extracts the edited file path with [`jq`](<https://jqlang.github.io/jq/>) and passes it to Prettier. Add this to `.claude/settings.json` in your project root:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -196,12 +166,6 @@ Create the hook script
 
 Save this to `.claude/hooks/protect-files.sh`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     # protect-files.sh
 
@@ -225,12 +189,6 @@ Make the script executable (macOS/Linux)
 
 Hook scripts must be executable for Claude Code to run them:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     chmod +x .claude/hooks/protect-files.sh
 
 3
@@ -238,12 +196,6 @@ Ask AI
 Register the hook
 
 Add a `PreToolUse` hook to `.claude/settings.json` that runs the script before any `Edit` or `Write` tool call:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -268,12 +220,6 @@ Ask AI
 Re-inject context after compaction
 
 When Claude’s context window fills up, compaction summarizes the conversation to free space. This can lose important details. Use a `SessionStart` hook with a `compact` matcher to re-inject critical context after every compaction. Any text your command writes to stdout is added to Claude’s context. This example reminds Claude of project conventions and recent work. Add this to `.claude/settings.json` in your project root:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -301,12 +247,6 @@ Audit configuration changes
 
 Track when settings or skills files change during a session. The `ConfigChange` event fires when an external process or editor modifies a configuration file, so you can log changes for compliance or block unauthorized modifications. This example appends each change to an audit log. Add this to `~/.claude/settings.json`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "ConfigChange": [
@@ -333,12 +273,6 @@ Reload environment when directory or files change
 
 Some projects set different environment variables depending on which directory you are in. Tools like [direnv](<https://direnv.net/>) do this automatically in your shell, but Claude’s Bash tool does not pick up those changes on its own. A `CwdChanged` hook fixes this: it runs each time Claude changes directory, so you can reload the correct variables for the new location. The hook writes the updated values to `CLAUDE_ENV_FILE`, which Claude Code applies before each Bash command. Add this to `~/.claude/settings.json`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "CwdChanged": [
@@ -355,12 +289,6 @@ Ask AI
     }
 
 To react to specific files instead of every directory change, use `FileChanged` with a `matcher` listing the filenames to watch (pipe-separated). The `matcher` both configures which files to watch and filters which hooks run. This example watches `.envrc` and `.env` for changes in the current directory:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -388,12 +316,6 @@ Auto-approve specific permission prompts
 
 Skip the approval dialog for tool calls you always allow. This example auto-approves `ExitPlanMode`, the tool Claude calls when it finishes presenting a plan and asks to proceed, so you aren’t prompted every time a plan is ready. Unlike the exit-code examples above, auto-approval requires your hook to write a JSON decision to stdout. A `PermissionRequest` hook fires when Claude Code is about to show a permission dialog, and returning `"behavior": "allow"` answers it on your behalf. The matcher scopes the hook to `ExitPlanMode` only, so no other prompts are affected. Add this to `~/.claude/settings.json`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "PermissionRequest": [
@@ -411,12 +333,6 @@ Ask AI
     }
 
 When the hook approves, Claude Code exits plan mode and restores whatever permission mode was active before you entered plan mode. The transcript shows “Allowed by PermissionRequest hook” where the dialog would have appeared. The hook path always keeps the current conversation: it cannot clear context and start a fresh implementation session the way the dialog can. To set a specific permission mode instead, your hook’s output can include an `updatedPermissions` array with a `setMode` entry. The `mode` value is any permission mode like `default`, `acceptEdits`, or `bypassPermissions`, and `destination: "session"` applies it for the current session only. To switch the session to `acceptEdits`, your hook writes this JSON to stdout:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hookSpecificOutput": {
@@ -451,10 +367,11 @@ Event| When it fires
 `Notification`| When Claude Code sends a notification
 `SubagentStart`| When a subagent is spawned
 `SubagentStop`| When a subagent finishes
+`TaskCreated`| When a task is being created via `TaskCreate`
+`TaskCompleted`| When a task is being marked as completed
 `Stop`| When Claude finishes responding
 `StopFailure`| When the turn ends due to an API error. Output and exit code are ignored
 `TeammateIdle`| When an [agent team](</docs/en/agent-teams>) teammate is about to go idle
-`TaskCompleted`| When a task is being marked as completed
 `InstructionsLoaded`| When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session
 `ConfigChange`| When a configuration file changes during a session
 `CwdChanged`| When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv
@@ -489,12 +406,6 @@ Hook input
 
 Every event includes common fields like `session_id` and `cwd`, but each event type adds different data. For example, when Claude runs a Bash command, a `PreToolUse` hook receives something like this on stdin:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "session_id": "abc123",          // unique ID for this session
       "cwd": "/Users/sarah/myproject", // working directory when the event fired
@@ -514,12 +425,6 @@ Your script can parse that JSON and act on any of those fields. `UserPromptSubmi
 Hook output
 
 Your script tells Claude Code what to do next by writing to stdout or stderr and exiting with a specific code. For example, a `PreToolUse` hook that wants to block a command:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     #!/bin/bash
     INPUT=$(cat)
@@ -550,12 +455,6 @@ Use exit 2 to block with a stderr message, or exit 0 with JSON for structured co
 
 For example, a `PreToolUse` hook can deny a tool call and tell Claude why, or escalate it to the user for approval:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hookSpecificOutput": {
         "hookEventName": "PreToolUse",
@@ -579,12 +478,6 @@ Returning `"allow"` skips the interactive prompt but does not override [permissi
 Filter hooks with matchers
 
 Without a matcher, a hook fires on every occurrence of its event. Matchers let you narrow that down. For example, if you want to run a formatter only after file edits (not after every tool call), add a matcher to your `PostToolUse` hook:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -616,7 +509,7 @@ Event| What the matcher filters| Example matcher values
 `Elicitation`| MCP server name| your configured MCP server names
 `ElicitationResult`| MCP server name| same values as `Elicitation`
 `FileChanged`| filename (basename of the changed file)| `.envrc`, `.env`, any filename you want to watch
-`UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`| no matcher support| always fires on every occurrence
+`UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`| no matcher support| always fires on every occurrence
 
 A few more examples showing matchers on different event types:
 
@@ -627,12 +520,6 @@ A few more examples showing matchers on different event types:
   * Clean up on session end
 
 Match only `Bash` tool calls and log each command to a file. The `PostToolUse` event fires after the command completes, so `tool_input.command` contains what ran. The hook receives the event data as JSON on stdin, and `jq -r '.tool_input.command'` extracts just the command string, which `>>` appends to the log file:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -652,12 +539,6 @@ Ask AI
 
 MCP tools use a different naming convention than built-in tools: `mcp__<server>__<tool>`, where `<server>` is the MCP server name and `<tool>` is the tool it provides. For example, `mcp__github__search_repositories` or `mcp__filesystem__read_file`. Use a regex matcher to target all tools from a specific server, or match across servers with a pattern like `mcp__.*__write.*`. See [Match MCP tools](</docs/en/hooks#match-mcp-tools>) in the reference for the full list of examples.The command below extracts the tool name from the hook’s JSON input with `jq` and writes it to stderr, where it shows up in verbose mode (`Ctrl+O`):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "PreToolUse": [
@@ -675,12 +556,6 @@ Ask AI
     }
 
 The `SessionEnd` event supports matchers on the reason the session ended. This hook only fires on `clear` (when you run `/clear`), not on normal exits:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -732,12 +607,6 @@ For decisions that require judgment rather than deterministic rules, use `type: 
 
 This example uses a `Stop` hook to ask the model whether all requested tasks are complete. If the model returns `"ok": false`, Claude keeps working and uses the `reason` as its next instruction:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "Stop": [
@@ -762,12 +631,6 @@ For full configuration options, see [Prompt-based hooks](</docs/en/hooks#prompt-
 Agent-based hooks
 
 When verification requires inspecting files or running commands, use `type: "agent"` hooks. Unlike prompt hooks which make a single LLM call, agent hooks spawn a subagent that can read files, search code, and use other tools to verify conditions before returning a decision. Agent hooks use the same `"ok"` / `"reason"` response format as prompt hooks, but with a longer default timeout of 60 seconds and up to 50 tool-use turns. This example verifies that tests pass before allowing Claude to stop:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -794,12 +657,6 @@ Use prompt hooks when the hook input data alone is enough to make a decision. Us
 HTTP hooks
 
 Use `type: "http"` hooks to POST event data to an HTTP endpoint instead of running a shell command. The endpoint receives the same JSON that a command hook would receive on stdin, and returns results through the HTTP response body using the same JSON format. HTTP hooks are useful when you want a web server, cloud function, or external service to handle hook logic: for example, a shared audit service that logs tool use events across a team. This example posts every tool use to a local logging service:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -863,12 +720,6 @@ You see a message like “PreToolUse hook error: …” in the transcript.
 
   * Your script exited with a non-zero code unexpectedly. Test it manually by piping sample JSON:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
         echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | ./my-hook.sh
         echo $?  # Check the exit code
 
@@ -896,12 +747,6 @@ Stop hook runs forever
 
 Claude keeps working in an infinite loop instead of stopping. Your Stop hook script needs to check whether it already triggered a continuation. Parse the `stop_hook_active` field from the JSON input and exit early if it’s `true`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     INPUT=$(cat)
     if [ "$(echo "$INPUT" | jq -r '.stop_hook_active')" = "true" ]; then
@@ -917,22 +762,10 @@ JSON validation failed
 
 Claude Code shows a JSON parsing error even though your hook script outputs valid JSON. When Claude Code runs a hook, it spawns a shell that sources your profile (`~/.zshrc` or `~/.bashrc`). If your profile contains unconditional `echo` statements, that output gets prepended to your hook’s JSON:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Shell ready on arm64
     {"decision": "block", "reason": "Not allowed"}
 
 Claude Code tries to parse this as JSON and fails. To fix this, wrap echo statements in your shell profile so they only run in interactive shells:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # In ~/.zshrc or ~/.bashrc
     if [[ $- == *i* ]]; then

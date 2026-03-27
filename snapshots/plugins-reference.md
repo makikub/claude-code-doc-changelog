@@ -16,12 +16,6 @@ Skills
 
 Plugins add skills to Claude Code, creating `/name` shortcuts that you or Claude can invoke. **Location** : `skills/` or `commands/` directory in plugin root **File format** : Skills are directories with `SKILL.md`; commands are simple markdown files **Skill structure** :
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     skills/
     ├── pdf-processor/
     │   ├── SKILL.md
@@ -45,12 +39,6 @@ For complete details, see [Skills](</docs/en/skills>).
 Agents
 
 Plugins can provide specialized subagents for specific tasks that Claude can invoke automatically when appropriate. **Location** : `agents/` directory in plugin root **File format** : Markdown files describing agent capabilities **Agent structure** :
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ---
     name: agent-name
@@ -79,12 +67,6 @@ For complete details, see [Subagents](</docs/en/sub-agents>).
 Hooks
 
 Plugins can provide event handlers that respond to Claude Code events automatically. **Location** : `hooks/hooks.json` in plugin root, or inline in plugin.json **Format** : JSON configuration with event matchers and actions **Hook configuration** :
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -115,10 +97,11 @@ Event| When it fires
 `Notification`| When Claude Code sends a notification
 `SubagentStart`| When a subagent is spawned
 `SubagentStop`| When a subagent finishes
+`TaskCreated`| When a task is being created via `TaskCreate`
+`TaskCompleted`| When a task is being marked as completed
 `Stop`| When Claude finishes responding
 `StopFailure`| When the turn ends due to an API error. Output and exit code are ignored
 `TeammateIdle`| When an [agent team](</docs/en/agent-teams>) teammate is about to go idle
-`TaskCompleted`| When a task is being marked as completed
 `InstructionsLoaded`| When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session
 `ConfigChange`| When a configuration file changes during a session
 `CwdChanged`| When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv
@@ -145,12 +128,6 @@ Event| When it fires
 MCP servers
 
 Plugins can bundle Model Context Protocol (MCP) servers to connect Claude Code with external tools and services. **Location** : `.mcp.json` in plugin root, or inline in plugin.json **Format** : Standard MCP server configuration **MCP server configuration** :
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "mcpServers": {
@@ -192,12 +169,6 @@ Plugins can provide [Language Server Protocol](<https://microsoft.github.io/lang
 
 **Location** : `.lsp.json` in plugin root, or inline in `plugin.json` **Format** : JSON configuration mapping language server names to their configurations **`.lsp.json` file format**:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "go": {
         "command": "gopls",
@@ -209,12 +180,6 @@ Ask AI
     }
 
 **Inline in`plugin.json`**:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "my-plugin",
@@ -298,12 +263,6 @@ The `.claude-plugin/plugin.json` file defines your plugin’s metadata and confi
 
 Complete schema
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "name": "plugin-name",
       "version": "1.2.0",
@@ -382,12 +341,6 @@ User configuration
 
 The `userConfig` field declares values that Claude Code prompts the user for when the plugin is enabled. Use this instead of requiring users to hand-edit `settings.json`.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "userConfig": {
         "api_endpoint": {
@@ -410,12 +363,6 @@ Keys must be valid identifiers. Each value is available for substitution as `${u
 Channels
 
 The `channels` field lets a plugin declare one or more message channels that inject content into the conversation. Each channel binds to an MCP server that the plugin provides.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "channels": [
@@ -446,12 +393,6 @@ For `commands`, `agents`, `skills`, and `outputStyles`, custom paths replace the
 
 **Path examples** :
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "commands": [
         "./specialized/deploy.md",
@@ -470,12 +411,6 @@ Ask AI
 Environment variables
 
 Claude Code provides two variables for referencing plugin paths. Both are substituted inline anywhere they appear in skill content, agent content, hook commands, and MCP or LSP server configs. Both are also exported as environment variables to hook processes and MCP or LSP server subprocesses. **`${CLAUDE_PLUGIN_ROOT}`** : the absolute path to your plugin’s installation directory. Use this to reference scripts, binaries, and config files bundled with the plugin. This path changes when the plugin updates, so files you write here do not survive an update. **`${CLAUDE_PLUGIN_DATA}`** : a persistent directory for plugin state that survives updates. Use this for installed dependencies such as `node_modules` or Python virtual environments, generated code, caches, and any other files that should persist across plugin versions. The directory is created automatically the first time this variable is referenced.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "hooks": {
@@ -500,12 +435,6 @@ Persistent data directory
 
 The `${CLAUDE_PLUGIN_DATA}` directory resolves to `~/.claude/plugins/data/{id}/`, where `{id}` is the plugin identifier with characters outside `a-z`, `A-Z`, `0-9`, `_`, and `-` replaced by `-`. For a plugin installed as `formatter@my-marketplace`, the directory is `~/.claude/plugins/data/formatter-my-marketplace/`. A common use is installing language dependencies once and reusing them across sessions and plugin updates. Because the data directory outlives any single plugin version, a check for directory existence alone cannot detect when an update changes the plugin’s dependency manifest. The recommended pattern compares the bundled manifest against a copy in the data directory and reinstalls when they differ. This `SessionStart` hook installs `node_modules` on the first run and again whenever a plugin update includes a changed `package.json`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "hooks": {
         "SessionStart": [
@@ -522,12 +451,6 @@ Ask AI
     }
 
 The `diff` exits nonzero when the stored copy is missing or differs from the bundled one, covering both first run and dependency-changing updates. If `npm install` fails, the trailing `rm` removes the copied manifest so the next session retries. Scripts bundled in `${CLAUDE_PLUGIN_ROOT}` can then run against the persisted `node_modules`:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "mcpServers": {
@@ -574,12 +497,6 @@ Working with external dependencies
 
 If your plugin needs to access files outside its directory, you can create symbolic links to external files within your plugin directory. Symlinks are honored during the copy process:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Inside your plugin directory
     ln -s /path/to/shared-utils ./shared-utils
 
@@ -600,12 +517,6 @@ Plugin directory structure
 Standard plugin layout
 
 A complete plugin follows this structure:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     enterprise-plugin/
     ├── .claude-plugin/           # Metadata directory (optional)
@@ -676,12 +587,6 @@ plugin install
 
 Install a plugin from available marketplaces.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude plugin install <plugin> [options]
 
 **Arguments:**
@@ -696,12 +601,6 @@ Option| Description| Default
 `-h, --help`| Display help for command|
 
 Scope determines which settings file the installed plugin is added to. For example, —scope project writes to `enabledPlugins` in .claude/settings.json, making the plugin available to everyone who clones the project repository. **Examples:**
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Install to user scope (default)
     claude plugin install formatter@my-marketplace
@@ -719,12 +618,6 @@ Ask AI
 plugin uninstall
 
 Remove an installed plugin.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude plugin uninstall <plugin> [options]
 
@@ -750,12 +643,6 @@ plugin enable
 
 Enable a disabled plugin.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude plugin enable <plugin> [options]
 
 **Arguments:**
@@ -777,12 +664,6 @@ plugin disable
 
 Disable a plugin without uninstalling it.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude plugin disable <plugin> [options]
 
 **Arguments:**
@@ -803,12 +684,6 @@ Option| Description| Default
 plugin update
 
 Update a plugin to the latest version.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude plugin update <plugin> [options]
 
@@ -923,12 +798,6 @@ Directory structure mistakes
 
 **Symptoms** : Plugin loads but components (commands, agents, hooks) are missing. **Correct structure** : Components must be at the plugin root, not inside `.claude-plugin/`. Only `plugin.json` belongs in `.claude-plugin/`.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     my-plugin/
     ├── .claude-plugin/
     │   └── plugin.json      ← Only manifest here
@@ -957,12 +826,6 @@ Distribution and versioning reference
 Version management
 
 Follow semantic versioning for plugin releases:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "name": "my-plugin",

@@ -25,12 +25,6 @@ Use the /statusline command
 
 The `/statusline` command accepts natural language instructions describing what you want displayed. Claude Code generates a script file in `~/.claude/` and updates your settings automatically:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     /statusline show model name and context percentage with a progress bar
 
 ###
@@ -41,12 +35,6 @@ Manually configure a status line
 
 Add a `statusLine` field to your user settings (`~/.claude/settings.json`, where `~` is your home directory) or [project settings](</docs/en/settings#settings-files>). Set `type` to `"command"` and point `command` to a script path or an inline shell command. For a full walkthrough of creating a script, see Build a status line step by step.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "statusLine": {
         "type": "command",
@@ -56,12 +44,6 @@ Ask AI
     }
 
 The `command` field runs in a shell, so you can also use inline commands instead of a script file. This example uses `jq` to parse the JSON input and display the model name and context percentage:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "statusLine": {
@@ -98,12 +80,6 @@ Create a script that reads JSON and prints output
 
 Claude Code sends JSON data to your script via stdin. This script uses [`jq`](<https://jqlang.github.io/jq/>), a command-line JSON parser you may need to install, to extract the model name, directory, and context percentage, then prints a formatted line.Save this to `~/.claude/statusline.sh` (where `~` is your home directory, such as `/Users/username` on macOS or `/home/username` on Linux):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     # Read JSON data that Claude Code sends to stdin
     input=$(cat)
@@ -123,12 +99,6 @@ Make it executable
 
 Mark the script as executable so your shell can run it:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     chmod +x ~/.claude/statusline.sh
 
 3
@@ -136,12 +106,6 @@ Ask AI
 Add to settings
 
 Tell Claude Code to run your script as the status line. Add this configuration to `~/.claude/settings.json`, which sets `type` to `"command"` (meaning “run this shell command”) and points `command` to your script:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "statusLine": {
@@ -206,12 +170,6 @@ Field| Description
 Full JSON schema
 
 Your status line command receives this JSON structure via stdin:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "cwd": "/current/working/directory",
@@ -337,12 +295,6 @@ Python
 
 Node.js
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     # Read all of stdin into a variable
     input=$(cat)
@@ -377,12 +329,6 @@ Bash
 Python
 
 Node.js
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     #!/bin/bash
     input=$(cat)
@@ -422,12 +368,6 @@ Python
 
 Node.js
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     input=$(cat)
 
@@ -457,12 +397,6 @@ Bash
 Python
 
 Node.js
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     #!/bin/bash
     input=$(cat)
@@ -509,12 +443,6 @@ Python
 
 Node.js
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     input=$(cat)
 
@@ -546,12 +474,6 @@ Python
 
 Node.js
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     #!/bin/bash
     input=$(cat)
 
@@ -579,12 +501,6 @@ Bash
 Python
 
 Node.js
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     #!/bin/bash
     input=$(cat)
@@ -632,12 +548,6 @@ settings.json
 
 statusline.ps1
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "statusLine": {
         "type": "command",
@@ -650,12 +560,6 @@ Or run a Bash script directly:
 settings.json
 
 statusline.sh
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     {
       "statusLine": {

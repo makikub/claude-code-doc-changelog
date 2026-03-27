@@ -42,12 +42,6 @@ Check network connectivity
 
 The installer downloads from `storage.googleapis.com`. Verify you can reach it:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     curl -sI https://storage.googleapis.com
 
 If this fails, your network may be blocking the connection. Common causes:
@@ -57,12 +51,6 @@ If this fails, your network may be blocking the connection. Common causes:
   * TLS/SSL issues: update your system’s CA certificates, or check if `HTTPS_PROXY` is configured
 
 If you’re behind a corporate proxy, set `HTTPS_PROXY` and `HTTP_PROXY` to your proxy’s address before installing. Ask your IT team for the proxy URL if you don’t know it, or check your browser’s proxy settings. This example sets both proxy variables, then runs the installer through your proxy:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export HTTP_PROXY=http://proxy.example.com:8080
     export HTTPS_PROXY=http://proxy.example.com:8080
@@ -82,21 +70,9 @@ If installation succeeded but you get a `command not found` or `not recognized` 
 
   * Windows CMD
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     echo $PATH | tr ':' '\n' | grep local/bin
 
 If there’s no output, the directory is missing. Add it to your shell configuration:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Zsh (macOS default)
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
@@ -108,58 +84,22 @@ Ask AI
 
 Alternatively, close and reopen your terminal.Verify the fix worked:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --version
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     $env:PATH -split ';' | Select-String 'local\\bin'
 
 If there’s no output, add the install directory to your User PATH:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     $currentPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
     [Environment]::SetEnvironmentVariable('PATH', "$currentPath;$env:USERPROFILE\.local\bin", 'User')
 
 Restart your terminal for the change to take effect.Verify the fix worked:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --version
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     echo %PATH% | findstr /i "local\bin"
 
 If there’s no output, open System Settings, go to Environment Variables, and add `%USERPROFILE%\.local\bin` to your User PATH variable. Restart your terminal.Verify the fix worked:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --version
 
@@ -177,66 +117,24 @@ Multiple Claude Code installations can cause version mismatches or unexpected be
 
 List all `claude` binaries found in your PATH:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     which -a claude
 
 Check whether the native installer and npm versions are present:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ls -la ~/.local/bin/claude
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ls -la ~/.claude/local/
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     npm -g ls @anthropic-ai/claude-code 2>/dev/null
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     where.exe claude
     Test-Path "$env:LOCALAPPDATA\Claude Code\claude.exe"
 
 If you find multiple installations, keep only one. The native install at `~/.local/bin/claude` is recommended. Remove any extra installations: Uninstall an npm global install:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     npm uninstall -g @anthropic-ai/claude-code
 
 Remove a Homebrew install on macOS:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     brew uninstall --cask claude-code
 
@@ -248,22 +146,10 @@ Check directory permissions
 
 The installer needs write access to `~/.local/bin/` and `~/.claude/`. If installation fails with permission errors, check whether these directories are writable:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     test -w ~/.local/bin && echo "writable" || echo "not writable"
     test -w ~/.claude && echo "writable" || echo "not writable"
 
 If either directory isn’t writable, create the install directory and set your user as the owner:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     sudo mkdir -p ~/.local/bin
     sudo chown -R $(whoami) ~/.local
@@ -276,31 +162,13 @@ Verify the binary works
 
 If `claude` is installed but crashes or hangs on startup, run these checks to narrow down the cause. Confirm the binary exists and is executable:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ls -la $(which claude)
 
 On Linux, check for missing shared libraries. If `ldd` shows missing libraries, you may need to install system packages. On Alpine Linux and other musl-based distributions, see [Alpine Linux setup](</docs/en/setup#alpine-linux-and-musl-based-distributions>).
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ldd $(which claude) | grep "not found"
 
 Run a quick sanity check that the binary can execute:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --version
 
@@ -320,22 +188,10 @@ Install script returns HTML instead of a shell script
 
 When running the install command, you may see one of these errors:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     bash: line 1: syntax error near unexpected token `<'
     bash: line 1: `<!DOCTYPE html>'
 
 On PowerShell, the same problem appears as:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     Invoke-Expression: Missing argument in parameter list.
 
@@ -343,21 +199,9 @@ This means the install URL returned an HTML page instead of the install script. 
 
   1. **Use an alternative install method** : On macOS or Linux, install via Homebrew:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          brew install --cask claude-code
 
 On Windows, install via WinGet:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          winget install Anthropic.ClaudeCode
 
@@ -390,32 +234,14 @@ The `curl ... | bash` command downloads the script and passes it directly to Bas
 
   1. **Check network stability** : Claude Code binaries are hosted on Google Cloud Storage. Test that you can reach it:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          curl -fsSL https://storage.googleapis.com -o /dev/null
 
 If the command completes silently, your connection is fine and the issue is likely intermittent. Retry the install command. If you see an error, your network may be blocking the download.
   2. **Try an alternative install method** : On macOS or Linux:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          brew install --cask claude-code
 
 On Windows:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          winget install Anthropic.ClaudeCode
 
@@ -429,42 +255,18 @@ Errors like `curl: (35) TLS connect error`, `schannel: next InitializeSecurityCo
 
   1. **Update your system CA certificates** : On Ubuntu/Debian:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          sudo apt-get update && sudo apt-get install ca-certificates
 
 On macOS via Homebrew:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          brew install ca-certificates
 
   2. **On Windows, enable TLS 1.2** in PowerShell before running the installer:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
          irm https://claude.ai/install.ps1 | iex
 
   3. **Check for proxy or firewall interference** : corporate proxies that perform TLS inspection can cause these errors, including `unable to get local issuer certificate`. Set `NODE_EXTRA_CA_CERTS` to your corporate CA certificate bundle:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
 
@@ -480,42 +282,18 @@ The installer couldn’t reach the download server. This typically means `storag
 
   1. **Test connectivity directly** :
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          curl -sI https://storage.googleapis.com
 
   2. **If behind a proxy** , set `HTTPS_PROXY` so the installer can route through it. See [proxy configuration](</docs/en/network-config#proxy-configuration>) for details.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          export HTTPS_PROXY=http://proxy.example.com:8080
          curl -fsSL https://claude.ai/install.sh | bash
 
   3. **If on a restricted network** , try a different network or VPN, or use an alternative install method: On macOS or Linux:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          brew install --cask claude-code
 
 On Windows:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          winget install Anthropic.ClaudeCode
 
@@ -529,31 +307,13 @@ If you see `'irm' is not recognized` or `The token '&&' is not valid`, you’re 
 
   * **`irm` not recognized**: you’re in CMD, not PowerShell. You have two options: Open PowerShell by searching for “PowerShell” in the Start menu, then run the original install command:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
         irm https://claude.ai/install.ps1 | iex
 
 Or stay in CMD and use the CMD installer instead:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
         curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 
   * **`&&` not valid**: you’re in PowerShell but ran the CMD installer command. Use the PowerShell installer:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
         irm https://claude.ai/install.ps1 | iex
 
@@ -565,12 +325,6 @@ Install killed on low-memory Linux servers
 
 If you see `Killed` during installation on a VPS or cloud instance:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Setting up Claude Code...
     Installing Claude Code native build latest...
     bash: line 142: 34803 Killed    "$binary_path" install ${TARGET:+"$TARGET"}
@@ -579,24 +333,12 @@ The Linux OOM killer terminated the process because the system ran out of memory
 
   1. **Add swap space** if your server has limited RAM. Swap uses disk space as overflow memory, letting the install complete even with low physical RAM. Create a 2 GB swap file and enable it:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          sudo fallocate -l 2G /swapfile
          sudo chmod 600 /swapfile
          sudo mkswap /swapfile
          sudo swapon /swapfile
 
 Then retry the installation:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          curl -fsSL https://claude.ai/install.sh | bash
 
@@ -613,22 +355,10 @@ When installing Claude Code in a Docker container, installing as root into `/` c
 
   1. **Set a working directory** before running the installer. When run from `/`, the installer scans the entire filesystem, which causes excessive memory usage. Setting `WORKDIR` limits the scan to a small directory:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          WORKDIR /tmp
          RUN curl -fsSL https://claude.ai/install.sh | bash
 
   2. **Increase Docker memory limits** if using Docker Desktop:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          docker build --memory=4g .
 
@@ -648,12 +378,6 @@ Windows: “Claude Code on Windows requires git-bash”
 
 Claude Code on native Windows needs [Git for Windows](<https://git-scm.com/downloads/win>), which includes Git Bash. **If Git is not installed** , download and install it from [git-scm.com/downloads/win](<https://git-scm.com/downloads/win>). During setup, select “Add to PATH.” Restart your terminal after installing. **If Git is already installed** but Claude Code still can’t find it, set the path in your [settings.json file](</docs/en/settings>):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "env": {
         "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Program Files\\Git\\bin\\bash.exe"
@@ -670,35 +394,17 @@ Linux: wrong binary variant installed (musl/glibc mismatch)
 
 If you see errors about missing shared libraries like `libstdc++.so.6` or `libgcc_s.so.1` after installation, the installer may have downloaded the wrong binary variant for your system.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Error loading shared library libstdc++.so.6: No such file or directory
 
 This can happen on glibc-based systems that have musl cross-compilation packages installed, causing the installer to misdetect the system as musl. **Solutions:**
 
   1. **Check which libc your system uses** :
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          ldd /bin/ls | head -1
 
 If it shows `linux-vdso.so` or references to `/lib/x86_64-linux-gnu/`, you’re on glibc. If it shows `musl`, you’re on musl.
   2. **If you’re on glibc but got the musl binary** , remove the installation and reinstall. You can also manually download the correct binary from the GCS bucket at `https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/{VERSION}/manifest.json`. File a [GitHub issue](<https://github.com/anthropics/claude-code/issues>) with the output of `ldd /bin/ls` and `ls /lib/libc.musl*`.
   3. **If you’re actually on musl** (Alpine Linux), install the required packages:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          apk add libgcc libstdc++ ripgrep
 
@@ -710,34 +416,16 @@ Ask AI
 
 If the installer prints `Illegal instruction` instead of the OOM `Killed` message, the downloaded binary doesn’t match your CPU architecture. This commonly happens on ARM servers that receive an x86 binary, or on older CPUs that lack required instruction sets.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     bash: line 142: 2238232 Illegal instruction    "$binary_path" install ${TARGET:+"$TARGET"}
 
 **Solutions:**
 
   1. **Verify your architecture** :
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          uname -m
 
 `x86_64` means 64-bit Intel/AMD, `aarch64` means ARM64. If the binary doesn’t match, [file a GitHub issue](<https://github.com/anthropics/claude-code/issues>) with the output.
   2. **Try an alternative install method** while the architecture issue is resolved:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          brew install --cask claude-code
 
@@ -749,12 +437,6 @@ Ask AI
 
 If you see `dyld: cannot load` or `Abort trap: 6` during installation, the binary is incompatible with your macOS version or hardware.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     dyld: cannot load 'claude-2.1.42-darwin-x64' (load command 0x80000034 is unknown)
     Abort trap: 6
 
@@ -763,12 +445,6 @@ Ask AI
   1. **Check your macOS version** : Claude Code requires macOS 13.0 or later. Open the Apple menu and select About This Mac to check your version.
   2. **Update macOS** if you’re on an older version. The binary uses load commands that older macOS versions don’t support.
   3. **Try Homebrew** as an alternative install method:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          brew install --cask claude-code
 
@@ -790,12 +466,6 @@ You might encounter the following issues in WSL: **OS/platform detection issues*
 
 To resolve this issue, fix your Linux PATH to ensure the Linux node/npm versions take priority: **Primary solution: Ensure nvm is properly loaded in your shell** The most common cause is that nvm isn’t loaded in non-interactive shells. Add the following to your shell configuration file (`~/.bashrc`, `~/.zshrc`, etc.):
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Load nvm if it exists
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -803,21 +473,9 @@ Ask AI
 
 Or run directly in your current session:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     source ~/.nvm/nvm.sh
 
 **Alternative: Adjust PATH order** If nvm is properly loaded but Windows paths still take priority, you can explicitly prepend your Linux paths to PATH in your shell configuration:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export PATH="$HOME/.nvm/versions/node/$(node -v)/bin:$PATH"
 
@@ -835,19 +493,7 @@ WSL2 sandbox setup
 
   * Fedora
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     sudo apt-get install bubblewrap socat
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     sudo dnf install bubblewrap socat
 
@@ -860,12 +506,6 @@ WSL1 does not support sandboxing. If you see “Sandboxing requires WSL2”, you
 Permission errors during installation
 
 If the native installer fails with permission errors, the target directory may not be writable. See Check directory permissions. If you previously installed with npm and are hitting npm-specific permission errors, switch to the native installer:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     curl -fsSL https://claude.ai/install.sh | bash
 
@@ -931,12 +571,6 @@ If you see `API Error: 403 {"error":{"type":"forbidden","message":"Request not a
 
 If you see `API Error: 400 ... "This organization has been disabled"` despite having an active Claude subscription, an `ANTHROPIC_API_KEY` environment variable is overriding your subscription. This commonly happens when an old API key from a previous employer or project is still set in your shell profile. When `ANTHROPIC_API_KEY` is present and you have approved it, Claude Code uses that key instead of your subscription’s OAuth credentials. In non-interactive mode (`-p`), the key is always used when present. See [authentication precedence](</docs/en/authentication#authentication-precedence>) for the full resolution order. To use your subscription instead, unset the environment variable and remove it from your shell profile:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     unset ANTHROPIC_API_KEY
     claude
 
@@ -949,12 +583,6 @@ Check `~/.zshrc`, `~/.bashrc`, or `~/.profile` for `export ANTHROPIC_API_KEY=...
 OAuth login fails in WSL2
 
 Browser-based login in WSL2 may fail if WSL can’t open your Windows browser. Set the `BROWSER` environment variable:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
     claude
@@ -996,12 +624,6 @@ On Windows, `~` refers to your user home directory, such as `C:\Users\YourName`.
 Resetting configuration
 
 To reset Claude Code to default settings, you can remove the configuration files:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # Reset all user settings and state
     rm ~/.claude.json
@@ -1051,12 +673,6 @@ If Claude Code seems unresponsive:
 Search and discovery issues
 
 If Search tool, `@file` mentions, custom agents, and custom skills aren’t working, install system `ripgrep`:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # macOS (Homebrew)
     brew install ripgrep
@@ -1117,22 +733,10 @@ WSL2 uses NAT networking by default, which can prevent IDE detection. You have t
 
   1. Find your WSL2 IP address:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
          wsl hostname -I
          # Example output: 172.21.123.45
 
   2. Open PowerShell as Administrator and create a firewall rule:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
          New-NetFirewallRule -DisplayName "Allow WSL2 Internal Traffic" -Direction Inbound -Protocol TCP -Action Allow -RemoteAddress 172.21.0.0/16 -LocalAddress 172.21.0.0/16
 
@@ -1140,12 +744,6 @@ Adjust the IP range based on your WSL2 subnet from step 1.
   3. Restart both your IDE and Claude Code
 
 **Option 2: Switch to mirrored networking** Add to `.wslconfig` in your Windows user directory:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     [wsl2]
     networkingMode=mirrored
@@ -1202,12 +800,6 @@ Missing language tags in code blocks
 
 If you notice code blocks like this in generated markdown:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ```
     function example() {
       return "hello";
@@ -1215,12 +807,6 @@ Ask AI
     ```text
 
 Instead of properly tagged blocks like:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ```javascript
     function example() {

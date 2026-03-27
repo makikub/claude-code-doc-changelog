@@ -65,12 +65,6 @@ Enable the PowerShell tool
 
 Set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` in your environment or in `settings.json`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "env": {
         "CLAUDE_CODE_USE_POWERSHELL_TOOL": "1"

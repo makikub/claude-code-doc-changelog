@@ -32,12 +32,6 @@ Change your output style
 
 Run `/config` and select **Output style** to pick a style from a menu. Your selection is saved to `.claude/settings.local.json` at the [local project level](</docs/en/settings>). To set a style without the menu, edit the `outputStyle` field directly in a settings file:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     {
       "outputStyle": "Explanatory"
     }
@@ -51,12 +45,6 @@ Because the output style is set in the system prompt at session start, changes t
 Create a custom output style
 
 Custom output styles are Markdown files with frontmatter and the text that will be added to the system prompt:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ---
     name: My Custom Style

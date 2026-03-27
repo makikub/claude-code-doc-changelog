@@ -117,12 +117,6 @@ Before and After Example
 
 **Beta version:**
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     - uses: anthropics/claude-code-action@beta
       with:
         mode: "tag"
@@ -133,12 +127,6 @@ Ask AI
         model: "claude-sonnet-4-6"
 
 **GA version (v1.0):**
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     - uses: anthropics/claude-code-action@v1
       with:
@@ -165,12 +153,6 @@ Claude Code GitHub Actions can help you with a variety of tasks. The [examples d
 
 Basic workflow
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     name: Claude Code
     on:
       issue_comment:
@@ -192,12 +174,6 @@ Ask AI
 
 Using skills
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     name: Code Review
     on:
       pull_request:
@@ -217,12 +193,6 @@ Ask AI
 ​
 
 Custom automation with prompts
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     name: Daily Report
     on:
@@ -245,12 +215,6 @@ Ask AI
 Common use cases
 
 In issue or PR comments:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     @claude implement this feature based on the issue description
     @claude how should I implement user authentication for this endpoint?
@@ -328,12 +292,6 @@ When using Claude Code GitHub Actions, be aware of the associated costs: **GitHu
 Configuration examples
 
 The Claude Code Action v1 simplifies configuration with unified parameters:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     - uses: anthropics/claude-code-action@v1
       with:
@@ -562,12 +520,6 @@ Secret Name| Description
 `APP_ID`| Your GitHub App ID (from app settings)
 `APP_PRIVATE_KEY`| The private key you generated for your GitHub App
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     name: Claude PR Action
 
     permissions:
@@ -634,12 +586,6 @@ Secret Name| Description
 `GCP_SERVICE_ACCOUNT`| Service account email with Vertex AI access
 `APP_ID`| Your GitHub App ID (from app settings)
 `APP_PRIVATE_KEY`| The private key you generated for your GitHub App
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     name: Claude PR Action
 
@@ -759,12 +705,6 @@ Parameter| Description| Required
 Pass CLI arguments
 
 The `claude_args` parameter accepts any Claude Code CLI arguments:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude_args: "--max-turns 5 --model claude-sonnet-4-6 --mcp-config /path/to/config.json"
 

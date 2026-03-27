@@ -2,7 +2,7 @@ Claude Code is an agentic coding environment. Unlike a chatbot that answers ques
 
 * * *
 
-Most best practices are based on one constraint: Claude’s context window fills up fast, and performance degrades as it fills. Claude’s context window holds your entire conversation, including every message, every file Claude reads, and every command output. However, this can fill up fast. A single debugging session or codebase exploration might generate and consume tens of thousands of tokens. This matters since LLM performance degrades as context fills. When the context window is getting full, Claude may start “forgetting” earlier instructions or making more mistakes. The context window is the most important resource to manage. Track context usage continuously with a [custom status line](</docs/en/statusline>), and see [Reduce token usage](</docs/en/costs#reduce-token-usage>) for strategies on reducing token usage.
+Most best practices are based on one constraint: Claude’s context window fills up fast, and performance degrades as it fills. Claude’s context window holds your entire conversation, including every message, every file Claude reads, and every command output. However, this can fill up fast. A single debugging session or codebase exploration might generate and consume tens of thousands of tokens. This matters since LLM performance degrades as context fills. When the context window is getting full, Claude may start “forgetting” earlier instructions or making more mistakes. The context window is the most important resource to manage. To see how a session fills up in practice, [watch an interactive walkthrough](</docs/en/context-window>) of what loads at startup and what each file read costs. Track context usage continuously with a [custom status line](</docs/en/statusline>), and see [Reduce token usage](</docs/en/costs#reduce-token-usage>) for strategies on reducing token usage.
 
 * * *
 
@@ -44,12 +44,6 @@ Enter Plan Mode. Claude reads files and answers questions without making changes
 
 claude (Plan Mode)
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     read /src/auth and understand how we handle sessions and login.
     also look at how we manage environment variables for secrets.
 
@@ -60,12 +54,6 @@ Plan
 Ask Claude to create a detailed implementation plan.
 
 claude (Plan Mode)
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     I want to add Google OAuth. What files need to change?
     What's the session flow? Create a plan.
@@ -80,12 +68,6 @@ Switch back to Normal Mode and let Claude code, verifying against its plan.
 
 claude (Normal Mode)
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     implement the OAuth flow from your plan. write tests for the
     callback handler, run the test suite and fix any failures.
 
@@ -96,12 +78,6 @@ Commit
 Ask Claude to commit with a descriptive message and create a PR.
 
 claude (Normal Mode)
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     commit with a descriptive message and open a PR
 
@@ -166,12 +142,6 @@ CLAUDE.md is a special file that Claude reads at the start of every conversation
 
 CLAUDE.md
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     # Code style
     - Use ES modules (import/export) syntax, not CommonJS (require)
     - Destructure imports when possible (eg. import { foo } from 'bar')
@@ -195,12 +165,6 @@ Common gotchas or non-obvious behaviors| Self-evident practices like “write cl
 If Claude keeps doing something you don’t want despite having a rule against it, the file is probably too long and the rule is getting lost. If Claude asks you questions that are answered in CLAUDE.md, the phrasing might be ambiguous. Treat CLAUDE.md like code: review it when things go wrong, prune it regularly, and test changes by observing whether Claude’s behavior actually shifts. You can tune instructions by adding emphasis (e.g., “IMPORTANT” or “YOU MUST”) to improve adherence. Check CLAUDE.md into git so your team can contribute. The file compounds in value over time. CLAUDE.md files can import additional files using `@path/to/import` syntax:
 
 CLAUDE.md
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     See @README.md for project overview and @package.json for available npm commands.
 
@@ -273,12 +237,6 @@ Create `SKILL.md` files in `.claude/skills/` to give Claude domain knowledge and
 
 .claude/skills/api-conventions/SKILL.md
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ---
     name: api-conventions
     description: REST API design conventions for our services
@@ -292,12 +250,6 @@ Ask AI
 Skills can also define repeatable workflows you invoke directly:
 
 .claude/skills/fix-issue/SKILL.md
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ---
     name: fix-issue
@@ -328,12 +280,6 @@ Define specialized assistants in `.claude/agents/` that Claude can delegate to f
 [Subagents](</docs/en/sub-agents>) run in their own context with their own set of allowed tools. They’re useful for tasks that read many files or need specialized focus without cluttering your main conversation.
 
 .claude/agents/security-reviewer.md
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     ---
     name: security-reviewer
@@ -399,12 +345,6 @@ For larger features, have Claude interview you first. Start with a minimal promp
 
 Claude asks about things you might not have considered yet, including technical implementation, UI/UX, edge cases, and tradeoffs.
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     I want to build [brief description]. Interview me in detail using the AskUserQuestion tool.
 
     Ask about technical implementation, UI/UX, edge cases, concerns, and tradeoffs. Don't ask obvious questions, dig into the hard parts I might not have considered.
@@ -467,22 +407,10 @@ Delegate research with `"use subagents to investigate X"`. They explore in a sep
 
 Since context is your fundamental constraint, subagents are one of the most powerful tools available. When Claude researches a codebase it reads lots of files, all of which consume your context. Subagents run in separate context windows and report back summaries:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Use subagents to investigate how our authentication system handles token
     refresh, and whether we have any existing OAuth utilities I should reuse.
 
 The subagent explores the codebase, reads relevant files, and reports back with findings, all without cluttering your main conversation. You can also use subagents for verification after Claude implements something:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     use a subagent to review this code for edge cases
 
@@ -508,12 +436,6 @@ Run `claude --continue` to pick up where you left off, or `--resume` to choose f
 
 Claude Code saves conversations locally. When a task spans multiple sessions, you don’t have to re-explain the context:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --continue    # Resume the most recent conversation
     claude --resume      # Select from recent conversations
 
@@ -538,12 +460,6 @@ Run non-interactive mode
 Use `claude -p "prompt"` in CI, pre-commit hooks, or scripts. Add `--output-format stream-json` for streaming JSON output.
 
 With `claude -p "your prompt"`, you can run Claude non-interactively, without a session. Non-interactive mode is how you integrate Claude into CI pipelines, pre-commit hooks, or any automated workflow. The output formats let you parse results programmatically: plain text, JSON, or streaming JSON.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     # One-off queries
     claude -p "Explain what this project does"
@@ -598,12 +514,6 @@ Have Claude list all files that need migrating (e.g., `list all 2,000 Python fil
 
 Write a script to loop through the list
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     for file in $(cat files.txt); do
       claude -p "Migrate $file from React to Vue. Return OK or FAIL." \
         --allowedTools "Edit,Bash(git commit *)"
@@ -617,12 +527,6 @@ Refine your prompt based on what goes wrong with the first 2-3 files, then run o
 
 You can also integrate Claude into existing data/processing pipelines:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude -p "<your prompt>" --output-format json | your_command
 
 Use `--verbose` for debugging during development, and turn it off in production.
@@ -634,12 +538,6 @@ Use `--verbose` for debugging during development, and turn it off in production.
 Run autonomously with auto mode
 
 For uninterrupted execution with background safety checks, use [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>). A classifier model reviews commands before they run, blocking scope escalation, unknown infrastructure, and hostile-content-driven actions while letting routine work proceed without prompts.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     claude --permission-mode auto -p "fix all lint errors"
 

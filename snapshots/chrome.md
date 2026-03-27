@@ -45,12 +45,6 @@ Launch Claude Code with Chrome
 
 Start Claude Code with the `--chrome` flag:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     claude --chrome
 
 You can also enable Chrome from within an existing session by running `/chrome`.
@@ -60,12 +54,6 @@ You can also enable Chrome from within an existing session by running `/chrome`.
 Ask Claude to use the browser
 
 This example navigates to a page, interacts with it, and reports what it finds, all from your terminal or editor:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     Go to code.claude.com/docs, click on the search box,
     type "hooks", and tell me what results appear
@@ -106,12 +94,6 @@ Test a local web application
 
 When developing a web app, ask Claude to verify your changes work correctly:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     I just updated the login form validation. Can you open localhost:3000,
     try submitting the form with invalid data, and check if the error
     messages appear correctly?
@@ -126,12 +108,6 @@ Debug with console logs
 
 Claude can read console output to help diagnose problems. Tell Claude what patterns to look for rather than asking for all console output, since logs can be verbose:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Open the dashboard page and check the console for any errors when
     the page loads.
 
@@ -144,12 +120,6 @@ Claude reads the console messages and can filter for specific patterns or error 
 Automate form filling
 
 Speed up repetitive data entry tasks:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     I have a spreadsheet of customer contacts in contacts.csv. For each row,
     go to the CRM at crm.example.com, click "Add Contact", and fill in the
@@ -165,12 +135,6 @@ Draft content in Google Docs
 
 Use Claude to write directly in your documents without API setup:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Draft a project update based on the recent commits and add it to my
     Google Doc at docs.google.com/document/d/abc123
 
@@ -183,12 +147,6 @@ Claude opens the document, clicks into the editor, and types the content. This w
 Extract data from web pages
 
 Pull structured information from websites:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     Go to the product listings page and extract the name, price, and
     availability for each item. Save the results as a CSV file.
@@ -203,12 +161,6 @@ Run multi-site workflows
 
 Coordinate tasks across multiple websites:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     Check my calendar for meetings tomorrow, then for each meeting with
     an external attendee, look up their company website and add a note
     about what they do.
@@ -222,12 +174,6 @@ Claude works across tabs to gather information and complete the workflow.
 Record a demo GIF
 
 Create shareable recordings of browser interactions:
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     Record a GIF showing how to complete the checkout flow, from adding
     an item to the cart through to the confirmation page.

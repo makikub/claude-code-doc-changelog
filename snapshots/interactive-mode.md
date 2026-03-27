@@ -47,7 +47,7 @@ Text editing
 Shortcut| Description| Context
 ---|---|---
 `Ctrl+K`| Delete to end of line| Stores deleted text for pasting
-`Ctrl+U`| Delete entire line| Stores deleted text for pasting
+`Ctrl+U`| Delete from cursor to line start| Stores deleted text for pasting. Repeat to clear across lines in multiline input
 `Ctrl+Y`| Paste deleted text| Paste text deleted with `Ctrl+K` or `Ctrl+U`
 `Alt+Y` (after `Ctrl+Y`)| Cycle paste history| After pasting, cycle through previously deleted text. Requires Option as Meta on macOS
 `Alt+B`| Move cursor back one word| Word navigation. Requires Option as Meta on macOS
@@ -291,12 +291,6 @@ Bash mode with `!` prefix
 
 Run bash commands directly without going through Claude by prefixing your input with `!`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     ! npm test
     ! git status
     ! ls -la
@@ -325,12 +319,6 @@ When you first open a session, a grayed-out example command appears in the promp
 
 The suggestion runs as a background request that reuses the parent conversation’s prompt cache, so the additional cost is minimal. Claude Code skips suggestion generation when the cache is cold to avoid unnecessary cost. Suggestions are automatically skipped after the first turn of a conversation, in non-interactive mode, and in plan mode. To disable prompt suggestions entirely, set the environment variable or toggle the setting in `/config`:
 
-Report incorrect code
-
-Copy
-
-Ask AI
-
     export CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false
 
 ##
@@ -340,12 +328,6 @@ Ask AI
 Side questions with /btw
 
 Use `/btw` to ask a quick question about your current work without adding to the conversation history. This is useful when you want a fast answer but don’t want to clutter the main context or derail Claude from a long-running task.
-
-Report incorrect code
-
-Copy
-
-Ask AI
 
     /btw what was the name of that config file again?
 
