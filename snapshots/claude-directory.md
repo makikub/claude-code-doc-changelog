@@ -19,7 +19,7 @@ File| Location| Purpose
 
 File reference
 
-This table lists every file the explorer covers. Project-scope files live in your repo under `.claude/` (or at the root for `CLAUDE.md` and `.mcp.json`). Global-scope files live in `~/.claude/` and apply across all projects.
+This table lists every file the explorer covers. Project-scope files live in your repo under `.claude/` (or at the root for `CLAUDE.md`, `.mcp.json`, and `.worktreeinclude`). Global-scope files live in `~/.claude/` and apply across all projects.
 
 Several things can override what you put in these files:
 
@@ -38,6 +38,7 @@ File| Scope| Commit| What it does| Reference
 `settings.json`| Project and global| ✓| Permissions, hooks, env vars, model defaults| [Settings](</docs/en/settings>)
 `settings.local.json`| Project only| | Your personal overrides, auto-gitignored| [Settings scopes](</docs/en/settings#settings-files>)
 `.mcp.json`| Project only| ✓| Team-shared MCP servers| [MCP scopes](</docs/en/mcp#mcp-installation-scopes>)
+`.worktreeinclude`| Project only| ✓| Gitignored files to copy into new worktrees| [Worktrees](</docs/en/common-workflows#copy-gitignored-files-to-worktrees>)
 `skills/<name>/SKILL.md`| Project and global| ✓| Reusable prompts invoked with `/name` or auto-invoked| [Skills](</docs/en/skills>)
 `commands/*.md`| Project and global| ✓| Single-file prompts; same mechanism as skills| [Skills](</docs/en/skills>)
 `output-styles/*.md`| Project and global| ✓| Custom system-prompt sections| [Output styles](</docs/en/output-styles>)

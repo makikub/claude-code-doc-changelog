@@ -63,8 +63,6 @@ Shortcut| Description| Context
 ---|---|---
 `Ctrl+T`| Toggle syntax highlighting for code blocks| Only works inside the `/theme` picker menu. Controls whether code in Claude’s responses uses syntax coloring
 
-Syntax highlighting is only available in the native build of Claude Code.
-
 ###
 
 ​

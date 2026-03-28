@@ -173,6 +173,7 @@ Setting to `0` deletes all existing transcripts at startup and disables session 
 `autoMode`| Customize what the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier blocks and allows. Contains `environment`, `allow`, and `soft_deny` arrays of prose rules. See [Configure the auto mode classifier](</docs/en/permissions#configure-the-auto-mode-classifier>). Not read from shared project settings| `{"environment": ["Trusted repo: github.example.com/acme"]}`
 `disableAutoMode`| Set to `"disable"` to prevent [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) from being activated. Removes `auto` from the `Shift+Tab` cycle and rejects `--permission-mode auto` at startup. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `"disable"`
 `useAutoModeDuringPlan`| Whether plan mode uses auto mode semantics when auto mode is available. Default: `true`. Not read from shared project settings. Appears in `/config` as “Use auto mode during plan”| `false`
+`disableDeepLinkRegistration`| Set to `"disable"` to prevent Claude Code from registering the `claude-cli://` protocol handler with the operating system on startup. Deep links let external tools open a Claude Code session with a pre-filled prompt via `claude-cli://open?q=...`. Useful in environments where protocol handler registration is restricted or managed separately| `"disable"`
 `hooks`| Configure custom commands to run at lifecycle events. See [hooks documentation](</docs/en/hooks>) for format| See [hooks](</docs/en/hooks>)
 `defaultShell`| Default shell for input-box `!` commands. Accepts `"bash"` (default) or `"powershell"`. Setting `"powershell"` routes interactive `!` commands through PowerShell on Windows. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>)| `"powershell"`
 `disableAllHooks`| Disable all [hooks](</docs/en/hooks>) and any custom [status line](</docs/en/statusline>)| `true`
@@ -216,7 +217,6 @@ Setting to `0` deletes all existing transcripts at startup and disables session 
 `spinnerTipsOverride`| Override spinner tips with custom strings. `tips`: array of tip strings. `excludeDefault`: if `true`, only show custom tips; if `false` or absent, custom tips are merged with built-in tips| `{ "excludeDefault": true, "tips": ["Use our internal tool X"] }`
 `prefersReducedMotion`| Reduce or disable UI animations (spinners, shimmer, flash effects) for accessibility| `true`
 `fastModePerSessionOptIn`| When `true`, fast mode does not persist across sessions. Each session starts with fast mode off, requiring users to enable it with `/fast`. The user’s fast mode preference is still saved. See [Require per-session opt-in](</docs/en/fast-mode#require-per-session-opt-in>)| `true`
-`teammateMode`| How [agent team](</docs/en/agent-teams>) teammates display: `auto` (picks split panes in tmux or iTerm2, in-process otherwise), `in-process`, or `tmux`. See [set up agent teams](</docs/en/agent-teams#set-up-agent-teams>)| `"in-process"`
 `feedbackSurveyRate`| Probability (0–1) that the [session quality survey](</docs/en/data-usage#session-quality-surveys>) appears when eligible. Set to `0` to suppress entirely. Useful when using Bedrock, Vertex, or Foundry where the default sample rate does not apply| `0.05`
 
 ###
@@ -234,6 +234,7 @@ Key| Description| Example
 `editorMode`| Key binding mode for the input prompt: `"normal"` or `"vim"`. Default: `"normal"`. Written automatically when you run `/vim`. Appears in `/config` as **Key binding mode**| `"vim"`
 `showTurnDuration`| Show turn duration messages after responses, e.g. “Cooked for 1m 6s”. Default: `true`. Appears in `/config` as **Show turn duration**| `false`
 `terminalProgressBarEnabled`| Show the terminal progress bar in supported terminals: ConEmu, Ghostty 1.2.0+, and iTerm2 3.6.6+. Default: `true`. Appears in `/config` as **Terminal progress bar**| `false`
+`teammateMode`| How [agent team](</docs/en/agent-teams>) teammates display: `auto` (picks split panes in tmux or iTerm2, in-process otherwise), `in-process`, or `tmux`. See [choose a display mode](</docs/en/agent-teams#choose-a-display-mode>)| `"in-process"`
 
 ###
 
@@ -247,6 +248,8 @@ Key| Description| Example
 ---|---|---
 `worktree.symlinkDirectories`| Directories to symlink from the main repository into each worktree to avoid duplicating large directories on disk. No directories are symlinked by default| `["node_modules", ".cache"]`
 `worktree.sparsePaths`| Directories to check out in each worktree via git sparse-checkout (cone mode). Only the listed paths are written to disk, which is faster in large monorepos| `["packages/my-app", "shared/utils"]`
+
+To copy gitignored files like `.env` into new worktrees, use a [`.worktreeinclude` file](</docs/en/common-workflows#copy-gitignored-files-to-worktrees>) in your project root instead of a setting.
 
 ###
 
@@ -571,6 +574,7 @@ Controls which plugins are enabled. Format: `"plugin-name@marketplace-name": tru
   * **User settings** (`~/.claude/settings.json`): Personal plugin preferences
   * **Project settings** (`.claude/settings.json`): Project-specific plugins shared with team
   * **Local settings** (`.claude/settings.local.json`): Per-machine overrides (not committed)
+  * **Managed settings** (`managed-settings.json`): Organization-wide policy overrides that block installation at all scopes and hide the plugin from the marketplace
 
 **Example** :
 
