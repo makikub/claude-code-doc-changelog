@@ -94,6 +94,14 @@ Get a desktop notification whenever Claude finishes working and needs your input
       }
     }
 
+If no notification appears
+
+`osascript` routes notifications through the built-in Script Editor app. If Script Editor doesn’t have notification permission, the command fails silently, and macOS won’t prompt you to grant it. Run this in Terminal once to make Script Editor appear in your notification settings:
+
+    osascript -e 'display notification "test"'
+
+Nothing will appear yet. Open **System Settings > Notifications**, find **Script Editor** in the list, and turn on **Allow Notifications**. Run the command again to confirm the test notification appears.
+
     {
       "hooks": {
         "Notification": [

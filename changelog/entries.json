@@ -2704,5 +2704,89 @@
       ]
     },
     "diff": "--- a/settings.md\n+++ b/settings.md\n@@ -173,6 +173,7 @@\n `autoMode`| Customize what the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier blocks and allows. Contains `environment`, `allow`, and `soft_deny` arrays of prose rules. See [Configure the auto mode classifier](</docs/en/permissions#configure-the-auto-mode-classifier>). Not read from shared project settings| `{\"environment\": [\"Trusted repo: github.example.com/acme\"]}`\n `disableAutoMode`| Set to `\"disable\"` to prevent [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) from being activated. Removes `auto` from the `Shift+Tab` cycle and rejects `--permission-mode auto` at startup. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `\"disable\"`\n `useAutoModeDuringPlan`| Whether plan mode uses auto mode semantics when auto mode is available. Default: `true`. Not read from shared project settings. Appears in `/config` as “Use auto mode during plan”| `false`\n+`disableDeepLinkRegistration`| Set to `\"disable\"` to prevent Claude Code from registering the `claude-cli://` protocol handler with the operating system on startup. Deep links let external tools open a Claude Code session with a pre-filled prompt via `claude-cli://open?q=...`. Useful in environments where protocol handler registration is restricted or managed separately| `\"disable\"`\n `hooks`| Configure custom commands to run at lifecycle events. See [hooks documentation](</docs/en/hooks>) for format| See [hooks](</docs/en/hooks>)\n `defaultShell`| Default shell for input-box `!` commands. Accepts `\"bash\"` (default) or `\"powershell\"`. Setting `\"powershell\"` routes interactive `!` commands through PowerShell on Windows. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>)| `\"powershell\"`\n `disableAllHooks`| Disable all [hooks](</docs/en/hooks>) and any custom [status line](</docs/en/statusline>)| `true`\n@@ -216,7 +217,6 @@\n `spinnerTipsOverride`| Override spinner tips with custom strings. `tips`: array of tip strings. `excludeDefault`: if `true`, only show custom tips; if `false` or absent, custom tips are merged with built-in tips| `{ \"excludeDefault\": true, \"tips\": [\"Use our internal tool X\"] }`\n `prefersReducedMotion`| Reduce or disable UI animations (spinners, shimmer, flash effects) for accessibility| `true`\n `fastModePerSessionOptIn`| When `true`, fast mode does not persist across sessions. Each session starts with fast mode off, requiring users to enable it with `/fast`. The user’s fast mode preference is still saved. See [Require per-session opt-in](</docs/en/fast-mode#require-per-session-opt-in>)| `true`\n-`teammateMode`| How [agent team](</docs/en/agent-teams>) teammates display: `auto` (picks split panes in tmux or iTerm2, in-process otherwise), `in-process`, or `tmux`. See [set up agent teams](</docs/en/agent-teams#set-up-agent-teams>)| `\"in-process\"`\n `feedbackSurveyRate`| Probability (0–1) that the [session quality survey](</docs/en/data-usage#session-quality-surveys>) appears when eligible. Set to `0` to suppress entirely. Useful when using Bedrock, Vertex, or Foundry where the default sample rate does not apply| `0.05`\n \n ###\n@@ -234,6 +234,7 @@\n `editorMode`| Key binding mode for the input prompt: `\"normal\"` or `\"vim\"`. Default: `\"normal\"`. Written automatically when you run `/vim`. Appears in `/config` as **Key binding mode**| `\"vim\"`\n `showTurnDuration`| Show turn duration messages after responses, e.g. “Cooked for 1m 6s”. Default: `true`. Appears in `/config` as **Show turn duration**| `false`\n `terminalProgressBarEnabled`| Show the terminal progress bar in supported terminals: ConEmu, Ghostty 1.2.0+, and iTerm2 3.6.6+. Default: `true`. Appears in `/config` as **Terminal progress bar**| `false`\n+`teammateMode`| How [agent team](</docs/en/agent-teams>) teammates display: `auto` (picks split panes in tmux or iTerm2, in-process otherwise), `in-process`, or `tmux`. See [choose a display mode](</docs/en/agent-teams#choose-a-display-mode>)| `\"in-process\"`\n \n ###\n \n@@ -247,6 +248,8 @@\n ---|---|---\n `worktree.symlinkDirectories`| Directories to symlink from the main repository into each worktree to avoid duplicating large directories on disk. No directories are symlinked by default| `[\"node_modules\", \".cache\"]`\n `worktree.sparsePaths`| Directories to check out in each worktree via git sparse-checkout (cone mode). Only the listed paths are written to disk, which is faster in large monorepos| `[\"packages/my-app\", \"shared/utils\"]`\n+\n+To copy gitignored files like `.env` into new worktrees, use a [`.worktreeinclude` file](</docs/en/common-workflows#copy-gitignored-files-to-worktrees>) in your project root instead of a setting.\n \n ###\n \n@@ -571,6 +574,7 @@\n   * **User settings** (`~/.claude/settings.json`): Personal plugin preferences\n   * **Project settings** (`.claude/settings.json`): Project-specific plugins shared with team\n   * **Local settings** (`.claude/settings.local.json`): Per-machine overrides (not committed)\n+  * **Managed settings** (`managed-settings.json`): Organization-wide policy overrides that block installation at all scopes and hide the plugin from the marketplace\n \n **Example** :\n \n"
+  },
+  {
+    "date": "2026-03-29",
+    "slug": "data-usage",
+    "title": "Data usage",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/data-usage.md\n+++ b/data-usage.md\n@@ -93,7 +93,7 @@\n \n Telemetry services\n \n-Claude Code connects from users’ machines to the Statsig service to log operational metrics such as latency, reliability, and usage patterns. This logging does not include any code or file paths. Data is encrypted in transit using TLS and at rest using 256-bit AES encryption. Read more in the [Statsig security documentation](<https://www.statsig.com/trust/security>). To opt out of Statsig telemetry, set the `DISABLE_TELEMETRY` environment variable. Claude Code connects from users’ machines to Sentry for operational error logging. The data is encrypted in transit using TLS and at rest using 256-bit AES encryption. Read more in the [Sentry security documentation](<https://sentry.io/security/>). To opt out of error logging, set the `DISABLE_ERROR_REPORTING` environment variable. When users run the `/feedback` command, a copy of their full conversation history including code is sent to Anthropic. The data is encrypted in transit and at rest. Optionally, a Github issue is created in our public repository. To opt out, set the `DISABLE_FEEDBACK_COMMAND` environment variable.\n+Claude Code connects from users’ machines to the Statsig service to log operational metrics such as latency, reliability, and usage patterns. This logging does not include any code or file paths. Data is encrypted in transit using TLS and at rest using 256-bit AES encryption. Read more in the [Statsig security documentation](<https://www.statsig.com/trust/security>). To opt out of Statsig telemetry, set the `DISABLE_TELEMETRY` environment variable. Claude Code connects from users’ machines to Sentry for operational error logging. The data is encrypted in transit using TLS and at rest using 256-bit AES encryption. Read more in the [Sentry security documentation](<https://sentry.io/security/>). To opt out of error logging, set the `DISABLE_ERROR_REPORTING` environment variable. When users run the `/feedback` command, a copy of their full conversation history including code is sent to Anthropic. The data is encrypted in transit and at rest. Optionally, a Github issue is created in our public repository. To opt out, set the `DISABLE_FEEDBACK_COMMAND` environment variable to `1`.\n \n ##\n \n"
+  },
+  {
+    "date": "2026-03-29",
+    "slug": "env-vars",
+    "title": "Environment variables",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/env-vars.md\n+++ b/env-vars.md\n@@ -72,7 +72,7 @@\n `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS`| Maximum time in milliseconds for [SessionEnd](</docs/en/hooks#sessionend>) hooks to complete (default: `1500`). Applies to session exit, `/clear`, and switching sessions via interactive `/resume`. Per-hook `timeout` values are also capped by this budget\n `CLAUDE_CODE_SHELL`| Override automatic shell detection. Useful when your login shell differs from your preferred working shell (for example, `bash` vs `zsh`)\n `CLAUDE_CODE_SHELL_PREFIX`| Command prefix to wrap all bash commands (for example, for logging or auditing). Example: `/path/to/logger.sh` will execute `/path/to/logger.sh <command>`\n-`CLAUDE_CODE_SIMPLE`| Set to `1` to run with a minimal system prompt and only the Bash, file read, and file edit tools. Disables auto-discovery of hooks, skills, plugins, MCP servers, auto memory, and CLAUDE.md. The [`--bare`](</docs/en/headless#start-faster-with-bare-mode>) CLI flag sets this\n+`CLAUDE_CODE_SIMPLE`| Set to `1` to run with a minimal system prompt and only the Bash, file read, and file edit tools. MCP tools from `--mcp-config` are still available. Disables auto-discovery of hooks, skills, plugins, MCP servers, auto memory, and CLAUDE.md. The [`--bare`](</docs/en/headless#start-faster-with-bare-mode>) CLI flag sets this\n `CLAUDE_CODE_SKIP_BEDROCK_AUTH`| Skip AWS authentication for Bedrock (for example, when using an LLM gateway)\n `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS`| Set to `1` to allow [fast mode](</docs/en/fast-mode>) when the organization status check fails due to a network error. Useful when a corporate proxy blocks the status endpoint. The API still enforces organization-level disable separately\n `CLAUDE_CODE_SKIP_FOUNDRY_AUTH`| Skip Azure authentication for Microsoft Foundry (for example, when using an LLM gateway)\n@@ -113,7 +113,7 @@\n `MCP_TIMEOUT`| Timeout in milliseconds for MCP server startup\n `MCP_TOOL_TIMEOUT`| Timeout in milliseconds for MCP tool execution\n `NO_PROXY`| List of domains and IPs to which requests will be directly issued, bypassing proxy\n-`SLASH_COMMAND_TOOL_CHAR_BUDGET`| Override the character budget for skill metadata shown to the [Skill tool](</docs/en/skills#control-who-invokes-a-skill>). The budget scales dynamically at 2% of the context window, with a fallback of 16,000 characters. Legacy name kept for backwards compatibility\n+`SLASH_COMMAND_TOOL_CHAR_BUDGET`| Override the character budget for skill metadata shown to the [Skill tool](</docs/en/skills#control-who-invokes-a-skill>). The budget scales dynamically at 1% of the context window, with a fallback of 8,000 characters. Legacy name kept for backwards compatibility\n `USE_BUILTIN_RIPGREP`| Set to `0` to use system-installed `rg` instead of `rg` included with Claude Code\n `VERTEX_REGION_CLAUDE_3_5_HAIKU`| Override region for Claude 3.5 Haiku when using Vertex AI\n `VERTEX_REGION_CLAUDE_3_7_SONNET`| Override region for Claude 3.7 Sonnet when using Vertex AI\n"
+  },
+  {
+    "date": "2026-03-29",
+    "slug": "hooks-guide",
+    "title": "Automate workflows with hooks",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 8,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/hooks-guide.md\n+++ b/hooks-guide.md\n@@ -93,6 +93,14 @@\n         ]\n       }\n     }\n+\n+If no notification appears\n+\n+`osascript` routes notifications through the built-in Script Editor app. If Script Editor doesn’t have notification permission, the command fails silently, and macOS won’t prompt you to grant it. Run this in Terminal once to make Script Editor appear in your notification settings:\n+\n+    osascript -e 'display notification \"test\"'\n+\n+Nothing will appear yet. Open **System Settings > Notifications**, find **Script Editor** in the list, and turn on **Allow Notifications**. Run the command again to confirm the test notification appears.\n \n     {\n       \"hooks\": {\n"
+  },
+  {
+    "date": "2026-03-29",
+    "slug": "keybindings",
+    "title": "Customize keyboard shortcuts",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/keybindings.md\n+++ b/keybindings.md\n@@ -55,7 +55,7 @@\n `HistorySearch`| History search mode (Ctrl+R)\n `Task`| Background task is running\n `ThemePicker`| Theme picker dialog\n-`Attachments`| Image/attachment bar navigation\n+`Attachments`| Image attachment navigation in select dialogs\n `Footer`| Footer indicator navigation (tasks, teams, diff)\n `MessageSelector`| Rewind and summarize dialog message selection\n `DiffDialog`| Diff viewer navigation\n@@ -261,7 +261,7 @@\n `attachments:next`| Right| Next attachment\n `attachments:previous`| Left| Previous attachment\n `attachments:remove`| Backspace, Delete| Remove selected attachment\n-`attachments:exit`| Down, Escape| Exit attachment bar\n+`attachments:exit`| Down, Escape| Exit attachment navigation\n \n ###\n \n"
+  },
+  {
+    "date": "2026-03-29",
+    "slug": "llm-gateway",
+    "title": "LLM gateway configuration",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 6,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/llm-gateway.md\n+++ b/llm-gateway.md\n@@ -24,6 +24,12 @@\n Failure to forward headers or preserve body fields may result in reduced functionality or inability to use Claude Code features.\n \n Claude Code determines which features to enable based on the API format. When using the Anthropic Messages format with Bedrock or Vertex, you may need to set environment variable `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`.\n+\n+**Request headers** Claude Code includes the following headers on every API request:\n+\n+Header| Description\n+---|---\n+`X-Claude-Code-Session-Id`| A unique identifier for the current Claude Code session. Proxies can use this to aggregate all API requests from a single session without parsing the request body.\n \n ##\n \n"
+  },
+  {
+    "date": "2026-03-29",
+    "slug": "skills",
+    "title": "Extend Claude with skills",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 4,
+      "lines_removed": 4,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/skills.md\n+++ b/skills.md\n@@ -187,7 +187,7 @@\n Field| Required| Description\n ---|---|---\n `name`| No| Display name for the skill. If omitted, uses the directory name. Lowercase letters, numbers, and hyphens only (max 64 characters).\n-`description`| Recommended| What the skill does and when to use it. Claude uses this to decide when to apply the skill. If omitted, uses the first paragraph of markdown content.\n+`description`| Recommended| What the skill does and when to use it. Claude uses this to decide when to apply the skill. If omitted, uses the first paragraph of markdown content. Front-load the key use case: descriptions longer than 250 characters are truncated in the skill listing to reduce context usage.\n `argument-hint`| No| Hint shown during autocomplete to indicate expected arguments. Example: `[issue-number]` or `[filename] [format]`.\n `disable-model-invocation`| No| Set to `true` to prevent Claude from automatically loading this skill. Use for workflows you want to trigger manually with `/name`. Default: `false`.\n `user-invocable`| No| Set to `false` to hide from the `/` menu. Use for background knowledge users shouldn’t invoke directly. Default: `true`.\n@@ -685,9 +685,9 @@\n \n ​\n \n-Claude doesn’t see all my skills\n-\n-Skill descriptions are loaded into context so Claude knows what’s available. If you have many skills, they may exceed the character budget. The budget scales dynamically at 2% of the context window, with a fallback of 16,000 characters. Run `/context` to check for a warning about excluded skills. To override the limit, set the `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable.\n+Skill descriptions are cut short\n+\n+Skill descriptions are loaded into context so Claude knows what’s available. All skill names are always included, but if you have many skills, descriptions are shortened to fit the character budget, which can strip the keywords Claude needs to match your request. The budget scales dynamically at 1% of the context window, with a fallback of 8,000 characters. To raise the limit, set the `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable. Or trim descriptions at the source: front-load the key use case, since each entry is capped at 250 characters regardless of budget.\n \n ##\n \n"
   }
 ]
