@@ -72,6 +72,14 @@ To add custom behavior when notifications fire, such as playing a sound or sendi
 
 ​
 
+Reduce flicker and memory usage
+
+If you see flicker during long sessions, or your terminal scroll position jumps to the top while Claude is working, try [fullscreen rendering](</docs/en/fullscreen>). It uses an alternate rendering path that keeps memory flat and adds mouse support. Enable it with `CLAUDE_CODE_NO_FLICKER=1`.
+
+###
+
+​
+
 Handling large inputs
 
 When working with extensive code or long instructions:

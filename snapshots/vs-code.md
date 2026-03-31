@@ -301,7 +301,7 @@ Setting| Default| Description
 `respectGitIgnore`| `true`| Exclude .gitignore patterns from file searches
 `environmentVariables`| `[]`| Set environment variables for the Claude process. Use Claude Code settings instead for shared config.
 `disableLoginPrompt`| `false`| Skip authentication prompts (for third-party provider setups)
-`allowDangerouslySkipPermissions`| `false`| Adds [Auto](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) and Bypass permissions to the mode selector. Auto requires a Team plan and Claude Sonnet 4.6 or Opus 4.6, so the option may remain unavailable even with this toggle on. Use Bypass permissions only in sandboxes with no internet access.
+`allowDangerouslySkipPermissions`| `false`| Adds [Auto](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) and Bypass permissions to the mode selector. Auto requires a Team, Enterprise, or API plan and Claude Sonnet 4.6 or Opus 4.6, so the option may remain unavailable even with this toggle on. Use Bypass permissions only in sandboxes with no internet access.
 `claudeProcessWrapper`| -| Executable path used to launch the Claude process
 
 ##

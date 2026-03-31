@@ -69,7 +69,7 @@ Mode| Settings key| Behavior
 **Ask permissions**| `default`| Claude asks before editing files or running commands. You see a diff and can accept or reject each change. Recommended for new users.
 **Auto accept edits**| `acceptEdits`| Claude auto-accepts file edits but still asks before running terminal commands. Use this when you trust file changes and want faster iteration.
 **Plan mode**| `plan`| Claude analyzes your code and creates a plan without modifying files or running commands. Good for complex tasks where you want to review the approach first.
-**Auto**| `auto`| Claude executes all actions with background safety checks that verify alignment with your request. Reduces permission prompts while maintaining oversight. Currently a research preview. Available on Team plans (Enterprise rolling out shortly). Requires Claude Sonnet 4.6 or Opus 4.6. Enable in your Settings → Claude Code.
+**Auto**| `auto`| Claude executes all actions with background safety checks that verify alignment with your request. Reduces permission prompts while maintaining oversight. Currently a research preview. Available on Team, Enterprise, and API plans. Requires Claude Sonnet 4.6 or Opus 4.6. Enable in your Settings → Claude Code.
 **Bypass permissions**| `bypassPermissions`| Claude runs without any permission prompts, equivalent to `--dangerously-skip-permissions` in the CLI. Enable in your Settings → Claude Code under “Allow bypass permissions mode”. Only use this in sandboxed containers or VMs. Enterprise admins can disable this option.
 
 The `dontAsk` permission mode is available only in the [CLI](</docs/en/permission-modes#allow-only-pre-approved-tools-with-dontask-mode>).
@@ -165,7 +165,25 @@ The per-app access tiers reinforce this: browsers are capped at view-only, and t
 
 Enable computer use
 
-Computer use is off by default. If you ask Claude to do something that needs it while it’s off, Claude tells you it could do the task if you enable computer use in Settings. To enable it, open **Settings > Desktop app > General** and toggle **Computer use** on. Before the toggle takes effect, you need to grant two macOS system permissions:
+Computer use is off by default. If you ask Claude to do something that needs it while it’s off, Claude tells you it could do the task if you enable computer use in Settings.
+
+1
+
+Update the desktop app
+
+Make sure you have the latest version of Claude Desktop. Download or update at [claude.com/download](<https://claude.com/download>), then restart the app.
+
+2
+
+Turn on the toggle
+
+In the desktop app, go to **Settings > General** (under **Desktop app**). Find the **Computer use** toggle and turn it on.If you don’t see the toggle, confirm you’re on macOS with a Pro or Max plan, then update and restart the app.
+
+3
+
+Grant macOS permissions
+
+Before the toggle takes effect, grant two macOS system permissions:
 
   * **Accessibility** : lets Claude click, type, and scroll
   * **Screen Recording** : lets Claude see what’s on your screen
@@ -186,7 +204,7 @@ View only| See the app in screenshots| Browsers, trading platforms
 Click only| Click and scroll, but not type or use keyboard shortcuts| Terminals, IDEs
 Full control| Click, type, drag, and use keyboard shortcuts| Everything else
 
-Apps with broad reach like Terminal, Finder, and System Settings show an extra warning in the prompt so you know what approving them grants. You can configure two settings in **Settings > Desktop app > General**:
+Apps with broad reach like Terminal, Finder, and System Settings show an extra warning in the prompt so you know what approving them grants. You can configure two settings in **Settings > General** (under **Desktop app**):
 
   * **Denied apps** : add apps here to reject them without prompting. Claude may still affect a denied app indirectly through actions in an allowed app, but it can’t interact with the denied app directly.
   * **Unhide apps when Claude finishes** : while Claude is working, your other windows are hidden so it interacts with only the approved app. When Claude finishes, hidden windows are restored unless you turn this setting off.
@@ -705,7 +723,7 @@ File attachments| Not available| Images, PDFs
 Session isolation| [`--worktree`](</docs/en/cli-reference>) flag| Automatic worktrees
 Multiple sessions| Separate terminals| Sidebar tabs
 Recurring tasks| Cron jobs, CI pipelines| Scheduled tasks
-Computer use| Not available| App and screen control on macOS
+Computer use| [Enable via `/mcp`](</docs/en/computer-use>) on macOS| App and screen control on macOS
 Dispatch integration| Not available| Dispatch sessions in the sidebar
 Scripting and automation| [`--print`](</docs/en/cli-reference>), [Agent SDK](</docs/en/headless>)| Not available
 

@@ -263,7 +263,7 @@ Keys| Description| Example
 `ask`| Array of permission rules to ask for confirmation upon tool use. See Permission rule syntax below| `[ "Bash(git push *)" ]`
 `deny`| Array of permission rules to deny tool use. Use this to exclude sensitive files from Claude Code access. See Permission rule syntax and [Bash permission limitations](</docs/en/permissions#tool-specific-permission-rules>)| `[ "WebFetch", "Bash(curl *)", "Read(./.env)", "Read(./secrets/**)" ]`
 `additionalDirectories`| Additional [working directories](</docs/en/permissions#working-directories>) that Claude has access to| `[ "../docs/" ]`
-`defaultMode`| Default [permission mode](</docs/en/permission-modes>) when opening Claude Code| `"acceptEdits"`
+`defaultMode`| Default [permission mode](</docs/en/permission-modes>) when opening Claude Code. Valid values: `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`. The `--permission-mode` CLI flag overrides this setting for a single session| `"acceptEdits"`
 `disableBypassPermissionsMode`| Set to `"disable"` to prevent `bypassPermissions` mode from being activated. Disables the `--dangerously-skip-permissions` flag. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `"disable"`
 
 ###

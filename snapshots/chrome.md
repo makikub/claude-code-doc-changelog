@@ -264,6 +264,7 @@ Error| Cause| Fix
 
 See also
 
+  * [Computer use](</docs/en/computer-use>): control native macOS apps when a task can’t be done in a browser
   * [Use Claude Code in VS Code](</docs/en/vs-code#automate-browser-tasks-with-chrome>): browser automation in the VS Code extension
   * [CLI reference](</docs/en/cli-reference>): command-line flags including `--chrome`
   * [Common workflows](</docs/en/common-workflows>): more ways to use Claude Code

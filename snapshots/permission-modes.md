@@ -25,7 +25,7 @@ You can switch modes at any time during a session, at startup, or as a persisten
 
   * Web and mobile
 
-**During a session** : press `Shift+Tab` to cycle through `default` → `acceptEdits` → `plan` → `auto`. The current mode appears in the status bar. `auto` does not appear in the cycle until you pass `--enable-auto-mode` at startup. Auto also requires a Team (or Enterprise/API once available) plan and Claude Sonnet 4.6 or Opus 4.6, so the option may remain unavailable even with the flag. If `bypassPermissions` is also enabled, it appears in the cycle between `plan` and `auto`.**At startup** : pass the mode as a CLI flag:
+**During a session** : press `Shift+Tab` to cycle through `default` → `acceptEdits` → `plan` → `auto`. The current mode appears in the status bar. `auto` does not appear in the cycle until you pass `--enable-auto-mode` at startup. Auto also requires a Team, Enterprise, or API plan and Claude Sonnet 4.6 or Opus 4.6, so the option may remain unavailable even with the flag. If `bypassPermissions` is also enabled, it appears in the cycle between `plan` and `auto`.**At startup** : pass the mode as a CLI flag:
 
     claude --permission-mode plan
 
@@ -55,7 +55,7 @@ Plan mode| `plan`
 Auto| `auto`
 Bypass permissions| `bypassPermissions`
 
-Auto and Bypass permissions appear only after you enable **Allow dangerously skip permissions** in the extension settings. Auto also requires a Team plan and Claude Sonnet 4.6 or Opus 4.6, so the option may remain unavailable even with the toggle on.See the [VS Code guide](</docs/en/vs-code>) for extension-specific details.
+Auto and Bypass permissions appear only after you enable **Allow dangerously skip permissions** in the extension settings. Auto also requires a Team, Enterprise, or API plan and Claude Sonnet 4.6 or Opus 4.6, so the option may remain unavailable even with the toggle on.See the [VS Code guide](</docs/en/vs-code>) for extension-specific details.
 
 **During a session** : use the mode selector next to the send button. You can change it before or during a session.The Desktop UI uses friendly labels that map to the settings keys below:
 
@@ -148,7 +148,7 @@ Each approve option also offers to clear the planning context first.
 
 Eliminate prompts with auto mode
 
-Auto mode is available on Team plans, with Enterprise and API support rolling out shortly. On Team and Enterprise, an admin must enable it in [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>) before users can turn it on. It requires Claude Sonnet 4.6 or Claude Opus 4.6, and is not available on Haiku, claude-3 models, or third-party providers (Bedrock, Vertex, Foundry). Auto mode lets Claude execute actions without showing permission prompts. Before each action runs, a separate classifier model reviews the conversation and decides whether the action matches what you asked for: it blocks actions that escalate beyond the task scope, target infrastructure the classifier doesn’t recognize as trusted, or appear to be driven by hostile content encountered in a file or web page. For a deeper look at how the classifier is designed, see the [auto mode announcement](<https://claude.com/blog/auto-mode>).
+Auto mode is available on Team, Enterprise, and API plans. On Team and Enterprise, an admin must enable it in [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>) before users can turn it on. It requires Claude Sonnet 4.6 or Claude Opus 4.6, and is not available on Haiku, claude-3 models, or third-party providers (Bedrock, Vertex, Foundry). Auto mode lets Claude execute actions without showing permission prompts. Before each action runs, a separate classifier model reviews the conversation and decides whether the action matches what you asked for. It blocks actions that escalate beyond the task scope, target infrastructure the classifier doesn’t recognize as trusted, or appear to be driven by prompt injection: hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you never asked for. The defense is layered: a server-side probe scans incoming tool results and flags suspicious content before Claude reads it, while the classifier itself is never shown tool results, so injected instructions cannot influence its approval decisions. For a deeper look at how these layers work together, see the [auto mode announcement](<https://claude.com/blog/auto-mode>) and the [engineering deep dive](<https://www.anthropic.com/engineering/claude-code-auto-mode>).
 
 Auto mode is a research preview. It reduces prompts but does not guarantee safety. It provides more protection than `bypassPermissions` but is not as thorough as manually reviewing each action. Use it for tasks where you trust the general direction, not as a replacement for review on sensitive operations.
 
@@ -233,7 +233,7 @@ Allow only pre-approved tools with dontAsk mode
 
 Skip all checks with bypassPermissions mode
 
-`bypassPermissions` mode disables all permission prompts and safety checks. Every tool call executes immediately without any verification. Only use this in isolated environments like containers, VMs, or devcontainers without internet access, where Claude Code cannot cause damage to your host system.
+`bypassPermissions` mode disables permission prompts and safety checks. Tool calls execute immediately, except for writes to `.git`, `.vscode`, and `.idea`, which still prompt to prevent accidental corruption of repository state and local configuration. Writes to `.claude` also prompt, except for `.claude/commands`, `.claude/agents`, and `.claude/skills` where Claude routinely creates skills, subagents, and commands. Only use this mode in isolated environments like containers, VMs, or devcontainers without internet access, where Claude Code cannot cause damage to your host system.
 
     claude --permission-mode bypassPermissions
 

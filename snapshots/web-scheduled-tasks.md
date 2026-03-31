@@ -108,7 +108,7 @@ Daily| Runs once per day at the time you specify. Defaults to 9:00 AM local time
 Weekdays| Same as Daily but skips Saturday and Sunday.
 Weekly| Runs once per week on the day and time you specify.
 
-For custom intervals like every 2 hours or first of each month, pick the closest preset and update the schedule from the CLI with `/schedule update` to set a specific schedule.
+For custom intervals like every 2 hours or first of each month, pick the closest preset and update the schedule from the CLI with `/schedule update` to set a specific cron expression. The minimum interval is 1 hour. Expressions that fire more frequently, such as `*/30 * * * *`, are rejected.
 
 ###
 

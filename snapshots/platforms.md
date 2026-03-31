@@ -10,7 +10,7 @@ Choose a platform based on how you like to work and where your project lives.
 
 Platform| Best for| What you get
 ---|---|---
-[CLI](</docs/en/quickstart>)| Terminal workflows, scripting, remote servers| Full feature set, [Agent SDK](</docs/en/headless>), third-party providers
+[CLI](</docs/en/quickstart>)| Terminal workflows, scripting, remote servers| Full feature set, [Agent SDK](</docs/en/headless>), [computer use](</docs/en/computer-use>) on Pro and Max, third-party providers
 [Desktop](</docs/en/desktop>)| Visual review, parallel sessions, managed setup| Diff viewer, app preview, [computer use](</docs/en/desktop#let-claude-use-your-computer>) and [Dispatch](</docs/en/desktop#sessions-from-dispatch>) on Pro and Max
 [VS Code](</docs/en/vs-code>)| Working inside VS Code without switching to a terminal| Inline diffs, integrated terminal, file context
 [JetBrains](</docs/en/jetbrains>)| Working inside IntelliJ, PyCharm, WebStorm, or other JetBrains IDEs| Diff viewer, selection sharing, terminal session
@@ -79,6 +79,7 @@ Platforms
 Integrations
 
   * [Chrome](</docs/en/chrome>): automate browser tasks with your logged-in sessions
+  * [Computer use](</docs/en/computer-use>): let Claude open apps and control your screen on macOS
   * [GitHub Actions](</docs/en/github-actions>): run Claude in your CI pipeline
   * [GitLab CI/CD](</docs/en/gitlab-ci-cd>): the same for GitLab
   * [Code Review](</docs/en/code-review>): automatic review on every pull request
