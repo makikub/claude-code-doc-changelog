@@ -45,7 +45,7 @@ In [Claude.ai](<https://claude.ai>), navigate to **Admin Settings > Claude Code 
 
 Define your settings
 
-Add your configuration as JSON. All [settings available in `settings.json`](</docs/en/settings#available-settings>) are supported, including [hooks](</docs/en/hooks>), [environment variables](</docs/en/env-vars>), and [managed-only settings](</docs/en/permissions#managed-only-settings>) like `allowManagedPermissionRulesOnly`.This example enforces a permission deny list and prevents users from bypassing permissions:
+Add your configuration as JSON. All [settings available in `settings.json`](</docs/en/settings#available-settings>) are supported, including [hooks](</docs/en/hooks>), [environment variables](</docs/en/env-vars>), and [managed-only settings](</docs/en/permissions#managed-only-settings>) like `allowManagedPermissionRulesOnly`.This example enforces a permission deny list, prevents users from bypassing permissions, and restricts permission rules to those defined in managed settings:
 
     {
       "permissions": {
@@ -56,7 +56,8 @@ Add your configuration as JSON. All [settings available in `settings.json`](</do
           "Read(./secrets/**)"
         ],
         "disableBypassPermissionsMode": "disable"
-      }
+      },
+      "allowManagedPermissionRulesOnly": true
     }
 
 Hooks use the same format as in `settings.json`.This example runs an audit script after every file edit across the organization:
@@ -119,6 +120,14 @@ Restrict access to trusted personnel, as settings changes apply to all users in 
 
 ​
 
+Managed-only settings
+
+Most [settings keys](</docs/en/settings#available-settings>) work in any scope. A handful of keys are only read from managed settings and have no effect when placed in user or project settings files. See [managed-only settings](</docs/en/permissions#managed-only-settings>) for the full list. Any setting not on that list can still be placed in managed settings and takes the highest precedence.
+
+###
+
+​
+
 Current limitations
 
 Server-managed settings have the following limitations during the beta period:
@@ -138,7 +147,7 @@ Settings delivery
 
 Settings precedence
 
-Server-managed settings and [endpoint-managed settings](</docs/en/settings#settings-files>) both occupy the highest tier in the Claude Code [settings hierarchy](</docs/en/settings#settings-precedence>). No other settings level can override them, including command line arguments. When both are present, server-managed settings take precedence and endpoint-managed settings are not used.
+Server-managed settings and [endpoint-managed settings](</docs/en/settings#settings-files>) both occupy the highest tier in the Claude Code [settings hierarchy](</docs/en/settings#settings-precedence>). No other settings level can override them, including command line arguments. Within the managed tier, the first source that delivers a non-empty configuration wins. Server-managed settings are checked first, then endpoint-managed settings. Sources do not merge: if server-managed settings deliver any keys at all, endpoint-managed settings are ignored entirely. If server-managed settings deliver nothing, endpoint-managed settings apply. If you clear your server-managed configuration in the admin console with the intent of falling back to an endpoint-managed plist or registry policy, be aware that cached settings persist on client machines until the next successful fetch. Run `/status` to see which managed source is active.
 
 ###
 

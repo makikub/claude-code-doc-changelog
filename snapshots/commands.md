@@ -2,7 +2,7 @@ Type `/` in Claude Code to see all available commands, or type `/` followed by a
 
 Command| Purpose
 ---|---
-`/add-dir <path>`| Add a new working directory to the current session
+`/add-dir <path>`| Add a working directory for file access during the current session. Most `.claude/` configuration is [not discovered](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>) from the added directory
 `/agents`| Manage [agent](</docs/en/sub-agents>) configurations
 `/btw <question>`| Ask a quick [side question](</docs/en/interactive-mode#side-questions-with-btw>) without adding to the conversation
 `/chrome`| Configure [Claude in Chrome](</docs/en/chrome>) settings
@@ -26,7 +26,7 @@ Command| Purpose
 `/help`| Show help and available commands
 `/hooks`| View [hook](</docs/en/hooks>) configurations for tool events
 `/ide`| Manage IDE integrations and show status
-`/init`| Initialize project with a `CLAUDE.md` guide. Set `CLAUDE_CODE_NEW_INIT=true` for an interactive flow that also walks through skills, hooks, and personal memory files
+`/init`| Initialize project with a `CLAUDE.md` guide. Set `CLAUDE_CODE_NEW_INIT=1` for an interactive flow that also walks through skills, hooks, and personal memory files
 `/insights`| Generate a report analyzing your Claude Code sessions, including project areas, interaction patterns, and friction points
 `/install-github-app`| Set up the [Claude GitHub Actions](</docs/en/github-actions>) app for a repository. Walks you through selecting a repo and configuring the integration
 `/install-slack-app`| Install the Claude Slack app. Opens a browser to complete the OAuth flow

@@ -169,7 +169,7 @@ Location| Scope| Priority| How to create
 `~/.claude/agents/`| All your projects| 3| Interactive or manual
 Plugin’s `agents/` directory| Where plugin is enabled| 4 (lowest)| Installed with [plugins](</docs/en/plugins>)
 
-**Project subagents** (`.claude/agents/`) are ideal for subagents specific to a codebase. Check them into version control so your team can use and improve them collaboratively. **User subagents** (`~/.claude/agents/`) are personal subagents available in all your projects. **CLI-defined subagents** are passed as JSON when launching Claude Code. They exist only for that session and aren’t saved to disk, making them useful for quick testing or automation scripts. You can define multiple subagents in a single `--agents` call:
+**Project subagents** (`.claude/agents/`) are ideal for subagents specific to a codebase. Check them into version control so your team can use and improve them collaboratively. Project subagents are discovered by walking up from the current working directory. Directories added with `--add-dir` [grant file access only](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>) and are not scanned for subagents. To share subagents across projects, use `~/.claude/agents/` or a [plugin](</docs/en/plugins>). **User subagents** (`~/.claude/agents/`) are personal subagents available in all your projects. **CLI-defined subagents** are passed as JSON when launching Claude Code. They exist only for that session and aren’t saved to disk, making them useful for quick testing or automation scripts. You can define multiple subagents in a single `--agents` call:
 
     claude --agents '{
       "code-reviewer": {
@@ -704,7 +704,7 @@ Manage subagent context
 
 Resume subagents
 
-Each subagent invocation creates a new instance with fresh context. To continue an existing subagent’s work instead of starting over, ask Claude to resume it. Resumed subagents retain their full conversation history, including all previous tool calls, results, and reasoning. The subagent picks up exactly where it stopped rather than starting fresh. When a subagent completes, Claude receives its agent ID. Claude uses the `SendMessage` tool with the agent’s ID as the `to` field to resume it. To resume a subagent, ask Claude to continue the previous work:
+Each subagent invocation creates a new instance with fresh context. To continue an existing subagent’s work instead of starting over, ask Claude to resume it. Resumed subagents retain their full conversation history, including all previous tool calls, results, and reasoning. The subagent picks up exactly where it stopped rather than starting fresh. When a subagent completes, Claude receives its agent ID. Claude uses the `SendMessage` tool with the agent’s ID as the `to` field to resume it. The `SendMessage` tool is only available when [agent teams](</docs/en/agent-teams>) are enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` or the `--agent-teams` flag. To resume a subagent, ask Claude to continue the previous work:
 
     Use the code-reviewer subagent to review the authentication module
     [Agent completes]

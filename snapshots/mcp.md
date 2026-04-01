@@ -861,11 +861,11 @@ Value| Behavior
     # Disable tool search entirely
     ENABLE_TOOL_SEARCH=false claude
 
-Or set the value in your [settings.json `env` field](</docs/en/settings#available-settings>). You can also disable the MCPSearch tool specifically using the `disallowedTools` setting:
+Or set the value in your [settings.json `env` field](</docs/en/settings#available-settings>). You can also disable the `ToolSearch` tool specifically:
 
     {
       "permissions": {
-        "deny": ["MCPSearch"]
+        "deny": ["ToolSearch"]
       }
     }
 
