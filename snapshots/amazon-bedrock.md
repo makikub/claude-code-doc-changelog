@@ -135,7 +135,7 @@ These variables use cross-region inference profile IDs (with the `us.` prefix). 
 
 Model type| Default value
 ---|---
-Primary model| `global.anthropic.claude-sonnet-4-6`
+Primary model| `us.anthropic.claude-sonnet-4-5-20250929-v1:0`
 Small/fast model| `us.anthropic.claude-haiku-4-5-20251001-v1:0`
 
 To customize models further, use one of these methods:
@@ -220,6 +220,14 @@ Create a dedicated AWS account for Claude Code to simplify cost tracking and acc
 
 ​
 
+1M token context window
+
+Claude Opus 4.6 and Sonnet 4.6 support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) on Amazon Bedrock. Claude Code automatically enables the extended context window when you select a 1M model variant. To enable the 1M context window for your pinned model, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
+
+##
+
+​
+
 AWS Guardrails
 
 [Amazon Bedrock Guardrails](<https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html>) let you implement content filtering for Claude Code. Create a Guardrail in the [Amazon Bedrock console](<https://console.aws.amazon.com/bedrock/>), publish a version, then add the Guardrail headers to your [settings file](</docs/en/settings>). Enable Cross-Region inference on your Guardrail if you’re using cross-region inference profiles. Example configuration:
@@ -271,4 +279,5 @@ Additional resources
   * [Bedrock documentation](<https://docs.aws.amazon.com/bedrock/>)
   * [Bedrock pricing](<https://aws.amazon.com/bedrock/pricing/>)
   * [Bedrock inference profiles](<https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html>)
-  * [Claude Code on Amazon Bedrock: Quick Setup Guide](<https://community.aws/content/2tXkZKrZzlrlu0KfH8gST5Dkppq/claude-code-on-amazon-bedrock-quick-setup-guide>)\- [Claude Code Monitoring Implementation (Bedrock)](<https://github.com/aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock/blob/main/assets/docs/MONITORING.md>)
+  * [Claude Code on Amazon Bedrock: Quick Setup Guide](<https://community.aws/content/2tXkZKrZzlrlu0KfH8gST5Dkppq/claude-code-on-amazon-bedrock-quick-setup-guide>)
+  * [Claude Code Monitoring Implementation (Bedrock)](<https://github.com/aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock/blob/main/assets/docs/MONITORING.md>)

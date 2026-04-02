@@ -199,7 +199,7 @@ The CLI and Desktop surfaces share the same computer use engine. A few Desktop-s
 
 Feature| Desktop| CLI
 ---|---|---
-Enable| Toggle in **Settings > Desktop app > General**| Enable `computer-use` in `/mcp`
+Enable| Toggle in **Settings > General** (under **Desktop app**)| Enable `computer-use` in `/mcp`
 Denied apps list| Configurable in Settings| Not yet available
 Auto-unhide toggle| Optional| Always on
 Dispatch integration| Dispatch-spawned sessions can use computer use| Not applicable

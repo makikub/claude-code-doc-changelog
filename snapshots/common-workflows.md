@@ -519,7 +519,7 @@ How extended thinking works
 
 Extended thinking controls how much internal reasoning Claude performs before responding. More thinking provides more space to explore solutions, analyze edge cases, and self-correct mistakes. **With Opus 4.6 and Sonnet 4.6** , thinking uses adaptive reasoning: the model dynamically allocates thinking tokens based on the [effort level](</docs/en/model-config#adjust-effort-level>) you select. This is the recommended way to tune the tradeoff between speed and reasoning depth. **With older models** , thinking uses a fixed token budget drawn from your output allocation. The budget varies by model; see [`MAX_THINKING_TOKENS`](</docs/en/env-vars>) for per-model ceilings. You can limit the budget with that environment variable, or disable thinking entirely via `/config` or the `Option+T`/`Alt+T` toggle. On Opus 4.6 and Sonnet 4.6, [adaptive reasoning](</docs/en/model-config#adjust-effort-level>) controls thinking depth, so `MAX_THINKING_TOKENS` only applies when set to `0` to disable thinking, or when `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` reverts these models to the fixed budget. See [environment variables](</docs/en/env-vars>).
 
-You’re charged for all thinking tokens used, even though Claude 4 models show summarized thinking
+You’re charged for all thinking tokens used even when thinking summaries are redacted. In interactive mode, thinking appears as a collapsed stub by default. Set `showThinkingSummaries: true` in `settings.json` to show full summaries.
 
 * * *
 
@@ -855,7 +855,7 @@ Tips:
 
   * Use pipes to integrate Claude into existing shell scripts
   * Combine with other Unix tools for powerful workflows
-  * Consider using —output-format for structured output
+  * Consider using `--output-format` for structured output
 
 ###
 

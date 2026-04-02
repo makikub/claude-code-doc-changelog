@@ -21,7 +21,7 @@ Tool| Description| Permission Required
 `PowerShell`| Executes PowerShell commands on Windows. Opt-in preview. See PowerShell tool| Yes
 `Read`| Reads the contents of files| No
 `ReadMcpResourceTool`| Reads a specific MCP resource by URI| No
-`SendMessage`| Sends a message to an [agent team](</docs/en/agent-teams>) teammate, or [resumes a subagent](</docs/en/sub-agents#resume-subagents>) by its agent ID. Stopped subagents auto-resume in the background. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` or the `--agent-teams` flag is set| No
+`SendMessage`| Sends a message to an [agent team](</docs/en/agent-teams>) teammate, or [resumes a subagent](</docs/en/sub-agents#resume-subagents>) by its agent ID. Stopped subagents auto-resume in the background. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set| No
 `Skill`| Executes a [skill](</docs/en/skills#control-who-invokes-a-skill>) within the main conversation| Yes
 `TaskCreate`| Creates a new task in the task list| No
 `TaskGet`| Retrieves full details for a specific task| No
@@ -29,8 +29,8 @@ Tool| Description| Permission Required
 `TaskOutput`| (Deprecated) Retrieves output from a background task. Prefer `Read` on the task’s output file path| No
 `TaskStop`| Kills a running background task by ID| No
 `TaskUpdate`| Updates task status, dependencies, details, or deletes tasks| No
-`TeamCreate`| Creates an [agent team](</docs/en/agent-teams>) with multiple teammates. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` or the `--agent-teams` flag is set| No
-`TeamDelete`| Disbands an agent team and cleans up teammate processes. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` or the `--agent-teams` flag is set| No
+`TeamCreate`| Creates an [agent team](</docs/en/agent-teams>) with multiple teammates. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set| No
+`TeamDelete`| Disbands an agent team and cleans up teammate processes. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set| No
 `TodoWrite`| Manages the session task checklist. Available in non-interactive mode and the [Agent SDK](</docs/en/headless>); interactive sessions use TaskCreate, TaskGet, TaskList, and TaskUpdate instead| No
 `ToolSearch`| Searches for and loads deferred tools when [tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is enabled| No
 `WebFetch`| Fetches content from a specified URL| Yes

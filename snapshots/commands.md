@@ -38,7 +38,7 @@ Command| Purpose
 `/mobile`| Show QR code to download the Claude mobile app. Aliases: `/ios`, `/android`
 `/model [model]`| Select or change the AI model. For models that support it, use left/right arrows to [adjust effort level](</docs/en/model-config#adjust-effort-level>). The change takes effect immediately without waiting for the current response to finish
 `/passes`| Share a free week of Claude Code with friends. Only visible if your account is eligible
-`/permissions`| View or update [permissions](</docs/en/permissions#manage-permissions>). Alias: `/allowed-tools`
+`/permissions`| Manage allow, ask, and deny rules for tool permissions. Opens an interactive dialog where you can view rules by scope, add or remove rules, manage working directories, and review [recent auto mode denials](</docs/en/permissions#review-auto-mode-denials>). Alias: `/allowed-tools`
 `/plan [description]`| Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug`
 `/plugin`| Manage Claude Code [plugins](</docs/en/plugins>)
 `/pr-comments [PR]`| Fetch and display comments from a GitHub pull request. Automatically detects the PR for the current branch, or pass a PR URL or number. Requires the `gh` CLI
@@ -59,7 +59,7 @@ Command| Purpose
 `/status`| Open the Settings interface (Status tab) showing version, model, account, and connectivity. Works while Claude is responding, without waiting for the current response to finish
 `/statusline`| Configure Claude Code’s [status line](</docs/en/statusline>). Describe what you want, or run without arguments to auto-configure from your shell prompt
 `/stickers`| Order Claude Code stickers
-`/tasks`| List and manage background tasks
+`/tasks`| List and manage background tasks. Also available as `/bashes`
 `/terminal-setup`| Configure terminal keybindings for Shift+Enter and other shortcuts. Only visible in terminals that need it, like VS Code, Alacritty, or Warp
 `/theme`| Change the color theme. Includes light and dark variants, colorblind-accessible (daltonized) themes, and ANSI themes that use your terminal’s color palette
 `/upgrade`| Open the upgrade page to switch to a higher plan tier

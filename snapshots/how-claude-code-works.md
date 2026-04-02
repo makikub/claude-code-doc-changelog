@@ -88,7 +88,7 @@ Environment| Where code runs| Use case
 
 Interfaces
 
-You can access Claude Code through the terminal, the [desktop app](</docs/en/desktop>), [IDE extensions](</docs/en/ide-integrations>), [claude.ai/code](<https://claude.ai/code>), [Remote Control](</docs/en/remote-control>), [Slack](</docs/en/slack>), and [CI/CD pipelines](</docs/en/github-actions>). The interface determines how you see and interact with Claude, but the underlying agentic loop is identical. See [Use Claude Code everywhere](</docs/en/overview#use-claude-code-everywhere>) for the full list.
+You can access Claude Code through the terminal, the [desktop app](</docs/en/desktop>), [IDE extensions](</docs/en/vs-code>), [claude.ai/code](<https://claude.ai/code>), [Remote Control](</docs/en/remote-control>), [Slack](</docs/en/slack>), and [CI/CD pipelines](</docs/en/github-actions>). The interface determines how you see and interact with Claude, but the underlying agentic loop is identical. See [Use Claude Code everywhere](</docs/en/overview#use-claude-code-everywhere>) for the full list.
 
 ##
 

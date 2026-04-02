@@ -125,9 +125,9 @@ The offset is derived from the task ID, so the same task always gets the same of
 
 ​
 
-Three-day expiry
+Seven-day expiry
 
-Recurring tasks automatically expire 3 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>) or [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) for durable scheduling.
+Recurring tasks automatically expire 7 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>) or [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) for durable scheduling.
 
 ##
 

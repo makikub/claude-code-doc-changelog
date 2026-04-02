@@ -23,7 +23,7 @@ Command| Description| Example
 `claude auto-mode defaults`| Print the built-in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier rules as JSON. Use `claude auto-mode config` to see your effective config with settings applied| `claude auto-mode defaults > rules.json`
 `claude mcp`| Configure Model Context Protocol (MCP) servers| See the [Claude Code MCP documentation](</docs/en/mcp>).
 `claude plugin`| Manage Claude Code [plugins](</docs/en/plugins>). Alias: `claude plugins`. See [plugin reference](</docs/en/plugins-reference#cli-commands-reference>) for subcommands| `claude plugin install code-review@claude-plugins-official`
-`claude remote-control`| Start a [Remote Control](</docs/en/remote-control>) server to control Claude Code from Claude.ai or the Claude app. Runs in server mode (no local interactive session). See [Server mode flags](</docs/en/remote-control#server-mode>)| `claude remote-control --name "My Project"`
+`claude remote-control`| Start a [Remote Control](</docs/en/remote-control>) server to control Claude Code from Claude.ai or the Claude app. Runs in server mode (no local interactive session). See [Server mode flags](</docs/en/remote-control#start-a-remote-control-session>)| `claude remote-control --name "My Project"`
 
 ##
 
@@ -31,13 +31,12 @@ Command| Description| Example
 
 CLI flags
 
-Customize Claude Code’s behavior with these command-line flags:
+Customize Claude Code’s behavior with these command-line flags. `claude --help` does not list every flag, so a flag’s absence from `--help` does not mean it is unavailable.
 
 Flag| Description| Example
 ---|---|---
 `--add-dir`| Add additional working directories for Claude to read and edit files. Grants file access; most `.claude/` configuration is [not discovered](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>) from these directories. Validates each path exists as a directory| `claude --add-dir ../apps ../lib`
 `--agent`| Specify an agent for the current session (overrides the `agent` setting)| `claude --agent my-custom-agent`
-`--agent-teams`| Enable experimental [agent teams](</docs/en/agent-teams>). Makes the `SendMessage`, `TeamCreate`, and `TeamDelete` tools available. Equivalent to `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`| `claude --agent-teams`
 `--agents`| Define custom subagents dynamically via JSON. Uses the same field names as subagent [frontmatter](</docs/en/sub-agents#supported-frontmatter-fields>), plus a `prompt` field for the agent’s instructions| `claude --agents '{"reviewer":{"description":"Reviews code","prompt":"You are a code reviewer"}}'`
 `--allow-dangerously-skip-permissions`| Add `bypassPermissions` to the `Shift+Tab` mode cycle without starting in it. Lets you begin in a different mode like `plan` and switch to `bypassPermissions` later. See [permission modes](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>)| `claude --permission-mode plan --allow-dangerously-skip-permissions`
 `--allowedTools`| Tools that execute without prompting for permission. See [permission rule syntax](</docs/en/settings#permission-rule-syntax>) for pattern matching. To restrict which tools are available, use `--tools` instead| `"Bash(git log *)" "Bash(git diff *)" "Read"`
@@ -61,10 +60,11 @@ Flag| Description| Example
 `--ide`| Automatically connect to IDE on startup if exactly one valid IDE is available| `claude --ide`
 `--init`| Run initialization hooks and start interactive mode| `claude --init`
 `--init-only`| Run initialization hooks and exit (no interactive session)| `claude --init-only`
-`--include-partial-messages`| Include partial streaming events in output. Requires `--print`, `--output-format stream-json`, and `--verbose`| `claude -p --output-format stream-json --verbose --include-partial-messages "query"`
+`--include-hook-events`| Include all hook lifecycle events in the output stream. Requires `--output-format stream-json`| `claude -p --output-format stream-json --include-hook-events "query"`
+`--include-partial-messages`| Include partial streaming events in output. Requires `--print` and `--output-format stream-json`| `claude -p --output-format stream-json --include-partial-messages "query"`
 `--input-format`| Specify input format for print mode (options: `text`, `stream-json`)| `claude -p --output-format json --input-format stream-json`
 `--json-schema`| Get validated JSON output matching a JSON Schema after agent completes its workflow (print mode only, see [structured outputs](<https://platform.claude.com/docs/en/agent-sdk/structured-outputs>))| `claude -p --json-schema '{"type":"object","properties":{...}}' "query"`
-`--maintenance`| Run maintenance hooks and exit| `claude --maintenance`
+`--maintenance`| Run maintenance hooks and start interactive mode| `claude --maintenance`
 `--max-budget-usd`| Maximum dollar amount to spend on API calls before stopping (print mode only)| `claude -p --max-budget-usd 5.00 "query"`
 `--max-turns`| Limit the number of agentic turns (print mode only). Exits with an error when the limit is reached. No limit by default| `claude -p --max-turns 3 "query"`
 `--mcp-config`| Load MCP servers from JSON files or strings (space-separated)| `claude --mcp-config ./mcp.json`
@@ -81,8 +81,8 @@ Flag| Description| Example
 `--plugin-dir`| Load plugins from a directory for this session only. Each flag takes one path. Repeat the flag for multiple directories: `--plugin-dir A --plugin-dir B`| `claude --plugin-dir ./my-plugins`
 `--print`, `-p`| Print response without interactive mode (see [Agent SDK documentation](<https://platform.claude.com/docs/en/agent-sdk/overview>) for programmatic usage details)| `claude -p "query"`
 `--remote`| Create a new [web session](</docs/en/claude-code-on-the-web>) on claude.ai with the provided task description| `claude --remote "Fix the login bug"`
-`--remote-control`, `--rc`| Start an interactive session with [Remote Control](</docs/en/remote-control#interactive-session>) enabled so you can also control it from claude.ai or the Claude app. Optionally pass a name for the session| `claude --remote-control "My Project"`
-`--replay-user-messages`| Re-emit user messages from stdin back on stdout for acknowledgment. Requires `--print`, `--input-format stream-json`, `--output-format stream-json`, and `--verbose`| `claude -p --input-format stream-json --output-format stream-json --verbose --replay-user-messages`
+`--remote-control`, `--rc`| Start an interactive session with [Remote Control](</docs/en/remote-control#start-a-remote-control-session>) enabled so you can also control it from claude.ai or the Claude app. Optionally pass a name for the session| `claude --remote-control "My Project"`
+`--replay-user-messages`| Re-emit user messages from stdin back on stdout for acknowledgment. Requires `--input-format stream-json` and `--output-format stream-json`| `claude -p --input-format stream-json --output-format stream-json --replay-user-messages`
 `--resume`, `-r`| Resume a specific session by ID or name, or show an interactive picker to choose a session| `claude --resume auth-refactor`
 `--session-id`| Use a specific session ID for the conversation (must be a valid UUID)| `claude --session-id "550e8400-e29b-41d4-a716-446655440000"`
 `--setting-sources`| Comma-separated list of setting sources to load (`user`, `project`, `local`)| `claude --setting-sources user,project`
@@ -91,7 +91,7 @@ Flag| Description| Example
 `--system-prompt`| Replace the entire system prompt with custom text| `claude --system-prompt "You are a Python expert"`
 `--system-prompt-file`| Load system prompt from a file, replacing the default prompt| `claude --system-prompt-file ./custom-prompt.txt`
 `--teleport`| Resume a [web session](</docs/en/claude-code-on-the-web>) in your local terminal| `claude --teleport`
-`--teammate-mode`| Set how [agent team](</docs/en/agent-teams>) teammates display: `auto` (default), `in-process`, or `tmux`. See [set up agent teams](</docs/en/agent-teams#set-up-agent-teams>)| `claude --teammate-mode in-process`
+`--teammate-mode`| Set how [agent team](</docs/en/agent-teams>) teammates display: `auto` (default), `in-process`, or `tmux`. See [Choose a display mode](</docs/en/agent-teams#choose-a-display-mode>)| `claude --teammate-mode in-process`
 `--tmux`| Create a tmux session for the worktree. Requires `--worktree`. Uses iTerm2 native panes when available; pass `--tmux=classic` for traditional tmux| `claude -w feature-auth --tmux`
 `--tools`| Restrict which built-in tools Claude can use. Use `""` to disable all, `"default"` for all, or tool names like `"Bash,Edit,Read"`| `claude --tools "Bash,Edit,Read"`
 `--verbose`| Enable verbose logging, shows full turn-by-turn output| `claude --verbose`
