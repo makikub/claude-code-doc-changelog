@@ -540,6 +540,8 @@ A complete plugin follows this structure:
     ├── hooks/                    # Hook configurations
     │   ├── hooks.json           # Main hook config
     │   └── security-hooks.json  # Additional hooks
+    ├── bin/                      # Plugin executables added to PATH
+    │   └── my-tool               # Invokable as bare command in Bash tool
     ├── settings.json            # Default settings for the plugin
     ├── .mcp.json                # MCP server definitions
     ├── .lsp.json                # LSP server configurations
@@ -568,6 +570,7 @@ Component| Default Location| Purpose
 **Hooks**| `hooks/hooks.json`| Hook configuration
 **MCP servers**| `.mcp.json`| MCP server definitions
 **LSP servers**| `.lsp.json`| Language server configurations
+**Executables**| `bin/`| Executables added to the Bash tool’s `PATH`. Files here are invokable as bare commands in any Bash tool call while the plugin is enabled
 **Settings**| `settings.json`| Default configuration applied when the plugin is enabled. Only [`agent`](</docs/en/sub-agents>) settings are currently supported
 
 * * *
@@ -601,7 +604,7 @@ Option| Description| Default
 `-s, --scope <scope>`| Installation scope: `user`, `project`, or `local`| `user`
 `-h, --help`| Display help for command|
 
-Scope determines which settings file the installed plugin is added to. For example, —scope project writes to `enabledPlugins` in .claude/settings.json, making the plugin available to everyone who clones the project repository. **Examples:**
+Scope determines which settings file the installed plugin is added to. For example, `--scope project` writes to `enabledPlugins` in .claude/settings.json, making the plugin available to everyone who clones the project repository. **Examples:**
 
     # Install to user scope (default)
     claude plugin install formatter@my-marketplace

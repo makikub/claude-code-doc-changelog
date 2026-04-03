@@ -9,9 +9,9 @@ API (Claude Console)| [platform.claude.com/claude-code](<https://platform.claude
 
 ​
 
-Access analytics for Teams and Enterprise
+Access analytics for Team and Enterprise
 
-Navigate to [claude.ai/analytics/claude-code](<https://claude.ai/analytics/claude-code>). Admins and Owners can view the dashboard. The Teams and Enterprise dashboard includes:
+Navigate to [claude.ai/analytics/claude-code](<https://claude.ai/analytics/claude-code>). Admins and Owners can view the dashboard. The Team and Enterprise dashboard includes:
 
   * **Usage metrics** : lines of code accepted, suggestion accept rate, daily active users and sessions
   * **Contribution metrics** : PRs and lines of code shipped with Claude Code assistance, with GitHub integration

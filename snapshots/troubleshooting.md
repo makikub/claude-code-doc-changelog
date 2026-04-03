@@ -4,7 +4,7 @@
 
 Troubleshoot installation issues
 
-If you’d rather skip the terminal entirely, the [Claude Code Desktop app](</docs/en/desktop-quickstart>) lets you install and use Claude Code through a graphical interface. Download it for [macOS](<https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs>) or [Windows](<https://claude.ai/api/desktop/win32/x64/exe/latest/redirect?utm_source=claude_code&utm_medium=docs>) and start coding without any command-line setup.
+If you’d rather skip the terminal entirely, the [Claude Code Desktop app](</docs/en/desktop-quickstart>) lets you install and use Claude Code through a graphical interface. Download it for [macOS](<https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs>) or [Windows](<https://claude.com/download?utm_source=claude_code&utm_medium=docs>) and start coding without any command-line setup.
 
 Find the error message or symptom you’re seeing:
 
@@ -487,7 +487,7 @@ Avoid disabling Windows PATH importing via `appendWindowsPath = false` as this b
 
 WSL2 sandbox setup
 
-[Sandboxing](</docs/en/sandboxing>) is supported on WSL2 but requires installing additional packages. If you see an error like “Sandbox requires socat and bubblewrap” when running `/sandbox`, install the dependencies:
+[Sandboxing](</docs/en/sandboxing>) is supported on WSL2 but requires installing additional packages. If you see an error about missing `bubblewrap` or `socat` when running `/sandbox`, install the dependencies:
 
   * Ubuntu/Debian
 
@@ -804,7 +804,7 @@ If you notice code blocks like this in generated markdown:
     function example() {
       return "hello";
     }
-    ```text
+    ```
 
 Instead of properly tagged blocks like:
 
@@ -812,7 +812,7 @@ Instead of properly tagged blocks like:
     function example() {
       return "hello";
     }
-    ```text
+    ```
 
 **Solutions:**
 

@@ -47,7 +47,7 @@ Context| Description
 `Global`| Applies everywhere in the app
 `Chat`| Main chat input area
 `Autocomplete`| Autocomplete menu is open
-`Settings`| Settings menu (escape-only dismiss)
+`Settings`| Settings menu
 `Confirmation`| Permission and confirmation dialogs
 `Tabs`| Tab navigation components
 `Help`| Help menu is visible
@@ -83,6 +83,7 @@ Action| Default| Description
 ---|---|---
 `app:interrupt`| Ctrl+C| Cancel current operation
 `app:exit`| Ctrl+D| Exit Claude Code
+`app:redraw`| Ctrl+L| Redraw the screen
 `app:toggleTodos`| Ctrl+T| Toggle task list visibility
 `app:toggleTranscript`| Ctrl+O| Toggle verbose transcript
 
@@ -118,7 +119,7 @@ Action| Default| Description
 `chat:thinkingToggle`| Cmd+T / Meta+T| Toggle extended thinking
 `chat:submit`| Enter| Submit message
 `chat:newline`| (unbound)| Insert a newline without submitting
-`chat:undo`| Ctrl+_| Undo last action
+`chat:undo`| Ctrl+_, Ctrl+Shift+-| Undo last action
 `chat:externalEditor`| Ctrl+G, Ctrl+X Ctrl+E| Open in external editor
 `chat:stash`| Ctrl+S| Stash current prompt
 `chat:imagePaste`| Ctrl+V (Alt+V on Windows)| Paste image
@@ -156,6 +157,7 @@ Action| Default| Description
 `confirm:next`| Down| Next option
 `confirm:nextField`| Tab| Next field
 `confirm:previousField`| (unbound)| Previous field
+`confirm:toggle`| Space| Toggle selection
 `confirm:cycleMode`| Shift+Tab| Cycle permission modes
 `confirm:toggleExplanation`| Ctrl+E| Toggle permission explanation
 
@@ -182,7 +184,7 @@ Actions available in the `Transcript` context:
 Action| Default| Description
 ---|---|---
 `transcript:toggleShowAll`| Ctrl+E| Toggle show all content
-`transcript:exit`| Ctrl+C, Escape| Exit transcript view
+`transcript:exit`| q, Ctrl+C, Escape| Exit transcript view
 
 ###
 
@@ -367,6 +369,7 @@ Action| Default| Description
 ---|---|---
 `settings:search`| /| Enter search mode
 `settings:retry`| R| Retry loading usage data (on error)
+`settings:close`| Enter| Save changes and close the config panel. Escape discards changes and closes
 
 ###
 

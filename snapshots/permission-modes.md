@@ -88,11 +88,13 @@ Each mode makes a different tradeoff between convenience and oversight. Pick the
 Mode| What Claude can do without asking| Best for
 ---|---|---
 `default`| Read files| Getting started, sensitive work
-`acceptEdits`| Read and edit files| Iterating on code you’re reviewing
+`acceptEdits`| Read and edit files except in protected directories| Iterating on code you’re reviewing
 `plan`| Read files| Exploring a codebase, planning a refactor
 `auto`| All actions, with background safety checks| Long-running tasks, reducing prompt fatigue
-`bypassPermissions`| All actions, no checks| Isolated containers and VMs only
+`bypassPermissions`| All actions except writes to protected directories| Isolated containers and VMs only
 `dontAsk`| Only pre-approved tools| Locked-down environments
+
+Regardless of mode, writes to `.git`, `.vscode`, `.idea`, `.husky`, and `.claude` are never auto-approved, except for `.claude/commands`, `.claude/agents`, and `.claude/skills` where Claude routinely creates skills, subagents, and commands. This protects repository state, editor configuration, git hooks, and Claude’s own settings from accidental corruption.
 
 ##
 
@@ -152,7 +154,7 @@ Auto mode is available on Team, Enterprise, and API plans. On Team and Enterpris
 
 Auto mode is a research preview. It reduces prompts but does not guarantee safety. It provides more protection than `bypassPermissions` but is not as thorough as manually reviewing each action. Use it for tasks where you trust the general direction, not as a replacement for review on sensitive operations.
 
-**Model** : the classifier runs on Claude Sonnet 4.6, even if your main session uses a different model. **Cost** : classifier calls count toward your token usage the same as main-session calls. Each checked action sends a portion of the conversation transcript plus the pending action to the classifier. The extra cost comes mainly from shell commands and network operations, since read-only actions and file edits in your working directory don’t trigger a classifier call. **Latency** : each classifier check adds a round-trip before the action executes.
+**Model** : the classifier runs on Claude Sonnet 4.6, even if your main session uses a different model. **Cost** : classifier calls count toward your token usage the same as main-session calls. Each checked action sends a portion of the conversation transcript plus the pending action to the classifier. The extra cost comes mainly from shell commands and network operations, since read-only actions and file edits in your working directory outside protected directories don’t trigger a classifier call. **Latency** : each classifier check adds a round-trip before the action executes.
 
 ###
 
@@ -163,7 +165,7 @@ How actions are evaluated
 Each action goes through a fixed decision order. The first matching step wins:
 
   1. Actions matching your [allow or deny rules](</docs/en/permissions#manage-permissions>) resolve immediately
-  2. Read-only actions and file edits in your working directory are auto-approved
+  2. Read-only actions and file edits in your working directory are auto-approved, except writes to protected directories
   3. Everything else goes to the classifier
   4. If the classifier blocks, Claude receives the reason and attempts an alternative approach
 
@@ -233,7 +235,7 @@ Allow only pre-approved tools with dontAsk mode
 
 Skip all checks with bypassPermissions mode
 
-`bypassPermissions` mode disables permission prompts and safety checks. Tool calls execute immediately, except for writes to `.git`, `.vscode`, and `.idea`, which still prompt to prevent accidental corruption of repository state and local configuration. Writes to `.claude` also prompt, except for `.claude/commands`, `.claude/agents`, and `.claude/skills` where Claude routinely creates skills, subagents, and commands. Only use this mode in isolated environments like containers, VMs, or devcontainers without internet access, where Claude Code cannot cause damage to your host system.
+`bypassPermissions` mode disables permission prompts and safety checks. Tool calls execute immediately, except for writes to `.git`, `.vscode`, `.idea`, and `.husky`, which still prompt to prevent accidental corruption of repository state, editor configuration, and git hooks. Writes to `.claude` also prompt, except for `.claude/commands`, `.claude/agents`, and `.claude/skills` where Claude routinely creates skills, subagents, and commands. Only use this mode in isolated environments like containers, VMs, or devcontainers without internet access, where Claude Code cannot cause damage to your host system.
 
     claude --permission-mode bypassPermissions
 
@@ -253,8 +255,8 @@ The table below summarizes the key differences in how each mode handles approval
 
 | `default`| `acceptEdits`| `auto`| `dontAsk`| `bypassPermissions`
 ---|---|---|---|---|---
-Permission prompts| File edits and commands| Commands only| None unless fallback triggers| None, blocked unless pre-allowed| None
-Safety checks| You review each action| You review commands| Classifier reviews commands| Your pre-approved rules only| None
+Permission prompts| File edits and commands| Commands and protected directories| None unless fallback triggers| None, blocked unless pre-allowed| Protected directories only
+Safety checks| You review each action| You review commands and protected-directory writes| Classifier reviews commands and protected-directory writes| Your pre-approved rules only| You review protected-directory writes
 Token usage| Standard| Standard| Higher, from classifier calls| Standard| Standard
 
 ##
@@ -263,7 +265,7 @@ Token usage| Standard| Standard| Higher, from classifier calls| Standard| Standa
 
 Customize permissions further
 
-Permission modes set the baseline approval behavior. For control over individual tools or commands, layer additional configuration on top of the active mode. **Permission rules** are the first stop. Add `allow`, `ask`, or `deny` entries to your settings file to pre-approve safe commands, force a prompt for risky ones, or block specific tools entirely. Rules apply in every mode except `bypassPermissions`, which skips the permission layer entirely, and are matched by tool name and argument pattern. See [Manage permissions](</docs/en/permissions#manage-permissions>) for syntax and examples. **Hooks** cover logic that pattern-matching rules can’t express. A [`PreToolUse` hook](</docs/en/hooks#pretooluse-decision-control>) runs before every tool call and can allow, deny, or escalate based on command content, file paths, time of day, or a response from an external policy service. A [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) intercepts the permission dialog itself and answers on your behalf. See [Hooks](</docs/en/hooks>) for configuration.
+Permission modes set the baseline approval behavior. For control over individual tools or commands, layer additional configuration on top of the active mode. **Permission rules** are the first stop. Add `allow`, `ask`, or `deny` entries to your settings file to pre-approve safe commands, force a prompt for risky ones, or block specific tools entirely. Rules apply in every mode except `bypassPermissions`, and are matched by tool name and argument pattern. See [Manage permissions](</docs/en/permissions#manage-permissions>) for syntax and examples. **Hooks** cover logic that pattern-matching rules can’t express. A [`PreToolUse` hook](</docs/en/hooks#pretooluse-decision-control>) runs before every tool call and can allow, deny, or escalate based on command content, file paths, time of day, or a response from an external policy service. A [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) intercepts the permission dialog itself and answers on your behalf. See [Hooks](</docs/en/hooks>) for configuration.
 
 ##
 

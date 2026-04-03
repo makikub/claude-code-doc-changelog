@@ -41,6 +41,7 @@ Command| Purpose
 `/permissions`| Manage allow, ask, and deny rules for tool permissions. Opens an interactive dialog where you can view rules by scope, add or remove rules, manage working directories, and review [recent auto mode denials](</docs/en/permissions#review-auto-mode-denials>). Alias: `/allowed-tools`
 `/plan [description]`| Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug`
 `/plugin`| Manage Claude Code [plugins](</docs/en/plugins>)
+`/powerup`| Discover Claude Code features through quick interactive lessons with animated demos
 `/pr-comments [PR]`| Fetch and display comments from a GitHub pull request. Automatically detects the PR for the current branch, or pass a PR URL or number. Requires the `gh` CLI
 `/privacy-settings`| View and update your privacy settings. Only available for Pro and Max plan subscribers
 `/release-notes`| View the full changelog, with the most recent version closest to your prompt

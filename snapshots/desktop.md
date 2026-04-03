@@ -2,7 +2,7 @@ The Code tab within the Claude Desktop app lets you use Claude Code through a gr
 
   * Visual diff review with inline comments
   * Live app preview with dev servers
-  * Computer use to open apps and control your screen on macOS
+  * Computer use to open apps and control your screen on macOS and Windows
   * GitHub PR monitoring with auto-fix and auto-merge
   * Parallel sessions with automatic Git worktree isolation
   * Dispatch integration: send a task from your phone, get a session here
@@ -136,11 +136,11 @@ PR monitoring requires the [GitHub CLI (`gh`)](<https://cli.github.com/>) to be 
 
 Let Claude use your computer
 
-Computer use lets Claude open your apps, control your screen, and work directly on your machine the way you would. Ask Claude to test a native app in the iOS simulator, interact with a desktop tool that has no CLI, or automate something that only works through a GUI.
+Computer use lets Claude open your apps, control your screen, and work directly on your machine the way you would. Ask Claude to test a native app in a mobile simulator, interact with a desktop tool that has no CLI, or automate something that only works through a GUI.
 
-Computer use is a research preview on macOS that requires a Pro or Max plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running.
+Computer use is a research preview on macOS and Windows that requires a Pro or Max plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running.
 
-Computer use is off by default. Enable it in Settings and grant the required macOS permissions before Claude can control your screen.
+Computer use is off by default. Enable it in Settings before Claude can control your screen. On macOS, you also need to grant Accessibility and Screen Recording permissions.
 
 Unlike the [sandboxed Bash tool](</docs/en/sandboxing>), computer use runs on your actual desktop with access to whatever you approve. Claude checks each action and flags potential prompt injection from on-screen content, but the trust boundary is different. See the [computer use safety guide](<https://support.claude.com/en/articles/14128542>) for best practices.
 
@@ -157,7 +157,7 @@ Claude has several ways to interact with an app or service, and computer use is 
   * If the task is browser work and you have [Claude in Chrome](</docs/en/chrome>) set up, Claude uses that.
   * If none of those apply, Claude uses computer use.
 
-The per-app access tiers reinforce this: browsers are capped at view-only, and terminals and IDEs at click-only, steering Claude toward the dedicated tool even when computer use is active. Screen control is reserved for things nothing else can reach, like native apps, hardware control panels, the iOS simulator, or proprietary tools without an API.
+The per-app access tiers reinforce this: browsers are capped at view-only, and terminals and IDEs at click-only, steering Claude toward the dedicated tool even when computer use is active. Screen control is reserved for things nothing else can reach, like native apps, hardware control panels, mobile simulators, or proprietary tools without an API.
 
 ###
 
@@ -177,13 +177,13 @@ Make sure you have the latest version of Claude Desktop. Download or update at [
 
 Turn on the toggle
 
-In the desktop app, go to **Settings > General** (under **Desktop app**). Find the **Computer use** toggle and turn it on.If you don’t see the toggle, confirm you’re on macOS with a Pro or Max plan, then update and restart the app.
+In the desktop app, go to **Settings > General** (under **Desktop app**). Find the **Computer use** toggle and turn it on. On Windows, the toggle takes effect immediately and setup is complete. On macOS, continue to the next step.If you don’t see the toggle, confirm you’re on macOS or Windows with a Pro or Max plan, then update and restart the app.
 
 3
 
 Grant macOS permissions
 
-Before the toggle takes effect, grant two macOS system permissions:
+On macOS, grant two system permissions before the toggle takes effect:
 
   * **Accessibility** : lets Claude click, type, and scroll
   * **Screen Recording** : lets Claude see what’s on your screen
@@ -204,7 +204,7 @@ View only| See the app in screenshots| Browsers, trading platforms
 Click only| Click and scroll, but not type or use keyboard shortcuts| Terminals, IDEs
 Full control| Click, type, drag, and use keyboard shortcuts| Everything else
 
-Apps with broad reach like Terminal, Finder, and System Settings show an extra warning in the prompt so you know what approving them grants. You can configure two settings in **Settings > General** (under **Desktop app**):
+Apps with broad reach, like terminals, Finder or File Explorer, and System Settings or Settings, show an extra warning in the prompt so you know what approving them grants. You can configure two settings in **Settings > General** (under **Desktop app**):
 
   * **Denied apps** : add apps here to reject them without prompting. Claude may still affect a denied app indirectly through actions in an allowed app, but it can’t interact with the denied app directly.
   * **Unhide apps when Claude finishes** : while Claude is working, your other windows are hidden so it interacts with only the approved app. When Claude finishes, hidden windows are restored unless you turn this setting off.
@@ -278,7 +278,7 @@ For local and SSH sessions, click the **+** button next to the prompt box and se
 
 Use skills
 
-[Skills](</docs/en/skills>) extend what Claude can do. Claude loads them automatically when relevant, or you can invoke one directly: type `/` in the prompt box or click the **+** button and select **Slash commands** to browse what’s available. This includes [built-in commands](</docs/en/commands>), your [custom skills](</docs/en/skills#create-custom-skills>), project skills from your codebase, and skills from any [installed plugins](</docs/en/plugins>). Select one and it appears highlighted in the input field. Type your task after it and send as usual.
+[Skills](</docs/en/skills>) extend what Claude can do. Claude loads them automatically when relevant, or you can invoke one directly: type `/` in the prompt box or click the **+** button and select **Slash commands** to browse what’s available. This includes [built-in commands](</docs/en/commands>), your [custom skills](</docs/en/skills#create-your-first-skill>), project skills from your codebase, and skills from any [installed plugins](</docs/en/plugins>). Select one and it appears highlighted in the input field. Type your task after it and send as usual.
 
 ###
 
@@ -585,7 +585,7 @@ Once added, the connection appears in the environment dropdown. Select it to sta
 
 Enterprise configuration
 
-Organizations on Teams or Enterprise plans can manage desktop app behavior through admin console controls, managed settings files, and device management policies.
+Organizations on Team or Enterprise plans can manage desktop app behavior through admin console controls, managed settings files, and device management policies.
 
 ###
 
@@ -695,7 +695,7 @@ Shared configuration
 
 Desktop and CLI read the same configuration files, so your setup carries over:
 
-  * **[CLAUDE.md](</docs/en/memory>)** files in your project are used by both
+  * **[CLAUDE.md](</docs/en/memory>)** and `CLAUDE.local.md` files in your project are used by both
   * **[MCP servers](</docs/en/mcp>)** configured in `~/.claude.json` or `.mcp.json` work in both
   * **[Hooks](</docs/en/hooks>)** and **[skills](</docs/en/skills>)** defined in settings apply to both
   * **[Settings](</docs/en/settings>)** in `~/.claude.json` and `~/.claude/settings.json` are shared. Permission rules, allowed tools, and other settings in `settings.json` apply to Desktop sessions.
@@ -723,7 +723,7 @@ File attachments| Not available| Images, PDFs
 Session isolation| [`--worktree`](</docs/en/cli-reference>) flag| Automatic worktrees
 Multiple sessions| Separate terminals| Sidebar tabs
 Recurring tasks| Cron jobs, CI pipelines| Scheduled tasks
-Computer use| [Enable via `/mcp`](</docs/en/computer-use>) on macOS| App and screen control on macOS
+Computer use| [Enable via `/mcp`](</docs/en/computer-use>) on macOS| App and screen control on macOS and Windows
 Dispatch integration| Not available| Dispatch sessions in the sidebar
 Scripting and automation| [`--print`](</docs/en/cli-reference>), [Agent SDK](</docs/en/headless>)| Not available
 
@@ -768,7 +768,7 @@ Click the version number to copy it to your clipboard.
 If you see `Error 403: Forbidden` or other authentication failures when using the Code tab:
 
   1. Sign out and back in from the app menu. This is the most common fix.
-  2. Verify you have an active paid subscription: Pro, Max, Teams, or Enterprise.
+  2. Verify you have an active paid subscription: Pro, Max, Team, or Enterprise.
   3. If the CLI works but Desktop does not, quit the desktop app completely, not just close the window, then reopen and sign in again.
   4. Check your internet connection and proxy settings.
 

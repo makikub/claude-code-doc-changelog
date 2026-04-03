@@ -176,6 +176,7 @@ Directory| Location| Purpose
 `hooks/`| Plugin root| Event handlers in `hooks.json`
 `.mcp.json`| Plugin root| MCP server configurations
 `.lsp.json`| Plugin root| LSP server configurations for code intelligence
+`bin/`| Plugin root| Executables added to the Bash tool’s `PATH` while the plugin is enabled
 `settings.json`| Plugin root| Default [settings](</docs/en/settings>) applied when the plugin is enabled
 
 **Next steps** : Ready to add more features? Jump to Develop more complex plugins to add agents, hooks, MCP servers, and LSP servers. For complete technical specifications of all plugin components, see [Plugins reference](</docs/en/plugins-reference>).

@@ -115,7 +115,7 @@ This opens a menu where you can choose between sandbox modes. If required depend
 
 Sandbox modes
 
-Claude Code offers two sandbox modes: **Auto-allow mode** : Bash commands will attempt to run inside the sandbox and are automatically allowed without requiring permission. Commands that cannot be sandboxed (such as those needing network access to non-allowed hosts) fall back to the regular permission flow. Explicit ask/deny rules you’ve configured are always respected. **Regular permissions mode** : All bash commands go through the standard permission flow, even when sandboxed. This provides more control but requires more approvals. In both modes, the sandbox enforces the same filesystem and network restrictions. The difference is only in whether sandboxed commands are auto-approved or require explicit permission.
+Claude Code offers two sandbox modes: **Auto-allow mode** : Bash commands will attempt to run inside the sandbox and are automatically allowed without requiring permission. Commands that cannot be sandboxed (such as those needing network access to non-allowed hosts) fall back to the regular permission flow. Explicit deny rules are always respected. Ask rules apply only to commands that fall back to the regular permission flow. **Regular permissions mode** : All bash commands go through the standard permission flow, even when sandboxed. This provides more control but requires more approvals. In both modes, the sandbox enforces the same filesystem and network restrictions. The difference is only in whether sandboxed commands are auto-approved or require explicit permission.
 
 Auto-allow mode works independently of your permission mode setting. Even if you’re not in “accept edits” mode, sandboxed bash commands will run automatically when auto-allow is enabled. This means bash commands that modify files within the sandbox boundaries will execute without prompting, even when file edit tools would normally require approval.
 
@@ -170,7 +170,7 @@ Not all commands are compatible with sandboxing out of the box. Some notes that 
 
   * Many CLI tools require accessing certain hosts. As you use these tools, they will request permission to access certain hosts. Granting permission will allow them to access these hosts now and in the future, enabling them to safely execute inside the sandbox.
   * `watchman` is incompatible with running in the sandbox. If you’re running `jest`, consider using `jest --no-watchman`
-  * `docker` is incompatible with running in the sandbox. Consider specifying `docker` in `excludedCommands` to force it to run outside of the sandbox.
+  * `docker` is incompatible with running in the sandbox. Consider specifying `docker *` in `excludedCommands` to force it to run outside of the sandbox.
 
 Claude Code includes an intentional escape hatch mechanism that allows commands to run outside the sandbox when necessary. When a command fails due to sandbox restrictions (such as network connectivity issues or incompatible tools), Claude is prompted to analyze the failure and may retry the command with the `dangerouslyDisableSandbox` parameter. Commands that use this parameter go through the normal Claude Code permissions flow requiring user permission to execute. This allows Claude Code to handle edge cases where certain tools or network operations cannot function within sandbox constraints.You can disable this escape hatch by setting `"allowUnsandboxedCommands": false` in your [sandbox settings](</docs/en/settings#sandbox-settings>). When disabled, the `dangerouslyDisableSandbox` parameter is completely ignored and all commands must run sandboxed or be explicitly listed in `excludedCommands`.
 
@@ -352,7 +352,7 @@ What sandboxing does not cover
 The sandbox isolates Bash subprocesses. Other tools operate under different boundaries:
 
   * **Built-in file tools** : Read, Edit, and Write use the permission system directly rather than running through the sandbox. See [permissions](</docs/en/permissions>).
-  * **Computer use** : when Claude opens apps and controls your screen on macOS, it runs on your actual desktop rather than in an isolated environment. Per-app permission prompts gate each application. See [computer use in the CLI](</docs/en/computer-use>) or [computer use in Desktop](</docs/en/desktop#let-claude-use-your-computer>).
+  * **Computer use** : when Claude opens apps and controls your screen, it runs on your actual desktop rather than in an isolated environment. Per-app permission prompts gate each application. See [computer use in the CLI](</docs/en/computer-use>) or [computer use in Desktop](</docs/en/desktop#let-claude-use-your-computer>).
 
 ##
 
