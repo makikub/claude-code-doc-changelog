@@ -245,9 +245,13 @@ Claude Code generates both of these automatically when you create a team and upd
 
 Use subagent definitions for teammates
 
-When spawning a teammate, you can reference a [subagent](</docs/en/sub-agents>) type from any [subagent scope](</docs/en/sub-agents#choose-the-subagent-scope>): project, user, plugin, or CLI-defined. The teammate inherits that subagent’s system prompt, tools, and model. This lets you define a role once, such as a security-reviewer or test-runner, and reuse it both as a delegated subagent and as an agent team teammate. To use a subagent definition, mention it by name when asking Claude to spawn the teammate:
+When spawning a teammate, you can reference a [subagent](</docs/en/sub-agents>) type from any [subagent scope](</docs/en/sub-agents#choose-the-subagent-scope>): project, user, plugin, or CLI-defined. This lets you define a role once, such as a security-reviewer or test-runner, and reuse it both as a delegated subagent and as an agent team teammate. To use a subagent definition, mention it by name when asking Claude to spawn the teammate:
 
     Spawn a teammate using the security-reviewer agent type to audit the auth module.
+
+The teammate honors that definition’s `tools` allowlist and `model`, and the definition’s body is appended to the teammate’s system prompt as additional instructions rather than replacing it. Team coordination tools such as `SendMessage` and the task management tools are always available to a teammate even when `tools` restricts other tools.
+
+The `skills` and `mcpServers` frontmatter fields in a subagent definition are not applied when that definition runs as a teammate. Teammates load skills and MCP servers from your project and user settings, the same as a regular session.
 
 ###
 
@@ -273,6 +277,8 @@ Each teammate has its own context window. When spawned, a teammate loads the sam
 
   * **message** : send a message to one specific teammate
   * **broadcast** : send to all teammates simultaneously. Use sparingly, as costs scale with team size.
+
+The lead assigns every teammate a name when it spawns them, and any teammate can message any other by that name. To get predictable names you can reference in later prompts, tell the lead what to call each teammate in your spawn instruction.
 
 ###
 

@@ -131,6 +131,10 @@ Use `--allowedTools` to let Claude use certain tools without prompting. This exa
     claude -p "Run the test suite and fix any failures" \
       --allowedTools "Bash,Read,Edit"
 
+To set a baseline for the whole session instead of listing individual tools, pass a [permission mode](</docs/en/permission-modes>). `dontAsk` denies anything not in your `permissions.allow` rules, which is useful for locked-down CI runs. `acceptEdits` lets Claude write files without prompting, but shell commands and network requests still need an `--allowedTools` entry or a `permissions.allow` rule, otherwise the run aborts when one is attempted:
+
+    claude -p "Apply the lint fixes" --permission-mode acceptEdits
+
 ###
 
 ​

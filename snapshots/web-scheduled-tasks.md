@@ -15,7 +15,7 @@ Compare scheduling options
 
 Claude Code offers three ways to schedule recurring work:
 
-| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop#schedule-recurring-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)
+| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop-scheduled-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)
 ---|---|---|---
 Runs on| Anthropic cloud| Your machine| Your machine
 Requires machine on| No| Yes| Yes
@@ -38,7 +38,7 @@ Create a scheduled task
 You can create a scheduled task from three places:
 
   * **Web** : visit [claude.ai/code/scheduled](<https://claude.ai/code/scheduled>) and click **New scheduled task**
-  * **Desktop app** : open the **Schedule** page, click **New task** , and choose **New remote task**. See [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) for details.
+  * **Desktop app** : open the **Schedule** page, click **New task** , and choose **New remote task**. See [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>) for details.
   * **CLI** : run `/schedule` in any session. Claude walks you through the setup conversationally. You can also pass a description directly, like `/schedule daily PR review at 9am`.
 
 The web and Desktop entry points open a form. The CLI collects the same information through a guided conversation. The steps below walk through the web interface.
@@ -171,7 +171,7 @@ You can also manage tasks from the CLI with `/schedule`. Run `/schedule list` to
 
 Related resources
 
-  * [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>): schedule tasks that run on your machine with access to local files. The Desktop app’s **Schedule** page shows both local and remote tasks in the same grid.
+  * [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>): schedule tasks that run on your machine with access to local files. The Desktop app’s **Schedule** page shows both local and remote tasks in the same grid.
   * [`/loop` and CLI scheduled tasks](</docs/en/scheduled-tasks>): lightweight scheduling within a CLI session
   * [Cloud environment](</docs/en/claude-code-on-the-web#cloud-environment>): configure the runtime environment for cloud tasks
   * [MCP connectors](</docs/en/mcp>): connect external services like Slack, Linear, and Google Drive

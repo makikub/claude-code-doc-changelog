@@ -128,6 +128,7 @@ Limitations
   * **One remote session per interactive process** : outside of server mode, each Claude Code instance supports one remote session at a time. Use server mode with `--spawn` to run multiple concurrent sessions from a single process.
   * **Terminal must stay open** : Remote Control runs as a local process. If you close the terminal or stop the `claude` process, the session ends. Run `claude remote-control` again to start a new one.
   * **Extended network outage** : if your machine is awake but unable to reach the network for more than roughly 10 minutes, the session times out and the process exits. Run `claude remote-control` again to start a new session.
+  * **Ultraplan disconnects Remote Control** : starting an [ultraplan](</docs/en/ultraplan>) session disconnects any active Remote Control session because both features occupy the claude.ai/code interface and only one can be connected at a time.
 
 ##
 
@@ -214,7 +215,7 @@ Claude Code offers several ways to work when you’re not at your terminal. They
 [Remote Control](</docs/en/remote-control>)| Drive a running session from [claude.ai/code](<https://claude.ai/code>) or the Claude mobile app| Your machine (CLI or VS Code)| Run `claude remote-control`| Steering in-progress work from another device
 [Channels](</docs/en/channels>)| Push events from a chat app like Telegram or Discord, or your own server| Your machine (CLI)| [Install a channel plugin](</docs/en/channels#quickstart>) or [build your own](</docs/en/channels-reference>)| Reacting to external events like CI failures or chat messages
 [Slack](</docs/en/slack>)| Mention `@Claude` in a team channel| Anthropic cloud| [Install the Slack app](</docs/en/slack#setting-up-claude-code-in-slack>) with [Claude Code on the web](</docs/en/claude-code-on-the-web>) enabled| PRs and reviews from team chat
-[Scheduled tasks](</docs/en/scheduled-tasks>)| Set a schedule| [CLI](</docs/en/scheduled-tasks>), [Desktop](</docs/en/desktop#schedule-recurring-tasks>), or [cloud](</docs/en/web-scheduled-tasks>)| Pick a frequency| Recurring automation like daily reviews
+[Scheduled tasks](</docs/en/scheduled-tasks>)| Set a schedule| [CLI](</docs/en/scheduled-tasks>), [Desktop](</docs/en/desktop-scheduled-tasks>), or [cloud](</docs/en/web-scheduled-tasks>)| Pick a frequency| Recurring automation like daily reviews
 
 ##
 
@@ -223,6 +224,7 @@ Claude Code offers several ways to work when you’re not at your terminal. They
 Related resources
 
   * [Claude Code on the web](</docs/en/claude-code-on-the-web>): run sessions in Anthropic-managed cloud environments instead of on your machine
+  * [Ultraplan](</docs/en/ultraplan>): launch a cloud planning session from your terminal and review the plan in your browser
   * [Channels](</docs/en/channels>): forward Telegram, Discord, or iMessage into a session so Claude reacts to messages while you’re away
   * [Dispatch](</docs/en/desktop#sessions-from-dispatch>): message a task from your phone and it can spawn a Desktop session to handle it
   * [Authentication](</docs/en/authentication>): set up `/login` and manage credentials for claude.ai

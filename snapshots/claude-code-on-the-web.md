@@ -157,7 +157,7 @@ In plan mode, Claude can only read files and explore the codebase. Once you’re
 
     claude --remote "Execute the migration plan in docs/migration-plan.md"
 
-This pattern gives you control over the strategy while letting Claude execute autonomously in the cloud. **Run tasks in parallel** : Each `--remote` command creates its own web session that runs independently. You can kick off multiple tasks and they’ll all run simultaneously in separate sessions:
+This pattern gives you control over the strategy while letting Claude execute autonomously in the cloud. **Plan in the cloud with ultraplan** : To draft and review the plan itself in a web session, use [ultraplan](</docs/en/ultraplan>). Claude generates the plan on Claude Code on the web while you keep working, then you comment on sections in your browser and choose to execute remotely or send the plan back to your terminal. **Run tasks in parallel** : Each `--remote` command creates its own web session that runs independently. You can kick off multiple tasks and they’ll all run simultaneously in separate sessions:
 
     claude --remote "Fix the flaky test in auth.spec.ts"
     claude --remote "Update the API documentation"

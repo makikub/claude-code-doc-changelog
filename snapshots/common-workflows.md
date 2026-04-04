@@ -908,7 +908,7 @@ Suppose you want Claude to handle a task automatically on a recurring basis, lik
 Option| Where it runs| Best for
 ---|---|---
 [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>)| Anthropic-managed infrastructure| Tasks that should run even when your computer is off. Configure at [claude.ai/code](<https://claude.ai/code>).
-[Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>)| Your machine, via the desktop app| Tasks that need direct access to local files, tools, or uncommitted changes.
+[Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>)| Your machine, via the desktop app| Tasks that need direct access to local files, tools, or uncommitted changes.
 [GitHub Actions](</docs/en/github-actions>)| Your CI pipeline| Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config.
 [`/loop`](</docs/en/scheduled-tasks>)| The current CLI session| Quick polling while a session is open. Tasks are cancelled when you exit.
 
