@@ -128,7 +128,7 @@ Type `/` in Claude Code to see all available commands, or type `/` followed by a
 
 Vim editor mode
 
-Enable vim-style editing with `/vim` command or configure permanently via `/config`.
+Enable vim-style editing via `/config` → Editor mode.
 
 ###
 

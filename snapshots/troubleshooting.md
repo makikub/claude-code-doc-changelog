@@ -497,7 +497,7 @@ WSL2 sandbox setup
 
     sudo dnf install bubblewrap socat
 
-WSL1 does not support sandboxing. If you see “Sandboxing requires WSL2”, you need to upgrade to WSL2 or run Claude Code without sandboxing.
+WSL1 does not support sandboxing. If you see “Sandboxing requires WSL2”, you need to upgrade to WSL2 or run Claude Code without sandboxing. Sandboxed commands cannot launch Windows binaries such as `cmd.exe`, `powershell.exe`, or executables under `/mnt/c/`. WSL hands these off to the Windows host over a Unix socket, which the sandbox blocks. If a command needs to invoke a Windows binary, add it to [`excludedCommands`](</docs/en/settings#sandbox-settings>) so it runs outside the sandbox.
 
 ###
 

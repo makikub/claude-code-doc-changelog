@@ -198,7 +198,7 @@ Field| Required| Description
 `agent`| No| Which subagent type to use when `context: fork` is set.
 `hooks`| No| Hooks scoped to this skill’s lifecycle. See [Hooks in skills and agents](</docs/en/hooks#hooks-in-skills-and-agents>) for configuration format.
 `paths`| No| Glob patterns that limit when this skill is activated. Accepts a comma-separated string or a YAML list. When set, Claude loads the skill automatically only when working with files matching the patterns. Uses the same format as [path-specific rules](</docs/en/memory#path-specific-rules>).
-`shell`| No| Shell to use for `!`command`` blocks in this skill. Accepts `bash` (default) or `powershell`. Setting `powershell` runs inline shell commands via PowerShell on Windows. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`.
+`shell`| No| Shell to use for `!`command`` and ````!` blocks in this skill. Accepts `bash` (default) or `powershell`. Setting `powershell` runs inline shell commands via PowerShell on Windows. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`.
 
 ####
 
@@ -379,7 +379,16 @@ When this skill runs:
   2. The output replaces the placeholder in the skill content
   3. Claude receives the fully-rendered prompt with actual PR data
 
-This is preprocessing, not something Claude executes. Claude only sees the final result.
+This is preprocessing, not something Claude executes. Claude only sees the final result. For multi-line commands, use a fenced code block opened with ````!` instead of the inline form:
+
+    ## Environment
+    ```!
+    node --version
+    npm --version
+    git status --short
+    ```
+
+To disable this behavior for skills and custom commands from user, project, plugin, or additional-directory sources, set `"disableSkillShellExecution": true` in [settings](</docs/en/settings>). Each command is replaced with `[shell command execution disabled by policy]` instead of being run. Bundled and managed skills are not affected. This setting is most useful in [managed settings](</docs/en/permissions#managed-settings>), where users cannot override it.
 
 To enable [extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) in a skill, include the word “ultrathink” anywhere in your skill content.
 

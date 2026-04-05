@@ -95,7 +95,7 @@ When working with extensive code or long instructions:
 
 Vim Mode
 
-Claude Code supports a subset of Vim keybindings that can be enabled with `/vim` or configured via `/config`. To set the mode directly in your config file, set the [`editorMode`](</docs/en/settings#global-config-settings>) global config key to `"vim"` in `~/.claude.json`. The supported subset includes:
+Claude Code supports a subset of Vim keybindings that can be enabled via `/config` → Editor mode. To set the mode directly in your config file, set the [`editorMode`](</docs/en/settings#global-config-settings>) global config key to `"vim"` in `~/.claude.json`. The supported subset includes:
 
   * Mode switching: `Esc` (to NORMAL), `i`/`I`, `a`/`A`, `o`/`O` (to INSERT)
   * Navigation: `h`/`j`/`k`/`l`, `w`/`e`/`b`, `0`/`$`/`^`, `gg`/`G`, `f`/`F`/`t`/`T` with `;`/`,` repeat

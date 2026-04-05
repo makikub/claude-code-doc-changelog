@@ -126,4 +126,4 @@ Service| Claude API| Vertex API| Bedrock API| Foundry API
 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.| Default on.
 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.
 
-All environment variables can be checked into `settings.json` ([read more](</docs/en/settings>)).
+All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)).

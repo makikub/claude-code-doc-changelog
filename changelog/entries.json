@@ -4721,5 +4721,215 @@
       ]
     },
     "diff": "--- a/web-scheduled-tasks.md\n+++ b/web-scheduled-tasks.md\n@@ -15,7 +15,7 @@\n \n Claude Code offers three ways to schedule recurring work:\n \n-| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop#schedule-recurring-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)\n+| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop-scheduled-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)\n ---|---|---|---\n Runs on| Anthropic cloud| Your machine| Your machine\n Requires machine on| No| Yes| Yes\n@@ -38,7 +38,7 @@\n You can create a scheduled task from three places:\n \n   * **Web** : visit [claude.ai/code/scheduled](<https://claude.ai/code/scheduled>) and click **New scheduled task**\n-  * **Desktop app** : open the **Schedule** page, click **New task** , and choose **New remote task**. See [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>) for details.\n+  * **Desktop app** : open the **Schedule** page, click **New task** , and choose **New remote task**. See [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>) for details.\n   * **CLI** : run `/schedule` in any session. Claude walks you through the setup conversationally. You can also pass a description directly, like `/schedule daily PR review at 9am`.\n \n The web and Desktop entry points open a form. The CLI collects the same information through a guided conversation. The steps below walk through the web interface.\n@@ -171,7 +171,7 @@\n \n Related resources\n \n-  * [Desktop scheduled tasks](</docs/en/desktop#schedule-recurring-tasks>): schedule tasks that run on your machine with access to local files. The Desktop app’s **Schedule** page shows both local and remote tasks in the same grid.\n+  * [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>): schedule tasks that run on your machine with access to local files. The Desktop app’s **Schedule** page shows both local and remote tasks in the same grid.\n   * [`/loop` and CLI scheduled tasks](</docs/en/scheduled-tasks>): lightweight scheduling within a CLI session\n   * [Cloud environment](</docs/en/claude-code-on-the-web#cloud-environment>): configure the runtime environment for cloud tasks\n   * [MCP connectors](</docs/en/mcp>): connect external services like Slack, Linear, and Google Drive\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "amazon-bedrock",
+    "title": "Claude Code on Amazon Bedrock",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 15,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/amazon-bedrock.md\n+++ b/amazon-bedrock.md\n@@ -12,6 +12,21 @@\n   * Appropriate IAM permissions\n \n If you are deploying Claude Code to multiple users, pin your model versions to prevent breakage when Anthropic releases new models.\n+\n+##\n+\n+​\n+\n+Set up with the interactive wizard\n+\n+The login screen includes an interactive Bedrock setup wizard for first-time configuration. Select **3rd-party platform** at the `claude` login prompt, then choose **Amazon Bedrock** to launch it. The wizard guides you through each step and writes the resulting configuration to your settings:\n+\n+  * AWS authentication\n+  * Region selection\n+  * Credential verification\n+  * Model pinning\n+\n+Once Bedrock is active, use `/setup-bedrock` to return to the wizard and update your credentials, region, or model pins.\n \n ##\n \n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "cli-reference",
+    "title": "CLI reference",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/cli-reference.md\n+++ b/cli-reference.md\n@@ -82,6 +82,7 @@\n `--print`, `-p`| Print response without interactive mode (see [Agent SDK documentation](<https://platform.claude.com/docs/en/agent-sdk/overview>) for programmatic usage details)| `claude -p \"query\"`\n `--remote`| Create a new [web session](</docs/en/claude-code-on-the-web>) on claude.ai with the provided task description| `claude --remote \"Fix the login bug\"`\n `--remote-control`, `--rc`| Start an interactive session with [Remote Control](</docs/en/remote-control#start-a-remote-control-session>) enabled so you can also control it from claude.ai or the Claude app. Optionally pass a name for the session| `claude --remote-control \"My Project\"`\n+`--remote-control-session-name-prefix <prefix>`| Prefix for auto-generated [Remote Control](</docs/en/remote-control>) session names when no explicit name is set. Defaults to your machine’s hostname, producing names like `myhost-graceful-unicorn`. Set `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` for the same effect| `claude remote-control --remote-control-session-name-prefix dev-box`\n `--replay-user-messages`| Re-emit user messages from stdin back on stdout for acknowledgment. Requires `--input-format stream-json` and `--output-format stream-json`| `claude -p --input-format stream-json --output-format stream-json --replay-user-messages`\n `--resume`, `-r`| Resume a specific session by ID or name, or show an interactive picker to choose a session| `claude --resume auth-refactor`\n `--session-id`| Use a specific session ID for the conversation (must be a valid UUID)| `claude --session-id \"550e8400-e29b-41d4-a716-446655440000\"`\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "commands",
+    "title": "Built-in commands",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 4,
+      "lines_removed": 3,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/commands.md\n+++ b/commands.md\n@@ -42,9 +42,9 @@\n `/plan [description]`| Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug`\n `/plugin`| Manage Claude Code [plugins](</docs/en/plugins>)\n `/powerup`| Discover Claude Code features through quick interactive lessons with animated demos\n-`/pr-comments [PR]`| Fetch and display comments from a GitHub pull request. Automatically detects the PR for the current branch, or pass a PR URL or number. Requires the `gh` CLI\n+`/pr-comments [PR]`| Removed in v2.1.91. Ask Claude directly to view pull request comments instead. On earlier versions, fetches and displays comments from a GitHub pull request; automatically detects the PR for the current branch, or pass a PR URL or number. Requires the `gh` CLI\n `/privacy-settings`| View and update your privacy settings. Only available for Pro and Max plan subscribers\n-`/release-notes`| View the full changelog, with the most recent version closest to your prompt\n+`/release-notes`| View the changelog in an interactive version picker. Select a specific version to see its release notes, or choose to show all versions\n `/reload-plugins`| Reload all active [plugins](</docs/en/plugins>) to apply pending changes without restarting. Reports counts for each reloaded component and flags any load errors\n `/remote-control`| Make this session available for [remote control](</docs/en/remote-control>) from claude.ai. Alias: `/rc`\n `/remote-env`| Configure the default remote environment for [web sessions started with `--remote`](</docs/en/claude-code-on-the-web#environment-configuration>)\n@@ -55,6 +55,7 @@\n `/sandbox`| Toggle [sandbox mode](</docs/en/sandboxing>). Available on supported platforms only\n `/schedule [description]`| Create, update, list, or run [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>). Claude walks you through the setup conversationally\n `/security-review`| Analyze pending changes on the current branch for security vulnerabilities. Reviews the git diff and identifies risks like injection, auth issues, and data exposure\n+`/setup-bedrock`| Configure [Amazon Bedrock](</docs/en/amazon-bedrock>) authentication, region, and model pins through an interactive wizard. Only visible when `CLAUDE_CODE_USE_BEDROCK=1` is set. First-time Bedrock users can also access this wizard from the login screen\n `/skills`| List available [skills](</docs/en/skills>)\n `/stats`| Visualize daily usage, session history, streaks, and model preferences\n `/status`| Open the Settings interface (Status tab) showing version, model, account, and connectivity. Works while Claude is responding, without waiting for the current response to finish\n@@ -66,7 +67,7 @@\n `/ultraplan <prompt>`| Draft a plan in an [ultraplan](</docs/en/ultraplan>) session, review it in your browser, then execute remotely or send it back to your terminal\n `/upgrade`| Open the upgrade page to switch to a higher plan tier\n `/usage`| Show plan usage limits and rate limit status\n-`/vim`| Toggle between Vim and Normal editing modes\n+`/vim`| Removed in v2.1.92. To toggle between Vim and Normal editing modes, use `/config` → Editor mode\n `/voice`| Toggle push-to-talk [voice dictation](</docs/en/voice-dictation>). Requires a Claude.ai account\n \n ##\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "data-usage",
+    "title": "Data usage",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/data-usage.md\n+++ b/data-usage.md\n@@ -126,4 +126,4 @@\n `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.| Default on.\n `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.\n \n-All environment variables can be checked into `settings.json` ([read more](</docs/en/settings>)).\n+All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)).\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "env-vars",
+    "title": "Environment variables",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/env-vars.md\n+++ b/env-vars.md\n@@ -126,6 +126,7 @@\n `CLAUDE_CONFIG_DIR`| Override the configuration directory (default: `~/.claude`). All settings, credentials, session history, and plugins are stored under this path. Useful for running multiple accounts side by side: for example, `alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'`\n `CLAUDE_ENABLE_STREAM_WATCHDOG`| Set to `1` to abort API response streams that stall with no data for 90 seconds. Useful in automated environments where a hung session would go unnoticed, or behind proxies that drop connections silently. Without this, a stalled stream can hang the session indefinitely since the request timeout only covers the initial connection. Configure the timeout with `CLAUDE_STREAM_IDLE_TIMEOUT_MS`\n `CLAUDE_ENV_FILE`| Path to a shell script that Claude Code sources before each Bash command. Use to persist virtualenv or conda activation across commands. Also populated dynamically by [SessionStart](</docs/en/hooks#persist-environment-variables>), [CwdChanged](</docs/en/hooks#cwdchanged>), and [FileChanged](</docs/en/hooks#filechanged>) hooks\n+`CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX`| Prefix for auto-generated [Remote Control](</docs/en/remote-control>) session names when no explicit name is provided. Defaults to your machine’s hostname, producing names like `myhost-graceful-unicorn`. The `--remote-control-session-name-prefix` CLI flag sets the same value for a single invocation\n `CLAUDE_STREAM_IDLE_TIMEOUT_MS`| Timeout in milliseconds before the streaming idle watchdog closes a stalled connection. Default: `90000` (90 seconds). Requires `CLAUDE_ENABLE_STREAM_WATCHDOG=1`. Increase this value if long-running tools or slow networks cause premature timeout errors\n `DISABLE_AUTOUPDATER`| Set to `1` to disable automatic updates\n `DISABLE_AUTO_COMPACT`| Set to `1` to disable automatic compaction when approaching the context limit. The manual `/compact` command remains available. Use when you want explicit control over when compaction occurs\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "interactive-mode",
+    "title": "Interactive mode",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/interactive-mode.md\n+++ b/interactive-mode.md\n@@ -128,7 +128,7 @@\n \n Vim editor mode\n \n-Enable vim-style editing with `/vim` command or configure permanently via `/config`.\n+Enable vim-style editing via `/config` → Editor mode.\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "keybindings",
+    "title": "Customize keyboard shortcuts",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/keybindings.md\n+++ b/keybindings.md\n@@ -510,7 +510,7 @@\n \n Vim mode interaction\n \n-When vim mode is enabled (`/vim`), keybindings and vim mode operate independently:\n+When vim mode is enabled via `/config` → Editor mode, keybindings and vim mode operate independently:\n \n   * **Vim mode** handles input at the text input level (cursor movement, modes, motions)\n   * **Keybindings** handle actions at the component level (toggle todos, submit, etc.)\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 4,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/mcp.md\n+++ b/mcp.md\n@@ -754,7 +754,7 @@\n \n Override result size per tool\n \n-If you’re building an MCP server, you can allow individual tools to return results larger than the default limit by setting `_meta[\"anthropic/maxResultSizeChars\"]` in the tool’s `tools/list` response entry. Claude Code uses this value as the maximum result size for that tool, up to a hard ceiling of 500,000 characters. This is useful for tools that return inherently large but necessary outputs, such as database schemas or full file trees. Without the annotation, results that exceed the default limit are persisted to disk and replaced with a file reference in the conversation.\n+If you’re building an MCP server, you can allow individual tools to return results larger than the default persist-to-disk threshold by setting `_meta[\"anthropic/maxResultSizeChars\"]` in the tool’s `tools/list` response entry. Claude Code raises that tool’s threshold to the annotated value, up to a hard ceiling of 500,000 characters. This is useful for tools that return inherently large but necessary outputs, such as database schemas or full file trees. Without the annotation, results that exceed the default threshold are persisted to disk and replaced with a file reference in the conversation.\n \n     {\n       \"name\": \"get_schema\",\n@@ -764,7 +764,9 @@\n       }\n     }\n \n-If you frequently encounter output warnings with specific MCP servers you don’t control, consider increasing the `MAX_MCP_OUTPUT_TOKENS` limit or asking the server author to add the `anthropic/maxResultSizeChars` annotation.\n+The annotation raises the per-tool persist threshold but does not bypass the global `MAX_MCP_OUTPUT_TOKENS` limit, which defaults to 25,000 tokens or roughly 100,000 characters. To return results larger than that, users must also raise `MAX_MCP_OUTPUT_TOKENS`.\n+\n+If you frequently encounter output warnings with specific MCP servers you don’t control, consider increasing the `MAX_MCP_OUTPUT_TOKENS` limit. You can also ask the server author to add the `anthropic/maxResultSizeChars` annotation or to paginate their responses.\n \n ##\n \n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "permissions",
+    "title": "Configure permissions",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/permissions.md\n+++ b/permissions.md\n@@ -308,6 +308,7 @@\n `allowManagedPermissionRulesOnly`| When `true`, prevents user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply\n `blockedMarketplaces`| Blocklist of marketplace sources. Blocked sources are checked before downloading, so they never touch the filesystem. See [managed marketplace restrictions](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)\n `channelsEnabled`| Allow [channels](</docs/en/channels>) for Team and Enterprise users. Unset or `false` blocks channel message delivery regardless of what users pass to `--channels`\n+`forceRemoteSettingsRefresh`| When `true`, blocks CLI startup until remote managed settings are freshly fetched and exits if the fetch fails. See [fail-closed enforcement](</docs/en/server-managed-settings#enforce-fail-closed-startup>)\n `pluginTrustMessage`| Custom message appended to the plugin trust warning shown before installation\n `sandbox.filesystem.allowManagedReadPathsOnly`| When `true`, only `filesystem.allowRead` paths from managed settings are respected. `denyRead` still merges from all sources\n `sandbox.network.allowManagedDomainsOnly`| When `true`, only `allowedDomains` and `WebFetch(domain:...)` allow rules from managed settings are respected. Non-allowed domains are blocked automatically without prompting the user. Denied domains still merge from all sources\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "remote-control",
+    "title": "Continue local sessions from any device with Remote Control",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 4,
+      "lines_removed": 3,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/remote-control.md\n+++ b/remote-control.md\n@@ -47,6 +47,7 @@\n Flag| Description\n ---|---\n `--name \"My Project\"`| Set a custom session title visible in the session list at claude.ai/code.\n+`--remote-control-session-name-prefix <prefix>`| Prefix for auto-generated session names when no explicit name is set. Defaults to your machine’s hostname, producing names like `myhost-graceful-unicorn`. Set `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` for the same effect.\n `--spawn <mode>`| How concurrent sessions are created. Press `w` at runtime to toggle.\n • `same-dir` (default): all sessions share the current working directory, so they can conflict if editing the same files.\n • `worktree`: each on-demand session gets its own [git worktree](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>). Requires a git repository.\n@@ -91,9 +92,9 @@\n   1. The name you passed to `--name`, `--remote-control`, or `/remote-control`\n   2. The title you set with `/rename`\n   3. The last meaningful message in existing conversation history\n-  4. Your first prompt once you send one\n-\n-If the environment already has an active session, you’ll be asked whether to continue it or start a new one. If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>).\n+  4. An auto-generated name like `myhost-graceful-unicorn`, where `myhost` is your machine’s hostname or the prefix you set with `--remote-control-session-name-prefix`\n+\n+If you didn’t set an explicit name, the title updates to reflect your prompt once you send one. If the environment already has an active session, you’ll be asked whether to continue it or start a new one. If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>).\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "server-managed-settings",
+    "title": "Configure server-managed settings (public beta)",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 15,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/server-managed-settings.md\n+++ b/server-managed-settings.md\n@@ -173,6 +173,20 @@\n \n ​\n \n+Enforce fail-closed startup\n+\n+By default, if the remote settings fetch fails at startup, the CLI continues without managed settings. For environments where this brief unenforced window is unacceptable, set `forceRemoteSettingsRefresh: true` in your managed settings. When this setting is active, the CLI blocks at startup until remote settings are freshly fetched. If the fetch fails, the CLI exits rather than proceeding without the policy. This setting self-perpetuates: once delivered from the server, it is also cached locally so that subsequent startups enforce the same behavior even before the first successful fetch of a new session. To enable this, add the key to your managed settings configuration:\n+\n+    {\n+      \"forceRemoteSettingsRefresh\": true\n+    }\n+\n+Before enabling this setting, ensure your network policies allow connectivity to `api.anthropic.com`. If that endpoint is unreachable, the CLI exits at startup and users cannot start Claude Code.\n+\n+###\n+\n+​\n+\n Security approval dialogs\n \n Certain settings that could pose security risks require explicit user approval before being applied:\n@@ -218,7 +232,7 @@\n ---|---\n User edits the cached settings file| Tampered file applies at startup, but correct settings restore on the next server fetch\n User deletes the cached settings file| First-launch behavior occurs: settings fetch asynchronously with a brief unenforced window\n-API is unavailable| Cached settings apply if available, otherwise managed settings are not enforced until the next successful fetch\n+API is unavailable| Cached settings apply if available, otherwise managed settings are not enforced until the next successful fetch. With `forceRemoteSettingsRefresh: true`, the CLI exits instead of continuing\n User authenticates with a different organization| Settings are not delivered for accounts outside the managed organization\n User sets a non-default `ANTHROPIC_BASE_URL`| Server-managed settings are bypassed when using third-party API providers\n \n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "settings",
+    "title": "Claude Code settings",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 3,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/settings.md\n+++ b/settings.md\n@@ -185,6 +185,7 @@\n `disableAutoMode`| Set to `\"disable\"` to prevent [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) from being activated. Removes `auto` from the `Shift+Tab` cycle and rejects `--permission-mode auto` at startup. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `\"disable\"`\n `disableDeepLinkRegistration`| Set to `\"disable\"` to prevent Claude Code from registering the `claude-cli://` protocol handler with the operating system on startup. Deep links let external tools open a Claude Code session with a pre-filled prompt via `claude-cli://open?q=...`. The `q` parameter supports multi-line prompts using URL-encoded newlines (`%0A`). Useful in environments where protocol handler registration is restricted or managed separately| `\"disable\"`\n `disabledMcpjsonServers`| List of specific MCP servers from `.mcp.json` files to reject| `[\"filesystem\"]`\n+`disableSkillShellExecution`| Disable inline shell execution for `!`...`` and ````!` blocks in [skills](</docs/en/skills>) and custom commands from user, project, plugin, or additional-directory sources. Commands are replaced with `[shell command execution disabled by policy]` instead of being run. Bundled and managed skills are not affected. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `true`\n `effortLevel`| Persist the [effort level](</docs/en/model-config#adjust-effort-level>) across sessions. Accepts `\"low\"`, `\"medium\"`, or `\"high\"`. Written automatically when you run `/effort low`, `/effort medium`, or `/effort high`. Supported on Opus 4.6 and Sonnet 4.6| `\"medium\"`\n `enableAllProjectMcpServers`| Automatically approve all MCP servers defined in project `.mcp.json` files| `true`\n `enabledMcpjsonServers`| List of specific MCP servers from `.mcp.json` files to approve| `[\"memory\", \"github\"]`\n@@ -194,6 +195,7 @@\n `fileSuggestion`| Configure a custom script for `@` file autocomplete. See File suggestion settings| `{\"type\": \"command\", \"command\": \"~/.claude/file-suggestion.sh\"}`\n `forceLoginMethod`| Use `claudeai` to restrict login to Claude.ai accounts, `console` to restrict login to Claude Console (API usage billing) accounts| `claudeai`\n `forceLoginOrgUUID`| Require login to belong to a specific organization. Accepts a single UUID string, which also pre-selects that organization during login, or an array of UUIDs where any listed organization is accepted without pre-selection. When set in managed settings, login fails if the authenticated account does not belong to a listed organization; an empty array fails closed and blocks login with a misconfiguration message| `\"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\"` or `[\"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\", \"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy\"]`\n+`forceRemoteSettingsRefresh`| (Managed settings only) Block CLI startup until remote managed settings are freshly fetched from the server. If the fetch fails, the CLI exits rather than continuing with cached or no settings. When not set, startup continues without waiting for remote settings. See [fail-closed enforcement](</docs/en/server-managed-settings#enforce-fail-closed-startup>)| `true`\n `hooks`| Configure custom commands to run at lifecycle events. See [hooks documentation](</docs/en/hooks>) for format| See [hooks](</docs/en/hooks>)\n `httpHookAllowedEnvVars`| Allowlist of environment variable names HTTP hooks may interpolate into headers. When set, each hook’s effective `allowedEnvVars` is the intersection with this list. Undefined = no restriction. Arrays merge across settings sources. See Hook configuration| `[\"MY_TOKEN\", \"HOOK_SECRET\"]`\n `includeCoAuthoredBy`| **Deprecated** : Use `attribution` instead. Whether to include the `co-authored-by Claude` byline in git commits and pull requests (default: `true`)| `false`\n@@ -230,7 +232,7 @@\n ---|---|---\n `autoConnectIde`| Automatically connect to a running IDE when Claude Code starts from an external terminal. Default: `false`. Appears in `/config` as **Auto-connect to IDE (external terminal)** when running outside a VS Code or JetBrains terminal| `true`\n `autoInstallIdeExtension`| Automatically install the Claude Code IDE extension when running from a VS Code terminal. Default: `true`. Appears in `/config` as **Auto-install IDE extension** when running inside a VS Code or JetBrains terminal. You can also set the [`CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL`](</docs/en/env-vars>) environment variable| `false`\n-`editorMode`| Key binding mode for the input prompt: `\"normal\"` or `\"vim\"`. Default: `\"normal\"`. Written automatically when you run `/vim`. Appears in `/config` as **Key binding mode**| `\"vim\"`\n+`editorMode`| Key binding mode for the input prompt: `\"normal\"` or `\"vim\"`. Default: `\"normal\"`. Appears in `/config` as **Editor mode**| `\"vim\"`\n `showTurnDuration`| Show turn duration messages after responses, e.g. “Cooked for 1m 6s”. Default: `true`. Appears in `/config` as **Show turn duration**| `false`\n `terminalProgressBarEnabled`| Show the terminal progress bar in supported terminals: ConEmu, Ghostty 1.2.0+, and iTerm2 3.6.6+. Default: `true`. Appears in `/config` as **Terminal progress bar**| `false`\n `teammateMode`| How [agent team](</docs/en/agent-teams>) teammates display: `auto` (picks split panes in tmux or iTerm2, in-process otherwise), `in-process`, or `tmux`. See [choose a display mode](</docs/en/agent-teams#choose-a-display-mode>)| `\"in-process\"`\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "skills",
+    "title": "Extend Claude with skills",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 11,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/skills.md\n+++ b/skills.md\n@@ -198,7 +198,7 @@\n `agent`| No| Which subagent type to use when `context: fork` is set.\n `hooks`| No| Hooks scoped to this skill’s lifecycle. See [Hooks in skills and agents](</docs/en/hooks#hooks-in-skills-and-agents>) for configuration format.\n `paths`| No| Glob patterns that limit when this skill is activated. Accepts a comma-separated string or a YAML list. When set, Claude loads the skill automatically only when working with files matching the patterns. Uses the same format as [path-specific rules](</docs/en/memory#path-specific-rules>).\n-`shell`| No| Shell to use for `!`command`` blocks in this skill. Accepts `bash` (default) or `powershell`. Setting `powershell` runs inline shell commands via PowerShell on Windows. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`.\n+`shell`| No| Shell to use for `!`command`` and ````!` blocks in this skill. Accepts `bash` (default) or `powershell`. Setting `powershell` runs inline shell commands via PowerShell on Windows. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`.\n \n ####\n \n@@ -379,7 +379,16 @@\n   2. The output replaces the placeholder in the skill content\n   3. Claude receives the fully-rendered prompt with actual PR data\n \n-This is preprocessing, not something Claude executes. Claude only sees the final result.\n+This is preprocessing, not something Claude executes. Claude only sees the final result. For multi-line commands, use a fenced code block opened with ````!` instead of the inline form:\n+\n+    ## Environment\n+    ```!\n+    node --version\n+    npm --version\n+    git status --short\n+    ```\n+\n+To disable this behavior for skills and custom commands from user, project, plugin, or additional-directory sources, set `\"disableSkillShellExecution\": true` in [settings](</docs/en/settings>). Each command is replaced with `[shell command execution disabled by policy]` instead of being run. Bundled and managed skills are not affected. This setting is most useful in [managed settings](</docs/en/permissions#managed-settings>), where users cannot override it.\n \n To enable [extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) in a skill, include the word “ultrathink” anywhere in your skill content.\n \n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "terminal-config",
+    "title": "Optimize your terminal setup",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/terminal-config.md\n+++ b/terminal-config.md\n@@ -95,7 +95,7 @@\n \n Vim Mode\n \n-Claude Code supports a subset of Vim keybindings that can be enabled with `/vim` or configured via `/config`. To set the mode directly in your config file, set the [`editorMode`](</docs/en/settings#global-config-settings>) global config key to `\"vim\"` in `~/.claude.json`. The supported subset includes:\n+Claude Code supports a subset of Vim keybindings that can be enabled via `/config` → Editor mode. To set the mode directly in your config file, set the [`editorMode`](</docs/en/settings#global-config-settings>) global config key to `\"vim\"` in `~/.claude.json`. The supported subset includes:\n \n   * Mode switching: `Esc` (to NORMAL), `i`/`I`, `a`/`A`, `o`/`O` (to INSERT)\n   * Navigation: `h`/`j`/`k`/`l`, `w`/`e`/`b`, `0`/`$`/`^`, `gg`/`G`, `f`/`F`/`t`/`T` with `;`/`,` repeat\n"
+  },
+  {
+    "date": "2026-04-05",
+    "slug": "troubleshooting",
+    "title": "Troubleshooting",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/troubleshooting.md\n+++ b/troubleshooting.md\n@@ -497,7 +497,7 @@\n \n     sudo dnf install bubblewrap socat\n \n-WSL1 does not support sandboxing. If you see “Sandboxing requires WSL2”, you need to upgrade to WSL2 or run Claude Code without sandboxing.\n+WSL1 does not support sandboxing. If you see “Sandboxing requires WSL2”, you need to upgrade to WSL2 or run Claude Code without sandboxing. Sandboxed commands cannot launch Windows binaries such as `cmd.exe`, `powershell.exe`, or executables under `/mnt/c/`. WSL hands these off to the Windows host over a Unix socket, which the sandbox blocks. If a command needs to invoke a Windows binary, add it to [`excludedCommands`](</docs/en/settings#sandbox-settings>) so it runs outside the sandbox.\n \n ###\n \n"
   }
 ]
