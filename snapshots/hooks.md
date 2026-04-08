@@ -505,7 +505,7 @@ The `tool_name` and `tool_input` fields are event-specific. Each hook event sect
 
 Exit code output
 
-The exit code from your hook command tells Claude Code whether the action should proceed, be blocked, or be ignored. **Exit 0** means success. Claude Code parses stdout for JSON output fields. JSON output is only processed on exit 0. For most events, stdout is only shown in verbose mode (`Ctrl+O`). The exceptions are `UserPromptSubmit` and `SessionStart`, where stdout is added as context that Claude can see and act on. **Exit 2** means a blocking error. Claude Code ignores stdout and any JSON in it. Instead, stderr text is fed back to Claude as an error message. The effect depends on the event: `PreToolUse` blocks the tool call, `UserPromptSubmit` rejects the prompt, and so on. See exit code 2 behavior for the full list. **Any other exit code** is a non-blocking error. stderr is shown in verbose mode (`Ctrl+O`) and execution continues. For example, a hook command script that blocks dangerous Bash commands:
+The exit code from your hook command tells Claude Code whether the action should proceed, be blocked, or be ignored. **Exit 0** means success. Claude Code parses stdout for JSON output fields. JSON output is only processed on exit 0. For most events, stdout is written to the debug log but not shown in the transcript. The exceptions are `UserPromptSubmit` and `SessionStart`, where stdout is added as context that Claude can see and act on. **Exit 2** means a blocking error. Claude Code ignores stdout and any JSON in it. Instead, stderr text is fed back to Claude as an error message. The effect depends on the event: `PreToolUse` blocks the tool call, `UserPromptSubmit` rejects the prompt, and so on. See exit code 2 behavior for the full list. **Any other exit code** is a non-blocking error for most hook events. The transcript shows a one-line `<hook name> hook error` notice and execution continues. The full stderr is written to the debug log. For example, a hook command script that blocks dangerous Bash commands:
 
     #!/bin/bash
     # Reads JSON input from stdin, checks the command
@@ -517,6 +517,8 @@ The exit code from your hook command tells Claude Code whether the action should
     fi
 
     exit 0  # Success: tool call proceeds
+
+For most hook events, only exit code 2 blocks the action. Claude Code treats exit code 1 as a non-blocking error and proceeds with the action, even though 1 is the conventional Unix failure code. If your hook is meant to enforce a policy, use `exit 2`. The exception is `WorktreeCreate`, where any non-zero exit code aborts worktree creation.
 
 ####
 
@@ -591,7 +593,7 @@ Field| Default| Description
 ---|---|---
 `continue`| `true`| If `false`, Claude stops processing entirely after the hook runs. Takes precedence over any event-specific decision fields
 `stopReason`| none| Message shown to the user when `continue` is `false`. Not shown to Claude
-`suppressOutput`| `false`| If `true`, hides stdout from verbose mode output
+`suppressOutput`| `false`| If `true`, omits stdout from the debug log
 `systemMessage`| none| Warning message shown to the user
 
 To stop Claude entirely regardless of event type:
@@ -843,13 +845,15 @@ Field| Description
 `decision`| `"block"` prevents the prompt from being processed and erases it from context. Omit to allow the prompt to proceed
 `reason`| Shown to the user when `decision` is `"block"`. Not added to context
 `additionalContext`| String added to Claude’s context
+`sessionTitle`| Sets the session title, same effect as `/rename`. Use to name sessions automatically based on the prompt content
 
     {
       "decision": "block",
       "reason": "Explanation for decision",
       "hookSpecificOutput": {
         "hookEventName": "UserPromptSubmit",
-        "additionalContext": "My additional context here"
+        "additionalContext": "My additional context here",
+        "sessionTitle": "My session title"
       }
     }
 
@@ -2499,7 +2503,7 @@ On Windows, you can run individual hooks in PowerShell by setting `"shell": "pow
 
 Debug hooks
 
-Run `claude --debug` to see hook execution details, including which hooks matched, their exit codes, and output.
+Hook execution details, including which hooks matched, their exit codes, and full stdout and stderr, are written to the debug log file. Start Claude Code with `claude --debug-file <path>` to write the log to a known location, or run `claude --debug` and read the log at `~/.claude/debug/<session-id>.txt`. The `--debug` flag does not print to the terminal.
 
     [DEBUG] Executing hooks for PostToolUse:Write
     [DEBUG] Found 1 hook commands to execute

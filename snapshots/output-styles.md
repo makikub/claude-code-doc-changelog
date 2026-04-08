@@ -62,7 +62,7 @@ Custom output styles are Markdown files with frontmatter and the text that will 
 
     [Define how the assistant should behave in this style...]
 
-You can save these files at the user level (`~/.claude/output-styles`) or project level (`.claude/output-styles`).
+You can save these files at the user level (`~/.claude/output-styles`) or project level (`.claude/output-styles`). [Plugins](</docs/en/plugins-reference>) can also ship output styles in an `output-styles/` directory.
 
 ###
 
