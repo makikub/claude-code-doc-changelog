@@ -70,11 +70,11 @@ A standalone app for running Claude Code outside your IDE or terminal. Review di
 
   * [macOS](<https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs>) (Intel and Apple Silicon)
   * [Windows](<https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs>) (x64)
-  * [Windows ARM64](<https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs>) (remote sessions only)
+  * [Windows ARM64](<https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs>)
 
 After installing, launch Claude, sign in, and click the **Code** tab to start coding. A [paid subscription](<https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=overview_desktop_pricing>) is required.[Learn more about the desktop app →](</docs/en/desktop-quickstart>)
 
-Run Claude Code in your browser with no local setup. Kick off long-running tasks and check back when they’re done, work on repos you don’t have locally, or run multiple tasks in parallel. Available on desktop browsers and the Claude iOS app.Start coding at [claude.ai/code](<https://claude.ai/code>).[Get started on the web →](</docs/en/claude-code-on-the-web#getting-started>)
+Run Claude Code in your browser with no local setup. Kick off long-running tasks and check back when they’re done, work on repos you don’t have locally, or run multiple tasks in parallel. Available on desktop browsers and the Claude iOS app.Start coding at [claude.ai/code](<https://claude.ai/code>).[Get started on the web →](</docs/en/web-quickstart>)
 
 A plugin for IntelliJ IDEA, PyCharm, WebStorm, and other JetBrains IDEs with interactive diff viewing and selection context sharing.Install the [Claude Code plugin](<https://plugins.jetbrains.com/plugin/27310-claude-code-beta->) from the JetBrains Marketplace and restart your IDE.[Get started with JetBrains →](</docs/en/jetbrains>)
 
@@ -114,7 +114,7 @@ Customize with instructions, skills, and hooks
 
 Run agent teams and build custom agents
 
-Spawn [multiple Claude Code agents](</docs/en/sub-agents>) that work on different parts of a task simultaneously. A lead agent coordinates the work, assigns subtasks, and merges results.For fully custom workflows, the [Agent SDK](<https://platform.claude.com/docs/en/agent-sdk/overview>) lets you build your own agents powered by Claude Code’s tools and capabilities, with full control over orchestration, tool access, and permissions.
+Spawn [multiple Claude Code agents](</docs/en/sub-agents>) that work on different parts of a task simultaneously. A lead agent coordinates the work, assigns subtasks, and merges results.For fully custom workflows, the [Agent SDK](</docs/en/agent-sdk/overview>) lets you build your own agents powered by Claude Code’s tools and capabilities, with full control over orchestration, tool access, and permissions.
 
 Pipe, script, and automate with the CLI
 
@@ -167,7 +167,7 @@ Automate PR reviews and issue triage| [GitHub Actions](</docs/en/github-actions>
 Get automatic code review on every PR| [GitHub Code Review](</docs/en/code-review>)
 Route bug reports from Slack to pull requests| [Slack](</docs/en/slack>)
 Debug live web applications| [Chrome](</docs/en/chrome>)
-Build custom agents for your own workflows| [Agent SDK](<https://platform.claude.com/docs/en/agent-sdk/overview>)
+Build custom agents for your own workflows| [Agent SDK](</docs/en/agent-sdk/overview>)
 
 ##
 

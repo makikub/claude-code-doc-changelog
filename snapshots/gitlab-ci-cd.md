@@ -1,6 +1,6 @@
 Claude Code for GitLab CI/CD is currently in beta. Features and functionality may evolve as we refine the experience.This integration is maintained by GitLab. For support, see the following [GitLab issue](<https://gitlab.com/gitlab-org/gitlab/-/issues/573776>).
 
-This integration is built on top of the [Claude Code CLI and Agent SDK](<https://platform.claude.com/docs/en/agent-sdk/overview>), enabling programmatic use of Claude in your CI/CD jobs and custom automation workflows.
+This integration is built on top of the [Claude Code CLI and Agent SDK](</docs/en/agent-sdk/overview>), enabling programmatic use of Claude in your CI/CD jobs and custom automation workflows.
 
 ##
 

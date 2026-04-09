@@ -1,4 +1,4 @@
-The [Agent SDK](<https://platform.claude.com/docs/en/agent-sdk/overview>) gives you the same tools, agent loop, and context management that power Claude Code. It’s available as a CLI for scripts and CI/CD, or as [Python](<https://platform.claude.com/docs/en/agent-sdk/python>) and [TypeScript](<https://platform.claude.com/docs/en/agent-sdk/typescript>) packages for full programmatic control.
+The [Agent SDK](</docs/en/agent-sdk/overview>) gives you the same tools, agent loop, and context management that power Claude Code. It’s available as a CLI for scripts and CI/CD, or as [Python](</docs/en/agent-sdk/python>) and [TypeScript](</docs/en/agent-sdk/typescript>) packages for full programmatic control.
 
 The CLI was previously called “headless mode.” The `-p` flag and all CLI options work the same way.
 
@@ -6,7 +6,7 @@ To run Claude Code programmatically from the CLI, pass `-p` with your prompt and
 
     claude -p "Find and fix the bug in auth.py" --allowedTools "Read,Edit,Bash"
 
-This page covers using the Agent SDK via the CLI (`claude -p`). For the Python and TypeScript SDK packages with structured outputs, tool approval callbacks, and native message objects, see the [full Agent SDK documentation](<https://platform.claude.com/docs/en/agent-sdk/overview>).
+This page covers using the Agent SDK via the CLI (`claude -p`). For the Python and TypeScript SDK packages with structured outputs, tool approval callbacks, and native message objects, see the [full Agent SDK documentation](</docs/en/agent-sdk/overview>).
 
 ##
 
@@ -118,7 +118,7 @@ Field| Type| Description
 `uuid`| string| unique event identifier
 `session_id`| string| session the event belongs to
 
-For programmatic streaming with callbacks and message objects, see [Stream responses in real-time](<https://platform.claude.com/docs/en/agent-sdk/streaming-output>) in the Agent SDK documentation.
+For programmatic streaming with callbacks and message objects, see [Stream responses in real-time](</docs/en/agent-sdk/streaming-output>) in the Agent SDK documentation.
 
 ###
 
@@ -131,7 +131,7 @@ Use `--allowedTools` to let Claude use certain tools without prompting. This exa
     claude -p "Run the test suite and fix any failures" \
       --allowedTools "Bash,Read,Edit"
 
-To set a baseline for the whole session instead of listing individual tools, pass a [permission mode](</docs/en/permission-modes>). `dontAsk` denies anything not in your `permissions.allow` rules, which is useful for locked-down CI runs. `acceptEdits` lets Claude write files without prompting, but shell commands and network requests still need an `--allowedTools` entry or a `permissions.allow` rule, otherwise the run aborts when one is attempted:
+To set a baseline for the whole session instead of listing individual tools, pass a [permission mode](</docs/en/permission-modes>). `dontAsk` denies anything not in your `permissions.allow` rules, which is useful for locked-down CI runs. `acceptEdits` lets Claude write files without prompting and also auto-approves common filesystem commands such as `mkdir`, `touch`, `mv`, and `cp`. Other shell commands and network requests still need an `--allowedTools` entry or a `permissions.allow` rule, otherwise the run aborts when one is attempted:
 
     claude -p "Apply the lint fixes" --permission-mode acceptEdits
 
@@ -190,7 +190,7 @@ If you’re running multiple conversations, capture the session ID to resume a s
 
 Next steps
 
-  * [Agent SDK quickstart](<https://platform.claude.com/docs/en/agent-sdk/quickstart>): build your first agent with Python or TypeScript
+  * [Agent SDK quickstart](</docs/en/agent-sdk/quickstart>): build your first agent with Python or TypeScript
   * [CLI reference](</docs/en/cli-reference>): all CLI flags and options
   * [GitHub Actions](</docs/en/github-actions>): use the Agent SDK in GitHub workflows
   * [GitLab CI/CD](</docs/en/gitlab-ci-cd>): use the Agent SDK in GitLab pipelines

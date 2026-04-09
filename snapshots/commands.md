@@ -4,6 +4,7 @@ Command| Purpose
 ---|---
 `/add-dir <path>`| Add a working directory for file access during the current session. Most `.claude/` configuration is [not discovered](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>) from the added directory
 `/agents`| Manage [agent](</docs/en/sub-agents>) configurations
+`/autofix-pr [prompt]`| Spawn a [Claude Code on the web](</docs/en/claude-code-on-the-web#auto-fix-pull-requests>) session that watches the current branch’s PR and pushes fixes when CI fails or reviewers leave comments. Detects the open PR from your checked-out branch with `gh pr view`; to watch a different PR, check out its branch first. By default the remote session is told to fix every CI failure and review comment; pass a prompt to give it different instructions, for example `/autofix-pr only fix lint and type errors`. Requires the `gh` CLI and access to [Claude Code on the web](</docs/en/claude-code-on-the-web#who-can-use-claude-code-on-the-web>)
 `/btw <question>`| Ask a quick [side question](</docs/en/interactive-mode#side-questions-with-btw>) without adding to the conversation
 `/chrome`| Configure [Claude in Chrome](</docs/en/chrome>) settings
 `/clear`| Clear conversation history and free up context. Aliases: `/reset`, `/new`
@@ -47,7 +48,7 @@ Command| Purpose
 `/release-notes`| View the changelog in an interactive version picker. Select a specific version to see its release notes, or choose to show all versions
 `/reload-plugins`| Reload all active [plugins](</docs/en/plugins>) to apply pending changes without restarting. Reports counts for each reloaded component and flags any load errors
 `/remote-control`| Make this session available for [remote control](</docs/en/remote-control>) from claude.ai. Alias: `/rc`
-`/remote-env`| Configure the default remote environment for [web sessions started with `--remote`](</docs/en/claude-code-on-the-web#environment-configuration>)
+`/remote-env`| Configure the default remote environment for [web sessions started with `--remote`](</docs/en/claude-code-on-the-web#configure-your-environment>)
 `/rename [name]`| Rename the current session and show the name on the prompt bar. Without a name, auto-generates one from conversation history
 `/resume [session]`| Resume a conversation by ID or name, or open the session picker. Alias: `/continue`
 `/review`| Deprecated. Install the [`code-review` plugin](<https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review>) instead: `claude plugin install code-review@claude-plugins-official`
@@ -62,6 +63,7 @@ Command| Purpose
 `/statusline`| Configure Claude Code’s [status line](</docs/en/statusline>). Describe what you want, or run without arguments to auto-configure from your shell prompt
 `/stickers`| Order Claude Code stickers
 `/tasks`| List and manage background tasks. Also available as `/bashes`
+`/teleport`| Pull a [Claude Code on the web](</docs/en/claude-code-on-the-web#from-web-to-terminal>) session into this terminal: opens a picker, then fetches the branch and conversation. Also available as `/tp`. Requires a claude.ai subscription
 `/terminal-setup`| Configure terminal keybindings for Shift+Enter and other shortcuts. Only visible in terminals that need it, like VS Code, Alacritty, or Warp
 `/theme`| Change the color theme. Includes light and dark variants, colorblind-accessible (daltonized) themes, and ANSI themes that use your terminal’s color palette
 `/ultraplan <prompt>`| Draft a plan in an [ultraplan](</docs/en/ultraplan>) session, review it in your browser, then execute remotely or send it back to your terminal
@@ -69,6 +71,7 @@ Command| Purpose
 `/usage`| Show plan usage limits and rate limit status
 `/vim`| Removed in v2.1.92. To toggle between Vim and Normal editing modes, use `/config` → Editor mode
 `/voice`| Toggle push-to-talk [voice dictation](</docs/en/voice-dictation>). Requires a Claude.ai account
+`/web-setup`| Connect your GitHub account to [Claude Code on the web](</docs/en/web-quickstart#connect-from-your-terminal>) using your local `gh` CLI credentials. `/schedule` prompts for this automatically if GitHub isn’t connected
 
 ##
 

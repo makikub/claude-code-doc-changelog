@@ -52,7 +52,7 @@ The `command` field runs in a shell, so you can also use inline commands instead
       }
     }
 
-The optional `padding` field adds extra horizontal spacing (in characters) to the status line content. Defaults to `0`. This padding is in addition to the interface’s built-in spacing, so it controls relative indentation rather than absolute distance from the terminal edge.
+The optional `padding` field adds extra horizontal spacing (in characters) to the status line content. Defaults to `0`. This padding is in addition to the interface’s built-in spacing, so it controls relative indentation rather than absolute distance from the terminal edge. The optional `refreshInterval` field re-runs your command every N seconds in addition to the event-driven updates. The minimum is `1`. Set this when your status line shows time-based data such as a clock, or when background subagents change git state while the main session is idle. Leave it unset to run only on events.
 
 ###
 
@@ -122,7 +122,7 @@ Your status line appears at the bottom of the interface. Settings reload automat
 
 How status lines work
 
-Claude Code runs your script and pipes JSON session data to it via stdin. Your script reads the JSON, extracts what it needs, and prints text to stdout. Claude Code displays whatever your script prints. **When it updates** Your script runs after each new assistant message, when the permission mode changes, or when vim mode toggles. Updates are debounced at 300ms, meaning rapid changes batch together and your script runs once things settle. If a new update triggers while your script is still running, the in-flight execution is cancelled. If you edit your script, the changes won’t appear until your next interaction with Claude Code triggers an update. **What your script can output**
+Claude Code runs your script and pipes JSON session data to it via stdin. Your script reads the JSON, extracts what it needs, and prints text to stdout. Claude Code displays whatever your script prints. **When it updates** Your script runs after each new assistant message, when the permission mode changes, or when vim mode toggles. Updates are debounced at 300ms, meaning rapid changes batch together and your script runs once things settle. If a new update triggers while your script is still running, the in-flight execution is cancelled. If you edit your script, the changes won’t appear until your next interaction with Claude Code triggers an update. These triggers can go quiet when the main session is idle, for example while a coordinator waits on background subagents. To keep time-based or externally-sourced segments current during idle periods, set `refreshInterval` to also re-run the command on a fixed timer. **What your script can output**
 
   * **Multiple lines** : each `echo` or `print` statement displays as a separate row. See the multi-line example.
   * **Colors** : use [ANSI escape codes](<https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>) like `\033[32m` for green (terminal must support them). See the git status example.
@@ -144,6 +144,7 @@ Field| Description
 `cwd`, `workspace.current_dir`| Current working directory. Both fields contain the same value; `workspace.current_dir` is preferred for consistency with `workspace.project_dir`.
 `workspace.project_dir`| Directory where Claude Code was launched, which may differ from `cwd` if the working directory changes during a session
 `workspace.added_dirs`| Additional directories added via `/add-dir` or `--add-dir`. Empty array if none have been added
+`workspace.git_worktree`| Git worktree name when the current directory is inside a linked worktree created with `git worktree add`. Absent in the main working tree. Populated for any git worktree, unlike `worktree.*` which applies only to `--worktree` sessions
 `cost.total_cost_usd`| Total session cost in USD
 `cost.total_duration_ms`| Total wall-clock time since the session started, in milliseconds
 `cost.total_api_duration_ms`| Total time spent waiting for API responses in milliseconds
@@ -185,7 +186,8 @@ Your status line command receives this JSON structure via stdin:
       "workspace": {
         "current_dir": "/current/working/directory",
         "project_dir": "/original/project/directory",
-        "added_dirs": []
+        "added_dirs": [],
+        "git_worktree": "feature-xyz"
       },
       "version": "2.1.90",
       "output_style": {
@@ -240,6 +242,7 @@ Your status line command receives this JSON structure via stdin:
 **Fields that may be absent** (not present in JSON):
 
   * `session_name`: appears only when a custom name has been set with `--name` or `/rename`
+  * `workspace.git_worktree`: appears only when the current directory is inside a linked git worktree
   * `vim`: appears only when vim mode is enabled
   * `agent`: appears only when running with the `--agent` flag or agent settings configured
   * `worktree`: appears only during `--worktree` sessions. When present, `branch` and `original_branch` may also be absent for hook-based worktrees
@@ -499,7 +502,7 @@ Node.js
 
 Cache expensive operations
 
-Your status line script runs frequently during active sessions. Commands like `git status` or `git diff` can be slow, especially in large repositories. This example caches git information to a temp file and only refreshes it every 5 seconds. Use a stable, fixed filename for the cache file like `/tmp/statusline-git-cache`. Each status line invocation runs as a new process, so process-based identifiers like `$$`, `os.getpid()`, or `process.pid` produce a different value every time and the cache is never reused. Each script checks if the cache file is missing or older than 5 seconds before running git commands:
+Your status line script runs frequently during active sessions. Commands like `git status` or `git diff` can be slow, especially in large repositories. This example caches git information to a temp file and only refreshes it every 5 seconds. The cache filename needs to be stable across status line invocations within a session, but unique across sessions so concurrent sessions in different repositories don’t read each other’s cached git state. Process-based identifiers like `$$`, `os.getpid()`, or `process.pid` change on every invocation and defeat the cache. Use the `session_id` from the JSON input instead: it’s stable for the lifetime of a session and unique per session. Each script checks if the cache file is missing or older than 5 seconds before running git commands:
 
 Bash
 
@@ -512,8 +515,9 @@ Node.js
 
     MODEL=$(echo "$input" | jq -r '.model.display_name')
     DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+    SESSION_ID=$(echo "$input" | jq -r '.session_id')
 
-    CACHE_FILE="/tmp/statusline-git-cache"
+    CACHE_FILE="/tmp/statusline-git-cache-$SESSION_ID"
     CACHE_MAX_AGE=5  # seconds
 
     cache_is_stale() {
@@ -579,7 +583,7 @@ statusline.sh
 
 Tips
 
-  * **Test with mock input** : `echo '{"model":{"display_name":"Opus"},"context_window":{"used_percentage":25}}' | ./statusline.sh`
+  * **Test with mock input** : `echo '{"model":{"display_name":"Opus"},"workspace":{"current_dir":"/home/user/project"},"context_window":{"used_percentage":25},"session_id":"test-session-abc"}' | ./statusline.sh`
   * **Keep output short** : the status bar has limited width, so long output may get truncated or wrap awkwardly
   * **Cache slow operations** : your script runs frequently during active sessions, so commands like `git status` can cause lag. See the caching example for how to handle this.
 
@@ -616,6 +620,14 @@ Troubleshooting
 
   * Verify your terminal supports OSC 8 hyperlinks (iTerm2, Kitty, WezTerm)
   * Terminal.app does not support clickable links
+  * If link text appears but isn’t clickable, Claude Code may not have detected hyperlink support in your terminal. This commonly affects Windows Terminal and other emulators not in the auto-detection list. Set the `FORCE_HYPERLINK` environment variable to override detection before launching Claude Code:
+
+        FORCE_HYPERLINK=1 claude
+
+In PowerShell, set the variable in the current session first:
+
+        $env:FORCE_HYPERLINK = "1"; claude
+
   * SSH and tmux sessions may strip OSC sequences depending on configuration
   * If escape sequences appear as literal text like `\e]8;;`, use `printf '%b'` instead of `echo -e` for more reliable escape handling
 

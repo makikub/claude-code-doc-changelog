@@ -271,6 +271,11 @@ On macOS via Homebrew:
          export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
 
 Ask your IT team for the certificate file if you don’t have it. You can also try on a direct connection to confirm the proxy is the cause.
+  4. **On Windows, bypass certificate revocation checks** if you see `CRYPT_E_REVOCATION_OFFLINE (0x80092013)`. This means curl reached the server but your network blocks the certificate revocation lookup, which is common behind corporate firewalls. Add `--ssl-revoke-best-effort` to the install command:
+
+         curl --ssl-revoke-best-effort -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+
+Alternatively, install with `winget install Anthropic.ClaudeCode`, which avoids curl entirely.
 
 ###
 
@@ -676,6 +681,19 @@ Claude Code is designed to work with most development environments, but may cons
   1. Use `/compact` regularly to reduce context size
   2. Close and restart Claude Code between major tasks
   3. Consider adding large build directories to your `.gitignore` file
+
+###
+
+​
+
+Auto-compaction stops with a thrashing error
+
+If you see `Autocompact is thrashing: the context refilled to the limit...`, automatic compaction succeeded but a file or tool output immediately refilled the context window several times in a row. Claude Code stops retrying to avoid wasting API calls on a loop that isn’t making progress. To recover:
+
+  1. Ask Claude to read the oversized file in smaller chunks, such as a specific line range or function, instead of the whole file
+  2. Run `/compact` with a focus that drops the large output, for example `/compact keep only the plan and the diff`
+  3. Move the large-file work to a [subagent](</docs/en/sub-agents>) so it runs in a separate context window
+  4. Run `/clear` if the earlier conversation is no longer needed
 
 ###
 
