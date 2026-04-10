@@ -1485,6 +1485,7 @@ Union of all tool input types, exported from `@anthropic-ai/claude-agent-sdk`.
       | GrepInput
       | ListMcpResourcesInput
       | McpInput
+      | MonitorInput
       | NotebookEditInput
       | ReadMcpResourceInput
       | SubscribeMcpResourceInput
@@ -1556,6 +1557,23 @@ Bash
     };
 
 Executes bash commands in a persistent shell session with optional timeout and background execution.
+
+###
+
+​
+
+Monitor
+
+**Tool name:** `Monitor`
+
+    type MonitorInput = {
+      command: string;
+      description: string;
+      timeout_ms?: number;
+      persistent?: boolean;
+    };
+
+Runs a background script and delivers each stdout line to Claude as an event so it can react without polling. Set `persistent: true` for session-length watches such as log tails. Monitor follows the same permission rules as Bash. See the [Monitor tool reference](</docs/en/tools-reference#monitor-tool>) for behavior and provider availability.
 
 ###
 
@@ -1850,6 +1868,7 @@ Union of all tool output types.
       | GlobOutput
       | GrepOutput
       | ListMcpResourcesOutput
+      | MonitorOutput
       | NotebookEditOutput
       | ReadMcpResourceOutput
       | TaskStopOutput
@@ -1950,6 +1969,22 @@ Bash
     };
 
 Returns command output with stdout/stderr split. Background commands include a `backgroundTaskId`.
+
+###
+
+​
+
+Monitor
+
+**Tool name:** `Monitor`
+
+    type MonitorOutput = {
+      taskId: string;
+      timeoutMs: number;
+      persistent?: boolean;
+    };
+
+Returns the background task ID for the running monitor. Use this ID with `TaskStop` to cancel the watch early.
 
 ###
 
@@ -2713,7 +2748,7 @@ Status update message (e.g., compacting).
 
 `SDKTaskNotificationMessage`
 
-Notification when a background task completes, fails, or is stopped.
+Notification when a background task completes, fails, or is stopped. Background tasks include `run_in_background` Bash commands, Monitor watches, and background subagents.
 
     type SDKTaskNotificationMessage = {
       type: "system";
@@ -2852,7 +2887,7 @@ Emitted during authentication flows.
 
 `SDKTaskStartedMessage`
 
-Emitted when a background task begins.
+Emitted when a background task begins. The `task_type` field is `"local_bash"` for background Bash commands and Monitor watches, `"local_agent"` for subagents, or `"remote_agent"`.
 
     type SDKTaskStartedMessage = {
       type: "system";

@@ -2,7 +2,7 @@ Claude Code combines a model that reasons about your code with [built-in tools](
 
 For how the core agentic loop works, see [How Claude Code works](</docs/en/how-claude-code-works>).
 
-**New to Claude Code?** Start with [CLAUDE.md](</docs/en/memory>) for project conventions. Add other extensions as you need them.
+**New to Claude Code?** Start with [CLAUDE.md](</docs/en/memory>) for project conventions, then add other extensions as specific triggers come up.
 
 ##
 
@@ -40,6 +40,26 @@ Feature| What it does| When to use it| Example
 **Hook**|  Deterministic script that runs on events| Predictable automation, no LLM involved| Run ESLint after every file edit
 
 **[Plugins](</docs/en/plugins>)** are the packaging layer. A plugin bundles skills, hooks, subagents, and MCP servers into a single installable unit. Plugin skills are namespaced (like `/my-plugin:review`) so multiple plugins can coexist. Use plugins when you want to reuse the same setup across multiple repositories or distribute to others via a **[marketplace](</docs/en/plugin-marketplaces>)**.
+
+###
+
+​
+
+Build your setup over time
+
+You don’t need to configure everything up front. Each feature has a recognizable trigger, and most teams add them in roughly this order:
+
+Trigger| Add
+---|---
+Claude gets a convention or command wrong twice| Add it to [CLAUDE.md](</docs/en/memory>)
+You keep typing the same prompt to start a task| Save it as a user-invocable [skill](</docs/en/skills>)
+You paste the same playbook or multi-step procedure into chat for the third time| Capture it as a [skill](</docs/en/skills>)
+You keep copying data from a browser tab Claude can’t see| Connect that system as an [MCP server](</docs/en/mcp>)
+A side task floods your conversation with output you won’t reference again| Route it through a [subagent](</docs/en/sub-agents>)
+You want something to happen every time without asking| Write a [hook](</docs/en/hooks-guide>)
+A second repository needs the same setup| Package it as a [plugin](</docs/en/plugins>)
+
+The same triggers tell you when to update what you already have. A repeated mistake or a recurring review comment is a CLAUDE.md edit, not a one-off correction in chat. A workflow you keep tweaking by hand is a skill that needs another revision.
 
 ###
 
@@ -196,7 +216,7 @@ Each feature loads at different points in your session. The tabs below explain w
 
 Keep CLAUDE.md under 200 lines. Move reference material to skills, which load on-demand.
 
-Skills are extra capabilities in Claude’s toolkit. They can be reference material (like an API style guide) or invocable workflows you trigger with `/<name>` (like `/deploy`). Claude Code ships with [bundled skills](</docs/en/skills#bundled-skills>) like `/simplify`, `/batch`, and `/debug` that work out of the box. You can also create your own. Claude uses skills when appropriate, or you can invoke one directly.**When:** Depends on the skill’s configuration. By default, descriptions load at session start and full content loads when used. For user-only skills (`disable-model-invocation: true`), nothing loads until you invoke them.**What loads:** For model-invocable skills, Claude sees names and descriptions in every request. When you invoke a skill with `/<name>` or Claude loads it automatically, the full content loads into your conversation.**How Claude chooses skills:** Claude matches your task against skill descriptions to decide which are relevant. If descriptions are vague or overlap, Claude may load the wrong skill or miss one that would help. To tell Claude to use a specific skill, invoke it with `/<name>`. Skills with `disable-model-invocation: true` are invisible to Claude until you invoke them.**Context cost:** Low until used. User-only skills have zero cost until invoked.**In subagents:** Skills work differently in subagents. Instead of on-demand loading, skills passed to a subagent are fully preloaded into its context at launch. Subagents don’t inherit skills from the main session; you must specify them explicitly.
+Skills are extra capabilities in Claude’s toolkit. They can be reference material (like an API style guide) or invocable workflows you trigger with `/<name>` (like `/deploy`). Claude Code includes [bundled skills](</docs/en/commands>) like `/simplify`, `/batch`, and `/debug` that work out of the box. You can also create your own. Claude uses skills when appropriate, or you can invoke one directly.**When:** Depends on the skill’s configuration. By default, descriptions load at session start and full content loads when used. For user-only skills (`disable-model-invocation: true`), nothing loads until you invoke them.**What loads:** For model-invocable skills, Claude sees names and descriptions in every request. When you invoke a skill with `/<name>` or Claude loads it automatically, the full content loads into your conversation.**How Claude chooses skills:** Claude matches your task against skill descriptions to decide which are relevant. If descriptions are vague or overlap, Claude may load the wrong skill or miss one that would help. To tell Claude to use a specific skill, invoke it with `/<name>`. Skills with `disable-model-invocation: true` are invisible to Claude until you invoke them.**Context cost:** Low until used. User-only skills have zero cost until invoked.**In subagents:** Skills work differently in subagents. Instead of on-demand loading, skills passed to a subagent are fully preloaded into its context at launch. Subagents don’t inherit skills from the main session; you must specify them explicitly.
 
 Use `disable-model-invocation: true` for skills with side effects. This saves context and ensures only you trigger them.
 

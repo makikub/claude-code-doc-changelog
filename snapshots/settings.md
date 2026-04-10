@@ -100,7 +100,7 @@ The `settings.json` file is the official mechanism for configuring Claude Code t
   * **Managed settings** : For organizations that need centralized control, Claude Code supports multiple delivery mechanisms for managed settings. All use the same JSON format and cannot be overridden by user or project settings:
     * **Server-managed settings** : delivered from Anthropic’s servers via the Claude.ai admin console. See [server-managed settings](</docs/en/server-managed-settings>).
     * **MDM/OS-level policies** : delivered through native device management on macOS and Windows:
-      * macOS: `com.anthropic.claudecode` managed preferences domain (deployed via configuration profiles in Jamf, Kandji, or other MDM tools)
+      * macOS: `com.anthropic.claudecode` managed preferences domain (deployed via configuration profiles in Jamf, Iru (Kandji), or other MDM tools)
       * Windows: `HKLM\SOFTWARE\Policies\ClaudeCode` registry key with a `Settings` value (REG_SZ or REG_EXPAND_SZ) containing JSON (deployed via Group Policy or Intune)
       * Windows (user-level): `HKCU\SOFTWARE\Policies\ClaudeCode` (lowest policy priority, only used when no admin-level source exists)
     * **File-based** : `managed-settings.json` and `managed-mcp.json` deployed to system directories:
@@ -111,7 +111,7 @@ The `settings.json` file is the official mechanism for configuring Claude Code t
 The legacy Windows path `C:\ProgramData\ClaudeCode\managed-settings.json` is no longer supported as of v2.1.75. Administrators who deployed settings to that location must migrate files to `C:\Program Files\ClaudeCode\managed-settings.json`.
 
 File-based managed settings also support a drop-in directory at `managed-settings.d/` in the same system directory alongside `managed-settings.json`. This lets separate teams deploy independent policy fragments without coordinating edits to a single file. Following the systemd convention, `managed-settings.json` is merged first as the base, then all `*.json` files in the drop-in directory are sorted alphabetically and merged on top. Later files override earlier ones for scalar values; arrays are concatenated and de-duplicated; objects are deep-merged. Hidden files starting with `.` are ignored. Use numeric prefixes to control merge order, for example `10-telemetry.json` and `20-security.json`.
-See [managed settings](</docs/en/permissions#managed-only-settings>) and [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>) for details.
+See [managed settings](</docs/en/permissions#managed-only-settings>) and [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>) for details. This [repository](<https://github.com/anthropics/claude-code/tree/main/examples/mdm>) includes starter deployment templates for Jamf, Iru (Kandji), Intune, and Group Policy. Use these as starting points and adjust them to fit your needs.
 
 Managed deployments can also restrict **plugin marketplace additions** using `strictKnownMarketplaces`. For more information, see [Managed marketplace restrictions](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>).
 
@@ -856,7 +856,7 @@ Use the `/plugin` command to manage plugins interactively:
   * Browse available plugins from marketplaces
   * Install/uninstall plugins
   * Enable/disable plugins
-  * View plugin details (commands, agents, hooks provided)
+  * View plugin details (skills, agents, hooks provided)
   * Add/remove marketplaces
 
 Learn more about the plugin system in the [plugins documentation](</docs/en/plugins>).

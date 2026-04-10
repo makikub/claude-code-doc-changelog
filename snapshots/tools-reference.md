@@ -17,6 +17,7 @@ Tool| Description| Permission Required
 `Grep`| Searches for patterns in file contents| No
 `ListMcpResourcesTool`| Lists resources exposed by connected [MCP servers](</docs/en/mcp>)| No
 `LSP`| Code intelligence via language servers: jump to definitions, find references, report type errors and warnings. See LSP tool behavior| No
+`Monitor`| Runs a command in the background and feeds each output line back to Claude, so it can react to log entries, file changes, or polled status mid-conversation. See Monitor tool| Yes
 `NotebookEdit`| Modifies Jupyter notebook cells| Yes
 `PowerShell`| Executes PowerShell commands on Windows. Opt-in preview. See PowerShell tool| Yes
 `Read`| Reads the contents of files| No
@@ -68,6 +69,23 @@ The LSP tool gives Claude code intelligence from a running language server. Afte
   * Trace call hierarchies
 
 The tool is inactive until you install a [code intelligence plugin](</docs/en/discover-plugins#code-intelligence>) for your language. The plugin bundles the language server configuration, and you install the server binary separately.
+
+##
+
+​
+
+Monitor tool
+
+The Monitor tool requires Claude Code v2.1.98 or later.
+
+The Monitor tool lets Claude watch something in the background and react when it changes, without pausing the conversation. Ask Claude to:
+
+  * Tail a log file and flag errors as they appear
+  * Poll a PR or CI job and report when its status changes
+  * Watch a directory for file changes
+  * Track output from any long-running script you point it at
+
+Claude writes a small script for the watch, runs it in the background, and receives each output line as it arrives. You keep working in the same session and Claude interjects when an event lands. Stop a monitor by asking Claude to cancel it or by ending the session. Monitor uses the same [permission rules as Bash](</docs/en/permissions#tool-specific-permission-rules>), so `allow` and `deny` patterns you have set for Bash apply here too. It is not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry.
 
 ##
 

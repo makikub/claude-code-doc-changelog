@@ -113,5 +113,5 @@ Checkpoints are designed for quick, session-level recovery. For permanent versio
 See also
 
   * [Interactive mode](</docs/en/interactive-mode>) \- Keyboard shortcuts and session controls
-  * [Built-in commands](</docs/en/commands>) \- Accessing checkpoints using `/rewind`
+  * [Commands](</docs/en/commands>) \- Accessing checkpoints using `/rewind`
   * [CLI reference](</docs/en/cli-reference>) \- Command-line options

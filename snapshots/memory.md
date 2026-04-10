@@ -40,6 +40,21 @@ CLAUDE.md files are markdown files that give Claude persistent instructions for 
 
 ​
 
+When to add to CLAUDE.md
+
+Treat CLAUDE.md as the place you write down what you’d otherwise re-explain. Add to it when:
+
+  * Claude makes the same mistake a second time
+  * A code review catches something Claude should have known about this codebase
+  * You type the same correction or clarification into chat that you typed last session
+  * A new teammate would need the same context to be productive
+
+Keep it to facts Claude should hold in every session: build commands, conventions, project layout, “always do X” rules. If an entry is a multi-step procedure or only matters for one part of the codebase, move it to a [skill](</docs/en/skills>) or a path-scoped rule instead. The [extension overview](</docs/en/features-overview#build-your-setup-over-time>) covers when to use each mechanism.
+
+###
+
+​
+
 Choose where to put CLAUDE.md files
 
 CLAUDE.md files can live in several locations, each with a different scope. More specific locations take precedence over broader ones.
@@ -405,7 +420,7 @@ Files over 200 lines consume more context and may reduce adherence. Move detaile
 
 Instructions seem lost after `/compact`
 
-CLAUDE.md fully survives compaction. After `/compact`, Claude re-reads your CLAUDE.md from disk and re-injects it fresh into the session. If an instruction disappeared after compaction, it was given only in conversation, not written to CLAUDE.md. Add it to CLAUDE.md to make it persist across sessions. See Write effective instructions for guidance on size, structure, and specificity.
+Project-root CLAUDE.md survives compaction: after `/compact`, Claude re-reads it from disk and re-injects it into the session. Nested CLAUDE.md files in subdirectories are not re-injected automatically; they reload the next time Claude reads a file in that subdirectory. If an instruction disappeared after compaction, it was either given only in conversation or lives in a nested CLAUDE.md that hasn’t reloaded yet. Add conversation-only instructions to CLAUDE.md to make them persist. See [What survives compaction](</docs/en/context-window#what-survives-compaction>) for the full breakdown. See Write effective instructions for guidance on size, structure, and specificity.
 
 ##
 

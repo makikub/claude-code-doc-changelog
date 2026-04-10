@@ -8,7 +8,7 @@ Overview
 
 Creating and distributing a marketplace involves:
 
-  1. **Creating plugins** : build one or more plugins with commands, agents, hooks, MCP servers, or LSP servers. This guide assumes you already have plugins to distribute; see [Create plugins](</docs/en/plugins>) for details on how to create them.
+  1. **Creating plugins** : build one or more plugins with skills, agents, hooks, MCP servers, or LSP servers. This guide assumes you already have plugins to distribute; see [Create plugins](</docs/en/plugins>) for details on how to create them.
   2. **Creating a marketplace file** : define a `marketplace.json` that lists your plugins and where to find them (see Create the marketplace file).
   3. **Host the marketplace** : push to GitHub, GitLab, or another git host (see Host and distribute marketplaces).
   4. **Share with users** : users add your marketplace with `/plugin marketplace add` and install individual plugins (see [Discover and install plugins](</docs/en/discover-plugins>)).
@@ -101,13 +101,13 @@ Add the marketplace and install the plugin.
 
 Try it out
 
-Select some code in your editor and run your new command.
+Select some code in your editor and run your new skill.
 
     /quality-review
 
 To learn more about what plugins can do, including hooks, agents, MCP servers, and LSP servers, see [Plugins](</docs/en/plugins>).
 
-**How plugins are installed** : When users install a plugin, Claude Code copies the plugin directory to a cache location. This means plugins can’t reference files outside their directory using paths like `../shared-utils`, because those files won’t be copied.If you need to share files across plugins, use symlinks (which are followed during copying). See [Plugin caching and file resolution](</docs/en/plugins-reference#plugin-caching-and-file-resolution>) for details.
+**How plugins are installed** : When users install a plugin, Claude Code copies the plugin directory to a cache location. This means plugins can’t reference files outside their directory using paths like `../shared-utils`, because those files won’t be copied.If you need to share files across plugins, use symlinks. See [Plugin caching and file resolution](</docs/en/plugins-reference#plugin-caching-and-file-resolution>) for details.
 
 ##
 
@@ -231,7 +231,8 @@ Field| Type| Description
 
 Field| Type| Description
 ---|---|---
-`commands`| string|array| Custom paths to command files or directories
+`skills`| string|array| Custom paths to skill directories containing `<name>/SKILL.md`
+`commands`| string|array| Custom paths to flat `.md` skill files or directories
 `agents`| string|array| Custom paths to agent files
 `hooks`| string|object| Custom hooks configuration or path to hooks file
 `mcpServers`| string|object| MCP server configurations or path to MCP config
@@ -490,7 +491,7 @@ Key things to notice:
 
 Strict mode
 
-The `strict` field controls whether `plugin.json` is the authority for component definitions (commands, agents, hooks, skills, MCP servers, output styles).
+The `strict` field controls whether `plugin.json` is the authority for component definitions (skills, agents, hooks, MCP servers, output styles).
 
 Value| Behavior
 ---|---
@@ -499,8 +500,8 @@ Value| Behavior
 
 **When to use each mode:**
 
-  * **`strict: true`** : the plugin has its own `plugin.json` and manages its own components. The marketplace entry can add extra commands or hooks on top. This is the default and works for most plugins.
-  * **`strict: false`** : the marketplace operator wants full control. The plugin repo provides raw files, and the marketplace entry defines which of those files are exposed as commands, agents, hooks, etc. Useful when the marketplace restructures or curates a plugin’s components differently than the plugin author intended.
+  * **`strict: true`** : the plugin has its own `plugin.json` and manages its own components. The marketplace entry can add extra skills or hooks on top. This is the default and works for most plugins.
+  * **`strict: false`** : the marketplace operator wants full control. The plugin repo provides raw files, and the marketplace entry defines which of those files are exposed as skills, agents, hooks, etc. Useful when the marketplace restructures or curates a plugin’s components differently than the plugin author intended.
 
 ##
 

@@ -134,7 +134,7 @@ If you find multiple installations, keep only one. The native install at `~/.loc
 
     npm uninstall -g @anthropic-ai/claude-code
 
-Remove a Homebrew install on macOS:
+Remove a Homebrew install on macOS (use `claude-code@latest` if you installed that cask):
 
     brew uninstall --cask claude-code
 

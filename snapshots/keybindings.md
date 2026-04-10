@@ -62,6 +62,7 @@ Context| Description
 `ModelPicker`| Model picker effort level
 `Select`| Generic select/list components
 `Plugin`| Plugin dialog (browse, discover, manage)
+`Scroll`| Conversation scrolling and text selection in fullscreen mode
 
 ##
 
@@ -383,6 +384,29 @@ Actions available in the `Chat` context when [voice dictation](</docs/en/voice-d
 Action| Default| Description
 ---|---|---
 `voice:pushToTalk`| Space| Hold to dictate a prompt
+
+###
+
+​
+
+Scroll actions
+
+Actions available in the `Scroll` context when [fullscreen rendering](</docs/en/fullscreen>) is enabled:
+
+Action| Default| Description
+---|---|---
+`scroll:lineUp`| (unbound)| Scroll up one line. Mouse wheel scrolling triggers this action
+`scroll:lineDown`| (unbound)| Scroll down one line. Mouse wheel scrolling triggers this action
+`scroll:pageUp`| PageUp| Scroll up half the viewport height
+`scroll:pageDown`| PageDown| Scroll down half the viewport height
+`scroll:top`| Ctrl+Home| Jump to the start of the conversation
+`scroll:bottom`| Ctrl+End| Jump to the latest message and re-enable auto-follow
+`scroll:halfPageUp`| (unbound)| Scroll up half the viewport height. Same behavior as `scroll:pageUp`, provided for vi-style rebinds
+`scroll:halfPageDown`| (unbound)| Scroll down half the viewport height. Same behavior as `scroll:pageDown`, provided for vi-style rebinds
+`scroll:fullPageUp`| (unbound)| Scroll up the full viewport height
+`scroll:fullPageDown`| (unbound)| Scroll down the full viewport height
+`selection:copy`| Ctrl+Shift+C / Cmd+C| Copy the selected text to the clipboard
+`selection:clear`| (unbound)| Clear the active text selection
 
 ##
 

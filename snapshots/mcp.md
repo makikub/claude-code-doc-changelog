@@ -1,4 +1,4 @@
-Claude Code can connect to hundreds of external tools and data sources through the [Model Context Protocol (MCP)](<https://modelcontextprotocol.io/introduction>), an open source standard for AI-tool integrations. MCP servers give Claude Code access to your tools, databases, and APIs.
+Claude Code can connect to hundreds of external tools and data sources through the [Model Context Protocol (MCP)](<https://modelcontextprotocol.io/introduction>), an open source standard for AI-tool integrations. MCP servers give Claude Code access to your tools, databases, and APIs. Connect a server when you find yourself copying data into chat from another tool, like an issue tracker or a monitoring dashboard. Once connected, Claude can read and act on that system directly instead of working from what you paste.
 
 ##
 
