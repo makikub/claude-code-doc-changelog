@@ -271,7 +271,7 @@ On macOS via Homebrew:
          export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
 
 Ask your IT team for the certificate file if you don’t have it. You can also try on a direct connection to confirm the proxy is the cause.
-  4. **On Windows, bypass certificate revocation checks** if you see `CRYPT_E_REVOCATION_OFFLINE (0x80092013)`. This means curl reached the server but your network blocks the certificate revocation lookup, which is common behind corporate firewalls. Add `--ssl-revoke-best-effort` to the install command:
+  4. **On Windows, bypass certificate revocation checks** if you see `CRYPT_E_NO_REVOCATION_CHECK (0x80092012)` or `CRYPT_E_REVOCATION_OFFLINE (0x80092013)`. These mean curl reached the server but your network blocks the certificate revocation lookup, which is common behind corporate firewalls. Add `--ssl-revoke-best-effort` to the install command:
 
          curl --ssl-revoke-best-effort -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 

@@ -163,7 +163,7 @@ Managed policy settings| Organization-wide| Yes, admin-controlled
 [Plugin](</docs/en/plugins>) `hooks/hooks.json`| When plugin is enabled| Yes, bundled with the plugin
 [Skill](</docs/en/skills>) or [agent](</docs/en/sub-agents>) frontmatter| While the component is active| Yes, defined in the component file
 
-For details on settings file resolution, see [settings](</docs/en/settings>). Enterprise administrators can use `allowManagedHooksOnly` to block user, project, and plugin hooks. See [Hook configuration](</docs/en/settings#hook-configuration>).
+For details on settings file resolution, see [settings](</docs/en/settings>). Enterprise administrators can use `allowManagedHooksOnly` to block user, project, and plugin hooks. Hooks from plugins force-enabled in managed settings `enabledPlugins` are exempt, so administrators can distribute vetted hooks through an organization marketplace. See [Hook configuration](</docs/en/settings#hook-configuration>).
 
 ###
 

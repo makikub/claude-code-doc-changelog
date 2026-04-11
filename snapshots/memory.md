@@ -430,5 +430,4 @@ Related resources
 
   * [Skills](</docs/en/skills>): package repeatable workflows that load on demand
   * [Settings](</docs/en/settings>): configure Claude Code behavior with settings files
-  * [Manage sessions](</docs/en/sessions>): manage context, resume conversations, and run parallel sessions
   * [Subagent memory](</docs/en/sub-agents#enable-persistent-memory>): let subagents maintain their own auto memory

@@ -1,6 +1,6 @@
 Server-managed settings allow administrators to centrally configure Claude Code through a web-based interface on Claude.ai. Claude Code clients automatically receive these settings when users authenticate with their organization credentials. This approach is designed for organizations that do not have device management infrastructure in place, or need to manage settings for users on unmanaged devices.
 
-Server-managed settings are in public beta and available for [Claude for Teams](<https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_teams#team-&-enterprise>) and [Claude for Enterprise](<https://anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_enterprise>) customers. Features may evolve before general availability.
+Server-managed settings are available for [Claude for Teams](<https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_teams#team-&-enterprise>) and [Claude for Enterprise](<https://anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_enterprise>) customers.
 
 ##
 
@@ -130,7 +130,7 @@ Most [settings keys](</docs/en/settings#available-settings>) work in any scope. 
 
 Current limitations
 
-Server-managed settings have the following limitations during the beta period:
+Server-managed settings have the following limitations:
 
   * Settings apply uniformly to all users in the organization. Per-group configurations are not yet supported.
   * [MCP server configurations](</docs/en/mcp#managed-mcp-configuration>) cannot be distributed through server-managed settings.

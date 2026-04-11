@@ -163,7 +163,7 @@ Key| Description| Example
 `allowedChannelPlugins`| (Managed settings only) Allowlist of channel plugins that may push messages. Replaces the default Anthropic allowlist when set. Undefined = fall back to the default, empty array = block all channel plugins. Requires `channelsEnabled: true`. See [Restrict which channel plugins can run](</docs/en/channels#restrict-which-channel-plugins-can-run>)| `[{ "marketplace": "claude-plugins-official", "plugin": "telegram" }]`
 `allowedHttpHookUrls`| Allowlist of URL patterns that HTTP hooks may target. Supports `*` as a wildcard. When set, hooks with non-matching URLs are blocked. Undefined = no restriction, empty array = block all HTTP hooks. Arrays merge across settings sources. See Hook configuration| `["https://hooks.example.com/*"]`
 `allowedMcpServers`| When set in managed-settings.json, allowlist of MCP servers users can configure. Undefined = no restrictions, empty array = lockdown. Applies to all scopes. Denylist takes precedence. See [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>)| `[{ "serverName": "github" }]`
-`allowManagedHooksOnly`| (Managed settings only) Prevent loading of user, project, and plugin hooks. Only allows managed hooks and SDK hooks. See Hook configuration| `true`
+`allowManagedHooksOnly`| (Managed settings only) Only managed hooks, SDK hooks, and hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. User, project, and all other plugin hooks are blocked. See Hook configuration| `true`
 `allowManagedMcpServersOnly`| (Managed settings only) Only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. Users can still add MCP servers, but only the admin-defined allowlist applies. See [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>)| `true`
 `allowManagedPermissionRulesOnly`| (Managed settings only) Prevent user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply. See [Managed-only settings](</docs/en/permissions#managed-only-settings>)| `true`
 `alwaysThinkingEnabled`| Enable [extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) by default for all sessions. Typically configured via the `/config` command rather than editing directly| `true`
@@ -433,7 +433,8 @@ Hook configuration
 These settings control which hooks are allowed to run and what HTTP hooks can access. The `allowManagedHooksOnly` setting can only be configured in managed settings. The URL and env var allowlists can be set at any settings level and merge across sources. **Behavior when`allowManagedHooksOnly` is `true`:**
 
   * Managed hooks and SDK hooks are loaded
-  * User hooks, project hooks, and plugin hooks are blocked
+  * Hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. This lets administrators distribute vetted hooks through an organization marketplace while blocking everything else. Trust is granted by full `plugin@marketplace` ID, so a plugin with the same name from a different marketplace stays blocked
+  * User hooks, project hooks, and all other plugin hooks are blocked
 
 **Restrict HTTP hook URLs:** Limit which URLs HTTP hooks can target. Supports `*` as a wildcard for matching. When the array is defined, HTTP hooks targeting non-matching URLs are silently blocked.
 

@@ -6630,5 +6630,285 @@
       ]
     },
     "diff": "--- a/vs-code.md\n+++ b/vs-code.md\n@@ -46,10 +46,16 @@\n   * **Command Palette** : `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux), type “Claude Code”, and select an option like “Open in New Tab”\n   * **Status Bar** : click **✱ Claude Code** in the bottom-right corner of the window. This works even when no file is open.\n \n-When you first open the panel, a **Learn Claude Code** checklist appears. Work through each item by clicking **Show me** , or dismiss it with the X. To reopen it later, uncheck **Hide Onboarding** in VS Code settings under Extensions → Claude Code.You can drag the Claude panel to reposition it anywhere in VS Code. See Customize your workflow for details.\n+You can drag the Claude panel to reposition it anywhere in VS Code. See Customize your workflow for details.\n \n 2\n \n+Sign in\n+\n+The first time you open the panel, a sign-in screen appears. Click **Sign in** and complete authorization in your browser.If you see **Not logged in · Please run /login** later, the extension reopens the sign-in screen automatically. If it doesn’t appear, reload the window from the Command Palette with **Developer: Reload Window**.If you have `ANTHROPIC_API_KEY` set in your shell but still see the sign-in prompt, VS Code may not have inherited your shell environment. Launch VS Code from a terminal with `code .` so it inherits your environment variables, or sign in with your Claude account instead.After you sign in, a **Learn Claude Code** checklist appears. Work through each item by clicking **Show me** , or dismiss it with the X. To reopen it later, uncheck **Hide Onboarding** in VS Code settings under Extensions → Claude Code.\n+\n+3\n+\n Send a prompt\n \n Ask Claude to help with your code or files, whether that’s explaining how something works, debugging an issue, or making changes.\n@@ -58,7 +64,7 @@\n \n Here’s an example of asking about a particular line in a file:\n \n-3\n+4\n \n Review changes\n \n@@ -243,7 +249,7 @@\n Open in Terminal| -| Open Claude in terminal mode\n Open in New Tab| `Cmd+Shift+Esc` (Mac) / `Ctrl+Shift+Esc` (Windows/Linux)| Open a new conversation as an editor tab\n Open in New Window| -| Open a new conversation in a separate window\n-New Conversation| `Cmd+N` (Mac) / `Ctrl+N` (Windows/Linux)| Start a new conversation (requires Claude to be focused)\n+New Conversation| `Cmd+N` (Mac) / `Ctrl+N` (Windows/Linux)| Start a new conversation. Requires Claude to be focused and `enableNewConversationShortcut` set to `true`\n Insert @-Mention Reference| `Option+K` (Mac) / `Alt+K` (Windows/Linux)| Insert a reference to the current file and selection (requires editor to be focused)\n Show Logs| -| View extension debug logs\n Logout| -| Sign out of your Anthropic account\n@@ -290,15 +296,15 @@\n \n Setting| Default| Description\n ---|---|---\n-`selectedModel`| `default`| Model for new conversations. Change per-session with `/model`.\n `useTerminal`| `false`| Launch Claude in terminal mode instead of graphical panel\n `initialPermissionMode`| `default`| Controls approval prompts for new conversations: `default`, `plan`, `acceptEdits`, or `bypassPermissions`. See [permission modes](</docs/en/permission-modes>).\n `preferredLocation`| `panel`| Where Claude opens: `sidebar` (right) or `panel` (new tab)\n `autosave`| `true`| Auto-save files before Claude reads or writes them\n `useCtrlEnterToSend`| `false`| Use Ctrl/Cmd+Enter instead of Enter to send prompts\n-`enableNewConversationShortcut`| `true`| Enable Cmd/Ctrl+N to start a new conversation\n+`enableNewConversationShortcut`| `false`| Enable Cmd/Ctrl+N to start a new conversation\n `hideOnboarding`| `false`| Hide the onboarding checklist (graduation cap icon)\n `respectGitIgnore`| `true`| Exclude .gitignore patterns from file searches\n+`usePythonEnvironment`| `true`| Activate the workspace’s Python environment when running Claude. Requires the Python extension.\n `environmentVariables`| `[]`| Set environment variables for the Claude process. Use Claude Code settings instead for shared config.\n `disableLoginPrompt`| `false`| Skip authentication prompts (for third-party provider setups)\n `allowDangerouslySkipPermissions`| `false`| Adds [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) and Bypass permissions to the mode selector. Auto mode has [plan, admin, model, and provider requirements](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), so it may remain unavailable even with this toggle on. Use Bypass permissions only in sandboxes with no internet access.\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "amazon-bedrock",
+    "title": "Claude Code on Amazon Bedrock",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 3,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/amazon-bedrock.md\n+++ b/amazon-bedrock.md\n@@ -137,7 +137,8 @@\n     export CLAUDE_CODE_USE_BEDROCK=1\n     export AWS_REGION=us-east-1  # or your preferred region\n \n-    # Optional: Override the region for the small/fast model (Haiku)\n+    # Optional: Override the region for the small/fast model (Haiku).\n+    # Also applies to Bedrock Mantle.\n     export ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION=us-west-2\n \n     # Optional: Override the Bedrock endpoint URL for custom endpoints or gateways\n@@ -355,6 +356,7 @@\n `CLAUDE_CODE_USE_MANTLE`| Enable the Mantle endpoint. Set to `1` or `true`.\n `ANTHROPIC_BEDROCK_MANTLE_BASE_URL`| Override the default Mantle endpoint URL\n `CLAUDE_CODE_SKIP_MANTLE_AUTH`| Skip client-side authentication for proxy setups\n+`ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION`| Override AWS region for the Haiku-class model (shared with Bedrock)\n \n ##\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "changelog",
+    "title": "Changelog",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 53,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/changelog.md\n+++ b/changelog.md\n@@ -1,4 +1,57 @@\n This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md>). Run `claude --version` to check your installed version.\n+\n+​\n+\n+2.1.101\n+\n+April 10, 2026\n+\n+  * Added `/team-onboarding` command to generate a teammate ramp-up guide from your local Claude Code usage\n+  * Added OS CA certificate store trust by default, so enterprise TLS proxies work without extra setup (set `CLAUDE_CODE_CERT_STORE=bundled` to use only bundled CAs)\n+  * `/ultraplan` and other remote-session features now auto-create a default cloud environment instead of requiring web setup first\n+  * Improved brief mode to retry once when Claude responds with plain text instead of a structured message\n+  * Improved focus mode: Claude now writes more self-contained summaries since it knows you only see its final message\n+  * Improved tool-not-available errors to explain why and how to proceed when the model calls a tool that exists but isn’t available in the current context\n+  * Improved rate-limit retry messages to show which limit was hit and when it resets instead of an opaque seconds countdown\n+  * Improved refusal error messages to include the API-provided explanation when available\n+  * Improved `claude -p --resume <name>` to accept session titles set via `/rename` or `--name`\n+  * Improved settings resilience: an unrecognized hook event name in `settings.json` no longer causes the entire file to be ignored\n+  * Improved plugin hooks from plugins force-enabled by managed settings to run when `allowManagedHooksOnly` is set\n+  * Improved `/plugin` and `claude plugin update` to show a warning when the marketplace could not be refreshed, instead of silently reporting a stale version\n+  * Improved plan mode to hide the “Refine with Ultraplan” option when the user’s org or auth setup can’t reach Claude Code on the web\n+  * Improved beta tracing to honor `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_DETAILS`, and `OTEL_LOG_TOOL_CONTENT`; sensitive span attributes are no longer emitted unless opted in\n+  * Improved SDK `query()` to clean up subprocess and temp files when consumers `break` from `for await` or use `await using`\n+  * Fixed a command injection vulnerability in the POSIX `which` fallback used by LSP binary detection\n+  * Fixed a memory leak where long sessions retained dozens of historical copies of the message list in the virtual scroller\n+  * Fixed `--resume`/`--continue` losing conversation context on large sessions when the loader anchored on a dead-end branch instead of the live conversation\n+  * Fixed `--resume` chain recovery bridging into an unrelated subagent conversation when a subagent message landed near a main-chain write gap\n+  * Fixed a crash on `--resume` when a persisted Edit/Write tool result was missing its `file_path`\n+  * Fixed a hardcoded 5-minute request timeout that aborted slow backends (local LLMs, extended thinking, slow gateways) regardless of `API_TIMEOUT_MS`\n+  * Fixed `permissions.deny` rules not overriding a PreToolUse hook’s `permissionDecision: \"ask\"` — previously the hook could downgrade a deny into a prompt\n+  * Fixed `--setting-sources` without `user` causing background cleanup to ignore `cleanupPeriodDays` and delete conversation history older than 30 days\n+  * Fixed Bedrock SigV4 authentication failing with 403 when `ANTHROPIC_AUTH_TOKEN`, `apiKeyHelper`, or `ANTHROPIC_CUSTOM_HEADERS` set an Authorization header\n+  * Fixed `claude -w <name>` failing with “already exists” after a previous session’s worktree cleanup left a stale directory\n+  * Fixed subagents not inheriting MCP tools from dynamically-injected servers\n+  * Fixed sub-agents running in isolated worktrees being denied Read/Edit access to files inside their own worktree\n+  * Fixed sandboxed Bash commands failing with `mktemp: No such file or directory` after a fresh boot\n+  * Fixed `claude mcp serve` tool calls failing with “Tool execution failed” in MCP clients that validate `outputSchema`\n+  * Fixed `RemoteTrigger` tool’s `run` action sending an empty body and being rejected by the server\n+  * Fixed several `/resume` picker issues: narrow default view hiding sessions from other projects, unreachable preview on Windows Terminal, incorrect cwd in worktrees, session-not-found errors not surfacing in stderr, terminal title not being set, and resume hint overlapping the prompt input\n+  * Fixed Grep tool ENOENT when the embedded ripgrep binary path becomes stale (VS Code extension auto-update, macOS App Translocation); now falls back to system `rg` and self-heals mid-session\n+  * Fixed `/btw` writing a copy of the entire conversation to disk on every use\n+  * Fixed `/context` Free space and Messages breakdown disagreeing with the header percentage\n+  * Fixed several plugin issues: slash commands resolving to the wrong plugin with duplicate `name:` frontmatter, `/plugin update` failing with `ENAMETOOLONG`, Discover showing already-installed plugins, directory-source plugins loading from a stale version cache, and skills not honoring `context: fork` and `agent` frontmatter fields\n+  * Fixed the `/mcp` menu offering OAuth-specific actions for MCP servers configured with `headersHelper`; Reconnect is now offered instead to re-invoke the helper script\n+  * Fixed `ctrl+]`, `ctrl+\\`, and `ctrl+^` keybindings not firing in terminals that send raw C0 control bytes (Terminal.app, default iTerm2, xterm)\n+  * Fixed `/login` OAuth URL rendering with padding that prevented clean mouse selection\n+  * Fixed rendering issues: flicker in non-fullscreen mode when content above the visible area changed, terminal scrollback being wiped during long sessions in non-fullscreen mode, and mouse-scroll escape sequences occasionally leaking into the prompt as text\n+  * Fixed crash when `settings.json` env values are numbers instead of strings\n+  * Fixed in-app settings writes (e.g. `/add-dir --remember`, `/config`) not refreshing the in-memory snapshot, preventing removed directories from being revoked mid-session\n+  * Fixed custom keybindings (`~/.claude/keybindings.json`) not loading on Bedrock, Vertex, and other third-party providers\n+  * Fixed `claude --continue -p` not correctly continuing sessions created by `-p` or the SDK\n+  * Fixed several Remote Control issues: worktrees removed on session crash, connection failures not persisting in the transcript, spurious “Disconnected” indicator in brief mode for local sessions, and `/remote-control` failing over SSH when only `CLAUDE_CODE_ORGANIZATION_UUID` is set\n+  * Fixed `/insights` sometimes omitting the report file link from its response\n+  * [VSCode] Fixed the file attachment below the chat input not clearing when the last editor tab is closed\n \n ​\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "commands",
+    "title": "Commands",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/commands.md\n+++ b/commands.md\n@@ -8,7 +8,7 @@\n `/batch <instruction>`| **[Skill](</docs/en/skills#bundled-skills>).** Orchestrate large-scale changes across a codebase in parallel. Researches the codebase, decomposes the work into 5 to 30 independent units, and presents a plan. Once approved, spawns one background agent per unit in an isolated [git worktree](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>). Each agent implements its unit, runs tests, and opens a pull request. Requires a git repository. Example: `/batch migrate src/ from Solid to React`\n `/btw <question>`| Ask a quick [side question](</docs/en/interactive-mode#side-questions-with-btw>) without adding to the conversation\n `/chrome`| Configure [Claude in Chrome](</docs/en/chrome>) settings\n-`/claude-api`| **[Skill](</docs/en/skills#bundled-skills>).** Load Claude API reference material for your project’s language (Python, TypeScript, Java, Go, Ruby, C#, PHP, or cURL). Covers tool use, streaming, batches, structured outputs, Managed Agents, and common pitfalls. Also activates automatically when your code imports `anthropic` or `@anthropic-ai/sdk`\n+`/claude-api`| **[Skill](</docs/en/skills#bundled-skills>).** Load Claude API reference material for your project’s language (Python, TypeScript, Java, Go, Ruby, C#, PHP, or cURL) and Managed Agents reference. Covers tool use, streaming, batches, structured outputs, and common pitfalls. Also activates automatically when your code imports `anthropic` or `@anthropic-ai/sdk`\n `/clear`| Clear conversation history and free up context. Aliases: `/reset`, `/new`\n `/color [color|default]`| Set the prompt bar color for the current session. Available colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`. Use `default` to reset\n `/compact [instructions]`| Compact conversation with optional focus instructions\n@@ -37,7 +37,7 @@\n `/keybindings`| Open or create your keybindings configuration file\n `/login`| Sign in to your Anthropic account\n `/logout`| Sign out from your Anthropic account\n-`/loop [interval] <prompt>`| **[Skill](</docs/en/skills#bundled-skills>).** Run a prompt repeatedly on an interval while the session stays open. Useful for polling a deployment, babysitting a PR, or periodically re-running another skill. Example: `/loop 5m check if the deploy finished`. See [Run prompts on a schedule](</docs/en/scheduled-tasks>)\n+`/loop [interval] [prompt]`| **[Skill](</docs/en/skills#bundled-skills>).** Run a prompt repeatedly while the session stays open. Omit the interval and Claude self-paces between iterations. Omit the prompt and Claude runs an autonomous maintenance check, or the prompt in `.claude/loop.md` if present. Example: `/loop 5m check if the deploy finished`. See [Run prompts on a schedule](</docs/en/scheduled-tasks>)\n `/mcp`| Manage MCP server connections and OAuth authentication\n `/memory`| Edit `CLAUDE.md` memory files, enable or disable [auto-memory](</docs/en/memory#auto-memory>), and view auto-memory entries\n `/mobile`| Show QR code to download the Claude mobile app. Aliases: `/ios`, `/android`\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "computer-use",
+    "title": "Let Claude use your computer from the CLI",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 8,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/computer-use.md\n+++ b/computer-use.md\n@@ -115,6 +115,14 @@\n Apps are hidden while Claude works\n \n When Claude starts controlling your screen, other visible apps are hidden so Claude interacts with only the approved apps. Your terminal window stays visible and is excluded from screenshots, so you can watch the session and Claude never sees its own output. When Claude finishes the turn, hidden apps are restored automatically.\n+\n+###\n+\n+​\n+\n+Screenshots are downscaled automatically\n+\n+Claude Code downscales every screenshot before sending it to the model. You don’t need to lower your display resolution or resize windows on Retina or other high-resolution displays. A 16-inch MacBook Pro at native Retina resolution captures at 3456×2234 and downscales to roughly 1372×887, preserving aspect ratio. There is no setting to change the target size. If on-screen text or controls are too small for Claude to read after downscaling, increase their size in the app rather than changing your display resolution.\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "costs",
+    "title": "Manage costs effectively",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/costs.md\n+++ b/costs.md\n@@ -1,4 +1,4 @@\n-Claude Code consumes tokens for each interaction. Costs vary based on codebase size, query complexity, and conversation length. The average cost is $6 per developer per day, with daily costs remaining below $12 for 90% of users. For team usage, Claude Code charges by API token consumption. On average, Claude Code costs ~$100-200/developer per month with Sonnet 4.6 though there is large variance depending on how many instances users are running and whether they’re using it in automation. This page covers how to track your costs, manage costs for teams, and reduce token usage.\n+Claude Code charges by API token consumption. Per-developer costs vary widely based on model selection, codebase size, and usage patterns such as running multiple instances or automation. Across enterprise deployments, the average cost is around $13 per developer per active day and $150-250 per developer per month, with costs remaining below $30 per active day for 90% of users. To estimate spend for your own team, start with a small pilot group and use the tracking tools below to establish a baseline before wider rollout. This page covers how to track your costs, manage costs for teams, and reduce token usage.\n \n ##\n \n@@ -236,4 +236,4 @@\n \n Understanding changes in Claude Code behavior\n \n-Claude Code regularly receives updates that may change how features work, including cost reporting. Run `claude --version` to check your current version. For specific billing questions, contact Anthropic support through your [Console account](<https://platform.claude.com/login>). For team deployments, start with a small pilot group to establish usage patterns before wider rollout.\n+Claude Code regularly receives updates that may change how features work, including cost reporting. Run `claude --version` to check your current version. For specific billing questions, contact Anthropic support through your [Console account](<https://platform.claude.com/login>).\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "env-vars",
+    "title": "Environment variables",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 3,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/env-vars.md\n+++ b/env-vars.md\n@@ -29,7 +29,7 @@\n `ANTHROPIC_FOUNDRY_RESOURCE`| Foundry resource name (for example, `my-resource`). Required if `ANTHROPIC_FOUNDRY_BASE_URL` is not set (see [Microsoft Foundry](</docs/en/microsoft-foundry>))\n `ANTHROPIC_MODEL`| Name of the model setting to use (see [Model Configuration](</docs/en/model-config#environment-variables>))\n `ANTHROPIC_SMALL_FAST_MODEL`| [DEPRECATED] Name of [Haiku-class model for background tasks](</docs/en/costs>)\n-`ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION`| Override AWS region for the Haiku-class model when using Bedrock\n+`ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION`| Override AWS region for the Haiku-class model when using Bedrock or Bedrock Mantle\n `ANTHROPIC_VERTEX_BASE_URL`| Override the Vertex AI endpoint URL. Use for custom Vertex endpoints or when routing through an [LLM gateway](</docs/en/llm-gateway>). See [Google Vertex AI](</docs/en/google-vertex-ai>)\n `ANTHROPIC_VERTEX_PROJECT_ID`| GCP project ID for Vertex AI. Required when using [Google Vertex AI](</docs/en/google-vertex-ai>)\n `API_TIMEOUT_MS`| Timeout for API requests in milliseconds (default: 600000, or 10 minutes; maximum: 2147483647). Increase this when requests time out on slow networks or when routing through a proxy. Values above the maximum overflow the underlying timer and cause requests to fail immediately\n@@ -43,12 +43,13 @@\n `CLAUDE_AGENT_SDK_MCP_NO_PREFIX`| Set to `1` to skip the `mcp__<server>__` prefix on tool names from SDK-created MCP servers. Tools use their original names. SDK usage only\n `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`| Set the percentage of context capacity (1-100) at which auto-compaction triggers. By default, auto-compaction triggers at approximately 95% capacity. Use lower values like `50` to compact earlier. Values above the default threshold have no effect. Applies to both main conversations and subagents. This percentage aligns with the `context_window.used_percentage` field available in [status line](</docs/en/statusline>)\n `CLAUDE_AUTO_BACKGROUND_TASKS`| Set to `1` to force-enable automatic backgrounding of long-running agent tasks. When enabled, subagents are moved to the background after running for approximately two minutes\n-`CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR`| Return to the original working directory after each Bash command\n+`CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR`| Return to the original working directory after each Bash or PowerShell command in the main session\n `CLAUDE_CODE_ACCESSIBILITY`| Set to `1` to keep the native terminal cursor visible and disable the inverted-text cursor indicator. Allows screen magnifiers like macOS Zoom to track cursor position\n `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD`| Set to `1` to load CLAUDE.md files from directories specified with `--add-dir`. By default, additional directories do not load memory files\n `CLAUDE_CODE_API_KEY_HELPER_TTL_MS`| Interval in milliseconds at which credentials should be refreshed (when using [`apiKeyHelper`](</docs/en/settings#available-settings>))\n `CLAUDE_CODE_AUTO_COMPACT_WINDOW`| Set the context capacity in tokens used for auto-compaction calculations. Defaults to the model’s context window: 200K for standard models or 1M for [extended context](</docs/en/model-config#extended-context>) models. Use a lower value like `500000` on a 1M model to treat the window as 500K for compaction purposes. The value is capped at the model’s actual context window. `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is applied as a percentage of this value. Setting this variable decouples the compaction threshold from the status line’s `used_percentage`, which always uses the model’s full context window\n `CLAUDE_CODE_AUTO_CONNECT_IDE`| Override automatic [IDE connection](</docs/en/vs-code>). By default, Claude Code connects automatically when launched inside a supported IDE’s integrated terminal. Set to `false` to prevent this. Set to `true` to force a connection attempt when auto-detection fails, such as when tmux obscures the parent terminal\n+`CLAUDE_CODE_CERT_STORE`| Comma-separated list of CA certificate sources for TLS connections. `bundled` is the Mozilla CA set shipped with Claude Code. `system` is the operating system trust store. Default is `bundled,system`. The native binary distribution is required for system store integration. On the Node.js runtime, only the bundled set is used regardless of this value\n `CLAUDE_CODE_CLIENT_CERT`| Path to client certificate file for mTLS authentication\n `CLAUDE_CODE_CLIENT_KEY`| Path to client private key file for mTLS authentication\n `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`| Passphrase for encrypted CLAUDE_CODE_CLIENT_KEY (optional)\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "hooks",
+    "title": "Hooks reference",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/hooks.md\n+++ b/hooks.md\n@@ -163,7 +163,7 @@\n [Plugin](</docs/en/plugins>) `hooks/hooks.json`| When plugin is enabled| Yes, bundled with the plugin\n [Skill](</docs/en/skills>) or [agent](</docs/en/sub-agents>) frontmatter| While the component is active| Yes, defined in the component file\n \n-For details on settings file resolution, see [settings](</docs/en/settings>). Enterprise administrators can use `allowManagedHooksOnly` to block user, project, and plugin hooks. See [Hook configuration](</docs/en/settings#hook-configuration>).\n+For details on settings file resolution, see [settings](</docs/en/settings>). Enterprise administrators can use `allowManagedHooksOnly` to block user, project, and plugin hooks. Hooks from plugins force-enabled in managed settings `enabledPlugins` are exempt, so administrators can distribute vetted hooks through an organization marketplace. See [Hook configuration](</docs/en/settings#hook-configuration>).\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "hooks-guide",
+    "title": "Automate workflows with hooks",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 20,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/hooks-guide.md\n+++ b/hooks-guide.md\n@@ -32,7 +32,26 @@\n       }\n     }\n \n-If your settings file already has a `hooks` key, merge the `Notification` entry into it rather than replacing the whole object. You can also ask Claude to write the hook for you by describing what you want in the CLI.\n+If your settings file already has a `hooks` key, add `Notification` as a sibling of the existing event keys rather than replacing the whole object. Each event name is a key inside the single `hooks` object:\n+\n+    {\n+      \"hooks\": {\n+        \"PostToolUse\": [\n+          {\n+            \"matcher\": \"Edit|Write\",\n+            \"hooks\": [{ \"type\": \"command\", \"command\": \"jq -r '.tool_input.file_path' | xargs npx prettier --write\" }]\n+          }\n+        ],\n+        \"Notification\": [\n+          {\n+            \"matcher\": \"\",\n+            \"hooks\": [{ \"type\": \"command\", \"command\": \"osascript -e 'display notification \\\"Claude Code needs your attention\\\" with title \\\"Claude Code\\\"'\" }]\n+          }\n+        ]\n+      }\n+    }\n+\n+You can also ask Claude to write the hook for you by describing what you want in the CLI.\n \n 2\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 9,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/mcp.md\n+++ b/mcp.md\n@@ -293,7 +293,15 @@\n \n Scope hierarchy and precedence\n \n-MCP server configurations follow a clear precedence hierarchy. When servers with the same name exist at multiple scopes, the system resolves conflicts by prioritizing local-scoped servers first, followed by project-scoped servers, and finally user-scoped servers. This design ensures that personal configurations can override shared ones when needed. If a server is configured both locally and through a claude.ai connector, the local configuration takes precedence and the connector entry is skipped.\n+When the same server is defined in more than one place, Claude Code connects to it once, using the definition from the highest-precedence source:\n+\n+  1. Local scope\n+  2. Project scope\n+  3. User scope\n+  4. [Plugin-provided servers](</docs/en/plugins>)\n+  5. claude.ai connectors\n+\n+The three scopes match duplicates by name. Plugins and connectors match by endpoint, so one that points at the same URL or command as a server above is treated as a duplicate.\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "memory",
+    "title": "How Claude remembers your project",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 0,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/memory.md\n+++ b/memory.md\n@@ -430,5 +430,4 @@\n \n   * [Skills](</docs/en/skills>): package repeatable workflows that load on demand\n   * [Settings](</docs/en/settings>): configure Claude Code behavior with settings files\n-  * [Manage sessions](</docs/en/sessions>): manage context, resume conversations, and run parallel sessions\n   * [Subagent memory](</docs/en/sub-agents#enable-persistent-memory>): let subagents maintain their own auto memory\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "monitoring-usage",
+    "title": "Monitoring",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/monitoring-usage.md\n+++ b/monitoring-usage.md\n@@ -120,7 +120,7 @@\n `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`| OTLP traces endpoint, overrides `OTEL_EXPORTER_OTLP_ENDPOINT`| `http://localhost:4318/v1/traces`\n `OTEL_TRACES_EXPORT_INTERVAL`| Span batch export interval in milliseconds (default: 5000)| `1000`, `10000`\n \n-Spans redact user prompt text and tool content by default. Set `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_CONTENT=1` to include them. When tracing is active, Bash subprocesses automatically inherit a `TRACEPARENT` environment variable containing the W3C trace context of the active tool execution span. This lets any subprocess that reads `TRACEPARENT` parent its own spans under the same trace, enabling end-to-end distributed tracing through scripts and commands that Claude runs.\n+Spans redact user prompt text and tool content by default. Set `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_CONTENT=1` to include them. When tracing is active, Bash and PowerShell subprocesses automatically inherit a `TRACEPARENT` environment variable containing the W3C trace context of the active tool execution span. This lets any subprocess that reads `TRACEPARENT` parent its own spans under the same trace, enabling end-to-end distributed tracing through scripts and commands that Claude runs.\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "network-config",
+    "title": "Enterprise network configuration",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 21,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/network-config.md\n+++ b/network-config.md\n@@ -49,9 +49,29 @@\n \n ​\n \n+CA certificate store\n+\n+By default, Claude Code trusts both its bundled Mozilla CA certificates and your operating system’s certificate store. Enterprise TLS-inspection proxies such as CrowdStrike Falcon and Zscaler work without additional configuration when their root certificate is installed in the OS trust store.\n+\n+System CA store integration requires the native Claude Code binary distribution. When running on the Node.js runtime, the system CA store is not merged automatically. In that case, set `NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem` to trust an enterprise root CA.\n+\n+`CLAUDE_CODE_CERT_STORE` accepts a comma-separated list of sources. Recognized values are `bundled` for the Mozilla CA set shipped with Claude Code and `system` for the operating system trust store. The default is `bundled,system`. To trust only the bundled Mozilla CA set:\n+\n+    export CLAUDE_CODE_CERT_STORE=bundled\n+\n+To trust only the OS certificate store:\n+\n+    export CLAUDE_CODE_CERT_STORE=system\n+\n+`CLAUDE_CODE_CERT_STORE` has no dedicated `settings.json` schema key. Set it via the `env` block in `~/.claude/settings.json` or directly in the process environment.\n+\n+##\n+\n+​\n+\n Custom CA certificates\n \n-If your enterprise environment uses custom CAs for HTTPS connections (whether through a proxy or direct API access), configure Claude Code to trust them:\n+If your enterprise environment uses a custom CA, configure Claude Code to trust it directly:\n \n     export NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "permissions",
+    "title": "Configure permissions",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/permissions.md\n+++ b/permissions.md\n@@ -110,7 +110,7 @@\n       }\n     }\n \n-The space before `*` matters: `Bash(ls *)` matches `ls -la` but not `lsof`, while `Bash(ls*)` matches both. The legacy `:*` suffix syntax is equivalent to ` *` but is deprecated.\n+The space before `*` matters: `Bash(ls *)` matches `ls -la` but not `lsof`, while `Bash(ls*)` matches both. The `:*` suffix is an equivalent way to write a trailing wildcard. `Bash(ls:*)` matches the same commands as `Bash(ls *)`.\n \n ##\n \n@@ -303,7 +303,7 @@\n Setting| Description\n ---|---\n `allowedChannelPlugins`| Allowlist of channel plugins that may push messages. Replaces the default Anthropic allowlist when set. Requires `channelsEnabled: true`. See [Restrict which channel plugins can run](</docs/en/channels#restrict-which-channel-plugins-can-run>)\n-`allowManagedHooksOnly`| When `true`, prevents loading of user, project, and plugin hooks. Only managed hooks and SDK hooks are allowed\n+`allowManagedHooksOnly`| When `true`, only managed hooks, SDK hooks, and hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. User, project, and all other plugin hooks are blocked\n `allowManagedMcpServersOnly`| When `true`, only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. See [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>)\n `allowManagedPermissionRulesOnly`| When `true`, prevents user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply\n `blockedMarketplaces`| Blocklist of marketplace sources. Blocked sources are checked before downloading, so they never touch the filesystem. See [managed marketplace restrictions](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "scheduled-tasks",
+    "title": "Run prompts on a schedule",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 78,
+      "lines_removed": 31,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/scheduled-tasks.md\n+++ b/scheduled-tasks.md\n@@ -28,41 +28,87 @@\n \n ​\n \n-Schedule a recurring prompt with /loop\n-\n-The `/loop` [bundled skill](</docs/en/commands>) is the quickest way to schedule a recurring prompt. Pass an optional interval and a prompt, and Claude sets up a cron job that fires in the background while the session stays open.\n+Run a prompt repeatedly with /loop\n+\n+The `/loop` [bundled skill](</docs/en/commands>) is the quickest way to run a prompt on repeat while the session stays open. Both the interval and the prompt are optional, and what you provide determines how the loop behaves.\n+\n+What you provide| Example| What happens\n+---|---|---\n+Interval and prompt| `/loop 5m check the deploy`| Your prompt runs on a fixed schedule\n+Prompt only| `/loop check the deploy`| Your prompt runs at an interval Claude chooses each iteration\n+Interval only, or nothing| `/loop`| The built-in maintenance prompt runs, or your `loop.md` if one exists\n+\n+You can also pass another command as the prompt, for example `/loop 20m /review-pr 1234`, to re-run a packaged workflow each iteration.\n+\n+###\n+\n+​\n+\n+Run on a fixed interval\n+\n+When you supply an interval, Claude converts it to a cron expression, schedules the job, and confirms the cadence and job ID.\n \n     /loop 5m check if the deployment finished and tell me what happened\n \n-Claude parses the interval, converts it to a cron expression, schedules the job, and confirms the cadence and job ID.\n-\n-###\n-\n-​\n-\n-Interval syntax\n-\n-Intervals are optional. You can lead with them, trail with them, or leave them out entirely.\n-\n-Form| Example| Parsed interval\n----|---|---\n-Leading token| `/loop 30m check the build`| every 30 minutes\n-Trailing `every` clause| `/loop check the build every 2 hours`| every 2 hours\n-No interval| `/loop check the build`| defaults to every 10 minutes\n-\n-Supported units are `s` for seconds, `m` for minutes, `h` for hours, and `d` for days. Seconds are rounded up to the nearest minute since cron has one-minute granularity. Intervals that don’t divide evenly into their unit, such as `7m` or `90m`, are rounded to the nearest clean interval and Claude tells you what it picked.\n-\n-###\n-\n-​\n-\n-Loop over another command\n-\n-The scheduled prompt can itself be a command or skill invocation. This is useful for re-running a workflow you’ve already packaged.\n-\n-    /loop 20m /review-pr 1234\n-\n-Each time the job fires, Claude runs `/review-pr 1234` as if you had typed it.\n+The interval can lead the prompt as a bare token like `30m`, or trail it as a clause like `every 2 hours`. Supported units are `s` for seconds, `m` for minutes, `h` for hours, and `d` for days. Seconds are rounded up to the nearest minute since cron has one-minute granularity. Intervals that don’t map to a clean cron step, such as `7m` or `90m`, are rounded to the nearest interval that does and Claude tells you what it picked.\n+\n+###\n+\n+​\n+\n+Let Claude choose the interval\n+\n+When you omit the interval, Claude chooses one dynamically instead of running on a fixed cron schedule. After each iteration it picks a delay between one minute and one hour based on what it observed: short waits while a build is finishing or a PR is active, longer waits when nothing is pending. The chosen delay and the reason for it are printed at the end of each iteration. The example below checks CI and review comments, with Claude waiting longer between iterations once the PR goes quiet:\n+\n+    /loop check whether CI passed and address any review comments\n+\n+When you ask for a dynamic `/loop` schedule, Claude may use the [Monitor tool](</docs/en/tools-reference#monitor-tool>) directly. Monitor runs a background script and streams each output line back, which avoids polling altogether and is often more token-efficient and responsive than re-running a prompt on an interval. A dynamically scheduled loop appears in your scheduled task list like any other task, so you can list or cancel it the same way. The jitter rules don’t apply to it, but the seven-day expiry does: the loop ends automatically seven days after you start it.\n+\n+On Bedrock, Vertex AI, and Microsoft Foundry, a prompt with no interval runs on a fixed 10-minute schedule instead.\n+\n+###\n+\n+​\n+\n+Run the built-in maintenance prompt\n+\n+When you omit the prompt, Claude uses a built-in maintenance prompt instead of one you supply. On each iteration it works through the following, in order:\n+\n+  * continue any unfinished work from the conversation\n+  * tend to the current branch’s pull request: review comments, failed CI runs, merge conflicts\n+  * run cleanup passes such as bug hunts or simplification when nothing else is pending\n+\n+Claude does not start new initiatives outside that scope, and irreversible actions such as pushing or deleting only proceed when they continue something the transcript already authorized.\n+\n+    /loop\n+\n+A bare `/loop` runs this prompt at a dynamically chosen interval. Add an interval, for example `/loop 15m`, to run it on a fixed schedule instead. To replace the built-in prompt with your own default, see Customize the default prompt with loop.md.\n+\n+On Bedrock, Vertex AI, and Microsoft Foundry, `/loop` with no prompt prints the usage message instead of starting the maintenance loop.\n+\n+###\n+\n+​\n+\n+Customize the default prompt with loop.md\n+\n+A `loop.md` file replaces the built-in maintenance prompt with your own instructions. It defines a single default prompt for bare `/loop`, not a list of separate scheduled tasks, and is ignored whenever you supply a prompt on the command line. To schedule additional prompts alongside it, use `/loop <prompt>` or ask Claude directly. Claude looks for the file in two locations and uses the first one it finds.\n+\n+Path| Scope\n+---|---\n+`.claude/loop.md`| Project-level. Takes precedence when both files exist.\n+`~/.claude/loop.md`| User-level. Applies in any project that does not define its own.\n+\n+The file is plain Markdown with no required structure. Write it as if you were typing the `/loop` prompt directly. The following example keeps a release branch healthy:\n+\n+.claude/loop.md\n+\n+    Check the `release/next` PR. If CI is red, pull the failing job log,\n+    diagnose, and push a minimal fix. If new review comments have arrived,\n+    address each one and resolve the thread. If everything is green and\n+    quiet, say so in one line.\n+\n+Edits to `loop.md` take effect on the next iteration, so you can refine the instructions while a loop is running. When no `loop.md` exists in either location, the loop falls back to the built-in maintenance prompt. Keep the file concise: content beyond 25,000 bytes is truncated.\n \n ##\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "server-managed-settings",
+    "title": "Configure server-managed settings",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/server-managed-settings.md\n+++ b/server-managed-settings.md\n@@ -1,6 +1,6 @@\n Server-managed settings allow administrators to centrally configure Claude Code through a web-based interface on Claude.ai. Claude Code clients automatically receive these settings when users authenticate with their organization credentials. This approach is designed for organizations that do not have device management infrastructure in place, or need to manage settings for users on unmanaged devices.\n \n-Server-managed settings are in public beta and available for [Claude for Teams](<https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_teams#team-&-enterprise>) and [Claude for Enterprise](<https://anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_enterprise>) customers. Features may evolve before general availability.\n+Server-managed settings are available for [Claude for Teams](<https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_teams#team-&-enterprise>) and [Claude for Enterprise](<https://anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_enterprise>) customers.\n \n ##\n \n@@ -130,7 +130,7 @@\n \n Current limitations\n \n-Server-managed settings have the following limitations during the beta period:\n+Server-managed settings have the following limitations:\n \n   * Settings apply uniformly to all users in the organization. Per-group configurations are not yet supported.\n   * [MCP server configurations](</docs/en/mcp#managed-mcp-configuration>) cannot be distributed through server-managed settings.\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "settings",
+    "title": "Claude Code settings",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 3,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/settings.md\n+++ b/settings.md\n@@ -163,7 +163,7 @@\n `allowedChannelPlugins`| (Managed settings only) Allowlist of channel plugins that may push messages. Replaces the default Anthropic allowlist when set. Undefined = fall back to the default, empty array = block all channel plugins. Requires `channelsEnabled: true`. See [Restrict which channel plugins can run](</docs/en/channels#restrict-which-channel-plugins-can-run>)| `[{ \"marketplace\": \"claude-plugins-official\", \"plugin\": \"telegram\" }]`\n `allowedHttpHookUrls`| Allowlist of URL patterns that HTTP hooks may target. Supports `*` as a wildcard. When set, hooks with non-matching URLs are blocked. Undefined = no restriction, empty array = block all HTTP hooks. Arrays merge across settings sources. See Hook configuration| `[\"https://hooks.example.com/*\"]`\n `allowedMcpServers`| When set in managed-settings.json, allowlist of MCP servers users can configure. Undefined = no restrictions, empty array = lockdown. Applies to all scopes. Denylist takes precedence. See [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>)| `[{ \"serverName\": \"github\" }]`\n-`allowManagedHooksOnly`| (Managed settings only) Prevent loading of user, project, and plugin hooks. Only allows managed hooks and SDK hooks. See Hook configuration| `true`\n+`allowManagedHooksOnly`| (Managed settings only) Only managed hooks, SDK hooks, and hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. User, project, and all other plugin hooks are blocked. See Hook configuration| `true`\n `allowManagedMcpServersOnly`| (Managed settings only) Only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. Users can still add MCP servers, but only the admin-defined allowlist applies. See [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>)| `true`\n `allowManagedPermissionRulesOnly`| (Managed settings only) Prevent user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply. See [Managed-only settings](</docs/en/permissions#managed-only-settings>)| `true`\n `alwaysThinkingEnabled`| Enable [extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) by default for all sessions. Typically configured via the `/config` command rather than editing directly| `true`\n@@ -433,7 +433,8 @@\n These settings control which hooks are allowed to run and what HTTP hooks can access. The `allowManagedHooksOnly` setting can only be configured in managed settings. The URL and env var allowlists can be set at any settings level and merge across sources. **Behavior when`allowManagedHooksOnly` is `true`:**\n \n   * Managed hooks and SDK hooks are loaded\n-  * User hooks, project hooks, and plugin hooks are blocked\n+  * Hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. This lets administrators distribute vetted hooks through an organization marketplace while blocking everything else. Trust is granted by full `plugin@marketplace` ID, so a plugin with the same name from a different marketplace stays blocked\n+  * User hooks, project hooks, and all other plugin hooks are blocked\n \n **Restrict HTTP hook URLs:** Limit which URLs HTTP hooks can target. Supports `*` as a wildcard for matching. When the array is defined, HTTP hooks targeting non-matching URLs are silently blocked.\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "statusline",
+    "title": "Customize your status line",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/statusline.md\n+++ b/statusline.md\n@@ -651,6 +651,6 @@\n \n **Notifications share the status line row**\n \n-  * System notifications like MCP server errors, auto-updates, and token warnings display on the right side of the same row as your status line\n+  * System notifications like MCP server errors and auto-updates display on the right side of the same row as your status line. Transient notifications such as the context-low warning also cycle through this area.\n   * Enabling verbose mode adds a token counter to this area\n   * On narrow terminals, these notifications may truncate your status line output\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "sub-agents",
+    "title": "Create custom subagents",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/sub-agents.md\n+++ b/sub-agents.md\n@@ -210,7 +210,7 @@\n     You are a code reviewer. When invoked, analyze the code and provide\n     specific, actionable feedback on quality, security, and best practices.\n \n-The frontmatter defines the subagent’s metadata and configuration. The body becomes the system prompt that guides the subagent’s behavior. Subagents receive only this system prompt (plus basic environment details like working directory), not the full Claude Code system prompt.\n+The frontmatter defines the subagent’s metadata and configuration. The body becomes the system prompt that guides the subagent’s behavior. Subagents receive only this system prompt (plus basic environment details like working directory), not the full Claude Code system prompt. A subagent starts in the main conversation’s current working directory. Within a subagent, `cd` commands do not persist between Bash or PowerShell tool calls and do not affect the main conversation’s working directory. To give the subagent an isolated copy of the repository instead, set `isolation: worktree`.\n \n ####\n \n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "tools-reference",
+    "title": "Tools reference",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 5,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/tools-reference.md\n+++ b/tools-reference.md\n@@ -48,7 +48,9 @@\n \n The Bash tool runs each command in a separate process with the following persistence behavior:\n \n-  * Working directory persists across commands. Set `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1` to reset to the project directory after each command.\n+  * When Claude runs `cd` in the main session, the new working directory carries over to later Bash commands as long as it stays inside the project directory or an [additional working directory](</docs/en/permissions#working-directories>) you added with `--add-dir`, `/add-dir`, or `additionalDirectories` in settings. Subagent sessions never carry over working directory changes.\n+    * If `cd` lands outside those directories, Claude Code resets to the project directory and appends `Shell cwd was reset to <dir>` to the tool result.\n+    * To disable this carry-over so every Bash command starts in the project directory, set `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`.\n   * Environment variables do not persist. An `export` in one command will not be available in the next.\n \n Activate your virtualenv or conda environment before launching Claude Code. To make environment variables persist across Bash commands, set [`CLAUDE_ENV_FILE`](</docs/en/env-vars>) to a shell script before launching Claude Code, or use a [SessionStart hook](</docs/en/hooks#persist-environment-variables>) to populate it dynamically.\n@@ -123,6 +125,8 @@\n   * `\"shell\": \"powershell\"` on individual [command hooks](</docs/en/hooks#command-hook-fields>): runs that hook in PowerShell. Hooks spawn PowerShell directly, so this works regardless of `CLAUDE_CODE_USE_POWERSHELL_TOOL`.\n   * `shell: powershell` in [skill frontmatter](</docs/en/skills#frontmatter-reference>): runs `!`command`` blocks in PowerShell. Requires the PowerShell tool to be enabled.\n \n+The same main-session working-directory reset behavior described under the Bash tool section applies to PowerShell commands, including the `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` environment variable.\n+\n ###\n \n ​\n"
+  },
+  {
+    "date": "2026-04-11",
+    "slug": "troubleshooting",
+    "title": "Troubleshooting",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/troubleshooting.md\n+++ b/troubleshooting.md\n@@ -271,7 +271,7 @@\n          export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem\n \n Ask your IT team for the certificate file if you don’t have it. You can also try on a direct connection to confirm the proxy is the cause.\n-  4. **On Windows, bypass certificate revocation checks** if you see `CRYPT_E_REVOCATION_OFFLINE (0x80092013)`. This means curl reached the server but your network blocks the certificate revocation lookup, which is common behind corporate firewalls. Add `--ssl-revoke-best-effort` to the install command:\n+  4. **On Windows, bypass certificate revocation checks** if you see `CRYPT_E_NO_REVOCATION_CHECK (0x80092012)` or `CRYPT_E_REVOCATION_OFFLINE (0x80092013)`. These mean curl reached the server but your network blocks the certificate revocation lookup, which is common behind corporate firewalls. Add `--ssl-revoke-best-effort` to the install command:\n \n          curl --ssl-revoke-best-effort -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd\n \n"
   }
 ]
