@@ -217,9 +217,9 @@ Enterprise organizations may need an admin to enable Claude Code on the web. Con
 
 ​
 
-”No cloud environment available” when using `--remote`
+”Could not create a cloud environment” or “No cloud environment available” when using `--remote` or ultraplan
 
-You haven’t created a cloud environment yet. Run `/web-setup` in the Claude Code CLI to create one, or visit [claude.ai/code](<https://claude.ai/code>) and follow the **Create your environment** step above.
+Remote-session features create a default cloud environment automatically if you don’t have one. If you see “Could not create a cloud environment”, automatic creation failed. If you see “No cloud environment available”, your CLI predates automatic creation. In either case, run `/web-setup` in the Claude Code CLI to create one manually, or visit [claude.ai/code](<https://claude.ai/code>) and follow the **Create your environment** step above.
 
 ###
 

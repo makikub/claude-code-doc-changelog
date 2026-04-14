@@ -1835,9 +1835,10 @@ EnterWorktree
 
     type EnterWorktreeInput = {
       name?: string;
+      path?: string;
     };
 
-Creates and enters a temporary git worktree for isolated work.
+Creates and enters a temporary git worktree for isolated work. Pass `path` to switch into an existing worktree of the current repository instead of creating a new one. `name` and `path` are mutually exclusive.
 
 ##
 

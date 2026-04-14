@@ -17,10 +17,12 @@ What you see| Solution
 `TLS connect error` or `SSL/TLS secure channel`| Update CA certificates
 `Failed to fetch version` or can’t reach download server| Check network and proxy settings
 `irm is not recognized` or `&& is not valid`| Use the right command for your shell
+`'bash' is not recognized as the name of a cmdlet`| Use the Windows installer command
 `Claude Code on Windows requires git-bash`| Install or configure Git Bash
+`Claude Code does not support 32-bit Windows`| Open Windows PowerShell, not the x86 entry
 `Error loading shared library`| Wrong binary variant for your system
 `Illegal instruction` on Linux| Architecture mismatch
-`dyld: cannot load` or `Abort trap` on macOS| Binary incompatibility
+`dyld: cannot load`, `dyld: Symbol not found`, or `Abort trap` on macOS| Binary incompatibility
 `Invoke-Expression: Missing argument in parameter list`| Install script returns HTML
 `App unavailable in region`| Claude Code is not available in your country. See [supported countries](<https://www.anthropic.com/supported-countries>).
 `unable to get local issuer certificate`| Configure corporate CA certificates
@@ -306,9 +308,9 @@ On Windows:
 
 ​
 
-Windows: `irm` or `&&` not recognized
+Windows: wrong install command
 
-If you see `'irm' is not recognized` or `The token '&&' is not valid`, you’re running the wrong command for your shell.
+If you see `'irm' is not recognized`, `The token '&&' is not valid`, or `'bash' is not recognized as the name of a cmdlet`, you copied the install command for a different shell or operating system.
 
   * **`irm` not recognized**: you’re in CMD, not PowerShell. You have two options: Open PowerShell by searching for “PowerShell” in the Start menu, then run the original install command:
 
@@ -319,6 +321,10 @@ Or stay in CMD and use the CMD installer instead:
         curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 
   * **`&&` not valid**: you’re in PowerShell but ran the CMD installer command. Use the PowerShell installer:
+
+        irm https://claude.ai/install.ps1 | iex
+
+  * **`bash` not recognized**: you ran the macOS/Linux installer on Windows. Use the PowerShell installer instead:
 
         irm https://claude.ai/install.ps1 | iex
 
@@ -379,7 +385,7 @@ If you installed an older version of Claude Desktop, it may register a `Claude.e
 
 ​
 
-Windows: “Claude Code on Windows requires git-bash”
+Windows: Claude Code on Windows requires git-bash
 
 Claude Code on native Windows needs [Git for Windows](<https://git-scm.com/downloads/win>), which includes Git Bash. **If Git is not installed** , download and install it from [git-scm.com/downloads/win](<https://git-scm.com/downloads/win>). During setup, select “Add to PATH.” Restart your terminal after installing. **If Git is already installed** but Claude Code still can’t find it, set the path in your [settings.json file](</docs/en/settings>):
 
@@ -390,6 +396,18 @@ Claude Code on native Windows needs [Git for Windows](<https://git-scm.com/downl
     }
 
 If your Git is installed somewhere else, find the path by running `where.exe git` in PowerShell and use the `bin\bash.exe` path from that directory.
+
+###
+
+​
+
+Windows: Claude Code does not support 32-bit Windows
+
+Windows includes two PowerShell entries in the Start menu: `Windows PowerShell` and `Windows PowerShell (x86)`. The x86 entry runs as a 32-bit process and triggers this error even on a 64-bit machine. To check which case you’re in, run this in the same window that produced the error:
+
+    [Environment]::Is64BitOperatingSystem
+
+If this prints `True`, your operating system is fine. Close the window, open `Windows PowerShell` without the x86 suffix, and run the install command again. If this prints `False`, you are on a 32-bit edition of Windows. Claude Code requires a 64-bit operating system. See the [system requirements](</docs/en/setup#system-requirements>).
 
 ###
 
@@ -440,10 +458,16 @@ If the installer prints `Illegal instruction` instead of the OOM `Killed` messag
 
 `dyld: cannot load` on macOS
 
-If you see `dyld: cannot load` or `Abort trap: 6` during installation, the binary is incompatible with your macOS version or hardware.
+If you see `dyld: cannot load`, `dyld: Symbol not found`, or `Abort trap: 6` during installation, the binary is incompatible with your macOS version or hardware.
 
     dyld: cannot load 'claude-2.1.42-darwin-x64' (load command 0x80000034 is unknown)
     Abort trap: 6
+
+A `Symbol not found` error that references `libicucore` also indicates your macOS version is older than the binary supports:
+
+    dyld: Symbol not found: _ubrk_clone
+      Referenced from: claude-darwin-x64 (which was built for Mac OS X 13.0)
+      Expected in: /usr/lib/libicucore.A.dylib
 
 **Solutions:**
 
@@ -594,7 +618,7 @@ To clear a stale value, remove the `model` field from your settings or unset `AN
 
 ​
 
-”This organization has been disabled” with an active subscription
+This organization has been disabled with an active subscription
 
 If you see `API Error: 400 ... "This organization has been disabled"` despite having an active Claude subscription, an `ANTHROPIC_API_KEY` environment variable is overriding your subscription. This commonly happens when an old API key from a previous employer or project is still set in your shell profile. When `ANTHROPIC_API_KEY` is present and you have approved it, Claude Code uses that key instead of your subscription’s OAuth credentials. In non-interactive mode (`-p`), the key is always used when present. See [authentication precedence](</docs/en/authentication#authentication-precedence>) for the full resolution order. To use your subscription instead, unset the environment variable and remove it from your shell profile:
 
@@ -620,7 +644,7 @@ Or copy the URL manually: when the login prompt appears, press `c` to copy the O
 
 ​
 
-”Not logged in” or token expired
+Not logged in or token expired
 
 If Claude Code prompts you to log in again after a session, your OAuth token may have expired. Run `/login` to re-authenticate. If this happens frequently, check that your system clock is accurate, as token validation depends on correct timestamps. On macOS, login can also fail when the Keychain is locked or its password is out of sync with your account password, which prevents Claude Code from saving credentials. Run `claude doctor` to check Keychain access. To unlock the Keychain manually, run `security unlock-keychain ~/Library/Keychains/login.keychain-db`. If unlocking doesn’t help, open Keychain Access, select the `login` keychain, and choose Edit > Change Password for Keychain “login” to resync it with your account password.
 

@@ -279,7 +279,7 @@ Environment variable| Description
 `ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION`| Display description for the pinned Opus model in the `/model` picker. Defaults to `Custom Opus model` when not set
 `ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES`| Comma-separated list of capabilities the pinned Opus model supports
 
-The same `_NAME`, `_DESCRIPTION`, and `_SUPPORTED_CAPABILITIES` suffixes are available for `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Claude Code enables features like effort levels and [extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) by matching the model ID against known patterns. Provider-specific IDs such as Bedrock ARNs or custom deployment names often don’t match these patterns, leaving supported features disabled. Set `_SUPPORTED_CAPABILITIES` to tell Claude Code which features the model actually supports:
+The same `_NAME`, `_DESCRIPTION`, and `_SUPPORTED_CAPABILITIES` suffixes are available for `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`, and `ANTHROPIC_CUSTOM_MODEL_OPTION`. Claude Code enables features like effort levels and [extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) by matching the model ID against known patterns. Provider-specific IDs such as Bedrock ARNs or custom deployment names often don’t match these patterns, leaving supported features disabled. Set `_SUPPORTED_CAPABILITIES` to tell Claude Code which features the model actually supports:
 
 Capability value| Enables
 ---|---
