@@ -29,7 +29,7 @@ Method| How it works| Best for
 **GitHub App**|  Install the Claude GitHub App on specific repositories during [web onboarding](</docs/en/web-quickstart>). Access is scoped per repository.| Teams that want explicit per-repo authorization
 **`/web-setup`**|  Run `/web-setup` in your terminal to sync your local `gh` CLI token to your Claude account. Access matches whatever your `gh` token can see.| Individual developers who already use `gh`
 
-Either method works. [`/schedule`](</docs/en/web-scheduled-tasks>) checks for either form of access and prompts you to run `/web-setup` if neither is configured. See [Connect from your terminal](</docs/en/web-quickstart#connect-from-your-terminal>) for the `/web-setup` walkthrough. The GitHub App is required for Auto-fix, which uses the App to receive PR webhooks. If you connect with `/web-setup` and later want Auto-fix, install the App on those repositories. Team and Enterprise admins can disable `/web-setup` with the Quick web setup toggle at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>).
+Either method works. [`/schedule`](</docs/en/routines>) checks for either form of access and prompts you to run `/web-setup` if neither is configured. See [Connect from your terminal](</docs/en/web-quickstart#connect-from-your-terminal>) for the `/web-setup` walkthrough. The GitHub App is required for Auto-fix, which uses the App to receive PR webhooks. If you connect with `/web-setup` and later want Auto-fix, install the App on those repositories. Team and Enterprise admins can disable `/web-setup` with the Quick web setup toggle at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>).
 
 Organizations with [Zero Data Retention](</docs/en/zero-data-retention>) enabled cannot use `/web-setup` or other cloud session features.
 
@@ -802,7 +802,7 @@ Before relying on cloud sessions for a workflow, account for these constraints:
 
 Related resources
 
-  * [Schedule tasks on the web](</docs/en/web-scheduled-tasks>): automate recurring work like daily PR reviews and dependency audits
+  * [Routines](</docs/en/routines>): automate work on a schedule, via API call, or in response to GitHub events
   * [Hooks configuration](</docs/en/hooks>): run scripts at session lifecycle events
   * [Settings reference](</docs/en/settings>): all configuration options
   * [Security](</docs/en/security>): isolation guarantees and data handling

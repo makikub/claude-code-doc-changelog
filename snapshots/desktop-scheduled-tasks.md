@@ -8,7 +8,7 @@ Compare scheduling options
 
 Claude Code offers three ways to schedule recurring work:
 
-| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop-scheduled-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)
+| [Cloud](</docs/en/routines>)| [Desktop](</docs/en/desktop-scheduled-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)
 ---|---|---|---
 Runs on| Anthropic cloud| Your machine| Your machine
 Requires machine on| No| Yes| Yes
@@ -27,7 +27,7 @@ The Schedule page supports two kinds of tasks:
   * **Local tasks** : run on your machine. They have direct access to your local files and tools, but the desktop app must be open and your computer awake for them to run.
   * **Remote tasks** : run on Anthropic-managed cloud infrastructure. They keep running even when your computer is off, but work against a fresh clone of your repository rather than your local checkout.
 
-Both kinds appear in the same task grid. Click **New task** to pick which kind to create. The rest of this page covers local tasks; for remote tasks, see [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>). See How scheduled tasks run for details on missed runs and catch-up behavior for local tasks.
+Both kinds appear in the same task grid. Click **New task** to pick which kind to create. The rest of this page covers local tasks; for remote tasks, see [Routines](</docs/en/routines>). See How scheduled tasks run for details on missed runs and catch-up behavior for local tasks.
 
 By default, local scheduled tasks run against whatever state your working directory is in, including uncommitted changes. Enable the worktree toggle in the prompt input to give each run its own isolated Git worktree, the same way [parallel sessions](</docs/en/desktop#work-in-parallel-with-sessions>) work.
 
@@ -70,7 +70,7 @@ For intervals the picker doesn’t offer (every 15 minutes, first of each month,
 
 How scheduled tasks run
 
-Local scheduled tasks run on your machine. Desktop checks the schedule every minute while the app is open and starts a fresh session when a task is due, independent of any manual sessions you have open. Each task gets a fixed delay of up to 10 minutes after the scheduled time to stagger API traffic. The delay is deterministic: the same task always starts at the same offset. When a task fires, you get a desktop notification and a new session appears under a **Scheduled** section in the sidebar. Open it to see what Claude did, review changes, or respond to permission prompts. The session works like any other: Claude can edit files, run commands, create commits, and open pull requests. Tasks only run while the desktop app is running and your computer is awake. If your computer sleeps through a scheduled time, the run is skipped. To prevent idle-sleep, enable **Keep computer awake** in Settings under **Desktop app → General**. Closing the laptop lid still puts it to sleep. For tasks that need to run even when your computer is off, use a [remote task](</docs/en/web-scheduled-tasks>) instead.
+Local scheduled tasks run on your machine. Desktop checks the schedule every minute while the app is open and starts a fresh session when a task is due, independent of any manual sessions you have open. Each task gets a fixed delay of up to 10 minutes after the scheduled time to stagger API traffic. The delay is deterministic: the same task always starts at the same offset. When a task fires, you get a desktop notification and a new session appears under a **Scheduled** section in the sidebar. Open it to see what Claude did, review changes, or respond to permission prompts. The session works like any other: Claude can edit files, run commands, create commits, and open pull requests. Tasks only run while the desktop app is running and your computer is awake. If your computer sleeps through a scheduled time, the run is skipped. To prevent idle-sleep, enable **Keep computer awake** in Settings under **Desktop app → General**. Closing the laptop lid still puts it to sleep. For tasks that need to run even when your computer is off, or that should trigger automatically on an API call or GitHub event, use a [routine](</docs/en/routines>) instead.
 
 ##
 
@@ -111,7 +111,7 @@ You can also manage tasks by asking Claude in any Desktop session. For example, 
 
 Related resources
 
-  * [Cloud scheduled tasks](</docs/en/web-scheduled-tasks>): schedule tasks that run on Anthropic-managed infrastructure even when your computer is off
+  * [Routines](</docs/en/routines>): run tasks on Anthropic-managed infrastructure on a schedule, via API call, or in response to GitHub events, even when your computer is off
   * [Run prompts on a schedule](</docs/en/scheduled-tasks>): session-scoped scheduling with `/loop` in the CLI
   * [Claude Code GitHub Actions](</docs/en/github-actions>): run Claude on a schedule in CI instead of on your machine
   * [Use Claude Code Desktop](</docs/en/desktop>): the full Desktop app guide

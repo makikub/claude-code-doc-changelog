@@ -204,10 +204,9 @@ Plugins can include [Agent Skills](</docs/en/skills>) to extend Claude’s capab
         └── code-review/
             └── SKILL.md
 
-Each `SKILL.md` needs frontmatter with `name` and `description` fields, followed by instructions:
+Each `SKILL.md` contains YAML frontmatter and instructions. Include a `description` so Claude knows when to use the skill:
 
     ---
-    name: code-review
     description: Reviews code for best practices and potential issues. Use when reviewing code, checking PRs, or analyzing code quality.
     ---
 

@@ -488,7 +488,7 @@ Tips:
 
 Use extended thinking (thinking mode)
 
-[Extended thinking](<https://platform.claude.com/docs/en/build-with-claude/extended-thinking>) is enabled by default, giving Claude space to reason through complex problems step-by-step before responding. This reasoning is visible in verbose mode, which you can toggle on with `Ctrl+O`. Additionally, Opus 4.6 and Sonnet 4.6 support adaptive reasoning: instead of a fixed thinking token budget, the model dynamically allocates thinking based on your [effort level](</docs/en/model-config#adjust-effort-level>) setting. Extended thinking and adaptive reasoning work together to give you control over how deeply Claude reasons before responding. Extended thinking is particularly valuable for complex architectural decisions, challenging bugs, multi-step implementation planning, and evaluating tradeoffs between different approaches.
+[Extended thinking](<https://platform.claude.com/docs/en/build-with-claude/extended-thinking>) is enabled by default, giving Claude space to reason through complex problems step-by-step before responding. This reasoning is visible in verbose mode, which you can toggle on with `Ctrl+O`. During extended thinking, progress hints appear below the indicator to show that Claude is actively working. Additionally, Opus 4.6 and Sonnet 4.6 support adaptive reasoning: instead of a fixed thinking token budget, the model dynamically allocates thinking based on your [effort level](</docs/en/model-config#adjust-effort-level>) setting. Extended thinking and adaptive reasoning work together to give you control over how deeply Claude reasons before responding. Extended thinking is particularly valuable for complex architectural decisions, challenging bugs, multi-step implementation planning, and evaluating tradeoffs between different approaches.
 
 Phrases like “think”, “think hard”, and “think more” are interpreted as regular prompt instructions and don’t allocate thinking tokens.
 
@@ -907,7 +907,7 @@ Suppose you want Claude to handle a task automatically on a recurring basis, lik
 
 Option| Where it runs| Best for
 ---|---|---
-[Cloud scheduled tasks](</docs/en/web-scheduled-tasks>)| Anthropic-managed infrastructure| Tasks that should run even when your computer is off. Configure at [claude.ai/code](<https://claude.ai/code>).
+[Routines](</docs/en/routines>)| Anthropic-managed infrastructure| Tasks that should run even when your computer is off. Can also trigger on API calls or GitHub events in addition to a schedule. Configure at [claude.ai/code/routines](<https://claude.ai/code/routines>).
 [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>)| Your machine, via the desktop app| Tasks that need direct access to local files, tools, or uncommitted changes.
 [GitHub Actions](</docs/en/github-actions>)| Your CI pipeline| Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config.
 [`/loop`](</docs/en/scheduled-tasks>)| The current CLI session| Quick polling while a session is open. Tasks are cancelled when you exit.

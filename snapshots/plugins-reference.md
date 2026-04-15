@@ -483,7 +483,7 @@ Plugins are specified in one of two ways:
   * Through `claude --plugin-dir`, for the duration of a session.
   * Through a marketplace, installed for future sessions.
 
-For security and verification purposes, Claude Code copies _marketplace_ plugins to the user’s local **plugin cache** (`~/.claude/plugins/cache`) rather than using them in-place. Understanding this behavior is important when developing plugins that reference external files. Each installed version is a separate directory in the cache. When you update or uninstall a plugin, the previous version directory is marked as orphaned and removed automatically 7 days later. The grace period lets concurrent Claude Code sessions that already loaded the old version keep running without errors.
+For security and verification purposes, Claude Code copies _marketplace_ plugins to the user’s local **plugin cache** (`~/.claude/plugins/cache`) rather than using them in-place. Understanding this behavior is important when developing plugins that reference external files. Each installed version is a separate directory in the cache. When you update or uninstall a plugin, the previous version directory is marked as orphaned and removed automatically 7 days later. The grace period lets concurrent Claude Code sessions that already loaded the old version keep running without errors. Claude’s Glob and Grep tools skip orphaned version directories during searches, so file results don’t include outdated plugin code.
 
 ###
 

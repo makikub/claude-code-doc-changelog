@@ -2343,7 +2343,7 @@ EnterWorktree
       message: string;
     };
 
-Returns information about the created git worktree.
+Returns information about the git worktree.
 
 ##
 

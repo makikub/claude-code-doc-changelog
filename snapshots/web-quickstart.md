@@ -109,7 +109,7 @@ In the Claude Code CLI, run:
 
     /web-setup
 
-This syncs your `gh` token to your Claude account. If you don’t have a cloud environment yet, `/web-setup` creates one with Trusted network access and no setup script. You can [edit the environment or add variables](</docs/en/claude-code-on-the-web#configure-your-environment>) afterward. Once `/web-setup` completes, you can start cloud sessions from your terminal with [`--remote`](</docs/en/claude-code-on-the-web#from-terminal-to-web>) or set up recurring tasks with [`/schedule`](</docs/en/web-scheduled-tasks>).
+This syncs your `gh` token to your Claude account. If you don’t have a cloud environment yet, `/web-setup` creates one with Trusted network access and no setup script. You can [edit the environment or add variables](</docs/en/claude-code-on-the-web#configure-your-environment>) afterward. Once `/web-setup` completes, you can start cloud sessions from your terminal with [`--remote`](</docs/en/claude-code-on-the-web#from-terminal-to-web>) or set up recurring tasks with [`/schedule`](</docs/en/routines>).
 
 ##
 
@@ -252,6 +252,6 @@ Next steps
 Now that you can submit and review tasks, these pages cover what comes next: starting cloud sessions from your terminal, scheduling recurring work, and giving Claude standing instructions.
 
   * [Use Claude Code on the web](</docs/en/claude-code-on-the-web>): the full reference, including teleporting sessions to your terminal, setup scripts, environment variables, and network config
-  * [Schedule tasks on the web](</docs/en/web-scheduled-tasks>): automate recurring work like daily PR reviews and dependency audits
+  * [Routines](</docs/en/routines>): automate work on a schedule, via API call, or in response to GitHub events
   * [CLAUDE.md](</docs/en/memory>): give Claude persistent instructions and context that load at the start of every session
   * Install the Claude mobile app for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>) to monitor sessions from your phone. From the Claude Code CLI, `/mobile` shows a QR code.
