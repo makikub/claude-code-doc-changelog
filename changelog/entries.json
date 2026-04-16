@@ -7664,5 +7664,355 @@
       "sections_changed": []
     },
     "diff": "--- a/web-scheduled-tasks.md\n+++ b/web-scheduled-tasks.md\n@@ -1,178 +0,0 @@\n-A scheduled task runs a prompt on a recurring cadence using Anthropic-managed infrastructure. Tasks keep working even when your computer is off. A few examples of recurring work you can automate:\n-\n-  * Reviewing open pull requests each morning\n-  * Analyzing CI failures overnight and surfacing summaries\n-  * Syncing documentation after PRs merge\n-  * Running dependency audits every week\n-\n-Scheduled tasks are available to all Claude Code on the web users, including Pro, Max, Team, and Enterprise.\n-\n-##\n-\n-​\n-\n-Compare scheduling options\n-\n-Claude Code offers three ways to schedule recurring work:\n-\n-| [Cloud](</docs/en/web-scheduled-tasks>)| [Desktop](</docs/en/desktop-scheduled-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)\n----|---|---|---\n-Runs on| Anthropic cloud| Your machine| Your machine\n-Requires machine on| No| Yes| Yes\n-Requires open session| No| No| Yes\n-Persistent across restarts| Yes| Yes| No (session-scoped)\n-Access to local files| No (fresh clone)| Yes| Yes\n-MCP servers| Connectors configured per task| [Config files](</docs/en/mcp>) and connectors| Inherits from session\n-Permission prompts| No (runs autonomously)| Configurable per task| Inherits from session\n-Customizable schedule| Via `/schedule` in the CLI| Yes| Yes\n-Minimum interval| 1 hour| 1 minute| 1 minute\n-\n-Use **cloud tasks** for work that should run reliably without your machine. Use **Desktop tasks** when you need access to local files and tools. Use **`/loop`** for quick polling during a session.\n-\n-##\n-\n-​\n-\n-Create a scheduled task\n-\n-You can create a scheduled task from three places:\n-\n-  * **Web** : visit [claude.ai/code/scheduled](<https://claude.ai/code/scheduled>) and click **New scheduled task**\n-  * **Desktop app** : open the **Schedule** page, click **New task** , and choose **New remote task**. See [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>) for details.\n-  * **CLI** : run `/schedule` in any session. Claude walks you through the setup conversationally. You can also pass a description directly, like `/schedule daily PR review at 9am`.\n-\n-The web and Desktop entry points open a form. The CLI collects the same information through a guided conversation. The steps below walk through the web interface.\n-\n-1\n-\n-Open the creation form\n-\n-Visit [claude.ai/code/scheduled](<https://claude.ai/code/scheduled>) and click **New scheduled task**.\n-\n-2\n-\n-Name the task and write the prompt\n-\n-Give the task a descriptive name and write the prompt Claude runs each time. The prompt is the most important part: the task runs autonomously, so the prompt must be self-contained and explicit about what to do and what success looks like.The prompt input includes a model selector. Claude uses this model for each run of the task.\n-\n-3\n-\n-Select repositories\n-\n-Add one or more GitHub repositories for Claude to work in. Each repository is cloned at the start of a run, starting from the default branch. Claude creates `claude/`-prefixed branches for its changes. To allow pushes to any branch, enable **Allow unrestricted branch pushes** for that repository.\n-\n-4\n-\n-Select an environment\n-\n-Select a [cloud environment](</docs/en/claude-code-on-the-web#the-cloud-environment>) for the task. Environments control what the cloud session has access to:\n-\n-  * **Network access** : set the level of internet access available during each run\n-  * **Environment variables** : provide API keys, tokens, or other secrets Claude can use\n-  * **Setup script** : run install commands before each session starts, like installing dependencies or configuring tools\n-\n-A **Default** environment is available out of the box. To use a custom environment, [create one](</docs/en/claude-code-on-the-web#the-cloud-environment>) before creating the task.\n-\n-5\n-\n-Choose a schedule\n-\n-Pick how often the task runs from the frequency options. The default is daily at 9:00 AM in your local time zone. Tasks may run a few minutes after their scheduled time due to stagger.If the preset options don’t fit your needs, pick the closest one and update the schedule from the CLI with `/schedule update` to set a specific schedule.\n-\n-6\n-\n-Review connectors\n-\n-All of your connected [MCP connectors](</docs/en/mcp>) are included by default. Remove any that the task doesn’t need. Connectors give Claude access to external services like Slack, Linear, or Google Drive during each run.\n-\n-7\n-\n-Create the task\n-\n-Click **Create**. The task appears in the scheduled tasks list and runs automatically at the next scheduled time. Each run creates a new session alongside your other sessions, where you can see what Claude did, review changes, and create a pull request. To trigger a run immediately, click **Run now** from the task’s detail page.\n-\n-###\n-\n-​\n-\n-Frequency options\n-\n-The schedule picker offers preset frequencies that handle time zone conversion for you. Pick a time in your local zone and the task runs at that wall-clock time regardless of where the cloud infrastructure is located.\n-\n-Tasks may run a few minutes after their scheduled time. The offset is consistent for each task.\n-\n-Frequency| Description\n----|---\n-Hourly| Runs every hour.\n-Daily| Runs once per day at the time you specify. Defaults to 9:00 AM local time.\n-Weekdays| Same as Daily but skips Saturday and Sunday.\n-Weekly| Runs once per week on the day and time you specify.\n-\n-For custom intervals like every 2 hours or first of each month, pick the closest preset and update the schedule from the CLI with `/schedule update` to set a specific cron expression. The minimum interval is 1 hour. Expressions that fire more frequently, such as `*/30 * * * *`, are rejected.\n-\n-###\n-\n-​\n-\n-Repositories and branch permissions\n-\n-Scheduled tasks need GitHub access to clone repositories. When you create a task from the CLI with `/schedule`, Claude checks whether your account has GitHub connected and prompts you to run `/web-setup` if it doesn’t. See [GitHub authentication options](</docs/en/claude-code-on-the-web#github-authentication-options>) for the two ways to grant access. Each repository you add is cloned on every run. Claude starts from the repository’s default branch unless your prompt specifies otherwise. By default, Claude can only push to branches prefixed with `claude/`. This prevents scheduled tasks from accidentally modifying protected or long-lived branches. To remove this restriction for a specific repository, enable **Allow unrestricted branch pushes** for that repository when creating or editing the task.\n-\n-###\n-\n-​\n-\n-Connectors\n-\n-Scheduled tasks can use your connected MCP connectors to read from and write to external services during each run. For example, a task that triages support requests might read from a Slack channel and create issues in Linear. When you create a task, all of your currently connected connectors are included by default. Remove any that aren’t needed to limit which tools Claude has access to during the run. You can also add connectors directly from the task form. To manage or add connectors outside of the task form, visit **Settings > Connectors** on claude.ai or use `/schedule update` in the CLI.\n-\n-###\n-\n-​\n-\n-Environments\n-\n-Each task runs in a [cloud environment](</docs/en/claude-code-on-the-web#the-cloud-environment>) that controls network access, environment variables, and setup scripts. Configure environments before creating a task to give Claude access to APIs, install dependencies, or restrict network scope. See [cloud environment](</docs/en/claude-code-on-the-web#the-cloud-environment>) for the full setup guide.\n-\n-##\n-\n-​\n-\n-Manage scheduled tasks\n-\n-Click a task in the **Scheduled** list to open its detail page. The detail page shows the task’s repositories, connectors, prompt, schedule, and a list of past runs.\n-\n-###\n-\n-​\n-\n-View and interact with runs\n-\n-Click any run to open it as a full session. From there you can see what Claude did, review changes, create a pull request, or continue the conversation. Each run session works like any other session: use the dropdown menu next to the session title to rename, archive, or delete it.\n-\n-###\n-\n-​\n-\n-Edit and control tasks\n-\n-From the task detail page you can:\n-\n-  * Click **Run now** to start a run immediately without waiting for the next scheduled time.\n-  * Use the toggle in the **Repeats** section to pause or resume the schedule. Paused tasks keep their configuration but don’t run until you re-enable them.\n-  * Click the edit icon to change the name, prompt, schedule, repositories, environment, or connectors.\n-  * Click the delete icon to remove the task. Past sessions created by the task remain in your session list.\n-\n-You can also manage tasks from the CLI with `/schedule`. Run `/schedule list` to see all tasks, `/schedule update` to change a task, or `/schedule run` to trigger one immediately.\n-\n-##\n-\n-​\n-\n-Related resources\n-\n-  * [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>): schedule tasks that run on your machine with access to local files. The Desktop app’s **Schedule** page shows both local and remote tasks in the same grid.\n-  * [`/loop` and CLI scheduled tasks](</docs/en/scheduled-tasks>): lightweight scheduling within a CLI session\n-  * [Cloud environment](</docs/en/claude-code-on-the-web#the-cloud-environment>): configure the runtime environment for cloud tasks\n-  * [MCP connectors](</docs/en/mcp>): connect external services like Slack, Linear, and Google Drive\n-  * [GitHub Actions](</docs/en/github-actions>): run Claude in your CI pipeline on repo events\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "2026-w13",
+    "title": "Week 13 · March 23–27, 2026",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 7,
+      "lines_removed": 7,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/2026-w13.md\n+++ b/2026-w13.md\n@@ -1,4 +1,4 @@\n-Releases [v2.1.83 → v2.1.85](</en/changelog#2-1-83>)6 features · March 23–27\n+Releases [v2.1.83 → v2.1.85](</docs/en/changelog#2-1-83>)6 features · March 23–27\n \n Auto moderesearch preview\n \n@@ -14,7 +14,7 @@\n       }\n     }\n \n-[Permission modes guide](</en/permission-modes>)\n+[Permission modes guide](</docs/en/permission-modes>)\n \n Computer useDesktop\n \n@@ -26,7 +26,7 @@\n \n     > Open the iOS simulator, tap through the onboarding flow, and screenshot each step\n \n-[Computer use guide](</en/desktop#let-claude-use-your-computer>)\n+[Computer use guide](</docs/en/desktop#let-claude-use-your-computer>)\n \n PR auto-fixWeb\n \n@@ -34,7 +34,7 @@\n \n After creating a PR on Claude Code web, toggle Auto fix in the CI panel.\n \n-[Auto-fix pull requests](</en/claude-code-on-the-web#auto-fix-pull-requests>)\n+[Auto-fix pull requests](</docs/en/claude-code-on-the-web#auto-fix-pull-requests>)\n \n Transcript searchv2.1.83\n \n@@ -49,7 +49,7 @@\n     n         # next match\n     N         # previous match\n \n-[Fullscreen guide](</en/fullscreen#search-and-review-the-conversation>)\n+[Fullscreen guide](</docs/en/fullscreen#search-and-review-the-conversation>)\n \n PowerShell toolpreviewv2.1.84\n \n@@ -65,7 +65,7 @@\n       }\n     }\n \n-[PowerShell tool docs](</en/tools-reference#powershell-tool>)\n+[PowerShell tool docs](</docs/en/tools-reference#powershell-tool>)\n \n Conditional hooksv2.1.85\n \n@@ -87,7 +87,7 @@\n       }\n     }\n \n-[Hooks reference](</en/hooks>)\n+[Hooks reference](</docs/en/hooks>)\n \n Other wins\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "2026-w14",
+    "title": "Week 14 · March 30 – April 3, 2026",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 6,
+      "lines_removed": 6,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/2026-w14.md\n+++ b/2026-w14.md\n@@ -1,4 +1,4 @@\n-Releases [v2.1.86 → v2.1.91](</en/changelog#2-1-86>)5 features · March 30 – April 3\n+Releases [v2.1.86 → v2.1.91](</docs/en/changelog#2-1-86>)5 features · March 30 – April 3\n \n Computer use in the CLIresearch preview\n \n@@ -10,7 +10,7 @@\n \n     > Open the iOS simulator, tap through onboarding, and screenshot each step\n \n-[Computer use guide](</en/computer-use>)\n+[Computer use guide](</docs/en/computer-use>)\n \n /powerupv2.1.90\n \n@@ -22,7 +22,7 @@\n \n     > /powerup\n \n-[Commands reference](</en/commands>)\n+[Commands reference](</docs/en/commands>)\n \n Flicker-free renderingv2.1.89\n \n@@ -33,7 +33,7 @@\n     export CLAUDE_CODE_NO_FLICKER=1\n     claude\n \n-[Fullscreen rendering](</en/fullscreen>)\n+[Fullscreen rendering](</docs/en/fullscreen>)\n \n MCP result-size overridev2.1.91\n \n@@ -49,7 +49,7 @@\n       }\n     }\n \n-[MCP reference](</en/mcp#raise-the-limit-for-a-specific-tool>)\n+[MCP reference](</docs/en/mcp#raise-the-limit-for-a-specific-tool>)\n \n Plugin executables on PATHv2.1.91\n \n@@ -63,7 +63,7 @@\n     └── bin/\n         └── my-tool\n \n-[Plugins reference](</en/plugins-reference#file-locations-reference>)\n+[Plugins reference](</docs/en/plugins-reference#file-locations-reference>)\n \n Other wins\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "2026-w15",
+    "title": "Week 15 · April 6–10, 2026",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 6,
+      "lines_removed": 6,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/2026-w15.md\n+++ b/2026-w15.md\n@@ -1,4 +1,4 @@\n-Releases [v2.1.92 → v2.1.101](</en/changelog#2-1-92>)4 features · April 6–10\n+Releases [v2.1.92 → v2.1.101](</docs/en/changelog#2-1-92>)4 features · April 6–10\n \n Ultraplanresearch preview\n \n@@ -10,7 +10,7 @@\n \n     > /ultraplan migrate the auth service from sessions to JWTs\n \n-[Ultraplan guide](</en/ultraplan>)\n+[Ultraplan guide](</docs/en/ultraplan>)\n \n Monitor toolv2.1.98\n \n@@ -28,7 +28,7 @@\n \n     > /loop check CI on my PR\n \n-[Monitor tool reference](</en/tools-reference#monitor-tool>)\n+[Monitor tool reference](</docs/en/tools-reference#monitor-tool>)\n \n /autofix-prCLI\n \n@@ -40,7 +40,7 @@\n \n     > /autofix-pr\n \n-[Auto-fix pull requests](</en/claude-code-on-the-web#auto-fix-pull-requests>)\n+[Auto-fix pull requests](</docs/en/claude-code-on-the-web#auto-fix-pull-requests>)\n \n /team-onboardingv2.1.101\n \n@@ -52,13 +52,13 @@\n \n     > /team-onboarding\n \n-[Commands reference](</en/commands>)\n+[Commands reference](</docs/en/commands>)\n \n Other wins\n \n Focus view: press `Ctrl+O` in flicker-free mode to collapse the view to your last prompt, a one-line tool summary with diffstats, and Claude’s final response\n \n-Guided [Bedrock](</en/amazon-bedrock>) and [Vertex AI](</en/google-vertex-ai>) setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning\n+Guided [Bedrock](</docs/en/amazon-bedrock>) and [Vertex AI](</docs/en/google-vertex-ai>) setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning\n \n `/agents` gets a tabbed layout: a Running tab shows live subagents with a `● N running` count, plus Run agent and View running instance actions in the Library tab\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "best-practices",
+    "title": "Best Practices for Claude Code",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/best-practices.md\n+++ b/best-practices.md\n@@ -18,7 +18,7 @@\n \n Strategy| Before| After\n ---|---|---\n-**Provide verification criteria**|  _”implement a function that validates email addresses\"_| _\"write a validateEmail function. example test cases:[[email protected]](email-protected) is true, invalid is false, [[email protected]](email-protected) is false. run the tests after implementing”_\n+**Provide verification criteria**|  _”implement a function that validates email addresses\"_| _\"write a validateEmail function. example test cases:[user@example.com](<mailto:user@example.com>) is true, invalid is false, [user@.com](<mailto:user@.com>) is false. run the tests after implementing”_\n **Verify UI changes visually**|  _”make the dashboard look better\"_| _\"[paste screenshot] implement this design. take a screenshot of the result and compare it to the original. list differences and fix them”_\n **Address root causes, not symptoms**|  _”the build is failing\"_| _\"the build fails with this error: [paste error]. fix it and verify the build succeeds. address the root cause, don’t suppress the error”_\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "changelog",
+    "title": "Changelog",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 41,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/changelog.md\n+++ b/changelog.md\n@@ -2,6 +2,46 @@\n \n ​\n \n+2.1.110\n+\n+April 15, 2026\n+\n+  * Added `/tui` command and `tui` setting — run `/tui fullscreen` to switch to flicker-free rendering in the same conversation\n+  * Added push notification tool — Claude can send mobile push notifications when Remote Control and “Push when Claude decides” config are enabled\n+  * Changed `Ctrl+O` to toggle between normal and verbose transcript only; focus view is now toggled separately with the new `/focus` command\n+  * Added `autoScrollEnabled` config to disable conversation auto-scroll in fullscreen mode\n+  * Added option to show Claude’s last response as commented context in the `Ctrl+G` external editor (enable via `/config`)\n+  * Improved `/plugin` Installed tab — items needing attention and favorites appear at the top, disabled items are hidden behind a fold, and `f` favorites the selected item\n+  * Improved `/doctor` to warn when an MCP server is defined in multiple config scopes with different endpoints\n+  * `--resume`/`--continue` now resurrects unexpired scheduled tasks\n+  * `/autocompact`, `/context`, `/exit`, and `/reload-plugins` now work from Remote Control (mobile/web) clients\n+  * Write tool now informs the model when you edit the proposed content in the IDE diff before accepting\n+  * Bash tool now enforces the documented maximum timeout instead of accepting arbitrarily large values\n+  * SDK/headless sessions now read `TRACEPARENT`/`TRACESTATE` from the environment for distributed trace linking\n+  * Session recap is now enabled for users with telemetry disabled (Bedrock, Vertex, Foundry, `DISABLE_TELEMETRY`). Opt out via `/config` or `CLAUDE_CODE_ENABLE_AWAY_SUMMARY=0`.\n+  * Fixed MCP tool calls hanging indefinitely when the server connection drops mid-response on SSE/HTTP transports\n+  * Fixed non-streaming fallback retries causing multi-minute hangs when the API is unreachable\n+  * Fixed session recap, local slash-command output, and other system status lines not appearing in focus mode\n+  * Fixed high CPU usage in fullscreen when text is selected while a tool is running\n+  * Fixed plugin install not honoring dependencies declared in `plugin.json` when the marketplace entry omits them; `/plugin` install now lists auto-installed dependencies\n+  * Fixed skills with `disable-model-invocation: true` failing when invoked via `/<skill>` mid-message\n+  * Fixed `--resume` sometimes showing the first prompt instead of the `/rename` name for sessions still running or exited uncleanly\n+  * Fixed queued messages briefly appearing twice during multi-tool-call turns\n+  * Fixed session cleanup not removing the full session directory including subagent transcripts\n+  * Fixed dropped keystrokes after the CLI relaunches (e.g. `/tui`, provider setup wizards)\n+  * Fixed garbled startup rendering in macOS Terminal.app and other terminals that don’t support synchronized output\n+  * Hardened “Open in editor” actions against command injection from untrusted filenames\n+  * Fixed `PermissionRequest` hooks returning `updatedInput` not being re-checked against `permissions.deny` rules; `setMode:'bypassPermissions'` updates now respect `disableBypassPermissionsMode`\n+  * Fixed `PreToolUse` hook `additionalContext` being dropped when the tool call fails\n+  * Fixed stdio MCP servers that print stray non-JSON lines to stdout being disconnected on the first stray line (regression in 2.1.105)\n+  * Fixed headless/SDK session auto-title firing an extra Haiku request when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `CLAUDE_CODE_DISABLE_TERMINAL_TITLE` is set\n+  * Fixed potential excessive memory allocation when piped (non-TTY) Ink output contains a single very wide line\n+  * Fixed `/skills` menu not scrolling when the list overflows the modal in fullscreen mode\n+  * Fixed Remote Control sessions showing a generic error instead of prompting for re-login when the session is too old\n+  * Fixed Remote Control session renames from claude.ai not persisting the title to the local CLI session\n+\n+​\n+\n 2.1.109\n \n April 15, 2026\n@@ -15,7 +55,7 @@\n April 14, 2026\n \n   * Added `ENABLE_PROMPT_CACHING_1H` env var to opt into 1-hour prompt cache TTL on API key, Bedrock, Vertex, and Foundry (`ENABLE_PROMPT_CACHING_1H_BEDROCK` is deprecated but still honored), and `FORCE_PROMPT_CACHING_5M` to force 5-minute TTL\n-  * Added recap feature to provide context when returning to a session, configurable in /config and manually invocable with /recap; force with `CLAUDE_CODE_ENABLE_AWAY_SUMMARY` if telemetry disabled.\n+  * Added recap feature to provide context when returning to a session, configurable in `/config` and manually invocable with `/recap`; force with `CLAUDE_CODE_ENABLE_AWAY_SUMMARY` if telemetry disabled.\n   * The model can now discover and invoke built-in slash commands like `/init`, `/review`, and `/security-review` via the Skill tool\n   * `/undo` is now an alias for `/rewind`\n   * Improved `/model` to warn before switching models mid-conversation, since the next response re-reads the full history uncached\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "channels",
+    "title": "Push events into a running session with channels",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/channels.md\n+++ b/channels.md\n@@ -191,7 +191,7 @@\n \n     /imessage:access allow +15551234567\n \n-Handles are phone numbers in `+country` format or Apple ID emails like `[[email protected]](</cdn-cgi/l/email-protection>)`.\n+Handles are phone numbers in `+country` format or Apple ID emails like `user@example.com`.\n \n You can also [build your own channel](</docs/en/channels-reference>) for systems that don’t have a plugin yet.\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "claude-code-on-the-web",
+    "title": "Use Claude Code on the web",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 10,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/claude-code-on-the-web.md\n+++ b/claude-code-on-the-web.md\n@@ -108,6 +108,16 @@\n Provide a token\n \n Add a `GH_TOKEN` environment variable to your environment settings with a GitHub personal access token. `gh` reads `GH_TOKEN` automatically, so no `gh auth login` step is needed.\n+\n+###\n+\n+​\n+\n+Link artifacts back to the session\n+\n+Each cloud session has a transcript URL on claude.ai, and the session can read its own ID from the `CLAUDE_CODE_REMOTE_SESSION_ID` environment variable. Use this to put a traceable link in PR bodies, commit messages, Slack posts, or generated reports so a reviewer can open the run that produced them. Ask Claude to construct the link from the environment variable. The following command prints the URL:\n+\n+    echo \"https://claude.ai/code/${CLAUDE_CODE_REMOTE_SESSION_ID}\"\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "code-review",
+    "title": "Code Review",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 67,
+      "lines_removed": 30,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/code-review.md\n+++ b/code-review.md\n@@ -15,7 +15,7 @@\n \n How reviews work\n \n-Once an admin enables Code Review for your organization, reviews trigger when a PR opens, on every push, or when manually requested, depending on the repository’s configured behavior. Commenting `@claude review` starts reviews on a PR in any mode. When a review runs, multiple agents analyze the diff and surrounding code in parallel on Anthropic infrastructure. Each agent looks for a different class of issue, then a verification step checks candidates against actual code behavior to filter out false positives. The results are deduplicated, ranked by severity, and posted as inline comments on the specific lines where issues were found. If no issues are found, Claude posts a short confirmation comment on the PR. Reviews scale in cost with PR size and complexity, completing in 20 minutes on average. Admins can monitor review activity and spend via the analytics dashboard.\n+Once an admin enables Code Review for your organization, reviews trigger when a PR opens, on every push, or when manually requested, depending on the repository’s configured behavior. Commenting `@claude review` starts reviews on a PR in any mode. When a review runs, multiple agents analyze the diff and surrounding code in parallel on Anthropic infrastructure. Each agent looks for a different class of issue, then a verification step checks candidates against actual code behavior to filter out false positives. The results are deduplicated, ranked by severity, and posted as inline comments on the specific lines where issues were found, with a summary in the review body. If no issues are found, Claude posts a short confirmation comment on the PR. Reviews scale in cost with PR size and complexity, completing in 20 minutes on average. Admins can monitor review activity and spend via the analytics dashboard.\n \n ###\n \n@@ -149,10 +149,10 @@\n \n Customize reviews\n \n-Code Review reads two files from your repository to guide what it flags. Both are additive on top of the default correctness checks:\n-\n-  * **`CLAUDE.md`** : shared project instructions that Claude Code uses for all tasks, not just reviews. Use it when guidance also applies to interactive Claude Code sessions.\n-  * **`REVIEW.md`** : review-only guidance, read exclusively during code reviews. Use it for rules that are strictly about what to flag or skip during review and would clutter your general `CLAUDE.md`.\n+Code Review reads two files from your repository to guide what it flags. They differ in how strongly they influence the review:\n+\n+  * **`CLAUDE.md`** : shared project instructions that Claude Code uses for all tasks, not just reviews. Code Review reads it as project context and flags newly introduced violations as nits.\n+  * **`REVIEW.md`** : review-only instructions, injected directly into every agent in the review pipeline as highest priority. Use it to change what gets flagged, at what severity, and how findings are reported.\n \n ###\n \n@@ -160,7 +160,7 @@\n \n CLAUDE.md\n \n-Code Review reads your repository’s `CLAUDE.md` files and treats newly-introduced violations as nit-level findings. This works bidirectionally: if your PR changes code in a way that makes a `CLAUDE.md` statement outdated, Claude flags that the docs need updating too. Claude reads `CLAUDE.md` files at every level of your directory hierarchy, so rules in a subdirectory’s `CLAUDE.md` apply only to files under that path. See the [memory documentation](</docs/en/memory>) for more on how `CLAUDE.md` works. For review-specific guidance that you don’t want applied to general Claude Code sessions, use `REVIEW.md` instead.\n+Code Review reads your repository’s `CLAUDE.md` files and treats newly introduced violations as nit-level findings. This works bidirectionally: if your PR changes code in a way that makes a `CLAUDE.md` statement outdated, Claude flags that the docs need updating too. Claude reads `CLAUDE.md` files at every level of your directory hierarchy, so rules in a subdirectory’s `CLAUDE.md` apply only to files under that path. See the [memory documentation](</docs/en/memory>) for more on how `CLAUDE.md` works. For review-specific guidance that you don’t want applied to general Claude Code sessions, use `REVIEW.md` instead.\n \n ###\n \n@@ -168,31 +168,60 @@\n \n REVIEW.md\n \n-Add a `REVIEW.md` file to your repository root for review-specific rules. Use it to encode:\n-\n-  * Company or team style guidelines: “prefer early returns over nested conditionals”\n-  * Language- or framework-specific conventions not covered by linters\n-  * Things Claude should always flag: “any new API route must have an integration test”\n-  * Things Claude should skip: “don’t comment on formatting in generated code under `/gen/`”\n-\n-Example `REVIEW.md`:\n-\n-    # Code Review Guidelines\n+`REVIEW.md` is a file at your repository root that overrides how Code Review behaves on your repo. Its contents are injected into the system prompt of every agent in the review pipeline as the highest-priority instruction block, taking precedence over the default review guidance. Because it’s pasted verbatim, `REVIEW.md` is plain instructions: [`@` import syntax](</docs/en/memory#import-additional-files>) is not expanded, and referenced files are not read into the prompt. Put the rules you want enforced directly in the file.\n+\n+####\n+\n+​\n+\n+What you can tune\n+\n+`REVIEW.md` is freeform markdown, so anything you can express as a review instruction is in scope. The patterns below have the most impact in practice. **Severity** : redefine what 🔴 Important means for your repo. The default calibration targets production code; a docs repo, a config repo, or a prototype might want a much narrower definition. State explicitly which classes of finding are Important and which are Nit at most. You can also escalate in the other direction, for example treating any `CLAUDE.md` violation as Important rather than the default nit. **Nit volume** : cap how many 🟡 Nit comments a single review posts. Prose and config files can be polished forever. A cap like “report at most five nits, mention the rest as a count in the summary” keeps reviews actionable. **Skip rules** : list paths, branch patterns, and finding categories where Claude should post no findings. Common candidates are generated code, lockfiles, vendored dependencies, and machine-authored branches, along with anything your CI already enforces like linting or spellcheck. For paths that warrant some review but not full scrutiny, set a higher bar instead of skipping entirely: “in `scripts/`, only report if near-certain and severe.” **Repo-specific checks** : add rules you want flagged on every PR, like “new API routes must have an integration test.” Because `REVIEW.md` is injected as highest priority, these land more reliably than the same rules in a long `CLAUDE.md`. **Verification bar** : require evidence before a class of finding is posted. For example, “behavior claims need a `file:line` citation in the source, not an inference from naming” cuts false positives that would otherwise cost the author a round trip. **Re-review convergence** : tell Claude how to behave when a PR has already been reviewed. A rule like “after the first review, suppress new nits and post Important findings only” stops a one-line fix from reaching round seven on style alone. **Summary shape** : ask for the review body to open with a one-line tally such as `2 factual, 4 style`, and to lead with “no factual issues” when that’s the case. The author wants to know the shape of the work before the details.\n+\n+####\n+\n+​\n+\n+Example\n+\n+This `REVIEW.md` recalibrates severity for a backend service, caps nits, skips generated files, and adds repo-specific checks.\n+\n+    # Review instructions\n+\n+    ## What Important means here\n+\n+    Reserve Important for findings that would break behavior, leak data,\n+    or block a rollback: incorrect logic, unscoped database queries, PII\n+    in logs or error messages, and migrations that aren't backward\n+    compatible. Style, naming, and refactoring suggestions are Nit at\n+    most.\n+\n+    ## Cap the nits\n+\n+    Report at most five Nits per review. If you found more, say \"plus N\n+    similar items\" in the summary instead of posting them inline. If\n+    everything you found is a Nit, lead the summary with \"No blocking\n+    issues.\"\n+\n+    ## Do not report\n+\n+    - Anything CI already enforces: lint, formatting, type errors\n+    - Generated files under `src/gen/` and any `*.lock` file\n+    - Test-only code that intentionally violates production rules\n \n     ## Always check\n-    - New API endpoints have corresponding integration tests\n-    - Database migrations are backward-compatible\n-    - Error messages don't leak internal details to users\n-\n-    ## Style\n-    - Prefer `match` statements over chained `isinstance` checks\n-    - Use structured logging, not f-string interpolation in log calls\n-\n-    ## Skip\n-    - Generated files under `src/gen/`\n-    - Formatting-only changes in `*.lock` files\n-\n-Claude auto-discovers `REVIEW.md` at the repository root. No configuration needed.\n+\n+    - New API routes have an integration test\n+    - Log lines don't include email addresses, user IDs, or request bodies\n+    - Database queries are scoped to the caller's tenant\n+\n+####\n+\n+​\n+\n+Keep it focused\n+\n+Length has a cost: a long `REVIEW.md` dilutes the rules that matter most. Keep it to instructions that change review behavior, and leave general project context in `CLAUDE.md`.\n \n ##\n \n@@ -209,7 +238,7 @@\n Feedback| Count of review comments that were auto-resolved because a developer addressed the issue\n Repository breakdown| Per-repo counts of PRs reviewed and comments resolved\n \n-The repositories table in admin settings also shows average cost per review for each repo.\n+The repositories table in admin settings also shows average cost per review for each repo. Dashboard cost figures are estimates for monitoring activity; for invoice-accurate spend, refer to your Anthropic bill.\n \n ##\n \n@@ -240,6 +269,14 @@\n Retrigger a failed or timed-out review\n \n When the review infrastructure hits an internal error or exceeds its time limit, the check run completes with a title of **Code review encountered an error** or **Code review timed out**. The conclusion is still neutral, so nothing blocks your merge, but no findings are posted. To run the review again, comment `@claude review once` on the PR. This starts a fresh review without subscribing the PR to future pushes. If the PR is already subscribed to push-triggered reviews, pushing a new commit also starts a new review. The **Re-run** button in GitHub’s Checks tab does not retrigger Code Review. Use the comment command or a new push instead.\n+\n+###\n+\n+​\n+\n+Review didn’t run and the PR shows a spend-cap message\n+\n+When your organization’s monthly spend cap is reached, Code Review posts a single comment on the PR explaining that the review was skipped. Reviews resume automatically at the start of the next billing period, or immediately when an admin raises the cap at [claude.ai/admin-settings/usage](<https://claude.ai/admin-settings/usage>).\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "cost-tracking",
+    "title": "Track cost and usage",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 14,
+      "lines_removed": 6,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/cost-tracking.md\n+++ b/cost-tracking.md\n@@ -1,4 +1,12 @@\n-The Claude Agent SDK provides detailed token usage information for each interaction with Claude. This guide explains how to properly track costs and understand usage reporting, especially when dealing with parallel tool uses and multi-step conversations. For complete API documentation, see the [TypeScript SDK reference](</docs/en/agent-sdk/typescript>) and [Python SDK reference](</docs/en/agent-sdk/python>).\n+The Claude Agent SDK provides detailed token usage information for each interaction with Claude. This guide explains how to properly track usage and understand cost reporting, especially when dealing with parallel tool uses and multi-step conversations. For complete API documentation, see the [TypeScript SDK reference](</docs/en/agent-sdk/typescript>) and [Python SDK reference](</docs/en/agent-sdk/python>).\n+\n+The `total_cost_usd` and `costUSD` fields are client-side estimates, not authoritative billing data. The SDK computes them locally from a price table bundled at build time, so they can drift from what you are actually billed when:\n+\n+  * pricing changes\n+  * the installed SDK version does not recognize a model\n+  * billing rules apply that the client cannot model\n+\n+Use these fields for development insight and approximate budgeting. For authoritative billing, use the [Usage and Cost API](<https://platform.claude.com/docs/en/build-with-claude/usage-cost-api>) or the Usage page in the [Claude Console](<https://platform.claude.com/usage>). Do not bill end users or trigger financial decisions from these fields.\n \n ##\n \n@@ -17,7 +25,7 @@\n   * **Step:** a single request/response cycle within a `query()` call. Each step produces assistant messages with token usage.\n   * **Session:** a series of `query()` calls linked by a session ID (using the `resume` option). Each `query()` call within a session reports its own cost independently.\n \n-The following diagram shows the message stream from a single `query()` call, with token usage reported at each step and the authoritative total at the end:\n+The following diagram shows the message stream from a single `query()` call, with token usage reported at each step and the cumulative estimate at the end:\n \n 1\n \n@@ -27,9 +35,9 @@\n \n 2\n \n-The result message provides the authoritative total\n-\n-When the `query()` call completes, the SDK emits a result message with `total_cost_usd` and cumulative `usage`. This is available in both TypeScript ([`SDKResultMessage`](</docs/en/agent-sdk/typescript#sdk-result-message>)) and Python ([`ResultMessage`](</docs/en/agent-sdk/python#result-message>)). If you make multiple `query()` calls (for example, in a multi-turn session), each result only reflects the cost of that individual call. If you only need the total cost, you can ignore the per-step usage and read this single value.\n+The result message provides the cumulative estimate\n+\n+When the `query()` call completes, the SDK emits a result message with `total_cost_usd` and cumulative `usage`. This is available in both TypeScript ([`SDKResultMessage`](</docs/en/agent-sdk/typescript#sdk-result-message>)) and Python ([`ResultMessage`](</docs/en/agent-sdk/python#result-message>)). If you make multiple `query()` calls (for example, in a multi-turn session), each result only reflects the cost of that individual call. If you only need the estimated total, you can ignore the per-step usage and read this single value.\n \n ##\n \n@@ -166,7 +174,7 @@\n In rare cases, you might observe different `output_tokens` values for messages with the same ID. When this occurs:\n \n   1. **Use the highest value:** the final message in a group typically contains the accurate total.\n-  2. **Verify against total cost:** the `total_cost_usd` in the result message is authoritative.\n+  2. **Prefer the result message:** the `total_cost_usd` in the result message reflects the SDK’s accumulated estimate across all steps, so it is more reliable than summing per-step values yourself. It is still an estimate and may differ from your actual bill.\n   3. **Report inconsistencies:** file issues at the [Claude Code GitHub repository](<https://github.com/anthropics/claude-code/issues>).\n \n ###\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "costs",
+    "title": "Manage costs effectively",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/costs.md\n+++ b/costs.md\n@@ -14,7 +14,7 @@\n \n The `/cost` command shows API token usage and is intended for API users. Claude Max and Pro subscribers have usage included in their subscription, so `/cost` data isn’t relevant for billing purposes. Subscribers can use `/stats` to view usage patterns.\n \n-The `/cost` command provides detailed token usage statistics for your current session:\n+The `/cost` command provides detailed token usage statistics for your current session. The dollar figure is an estimate computed locally from token counts and may differ from your actual bill. For authoritative billing, see the Usage page in the [Claude Console](<https://platform.claude.com/usage>).\n \n     Total cost:            $0.55\n     Total duration (API):  6m 19.7s\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "discover-plugins",
+    "title": "Discover and install prebuilt plugins through marketplaces",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/discover-plugins.md\n+++ b/discover-plugins.md\n@@ -217,7 +217,7 @@\n \n Using SSH:\n \n-    /plugin marketplace add [[email protected]](</cdn-cgi/l/email-protection>):company/plugins.git\n+    /plugin marketplace add git@gitlab.com:company/plugins.git\n \n To add a specific branch or tag, append `#` followed by the ref:\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "env-vars",
+    "title": "Environment variables",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 3,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/env-vars.md\n+++ b/env-vars.md\n@@ -109,6 +109,8 @@\n `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE`| Set to `1` to keep the existing marketplace cache when a `git pull` fails instead of wiping and re-cloning. Useful in offline or airgapped environments where re-cloning would fail the same way. See [Marketplace updates fail in offline environments](</docs/en/plugin-marketplaces#marketplace-updates-fail-in-offline-environments>)\n `CLAUDE_CODE_PLUGIN_SEED_DIR`| Path to one or more read-only plugin seed directories, separated by `:` on Unix or `;` on Windows. Use this to bundle a pre-populated plugins directory into a container image. Claude Code registers marketplaces from these directories at startup and uses pre-cached plugins without re-cloning. See [Pre-populate plugins for containers](</docs/en/plugin-marketplaces#pre-populate-plugins-for-containers>)\n `CLAUDE_CODE_PROXY_RESOLVES_HOSTS`| Set to `1` to allow the proxy to perform DNS resolution instead of the caller. Opt-in for environments where the proxy should handle hostname resolution\n+`CLAUDE_CODE_REMOTE`| Set automatically to `true` when Claude Code is running as a [cloud session](</docs/en/claude-code-on-the-web>). Read this from a hook or setup script to detect whether you are in a cloud environment\n+`CLAUDE_CODE_REMOTE_SESSION_ID`| Set automatically in [cloud sessions](</docs/en/claude-code-on-the-web>) to the current session’s ID. Read this to construct a link back to the session transcript. See [Link artifacts back to the session](</docs/en/claude-code-on-the-web#link-artifacts-back-to-the-session>)\n `CLAUDE_CODE_RESUME_INTERRUPTED_TURN`| Set to `1` to automatically resume if the previous session ended mid-turn. Used in SDK mode so the model continues without requiring the SDK to re-send the prompt\n `CLAUDE_CODE_SCRIPT_CAPS`| JSON object limiting how many times specific scripts may be invoked per session when `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` is set. Keys are substrings matched against the command text; values are integer call limits. For example, `{\"deploy.sh\": 2}` allows `deploy.sh` to be called at most twice. Matching is substring-based so shell-expansion tricks like `./scripts/deploy.sh $(evil)` still count against the cap. Runtime fan-out via `xargs` or `find -exec` is not detected; this is a defense-in-depth control\n `CLAUDE_CODE_SCROLL_SPEED`| Set the mouse wheel scroll multiplier in [fullscreen rendering](</docs/en/fullscreen#adjust-wheel-scroll-speed>). Accepts values from 1 to 20. Set to `3` to match `vim` if your terminal sends one wheel event per notch without amplification\n@@ -129,6 +131,7 @@\n `CLAUDE_CODE_TASK_LIST_ID`| Share a task list across sessions. Set the same ID in multiple Claude Code instances to coordinate on a shared task list. See [Task list](</docs/en/interactive-mode#task-list>)\n `CLAUDE_CODE_TEAM_NAME`| Name of the agent team this teammate belongs to. Set automatically on [agent team](</docs/en/agent-teams>) members\n `CLAUDE_CODE_TMPDIR`| Override the temp directory used for internal temp files. Claude Code appends `/claude-{uid}/` (Unix) or `/claude/` (Windows) to this path. Default: `/tmp` on macOS, `os.tmpdir()` on Linux/Windows\n+`CLAUDE_CODE_TMUX_TRUECOLOR`| Set to `1` to allow 24-bit truecolor output inside tmux. By default, Claude Code clamps to 256 colors when `$TMUX` is set because tmux does not pass through truecolor escape sequences unless configured to. Set this after adding `set -ga terminal-overrides ',*:Tc'` to your `~/.tmux.conf`. See [Terminal configuration](</docs/en/terminal-config>) for other tmux settings\n `CLAUDE_CODE_USE_BEDROCK`| Use [Bedrock](</docs/en/amazon-bedrock>)\n `CLAUDE_CODE_USE_FOUNDRY`| Use [Microsoft Foundry](</docs/en/microsoft-foundry>)\n `CLAUDE_CODE_USE_MANTLE`| Use the Bedrock [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>)\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "github-enterprise-server",
+    "title": "Claude Code with GitHub Enterprise Server",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 3,
+      "lines_removed": 3,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/github-enterprise-server.md\n+++ b/github-enterprise-server.md\n@@ -102,7 +102,7 @@\n \n Once your admin has connected the GHES instance, no developer-side configuration is needed. Claude Code detects your GHES hostname automatically from the git remote in your working directory. Clone a repository from your GHES instance as you normally would:\n \n-    git clone [[email protected]](</cdn-cgi/l/email-protection>):platform/api-service.git\n+    git clone git@github.example.com:platform/api-service.git\n     cd api-service\n \n Then start a web session. Claude detects the GHES host from your git remote and routes the session through your organization’s configured instance:\n@@ -135,7 +135,7 @@\n \n The `owner/repo` shorthand always resolves to github.com. For GHES-hosted marketplaces, use the full git URL:\n \n-    /plugin marketplace add [[email protected]](</cdn-cgi/l/email-protection>):platform/claude-plugins.git\n+    /plugin marketplace add git@github.example.com:platform/claude-plugins.git\n \n HTTPS URLs work as well:\n \n@@ -167,7 +167,7 @@\n         \"internal-tools\": {\n           \"source\": {\n             \"source\": \"git\",\n-            \"url\": \"[[email protected]](</cdn-cgi/l/email-protection>):platform/claude-plugins.git\"\n+            \"url\": \"git@github.example.com:platform/claude-plugins.git\"\n           }\n         }\n       }\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "how-claude-code-works",
+    "title": "How Claude Code works",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/how-claude-code-works.md\n+++ b/how-claude-code-works.md\n@@ -241,8 +241,8 @@\n \n Claude performs better when it can check its own work. Include test cases, paste screenshots of expected UI, or define the output you want.\n \n-    Implement validateEmail. Test cases: '[[email protected]](</cdn-cgi/l/email-protection>)' → true,\n-    'invalid' → false, '[[email protected]](</cdn-cgi/l/email-protection>)' → false. Run the tests after.\n+    Implement validateEmail. Test cases: 'user@example.com' → true,\n+    'invalid' → false, 'user@.com' → false. Run the tests after.\n \n For visual work, paste a screenshot of the design and ask Claude to compare its implementation against it.\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "jetbrains",
+    "title": "JetBrains IDEs",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/jetbrains.md\n+++ b/jetbrains.md\n@@ -87,7 +87,7 @@\n \n   1. Run `claude`\n   2. Enter the `/config` command\n-  3. Set the diff tool to `auto` for automatic IDE detection\n+  3. Set the diff tool to `auto` to show diffs in the IDE, or `terminal` to keep them in the terminal\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 1,
+      "lines_removed": 1,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/mcp.md\n+++ b/mcp.md\n@@ -391,7 +391,7 @@\n Example: Query your PostgreSQL database\n \n     claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \\\n-      --dsn \"postgresql://readonly:[[email protected]](</cdn-cgi/l/email-protection>):5432/analytics\"\n+      --dsn \"postgresql://readonly:pass@prod.db.com:5432/analytics\"\n \n Then query your database naturally:\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "modifying-system-prompts",
+    "title": "Modifying system prompts",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 34,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/modifying-system-prompts.md\n+++ b/modifying-system-prompts.md\n@@ -232,6 +232,40 @@\n         console.log(message.message.content);\n       }\n     }\n+\n+####\n+\n+​\n+\n+Improve prompt caching across users and machines\n+\n+By default, two sessions that use the same `claude_code` preset and `append` text still cannot share a prompt cache entry if they run from different working directories. This is because the preset embeds per-session context in the system prompt ahead of your `append` text: the working directory, platform and OS version, current date, git status, and auto-memory paths. Any difference in that context produces a different system prompt and a cache miss. To make the system prompt identical across sessions, set `excludeDynamicSections: true` in TypeScript or `\"exclude_dynamic_sections\": True` in Python. The per-session context moves into the first user message, leaving only the static preset and your `append` text in the system prompt so identical configurations share a cache entry across users and machines.\n+\n+`excludeDynamicSections` requires `@anthropic-ai/claude-agent-sdk` v0.2.98 or later, or `claude-agent-sdk` v0.1.58 or later for Python. It applies only to the preset object form and has no effect when `systemPrompt` is a string.\n+\n+The following example pairs a shared `append` block with `excludeDynamicSections` so a fleet of agents running from different directories can reuse the same cached system prompt:\n+\n+TypeScript\n+\n+Python\n+\n+    import { query } from \"@anthropic-ai/claude-agent-sdk\";\n+\n+    for await (const message of query({\n+      prompt: \"Triage the open issues in this repo\",\n+      options: {\n+        systemPrompt: {\n+          type: \"preset\",\n+          preset: \"claude_code\",\n+          append: \"You operate Acme's internal triage workflow. Label issues by component and severity.\",\n+          excludeDynamicSections: true\n+        }\n+      }\n+    })) {\n+      // ...\n+    }\n+\n+**Tradeoffs:** the working directory, git status, and memory location still reach Claude, but as part of the first user message rather than the system prompt. Instructions in the user message carry marginally less weight than the same text in the system prompt, so Claude may rely on them less strongly when reasoning about the current directory or auto-memory paths. Enable this option when cross-session cache reuse matters more than maximally authoritative environment context. For the equivalent flag in non-interactive CLI mode, see [`--exclude-dynamic-system-prompt-sections`](</docs/en/cli-reference>).\n \n ###\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "plugin-marketplaces",
+    "title": "Create and distribute a plugin marketplace",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 4,
+      "lines_removed": 4,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/plugin-marketplaces.md\n+++ b/plugin-marketplaces.md\n@@ -121,7 +121,7 @@\n       \"name\": \"company-tools\",\n       \"owner\": {\n         \"name\": \"DevTools Team\",\n-        \"email\": \"[[email protected]](</cdn-cgi/l/email-protection>)\"\n+        \"email\": \"devtools@example.com\"\n       },\n       \"plugins\": [\n         {\n@@ -372,7 +372,7 @@\n       }\n     }\n \n-The `url` field also accepts a GitHub shorthand (`owner/repo`) or SSH URLs (`[[email protected]](</cdn-cgi/l/email-protection>):owner/repo.git`).\n+The `url` field also accepts a GitHub shorthand (`owner/repo`) or SSH URLs (`git@github.com:owner/repo.git`).\n \n Field| Type| Description\n ---|---|---\n@@ -444,7 +444,7 @@\n       \"version\": \"2.1.0\",\n       \"author\": {\n         \"name\": \"Enterprise Team\",\n-        \"email\": \"[[email protected]](</cdn-cgi/l/email-protection>)\"\n+        \"email\": \"enterprise@example.com\"\n       },\n       \"homepage\": \"https://docs.example.com/plugins/enterprise-tools\",\n       \"repository\": \"https://github.com/company/enterprise-plugin\",\n@@ -848,7 +848,7 @@\n \n Pin to a specific branch or tag with `@ref`:\n \n-    claude plugin marketplace add acme-corp/[[email protected]](</cdn-cgi/l/email-protection>)\n+    claude plugin marketplace add acme-corp/claude-plugins@v2.0\n \n Add from a git URL on a non-GitHub host:\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "plugins-reference",
+    "title": "Plugins reference",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/plugins-reference.md\n+++ b/plugins-reference.md\n@@ -270,7 +270,7 @@\n       \"description\": \"Brief plugin description\",\n       \"author\": {\n         \"name\": \"Author Name\",\n-        \"email\": \"[[email protected]](</cdn-cgi/l/email-protection>)\",\n+        \"email\": \"author@example.com\",\n         \"url\": \"https://github.com/author\"\n       },\n       \"homepage\": \"https://docs.example.com/plugin\",\n@@ -311,7 +311,7 @@\n ---|---|---|---\n `version`| string| Semantic version. If also set in the marketplace entry, `plugin.json` takes priority. You only need to set it in one place.| `\"2.1.0\"`\n `description`| string| Brief explanation of plugin purpose| `\"Deployment automation tools\"`\n-`author`| object| Author information| `{\"name\": \"Dev Team\", \"email\": \"[[email protected]](</cdn-cgi/l/email-protection>)\"}`\n+`author`| object| Author information| `{\"name\": \"Dev Team\", \"email\": \"dev@company.com\"}`\n `homepage`| string| Documentation URL| `\"https://docs.example.com\"`\n `repository`| string| Source code URL| `\"https://github.com/user/plugin\"`\n `license`| string| License identifier| `\"MIT\"`, `\"Apache-2.0\"`\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "python",
+    "title": "Agent SDK reference - Python",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 4,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/python.md\n+++ b/python.md\n@@ -974,12 +974,14 @@\n         type: Literal[\"preset\"]\n         preset: Literal[\"claude_code\"]\n         append: NotRequired[str]\n+        exclude_dynamic_sections: NotRequired[bool]\n \n Field| Required| Description\n ---|---|---\n `type`| Yes| Must be `\"preset\"` to use a preset system prompt\n `preset`| Yes| Must be `\"claude_code\"` to use Claude Code’s system prompt\n `append`| No| Additional instructions to append to the preset system prompt\n+`exclude_dynamic_sections`| No| Move per-session context such as working directory, git status, and memory paths from the system prompt into the first user message. Improves prompt-cache reuse across users and machines. See [Modify system prompts](</docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines>)\n \n ###\n \n@@ -1620,7 +1622,7 @@\n `cacheReadInputTokens`| `int`| Cache read tokens for this model.\n `cacheCreationInputTokens`| `int`| Cache creation tokens for this model.\n `webSearchRequests`| `int`| Web search requests made by this model.\n-`costUSD`| `float`| Cost in USD for this model.\n+`costUSD`| `float`| Estimated cost in USD for this model, computed client-side. See [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for billing caveats.\n `contextWindow`| `int`| Context window size for this model.\n `maxOutputTokens`| `int`| Maximum output token limit for this model.\n \n@@ -2466,7 +2468,7 @@\n     {\n         \"result\": str,  # Final result from the subagent\n         \"usage\": dict | None,  # Token usage statistics\n-        \"total_cost_usd\": float | None,  # Total cost in USD\n+        \"total_cost_usd\": float | None,  # Estimated total cost in USD\n         \"duration_ms\": int | None,  # Execution duration in milliseconds\n     }\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "settings",
+    "title": "Claude Code settings",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 5,
+      "lines_removed": 5,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/settings.md\n+++ b/settings.md\n@@ -307,8 +307,8 @@\n `filesystem.denyRead`| Paths where sandboxed commands cannot read. Arrays are merged across all settings scopes. Also merged with paths from `Read(...)` deny permission rules.| `[\"~/.aws/credentials\"]`\n `filesystem.allowRead`| Paths to re-allow reading within `denyRead` regions. Takes precedence over `denyRead`. Arrays are merged across all settings scopes. Use this to create workspace-only read access patterns.| `[\".\"]`\n `filesystem.allowManagedReadPathsOnly`| (Managed settings only) Only `filesystem.allowRead` paths from managed settings are respected. `denyRead` still merges from all sources. Default: false| `true`\n-`network.allowUnixSockets`| Unix socket paths accessible in sandbox (for SSH agents, etc.)| `[\"~/.ssh/agent-socket\"]`\n-`network.allowAllUnixSockets`| Allow all Unix socket connections in sandbox. Default: false| `true`\n+`network.allowUnixSockets`| (macOS only) Unix socket paths accessible in sandbox. Ignored on Linux and WSL2, where the seccomp filter cannot inspect socket paths; use `allowAllUnixSockets` instead.| `[\"~/.ssh/agent-socket\"]`\n+`network.allowAllUnixSockets`| Allow all Unix socket connections in sandbox. On Linux and WSL2 this is the only way to permit Unix sockets, since it skips the seccomp filter that otherwise blocks `socket(AF_UNIX, ...)` calls. Default: false| `true`\n `network.allowLocalBinding`| Allow binding to localhost ports (macOS only). Default: false| `true`\n `network.allowMachLookup`| Additional XPC/Mach service names the sandbox may look up (macOS only). Supports a single trailing `*` for prefix matching. Needed for tools that communicate via XPC such as the iOS Simulator or Playwright.| `[\"com.apple.coresimulator.*\"]`\n `network.allowedDomains`| Array of domains to allow for outbound network traffic. Supports wildcards (e.g., `*.example.com`).| `[\"github.com\", \"*.npmjs.org\"]`\n@@ -378,7 +378,7 @@\n \n     🤖 Generated with [Claude Code](https://claude.com/claude-code)\n \n-       Co-Authored-By: Claude Sonnet 4.6 <[[email protected]](</cdn-cgi/l/email-protection>)>\n+       Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\n \n **Default pull request attribution:**\n \n@@ -388,7 +388,7 @@\n \n     {\n       \"attribution\": {\n-        \"commit\": \"Generated with AI\\n\\nCo-Authored-By: AI <[[email protected]](</cdn-cgi/l/email-protection>)>\",\n+        \"commit\": \"Generated with AI\\n\\nCo-Authored-By: AI <ai@example.com>\",\n         \"pr\": \"\"\n       }\n     }\n@@ -693,7 +693,7 @@\n \n     { \"source\": \"git\", \"url\": \"https://gitlab.example.com/tools/plugins.git\" }\n     { \"source\": \"git\", \"url\": \"https://bitbucket.org/acme-corp/plugins.git\", \"ref\": \"production\" }\n-    { \"source\": \"git\", \"url\": \"ssh://[[email protected]](</cdn-cgi/l/email-protection>)/plugins.git\", \"ref\": \"v3.1\", \"path\": \"approved\" }\n+    { \"source\": \"git\", \"url\": \"ssh://git@git.example.com/plugins.git\", \"ref\": \"v3.1\", \"path\": \"approved\" }\n \n Fields: `url` (required), `ref` (optional: branch/tag/SHA), `path` (optional: subdirectory)\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "setup",
+    "title": "Advanced setup",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/setup.md\n+++ b/setup.md\n@@ -318,7 +318,7 @@\n \n Display the fingerprint of the imported key.\n \n-    gpg --fingerprint [[email protected]](</cdn-cgi/l/email-protection>)\n+    gpg --fingerprint security@anthropic.com\n \n Confirm the output includes this fingerprint:\n \n@@ -343,7 +343,7 @@\n \n     gpg --verify manifest.json.sig manifest.json\n \n-A valid result reports `Good signature from \"Anthropic Claude Code Release Signing <[[email protected]](</cdn-cgi/l/email-protection>)>\"`.`gpg` also prints `WARNING: This key is not certified with a trusted signature!` for any freshly imported key. This is expected. The `Good signature` line confirms the cryptographic check passed. The fingerprint comparison in Step 1 confirms the key itself is authentic.\n+A valid result reports `Good signature from \"Anthropic Claude Code Release Signing <security@anthropic.com>\"`.`gpg` also prints `WARNING: This key is not certified with a trusted signature!` for any freshly imported key. This is expected. The `Good signature` line confirms the cryptographic check passed. The fingerprint comparison in Step 1 confirms the key itself is authentic.\n \n 4\n \n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "statusline",
+    "title": "Customize your status line",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 3,
+      "lines_removed": 3,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/statusline.md\n+++ b/statusline.md\n@@ -145,7 +145,7 @@\n `workspace.project_dir`| Directory where Claude Code was launched, which may differ from `cwd` if the working directory changes during a session\n `workspace.added_dirs`| Additional directories added via `/add-dir` or `--add-dir`. Empty array if none have been added\n `workspace.git_worktree`| Git worktree name when the current directory is inside a linked worktree created with `git worktree add`. Absent in the main working tree. Populated for any git worktree, unlike `worktree.*` which applies only to `--worktree` sessions\n-`cost.total_cost_usd`| Total session cost in USD\n+`cost.total_cost_usd`| Estimated session cost in USD, computed client-side. May differ from your actual bill\n `cost.total_duration_ms`| Total wall-clock time since the session started, in milliseconds\n `cost.total_api_duration_ms`| Total time spent waiting for API responses in milliseconds\n `cost.total_lines_added`, `cost.total_lines_removed`| Lines of code changed\n@@ -368,7 +368,7 @@\n \n Cost and duration tracking\n \n-Track your session’s API costs and elapsed time. The `cost.total_cost_usd` field accumulates the cost of all API calls in the current session. The `cost.total_duration_ms` field measures total elapsed time since the session started, while `cost.total_api_duration_ms` tracks only the time spent waiting for API responses. Each script formats cost as currency and converts milliseconds to minutes and seconds:\n+Track your session’s API costs and elapsed time. The `cost.total_cost_usd` field accumulates the estimated cost of all API calls in the current session. The `cost.total_duration_ms` field measures total elapsed time since the session started, while `cost.total_api_duration_ms` tracks only the time spent waiting for API responses. Each script formats cost as currency and converts milliseconds to minutes and seconds:\n \n Bash\n \n@@ -457,7 +457,7 @@\n     MODEL=$(echo \"$input\" | jq -r '.model.display_name')\n \n     # Convert git SSH URL to HTTPS\n-    REMOTE=$(git remote get-url origin 2>/dev/null | sed 's/[[email protected]](</cdn-cgi/l/email-protection>):/https:\\/\\/github.com\\//' | sed 's/\\.git$//')\n+    REMOTE=$(git remote get-url origin 2>/dev/null | sed 's/git@github.com:/https:\\/\\/github.com\\//' | sed 's/\\.git$//')\n \n     if [ -n \"$REMOTE\" ]; then\n         REPO_NAME=$(basename \"$REMOTE\")\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "typescript",
+    "title": "Agent SDK reference - TypeScript",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 2,
+      "lines_removed": 2,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/typescript.md\n+++ b/typescript.md\n@@ -389,7 +389,7 @@\n `spawnClaudeCodeProcess`| `(options: SpawnOptions) => SpawnedProcess`| `undefined`| Custom function to spawn the Claude Code process. Use to run Claude Code in VMs, containers, or remote environments\n `stderr`| `(data: string) => void`| `undefined`| Callback for stderr output\n `strictMcpConfig`| `boolean`| `false`| Enforce strict MCP validation\n-`systemPrompt`| `string | { type: 'preset'; preset: 'claude_code'; append?: string }`| `undefined` (minimal prompt)| System prompt configuration. Pass a string for custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. When using the preset object form, add `append` to extend the system prompt with additional instructions\n+`systemPrompt`| `string | { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean }`| `undefined` (minimal prompt)| System prompt configuration. Pass a string for custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. When using the preset object form, add `append` to extend it with additional instructions, and set `excludeDynamicSections: true` to move per-session context into the first user message for [better prompt-cache reuse across machines](</docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines>)\n `thinking`| `ThinkingConfig`| `{ type: 'adaptive' }` for supported models| Controls Claude’s thinking/reasoning behavior. See `ThinkingConfig` for options\n `toolConfig`| `ToolConfig`| `undefined`| Configuration for built-in tool behavior. See `ToolConfig` for details\n `tools`| `string[] | { type: 'preset'; preset: 'claude_code' }`| `undefined`| Tool configuration. Pass an array of tool names or use the preset to get Claude Code’s default tools\n@@ -2572,7 +2572,7 @@\n \n `ModelUsage`\n \n-Per-model usage statistics returned in result messages.\n+Per-model usage statistics returned in result messages. The `costUSD` value is a client-side estimate. See [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for billing caveats.\n \n     type ModelUsage = {\n       inputTokens: number;\n"
+  },
+  {
+    "date": "2026-04-16",
+    "slug": "web-quickstart",
+    "title": "Get started with Claude Code on the web",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 19,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/web-quickstart.md\n+++ b/web-quickstart.md\n@@ -147,6 +147,25 @@\n \n ​\n \n+Pre-fill sessions\n+\n+You can prefill the prompt, repositories, and environment for a new session by adding query parameters to the [claude.ai/code](<https://claude.ai/code>) URL. Use this to build integrations such as a button in your issue tracker that opens Claude Code with the issue description as the prompt.\n+\n+Parameter| Description\n+---|---\n+`prompt`| Prompt text to prefill in the input box. The alias `q` is also accepted.\n+`prompt_url`| URL to fetch the prompt text from, for prompts too long to embed in a query string. The URL must allow cross-origin requests. Ignored when `prompt` is also set.\n+`repositories`| Comma-separated list of `owner/repo` slugs to preselect. The alias `repo` is also accepted.\n+`environment`| Name or ID of the environment to preselect.\n+\n+URL-encode each value. The example below opens the form with a prompt and a repository already selected:\n+\n+    https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp\n+\n+##\n+\n+​\n+\n Review and iterate\n \n When Claude finishes, review the changes, leave feedback on specific lines, and keep going until the diff looks right.\n"
   }
 ]

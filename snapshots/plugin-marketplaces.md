@@ -121,7 +121,7 @@ Create `.claude-plugin/marketplace.json` in your repository root. This file defi
       "name": "company-tools",
       "owner": {
         "name": "DevTools Team",
-        "email": "[[email protected]](</cdn-cgi/l/email-protection>)"
+        "email": "devtools@example.com"
       },
       "plugins": [
         {
@@ -372,7 +372,7 @@ You can pin to a specific branch, tag, or commit:
       }
     }
 
-The `url` field also accepts a GitHub shorthand (`owner/repo`) or SSH URLs (`[[email protected]](</cdn-cgi/l/email-protection>):owner/repo.git`).
+The `url` field also accepts a GitHub shorthand (`owner/repo`) or SSH URLs (`git@github.com:owner/repo.git`).
 
 Field| Type| Description
 ---|---|---
@@ -444,7 +444,7 @@ This example shows a plugin entry using many of the optional fields, including c
       "version": "2.1.0",
       "author": {
         "name": "Enterprise Team",
-        "email": "[[email protected]](</cdn-cgi/l/email-protection>)"
+        "email": "enterprise@example.com"
       },
       "homepage": "https://docs.example.com/plugins/enterprise-tools",
       "repository": "https://github.com/company/enterprise-plugin",
@@ -848,7 +848,7 @@ Add a marketplace from GitHub using `owner/repo` shorthand:
 
 Pin to a specific branch or tag with `@ref`:
 
-    claude plugin marketplace add acme-corp/[[email protected]](</cdn-cgi/l/email-protection>)
+    claude plugin marketplace add acme-corp/claude-plugins@v2.0
 
 Add from a git URL on a non-GitHub host:
 

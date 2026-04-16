@@ -102,7 +102,7 @@ Developer workflow
 
 Once your admin has connected the GHES instance, no developer-side configuration is needed. Claude Code detects your GHES hostname automatically from the git remote in your working directory. Clone a repository from your GHES instance as you normally would:
 
-    git clone [[email protected]](</cdn-cgi/l/email-protection>):platform/api-service.git
+    git clone git@github.example.com:platform/api-service.git
     cd api-service
 
 Then start a web session. Claude detects the GHES host from your git remote and routes the session through your organization’s configured instance:
@@ -135,7 +135,7 @@ Add a GHES marketplace
 
 The `owner/repo` shorthand always resolves to github.com. For GHES-hosted marketplaces, use the full git URL:
 
-    /plugin marketplace add [[email protected]](</cdn-cgi/l/email-protection>):platform/claude-plugins.git
+    /plugin marketplace add git@github.example.com:platform/claude-plugins.git
 
 HTTPS URLs work as well:
 
@@ -167,7 +167,7 @@ You can also pre-register marketplaces for developers so they appear without man
         "internal-tools": {
           "source": {
             "source": "git",
-            "url": "[[email protected]](</cdn-cgi/l/email-protection>):platform/claude-plugins.git"
+            "url": "git@github.example.com:platform/claude-plugins.git"
           }
         }
       }

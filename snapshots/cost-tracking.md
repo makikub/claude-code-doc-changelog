@@ -1,4 +1,12 @@
-The Claude Agent SDK provides detailed token usage information for each interaction with Claude. This guide explains how to properly track costs and understand usage reporting, especially when dealing with parallel tool uses and multi-step conversations. For complete API documentation, see the [TypeScript SDK reference](</docs/en/agent-sdk/typescript>) and [Python SDK reference](</docs/en/agent-sdk/python>).
+The Claude Agent SDK provides detailed token usage information for each interaction with Claude. This guide explains how to properly track usage and understand cost reporting, especially when dealing with parallel tool uses and multi-step conversations. For complete API documentation, see the [TypeScript SDK reference](</docs/en/agent-sdk/typescript>) and [Python SDK reference](</docs/en/agent-sdk/python>).
+
+The `total_cost_usd` and `costUSD` fields are client-side estimates, not authoritative billing data. The SDK computes them locally from a price table bundled at build time, so they can drift from what you are actually billed when:
+
+  * pricing changes
+  * the installed SDK version does not recognize a model
+  * billing rules apply that the client cannot model
+
+Use these fields for development insight and approximate budgeting. For authoritative billing, use the [Usage and Cost API](<https://platform.claude.com/docs/en/build-with-claude/usage-cost-api>) or the Usage page in the [Claude Console](<https://platform.claude.com/usage>). Do not bill end users or trigger financial decisions from these fields.
 
 ##
 
@@ -17,7 +25,7 @@ Both SDKs use the same underlying cost model and expose the same granularity. Th
   * **Step:** a single request/response cycle within a `query()` call. Each step produces assistant messages with token usage.
   * **Session:** a series of `query()` calls linked by a session ID (using the `resume` option). Each `query()` call within a session reports its own cost independently.
 
-The following diagram shows the message stream from a single `query()` call, with token usage reported at each step and the authoritative total at the end:
+The following diagram shows the message stream from a single `query()` call, with token usage reported at each step and the cumulative estimate at the end:
 
 1
 
@@ -27,9 +35,9 @@ When Claude responds, it sends one or more assistant messages. In TypeScript, ea
 
 2
 
-The result message provides the authoritative total
+The result message provides the cumulative estimate
 
-When the `query()` call completes, the SDK emits a result message with `total_cost_usd` and cumulative `usage`. This is available in both TypeScript ([`SDKResultMessage`](</docs/en/agent-sdk/typescript#sdk-result-message>)) and Python ([`ResultMessage`](</docs/en/agent-sdk/python#result-message>)). If you make multiple `query()` calls (for example, in a multi-turn session), each result only reflects the cost of that individual call. If you only need the total cost, you can ignore the per-step usage and read this single value.
+When the `query()` call completes, the SDK emits a result message with `total_cost_usd` and cumulative `usage`. This is available in both TypeScript ([`SDKResultMessage`](</docs/en/agent-sdk/typescript#sdk-result-message>)) and Python ([`ResultMessage`](</docs/en/agent-sdk/python#result-message>)). If you make multiple `query()` calls (for example, in a multi-turn session), each result only reflects the cost of that individual call. If you only need the estimated total, you can ignore the per-step usage and read this single value.
 
 ##
 
@@ -166,7 +174,7 @@ Resolve output token discrepancies
 In rare cases, you might observe different `output_tokens` values for messages with the same ID. When this occurs:
 
   1. **Use the highest value:** the final message in a group typically contains the accurate total.
-  2. **Verify against total cost:** the `total_cost_usd` in the result message is authoritative.
+  2. **Prefer the result message:** the `total_cost_usd` in the result message reflects the SDK’s accumulated estimate across all steps, so it is more reliable than summing per-step values yourself. It is still an estimate and may differ from your actual bill.
   3. **Report inconsistencies:** file issues at the [Claude Code GitHub repository](<https://github.com/anthropics/claude-code/issues>).
 
 ###

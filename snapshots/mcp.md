@@ -391,7 +391,7 @@ Then work with GitHub:
 Example: Query your PostgreSQL database
 
     claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
-      --dsn "postgresql://readonly:[[email protected]](</cdn-cgi/l/email-protection>):5432/analytics"
+      --dsn "postgresql://readonly:pass@prod.db.com:5432/analytics"
 
 Then query your database naturally:
 

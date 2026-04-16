@@ -270,7 +270,7 @@ Complete schema
       "description": "Brief plugin description",
       "author": {
         "name": "Author Name",
-        "email": "[[email protected]](</cdn-cgi/l/email-protection>)",
+        "email": "author@example.com",
         "url": "https://github.com/author"
       },
       "homepage": "https://docs.example.com/plugin",
@@ -311,7 +311,7 @@ Field| Type| Description| Example
 ---|---|---|---
 `version`| string| Semantic version. If also set in the marketplace entry, `plugin.json` takes priority. You only need to set it in one place.| `"2.1.0"`
 `description`| string| Brief explanation of plugin purpose| `"Deployment automation tools"`
-`author`| object| Author information| `{"name": "Dev Team", "email": "[[email protected]](</cdn-cgi/l/email-protection>)"}`
+`author`| object| Author information| `{"name": "Dev Team", "email": "dev@company.com"}`
 `homepage`| string| Documentation URL| `"https://docs.example.com"`
 `repository`| string| Source code URL| `"https://github.com/user/plugin"`
 `license`| string| License identifier| `"MIT"`, `"Apache-2.0"`

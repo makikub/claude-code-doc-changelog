@@ -318,7 +318,7 @@ The release signing key is published at a fixed URL.
 
 Display the fingerprint of the imported key.
 
-    gpg --fingerprint [[email protected]](</cdn-cgi/l/email-protection>)
+    gpg --fingerprint security@anthropic.com
 
 Confirm the output includes this fingerprint:
 
@@ -343,7 +343,7 @@ Verify the detached signature against the manifest.
 
     gpg --verify manifest.json.sig manifest.json
 
-A valid result reports `Good signature from "Anthropic Claude Code Release Signing <[[email protected]](</cdn-cgi/l/email-protection>)>"`.`gpg` also prints `WARNING: This key is not certified with a trusted signature!` for any freshly imported key. This is expected. The `Good signature` line confirms the cryptographic check passed. The fingerprint comparison in Step 1 confirms the key itself is authentic.
+A valid result reports `Good signature from "Anthropic Claude Code Release Signing <security@anthropic.com>"`.`gpg` also prints `WARNING: This key is not certified with a trusted signature!` for any freshly imported key. This is expected. The `Good signature` line confirms the cryptographic check passed. The fingerprint comparison in Step 1 confirms the key itself is authentic.
 
 4
 

@@ -217,7 +217,7 @@ Add any git repository by providing the full URL. This works with any Git host, 
 
 Using SSH:
 
-    /plugin marketplace add [[email protected]](</cdn-cgi/l/email-protection>):company/plugins.git
+    /plugin marketplace add git@gitlab.com:company/plugins.git
 
 To add a specific branch or tag, append `#` followed by the ref:
 

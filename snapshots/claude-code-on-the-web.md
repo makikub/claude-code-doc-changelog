@@ -113,6 +113,16 @@ Add a `GH_TOKEN` environment variable to your environment settings with a GitHub
 
 ​
 
+Link artifacts back to the session
+
+Each cloud session has a transcript URL on claude.ai, and the session can read its own ID from the `CLAUDE_CODE_REMOTE_SESSION_ID` environment variable. Use this to put a traceable link in PR bodies, commit messages, Slack posts, or generated reports so a reviewer can open the run that produced them. Ask Claude to construct the link from the environment variable. The following command prints the URL:
+
+    echo "https://claude.ai/code/${CLAUDE_CODE_REMOTE_SESSION_ID}"
+
+###
+
+​
+
 Run tests, start services, and add packages
 
 Claude runs tests as part of working on a task. Ask for it in your prompt, like “fix the failing tests in `tests/`” or “run pytest after each change.” Test runners like pytest, jest, and cargo test work out of the box since they’re pre-installed. PostgreSQL and Redis are pre-installed but not running by default. Start each one in a setup script or ask Claude to start it during the session:

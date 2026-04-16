@@ -974,12 +974,14 @@ Configuration for using Claude Code’s preset system prompt with optional addit
         type: Literal["preset"]
         preset: Literal["claude_code"]
         append: NotRequired[str]
+        exclude_dynamic_sections: NotRequired[bool]
 
 Field| Required| Description
 ---|---|---
 `type`| Yes| Must be `"preset"` to use a preset system prompt
 `preset`| Yes| Must be `"claude_code"` to use Claude Code’s system prompt
 `append`| No| Additional instructions to append to the preset system prompt
+`exclude_dynamic_sections`| No| Move per-session context such as working directory, git status, and memory paths from the system prompt into the first user message. Improves prompt-cache reuse across users and machines. See [Modify system prompts](</docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines>)
 
 ###
 
@@ -1620,7 +1622,7 @@ Key| Type| Description
 `cacheReadInputTokens`| `int`| Cache read tokens for this model.
 `cacheCreationInputTokens`| `int`| Cache creation tokens for this model.
 `webSearchRequests`| `int`| Web search requests made by this model.
-`costUSD`| `float`| Cost in USD for this model.
+`costUSD`| `float`| Estimated cost in USD for this model, computed client-side. See [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for billing caveats.
 `contextWindow`| `int`| Context window size for this model.
 `maxOutputTokens`| `int`| Maximum output token limit for this model.
 
@@ -2466,7 +2468,7 @@ Agent
     {
         "result": str,  # Final result from the subagent
         "usage": dict | None,  # Token usage statistics
-        "total_cost_usd": float | None,  # Total cost in USD
+        "total_cost_usd": float | None,  # Estimated total cost in USD
         "duration_ms": int | None,  # Execution duration in milliseconds
     }
 

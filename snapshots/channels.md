@@ -191,7 +191,7 @@ By default, only your own messages pass through. To let another contact reach Cl
 
     /imessage:access allow +15551234567
 
-Handles are phone numbers in `+country` format or Apple ID emails like `[[email protected]](</cdn-cgi/l/email-protection>)`.
+Handles are phone numbers in `+country` format or Apple ID emails like `user@example.com`.
 
 You can also [build your own channel](</docs/en/channels-reference>) for systems that don’t have a plugin yet.
 

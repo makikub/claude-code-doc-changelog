@@ -241,8 +241,8 @@ Give Claude something to verify against
 
 Claude performs better when it can check its own work. Include test cases, paste screenshots of expected UI, or define the output you want.
 
-    Implement validateEmail. Test cases: '[[email protected]](</cdn-cgi/l/email-protection>)' → true,
-    'invalid' → false, '[[email protected]](</cdn-cgi/l/email-protection>)' → false. Run the tests after.
+    Implement validateEmail. Test cases: 'user@example.com' → true,
+    'invalid' → false, 'user@.com' → false. Run the tests after.
 
 For visual work, paste a screenshot of the design and ask Claude to compare its implementation against it.
 
