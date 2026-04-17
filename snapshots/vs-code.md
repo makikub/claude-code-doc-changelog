@@ -68,7 +68,7 @@ Here’s an example of asking about a particular line in a file:
 
 Review changes
 
-When Claude wants to edit a file, it shows a side-by-side comparison of the original and proposed changes, then asks for permission. You can accept, reject, or tell Claude what to do instead.
+When Claude wants to edit a file, it shows a side-by-side comparison of the original and proposed changes, then asks for permission. You can accept, reject, or tell Claude what to do instead. If you edit the proposed content directly in the diff view before accepting, Claude is told that you modified it so it does not assume the file matches its original proposal.
 
 For more ideas on what you can do with Claude Code, see [Common workflows](</docs/en/common-workflows>).
 
@@ -107,7 +107,7 @@ For large PDFs, you can ask Claude to read specific pages instead of the whole f
 
 Resume past conversations
 
-Click the dropdown at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time (Today, Yesterday, Last 7 days, etc.). Click any conversation to resume it with the full message history. New sessions receive AI-generated titles based on your first message. Hover over a session to reveal rename and remove actions: rename to give it a descriptive title, or remove to delete it from the list. For more on resuming sessions, see [Common workflows](</docs/en/common-workflows#resume-previous-conversations>).
+Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time (Today, Yesterday, Last 7 days, etc.). Click any conversation to resume it with the full message history. New sessions receive AI-generated titles based on your first message. Hover over a session to reveal rename and remove actions: rename to give it a descriptive title, or remove to delete it from the list. For more on resuming sessions, see [Common workflows](</docs/en/common-workflows#resume-previous-conversations>).
 
 ###
 
@@ -119,9 +119,9 @@ If you use [Claude Code on the web](</docs/en/claude-code-on-the-web>), you can 
 
 1
 
-Open Past Conversations
+Open session history
 
-Click the **Past Conversations** dropdown at the top of the Claude Code panel.
+Click the **Session history** button at the top of the Claude Code panel.
 
 2
 

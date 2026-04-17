@@ -56,7 +56,7 @@ Pick a [cloud environment](</docs/en/claude-code-on-the-web#the-cloud-environmen
 
   * **Network access** : set the level of internet access available during each run
   * **Environment variables** : provide API keys, tokens, or other secrets Claude can use
-  * **Setup script** : run install commands before each session starts, like installing dependencies or configuring tools
+  * **Setup script** : install dependencies and tools the routine needs. The result is [cached](</docs/en/claude-code-on-the-web#environment-caching>), so the script doesn’t re-run on every session
 
 A **Default** environment is provided. To use a custom environment, [create one](</docs/en/claude-code-on-the-web#the-cloud-environment>) before creating the routine.
 

@@ -86,4 +86,5 @@ Related resources
 
   * [Claude Code on the web](</docs/en/claude-code-on-the-web>): the cloud infrastructure ultraplan runs on
   * [Plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>): how planning works in a local session
+  * [Find bugs with ultrareview](</docs/en/ultrareview>): the code review counterpart to ultraplan for catching issues before merge
   * [Remote Control](</docs/en/remote-control>): use the claude.ai/code interface with a session running on your own machine

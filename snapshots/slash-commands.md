@@ -1,4 +1,4 @@
-Slash commands provide a way to control Claude Code sessions with special commands that start with `/`. These commands can be sent through the SDK to perform actions like clearing conversation history, compacting messages, or getting help.
+Slash commands provide a way to control Claude Code sessions with special commands that start with `/`. These commands can be sent through the SDK to perform actions like compacting context, listing context usage, or invoking custom commands. Only commands that work without an interactive terminal are dispatchable through the SDK; the `system/init` message lists the ones available in your session.
 
 ##
 
@@ -20,7 +20,7 @@ Python
     })) {
       if (message.type === "system" && message.subtype === "init") {
         console.log("Available slash commands:", message.slash_commands);
-        // Example output: ["/compact", "/clear", "/help"]
+        // Example output: ["/compact", "/context", "/cost"]
       }
     }
 
@@ -83,26 +83,9 @@ Python
 
 ​
 
-`/clear` \- Clear Conversation
+Clearing the conversation
 
-The `/clear` command starts a fresh conversation by clearing all previous history:
-
-TypeScript
-
-Python
-
-    import { query } from "@anthropic-ai/claude-agent-sdk";
-
-    // Clear conversation and start fresh
-    for await (const message of query({
-      prompt: "/clear",
-      options: { maxTurns: 1 }
-    })) {
-      if (message.type === "system" && message.subtype === "init") {
-        console.log("Conversation cleared, new session started");
-        console.log("Session ID:", message.session_id);
-      }
-    }
+The interactive `/clear` command is not available in the SDK. Each `query()` call already starts a fresh conversation, so to clear context, end the current `query()` and start a new one. The previous conversation stays on disk and can be returned to by passing its session ID to the [`resume` option](</docs/en/agent-sdk/sessions#resume-by-id>).
 
 ##
 
@@ -161,7 +144,7 @@ Create `.claude/commands/security-check.md`:
     ---
     allowed-tools: Read, Grep, Glob
     description: Run security vulnerability scan
-    model: claude-opus-4-6
+    model: claude-opus-4-7
     ---
 
     Analyze the codebase for security vulnerabilities including:
@@ -202,7 +185,7 @@ Python
       if (message.type === "system" && message.subtype === "init") {
         // Will include both built-in and custom commands
         console.log("Available commands:", message.slash_commands);
-        // Example: ["/compact", "/clear", "/help", "/refactor", "/security-check"]
+        // Example: ["/compact", "/context", "/cost", "/refactor", "/security-check"]
       }
     }
 
@@ -256,7 +239,7 @@ Bash Command Execution
 Custom commands can execute bash commands and include their output: Create `.claude/commands/git-commit.md`:
 
     ---
-    allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*)
+    allowed-tools: Bash(git add *), Bash(git status *), Bash(git commit *)
     description: Create a git commit
     ---
 
@@ -322,7 +305,7 @@ Code Review Command
 Create `.claude/commands/code-review.md`:
 
     ---
-    allowed-tools: Read, Grep, Glob, Bash(git diff:*)
+    allowed-tools: Read, Grep, Glob, Bash(git diff *)
     description: Comprehensive code review
     ---
 

@@ -1,4 +1,4 @@
-Structured outputs let you define the exact shape of data you want back from an agent. The agent can use any tools it needs to complete the task, and you still get validated JSON matching your schema at the end. Define a [JSON Schema](<https://json-schema.org/understanding-json-schema/about>) for the structure you need, and the SDK guarantees the output matches it. For full type safety, use Zod (TypeScript) or Pydantic (Python) to define your schema and get strongly-typed objects back.
+Structured outputs let you define the exact shape of data you want back from an agent. The agent can use any tools it needs to complete the task, and you still get validated JSON matching your schema at the end. Define a [JSON Schema](<https://json-schema.org/understanding-json-schema/about>) for the structure you need, and the SDK validates the output against it, re-prompting on mismatch. If validation does not succeed within the retry limit, the result is an error instead of structured data; see Error handling. For full type safety, use Zod (TypeScript) or Pydantic (Python) to define your schema and get strongly-typed objects back.
 
 ##
 

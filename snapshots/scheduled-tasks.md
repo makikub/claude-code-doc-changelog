@@ -1,6 +1,6 @@
 Scheduled tasks require Claude Code v2.1.72 or later. Check your version with `claude --version`.
 
-Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](</docs/en/channels>): your CI can push the failure into the session directly. Tasks are session-scoped: they live in the current Claude Code process and are gone when you exit. For durable scheduling that survives restarts, use [Routines](</docs/en/routines>), [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>), or [GitHub Actions](</docs/en/github-actions>).
+Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](</docs/en/channels>): your CI can push the failure into the session directly. Tasks are session-scoped: they live in the current conversation and stop when you start a new one. Resuming with `--resume` or `--continue` brings back any task that hasn’t expired: a recurring task created within the last 7 days, or a one-shot whose scheduled time hasn’t passed yet. For scheduling that survives independently of any session, use [Routines](</docs/en/routines>), [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>), or [GitHub Actions](</docs/en/github-actions>).
 
 ##
 
@@ -15,7 +15,7 @@ Claude Code offers three ways to schedule recurring work:
 Runs on| Anthropic cloud| Your machine| Your machine
 Requires machine on| No| Yes| Yes
 Requires open session| No| No| Yes
-Persistent across restarts| Yes| Yes| No (session-scoped)
+Persistent across restarts| Yes| Yes| Restored on `--resume` if unexpired
 Access to local files| No (fresh clone)| Yes| Yes
 MCP servers| Connectors configured per task| [Config files](</docs/en/mcp>) and connectors| Inherits from session
 Permission prompts| No (runs autonomously)| Configurable per task| Inherits from session
@@ -210,9 +210,9 @@ Limitations
 
 Session-scoped scheduling has inherent constraints:
 
-  * Tasks only fire while Claude Code is running and idle. Closing the terminal or letting the session exit cancels everything.
+  * Tasks only fire while Claude Code is running and idle. Closing the terminal or letting the session exit stops them firing.
   * No catch-up for missed fires. If a task’s scheduled time passes while Claude is busy on a long-running request, it fires once when Claude becomes idle, not once per missed interval.
-  * No persistence across restarts. Restarting Claude Code clears all session-scoped tasks.
+  * Starting a fresh conversation clears all session-scoped tasks. Resuming with `claude --resume` or `claude --continue` restores tasks that have not expired: recurring tasks within seven days of creation, and one-shot tasks whose scheduled time has not yet passed. Background Bash and monitor tasks are never restored on resume.
 
 For cron-driven automation that needs to run unattended:
 
