@@ -2,7 +2,7 @@ Remote Control is available on all plans. On Team and Enterprise, it is off by d
 
 Remote Control connects [claude.ai/code](<https://claude.ai/code>) or the Claude app for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) and [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>) to a Claude Code session running on your machine. Start a task at your desk, then pick it up from your phone on the couch or a browser on another computer. When you start a Remote Control session on your machine, Claude keeps running locally the entire time, so nothing moves to the cloud. With Remote Control you can:
 
-  * **Use your full local environment remotely** : your filesystem, [MCP servers](</docs/en/mcp>), tools, and project configuration all stay available
+  * **Use your full local environment remotely** : your filesystem, [MCP servers](</docs/en/mcp>), tools, and project configuration all stay available, and typing `@` autocompletes file paths from your local project
   * **Work from both surfaces at once** : the conversation stays in sync across all connected devices, so you can send messages from your terminal, browser, and phone interchangeably
   * **Survive interruptions** : if your laptop sleeps or your network drops, the session reconnects automatically when your machine comes back online
 
@@ -182,7 +182,7 @@ Limitations
   * **Local process must keep running** : Remote Control runs as a local process. If you close the terminal, quit VS Code, or otherwise stop the `claude` process, the session ends.
   * **Extended network outage** : if your machine is awake but unable to reach the network for more than roughly 10 minutes, the session times out and the process exits. Run `claude remote-control` again to start a new session.
   * **Ultraplan disconnects Remote Control** : starting an [ultraplan](</docs/en/ultraplan>) session disconnects any active Remote Control session because both features occupy the claude.ai/code interface and only one can be connected at a time.
-  * **Some commands are local-only** : commands that open an interactive picker in the terminal, such as `/mcp`, `/plugin`, or `/resume`, work only from the local CLI. Commands that produce text output, including `/compact`, `/clear`, `/context`, `/cost`, `/exit`, `/recap`, and `/reload-plugins`, work from mobile and web.
+  * **Some commands are local-only** : commands that open an interactive picker in the terminal, such as `/mcp`, `/plugin`, or `/resume`, work only from the local CLI. Commands that produce text output, including `/compact`, `/clear`, `/context`, `/cost`, `/exit`, `/extra-usage`, `/recap`, and `/reload-plugins`, work from mobile and web.
 
 ##
 

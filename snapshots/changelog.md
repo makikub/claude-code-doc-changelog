@@ -2,6 +2,14 @@ This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/ant
 
 ​
 
+2.1.114
+
+April 18, 2026
+
+  * Fixed a crash in the permission dialog when an agent teams teammate requested tool permission
+
+​
+
 2.1.113
 
 April 17, 2026

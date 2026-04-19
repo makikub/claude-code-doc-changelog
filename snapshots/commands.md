@@ -12,7 +12,7 @@ Command| Purpose
 `/claude-api`| **[Skill](</docs/en/skills#bundled-skills>).** Load Claude API reference material for your project’s language (Python, TypeScript, Java, Go, Ruby, C#, PHP, or cURL) and Managed Agents reference. Covers tool use, streaming, batches, structured outputs, and common pitfalls. Also activates automatically when your code imports `anthropic` or `@anthropic-ai/sdk`
 `/clear`| Start a new conversation with empty context. The previous conversation stays available in `/resume`. To free up context while continuing the same conversation, use `/compact` instead. Aliases: `/reset`, `/new`
 `/color [color|default]`| Set the prompt bar color for the current session. Available colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`. Use `default` to reset
-`/compact [instructions]`| Compact conversation with optional focus instructions
+`/compact [instructions]`| Free up context by summarizing the conversation so far. Optionally pass focus instructions for the summary. See [how compaction handles rules, skills, and memory files](</docs/en/context-window#what-survives-compaction>)
 `/config`| Open the [Settings](</docs/en/settings>) interface to adjust theme, model, [output style](</docs/en/output-styles>), and other preferences. Alias: `/settings`
 `/context`| Visualize current context usage as a colored grid. Shows optimization suggestions for context-heavy tools, memory bloat, and capacity warnings
 `/copy [N]`| Copy the last assistant response to clipboard. Pass a number `N` to copy the Nth-latest response: `/copy 2` copies the second-to-last. When code blocks are present, shows an interactive picker to select individual blocks or the full response. Press `w` in the picker to write the selection to a file instead of the clipboard, which is useful over SSH
@@ -27,6 +27,7 @@ Command| Purpose
 `/extra-usage`| Configure extra usage to keep working when rate limits are hit
 `/fast [on|off]`| Toggle [fast mode](</docs/en/fast-mode>) on or off
 `/feedback [report]`| Submit feedback about Claude Code. Alias: `/bug`
+`/fewer-permission-prompts`| **[Skill](</docs/en/skills#bundled-skills>).** Scan your transcripts for common read-only Bash and MCP tool calls, then add a prioritized allowlist to project `.claude/settings.json` to reduce permission prompts
 `/focus`| Toggle the focus view, which shows only your last prompt, a one-line tool-call summary with edit diffstats, and the final response. The selection persists across sessions. Only available in [fullscreen rendering](</docs/en/fullscreen>)
 `/heapdump`| Write a JavaScript heap snapshot and a memory breakdown to `~/Desktop` for diagnosing high memory usage. See [troubleshooting](</docs/en/troubleshooting#high-cpu-or-memory-usage>)
 `/help`| Show help and available commands
@@ -37,7 +38,6 @@ Command| Purpose
 `/install-github-app`| Set up the [Claude GitHub Actions](</docs/en/github-actions>) app for a repository. Walks you through selecting a repo and configuring the integration
 `/install-slack-app`| Install the Claude Slack app. Opens a browser to complete the OAuth flow
 `/keybindings`| Open or create your keybindings configuration file
-`/less-permission-prompts`| **[Skill](</docs/en/skills#bundled-skills>).** Scan your transcripts for common read-only Bash and MCP tool calls, then add a prioritized allowlist to project `.claude/settings.json` to reduce permission prompts
 `/login`| Sign in to your Anthropic account
 `/logout`| Sign out from your Anthropic account
 `/loop [interval] [prompt]`| **[Skill](</docs/en/skills#bundled-skills>).** Run a prompt repeatedly while the session stays open. Omit the interval and Claude self-paces between iterations. Omit the prompt and Claude runs an autonomous maintenance check, or the prompt in `.claude/loop.md` if present. Example: `/loop 5m check if the deploy finished`. See [Run prompts on a schedule](</docs/en/scheduled-tasks>). Alias: `/proactive`
