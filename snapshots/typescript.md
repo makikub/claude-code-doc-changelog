@@ -925,6 +925,7 @@ Union type of all possible messages returned by the query.
       | SDKTaskNotificationMessage
       | SDKTaskStartedMessage
       | SDKTaskProgressMessage
+      | SDKTaskUpdatedMessage
       | SDKFilesPersistedEvent
       | SDKToolUseSummaryMessage
       | SDKRateLimitEvent
@@ -3028,6 +3029,30 @@ Emitted periodically while a background task is running.
         duration_ms: number;
       };
       last_tool_name?: string;
+      uuid: UUID;
+      session_id: string;
+    };
+
+###
+
+​
+
+`SDKTaskUpdatedMessage`
+
+Emitted when a background task’s state changes, such as when it transitions from `running` to `completed`. Merge `patch` into your local task map keyed by `task_id`. The `end_time` field is a Unix epoch timestamp in milliseconds, comparable with `Date.now()`.
+
+    type SDKTaskUpdatedMessage = {
+      type: "system";
+      subtype: "task_updated";
+      task_id: string;
+      patch: {
+        status?: "pending" | "running" | "completed" | "failed" | "killed";
+        description?: string;
+        end_time?: number;
+        total_paused_ms?: number;
+        error?: string;
+        is_backgrounded?: boolean;
+      };
       uuid: UUID;
       session_id: string;
     };

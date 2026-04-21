@@ -694,7 +694,7 @@ Use **subagents** when:
   * You want to enforce specific tool restrictions or permissions
   * The work is self-contained and can return a summary
 
-Consider [Skills](</docs/en/skills>) instead when you want reusable prompts or workflows that run in the main conversation context rather than isolated subagent context. For a quick question about something already in your conversation, use [`/btw`](</docs/en/interactive-mode#side-questions-with-btw>) instead of a subagent. It sees your full context but has no tool access, and the answer is discarded rather than added to history.
+Consider [Skills](</docs/en/skills>) instead when you want reusable prompts or workflows that run in the main conversation context rather than isolated subagent context. For a quick question about something already in your conversation, use [`/btw`](</docs/en/interactive-mode#side-questions-with-%2Fbtw>) instead of a subagent. It sees your full context but has no tool access, and the answer is discarded rather than added to history.
 
 Subagents cannot spawn other subagents. If your workflow requires nested delegation, use [Skills](</docs/en/skills>) or chain subagents from the main conversation.
 
