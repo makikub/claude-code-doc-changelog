@@ -900,8 +900,9 @@ Configuration dataclass for Claude Code queries.
         plugins: list[SdkPluginConfig] = field(default_factory=list)
         max_thinking_tokens: int | None = None  # Deprecated: use thinking instead
         thinking: ThinkingConfig | None = None
-        effort: Literal["low", "medium", "high", "xhigh", "max"] | None = None
+        effort: Literal["low", "medium", "high", "max"] | None = None
         enable_file_checkpointing: bool = False
+        session_store: SessionStore | None = None
 
 Property| Type| Default| Description
 ---|---|---|---
@@ -941,7 +942,8 @@ Property| Type| Default| Description
 `setting_sources`| `list[SettingSource] | None`| `None` (CLI defaults: all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
 `max_thinking_tokens`| `int | None`| `None`|  _Deprecated_ \- Maximum tokens for thinking blocks. Use `thinking` instead
 `thinking`| `ThinkingConfig` ` | None`| `None`| Controls extended thinking behavior. Takes precedence over `max_thinking_tokens`
-`effort`| `Literal["low", "medium", "high", "xhigh", "max"] | None`| `None`| Effort level for thinking depth
+`effort`| `Literal["low", "medium", "high", "max"] | None`| `None`| Effort level for thinking depth
+`session_store`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-session-store-interface>) ` | None`| `None`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
 
 ###
 
@@ -1121,20 +1123,34 @@ Configuration for a subagent defined programmatically.
         description: str
         prompt: str
         tools: list[str] | None = None
-        model: Literal["sonnet", "opus", "haiku", "inherit"] | None = None
+        disallowedTools: list[str] | None = None
+        model: str | None = None
         skills: list[str] | None = None
         memory: Literal["user", "project", "local"] | None = None
         mcpServers: list[str | dict[str, Any]] | None = None
+        initialPrompt: str | None = None
+        maxTurns: int | None = None
+        background: bool | None = None
+        effort: Literal["low", "medium", "high", "max"] | int | None = None
+        permissionMode: PermissionMode | None = None
 
 Field| Required| Description
 ---|---|---
 `description`| Yes| Natural language description of when to use this agent
 `prompt`| Yes| The agent’s system prompt
 `tools`| No| Array of allowed tool names. If omitted, inherits all tools
-`model`| No| Model override for this agent. If omitted, uses the main model
+`disallowedTools`| No| Array of tool names to remove from the agent’s tool set
+`model`| No| Model override for this agent. Accepts an alias such as `"sonnet"`, `"opus"`, `"haiku"`, or `"inherit"`, or a full model ID. If omitted, uses the main model
 `skills`| No| List of skill names available to this agent
 `memory`| No| Memory source for this agent: `"user"`, `"project"`, or `"local"`
 `mcpServers`| No| MCP servers available to this agent. Each entry is a server name or an inline `{name: config}` dict
+`initialPrompt`| No| Auto-submitted as the first user turn when this agent runs as the main thread agent
+`maxTurns`| No| Maximum number of agentic turns before the agent stops
+`background`| No| Run this agent as a non-blocking background task when invoked
+`effort`| No| Reasoning effort level for this agent. Accepts a named level or an integer
+`permissionMode`| No| Permission mode for tool execution within this agent. See `PermissionMode`
+
+`AgentDefinition` field names use camelCase, such as `disallowedTools`, `permissionMode`, and `maxTurns`. These names map directly to the wire format shared with the TypeScript SDK. This differs from `ClaudeAgentOptions`, which uses Python snake_case for the equivalent top-level fields such as `disallowed_tools` and `permission_mode`. Because `AgentDefinition` is a dataclass, passing a snake_case keyword raises a `TypeError` at construction time.
 
 ###
 

@@ -401,6 +401,7 @@ Event| When it fires
 ---|---
 `SessionStart`| When a session begins or resumes
 `UserPromptSubmit`| When you submit a prompt, before Claude processes it
+`UserPromptExpansion`| When a user-typed command expands into a prompt, before it reaches Claude. Can block the expansion
 `PreToolUse`| Before a tool call executes. Can block it
 `PermissionRequest`| When a permission dialog appears
 `PermissionDenied`| When a tool call is denied by the auto mode classifier. Return `{retry: true}` to tell the model it may retry the denied tool call
@@ -481,7 +482,7 @@ Your script tells Claude Code what to do next by writing to stdout or stderr and
 
 The exit code determines what happens next:
 
-  * **Exit 0** : the action proceeds. For `UserPromptSubmit` and `SessionStart` hooks, anything you write to stdout is added to Claude’s context.
+  * **Exit 0** : the action proceeds. For `UserPromptSubmit`, `UserPromptExpansion`, and `SessionStart` hooks, anything you write to stdout is added to Claude’s context.
   * **Exit 2** : the action is blocked. Write a reason to stderr, and Claude receives it as feedback so it can adjust.
   * **Any other exit code** : the action proceeds. The transcript shows a `<hook name> hook error` notice followed by the first line of stderr; the full stderr goes to the [debug log](</docs/en/hooks#debug-hooks>).
 
@@ -551,6 +552,7 @@ Event| What the matcher filters| Example matcher values
 `Elicitation`| MCP server name| your configured MCP server names
 `ElicitationResult`| MCP server name| same values as `Elicitation`
 `FileChanged`| literal filenames to watch (see [FileChanged](</docs/en/hooks#filechanged>))| `.envrc|.env`
+`UserPromptExpansion`| command name| your skill or command names
 `UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`| no matcher support| always fires on every occurrence
 
 A few more examples showing matchers on different event types:

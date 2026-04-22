@@ -428,6 +428,7 @@ Project-root CLAUDE.md survives compaction: after `/compact`, Claude re-reads it
 
 Related resources
 
+  * [Debug your configuration](</docs/en/debug-your-config>): diagnose why CLAUDE.md or settings aren’t taking effect
   * [Skills](</docs/en/skills>): package repeatable workflows that load on demand
   * [Settings](</docs/en/settings>): configure Claude Code behavior with settings files
   * [Subagent memory](</docs/en/sub-agents#enable-persistent-memory>): let subagents maintain their own auto memory

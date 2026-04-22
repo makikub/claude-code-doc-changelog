@@ -203,6 +203,8 @@ TypeScript
 
 If a `resume` call returns a fresh session instead of the expected history, the most common cause is a mismatched `cwd`. Sessions are stored under `~/.claude/projects/<encoded-cwd>/*.jsonl`, where `<encoded-cwd>` is the absolute working directory with every non-alphanumeric character replaced by `-` (so `/Users/me/proj` becomes `-Users-me-proj`). If your resume call runs from a different directory, the SDK looks in the wrong place. The session file also needs to exist on the current machine.
 
+To resume sessions across machines or in serverless environments, mirror transcripts to shared storage with a [`SessionStore` adapter](</docs/en/agent-sdk/session-storage>).
+
 ###
 
 ​

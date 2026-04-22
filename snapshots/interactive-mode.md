@@ -353,7 +353,7 @@ Task list
 
 When working on complex, multi-step work, Claude creates a task list to track progress. Tasks appear in the status area of your terminal with indicators showing what’s pending, in progress, or complete.
 
-  * Press `Ctrl+T` to toggle the task list view. The display shows up to 10 tasks at a time
+  * Press `Ctrl+T` to toggle the task list view. The display shows up to 5 tasks at a time
   * To see all tasks or clear them, ask Claude directly: “show me all tasks” or “clear all tasks”
   * Tasks persist across context compactions, helping Claude stay organized on larger projects
   * To share a task list across sessions, set `CLAUDE_CODE_TASK_LIST_ID` to use a named directory in `~/.claude/tasks/`: `CLAUDE_CODE_TASK_LIST_ID=my-project claude`
@@ -364,7 +364,7 @@ When working on complex, multi-step work, Claude creates a task list to track pr
 
 Session recap
 
-When you return to the terminal after stepping away, Claude Code shows a one-line recap of what happened in the session so far. The recap generates in the background once at least three minutes have passed since the last completed turn and the terminal is unfocused, so it’s ready when you switch back. Recaps only appear once the session has at least three turns, and never twice in a row. Run `/recap` to generate a summary on demand. To turn automatic recaps off, open `/config` and disable **Session recap**. Session recap is on by default for every plan and provider. To override the `/config` toggle, set [`CLAUDE_CODE_ENABLE_AWAY_SUMMARY`](</docs/en/env-vars>) to `0` or `1`. The recap is always skipped in non-interactive mode.
+When you return to the terminal after stepping away, Claude Code shows a one-line recap of what happened in the session so far. The recap generates in the background once at least three minutes have passed since the last completed turn and the terminal is unfocused, so it’s ready when you switch back. Recaps only appear once the session has at least three turns, and never twice in a row. Run `/recap` to generate a summary on demand. To turn automatic recaps off, open `/config` and disable **Session recap**. Session recap is on by default for every plan and provider. The recap is always skipped in non-interactive mode.
 
 ##
 

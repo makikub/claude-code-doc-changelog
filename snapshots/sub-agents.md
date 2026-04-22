@@ -377,7 +377,7 @@ Use the `skills` field to inject skill content into a subagent’s context at st
 
     Implement API endpoints. Follow the conventions and patterns from the preloaded skills.
 
-The full content of each skill is injected into the subagent’s context, not just made available for invocation. Subagents don’t inherit skills from the parent conversation; you must list them explicitly.
+The full content of each skill is injected into the subagent’s context, not just made available for invocation. Subagents don’t inherit skills from the parent conversation; you must list them explicitly. You cannot preload skills that set [`disable-model-invocation: true`](</docs/en/skills#control-who-invokes-a-skill>), since preloading draws from the same set of skills Claude can invoke. If a listed skill is missing or disabled, Claude Code skips it and logs a warning to the debug log.
 
 This is the inverse of [running a skill in a subagent](</docs/en/skills#run-skills-in-a-subagent>). With `skills` in a subagent, the subagent controls the system prompt and loads skill content. With `context: fork` in a skill, the skill content is injected into the agent you specify. Both use the same underlying system.
 
@@ -501,7 +501,7 @@ Hooks in subagent frontmatter
 
 Define hooks directly in the subagent’s markdown file. These hooks only run while that specific subagent is active and are cleaned up when it finishes.
 
-Frontmatter hooks fire when the agent is spawned as a subagent through the Agent tool or an @-mention. They do not fire when the agent runs as the main session via `--agent` or the `agent` setting. For session-wide hooks, configure them in [`settings.json`](</docs/en/hooks>).
+Frontmatter hooks fire when the agent is spawned as a subagent through the Agent tool or an @-mention, and when the agent runs as the main session via `--agent` or the `agent` setting. In the main-session case they run alongside any hooks defined in [`settings.json`](</docs/en/hooks>).
 
 All [hook events](</docs/en/hooks#hook-events>) are supported. The most common events for subagents are:
 
@@ -529,7 +529,7 @@ This example validates Bash commands with the `PreToolUse` hook and runs a linte
               command: "./scripts/run-linter.sh"
     ---
 
-`Stop` hooks in frontmatter are automatically converted to `SubagentStop` events.
+When the agent is invoked as a subagent, `Stop` hooks in frontmatter are automatically converted to `SubagentStop` events.
 
 ####
 

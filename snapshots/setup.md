@@ -323,7 +323,7 @@ Download the manifest and signature
 
 Set `VERSION` to the release you want to verify.
 
-    REPO=https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases
+    REPO=https://downloads.claude.ai/claude-code-releases
     VERSION=2.1.89
     curl -fsSLO "$REPO/$VERSION/manifest.json"
     curl -fsSLO "$REPO/$VERSION/manifest.json.sig"

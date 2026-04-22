@@ -16,6 +16,7 @@ Event| When it fires
 ---|---
 `SessionStart`| When a session begins or resumes
 `UserPromptSubmit`| When you submit a prompt, before Claude processes it
+`UserPromptExpansion`| When a user-typed command expands into a prompt, before it reaches Claude. Can block the expansion
 `PreToolUse`| Before a tool call executes. Can block it
 `PermissionRequest`| When a permission dialog appears
 `PermissionDenied`| When a tool call is denied by the auto mode classifier. Return `{retry: true}` to tell the model it may retry the denied tool call
@@ -195,6 +196,7 @@ Event| What the matcher filters| Example matcher values
 `FileChanged`| literal filenames to watch (see FileChanged)| `.envrc|.env`
 `StopFailure`| error type| `rate_limit`, `authentication_failed`, `billing_error`, `invalid_request`, `server_error`, `max_output_tokens`, `unknown`
 `InstructionsLoaded`| load reason| `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`
+`UserPromptExpansion`| command name| your skill or command names
 `Elicitation`| MCP server name| your configured MCP server names
 `ElicitationResult`| MCP server name| same values as `Elicitation`
 `UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`| no matcher support| always fires on every occurrence
@@ -516,7 +518,7 @@ The `tool_name` and `tool_input` fields are event-specific. Each hook event sect
 
 Exit code output
 
-The exit code from your hook command tells Claude Code whether the action should proceed, be blocked, or be ignored. **Exit 0** means success. Claude Code parses stdout for JSON output fields. JSON output is only processed on exit 0. For most events, stdout is written to the debug log but not shown in the transcript. The exceptions are `UserPromptSubmit` and `SessionStart`, where stdout is added as context that Claude can see and act on. **Exit 2** means a blocking error. Claude Code ignores stdout and any JSON in it. Instead, stderr text is fed back to Claude as an error message. The effect depends on the event: `PreToolUse` blocks the tool call, `UserPromptSubmit` rejects the prompt, and so on. See exit code 2 behavior for the full list. **Any other exit code** is a non-blocking error for most hook events. The transcript shows a `<hook name> hook error` notice followed by the first line of stderr, so you can identify the cause without `--debug`. Execution continues and the full stderr is written to the debug log. For example, a hook command script that blocks dangerous Bash commands:
+The exit code from your hook command tells Claude Code whether the action should proceed, be blocked, or be ignored. **Exit 0** means success. Claude Code parses stdout for JSON output fields. JSON output is only processed on exit 0. For most events, stdout is written to the debug log but not shown in the transcript. The exceptions are `UserPromptSubmit`, `UserPromptExpansion`, and `SessionStart`, where stdout is added as context that Claude can see and act on. **Exit 2** means a blocking error. Claude Code ignores stdout and any JSON in it. Instead, stderr text is fed back to Claude as an error message. The effect depends on the event: `PreToolUse` blocks the tool call, `UserPromptSubmit` rejects the prompt, and so on. See exit code 2 behavior for the full list. **Any other exit code** is a non-blocking error for most hook events. The transcript shows a `<hook name> hook error` notice followed by the first line of stderr, so you can identify the cause without `--debug`. Execution continues and the full stderr is written to the debug log. For example, a hook command script that blocks dangerous Bash commands:
 
     #!/bin/bash
     # Reads JSON input from stdin, checks the command
@@ -544,6 +546,7 @@ Hook event| Can block?| What happens on exit 2
 `PreToolUse`| Yes| Blocks the tool call
 `PermissionRequest`| Yes| Denies the permission
 `UserPromptSubmit`| Yes| Blocks prompt processing and erases the prompt
+`UserPromptExpansion`| Yes| Blocks the expansion
 `Stop`| Yes| Prevents Claude from stopping, continues the conversation
 `SubagentStop`| Yes| Prevents the subagent from stopping
 `TeammateIdle`| Yes| Prevents the teammate from going idle (teammate continues working)
@@ -621,7 +624,7 @@ Not every event supports blocking or controlling behavior through JSON. The even
 
 Events| Decision pattern| Key fields
 ---|---|---
-UserPromptSubmit, PostToolUse, PostToolUseFailure, Stop, SubagentStop, ConfigChange, PreCompact| Top-level `decision`| `decision: "block"`, `reason`
+UserPromptSubmit, UserPromptExpansion, PostToolUse, PostToolUseFailure, Stop, SubagentStop, ConfigChange, PreCompact| Top-level `decision`| `decision: "block"`, `reason`
 TeammateIdle, TaskCreated, TaskCompleted| Exit code or `continue: false`| Exit code 2 blocks the action with stderr feedback. JSON `{"continue": false, "stopReason": "..."}` also stops the teammate entirely, matching `Stop` hook behavior
 PreToolUse| `hookSpecificOutput`| `permissionDecision` (allow/deny/ask/defer), `permissionDecisionReason`
 PermissionRequest| `hookSpecificOutput`| `decision.behavior` (allow/deny)
@@ -639,7 +642,7 @@ Here are examples of each pattern in action:
 
   * PermissionRequest
 
-Used by `UserPromptSubmit`, `PostToolUse`, `PostToolUseFailure`, `Stop`, `SubagentStop`, `ConfigChange`, and `PreCompact`. The only value is `"block"`. To allow the action to proceed, omit `decision` from your JSON, or exit 0 without any JSON at all:
+Used by `UserPromptSubmit`, `UserPromptExpansion`, `PostToolUse`, `PostToolUseFailure`, `Stop`, `SubagentStop`, `ConfigChange`, and `PreCompact`. The only value is `"block"`. To allow the action to proceed, omit `decision` from your JSON, or exit 0 without any JSON at all:
 
     {
       "decision": "block",
@@ -869,6 +872,58 @@ Field| Description
     }
 
 The JSON format isn’t required for simple use cases. To add context, you can print plain text to stdout with exit code 0. Use JSON when you need to block prompts or want more structured control.
+
+###
+
+​
+
+UserPromptExpansion
+
+Runs when a user-typed slash command expands into a prompt before reaching Claude. Use this to block specific commands from direct invocation, inject context for a particular skill, or log which commands users invoke. For example, a hook matching `deploy` can block `/deploy` unless an approval file is present, or a hook matching a review skill can append the team’s review checklist as `additionalContext`. This event covers the path `PreToolUse` does not: a `PreToolUse` hook matching the `Skill` tool fires only when Claude calls the tool, but typing `/skillname` directly bypasses `PreToolUse`. `UserPromptExpansion` fires on that direct path. Matches on `command_name`. Leave the matcher empty to fire on every prompt-type slash command.
+
+####
+
+​
+
+UserPromptExpansion input
+
+In addition to the common input fields, UserPromptExpansion hooks receive `expansion_type`, `command_name`, `command_args`, `command_source`, and the original `prompt` string. The `expansion_type` field is `slash_command` for skill and custom commands, or `mcp_prompt` for MCP server prompts.
+
+    {
+      "session_id": "abc123",
+      "transcript_path": "/Users/.../00893aaf.jsonl",
+      "cwd": "/Users/...",
+      "permission_mode": "default",
+      "hook_event_name": "UserPromptExpansion",
+      "expansion_type": "slash_command",
+      "command_name": "example-skill",
+      "command_args": "arg1 arg2",
+      "command_source": "plugin",
+      "prompt": "/example-skill arg1 arg2"
+    }
+
+####
+
+​
+
+UserPromptExpansion decision control
+
+`UserPromptExpansion` hooks can block the expansion or add context. All JSON output fields are available.
+
+Field| Description
+---|---
+`decision`| `"block"` prevents the slash command from expanding. Omit to allow it to proceed
+`reason`| Shown to the user when `decision` is `"block"`
+`additionalContext`| String added to Claude’s context alongside the expanded prompt
+
+    {
+      "decision": "block",
+      "reason": "This slash command is not available",
+      "hookSpecificOutput": {
+        "hookEventName": "UserPromptExpansion",
+        "additionalContext": "Additional context for this expansion"
+      }
+    }
 
 ###
 
@@ -1774,7 +1829,7 @@ Field| Description
 
 CwdChanged
 
-Runs when the working directory changes during a session, for example when Claude executes a `cd` command. Use this to react to directory changes: reload environment variables, activate project-specific toolchains, or run setup scripts automatically. Pairs with FileChanged for tools like [direnv](<https://direnv.net/>) that manage per-directory environment. CwdChanged hooks have access to `CLAUDE_ENV_FILE`. Variables written to that file persist into subsequent Bash commands for the session, just as in SessionStart hooks. Only `type: "command"` hooks are supported. CwdChanged does not support matchers and fires on every directory change.
+Runs when the working directory changes during a session, for example when Claude executes a `cd` command. Use this to react to directory changes: reload environment variables, activate project-specific toolchains, or run setup scripts automatically. Pairs with FileChanged for tools like [direnv](<https://direnv.net/>) that manage per-directory environment. CwdChanged hooks have access to `CLAUDE_ENV_FILE`. Variables written to that file persist into subsequent Bash commands for the session, just as in SessionStart hooks. CwdChanged does not support matchers and fires on every directory change.
 
 ####
 
@@ -1818,7 +1873,7 @@ Runs when a watched file changes on disk. Useful for reloading environment varia
   * **Build the watch list** : the value is split on `|` and each segment is registered as a literal filename in the working directory, so `".envrc|.env"` watches exactly those two files. Regex patterns are not useful here: a value like `^\.env` would watch a file literally named `^\.env`.
   * **Filter which hooks run** : when a watched file changes, the same value filters which hook groups run using the standard matcher rules against the changed file’s basename.
 
-FileChanged hooks have access to `CLAUDE_ENV_FILE`. Variables written to that file persist into subsequent Bash commands for the session, just as in SessionStart hooks. Only `type: "command"` hooks are supported.
+FileChanged hooks have access to `CLAUDE_ENV_FILE`. Variables written to that file persist into subsequent Bash commands for the session, just as in SessionStart hooks.
 
 ####
 
@@ -2192,6 +2247,7 @@ In addition to command and HTTP hooks, Claude Code supports prompt-based hooks (
   * `SubagentStop`
   * `TaskCompleted`
   * `TaskCreated`
+  * `UserPromptExpansion`
   * `UserPromptSubmit`
 
 Events that support `command` and `http` hooks but not `prompt` or `agent`:
@@ -2532,4 +2588,4 @@ Hook execution details, including which hooks matched, their exit codes, and ful
     [DEBUG] Executing hook command: <Your command> with timeout 600000ms
     [DEBUG] Hook command completed with status 0: <Your stdout>
 
-For more granular hook matching details, set `CLAUDE_CODE_DEBUG_LOG_LEVEL=verbose` to see additional log lines such as hook matcher counts and query matching. For troubleshooting common issues like hooks not firing, infinite Stop hook loops, or configuration errors, see [Limitations and troubleshooting](</docs/en/hooks-guide#limitations-and-troubleshooting>) in the guide.
+For more granular hook matching details, set `CLAUDE_CODE_DEBUG_LOG_LEVEL=verbose` to see additional log lines such as hook matcher counts and query matching. For troubleshooting common issues like hooks not firing, infinite Stop hook loops, or configuration errors, see [Limitations and troubleshooting](</docs/en/hooks-guide#limitations-and-troubleshooting>) in the guide. For a broader diagnostic walkthrough covering `/context`, `/doctor`, and settings precedence, see [Debug your config](</docs/en/debug-your-config>).

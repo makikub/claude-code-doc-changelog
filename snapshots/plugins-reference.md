@@ -90,6 +90,7 @@ Event| When it fires
 ---|---
 `SessionStart`| When a session begins or resumes
 `UserPromptSubmit`| When you submit a prompt, before Claude processes it
+`UserPromptExpansion`| When a user-typed command expands into a prompt, before it reaches Claude. Can block the expansion
 `PreToolUse`| Before a tool call executes. Can block it
 `PermissionRequest`| When a permission dialog appears
 `PermissionDenied`| When a tool call is denied by the auto mode classifier. Return `{retry: true}` to tell the model it may retry the denied tool call
@@ -394,17 +395,33 @@ The `userConfig` field declares values that Claude Code prompts the user for whe
     {
       "userConfig": {
         "api_endpoint": {
-          "description": "Your team's API endpoint",
-          "sensitive": false
+          "type": "string",
+          "title": "API endpoint",
+          "description": "Your team's API endpoint"
         },
         "api_token": {
+          "type": "string",
+          "title": "API token",
           "description": "API authentication token",
           "sensitive": true
         }
       }
     }
 
-Keys must be valid identifiers. Each value is available for substitution as `${user_config.KEY}` in MCP and LSP server configs, hook commands, monitor commands, and (for non-sensitive values only) skill and agent content. Values are also exported to plugin subprocesses as `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables. Non-sensitive values are stored in `settings.json` under `pluginConfigs[<plugin-id>].options`. Sensitive values go to the system keychain (or `~/.claude/.credentials.json` where the keychain is unavailable). Keychain storage is shared with OAuth tokens and has an approximately 2 KB total limit, so keep sensitive values small.
+Keys must be valid identifiers. Each option supports these fields:
+
+Field| Required| Description
+---|---|---
+`type`| Yes| One of `string`, `number`, `boolean`, `directory`, or `file`
+`title`| Yes| Label shown in the configuration dialog
+`description`| Yes| Help text shown beneath the field
+`sensitive`| No| If `true`, masks input and stores the value in secure storage instead of `settings.json`
+`required`| No| If `true`, validation fails when the field is empty
+`default`| No| Value used when the user provides nothing
+`multiple`| No| For `string` type, allow an array of strings
+`min` / `max`| No| Bounds for `number` type
+
+Each value is available for substitution as `${user_config.KEY}` in MCP and LSP server configs, hook commands, and monitor commands. Non-sensitive values can also be substituted in skill and agent content. All values are exported to plugin subprocesses as `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables. Non-sensitive values are stored in `settings.json` under `pluginConfigs[<plugin-id>].options`. Sensitive values go to the system keychain (or `~/.claude/.credentials.json` where the keychain is unavailable). Keychain storage is shared with OAuth tokens and has an approximately 2 KB total limit, so keep sensitive values small.
 
 ###
 
@@ -419,8 +436,17 @@ The `channels` field lets a plugin declare one or more message channels that inj
         {
           "server": "telegram",
           "userConfig": {
-            "bot_token": { "description": "Telegram bot token", "sensitive": true },
-            "owner_id": { "description": "Your Telegram user ID", "sensitive": false }
+            "bot_token": {
+              "type": "string",
+              "title": "Bot token",
+              "description": "Telegram bot token",
+              "sensitive": true
+            },
+            "owner_id": {
+              "type": "string",
+              "title": "Owner ID",
+              "description": "Your Telegram user ID"
+            }
           }
         }
       ]
