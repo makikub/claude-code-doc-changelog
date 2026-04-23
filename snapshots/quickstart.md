@@ -55,6 +55,8 @@ Homebrew installations do not auto-update. Run `brew upgrade claude-code` or `br
 
 WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
 
+You can also install with [apt, dnf, or apk](</docs/en/setup#install-with-linux-package-managers>) on Debian, Fedora, RHEL, and Alpine.
+
 ##
 
 ​

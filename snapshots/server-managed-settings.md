@@ -87,7 +87,7 @@ To configure the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-a
       }
     }
 
-Because hooks execute shell commands, users see a security approval dialog before they’re applied. See [Configure the auto mode classifier](</docs/en/permissions#configure-the-auto-mode-classifier>) for how the `autoMode` entries affect what the classifier blocks and important warnings about the `allow` and `soft_deny` fields.
+Because hooks execute shell commands, users see a security approval dialog before they’re applied. See [Configure auto mode](</docs/en/auto-mode-config>) for how the `autoMode` entries affect what the classifier blocks and important warnings about the `allow` and `soft_deny` fields.
 
 3
 

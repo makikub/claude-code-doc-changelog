@@ -649,7 +649,7 @@ Key| Description
 ---|---
 `permissions.disableBypassPermissionsMode`| set to `"disable"` to prevent users from enabling Bypass permissions mode.
 `disableAutoMode`| set to `"disable"` to prevent users from enabling [Auto](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) mode. Removes Auto from the mode selector. Also accepted under `permissions`.
-`autoMode`| customize what the auto mode classifier trusts and blocks across your organization. See [Configure the auto mode classifier](</docs/en/permissions#configure-the-auto-mode-classifier>).
+`autoMode`| customize what the auto mode classifier trusts and blocks across your organization. See [Configure auto mode](</docs/en/auto-mode-config>).
 `sshConfigs`| pre-configure SSH connections that appear in the environment dropdown. Users cannot edit or delete managed connections.
 
 `permissions.disableBypassPermissionsMode` and `disableAutoMode` also work in user and project settings, but placing them in managed settings prevents users from overriding them. `autoMode` is read from user settings, `.claude/settings.local.json`, and managed settings, but not from the checked-in `.claude/settings.json`: a cloned repo cannot inject its own classifier rules. For the complete list of managed-only settings including `allowManagedPermissionRulesOnly` and `allowManagedHooksOnly`, see [managed-only settings](</docs/en/permissions#managed-only-settings>). Remote managed settings uploaded through the admin console currently apply to CLI and IDE sessions only. For Desktop-specific restrictions, use the admin console controls above.

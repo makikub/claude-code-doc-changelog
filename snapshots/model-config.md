@@ -49,7 +49,7 @@ You can configure your model in several ways, listed in order of priority:
   3. **Environment variable** \- Set `ANTHROPIC_MODEL=<alias|name>`
   4. **Settings** \- Configure permanently in your settings file using the `model` field.
 
-Example usage:
+Your `/model` selection is saved to user settings and persists across restarts. As of v2.1.117, if the project’s `.claude/settings.json` pins a different model, Claude Code also writes your choice to `.claude/settings.local.json` so it continues to apply in that project after a restart. Managed settings take precedence and reapply on the next launch. When the active model at startup comes from project or managed settings rather than your own selection, the startup header shows which settings file set it. Run `/model` to override for the current session. Example usage:
 
     # Start with Opus
     claude --model opus
@@ -174,7 +174,7 @@ Model| Levels
 Opus 4.7| `low`, `medium`, `high`, `xhigh`, `max`
 Opus 4.6 and Sonnet 4.6| `low`, `medium`, `high`, `max`
 
-If you set a level the active model does not support, Claude Code falls back to the highest supported level at or below the one you set. For example, `xhigh` runs as `high` on Opus 4.6. On Opus 4.7, the default effort is `xhigh` for all plans and providers. On Opus 4.6 and Sonnet 4.6, the default is `high`, or `medium` on Pro and Max. When you first run Opus 4.7, Claude Code applies `xhigh` even if you previously set a different effort level for Opus 4.6 or Sonnet 4.6. Run `/effort` again to choose a different level after switching. `low`, `medium`, `high`, and `xhigh` persist across sessions. `max` provides the deepest reasoning with no constraint on token spending and applies to the current session only, except when set through the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
+If you set a level the active model does not support, Claude Code falls back to the highest supported level at or below the one you set. For example, `xhigh` runs as `high` on Opus 4.6. As of v2.1.117, the default effort is `xhigh` on Opus 4.7 and `high` on Opus 4.6 and Sonnet 4.6. When you first run Opus 4.7, Claude Code applies `xhigh` even if you previously set a different effort level for Opus 4.6 or Sonnet 4.6. Run `/effort` again to choose a different level after switching. `low`, `medium`, `high`, and `xhigh` persist across sessions. `max` provides the deepest reasoning with no constraint on token spending and applies to the current session only, except when set through the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
 
 ####
 

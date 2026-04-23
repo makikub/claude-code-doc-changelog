@@ -117,7 +117,7 @@ Voice input
 
 Shortcut| Description| Notes
 ---|---|---
-Hold `Space`| Push-to-talk dictation| Requires [voice dictation](</docs/en/voice-dictation>) to be enabled. Transcript inserts at cursor. [Rebindable](</docs/en/voice-dictation#rebind-the-push-to-talk-key>)
+Hold or tap `Space`| Voice dictation| Requires [voice dictation](</docs/en/voice-dictation>) to be enabled. Hold to record, or run `/voice tap` for tap-to-toggle. [Rebindable](</docs/en/voice-dictation#rebind-the-dictation-key>)
 
 ##
 

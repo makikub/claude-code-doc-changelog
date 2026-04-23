@@ -98,18 +98,18 @@ For enterprise environments requiring client certificate authentication:
 
 Network access requirements
 
-Claude Code requires access to the following URLs:
+Claude Code requires access to the following URLs. Allowlist these in your proxy configuration and firewall rules, especially in containerized or restricted network environments.
 
-  * `api.anthropic.com`: Claude API endpoints
-  * `claude.ai`: authentication for claude.ai accounts
-  * `platform.claude.com`: authentication for Anthropic Console accounts
+URL| Required for
+---|---
+`api.anthropic.com`| Claude API requests
+`claude.ai`| claude.ai account authentication
+`platform.claude.com`| Anthropic Console account authentication
+`downloads.claude.ai`| Plugin executable downloads; native installer and native auto-updater
+`storage.googleapis.com`| Native installer and native auto-updater on versions prior to 2.1.116
+`bridge.claudeusercontent.com`| [Claude in Chrome](</docs/en/chrome>) extension WebSocket bridge
 
-Ensure these URLs are allowlisted in your proxy configuration and firewall rules. This is especially important when using Claude Code in containerized or restricted network environments. When using [Bedrock](</docs/en/amazon-bedrock>), [Vertex AI](</docs/en/google-vertex-ai>), or [Foundry](</docs/en/microsoft-foundry>), model traffic goes to your provider instead of `api.anthropic.com`. The WebFetch tool still calls `api.anthropic.com` for its [domain safety check](</docs/en/data-usage#webfetch-domain-safety-check>) unless you set `skipWebFetchPreflight: true` in [settings](</docs/en/settings>). The native installer and update checks also require the following URLs. Allowlist both, since clients running older Claude Code versions fetch from `storage.googleapis.com`. If you install Claude Code through npm or manage your own binary distribution, end users may not need access:
-
-  * `downloads.claude.ai`: download host for the Claude Code binary, auto-updater, version pointers, manifests, install script, signing keys, and plugin executables
-  * `storage.googleapis.com`: legacy download host used by older clients
-
-The [Chrome integration](</docs/en/chrome>) connects to the browser extension over a WebSocket bridge. If you use Claude in Chrome, allowlist `bridge.claudeusercontent.com` for outbound WebSocket connections. [Claude Code on the web](</docs/en/claude-code-on-the-web>) and [Code Review](</docs/en/code-review>) connect to your repositories from Anthropic-managed infrastructure. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](<https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps>). The Claude GitHub App registers its IP ranges, so enabling this setting allows access without manual configuration. To [add the ranges to your allow list manually](<https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address>) instead, or to configure other firewalls, see the [Anthropic API IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses>). For self-hosted [GitHub Enterprise Server](</docs/en/github-enterprise-server>) instances behind a firewall, allowlist the same [Anthropic API IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses>) so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments.
+If you install Claude Code through npm or manage your own binary distribution, end users may not need access to `downloads.claude.ai` or `storage.googleapis.com`. When using [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Vertex AI](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>), model traffic and authentication go to your provider instead of `api.anthropic.com`, `claude.ai`, or `platform.claude.com`. The WebFetch tool still calls `api.anthropic.com` for its [domain safety check](</docs/en/data-usage#webfetch-domain-safety-check>) unless you set `skipWebFetchPreflight: true` in [settings](</docs/en/settings>). [Claude Code on the web](</docs/en/claude-code-on-the-web>) and [Code Review](</docs/en/code-review>) connect to your repositories from Anthropic-managed infrastructure. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](<https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps>). The Claude GitHub App registers its IP ranges, so enabling this setting allows access without manual configuration. To [add the ranges to your allow list manually](<https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address>) instead, or to configure other firewalls, see the [Anthropic API IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses>). For self-hosted [GitHub Enterprise Server](</docs/en/github-enterprise-server>) instances behind a firewall, allowlist the same [Anthropic API IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses>) so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments.
 
 ##
 

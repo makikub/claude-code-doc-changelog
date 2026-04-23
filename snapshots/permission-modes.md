@@ -139,7 +139,7 @@ If Claude Code reports auto mode as unavailable, one of these requirements is un
 
 What the classifier blocks by default
 
-The classifier trusts your working directory and your repo’s configured remotes. Everything else is treated as external until you [configure trusted infrastructure](</docs/en/permissions#configure-the-auto-mode-classifier>). **Blocked by default** :
+The classifier trusts your working directory and your repo’s configured remotes. Everything else is treated as external until you [configure trusted infrastructure](</docs/en/auto-mode-config>). **Blocked by default** :
 
   * Downloading and executing code, like `curl | bash`
   * Sending sensitive data to external endpoints
@@ -158,7 +158,7 @@ The classifier trusts your working directory and your repo’s configured remote
   * Read-only HTTP requests
   * Pushing to the branch you started on or one Claude created
 
-Sandbox network access requests are routed through the classifier rather than allowed by default. Run `claude auto-mode defaults` to see the full rule lists. If routine actions get blocked, an administrator can add trusted repos, buckets, and services via the `autoMode.environment` setting: see [Configure the auto mode classifier](</docs/en/permissions#configure-the-auto-mode-classifier>).
+Sandbox network access requests are routed through the classifier rather than allowed by default. Run `claude auto-mode defaults` to see the full rule lists. If routine actions get blocked, an administrator can add trusted repos, buckets, and services via the `autoMode.environment` setting: see [Configure auto mode](</docs/en/auto-mode-config>).
 
 ###
 
@@ -174,7 +174,7 @@ The classifier treats boundaries you state in the conversation as a block signal
 
 When auto mode falls back
 
-Each denied action shows a notification and appears in `/permissions` under the Recently denied tab, where you can press `r` to retry it with a manual approval. If the classifier blocks an action 3 times in a row or 20 times total, auto mode pauses and Claude Code resumes prompting. Approving the prompted action resumes auto mode. These thresholds are not configurable. Any allowed action resets the consecutive counter, while the total counter persists for the session and resets only when its own limit triggers a fallback. In [non-interactive mode](</docs/en/headless>) with the `-p` flag, repeated blocks abort the session since there is no user to prompt. Repeated blocks usually mean the classifier is missing context about your infrastructure. Use `/feedback` to report false positives, or have an administrator [configure trusted infrastructure](</docs/en/permissions#configure-the-auto-mode-classifier>).
+Each denied action shows a notification and appears in `/permissions` under the Recently denied tab, where you can press `r` to retry it with a manual approval. If the classifier blocks an action 3 times in a row or 20 times total, auto mode pauses and Claude Code resumes prompting. Approving the prompted action resumes auto mode. These thresholds are not configurable. Any allowed action resets the consecutive counter, while the total counter persists for the session and resets only when its own limit triggers a fallback. In [non-interactive mode](</docs/en/headless>) with the `-p` flag, repeated blocks abort the session since there is no user to prompt. Repeated blocks usually mean the classifier is missing context about your infrastructure. Use `/feedback` to report false positives, or have an administrator [configure trusted infrastructure](</docs/en/auto-mode-config>).
 
 How the classifier evaluates actions
 
@@ -257,7 +257,8 @@ Protected files:
 
 See also
 
-  * [Permissions](</docs/en/permissions>): allow, ask, and deny rules; auto mode classifier configuration; managed policies
+  * [Permissions](</docs/en/permissions>): allow, ask, and deny rules; managed policies
+  * [Configure auto mode](</docs/en/auto-mode-config>): tell the classifier which infrastructure your organization trusts
   * [Hooks](</docs/en/hooks>): custom permission logic via `PreToolUse` and `PermissionRequest` hooks
   * [Ultraplan](</docs/en/ultraplan>): run plan mode in a Claude Code on the web session with browser-based review
   * [Security](</docs/en/security>): safeguards and best practices

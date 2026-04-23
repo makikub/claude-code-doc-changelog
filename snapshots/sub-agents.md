@@ -10,7 +10,13 @@ Subagents help you:
   * **Specialize behavior** with focused system prompts for specific domains
   * **Control costs** by routing tasks to faster, cheaper models like Haiku
 
-Claude uses each subagent’s description to decide when to delegate tasks. When you create a subagent, write a clear description so Claude knows when to use it. Claude Code includes several built-in subagents like **Explore** , **Plan** , and **general-purpose**. You can also create custom subagents to handle specific tasks. This page covers the built-in subagents, how to create your own, full configuration options, patterns for working with subagents, and example subagents.
+Claude uses each subagent’s description to decide when to delegate tasks. When you create a subagent, write a clear description so Claude knows when to use it. Claude Code includes several built-in subagents like **Explore** , **Plan** , and **general-purpose**. You can also create custom subagents to handle specific tasks. This page covers:
+
+  * Built-in subagents
+  * How to create your own
+  * Full configuration options
+  * Patterns for working with subagents
+  * Example subagents
 
 ##
 
@@ -319,7 +325,16 @@ If `Agent` is omitted from the `tools` list entirely, the agent cannot spawn any
 
 Scope MCP servers to a subagent
 
-Use the `mcpServers` field to give a subagent access to [MCP](</docs/en/mcp>) servers that aren’t available in the main conversation. Inline servers defined here are connected when the subagent starts and disconnected when it finishes. String references share the parent session’s connection. Each entry in the list is either an inline server definition or a string referencing an MCP server already configured in your session:
+Use the `mcpServers` field to give a subagent access to [MCP](</docs/en/mcp>) servers that aren’t available in the main conversation. Inline servers defined here are connected when the subagent starts and disconnected when it finishes. String references share the parent session’s connection.
+
+The `mcpServers` field applies in both contexts where an agent file can run:
+
+  * As a subagent, spawned through the Agent tool or an @-mention
+  * As the main session, launched with `--agent` or the `agent` setting
+
+When the agent is the main session, inline server definitions connect at startup alongside servers from [`.mcp.json`](</docs/en/mcp>) and settings files.
+
+Each entry in the list is either an inline server definition or a string referencing an MCP server already configured in your session:
 
     ---
     name: browser-tester

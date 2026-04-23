@@ -46,7 +46,7 @@ Command| Purpose
 `/mobile`| Show QR code to download the Claude mobile app. Aliases: `/ios`, `/android`
 `/model [model]`| Select or change the AI model. For models that support it, use left/right arrows to [adjust effort level](</docs/en/model-config#adjust-effort-level>). With no argument, opens a picker that asks for confirmation when the conversation has prior output, since the next response re-reads the full history without cached context. Once confirmed, the change applies without waiting for the current response to finish
 `/passes`| Share a free week of Claude Code with friends. Only visible if your account is eligible
-`/permissions`| Manage allow, ask, and deny rules for tool permissions. Opens an interactive dialog where you can view rules by scope, add or remove rules, manage working directories, and review [recent auto mode denials](</docs/en/permissions#review-auto-mode-denials>). Alias: `/allowed-tools`
+`/permissions`| Manage allow, ask, and deny rules for tool permissions. Opens an interactive dialog where you can view rules by scope, add or remove rules, manage working directories, and review [recent auto mode denials](</docs/en/auto-mode-config#review-denials>). Alias: `/allowed-tools`
 `/plan [description]`| Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug`
 `/plugin`| Manage Claude Code [plugins](</docs/en/plugins>)
 `/powerup`| Discover Claude Code features through quick interactive lessons with animated demos
@@ -83,7 +83,7 @@ Command| Purpose
 `/upgrade`| Open the upgrade page to switch to a higher plan tier
 `/usage`| Show plan usage limits and rate limit status
 `/vim`| Removed in v2.1.92. To toggle between Vim and Normal editing modes, use `/config` → Editor mode
-`/voice`| Toggle push-to-talk [voice dictation](</docs/en/voice-dictation>). Requires a Claude.ai account
+`/voice [hold|tap|off]`| Toggle [voice dictation](</docs/en/voice-dictation>), or enable it in a specific mode. Requires a Claude.ai account
 `/web-setup`| Connect your GitHub account to [Claude Code on the web](</docs/en/web-quickstart#connect-from-your-terminal>) using your local `gh` CLI credentials. `/schedule` prompts for this automatically if GitHub isn’t connected
 
 ##
