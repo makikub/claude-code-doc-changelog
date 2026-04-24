@@ -413,7 +413,7 @@ Property| Type| Default| Description
 `disallowedTools`| `string[]`| `[]`| Tools to always deny. Deny rules are checked first and override `allowedTools` and `permissionMode` (including `bypassPermissions`)
 `effort`| `'low' | 'medium' | 'high' | 'xhigh' | 'max'`| `'high'`| Controls how much effort Claude puts into its response. Works with adaptive thinking to guide thinking depth
 `enableFileCheckpointing`| `boolean`| `false`| Enable file change tracking for rewinding. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
-`env`| `Record<string, string | undefined>`| `process.env`| Environment variables. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header
+`env`| `Record<string, string | undefined>`| `process.env`| Environment variables. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header
 `executable`| `'bun' | 'deno' | 'node'`| Auto-detected| JavaScript runtime to use
 `executableArgs`| `string[]`| `[]`| Arguments to pass to the executable
 `extraArgs`| `Record<string, string | null>`| `{}`| Additional arguments
@@ -1169,6 +1169,7 @@ Available hook events.
       | "PreToolUse"
       | "PostToolUse"
       | "PostToolUseFailure"
+      | "PostToolBatch"
       | "Notification"
       | "UserPromptSubmit"
       | "SessionStart"
@@ -1225,6 +1226,7 @@ Union type of all hook input types.
       | PreToolUseHookInput
       | PostToolUseHookInput
       | PostToolUseFailureHookInput
+      | PostToolBatchHookInput
       | NotificationHookInput
       | UserPromptSubmitHookInput
       | SessionStartHookInput
@@ -1298,6 +1300,26 @@ Base interface that all hook input types extend.
       tool_use_id: string;
       error: string;
       is_interrupt?: boolean;
+    };
+
+####
+
+​
+
+`PostToolBatchHookInput`
+
+Fires once after every tool call in a batch has resolved, before the next model request. `tool_response` carries the serialized `tool_result` content the model sees; the shape differs from `PostToolUseHookInput`’s structured `Output` object.
+
+    type PostToolBatchHookInput = BaseHookInput & {
+      hook_event_name: "PostToolBatch";
+      tool_calls: PostToolBatchToolCall[];
+    };
+
+    type PostToolBatchToolCall = {
+      tool_name: string;
+      tool_input: unknown;
+      tool_use_id: string;
+      tool_response?: unknown;
     };
 
 ####
@@ -1557,6 +1579,10 @@ Hook return value.
             additionalContext?: string;
           }
         | {
+            hookEventName: "PostToolBatch";
+            additionalContext?: string;
+          }
+        | {
             hookEventName: "Notification";
             additionalContext?: string;
           }
@@ -1597,7 +1623,6 @@ Union of all tool input types, exported from `@anthropic-ai/claude-agent-sdk`.
       | AskUserQuestionInput
       | BashInput
       | TaskOutputInput
-      | ConfigInput
       | EnterWorktreeInput
       | ExitPlanModeInput
       | FileEditInput
@@ -1936,21 +1961,6 @@ Reads a specific MCP resource from a server.
 
 ​
 
-Config
-
-**Tool name:** `Config`
-
-    type ConfigInput = {
-      setting: string;
-      value?: string | boolean | number;
-    };
-
-Gets or sets a configuration value.
-
-###
-
-​
-
 EnterWorktree
 
 **Tool name:** `EnterWorktree`
@@ -1982,7 +1992,6 @@ Union of all tool output types.
       | AgentOutput
       | AskUserQuestionOutput
       | BashOutput
-      | ConfigOutput
       | EnterWorktreeOutput
       | ExitPlanModeOutput
       | FileEditOutput
@@ -2430,26 +2439,6 @@ ReadMcpResource
     };
 
 Returns the contents of the requested MCP resource.
-
-###
-
-​
-
-Config
-
-**Tool name:** `Config`
-
-    type ConfigOutput = {
-      success: boolean;
-      operation?: "get" | "set";
-      setting?: string;
-      value?: unknown;
-      previousValue?: unknown;
-      newValue?: unknown;
-      error?: string;
-    };
-
-Returns the result of a configuration get or set operation.
 
 ###
 
@@ -3114,7 +3103,7 @@ Emitted when the session encounters a rate limit.
 
 `SDKLocalCommandOutputMessage`
 
-Output from a local slash command (for example, `/voice` or `/cost`). Displayed as assistant-style text in the transcript.
+Output from a local slash command (for example, `/voice` or `/usage`). Displayed as assistant-style text in the transcript.
 
     type SDKLocalCommandOutputMessage = {
       type: "system";

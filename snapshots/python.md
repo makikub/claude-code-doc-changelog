@@ -926,7 +926,7 @@ Property| Type| Default| Description
 `cli_path`| `str | Path | None`| `None`| Custom path to the Claude Code CLI executable
 `settings`| `str | None`| `None`| Path to settings file
 `add_dirs`| `list[str | Path]`| `[]`| Additional directories Claude can access
-`env`| `dict[str, str]`| `{}`| Environment variables
+`env`| `dict[str, str]`| `{}`| Environment variables merged on top of the inherited process environment. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads
 `extra_args`| `dict[str, str | None]`| `{}`| Additional CLI arguments to pass directly to the CLI
 `max_buffer_size`| `int | None`| `None`| Maximum bytes when buffering CLI stdout
 `debug_stderr`| `Any`| `sys.stderr`|  _Deprecated_ \- File-like object for debug output. Use `stderr` callback instead
@@ -2007,7 +2007,7 @@ Supported hook event types.
         "PermissionRequest",  # Called when a permission decision is needed
     ]
 
-The TypeScript SDK supports additional hook events not yet available in Python: `SessionStart`, `SessionEnd`, `Setup`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, and `WorktreeRemove`.
+The TypeScript SDK supports additional hook events not yet available in Python: `SessionStart`, `SessionEnd`, `Setup`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, and `PostToolBatch`.
 
 ###
 

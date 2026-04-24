@@ -8,7 +8,7 @@ Scheduled tasks let Claude re-run a prompt automatically on an interval. Use the
 
 Compare scheduling options
 
-Claude Code offers three ways to schedule recurring work:
+Claude Code offers three ways to schedule recurring or one-off work:
 
 | [Cloud](</docs/en/routines>)| [Desktop](</docs/en/desktop-scheduled-tasks>)| [`/loop`](</docs/en/scheduled-tasks>)
 ---|---|---|---

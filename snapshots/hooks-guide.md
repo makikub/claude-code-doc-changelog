@@ -407,6 +407,7 @@ Event| When it fires
 `PermissionDenied`| When a tool call is denied by the auto mode classifier. Return `{retry: true}` to tell the model it may retry the denied tool call
 `PostToolUse`| After a tool call succeeds
 `PostToolUseFailure`| After a tool call fails
+`PostToolBatch`| After a full batch of parallel tool calls resolves, before the next model call
 `Notification`| When Claude Code sends a notification
 `SubagentStart`| When a subagent is spawned
 `SubagentStop`| When a subagent finishes
@@ -427,9 +428,10 @@ Event| When it fires
 `ElicitationResult`| After a user responds to an MCP elicitation, before the response is sent back to the server
 `SessionEnd`| When a session terminates
 
-When multiple hooks match, each one returns its own result. For decisions, Claude Code picks the most restrictive answer. A `PreToolUse` hook returning `deny` cancels the tool call no matter what the others return. One hook returning `ask` forces the permission prompt even if the rest return `allow`. Text from `additionalContext` is kept from every hook and passed to Claude together. Each hook has a `type` that determines how it runs. Most hooks use `"type": "command"`, which runs a shell command. Three other types are available:
+When multiple hooks match, each one returns its own result. For decisions, Claude Code picks the most restrictive answer. A `PreToolUse` hook returning `deny` cancels the tool call no matter what the others return. One hook returning `ask` forces the permission prompt even if the rest return `allow`. Text from `additionalContext` is kept from every hook and passed to Claude together. Each hook has a `type` that determines how it runs. Most hooks use `"type": "command"`, which runs a shell command. Four other types are available:
 
   * `"type": "http"`: POST event data to a URL. See HTTP hooks.
+  * `"type": "mcp_tool"`: call a tool on an already-connected MCP server. See [MCP tool hooks](</docs/en/hooks#mcp-tool-hook-fields>).
   * `"type": "prompt"`: single-turn LLM evaluation. See Prompt-based hooks.
   * `"type": "agent"`: multi-turn verification with tool access. Agent hooks are experimental and may change. See Agent-based hooks.
 
@@ -553,7 +555,7 @@ Event| What the matcher filters| Example matcher values
 `ElicitationResult`| MCP server name| same values as `Elicitation`
 `FileChanged`| literal filenames to watch (see [FileChanged](</docs/en/hooks#filechanged>))| `.envrc|.env`
 `UserPromptExpansion`| command name| your skill or command names
-`UserPromptSubmit`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`| no matcher support| always fires on every occurrence
+`UserPromptSubmit`, `PostToolBatch`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`| no matcher support| always fires on every occurrence
 
 A few more examples showing matchers on different event types:
 
@@ -646,7 +648,7 @@ The `if` field uses [permission rule syntax](</docs/en/permissions>) to filter h
       }
     }
 
-The hook process only spawns when a subcommand of the Bash command matches `git *`, or when the command is too complex to parse into subcommands. For compound commands like `npm test && git push`, Claude Code evaluates each subcommand and fires the hook because `git push` matches. The `if` field accepts the same patterns as permission rules: `"Bash(git *)"`, `"Edit(*.ts)"`, and so on. To match multiple tool names, use separate handlers each with its own `if` value, or match at the `matcher` level where pipe alternation is supported. `if` only works on tool events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, and `PermissionRequest`. Adding it to any other event prevents the hook from running.
+The hook process only spawns when a subcommand of the Bash command matches `git *`, or when the command is too complex to parse into subcommands. For compound commands like `npm test && git push`, Claude Code evaluates each subcommand and fires the hook because `git push` matches. The `if` field accepts the same patterns as permission rules: `"Bash(git *)"`, `"Edit(*.ts)"`, and so on. To match multiple tool names, use separate handlers each with its own `if` value, or match at the `matcher` level where pipe alternation is supported. `if` only works on tool events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, and `PermissionDenied`. Adding it to any other event prevents the hook from running.
 
 ###
 

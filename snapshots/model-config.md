@@ -72,7 +72,7 @@ Example settings file:
 
 Restrict model selection
 
-Enterprise administrators can use `availableModels` in [managed or policy settings](</docs/en/settings#settings-files>) to restrict which models users can select. When `availableModels` is set, users cannot switch to models not in the list via `/model`, `--model` flag, Config tool, or `ANTHROPIC_MODEL` environment variable.
+Enterprise administrators can use `availableModels` in [managed or policy settings](</docs/en/settings#settings-files>) to restrict which models users can select. When `availableModels` is set, users cannot switch to models not in the list via `/model`, `--model` flag, or `ANTHROPIC_MODEL` environment variable.
 
     {
       "availableModels": ["sonnet", "haiku"]
@@ -316,7 +316,7 @@ The `settings.availableModels` allowlist still applies when using third-party pr
 
 Customize pinned model display and capabilities
 
-When you pin a model on a third-party provider, the provider-specific ID appears as-is in the `/model` picker and Claude Code may not recognize which features the model supports. You can override the display name and declare capabilities with companion environment variables for each pinned model. These variables only take effect on third-party providers such as Bedrock, Vertex AI, and Foundry. They have no effect when using the Anthropic API directly.
+When you pin a model on a third-party provider, the provider-specific ID appears as-is in the `/model` picker and Claude Code may not recognize which features the model supports. You can override the display name and declare capabilities with companion environment variables for each pinned model. These variables take effect on third-party providers such as Bedrock, Vertex AI, and Foundry. The `_NAME` and `_DESCRIPTION` variables also take effect when `ANTHROPIC_BASE_URL` points to an [LLM gateway](</docs/en/llm-gateway>). They have no effect when connecting directly to `api.anthropic.com`.
 
 Environment variable| Description
 ---|---

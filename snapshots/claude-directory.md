@@ -78,6 +78,7 @@ File| Scope| Commit| What it does| Reference
 `~/.claude.json`| Global only| | App state, OAuth, UI toggles, personal MCP servers| [Global config](</docs/en/settings#global-config-settings>)
 `projects/<project>/memory/`| Global only| | Auto memory: Claude’s notes to itself across sessions| [Auto memory](</docs/en/memory#auto-memory>)
 `keybindings.json`| Global only| | Custom keyboard shortcuts| [Keybindings](</docs/en/keybindings>)
+`themes/*.json`| Global only| | Custom color themes| [Custom themes](</docs/en/terminal-config#create-a-custom-theme>)
 
 ##
 
@@ -127,7 +128,7 @@ The following paths are not covered by automatic cleanup and persist indefinitel
 Path under `~/.claude/`| Contents
 ---|---
 `history.jsonl`| Every prompt you’ve typed, with timestamp and project path. Used for up-arrow recall.
-`stats-cache.json`| Aggregated token and cost counts shown by `/cost`
+`stats-cache.json`| Aggregated token and cost counts shown by `/usage`
 `todos/`| Legacy per-session task lists. No longer written by current versions; safe to delete.
 
 Other small cache and lock files appear depending on which features you use and are safe to delete.
@@ -157,7 +158,7 @@ Delete| You lose
 `~/.claude/projects/`| Resume, continue, and rewind for past sessions
 `~/.claude/history.jsonl`| Up-arrow prompt recall
 `~/.claude/file-history/`| Checkpoint restore for past sessions
-`~/.claude/stats-cache.json`| Historical totals shown by `/cost`
+`~/.claude/stats-cache.json`| Historical totals shown by `/usage`
 `~/.claude/debug/`, `~/.claude/plans/`, `~/.claude/paste-cache/`, `~/.claude/image-cache/`, `~/.claude/session-env/`, `~/.claude/tasks/`, `~/.claude/shell-snapshots/`, `~/.claude/backups/`| Nothing user-facing
 `~/.claude/todos/`| Nothing. Legacy directory not written by current versions.
 

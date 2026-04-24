@@ -31,11 +31,12 @@ The classifier is a second gate that runs after the [permissions system](</docs/
 
 Define trusted infrastructure
 
-For most organizations, `autoMode.environment` is the only field you need to set. It tells the classifier which repos, buckets, and domains are trusted: the classifier uses it to decide what “external” means, so any destination not listed is a potential exfiltration target. Setting `environment` replaces the default environment list, which includes the entry that trusts the working repo and its remotes. Run `claude auto-mode defaults` to print the defaults, then include them alongside your own entries so you extend the list rather than narrow it.
+For most organizations, `autoMode.environment` is the only field you need to set. It tells the classifier which repos, buckets, and domains are trusted: the classifier uses it to decide what “external” means, so any destination not listed is a potential exfiltration target. The default environment list trusts the working repo and its configured remotes. To add your own entries alongside that default, include the literal string `"$defaults"` in the array. The default entries are spliced in at that position, so your custom entries can go before or after them.
 
     {
       "autoMode": {
         "environment": [
+          "$defaults",
           "Source control: github.example.com/acme-corp and all repos under it",
           "Trusted cloud buckets: s3://acme-build-artifacts, gs://acme-ml-datasets",
           "Trusted internal domains: *.corp.example.com, api.internal.example.com",
@@ -58,6 +59,7 @@ A useful starting template: fill in the bracketed fields and remove any lines th
     {
       "autoMode": {
         "environment": [
+          "$defaults",
           "Organization: {COMPANY_NAME}. Primary use: {PRIMARY_USE_CASE, e.g. software development, infrastructure automation}",
           "Source control: {SOURCE_CONTROL, e.g. GitHub org github.example.com/acme-corp}",
           "Cloud provider(s): {CLOUD_PROVIDERS, e.g. AWS, GCP, Azure}",
@@ -83,30 +85,30 @@ Two additional fields let you replace the classifier’s built-in rule lists: `a
   * `allow` rules then override matching blocks as exceptions
   * Explicit user intent overrides both: if the user’s message directly and specifically describes the exact action Claude is about to take, the classifier allows it even when a `soft_deny` rule matches
 
-General requests don’t count as explicit intent. Asking Claude to “clean up the repo” does not authorize force-pushing, but asking Claude to “force-push this branch” does.
-
-Setting any of `environment`, `allow`, or `soft_deny` replaces the entire default list for that section. If you set `soft_deny` with a single entry, every built-in block rule is discarded: force push, data exfiltration, `curl | bash`, production deploys, and all other default block rules become allowed. To customize safely, run `claude auto-mode defaults` to print the built-in rules, copy them into your settings file, then review each rule against your own pipeline and risk tolerance. Only remove rules for risks your infrastructure already mitigates.
-
-To loosen: remove rules from `soft_deny` when the defaults block something your pipeline already guards against with PR review, CI, or staging environments, or add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten: add to `soft_deny` for risks specific to your environment that the defaults miss, or remove from `allow` to hold a default exception to the block rules. In all cases, run `claude auto-mode defaults` to get the full default lists, then copy and edit: never start from an empty list.
+General requests don’t count as explicit intent. Asking Claude to “clean up the repo” does not authorize force-pushing, but asking Claude to “force-push this branch” does. To loosen, add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten, add to `soft_deny` for risks specific to your environment that the defaults miss. To keep the built-in rules while adding your own, include the literal string `"$defaults"` in the array. The default rules are spliced in at that position, so your custom rules can go before or after them, and you continue to inherit updates as the built-in list changes across releases.
 
     {
       "autoMode": {
         "environment": [
+          "$defaults",
           "Source control: github.example.com/acme-corp and all repos under it"
         ],
         "allow": [
+          "$defaults",
           "Deploying to the staging namespace is allowed: staging is isolated from production and resets nightly",
           "Writing to s3://acme-scratch/ is allowed: ephemeral bucket with a 7-day lifecycle policy"
         ],
         "soft_deny": [
+          "$defaults",
           "Never run database migrations outside the migrations CLI, even against dev databases",
-          "Never modify files under infra/terraform/prod/: production infrastructure changes go through the review workflow",
-          "...copy full default soft_deny list here first, then add your rules..."
+          "Never modify files under infra/terraform/prod/: production infrastructure changes go through the review workflow"
         ]
       }
     }
 
-Each section replaces only its own default, so setting `environment` alone leaves the default `allow` and `soft_deny` lists intact.
+Setting any of `environment`, `allow`, or `soft_deny` without `"$defaults"` replaces the entire default list for that section. If you set `soft_deny` with a single entry and omit `"$defaults"`, every built-in block rule is discarded: force push, data exfiltration, `curl | bash`, production deploys, and all other default block rules become allowed. Only omit `"$defaults"` when you intend to take full ownership of the list. In that case, run `claude auto-mode defaults` to print the built-in rules, copy them into your settings file, then review each rule against your own pipeline and risk tolerance.
+
+Each section is evaluated independently, so setting `environment` alone leaves the default `allow` and `soft_deny` lists intact.
 
 ##
 
@@ -114,7 +116,7 @@ Each section replaces only its own default, so setting `environment` alone leave
 
 Inspect the defaults and your effective config
 
-Because setting any of the three arrays replaces its defaults, start any customization by copying the full default lists. Three CLI subcommands help you inspect and validate. Print the built-in `environment`, `allow`, and `soft_deny` rules as JSON:
+Three CLI subcommands help you inspect and validate your configuration. Print the built-in `environment`, `allow`, and `soft_deny` rules as JSON:
 
     claude auto-mode defaults
 
@@ -126,7 +128,7 @@ Get AI feedback on your custom `allow` and `soft_deny` rules:
 
     claude auto-mode critique
 
-Save the output of `claude auto-mode defaults` to a file, edit the lists to match your policy, and paste the result into your settings file. After saving, run `claude auto-mode config` to confirm the effective rules are what you expect. If you’ve written custom rules, `claude auto-mode critique` reviews them and flags entries that are ambiguous, redundant, or likely to cause false positives.
+Run `claude auto-mode config` after saving your settings to confirm the effective rules are what you expect, with `"$defaults"` expanded in place. If you’ve written custom rules, `claude auto-mode critique` reviews them and flags entries that are ambiguous, redundant, or likely to cause false positives. If you need to remove or rewrite a built-in rule rather than add alongside it, save the output of `claude auto-mode defaults` to a file, edit the lists, and paste the result into your settings file in place of `"$defaults"`.
 
 ##
 

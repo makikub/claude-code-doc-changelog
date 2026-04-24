@@ -183,7 +183,10 @@ To customize models further, use one of these methods:
     # Optional: Disable prompt caching if needed
     export DISABLE_PROMPT_CACHING=1
 
-[Prompt caching](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching>) may not be available in all regions.
+    # Optional: Request 1-hour prompt cache TTL instead of the 5-minute default
+    export ENABLE_PROMPT_CACHING_1H=1
+
+[Prompt caching](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching>) may not be available in all regions. Cache writes with a 1-hour TTL are billed at a higher rate than 5-minute writes.
 
 ####
 

@@ -20,7 +20,7 @@ Python
     })) {
       if (message.type === "system" && message.subtype === "init") {
         console.log("Available slash commands:", message.slash_commands);
-        // Example output: ["/compact", "/context", "/cost"]
+        // Example output: ["/compact", "/context", "/usage"]
       }
     }
 
@@ -185,7 +185,7 @@ Python
       if (message.type === "system" && message.subtype === "init") {
         // Will include both built-in and custom commands
         console.log("Available commands:", message.slash_commands);
-        // Example: ["/compact", "/context", "/cost", "/refactor", "/security-check"]
+        // Example: ["/compact", "/context", "/usage", "/refactor", "/security-check"]
       }
     }
 

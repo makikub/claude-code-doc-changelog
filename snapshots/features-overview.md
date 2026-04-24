@@ -17,7 +17,7 @@ Extensions plug into different parts of the agentic loop:
   * **[MCP](</docs/en/mcp>)** connects Claude to external services and tools
   * **[Subagents](</docs/en/sub-agents>)** run their own loops in isolated context, returning summaries
   * **[Agent teams](</docs/en/agent-teams>)** coordinate multiple independent sessions with shared tasks and peer-to-peer messaging
-  * **[Hooks](</docs/en/hooks>)** run outside the loop entirely as deterministic scripts
+  * **[Hooks](</docs/en/hooks-guide>)** fire on lifecycle events and can run a script, HTTP request, prompt, or subagent
   * **[Plugins](</docs/en/plugins>)** and **[marketplaces](</docs/en/plugin-marketplaces>)** package and distribute these features
 
 [Skills](</docs/en/skills>) are the most flexible extension. A skill is a markdown file containing knowledge, workflows, or instructions. You can invoke skills with a command like `/deploy`, or Claude can load them automatically when relevant. Skills can run in your current conversation or in an isolated context via subagents.
@@ -37,7 +37,7 @@ Feature| What it does| When to use it| Example
 **Subagent**|  Isolated execution context that returns summarized results| Context isolation, parallel tasks, specialized workers| Research task that reads many files but returns only key findings
 **[Agent teams](</docs/en/agent-teams>)**|  Coordinate multiple independent Claude Code sessions| Parallel research, new feature development, debugging with competing hypotheses| Spawn reviewers to check security, performance, and tests simultaneously
 **MCP**|  Connect to external services| External data or actions| Query your database, post to Slack, control a browser
-**Hook**|  Deterministic script that runs on events| Predictable automation, no LLM involved| Run ESLint after every file edit
+**Hook**|  Script, HTTP request, prompt, or subagent triggered by events| Automation that must run on every matching event| Run ESLint after every file edit
 
 **[Plugins](</docs/en/plugins>)** are the packaging layer. A plugin bundles skills, hooks, subagents, and MCP servers into a single installable unit. Plugin skills are namespaced (like `/my-plugin:review`) so multiple plugins can coexist. Use plugins when you want to reuse the same setup across multiple repositories or distribute to others via a **[marketplace](</docs/en/plugin-marketplaces>)**.
 
@@ -78,6 +78,8 @@ Some features can seem similar. Here’s how to tell them apart.
   * Subagent vs Agent team
 
   * MCP vs Skill
+
+  * Hook vs Skill
 
 Skills and subagents solve different problems:
 
@@ -139,6 +141,18 @@ Aspect| MCP| Skill
 **Examples**|  Slack integration, database queries, browser control| Code review checklist, deploy workflow, API style guide
 
 These solve different problems and work well together:**MCP** gives Claude the ability to interact with external systems. Without MCP, Claude can’t query your database or post to Slack.**Skills** give Claude knowledge about how to use those tools effectively, plus workflows you can trigger with `/<name>`. A skill might include your team’s database schema and query patterns, or a `/post-to-slack` workflow with your team’s message formatting rules.Example: An MCP server connects Claude to your database. A skill teaches Claude your data model, common query patterns, and which tables to use for different tasks.
+
+A hook fires on a lifecycle event; a skill is loaded into context for Claude to apply.
+
+Aspect| Hook| Skill
+---|---|---
+**Runs**|  A shell command, HTTP request, LLM prompt, or subagent| Instructions Claude reads and follows
+**Triggered by**| [Lifecycle events](</docs/en/hooks#hook-events>) such as `PostToolUse` or `SessionStart`| You typing `/<name>`, or Claude matching the description to your task
+**Determinism**|  Always fires on its event; the trigger is guaranteed| Claude interprets the instructions; outcome can vary
+**Context cost**|  Zero unless the hook returns output| Description loads each session; full content loads when used
+**Best for**|  Linting after edits, blocking unsafe commands, logging, notifications| Workflows that need reasoning, reference material, multi-step tasks
+
+**Use a hook** when the action must happen the same way every time and doesn’t need Claude to think. For example: format on save, reject `rm -rf /`, post a Slack message when a session ends.**Use a skill** when Claude should decide how to apply the steps, or when the content is knowledge rather than a script. For example: a `/release` checklist, your API style guide, a debugging playbook.**Put guardrails in hooks.** An instruction like “never edit `.env`” in CLAUDE.md or a skill is a request, not a guarantee. A `PreToolUse` hook that blocks the edit is enforcement. If a rule must hold every time, make it a hook rather than a prompt instruction.**Hook output lands in context.** A `PostToolUse` hook that runs your linter feeds results back as text Claude reads; a `/fix-lint` skill tells Claude how to resolve them.
 
 ###
 
@@ -235,7 +249,7 @@ Run `/mcp` to see token costs per server. Disconnect servers you’re not active
 
 Use subagents for work that doesn’t need your full conversation context. Their isolation prevents bloating your main session.
 
-**When:** On trigger. Hooks fire at specific lifecycle events like tool execution, session boundaries, prompt submission, permission requests, and compaction. See [Hooks](</docs/en/hooks>) for the full list.**What loads:** Nothing by default. Hooks run as external scripts.**Context cost:** Zero, unless the hook returns output that gets added as messages to your conversation.
+**When:** On trigger. Hooks fire at specific lifecycle events like tool execution, session boundaries, prompt submission, permission requests, and compaction. See [Hooks](</docs/en/hooks>) for the full list.**What loads:** Nothing by default. Hooks execute outside the main conversation.**Context cost:** Zero, unless the hook returns output that gets added as messages to your conversation.
 
 Hooks are ideal for side effects (linting, logging) that don’t need to affect Claude’s context.
 
