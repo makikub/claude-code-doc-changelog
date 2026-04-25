@@ -1275,8 +1275,13 @@ PostToolUse input
         "filePath": "/path/to/file.txt",
         "success": true
       },
-      "tool_use_id": "toolu_01ABC123..."
+      "tool_use_id": "toolu_01ABC123...",
+      "duration_ms": 12
     }
+
+Field| Description
+---|---
+`duration_ms`| Optional. Tool execution time in milliseconds. Excludes time spent in permission prompts and PreToolUse hooks
 
 ####
 
@@ -1331,13 +1336,15 @@ PostToolUseFailure hooks receive the same `tool_name` and `tool_input` fields as
       },
       "tool_use_id": "toolu_01ABC123...",
       "error": "Command exited with non-zero status code 1",
-      "is_interrupt": false
+      "is_interrupt": false,
+      "duration_ms": 4187
     }
 
 Field| Description
 ---|---
 `error`| String describing what went wrong
 `is_interrupt`| Optional boolean indicating whether the failure was caused by user interruption
+`duration_ms`| Optional. Tool execution time in milliseconds. Excludes time spent in permission prompts and PreToolUse hooks
 
 ####
 

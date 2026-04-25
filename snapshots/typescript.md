@@ -1285,6 +1285,7 @@ Base interface that all hook input types extend.
       tool_input: unknown;
       tool_response: unknown;
       tool_use_id: string;
+      duration_ms?: number;
     };
 
 ####
@@ -1300,6 +1301,7 @@ Base interface that all hook input types extend.
       tool_use_id: string;
       error: string;
       is_interrupt?: boolean;
+      duration_ms?: number;
     };
 
 ####
@@ -2575,6 +2577,7 @@ Information about an available slash command.
       name: string;
       description: string;
       argumentHint: string;
+      aliases?: string[];
     };
 
 ###

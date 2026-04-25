@@ -95,7 +95,7 @@ In any terminal you can configure a [Notification hook](</docs/en/hooks-guide#ge
 
 Configure tmux
 
-When Claude Code runs inside tmux, two things break by default: Shift+Enter submits instead of inserting a newline, and desktop notifications and the [progress bar](</docs/en/settings#global-config-settings>) never reach the outer terminal. Add these lines to `~/.tmux.conf`, then run `tmux source-file ~/.tmux.conf` to apply them to the running server:
+When Claude Code runs inside tmux, two things break by default: Shift+Enter submits instead of inserting a newline, and desktop notifications and the [progress bar](</docs/en/settings#available-settings>) never reach the outer terminal. Add these lines to `~/.tmux.conf`, then run `tmux source-file ~/.tmux.conf` to apply them to the running server:
 
 ~/.tmux.conf
 
@@ -175,7 +175,7 @@ When you paste more than 10,000 characters into the prompt, Claude Code collapse
 
 Edit prompts with Vim keybindings
 
-Claude Code includes a Vim-style editing mode for the prompt input. Enable it through `/config` → Editor mode, or by setting the [`editorMode`](</docs/en/settings#global-config-settings>) global config key to `"vim"` in `~/.claude.json`. Set Editor mode back to `normal` to turn it off. Vim mode supports a subset of NORMAL- and VISUAL-mode motions and operators, such as `hjkl` navigation, `v`/`V` selection, and `d`/`c`/`y` with text objects. See the [Vim editor mode reference](</docs/en/interactive-mode#vim-editor-mode>) for the full key table. Vim motions are not remappable through the keybindings file. Pressing Enter still submits your prompt in INSERT mode, unlike standard Vim. Use `o` or `O` in NORMAL mode, or Ctrl+J, to insert a newline instead.
+Claude Code includes a Vim-style editing mode for the prompt input. Enable it through `/config` → Editor mode, or by setting [`editorMode`](</docs/en/settings#available-settings>) to `"vim"` in `~/.claude/settings.json`. Set Editor mode back to `normal` to turn it off. Vim mode supports a subset of NORMAL- and VISUAL-mode motions and operators, such as `hjkl` navigation, `v`/`V` selection, and `d`/`c`/`y` with text objects. See the [Vim editor mode reference](</docs/en/interactive-mode#vim-editor-mode>) for the full key table. Vim motions are not remappable through the keybindings file. Pressing Enter still submits your prompt in INSERT mode, unlike standard Vim. Use `o` or `O` in NORMAL mode, or Ctrl+J, to insert a newline instead.
 
 ##
 
