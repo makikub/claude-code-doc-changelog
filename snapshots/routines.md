@@ -22,7 +22,7 @@ Each example pairs a trigger type with the kind of work routines are suited to: 
 
 Create a routine
 
-Create a routine from the web, the Desktop app, or the CLI. All three surfaces write to the same cloud account, so a routine you create in the CLI shows up at claude.ai/code/routines immediately. In the Desktop app, click **New task** and choose **New remote task** ; choosing **New local task** instead creates a [local Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), which runs on your machine and is not a routine. The creation form sets up the routine’s prompt, repositories, environment, connectors, and triggers. Routines run autonomously as full Claude Code cloud sessions: there is no permission-mode picker and no approval prompts during a run. The session can run shell commands, use [skills](</docs/en/skills>) committed to the cloned repository, and call any connectors you include. What a routine can reach is determined by the repositories you select and their branch-push setting, the [environment’s](</docs/en/claude-code-on-the-web#the-cloud-environment>) network access and variables, and the connectors you include. Scope each of those to what the routine actually needs. Routines belong to your individual claude.ai account. They are not shared with teammates, and they count against your account’s daily run allowance. Anything a routine does through your connected GitHub identity or connectors appears as you: commits and pull requests carry your GitHub user, and Slack messages, Linear tickets, or other connector actions use your linked accounts for those services.
+Create a routine from the web at [claude.ai/code/routines](<https://claude.ai/code/routines>), from the Desktop app, or from the CLI. All three surfaces write to the same cloud account, so a routine you create in one shows up in the others immediately. In the Desktop app, click **Routines** in the sidebar, then **New routine** , and choose **Remote** ; choosing **Local** instead creates a [Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), which runs on your machine rather than in the cloud. The creation form sets up the routine’s prompt, repositories, environment, connectors, and triggers. Routines run autonomously as full Claude Code cloud sessions: there is no permission-mode picker and no approval prompts during a run. The session can run shell commands, use [skills](</docs/en/skills>) committed to the cloned repository, and call any connectors you include. What a routine can reach is determined by the repositories you select and their branch-push setting, the [environment’s](</docs/en/claude-code-on-the-web#the-cloud-environment>) network access and variables, and the connectors you include. Scope each of those to what the routine actually needs. Routines belong to your individual claude.ai account. They are not shared with teammates, and they count against your account’s daily run allowance. Anything a routine does through your connected GitHub identity or connectors appears as you: commits and pull requests carry your GitHub user, and Slack messages, Linear tickets, or other connector actions use your linked accounts for those services.
 
 ###
 
@@ -46,7 +46,7 @@ Give the routine a descriptive name and write the prompt Claude runs each time. 
 
 Select repositories
 
-Add one or more GitHub repositories for Claude to work in. Each repository is cloned at the start of a run, starting from the default branch. Claude creates `claude/`-prefixed branches for its changes. To allow pushes to any branch, enable **Allow unrestricted branch pushes** for that repository.
+Add one or more GitHub repositories for Claude to work in. Each repository is cloned at the start of a run, starting from the default branch. Claude creates `claude/`-prefixed branches for its changes.
 
 4
 
@@ -80,9 +80,9 @@ Select **API** here, then save the routine. The URL and token are generated afte
 
 6
 
-Review connectors
+Review connectors and permissions
 
-All of your connected [MCP connectors](</docs/en/mcp>) are included by default. Remove any that the routine doesn’t need. Connectors give Claude access to external services like Slack, Linear, or Google Drive during each run.
+The **Connectors** and **Permissions** tabs at the bottom of the form control what the routine can reach.Under Connectors, all of your connected [MCP connectors](</docs/en/mcp>) are included by default. Remove any the routine doesn’t need. Claude can use every tool from an included connector, including writes, without asking for permission during a run.Under Permissions, enable **Allow unrestricted branch pushes** for any repository where Claude should be able to push to existing branches instead of only `claude/`-prefixed ones.
 
 7
 
@@ -97,14 +97,6 @@ Click **Create**. The routine appears in the list and runs the next time one of 
 Create from the CLI
 
 Run `/schedule` in any session to create a scheduled routine conversationally. You can also pass a description directly, for a recurring routine like `/schedule daily PR review at 9am` or a one-off like `/schedule clean up feature flag in one week`. Claude walks through the same information the web form collects, then saves the routine to your account. `/schedule` in the CLI creates scheduled routines only. To add an API or GitHub trigger, edit the routine on the web at [claude.ai/code/routines](<https://claude.ai/code/routines>). The CLI also supports managing existing routines. Run `/schedule list` to see all routines, `/schedule update` to change one, or `/schedule run` to trigger it immediately.
-
-###
-
-​
-
-Create from the Desktop app
-
-Open the **Schedule** page in the Desktop app, click **New task** , and choose **New remote task**. The Desktop app shows both local scheduled tasks and routines in the same grid. See [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>) for details on the local option.
 
 ##
 
