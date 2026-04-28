@@ -765,7 +765,7 @@ The `preTokens` value shows how many tokens were used before compaction occurred
 
 Fork the current conversation
 
-Forked subagents are experimental and require Claude Code v2.1.117 or later. Behavior and configuration may change in future releases. Enable them by setting the [`CLAUDE_CODE_FORK_SUBAGENT`](</docs/en/env-vars>) environment variable to `1`.
+Forked subagents are experimental and require Claude Code v2.1.117 or later. Behavior and configuration may change in future releases. Enable them by setting the [`CLAUDE_CODE_FORK_SUBAGENT`](</docs/en/env-vars>) environment variable to `1`. The variable is honored in interactive mode and via the SDK or `claude -p`.
 
 A fork is a subagent that inherits the entire conversation so far instead of starting fresh. This drops the input isolation that subagents otherwise provide: a fork sees the same system prompt, tools, model, and message history as the main session, so you can hand it a side task without re-explaining the situation. The fork’s own tool calls still stay out of your conversation and only its final result comes back, so your main context window stays clean. Use a fork when a named subagent would need too much background to be useful, or when you want to try several approaches in parallel from the same starting point. Enabling fork mode changes Claude Code in three ways:
 
@@ -818,7 +818,7 @@ Because a fork’s system prompt and tool definitions are identical to the paren
 
 Limitations
 
-Fork mode works only in interactive sessions. It is disabled in [non-interactive mode](</docs/en/headless>), which includes the Agent SDK. A fork cannot spawn further forks.
+Setting `CLAUDE_CODE_FORK_SUBAGENT=1` enables fork mode in interactive sessions, [non-interactive mode](</docs/en/headless>), and the Agent SDK. A fork cannot spawn further forks.
 
 ##
 

@@ -185,10 +185,13 @@ Optional fields
 
 Field| Type| Description
 ---|---|---
-`metadata.description`| string| Brief marketplace description
-`metadata.version`| string| Marketplace version
+`$schema`| string| JSON Schema URL for editor autocomplete and validation. Claude Code ignores this field at load time.
+`description`| string| Brief marketplace description
+`version`| string| Marketplace manifest version
 `metadata.pluginRoot`| string| Base directory prepended to relative plugin source paths (for example, `"./plugins"` lets you write `"source": "formatter"` instead of `"source": "./plugins/formatter"`)
 `allowCrossMarketplaceDependenciesOn`| array| Other marketplaces that plugins in this marketplace may depend on. Dependencies from a marketplace not listed here are blocked at install. See [Depend on a plugin from another marketplace](</docs/en/plugin-dependencies#depend-on-a-plugin-from-another-marketplace>).
+
+`description` and `version` are also accepted under `metadata` for backward compatibility.
 
 ##
 
@@ -974,7 +977,7 @@ Error| Cause| Solution
 **Warnings** (non-blocking):
 
   * `Marketplace has no plugins defined`: add at least one plugin to the `plugins` array
-  * `No marketplace description provided`: add `metadata.description` to help users understand your marketplace
+  * `No marketplace description provided`: add a top-level `description` to help users understand your marketplace
   * `Plugin name "x" is not kebab-case`: the plugin name contains uppercase letters, spaces, or special characters. Rename to lowercase letters, digits, and hyphens only (for example, `my-plugin`). Claude Code accepts other forms, but the Claude.ai marketplace sync rejects them.
 
 ###

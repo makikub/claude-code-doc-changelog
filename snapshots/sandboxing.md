@@ -307,7 +307,7 @@ Integration with existing security tools
 The sandboxed bash tool works alongside:
 
   * **Permission rules** : Combine with [permission settings](</docs/en/permissions>) for defense-in-depth
-  * **Development containers** : Use with [devcontainers](</docs/en/devcontainer>) for additional isolation
+  * **Development containers** : Use with [dev containers](</docs/en/devcontainer>) for additional isolation
   * **Enterprise policies** : Enforce sandbox configurations through [managed settings](</docs/en/settings#settings-precedence>)
 
 ##

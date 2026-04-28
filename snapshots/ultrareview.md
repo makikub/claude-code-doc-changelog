@@ -56,6 +56,27 @@ A review typically takes 5 to 10 minutes. The review runs as a background task, 
 
 ​
 
+Run ultrareview non-interactively
+
+Use the `claude ultrareview` subcommand to start an ultrareview from CI or a script without an interactive session. The subcommand launches the same review as `/ultrareview`, blocks until the remote review finishes, prints the findings to stdout, and exits with code 0 on success or 1 on failure.
+
+    claude ultrareview
+    claude ultrareview 1234
+    claude ultrareview origin/main
+
+Without arguments, the subcommand reviews the diff between your current branch and the default branch. Pass a PR number to review a pull request, or pass a base branch to review the diff against that branch instead. Invoking the subcommand counts as consent for the billing and terms prompt that the interactive command shows. Progress messages and the live session URL go to stderr so stdout stays parseable. Use these flags to control the output and timeout:
+
+Flag| Description
+---|---
+`--json`| Print the raw `bugs.json` payload instead of the formatted findings
+`--timeout <minutes>`| Maximum minutes to wait for the review to finish. Defaults to 30
+
+Running `claude ultrareview` requires the same authentication and extra usage configuration as `/ultrareview`. The subcommand exits with code 0 when the review completes with or without findings, code 1 when the review fails to launch, the remote session errors, or the timeout elapses, and code 130 when interrupted with Ctrl-C. The remote review keeps running if you interrupt the subcommand; follow the session URL printed to stderr to watch it in the browser.
+
+##
+
+​
+
 How ultrareview compares to /review
 
 Both commands review code, but they target different stages of your workflow.

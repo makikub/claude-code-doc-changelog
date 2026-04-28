@@ -41,7 +41,7 @@ Some Claude Code shortcuts use the Option key, such as Option+Enter for a newlin
 
 Open Settings → Profiles → Keyboard and check “Use Option as Meta Key”.If you accepted Claude Code’s first-run prompt that offered “Option+Enter for newlines and visual bell”, this is already done. That prompt runs `/terminal-setup` for you, which enables Option as Meta and switches the audio bell to a visual screen flash in your Apple Terminal profile.
 
-Open Settings → Profiles → Keys → General and set Left Option key and Right Option key to “Esc+”.
+Open Settings → Profiles → Keys → General and set Left Option key and Right Option key to “Esc+”.Running `/terminal-setup` in iTerm2 enables “Applications in terminal may access clipboard” under Settings → General → Selection so the `/copy` command can write to your system clipboard. The command detects iTerm2 even when run from inside tmux. Restart iTerm2 for the change to take effect.
 
 Add `"terminal.integrated.macOptionIsMeta": true` to your VS Code settings.
 

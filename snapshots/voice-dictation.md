@@ -73,7 +73,7 @@ Tap mode toggles recording with a single keypress: tap once to start, speak, the
 
 Change the dictation language
 
-Voice dictation uses the same [`language` setting](</docs/en/settings>) that controls Claude’s response language. If that setting is empty, dictation defaults to English.
+Voice dictation uses the same [`language` setting](</docs/en/settings>) that controls Claude’s response language. If that setting is empty, dictation defaults to English. In the VS Code extension, if `language` is empty, dictation uses VS Code’s `accessibility.voice.speechLanguage` setting before defaulting to English.
 
 Supported dictation languages
 
