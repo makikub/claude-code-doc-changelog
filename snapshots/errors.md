@@ -1,4 +1,10 @@
-This page lists runtime errors Claude Code displays and how to recover from each one, plus what to check when responses seem off without an error. For installation errors such as `command not found` or TLS failures during setup, see [Troubleshooting](</docs/en/troubleshooting>). These errors and recovery commands apply across the CLI, the [Desktop app](</docs/en/desktop>), and [Claude Code on the web](</docs/en/claude-code-on-the-web>), since all three wrap the same Claude Code CLI. For surface-specific issues, see the troubleshooting section on that surface’s page.
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
+This page lists runtime errors Claude Code displays and how to recover from each one, plus what to check when responses seem off without an error. For installation errors such as `command not found` or TLS failures during setup, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>). These errors and recovery commands apply across the CLI, the [Desktop app](</docs/en/desktop>), and [Claude Code on the web](</docs/en/claude-code-on-the-web>), since all three wrap the same Claude Code CLI. For surface-specific issues, see the troubleshooting section on that surface’s page.
 
 Claude Code calls the Claude API for model responses, so most runtime errors map to an underlying API error code. This page covers what each error means inside Claude Code and how to recover. For the raw HTTP status code definitions, see the [Claude Platform error reference](<https://platform.claude.com/docs/en/api/errors>).
 
@@ -228,7 +234,7 @@ No valid credential is available for this session.
   * For CI or automation where interactive login is not possible, configure an [`apiKeyHelper`](</docs/en/settings#available-settings>) script that fetches a key at startup
   * See [Authentication precedence](</docs/en/authentication#authentication-precedence>) to understand which credential wins when several are present
 
-If you are prompted to log in repeatedly, see [Not logged in or token expired](</docs/en/troubleshooting#not-logged-in-or-token-expired>) for system clock and macOS Keychain fixes.
+If you are prompted to log in repeatedly, see [Not logged in or token expired](</docs/en/troubleshoot-install#not-logged-in-or-token-expired>) for system clock and macOS Keychain fixes.
 
 ###
 
@@ -281,8 +287,8 @@ Your saved login is no longer valid. A revoked token means you signed out everyw
 
   * Run `/login` to sign in again
   * If the error returns within the same session after re-authenticating, run `/logout` first to fully clear the stored token, then `/login`
-  * For repeated prompts to log in across launches, see the system clock and macOS Keychain checks in [Troubleshooting](</docs/en/troubleshooting#not-logged-in-or-token-expired>)
-  * For other failures including `403 Forbidden` and OAuth browser issues, see [Permissions and authentication](</docs/en/troubleshooting#permissions-and-authentication>)
+  * For repeated prompts to log in across launches, see the system clock and macOS Keychain checks in [Troubleshooting](</docs/en/troubleshoot-install#not-logged-in-or-token-expired>)
+  * For other failures including `403 Forbidden` and OAuth browser issues, see [Login and authentication](</docs/en/troubleshoot-install#login-and-authentication>)
 
 ###
 
@@ -477,7 +483,8 @@ The configured model name was not recognized or your account lacks access to it.
 
   * Run `/model` to pick from models available to your account
   * Use an alias such as `sonnet` or `opus` instead of a full versioned ID. Aliases track the latest release so they do not go stale. See [Model configuration](</docs/en/model-config>).
-  * See [Model not found](</docs/en/troubleshooting#model-not-found-or-not-accessible>) to locate where a stale ID is set across `--model`, `ANTHROPIC_MODEL`, and settings files
+  * If the wrong model keeps coming back, a stale ID is set somewhere. Check in [priority order](</docs/en/model-config#setting-your-model>): the `--model` flag, the `ANTHROPIC_MODEL` environment variable, then the `model` field in `.claude/settings.local.json`, your project’s `.claude/settings.json`, and `~/.claude/settings.json`. Remove the stale value and Claude Code falls back to your account default.
+  * For Vertex AI deployments, see [Vertex AI troubleshooting](</docs/en/google-vertex-ai#troubleshooting>).
 
 ###
 
@@ -567,7 +574,7 @@ This page covers errors from the Claude API. For errors from other Claude Code c
 
   * MCP server failed to connect or authenticate: [MCP](</docs/en/mcp>)
   * Hook script failed or blocked a tool: [Debug hooks](</docs/en/hooks#debug-hooks>)
-  * Permission denied or filesystem errors during install: [Troubleshooting](</docs/en/troubleshooting>)
+  * Permission denied or filesystem errors during install: [Troubleshoot installation and login](</docs/en/troubleshoot-install>)
 
 If an error is not listed here or the suggested fix does not help:
 

@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Routines are in research preview. Behavior, limits, and the API surface may change.
 
 A routine is a saved Claude Code configuration: a prompt, one or more repositories, and a set of [connectors](</docs/en/mcp>), packaged once and run automatically. Routines execute on Anthropic-managed cloud infrastructure, so they keep working when your laptop is closed. Each routine can have one or more triggers attached to it:

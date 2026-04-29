@@ -1,4 +1,10 @@
-When Claude ignores an instruction or a feature you configured doesn’t appear, the cause is usually that the file didn’t load, it loaded from a different location than you expected, or another file overrode it. This guide shows how to inspect what Claude Code actually loaded so you can narrow down which applies. For installation, authentication, and connectivity problems, see [Troubleshooting](</docs/en/troubleshooting>) instead.
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
+When Claude ignores an instruction or a feature you configured doesn’t appear, the cause is usually that the file didn’t load, it loaded from a different location than you expected, or another file overrode it. This guide shows how to inspect what Claude Code actually loaded so you can narrow down which applies. For installation, authentication, and connectivity problems, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>) instead.
 
 ##
 
@@ -72,7 +78,7 @@ Skill doesn’t appear in `/skills`| Skill file is at `.claude/skills/name.md` i
 Skill appears in `/skills` but Claude never invokes it| Skill has `disable-model-invocation: true` in its frontmatter, or its description doesn’t match how you phrase the request| Check the badge in `/skills`: a “user-only” label means Claude won’t trigger it on its own. See [skill invocation](</docs/en/skills>).
 Subdirectory `CLAUDE.md` instructions seem ignored| Subdirectory files load on demand, not at session start| They load when Claude reads a file in that directory with the Read tool, not at launch and not when writing or creating files there. See [how CLAUDE.md files load](</docs/en/memory#how-claude-md-files-load>).
 Subagent ignores `CLAUDE.md` instructions| Subagents don’t always inherit project memory| Put critical rules in the agent file body, which becomes the subagent’s system prompt. See [subagent configuration](</docs/en/sub-agents>).
-Cleanup logic never runs at session end| No `SessionEnd` hook configured| `SessionStart` and `SessionEnd` both exist. See the [hook events list](</docs/en/hooks#hook-events>).
+Cleanup logic never runs at session end| No `SessionEnd` hook configured| Add a `SessionEnd` hook in `settings.json`. See the [hook events list](</docs/en/hooks#hook-events>).
 MCP servers in `.mcp.json` never load| File is under `.claude/` or uses Claude Desktop’s config format| Project MCP config goes at the repository root as `.mcp.json`, not inside `.claude/`. See [MCP configuration](</docs/en/mcp>).
 Project MCP server added but doesn’t appear| The one-time approval prompt was dismissed| Project-scoped servers require approval. Run `/mcp` to see status and approve.
 MCP server fails to start from some directories| `command` or `args` uses a relative file path| Use absolute paths for local scripts. Executables on your `PATH` like `npx` or `uvx` work as-is.
@@ -91,4 +97,5 @@ For full reference on each configuration surface, see the dedicated page:
   * **[Settings](</docs/en/settings>)** : precedence order and the full key list
   * **[Hooks reference](</docs/en/hooks>)** : event names, payloads, and `--debug hooks` output format
   * **[MCP](</docs/en/mcp>)** : server configuration, approval, and `/mcp` output
-  * **[Troubleshooting](</docs/en/troubleshooting>)** : `claude doctor`, platform issues, and installation problems
+  * **[Troubleshoot installation and login](</docs/en/troubleshoot-install>)** : `command not found`, PATH, and authentication problems
+  * **[Troubleshooting](</docs/en/troubleshooting>)** : performance, hangs, and search issues

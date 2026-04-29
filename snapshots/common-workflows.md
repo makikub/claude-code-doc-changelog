@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 This page covers practical workflows for everyday development: exploring unfamiliar code, debugging, refactoring, writing tests, creating PRs, and managing sessions. Each section includes example prompts you can adapt to your own projects. For higher-level patterns and tips, see [Best practices](</docs/en/best-practices>).
 
 ##
@@ -343,7 +349,7 @@ Review and refine
 
     enhance the PR description with more context about the security improvements
 
-When you create a PR using `gh pr create`, the session is automatically linked to that PR. You can resume it later with `claude --from-pr <number>`.
+When you create a PR using `gh pr create`, the session is automatically linked to that PR. To return to it later, run `claude --from-pr <number>` or paste the PR URL into the `/resume` picker search.
 
 Review Claude’s generated PR before submitting and ask Claude to highlight potential risks or considerations.
 
@@ -596,7 +602,7 @@ Shortcut| Action
 `Enter`| Select and resume the highlighted session
 `Space`| Preview the session content. `Ctrl+V` also works on terminals that do not capture it as paste
 `Ctrl+R`| Rename the highlighted session
-`/` or any printable character other than `Space`| Enter search mode and filter sessions
+`/` or any printable character other than `Space`| Enter search mode and filter sessions. Paste a GitHub, GitHub Enterprise, GitLab, or Bitbucket pull or merge request URL to find the session that created it
 `Ctrl+A`| Show sessions from all projects on this machine. Press again to restore the current repository
 `Ctrl+W`| Show sessions from all worktrees of the current repository. Press again to restore the current worktree. Only shown in multi-worktree repositories
 `Ctrl+B`| Filter to sessions from your current git branch. Press again to show sessions from all branches
@@ -812,7 +818,9 @@ Matcher| Fires when
 `permission_prompt`| Claude needs you to approve a tool use
 `idle_prompt`| Claude is done and waiting for your next prompt
 `auth_success`| Authentication completes
-`elicitation_dialog`| Claude is asking you a question
+`elicitation_dialog`| An MCP server opens an elicitation form
+`elicitation_complete`| An MCP elicitation form is submitted or dismissed
+`elicitation_response`| An MCP elicitation response is sent back to the server
 
 3
 

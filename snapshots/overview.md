@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Claude Code is an AI-powered coding assistant that helps you build features, fix bugs, and automate development tasks. It understands your entire codebase and can work across multiple files and tools to get things done.
 
 ##
@@ -59,7 +65,7 @@ You can also install with [apt, dnf, or apk](</docs/en/setup#install-with-linux-
 
 You’ll be prompted to log in on first use. That’s it! [Continue with the Quickstart →](</docs/en/quickstart>)
 
-See [advanced setup](</docs/en/setup>) for installation options, manual updates, or uninstallation instructions. Visit [troubleshooting](</docs/en/troubleshooting>) if you hit issues.
+See [advanced setup](</docs/en/setup>) for installation options, manual updates, or uninstallation instructions. Visit [installation troubleshooting](</docs/en/troubleshoot-install>) if you hit issues.
 
 The VS Code extension provides inline diffs, @-mentions, plan review, and conversation history directly in your editor.
 

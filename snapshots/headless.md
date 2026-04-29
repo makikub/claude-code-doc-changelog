@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 The [Agent SDK](</docs/en/agent-sdk/overview>) gives you the same tools, agent loop, and context management that power Claude Code. It’s available as a CLI for scripts and CI/CD, or as [Python](</docs/en/agent-sdk/python>) and [TypeScript](</docs/en/agent-sdk/typescript>) packages for full programmatic control.
 
 The CLI was previously called “headless mode.” The `-p` flag and all CLI options work the same way.

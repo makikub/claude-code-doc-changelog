@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Plugins let you extend Claude Code with custom functionality that can be shared across projects and teams. This guide covers creating your own plugins with skills, agents, hooks, and MCP servers. Looking to install existing plugins? See [Discover and install plugins](</docs/en/discover-plugins>). For complete technical specifications, see [Plugins reference](</docs/en/plugins-reference>).
 
 ##
@@ -332,7 +338,7 @@ When your plugin is ready to share:
   3. **Create or use a marketplace** : Distribute through [plugin marketplaces](</docs/en/plugin-marketplaces>) for installation
   4. **Test with others** : Have team members test the plugin before wider distribution
 
-Once your plugin is in a marketplace, others can install it using the instructions in [Discover and install plugins](</docs/en/discover-plugins>).
+Once your plugin is in a marketplace, others can install it using the instructions in [Discover and install plugins](</docs/en/discover-plugins>). To keep a plugin internal to your team, host the marketplace in a [private repository](</docs/en/plugin-marketplaces#private-repositories>).
 
 ###
 

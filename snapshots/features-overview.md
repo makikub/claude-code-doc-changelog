@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Claude Code combines a model that reasons about your code with [built-in tools](</docs/en/how-claude-code-works#tools>) for file operations, search, execution, and web access. The built-in tools cover most coding tasks. This guide covers the extension layer: features you add to customize what Claude knows, connect it to external services, and automate workflows.
 
 For how the core agentic loop works, see [How Claude Code works](</docs/en/how-claude-code-works>).

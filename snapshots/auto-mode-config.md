@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) lets Claude Code run without permission prompts by routing each tool call through a classifier that blocks anything irreversible, destructive, or aimed outside your environment. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations. Out of the box, the classifier trusts only the working directory and the current repo’s configured remotes. Actions like pushing to your company’s source-control org or writing to a team cloud bucket are blocked until you add them to `autoMode.environment`. For how to enable auto mode and what it blocks by default, see [Permission modes](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>). This page is the configuration reference. This page covers how to:
 
   * Choose where to set rules across CLAUDE.md, user settings, and managed settings

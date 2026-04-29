@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Fullscreen rendering is an opt-in research preview and requires Claude Code v2.1.89 or later. Run `/tui fullscreen` to switch in your current conversation, or set `CLAUDE_CODE_NO_FLICKER=1` on versions before v2.1.110. Behavior may change based on feedback.
 
 Fullscreen rendering is an alternative rendering path for the Claude Code CLI that eliminates flicker, keeps memory usage flat in long conversations, and adds mouse support. It draws the interface on the terminal’s alternate screen buffer, like `vim` or `htop`, and only renders messages that are currently visible. This reduces the amount of data sent to your terminal on each update. The difference is most noticeable in terminal emulators where rendering throughput is the bottleneck, such as the VS Code integrated terminal, tmux, and iTerm2. If your terminal scroll position jumps to the top while Claude is working, or the screen flashes as tool output streams in, this mode addresses those.
@@ -114,6 +120,14 @@ Press `Esc` or `q` to return to the prompt.
 
 ​
 
+Clear the conversation
+
+Press `Ctrl+L` twice within two seconds to run `/clear` and start a new conversation. The first press clears the input box and shows a hint; the second press clears the conversation. On macOS, double-pressing `Cmd+K` also runs `/clear`.
+
+##
+
+​
+
 Use with tmux
 
 Fullscreen rendering works inside tmux, with two caveats. Mouse wheel scrolling requires tmux’s mouse mode. If your `~/.tmux.conf` does not already enable it, add this line and reload your config:
@@ -128,7 +142,7 @@ Without mouse mode, wheel events go to tmux instead of Claude Code. Keyboard scr
 
 Keep native text selection
 
-Mouse capture is the most common friction point, especially over SSH or inside tmux. When Claude Code captures mouse events, your terminal’s native copy-on-select stops working. The selection you make with click-and-drag exists inside Claude Code, not in your terminal’s selection buffer, so tmux copy mode, Kitty hints, and similar tools don’t see it. Claude Code tries to write the selection to your clipboard, but the path it uses depends on your setup. Inside tmux it writes to the tmux paste buffer. Over SSH it falls back to OSC 52 escape sequences, which some terminals block by default. iTerm2 blocks them until you turn on Settings → General → Selection → Applications in terminal may access clipboard. Claude Code prints a toast after each copy telling you which path it used. For a one-off native selection, hold your terminal’s bypass modifier while you click and drag: `Option` in iTerm2, or `Shift` in most Linux and Windows terminals. The modifier tells your terminal to handle the selection itself instead of forwarding mouse events to Claude Code, so `Cmd+C` and your terminal’s other copy shortcuts work on it. If you rely on native selection all the time, set `CLAUDE_CODE_DISABLE_MOUSE=1` to opt out of mouse capture while keeping the flicker-free rendering and flat memory:
+Mouse capture is the most common friction point, especially over SSH or inside tmux. When Claude Code captures mouse events, your terminal’s native copy-on-select stops working. The selection you make with click-and-drag exists inside Claude Code, not in your terminal’s selection buffer, so tmux copy mode, Kitty hints, and similar tools don’t see it. Claude Code tries to write the selection to your clipboard, but the path it uses depends on your setup. Inside tmux it writes to the tmux paste buffer. Over SSH it falls back to OSC 52 escape sequences, which some terminals block by default. iTerm2 blocks them until you turn on Settings → General → Selection → Applications in terminal may access clipboard. Running [`/terminal-setup`](</docs/en/terminal-config>) in iTerm2 enables this for you. Claude Code prints a toast after each copy telling you which path it used. For a one-off native selection, hold your terminal’s bypass modifier while you click and drag: `Option` in iTerm2, or `Shift` in most Linux and Windows terminals. The modifier tells your terminal to handle the selection itself instead of forwarding mouse events to Claude Code, so `Cmd+C` and your terminal’s other copy shortcuts work on it. If you rely on native selection all the time, set `CLAUDE_CODE_DISABLE_MOUSE=1` to opt out of mouse capture while keeping the flicker-free rendering and flat memory:
 
     CLAUDE_CODE_NO_FLICKER=1 CLAUDE_CODE_DISABLE_MOUSE=1 claude
 

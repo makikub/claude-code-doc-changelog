@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 This page covers system requirements, platform-specific installation details, updates, and uninstallation. For a guided walkthrough of your first session, see the [quickstart](</docs/en/quickstart>). If you’ve never used a terminal before, see the [terminal guide](</docs/en/terminal-guide>).
 
 ##
@@ -16,7 +22,7 @@ Claude Code runs on the following platforms and configurations:
     * Alpine Linux 3.19+
   * **Hardware** : 4 GB+ RAM, x64 or ARM64 processor
   * **Network** : internet connection required. See [network configuration](</docs/en/network-config#network-access-requirements>).
-  * **Shell** : Bash, Zsh, PowerShell, or CMD. Native Windows setups recommend [Git for Windows](<https://git-scm.com/downloads/win>); PowerShell is used as a fallback when Git Bash is absent. WSL setups do not require Git for Windows.
+  * **Shell** : Bash, Zsh, PowerShell, or CMD. On native Windows, [Git for Windows](<https://git-scm.com/downloads/win>) is recommended; Claude Code falls back to PowerShell when Git Bash is absent. WSL setups do not require Git for Windows.
   * **Location** : [Anthropic supported countries](<https://www.anthropic.com/supported-countries>)
 
 ###
@@ -73,7 +79,7 @@ You can also install with [apt, dnf, or apk](</docs/en/setup#install-with-linux-
 
     claude
 
-If you encounter any issues during installation, see the [troubleshooting guide](</docs/en/troubleshooting>).
+If you encounter any issues during installation, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>).
 
 ###
 
@@ -97,7 +103,7 @@ WSL 1| WSL 1 enabled| Not supported| If WSL 2 is unavailable
       }
     }
 
-Claude Code can also run PowerShell natively on Windows. The PowerShell tool is rolling out progressively; set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` to opt in or `0` to opt out. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>) for setup and limitations. **Option 2: WSL** Open your WSL distribution and run the Linux installer from the install instructions above. You install and launch `claude` inside the WSL terminal, not from PowerShell or CMD.
+Claude Code can also run PowerShell natively on Windows. When Git Bash is installed, the PowerShell tool is rolling out progressively as an additional option: set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` to opt in or `0` to opt out. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>) for setup and limitations. **Option 2: WSL** Open your WSL distribution and run the Linux installer from the install instructions above. You install and launch `claude` inside the WSL terminal, not from PowerShell or CMD.
 
 ###
 
@@ -127,7 +133,7 @@ After installing, confirm Claude Code is working:
 
     claude --version
 
-For a more detailed check of your installation and configuration, run [`claude doctor`](</docs/en/troubleshooting#get-more-help>):
+If this fails with `command not found` or another error, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>). For a more detailed check of your installation and configuration, run [`claude doctor`](</docs/en/troubleshooting#get-more-help>):
 
     claude doctor
 
@@ -332,9 +338,9 @@ You can also install Claude Code as a global npm package. The package requires [
 
     npm install -g @anthropic-ai/claude-code
 
-The npm package installs the same native binary as the standalone installer. npm pulls the binary in through a per-platform optional dependency such as `@anthropic-ai/claude-code-darwin-arm64`, and a postinstall step links it into place. The installed `claude` binary does not itself invoke Node. Supported npm install platforms are `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `linux-x64-musl`, `linux-arm64-musl`, `win32-x64`, and `win32-arm64`. Your package manager must allow optional dependencies. See [troubleshooting](</docs/en/troubleshooting#native-binary-not-found-after-npm-install>) if the binary is missing after install.
+The npm package installs the same native binary as the standalone installer. npm pulls the binary in through a per-platform optional dependency such as `@anthropic-ai/claude-code-darwin-arm64`, and a postinstall step links it into place. The installed `claude` binary does not itself invoke Node. Supported npm install platforms are `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `linux-x64-musl`, `linux-arm64-musl`, `win32-x64`, and `win32-arm64`. Your package manager must allow optional dependencies. See [troubleshooting](</docs/en/troubleshoot-install#native-binary-not-found-after-npm-install>) if the binary is missing after install.
 
-Do NOT use `sudo npm install -g` as this can lead to permission issues and security risks. If you encounter permission errors, see [troubleshooting permission errors](</docs/en/troubleshooting#permission-errors-during-installation>).
+Do NOT use `sudo npm install -g` as this can lead to permission issues and security risks. If you encounter permission errors, see [troubleshooting permission errors](</docs/en/troubleshoot-install#permission-errors-during-installation>).
 
 ###
 

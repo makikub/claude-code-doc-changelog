@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Ultrareview is a research preview feature available in Claude Code v2.1.86 and later. The feature, pricing, and availability may change based on feedback.
 
 Ultrareview is a deep code review that runs on Claude Code on the web infrastructure. When you run `/ultrareview`, Claude Code launches a fleet of reviewer agents in a remote sandbox to find bugs in your branch or pull request. Compared to a local `/review`, ultrareview offers:
@@ -42,7 +48,7 @@ Pro| 3 free runs through May 5, 2026| billed as [extra usage](<https://support.c
 Max| 3 free runs through May 5, 2026| billed as [extra usage](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>)
 Team and Enterprise| none| billed as [extra usage](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>)
 
-Pro and Max subscribers receive three free ultrareview runs to try the feature. These three runs are a one-time allotment per account, do not refresh, and expire on May 5, 2026. After you use all three, or after the free run period ends, each review is billed to extra usage and typically costs $5 to $20 depending on the size of the change. Because ultrareview always bills as extra usage outside the free runs, your account or organization must have extra usage enabled before you can launch a paid review. If extra usage is not enabled, Claude Code blocks the launch and links you to the billing settings where you can turn it on. You can also run `/extra-usage` to check or change your current setting.
+Pro and Max subscribers receive three free ultrareview runs to try the feature. These three runs are a one-time allotment per account, do not refresh, and expire on May 5, 2026. After you use all three, or after the free run period ends, each review is billed to extra usage and typically costs $5 to $20 depending on the size of the change. A run counts once the remote session starts, so a review that you stop early or that fails to complete still uses a free run. For a paid review, extra usage is billed only for the portion that ran. Because ultrareview always bills as extra usage outside the free runs, your account or organization must have extra usage enabled before you can launch a paid review. If extra usage is not enabled, Claude Code blocks the launch and links you to the billing settings where you can turn it on. You can also run `/extra-usage` to check or change your current setting.
 
 ##
 

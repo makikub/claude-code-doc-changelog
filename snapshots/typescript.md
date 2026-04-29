@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 **Try the new V2 interface (preview):** A simplified interface with `send()` and `stream()` patterns is now available, making multi-turn conversations easier. [Learn more about the TypeScript V2 preview](</docs/en/agent-sdk/typescript-v2-preview>)
 
 ##
@@ -3235,6 +3241,8 @@ Property| Type| Default| Description
 `allowAllUnixSockets`| `boolean`| `false`| Allow access to all Unix sockets
 `httpProxyPort`| `number`| `undefined`| HTTP proxy port for network requests
 `socksProxyPort`| `number`| `undefined`| SOCKS proxy port for network requests
+
+The built-in sandbox proxy enforces `allowedDomains` based on the requested hostname and does not terminate or inspect TLS traffic, so techniques such as [domain fronting](<https://en.wikipedia.org/wiki/Domain_fronting>) can potentially bypass it. See [Sandboxing security limitations](</docs/en/sandboxing#security-limitations>) for details and [Secure deployment](</docs/en/agent-sdk/secure-deployment#traffic-forwarding>) for configuring a TLS-terminating proxy.
 
 ###
 

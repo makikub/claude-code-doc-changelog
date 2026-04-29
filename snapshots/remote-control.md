@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Remote Control is in research preview and available on all plans. On Team and Enterprise, it is off by default until an admin enables the Remote Control toggle in [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>).
 
 Remote Control connects [claude.ai/code](<https://claude.ai/code>) or the Claude app for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) and [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>) to a Claude Code session running on your machine. Start a task at your desk, then pick it up from your phone on the couch or a browser on another computer. When you start a Remote Control session on your machine, Claude keeps running locally the entire time, so nothing moves to the cloud. With Remote Control you can:

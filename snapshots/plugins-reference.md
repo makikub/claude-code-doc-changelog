@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Looking to install plugins? See [Discover and install plugins](</docs/en/discover-plugins>). For creating plugins, see [Plugins](</docs/en/plugins>). For distributing plugins, see [Plugin marketplaces](</docs/en/plugin-marketplaces>).
 
 This reference provides complete technical specifications for the Claude Code plugin system, including component schemas, CLI commands, and development tools. A **plugin** is a self-contained directory of components that extends Claude Code with custom functionality. Plugin components include skills, agents, hooks, MCP servers, LSP servers, and monitors.
@@ -89,6 +95,7 @@ Plugin hooks respond to the same lifecycle events as [user-defined hooks](</docs
 Event| When it fires
 ---|---
 `SessionStart`| When a session begins or resumes
+`Setup`| When you start Claude Code with `--init-only`, or with `--init` or `--maintenance` in `-p` mode. For one-time preparation in CI or scripts
 `UserPromptSubmit`| When you submit a prompt, before Claude processes it
 `UserPromptExpansion`| When a user-typed command expands into a prompt, before it reaches Claude. Can block the expansion
 `PreToolUse`| Before a tool call executes. Can block it

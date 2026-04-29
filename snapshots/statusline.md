@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 The status line is a customizable bar at the bottom of Claude Code that runs any shell script you configure. It receives JSON session data on stdin and displays whatever your script prints, giving you a persistent, at-a-glance view of context usage, costs, git status, or anything else you want to track. Status lines are useful when you:
 
   * Want to monitor context window usage as you work
@@ -560,7 +566,7 @@ Node.js
 
 Windows configuration
 
-On Windows, Claude Code runs status line commands through Git Bash. You can invoke PowerShell from that shell:
+On Windows, Claude Code runs status line commands through Git Bash when Git Bash is installed, or through PowerShell when Git Bash is absent. To run a PowerShell script as your status line, invoke it via `powershell`; this works from either shell:
 
 settings.json
 
@@ -573,7 +579,7 @@ statusline.ps1
       }
     }
 
-Or run a Bash script directly:
+Or, when Git Bash is installed, run a Bash script directly:
 
 settings.json
 

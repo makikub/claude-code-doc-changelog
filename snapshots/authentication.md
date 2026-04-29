@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Claude Code supports multiple authentication methods depending on your setup. Individual users can log in with a Claude.ai account, while teams can use Claude for Teams or Enterprise, the Claude Console, or a cloud provider like Amazon Bedrock, Google Vertex AI, or Microsoft Foundry.
 
 ##
@@ -13,7 +19,7 @@ After [installing Claude Code](</docs/en/setup#install-claude-code>), run `claud
   * **Claude Console** : log in with your Console credentials. Your admin must have invited you first.
   * **Cloud providers** : if your organization uses [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Vertex AI](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>), set the required environment variables before running `claude`. No browser login is needed.
 
-To log out and re-authenticate, type `/logout` at the Claude Code prompt. If you’re having trouble logging in, see [authentication troubleshooting](</docs/en/troubleshooting#authentication-issues>).
+To log out and re-authenticate, type `/logout` at the Claude Code prompt. If you’re having trouble logging in, see [authentication troubleshooting](</docs/en/troubleshoot-install#login-and-authentication>).
 
 ##
 

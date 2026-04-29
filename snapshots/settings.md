@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Claude Code offers a variety of settings to configure its behavior to meet your needs. You can configure Claude Code by running the `/config` command when using the interactive REPL, which opens a tabbed Settings interface where you can view status information and modify configuration options.
 
 ##
@@ -902,4 +908,4 @@ See also
   * [Permissions](</docs/en/permissions>): permission system, rule syntax, tool-specific patterns, and managed policies
   * [Authentication](</docs/en/authentication>): set up user access to Claude Code
   * [Debug your configuration](</docs/en/debug-your-config>): diagnose why a setting, hook, or MCP server isn’t taking effect
-  * [Troubleshooting](</docs/en/troubleshooting>): installation, authentication, and platform issues
+  * [Troubleshoot installation and login](</docs/en/troubleshoot-install>): installation, authentication, and platform issues

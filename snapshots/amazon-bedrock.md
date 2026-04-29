@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 ##
 
 ​
@@ -269,6 +275,18 @@ Create a dedicated AWS account for Claude Code to simplify cost tracking and acc
 1M token context window
 
 Claude Opus 4.7, Opus 4.6, and Sonnet 4.6 support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) on Amazon Bedrock. Claude Code automatically enables the extended context window when you select a 1M model variant. The setup wizard offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
+
+##
+
+​
+
+Service tiers
+
+[Amazon Bedrock service tiers](<https://docs.aws.amazon.com/bedrock/latest/userguide/service-tiers-inference.html>) let you trade off cost against latency. Set `ANTHROPIC_BEDROCK_SERVICE_TIER` to `default`, `flex`, or `priority`:
+
+    export ANTHROPIC_BEDROCK_SERVICE_TIER=priority
+
+Claude Code sends this as the `X-Amzn-Bedrock-Service-Tier` header on each request. Tier availability varies by model and region. Reserved capacity uses a [provisioned throughput](<https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html>) ARN as the model ID instead of this setting.
 
 ##
 

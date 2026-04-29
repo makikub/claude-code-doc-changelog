@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Commands control Claude Code from inside a session. They provide a quick way to switch models, manage permissions, clear context, run a workflow, and more. Type `/` to see every command available to you, or type `/` followed by letters to filter. The table below lists all the commands included in Claude Code. Entries marked **[Skill](</docs/en/skills#bundled-skills>)** are bundled skills. They use the same mechanism as skills you write yourself: a prompt handed to Claude, which Claude can also invoke automatically when relevant. Everything else is a built-in command whose behavior is coded into the CLI. To add your own commands, see [skills](</docs/en/skills>). Not every command appears for every user. Availability depends on your platform, plan, and environment. For example, `/desktop` only shows on macOS and Windows, and `/upgrade` only shows on Pro and Max plans. In the table below, `<arg>` indicates a required argument and `[arg]` indicates an optional one.
 
 Command| Purpose
@@ -29,7 +35,7 @@ Command| Purpose
 `/feedback [report]`| Submit feedback about Claude Code. Alias: `/bug`
 `/fewer-permission-prompts`| **[Skill](</docs/en/skills#bundled-skills>).** Scan your transcripts for common read-only Bash and MCP tool calls, then add a prioritized allowlist to project `.claude/settings.json` to reduce permission prompts
 `/focus`| Toggle the focus view, which shows only your last prompt, a one-line tool-call summary with edit diffstats, and the final response. The selection persists across sessions. Only available in [fullscreen rendering](</docs/en/fullscreen>)
-`/heapdump`| Write a JavaScript heap snapshot and a memory breakdown to `~/Desktop` for diagnosing high memory usage. See [troubleshooting](</docs/en/troubleshooting#high-cpu-or-memory-usage>)
+`/heapdump`| Write a JavaScript heap snapshot and a memory breakdown to `~/Desktop`, or your home directory on Linux without a Desktop folder, for diagnosing high memory usage. See [troubleshooting](</docs/en/troubleshooting#high-cpu-or-memory-usage>)
 `/help`| Show help and available commands
 `/hooks`| View [hook](</docs/en/hooks>) configurations for tool events
 `/ide`| Manage IDE integrations and show status

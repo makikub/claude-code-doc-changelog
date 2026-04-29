@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Claude Code and the Agent SDK are powerful tools that can execute code, access files, and interact with external services on your behalf. Like any tool with these capabilities, deploying them thoughtfully ensures you get the benefits while maintaining appropriate controls. Unlike traditional software that follows predetermined code paths, these tools generate their actions dynamically based on context and goals. This flexibility is what makes them useful, but it also means their behavior can be influenced by the content they process: files, webpages, or user input. This is sometimes called prompt injection. For example, if a repository’s README contains unusual instructions, Claude Code might incorporate those into its actions in ways the operator didn’t anticipate. This guide covers practical ways to reduce this risk. The good news is that securing an agent deployment doesn’t require exotic infrastructure. The same principles that apply to running any semi-trusted code apply here: isolation, least privilege, and defense in depth. Claude Code includes several security features that help with common concerns, and this guide walks through these along with additional hardening options for those who need them. Not every deployment needs maximum security. A developer running Claude Code on their laptop has different requirements than a company processing customer data in a multi-tenant environment. This guide presents options ranging from Claude Code’s built-in security features to hardened production architectures, so you can choose what fits your situation.
 
 ##
@@ -103,7 +109,7 @@ For lightweight isolation without containers, [sandbox-runtime](<https://github.
 Then create a configuration file specifying allowed paths and domains. **Security considerations:**
 
   1. **Same-host kernel** : Unlike VMs, sandboxed processes share the host kernel. A kernel vulnerability could theoretically enable escape. For some threat models this is acceptable, but if you need kernel-level isolation, use gVisor or a separate VM.
-  2. **No TLS inspection** : The proxy allowlists domains but doesn’t inspect encrypted traffic. If the agent has permissive credentials for an allowed domain, ensure it isn’t possible to use that domain to trigger other network requests or to exfiltrate data.
+  2. **No TLS inspection** : The proxy allowlists domains based on the client-supplied hostname and does not terminate or inspect encrypted traffic. Code running inside the sandbox can potentially use [domain fronting](<https://en.wikipedia.org/wiki/Domain_fronting>) or similar techniques to reach hosts outside the allowlist. If your threat model requires stronger guarantees, configure a TLS-terminating proxy. See the [sandboxing security limitations](</docs/en/sandboxing#security-limitations>) for more detail. Separately, if the agent has permissive credentials for an allowed domain, ensure it cannot use that domain to trigger other network requests or to exfiltrate data.
 
 For many single-developer and CI/CD use cases, sandbox-runtime raises the bar significantly with minimal setup. The sections below cover containers and VMs for deployments requiring stronger isolation.
 

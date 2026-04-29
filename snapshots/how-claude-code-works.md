@@ -1,3 +1,9 @@
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
+
 Claude Code is an agentic assistant that runs in your terminal. While it excels at coding, it can help with anything you can do from the command line: writing docs, running builds, searching files, researching topics, and more. This guide covers the core architecture, built-in capabilities, and tips for working effectively. For step-by-step walkthroughs, see [Common workflows](</docs/en/common-workflows>). For extensibility features like skills, MCP, and hooks, see [Extend Claude Code](</docs/en/features-overview>).
 
 ##
