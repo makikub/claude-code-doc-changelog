@@ -26,6 +26,7 @@ What you see| Solution
 `'bash' is not recognized as the name of a cmdlet`| Use the Windows installer command
 `Claude Code on Windows requires either Git for Windows (for bash) or PowerShell`| Install a shell
 `Claude Code does not support 32-bit Windows`| Open Windows PowerShell, not the x86 entry
+`The process cannot access the file ... because it is being used by another process`| Clear the downloads folder and retry
 `Error loading shared library`| Wrong binary variant for your system
 `Illegal instruction`| Architecture or CPU instruction set mismatch
 `cannot execute binary file: Exec format error` in WSL| WSL1 native-binary regression
@@ -105,7 +106,7 @@ For Bash, the default on most Linux distributions:
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
     source ~/.bashrc
 
-Alternatively, close and reopen your terminal.Verify the fix worked:
+Alternatively, close and reopen your terminal.For other shells such as fish or Nushell, add `~/.local/bin` to your PATH using your shell’s own configuration syntax, then restart your terminal.Verify the fix worked:
 
     claude --version
 
@@ -370,6 +371,17 @@ Or stay in CMD and use the CMD installer instead:
   * **`bash` not recognized**: you ran the macOS/Linux installer on Windows. Use the PowerShell installer instead:
 
         irm https://claude.ai/install.ps1 | iex
+
+###
+
+​
+
+`The process cannot access the file` during Windows install
+
+If the PowerShell installer fails with `Failed to download binary: The process cannot access the file ... because it is being used by another process`, the installer couldn’t write to `%USERPROFILE%\.claude\downloads`. This usually means a previous install attempt is still running, or antivirus software is scanning a partially downloaded binary in that folder. Close any other PowerShell windows running the installer and wait for antivirus scans to release the file. Then delete the downloads folder and run the installer again:
+
+    Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\downloads"
+    irm https://claude.ai/install.ps1 | iex
 
 ###
 
