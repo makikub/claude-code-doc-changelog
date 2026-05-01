@@ -240,11 +240,11 @@ Field| Required| Description
 `tools`| No| Tools the subagent can use. Inherits all tools if omitted
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
 `model`| No| Model to use: `sonnet`, `opus`, `haiku`, a full model ID (for example, `claude-opus-4-7`), or `inherit`. Defaults to `inherit`
-`permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan`
+`permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan`. Ignored for plugin subagents
 `maxTurns`| No| Maximum number of agentic turns before the subagent stops
 `skills`| No| [Skills](</docs/en/skills>) to load into the subagent’s context at startup. The full skill content is injected, not just made available for invocation. Subagents don’t inherit skills from the parent conversation
-`mcpServers`| No| [MCP servers](</docs/en/mcp>) available to this subagent. Each entry is either a server name referencing an already-configured server (e.g., `"slack"`) or an inline definition with the server name as key and a full [MCP server config](</docs/en/mcp#installing-mcp-servers>) as value
-`hooks`| No| Lifecycle hooks scoped to this subagent
+`mcpServers`| No| [MCP servers](</docs/en/mcp>) available to this subagent. Each entry is either a server name referencing an already-configured server (e.g., `"slack"`) or an inline definition with the server name as key and a full [MCP server config](</docs/en/mcp#installing-mcp-servers>) as value. Ignored for plugin subagents
+`hooks`| No| Lifecycle hooks scoped to this subagent. Ignored for plugin subagents
 `memory`| No| Persistent memory scope: `user`, `project`, or `local`. Enables cross-session learning
 `background`| No| Set to `true` to always run this subagent as a background task. Default: `false`
 `effort`| No| Effort level when this subagent is active. Overrides the session effort level. Default: inherits from session. Options: `low`, `medium`, `high`, `xhigh`, `max`; available levels depend on the model
@@ -377,7 +377,7 @@ Mode| Behavior
 `bypassPermissions`| Skip permission prompts
 `plan`| Plan mode (read-only exploration)
 
-Use `bypassPermissions` with caution. It skips permission prompts, allowing the subagent to execute operations without approval. Writes to `.git`, `.claude`, `.vscode`, `.idea`, and `.husky` directories still prompt for confirmation, except for `.claude/commands`, `.claude/agents`, and `.claude/skills`. See [permission modes](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>) for details.
+Use `bypassPermissions` with caution. It skips all permission prompts, allowing the subagent to execute operations without approval, including writes to `.git`, `.claude`, `.vscode`, `.idea`, and `.husky`. Root and home directory removals such as `rm -rf /` still prompt as a circuit breaker. See [permission modes](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>) for details.
 
 If the parent uses `bypassPermissions` or `acceptEdits`, this takes precedence and cannot be overridden. If the parent uses [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), the subagent inherits auto mode and any `permissionMode` in its frontmatter is ignored: the classifier evaluates the subagent’s tool calls with the same block and allow rules as the parent session.
 

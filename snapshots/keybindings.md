@@ -120,7 +120,7 @@ Actions available in the `Chat` context:
 Action| Default| Description
 ---|---|---
 `chat:cancel`| Escape| Cancel current input
-`chat:clearInput`| Ctrl+L| Clear prompt input and force a full screen redraw. In [fullscreen rendering](</docs/en/fullscreen#clear-the-conversation>), press twice within two seconds to run `/clear`
+`chat:clearInput`| Ctrl+L| Force a full screen redraw, preserving input. In [fullscreen rendering](</docs/en/fullscreen#clear-the-conversation>), press twice within two seconds to run `/clear`
 `chat:clearScreen`| Cmd+K| In [fullscreen rendering](</docs/en/fullscreen#clear-the-conversation>), press twice within two seconds to run `/clear`
 `chat:killAgents`| Ctrl+X Ctrl+K| Kill all background agents
 `chat:cycleMode`| Shift+Tab*| Cycle permission modes
@@ -210,6 +210,7 @@ Action| Default| Description
 `historySearch:accept`| Escape, Tab| Accept selection
 `historySearch:cancel`| Ctrl+C| Cancel search
 `historySearch:execute`| Enter| Execute selected command
+`historySearch:cycleScope`| Ctrl+S| Cycle scope: session, project, everywhere
 
 ###
 

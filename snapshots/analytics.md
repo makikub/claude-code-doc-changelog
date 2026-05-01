@@ -24,6 +24,8 @@ Navigate to [claude.ai/analytics/claude-code](<https://claude.ai/analytics/claud
   * **Leaderboard** : top contributors ranked by Claude Code usage
   * **Data export** : download contribution data as CSV for custom reporting
 
+For per-user token counts and cost estimates, configure [OpenTelemetry export](</docs/en/monitoring-usage>).
+
 ###
 
 ​

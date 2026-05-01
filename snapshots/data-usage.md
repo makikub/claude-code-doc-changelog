@@ -152,7 +152,7 @@ Service| Claude API| Vertex API| Bedrock API| Foundry API
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.| Default on.
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.
 
-All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)).
+All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)). As of v2.1.126, when a host platform sets `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`, Statsig metrics default to on for Vertex, Bedrock, and Foundry, and follow the standard `DISABLE_TELEMETRY` opt-out. Sentry error reporting and `/feedback` reports remain off by default on those providers.
 
 ###
 
