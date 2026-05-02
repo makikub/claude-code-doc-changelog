@@ -14,7 +14,7 @@ Universal build for Intel and Apple Silicon
 
 For x64 processors
 
-For Windows ARM64, download the [ARM64 installer](<https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs>). Linux is not supported. After installing, launch Claude, sign in, and click the **Code** tab. The first time you open it on Windows, you need [Git for Windows](<https://git-scm.com/downloads/win>) installed; restart the app after installing it. For a walkthrough of your first session, see the [Get started guide](</docs/en/desktop-quickstart>). In the Code tab, each conversation is a **session** : it has its own chat history, project folder, and code changes, independent of any other session. The sidebar lists your sessions and lets you run several in parallel. Within a session you can:
+For Windows ARM64, download the [ARM64 installer](<https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs>). The desktop app is not available on Linux; use the [CLI](</docs/en/quickstart>) instead. After installing, launch Claude, sign in, and click the **Code** tab. The first time you open it on Windows, you need [Git for Windows](<https://git-scm.com/downloads/win>) installed; restart the app after installing it. For a walkthrough of your first session, see the [Get started guide](</docs/en/desktop-quickstart>). In the Code tab, each conversation is a **session** : it has its own chat history, project folder, and code changes, independent of any other session. The sidebar lists your sessions and lets you run several in parallel. Within a session you can:
 
   * Review and comment on diffs, then watch the resulting PR through CI
   * Preview your running app in an embedded browser while Claude verifies its own changes
@@ -776,7 +776,7 @@ What’s not available in Desktop
 The following features are only available in the CLI or VS Code extension:
 
   * **Third-party providers** : Desktop connects to Anthropic’s API by default. Enterprise deployments can configure Vertex AI and gateway providers via [managed settings](<https://support.claude.com/en/articles/12622667-enterprise-configuration>). For Bedrock or Foundry, use the [CLI](</docs/en/quickstart>).
-  * **Linux** : the desktop app is available on macOS and Windows only.
+  * **Linux** : the desktop app is available on macOS and Windows only. On Linux, use the [CLI](</docs/en/quickstart>).
   * **Inline code suggestions** : Desktop does not provide autocomplete-style suggestions. It works through conversational prompts and explicit code changes.
   * **Agent teams** : multi-agent orchestration is available via the [CLI](</docs/en/agent-teams>) and [Agent SDK](</docs/en/headless>), not in Desktop.
 
