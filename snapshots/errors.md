@@ -531,7 +531,7 @@ The configured extended thinking budget exceeds the maximum response length, so 
 Claude Code adjusts these values automatically on the Anthropic API. You typically see this error on Amazon Bedrock or Google Vertex AI when [`MAX_THINKING_TOKENS`](</docs/en/env-vars>) is set higher than the provider’s output limit, or when plan mode raises the thinking budget. **What to do:**
 
   * Lower `MAX_THINKING_TOKENS`, or raise [`CLAUDE_CODE_MAX_OUTPUT_TOKENS`](</docs/en/env-vars>) above the thinking budget
-  * See [Extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) for how the budget interacts with output length
+  * See [Extended thinking](</docs/en/model-config#extended-thinking>) for how the budget interacts with output length
 
 ###
 

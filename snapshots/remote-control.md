@@ -58,7 +58,7 @@ Flag| Description
 `--remote-control-session-name-prefix <prefix>`| Prefix for auto-generated session names when no explicit name is set. Defaults to your machine’s hostname, producing names like `myhost-graceful-unicorn`. Set `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` for the same effect.
 `--spawn <mode>`| How the server creates sessions.
 • `same-dir` (default): all sessions share the current working directory, so they can conflict if editing the same files.
-• `worktree`: each on-demand session gets its own [git worktree](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>). Requires a git repository.
+• `worktree`: each on-demand session gets its own [git worktree](</docs/en/worktrees>). Requires a git repository.
 • `session`: single-session mode. Serves exactly one session and rejects additional connections. Set at startup only.
 Press `w` at runtime to toggle between `same-dir` and `worktree`.
 `--capacity <N>`| Maximum number of concurrent sessions. Default is 32. Cannot be used with `--spawn=session`.

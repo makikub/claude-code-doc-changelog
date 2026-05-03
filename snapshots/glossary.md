@@ -178,7 +178,7 @@ A setting that controls how much of the adaptive-reasoning thinking budget Claud
 
 Extended thinking
 
-Visible step-by-step reasoning the model performs before responding. You can cap thinking tokens with `MAX_THINKING_TOKENS` or adjust the effort level. Thinking appears in gray italic text in the terminal. Learn more: [Use extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>)
+Visible step-by-step reasoning the model performs before responding. You can cap thinking tokens with `MAX_THINKING_TOKENS` or adjust the effort level. Thinking appears in gray italic text in the terminal. Learn more: [Use extended thinking](</docs/en/model-config#extended-thinking>)
 
 ##
 
@@ -422,7 +422,7 @@ W
 
 Worktree isolation
 
-An isolation mode that runs Claude in a separate git worktree under `.claude/worktrees/`, enabled with the `-w` flag or `isolation: worktree` in subagent config. Changes stay on a separate branch in a separate directory, so parallel agents don’t overwrite each other’s files. Learn more: [Run parallel sessions with git worktrees](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>)
+An isolation mode that runs Claude in a separate git worktree under `.claude/worktrees/`, enabled with the `-w` flag or `isolation: worktree` in subagent config. Changes stay on a separate branch in a separate directory, so parallel agents don’t overwrite each other’s files. Learn more: [Run parallel sessions with git worktrees](</docs/en/worktrees>)
 
 * * *
 

@@ -91,7 +91,7 @@ The prompt box supports several features:
   * **Permission modes** : click the mode indicator at the bottom of the prompt box to switch modes. In normal mode, Claude asks permission before each action. In Plan mode, Claude describes what it will do and waits for approval before making changes. VS Code automatically opens the plan as a full markdown document where you can add inline comments to give feedback before Claude begins. In auto-accept mode, Claude makes edits without asking. Set the default in VS Code settings under `claudeCode.initialPermissionMode`.
   * **Command menu** : click `/` or type `/` to open the command menu. Options include attaching files, switching models, toggling extended thinking, viewing plan usage (`/usage`), and starting a [Remote Control](</docs/en/remote-control>) session (`/remote-control`). The Customize section provides access to MCP servers, hooks, memory, permissions, and plugins. Items with a terminal icon open in the integrated terminal.
   * **Context indicator** : the prompt box shows how much of Claude’s context window you’re using. Claude automatically compacts when needed, or you can run `/compact` manually.
-  * **Extended thinking** : lets Claude spend more time reasoning through complex problems. Toggle it on via the command menu (`/`). Claude’s reasoning appears in the conversation as collapsed blocks: click a block to read it, or press `Ctrl+O` to expand or collapse every thinking block in the session. See [Extended thinking](</docs/en/common-workflows#use-extended-thinking-thinking-mode>) for details.
+  * **Extended thinking** : lets Claude spend more time reasoning through complex problems. Toggle it on via the command menu (`/`). Claude’s reasoning appears in the conversation as collapsed blocks: click a block to read it, or press `Ctrl+O` to expand or collapse every thinking block in the session. See [Extended thinking](</docs/en/model-config#extended-thinking>) for details.
   * **Multi-line input** : press `Shift+Enter` to add a new line without sending. This also works in the “Other” free-text input of question dialogs.
 
 ###
@@ -113,7 +113,7 @@ For large PDFs, you can ask Claude to read specific pages instead of the whole f
 
 Resume past conversations
 
-Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time (Today, Yesterday, Last 7 days, etc.). Click any conversation to resume it with the full message history. New sessions receive AI-generated titles based on your first message. Hover over a session to reveal rename and remove actions: rename to give it a descriptive title, or remove to delete it from the list. For more on resuming sessions, see [Common workflows](</docs/en/common-workflows#resume-previous-conversations>).
+Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time (Today, Yesterday, Last 7 days, etc.). Click any conversation to resume it with the full message history. New sessions receive AI-generated titles based on your first message. Hover over a session to reveal rename and remove actions: rename to give it a descriptive title, or remove to delete it from the list. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
 
 ###
 
@@ -266,11 +266,27 @@ Logout| -| Sign out of your Anthropic account
 
 Launch a VS Code tab from other tools
 
-The extension registers a URI handler at `vscode://anthropic.claude-code/open`. Use it to open a new Claude Code tab from your own tooling: a shell alias, a browser bookmarklet, or any script that can open a URL. If VS Code isn’t already running, opening the URL launches it first. If VS Code is already running, the URL opens in whichever window is currently focused. Invoke the handler with your operating system’s URL opener. On macOS:
+The extension registers a URI handler at `vscode://anthropic.claude-code/open`. Use it to open a new Claude Code tab from your own tooling: a shell alias, a browser bookmarklet, or any script that can open a URL. If VS Code isn’t already running, opening the URL launches it first. If VS Code is already running, the URL opens in whichever window is currently focused. Invoke the handler with your operating system’s URL opener.
+
+  * macOS
+
+  * Linux
+
+  * Windows
 
     open "vscode://anthropic.claude-code/open"
 
-Use `xdg-open` on Linux or `start` on Windows. The handler accepts two optional query parameters:
+    xdg-open "vscode://anthropic.claude-code/open"
+
+In PowerShell:
+
+    Start-Process "vscode://anthropic.claude-code/open"
+
+In `cmd.exe`, `start` treats its first quoted argument as a window title, so pass an empty title before the URL:
+
+    start "" "vscode://anthropic.claude-code/open"
+
+The handler accepts two optional query parameters:
 
 Parameter| Description
 ---|---
@@ -280,6 +296,8 @@ Parameter| Description
 For example, to open a tab pre-filled with “review my changes”:
 
     vscode://anthropic.claude-code/open?prompt=review%20my%20changes
+
+To launch a terminal session instead of a VS Code tab, use the CLI’s `claude-cli://` handler. See [Launch sessions from links](</docs/en/deep-links>).
 
 ##
 
@@ -423,7 +441,7 @@ Use the `--worktree` (`-w`) flag to start Claude in an isolated worktree with it
 
     claude --worktree feature-auth
 
-Each worktree maintains independent file state while sharing git history. This prevents Claude instances from interfering with each other when working on different tasks. For more details, see [Run parallel sessions with Git worktrees](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>).
+Each worktree maintains independent file state while sharing git history. This prevents Claude instances from interfering with each other when working on different tasks. For more details, see [Run parallel sessions with Git worktrees](</docs/en/worktrees>).
 
 ##
 

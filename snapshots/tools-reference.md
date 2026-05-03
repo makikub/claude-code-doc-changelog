@@ -16,7 +16,7 @@ Tool| Description| Permission Required
 `CronList`| Lists all scheduled tasks in the session| No
 `Edit`| Makes targeted edits to specific files| Yes
 `EnterPlanMode`| Switches to plan mode to design an approach before coding| No
-`EnterWorktree`| Creates an isolated [git worktree](</docs/en/common-workflows#run-parallel-claude-code-sessions-with-git-worktrees>) and switches into it. Pass a `path` to switch into an existing worktree of the current repository instead of creating a new one. Not available to subagents| No
+`EnterWorktree`| Creates an isolated [git worktree](</docs/en/worktrees>) and switches into it. Pass a `path` to switch into an existing worktree of the current repository instead of creating a new one. Not available to subagents| No
 `ExitPlanMode`| Presents a plan for approval and exits plan mode| Yes
 `ExitWorktree`| Exits a worktree session and returns to the original directory. Not available to subagents| No
 `Glob`| Finds files based on pattern matching| No
