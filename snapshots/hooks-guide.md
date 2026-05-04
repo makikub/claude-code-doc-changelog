@@ -703,7 +703,7 @@ Prompt-based hooks
 For decisions that require judgment rather than deterministic rules, use `type: "prompt"` hooks. Instead of running a shell command, Claude Code sends your prompt and the hook’s input data to a Claude model (Haiku by default) to make the decision. You can specify a different model with the `model` field if you need more capability. The model’s only job is to return a yes/no decision as JSON:
 
   * `"ok": true`: the action proceeds
-  * `"ok": false`: the action is blocked. The model’s `"reason"` is fed back to Claude so it can adjust.
+  * `"ok": false`: the action is blocked. For `Stop` and `SubagentStop` hooks, the `reason` is fed back to Claude so it keeps working. For other events, the turn ends and the `reason` appears in the chat as a warning line. Claude does not see it.
 
 This example uses a `Stop` hook to ask the model whether all requested tasks are complete. If the model returns `"ok": false`, Claude keeps working and uses the `reason` as its next instruction:
 
