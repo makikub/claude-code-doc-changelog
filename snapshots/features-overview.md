@@ -96,6 +96,7 @@ Aspect| Skill| Subagent
 ---|---|---
 **What it is**|  Reusable instructions, knowledge, or workflows| Isolated worker with its own context
 **Key benefit**|  Share content across contexts| Context isolation. Work happens separately, only summary returns
+**[Context window](</docs/en/context-window>) impact**| Adds to your main window| Uses a separate window with its own input and output tokens
 **Best for**|  Reference material, invocable workflows| Tasks that read many files, parallel work, specialized workers
 
 **Skills can be reference or action.** Reference skills provide knowledge Claude uses throughout your session (like your API style guide). Action skills tell Claude to do something specific (like `/deploy` that runs your deployment workflow).**Use a subagent** when you need context isolation or when your context window is getting full. The subagent might read dozens of files or run extensive searches, but your main conversation only receives a summary. Since subagent work doesn’t consume your main context, this is also useful when you don’t need the intermediate work to remain visible. Custom subagents can have their own instructions and can preload skills.**They can combine.** A subagent can preload specific skills (`skills:` field). A skill can run in isolated context using `context: fork`. See [Skills](</docs/en/skills>) for details.

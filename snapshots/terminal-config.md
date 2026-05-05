@@ -149,7 +149,7 @@ Color values accept `#rrggbb`, `#rgb`, `rgb(r,g,b)`, `ansi256(n)`, or `ansi:<nam
       }
     }
 
-Claude Code watches `~/.claude/themes/` and reloads when a file changes, so edits made in your editor apply to a running session without a restart. Below is the full list of customizations you can set in `overrides`. The interactive editor in `/theme` shows the same tokens with a live preview, including a small number of internal tokens not covered here.
+Claude Code watches `~/.claude/themes/` and reloads when a file changes, so edits made in your editor apply to a running session without a restart. The reference below covers the tokens you can set in `overrides`. The interactive editor in `/theme` shows the same tokens with a live preview, plus a few single-purpose accents such as onboarding screen colors that are omitted here.
 
 Color token reference
 
@@ -184,6 +184,7 @@ Token| Controls
 `inverseText`| Text drawn on top of a colored background, such as status badges
 `inactive`| Secondary text such as hints, timestamps, and disabled items
 `subtle`| Faint borders and de-emphasized secondary text
+`suggestion`| Autocomplete suggestions and selection highlight in pickers
 `permission`| Dialog borders, including permission prompts and pickers
 `remember`| Memory and `CLAUDE.md` indicators
 
@@ -247,7 +248,26 @@ Apply only in [fullscreen rendering mode](</docs/en/fullscreen>), where messages
 Token| Controls
 ---|---
 `userMessageBackground`| Background behind your messages in the transcript
+`userMessageBackgroundHover`| Background behind a message while hovered or expanded
+`messageActionsBackground`| Background behind the selected message when the action bar is open
+`bashMessageBackgroundColor`| Background behind `!` shell command entries in the transcript
+`memoryBackgroundColor`| Background behind `#` memory entries in the transcript
 `selectionBg`| Background of text selected with the mouse
+
+####
+
+​
+
+Usage meter and speaker labels
+
+Adjust the bar shown in the `/usage` view and the labels that distinguish your messages from Claude’s.
+
+Token| Controls
+---|---
+`rate_limit_fill`| Filled portion of the usage meter
+`rate_limit_empty`| Unfilled portion of the usage meter
+`briefLabelYou`| Color of the `You` label on your messages
+`briefLabelClaude`| Color of the `Claude` label on assistant messages
 
 ####
 
@@ -255,7 +275,16 @@ Token| Controls
 
 Shimmer variants and subagent colors
 
-Several tokens have a paired `Shimmer` variant, such as `claudeShimmer` and `warningShimmer`, that supplies the lighter color used in the spinner’s animated gradient. Override the shimmer alongside its base token if the animation looks mismatched.Each [subagent](</docs/en/sub-agents>) and parallel task is shown in one of eight named colors so you can tell them apart in the transcript. The token names follow the pattern `<color>_FOR_SUBAGENTS_ONLY`, where `<color>` is `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, or `cyan`. Override these to change what each named color looks like. For example, a subagent with `color: blue` in its definition is drawn using the `blue_FOR_SUBAGENTS_ONLY` value.
+Several tokens have a paired shimmer variant that supplies the lighter color used in the spinner’s animated gradient. Override the shimmer alongside its base token if the animation looks mismatched.
+
+  * `claude` and `claudeShimmer`
+  * `warning` and `warningShimmer`
+  * `permission` and `permissionShimmer`
+  * `promptBorder` and `promptBorderShimmer`
+  * `inactive` and `inactiveShimmer`
+  * `fastMode` and `fastModeShimmer`
+
+Each [subagent](</docs/en/sub-agents>) and parallel task is shown in one of eight named colors so you can tell them apart in the transcript. The token names follow the pattern `<color>_FOR_SUBAGENTS_ONLY`, where `<color>` is `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, or `cyan`. Override these to change what each named color looks like. For example, a subagent with `color: blue` in its definition is drawn using the `blue_FOR_SUBAGENTS_ONLY` value.The [`ultrathink`](</docs/en/model-config#use-ultrathink-for-one-off-deep-reasoning>) and [`ultraplan`](</docs/en/ultraplan>) keywords in the prompt input are rendered with a seven-color rainbow gradient. The token names follow the pattern `rainbow_<color>` and `rainbow_<color>_shimmer`, where `<color>` is `red`, `orange`, `yellow`, `green`, `blue`, `indigo`, or `violet`.
 
 ##
 
