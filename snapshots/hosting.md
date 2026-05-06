@@ -20,7 +20,7 @@ Hosting Requirements
 
 Container-Based Sandboxing
 
-For security and isolation, the SDK should run inside a sandboxed container environment. This provides process isolation, resource limits, network control, and ephemeral filesystems. The SDK also supports [programmatic sandbox configuration](</docs/en/agent-sdk/typescript#sandbox-settings>) for command execution.
+For security and isolation, the SDK should run inside a sandboxed container environment. This provides process isolation, resource limits, network control, and ephemeral filesystems. The SDK also supports [programmatic sandbox configuration](</docs/en/agent-sdk/typescript#sandboxsettings>) for command execution.
 
 ###
 
@@ -182,7 +182,7 @@ An agent session will not timeout, but consider setting a ‘maxTurns’ propert
 Next Steps
 
   * [Secure Deployment](</docs/en/agent-sdk/secure-deployment>) \- Network controls, credential management, and isolation hardening
-  * [TypeScript SDK - Sandbox Settings](</docs/en/agent-sdk/typescript#sandbox-settings>) \- Configure sandbox programmatically
+  * [TypeScript SDK - Sandbox Settings](</docs/en/agent-sdk/typescript#sandboxsettings>) \- Configure sandbox programmatically
   * [Sessions Guide](</docs/en/agent-sdk/sessions>) \- Learn about session management
   * [Permissions](</docs/en/agent-sdk/permissions>) \- Configure tool permissions
   * [Cost Tracking](</docs/en/agent-sdk/cost-tracking>) \- Monitor API usage

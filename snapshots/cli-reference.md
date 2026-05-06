@@ -91,7 +91,7 @@ Flag| Description| Example
 `--output-format`| Specify output format for print mode (options: `text`, `json`, `stream-json`)| `claude -p "query" --output-format json`
 `--permission-mode`| Begin in a specified [permission mode](</docs/en/permission-modes>). Accepts `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, or `bypassPermissions`. Overrides `defaultMode` from settings files| `claude --permission-mode plan`
 `--permission-prompt-tool`| Specify an MCP tool to handle permission prompts in non-interactive mode| `claude -p --permission-prompt-tool mcp_auth_tool "query"`
-`--plugin-dir`| Load plugins from a directory for this session only. Each flag takes one path. Repeat the flag for multiple directories: `--plugin-dir A --plugin-dir B`| `claude --plugin-dir ./my-plugins`
+`--plugin-dir`| Load a plugin from a directory or `.zip` archive for this session only. Each flag takes one path. Repeat the flag for multiple plugins: `--plugin-dir A --plugin-dir B.zip`| `claude --plugin-dir ./my-plugin`
 `--print`, `-p`| Print response without interactive mode (see [Agent SDK documentation](</docs/en/agent-sdk/overview>) for programmatic usage details)| `claude -p "query"`
 `--remote`| Create a new [web session](</docs/en/claude-code-on-the-web>) on claude.ai with the provided task description| `claude --remote "Fix the login bug"`
 `--remote-control`, `--rc`| Start an interactive session with [Remote Control](</docs/en/remote-control#start-a-remote-control-session>) enabled so you can also control it from claude.ai or the Claude app. Optionally pass a name for the session| `claude --remote-control "My Project"`

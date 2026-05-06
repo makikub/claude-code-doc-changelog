@@ -168,6 +168,7 @@ Navigation (NORMAL mode)
 Command| Action
 ---|---
 `h`/`j`/`k`/`l`| Move left/down/up/right
+`Space`| Move right
 `w`| Next word
 `e`| End of word
 `b`| Previous word

@@ -74,6 +74,8 @@ Non-interactive mode reads stdin, so you can pipe data in and redirect the respo
 
 With `--output-format json`, the response payload includes `total_cost_usd` and a per-model cost breakdown, so scripted callers can track spend per invocation without consulting the [usage dashboard](</docs/en/costs>).
 
+As of Claude Code v2.1.128, piped stdin is capped at 10MB. If you exceed the cap, Claude Code exits with a clear error and a non-zero status. To work with larger inputs, write the content to a file and reference the file path in your prompt instead of piping it.
+
 ###
 
 ​
@@ -155,7 +157,7 @@ The `system/init` event reports session metadata including the model, tools, MCP
 Field| Type| Description
 ---|---|---
 `plugins`| array| plugins that loaded successfully, each with `name` and `path`
-`plugin_errors`| array| plugin load-time errors such as an unsatisfied dependency version, each with `plugin`, `type`, and `message`. Affected plugins are demoted and absent from `plugins`. The key is omitted when there are no errors
+`plugin_errors`| array| plugin load-time errors, each with `plugin`, `type`, and `message`. Includes unsatisfied dependency versions and `--plugin-dir` load failures such as a missing path or invalid archive. Affected plugins are demoted and absent from `plugins`. The key is omitted when there are no errors
 
 When [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](</docs/en/env-vars>) is set, Claude Code emits `system/plugin_install` events while marketplace plugins install before the first turn. Use these to surface install progress in your own UI.
 

@@ -43,7 +43,7 @@ Argument| Description
 ---|---
 `toolName`| The name of the tool Claude wants to use (e.g., `"Bash"`, `"Write"`, `"Edit"`)
 `input`| The parameters Claude is passing to the tool. Contents vary by tool.
-`options` (TS) / `context` (Python)| Additional context including optional `suggestions` (proposed `PermissionUpdate` entries to avoid re-prompting) and a cancellation signal. In TypeScript, `signal` is an `AbortSignal`; in Python, the signal field is reserved for future use. See [`ToolPermissionContext`](</docs/en/agent-sdk/python#tool-permission-context>) for Python.
+`options` (TS) / `context` (Python)| Additional context including optional `suggestions` (proposed `PermissionUpdate` entries to avoid re-prompting) and a cancellation signal. In TypeScript, `signal` is an `AbortSignal`; in Python, the signal field is reserved for future use. See [`ToolPermissionContext`](</docs/en/agent-sdk/python#toolpermissioncontext>) for Python.
 
 The `input` object contains tool-specific parameters. Common examples:
 
@@ -54,7 +54,7 @@ Tool| Input fields
 `Edit`| `file_path`, `old_string`, `new_string`
 `Read`| `file_path`, `offset`, `limit`
 
-See the SDK reference for complete input schemas: [Python](</docs/en/agent-sdk/python#tool-input-output-types>) | [TypeScript](</docs/en/agent-sdk/typescript#tool-input-types>). You can display this information to the user so they can decide whether to allow or reject the action, then return the appropriate response. The following example asks Claude to create and delete a test file. When Claude attempts each operation, the callback prints the tool request to the terminal and prompts for y/n approval.
+See the SDK reference for complete input schemas: [Python](</docs/en/agent-sdk/python#tool-input%2Foutput-types>) | [TypeScript](</docs/en/agent-sdk/typescript#tool-input-types>). You can display this information to the user so they can decide whether to allow or reject the action, then return the appropriate response. The following example asks Claude to create and delete a test file. When Claude attempts each operation, the callback prints the tool request to the terminal and prompts for y/n approval.
 
 Python
 
@@ -595,4 +595,4 @@ Related resources
 
   * [Configure permissions](</docs/en/agent-sdk/permissions>): set up permission modes and rules
   * [Control execution with hooks](</docs/en/agent-sdk/hooks>): run custom code at key points in the agent lifecycle
-  * [TypeScript SDK reference](</docs/en/agent-sdk/typescript#can-use-tool>): full canUseTool API documentation
+  * [TypeScript SDK reference](</docs/en/agent-sdk/typescript#canusetool>): full canUseTool API documentation

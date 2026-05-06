@@ -909,6 +909,7 @@ Configuration dataclass for Claude Code queries.
         effort: Literal["low", "medium", "high", "max"] | None = None
         enable_file_checkpointing: bool = False
         session_store: SessionStore | None = None
+        session_store_flush: SessionStoreFlushMode = "batched"
 
 Property| Type| Default| Description
 ---|---|---|---
@@ -949,7 +950,8 @@ Property| Type| Default| Description
 `max_thinking_tokens`| `int | None`| `None`|  _Deprecated_ \- Maximum tokens for thinking blocks. Use `thinking` instead
 `thinking`| `ThinkingConfig` ` | None`| `None`| Controls extended thinking behavior. Takes precedence over `max_thinking_tokens`
 `effort`| `Literal["low", "medium", "high", "max"] | None`| `None`| Effort level for thinking depth
-`session_store`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-session-store-interface>) ` | None`| `None`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
+`session_store`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>) ` | None`| `None`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
+`session_store_flush`| `Literal["batched", "eager"]`| `"batched"`| When to flush mirrored transcript entries to `session_store`. `"batched"` flushes once per turn or when the buffer fills; `"eager"` triggers a background flush after every frame. Ignored when `session_store` is `None`
 
 ###
 
@@ -1169,7 +1171,7 @@ Permission modes for controlling tool execution.
     PermissionMode = Literal[
         "default",  # Standard permission behavior
         "acceptEdits",  # Auto-accept file edits
-        "plan",  # Planning mode - no execution
+        "plan",  # Planning mode - read-only tools only
         "dontAsk",  # Deny anything not pre-approved instead of prompting
         "bypassPermissions",  # Bypass all permission checks (use with caution)
     ]
@@ -1210,7 +1212,7 @@ Context information passed to tool permission callbacks.
 Field| Type| Description
 ---|---|---
 `signal`| `Any | None`| Reserved for future abort signal support
-`suggestions`| `list[PermissionUpdate]`| Permission update suggestions from the CLI
+`suggestions`| `list[PermissionUpdate]`| Permission update suggestions from the CLI. Bash prompts include a suggestion with the `localSettings` destination, so returning it in `updated_permissions` writes the rule to `.claude/settings.local.json` and persists across sessions.
 
 ###
 
@@ -1649,7 +1651,7 @@ Key| Type| Description
 `cache_creation_input_tokens`| `int`| Tokens used to create new cache entries.
 `cache_read_input_tokens`| `int`| Tokens read from existing cache entries.
 
-The `model_usage` dict maps model names to per-model usage. The inner dict keys use camelCase because the value is passed through unmodified from the underlying CLI process, matching the TypeScript [`ModelUsage`](</docs/en/agent-sdk/typescript#model-usage>) type:
+The `model_usage` dict maps model names to per-model usage. The inner dict keys use camelCase because the value is passed through unmodified from the underlying CLI process, matching the TypeScript [`ModelUsage`](</docs/en/agent-sdk/typescript#modelusage>) type:
 
 Key| Type| Description
 ---|---|---

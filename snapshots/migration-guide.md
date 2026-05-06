@@ -174,29 +174,18 @@ Python
 
 ​
 
-Settings Sources No Longer Loaded by Default
+Settings sources default
 
-**What changed:** The SDK no longer reads from filesystem settings (CLAUDE.md, settings.json, slash commands, etc.) by default. **Migration:**
+This default was briefly changed in v0.1.0 and then reverted, so no migration action is needed. **Current behavior:** Omitting `settingSources` on `query()` loads user, project, and local filesystem settings, matching the CLI. This includes `~/.claude/settings.json`, `.claude/settings.json`, `.claude/settings.local.json`, CLAUDE.md files, and custom commands. To run isolated from filesystem settings, pass an empty array:
 
 TypeScript
 
 Python
 
-    // BEFORE (v0.0.x) - Loaded all settings automatically
-    const result = query({ prompt: "Hello" });
-    // Would read from:
-    // - ~/.claude/settings.json (user)
-    // - .claude/settings.json (project)
-    // - .claude/settings.local.json (local)
-    // - CLAUDE.md files
-    // - Custom slash commands
-
-    // AFTER (v0.1.0) - No settings loaded by default
-    // To get the old behavior:
     const result = query({
       prompt: "Hello",
       options: {
-        settingSources: ["user", "project", "local"]
+        settingSources: [] // No filesystem settings loaded
       }
     });
 
@@ -208,14 +197,9 @@ Python
       }
     });
 
-**Why this changed:** Ensures SDK applications have predictable behavior independent of local filesystem configurations. This is especially important for:
+Isolation is especially important for CI/CD pipelines, deployed applications, test environments, and multi-tenant systems where local customizations should not leak in.
 
-  * **CI/CD environments** \- Consistent behavior without local customizations
-  * **Deployed applications** \- No dependency on filesystem settings
-  * **Testing** \- Isolated test environments
-  * **Multi-tenant systems** \- Prevent settings leakage between users
-
-Current SDK releases have reverted this default for `query()`: omitting the option once again loads user, project, and local settings, matching the CLI. Pass `settingSources: []` in TypeScript or `setting_sources=[]` in Python if your application depends on the isolated behavior described above. Python SDK 0.1.59 and earlier treated an empty list the same as omitting the option, so upgrade before relying on `setting_sources=[]`. See [What settingSources does not control](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>) for inputs that are read even when `settingSources` is `[]`.
+SDK v0.1.0 briefly defaulted to no settings loaded; this was reverted in subsequent releases. Python SDK 0.1.59 and earlier treated an empty list the same as omitting the option, so upgrade before relying on `setting_sources=[]`. See [What settingSources does not control](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>) for inputs that are read even when `settingSources` is `[]`.
 
 ##
 

@@ -407,7 +407,7 @@ Property| Type| Default| Description
 `abortController`| `AbortController`| `new AbortController()`| Controller for cancelling operations
 `additionalDirectories`| `string[]`| `[]`| Additional directories Claude can access
 `agent`| `string`| `undefined`| Agent name for the main thread. The agent must be defined in the `agents` option or in settings
-`agents`| `Record<string, [`AgentDefinition`](#agent-definition)>`| `undefined`| Programmatically define subagents
+`agents`| `Record<string, [`AgentDefinition`](#agentdefinition)>`| `undefined`| Programmatically define subagents
 `allowDangerouslySkipPermissions`| `boolean`| `false`| Enable bypassing permissions. Required when using `permissionMode: 'bypassPermissions'`
 `allowedTools`| `string[]`| `[]`| Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permissionMode` and `canUseTool`. Use `disallowedTools` to block tools. See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `betas`| `SdkBeta``[]`| `[]`| Enable beta features
@@ -430,7 +430,7 @@ Property| Type| Default| Description
 `maxBudgetUsd`| `number`| `undefined`| Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for accuracy caveats
 `maxThinkingTokens`| `number`| `undefined`|  _Deprecated:_ Use `thinking` instead. Maximum tokens for thinking process
 `maxTurns`| `number`| `undefined`| Maximum agentic turns (tool-use round trips)
-`mcpServers`| `Record<string, [`McpServerConfig`](#mcp-server-config)>`| `{}`| MCP server configurations
+`mcpServers`| `Record<string, [`McpServerConfig`](#mcpserverconfig)>`| `{}`| MCP server configurations
 `model`| `string`| Default from CLI| Claude model to use
 `outputFormat`| `{ type: 'json_schema', schema: JSONSchema }`| `undefined`| Define output format for agent results. See [Structured outputs](</docs/en/agent-sdk/structured-outputs>) for details
 `pathToClaudeCodeExecutable`| `string`| Auto-resolved from bundled native binary| Path to Claude Code executable. Only needed if optional dependencies were skipped during install or your platform isn’t in the supported set
@@ -443,7 +443,7 @@ Property| Type| Default| Description
 `resumeSessionAt`| `string`| `undefined`| Resume session at a specific message UUID
 `sandbox`| `SandboxSettings`| `undefined`| Configure sandbox behavior programmatically. See Sandbox settings for details
 `sessionId`| `string`| Auto-generated| Use a specific UUID for the session instead of auto-generating one
-`sessionStore`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-session-store-interface>)| `undefined`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
+`sessionStore`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>)| `undefined`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
 `settingSources`| `SettingSource``[]`| CLI defaults (all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
 `spawnClaudeCodeProcess`| `(options: SpawnOptions) => SpawnedProcess`| `undefined`| Custom function to spawn the Claude Code process. Use to run Claude Code in VMs, containers, or remote environments
 `stderr`| `(data: string) => void`| `undefined`| Callback for stderr output
@@ -733,7 +733,7 @@ Programmatic options such as `agents` and `allowedTools` override user, project,
       | "default" // Standard permission behavior
       | "acceptEdits" // Auto-accept file edits
       | "bypassPermissions" // Bypass all permission checks
-      | "plan" // Planning mode - no execution
+      | "plan" // Planning mode - read-only tools only
       | "dontAsk" // Don't prompt for permissions, deny if not pre-approved
       | "auto"; // Use a model classifier to approve or deny each tool call
 
@@ -761,7 +761,7 @@ Custom permission function type for controlling tool usage.
 Option| Type| Description
 ---|---|---
 `signal`| `AbortSignal`| Signaled if the operation should be aborted
-`suggestions`| `PermissionUpdate``[]`| Suggested permission updates so the user is not prompted again for this tool
+`suggestions`| `PermissionUpdate``[]`| Suggested permission updates so the user is not prompted again for this tool. Bash prompts include a suggestion with the `localSettings` destination, so returning it in `updatedPermissions` writes the rule to `.claude/settings.local.json` and persists across sessions.
 `blockedPath`| `string`| The file path that triggered the permission request, if applicable
 `decisionReason`| `string`| Explains why this permission request was triggered
 `toolUseID`| `string`| Unique identifier for this specific tool call within the assistant message

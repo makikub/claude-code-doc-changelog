@@ -14,7 +14,7 @@ Overview
 
 You can create subagents in three ways:
 
-  * **Programmatically** : use the `agents` parameter in your `query()` options ([TypeScript](</docs/en/agent-sdk/typescript#agent-definition>), [Python](</docs/en/agent-sdk/python#agent-definition>))
+  * **Programmatically** : use the `agents` parameter in your `query()` options ([TypeScript](</docs/en/agent-sdk/typescript#agentdefinition>), [Python](</docs/en/agent-sdk/python#agentdefinition>))
   * **Filesystem-based** : define agents as markdown files in `.claude/agents/` directories (see [defining subagents as files](</docs/en/sub-agents>))
   * **Built-in general-purpose** : Claude can invoke the built-in `general-purpose` subagent at any time via the Agent tool without you defining anything
 
@@ -145,7 +145,7 @@ Field| Type| Required| Description
 `effort`| `'low' | 'medium' | 'high' | 'xhigh' | 'max' | number`| No| Reasoning effort level for this agent
 `permissionMode`| `PermissionMode`| No| Permission mode for tool execution within this agent
 
-In the Python SDK, these field names use camelCase to match the wire format. See the [`AgentDefinition` reference](</docs/en/agent-sdk/python#agent-definition>) for details.
+In the Python SDK, these field names use camelCase to match the wire format. See the [`AgentDefinition` reference](</docs/en/agent-sdk/python#agentdefinition>) for details.
 
 Subagents cannot spawn their own subagents. Don’t include `Agent` in a subagent’s `tools` array.
 

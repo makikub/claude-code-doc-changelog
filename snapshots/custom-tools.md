@@ -38,7 +38,7 @@ A tool is defined by four parts, passed as arguments to the [`tool()`](</docs/en
     * `content` (required): an array of result blocks, each with a `type` of `"text"`, `"image"`, or `"resource"`. See Return images and resources for non-text blocks.
     * `isError` (optional): set to `true` to signal a tool failure so Claude can react to it. See Handle errors.
 
-After defining a tool, wrap it in a server with [`createSdkMcpServer`](</docs/en/agent-sdk/typescript#create-sdk-mcp-server>) (TypeScript) or [`create_sdk_mcp_server`](</docs/en/agent-sdk/python#create-sdk-mcp-server>) (Python). The server runs in-process inside your application, not as a separate process.
+After defining a tool, wrap it in a server with [`createSdkMcpServer`](</docs/en/agent-sdk/typescript#createsdkmcpserver>) (TypeScript) or [`create_sdk_mcp_server`](</docs/en/agent-sdk/python#create_sdk_mcp_server>) (Python). The server runs in-process inside your application, not as a separate process.
 
 ###
 
@@ -214,7 +214,7 @@ TypeScript
     async def get_temperature(args):
         return {"content": [{"type": "text", "text": "..."}]}
 
-See `ToolAnnotations` in the [TypeScript](</docs/en/agent-sdk/typescript#tool-annotations>) or [Python](</docs/en/agent-sdk/python#tool-annotations>) reference.
+See `ToolAnnotations` in the [TypeScript](</docs/en/agent-sdk/typescript#toolannotations>) or [Python](</docs/en/agent-sdk/python#toolannotations>) reference.
 
 ##
 

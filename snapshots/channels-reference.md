@@ -4,7 +4,7 @@
 >
 > Use this file to discover all available pages before exploring further.
 
-Channels are in [research preview](</docs/en/channels#research-preview>) and require Claude Code v2.1.80 or later. They require claude.ai login. Console and API key authentication is not supported. Team and Enterprise organizations must [explicitly enable them](</docs/en/channels#enterprise-controls>).
+Channels are in [research preview](</docs/en/channels#research-preview>) and require Claude Code v2.1.80 or later. Team and Enterprise organizations must [explicitly enable them](</docs/en/channels#enterprise-controls>).
 
 A channel is an MCP server that pushes events into a Claude Code session so Claude can react to things happening outside the terminal. You can build a one-way or two-way channel. One-way channels forward alerts, webhooks, or monitoring events for Claude to act on. Two-way channels like chat bridges also expose a reply tool so Claude can send messages back. A channel with a trusted sender path can also opt in to relay permission prompts so you can approve or deny tool use remotely. This page covers:
 
@@ -136,7 +136,7 @@ During the research preview, custom channels aren’t on the allowlist, so start
 
     claude --dangerously-load-development-channels server:webhook
 
-When Claude Code starts, it reads your MCP config, spawns your `webhook.ts` as a subprocess, and the HTTP listener starts automatically on the port you configured (8788 in this example). You don’t need to run the server yourself.If you see “blocked by org policy,” your Team or Enterprise admin needs to [enable channels](</docs/en/channels#enterprise-controls>) first.In a separate terminal, simulate a webhook by sending an HTTP POST with a message to your server. This example sends a CI failure alert to port 8788 (or whichever port you configured):
+When Claude Code starts, it reads your MCP config, spawns your `webhook.ts` as a subprocess, and the HTTP listener starts automatically on the port you configured (8788 in this example). You don’t need to run the server yourself.If you see “blocked by org policy,” your organization admin needs to [enable channels](</docs/en/channels#enterprise-controls>) first.In a separate terminal, simulate a webhook by sending an HTTP POST with a message to your server. This example sends a CI failure alert to port 8788 (or whichever port you configured):
 
     curl -X POST localhost:8788 -d "build failed on main: https://ci.example.com/run/1234"
 

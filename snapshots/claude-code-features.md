@@ -12,7 +12,7 @@ The Agent SDK is built on the same foundation as Claude Code, which means your S
 
 Control filesystem settings with settingSources
 
-The setting sources option ([`setting_sources`](</docs/en/agent-sdk/python#claude-agent-options>) in Python, [`settingSources`](</docs/en/agent-sdk/typescript#setting-source>) in TypeScript) controls which filesystem-based settings the SDK loads. Pass an explicit list to opt in to specific sources, or pass an empty array to disable user, project, and local settings. This example loads both user-level and project-level settings by setting `settingSources` to `["user", "project"]`:
+The setting sources option ([`setting_sources`](</docs/en/agent-sdk/python#claudeagentoptions>) in Python, [`settingSources`](</docs/en/agent-sdk/typescript#settingsource>) in TypeScript) controls which filesystem-based settings the SDK loads. Pass an explicit list to opt in to specific sources, or pass an empty array to disable user, project, and local settings. This example loads both user-level and project-level settings by setting `settingSources` to `["user", "project"]`:
 
 Python
 
@@ -37,7 +37,7 @@ TypeScript
         if isinstance(message, ResultMessage) and message.subtype == "success":
             print(f"\nResult: {message.result}")
 
-Each source loads settings from a specific location, where `<cwd>` is the working directory you pass via the `cwd` option (or the process’s current directory if unset). For the full type definition, see [`SettingSource`](</docs/en/agent-sdk/typescript#setting-source>) (TypeScript) or [`SettingSource`](</docs/en/agent-sdk/python#setting-source>) (Python).
+Each source loads settings from a specific location, where `<cwd>` is the working directory you pass via the `cwd` option, or the process’s current directory if unset. For the full type definition, see [`SettingSource`](</docs/en/agent-sdk/typescript#settingsource>) (TypeScript) or [`SettingSource`](</docs/en/agent-sdk/python#settingsource>) (Python).
 
 Source| What it loads| Location
 ---|---|---

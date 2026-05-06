@@ -169,7 +169,7 @@ Skill files can contain any instructions, but thinking about how you want to inv
     2. Build the application
     3. Push to the deployment target
 
-Your `SKILL.md` can contain anything, but thinking through how you want the skill invoked (by you, by Claude, or both) and where you want it to run (inline or in a subagent) helps guide what to include. For complex skills, you can also add supporting files to keep the main skill focused.
+Your `SKILL.md` can contain anything, but thinking through how you want the skill invoked (by you, by Claude, or both) and where you want it to run (inline or in a subagent) helps guide what to include. For complex skills, you can also add supporting files to keep the main skill focused. Keep the body itself concise. Once a skill loads, its content stays in context across turns, so every line is a recurring token cost. State what to do rather than narrating how or why, and apply the same conciseness test you would for [CLAUDE.md content](</docs/en/best-practices#write-an-effective-claude-md>).
 
 ###
 
