@@ -48,7 +48,7 @@ System prompt additions| `--append-system-prompt`, `--append-system-prompt-file`
 Settings| `--settings <file-or-json>`
 MCP servers| `--mcp-config <file-or-json>`
 Custom agents| `--agents <json>`
-A plugin directory| `--plugin-dir <path>`
+A plugin| `--plugin-dir <path>`, `--plugin-url <url>`
 
 Bare mode skips OAuth and keychain reads. Anthropic authentication must come from `ANTHROPIC_API_KEY` or an `apiKeyHelper` in the JSON passed to `--settings`. Bedrock, Vertex, and Foundry use their usual provider credentials.
 

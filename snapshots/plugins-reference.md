@@ -265,7 +265,7 @@ Plugin monitors require Claude Code v2.1.105 or later.
       }
     ]
 
-To declare monitors inline, set the `monitors` key in `plugin.json` to the same array. To load from a non-default path, set `monitors` to a relative path string such as `"./config/monitors.json"`. **Required fields:**
+To declare monitors inline, set `experimental.monitors` in `plugin.json` to the same array. To load from a non-default path, set `experimental.monitors` to a relative path string such as `"./config/monitors.json"`. Monitors are an experimental component. **Required fields:**
 
 Field| Description
 ---|---
@@ -287,7 +287,7 @@ The `command` value supports the same variable substitutions as MCP and LSP serv
 
 Themes
 
-Plugins can ship color themes that appear in `/theme` alongside the built-in presets and the user’s local themes. A theme is a JSON file in `themes/` with a `base` preset and a sparse `overrides` map of color tokens.
+Plugins can ship color themes that appear in `/theme` alongside the built-in presets and the user’s local themes. A theme is a JSON file in `themes/` with a `base` preset and a sparse `overrides` map of color tokens. Themes are an experimental component.
 
     {
       "name": "Dracula",
@@ -355,9 +355,11 @@ Complete schema
       "hooks": "./config/hooks.json",
       "mcpServers": "./mcp-config.json",
       "outputStyles": "./styles/",
-      "themes": "./themes/",
       "lspServers": "./.lsp.json",
-      "monitors": "./monitors.json",
+      "experimental": {
+        "themes": "./themes/",
+        "monitors": "./monitors.json"
+      },
       "dependencies": [
         "helper-lib",
         { "name": "secrets-vault", "version": "~2.1.0" }
@@ -409,12 +411,20 @@ Field| Type| Description| Example
 `hooks`| string|array|object| Hook config paths or inline config| `"./my-extra-hooks.json"`
 `mcpServers`| string|array|object| MCP config paths or inline config| `"./my-extra-mcp-config.json"`
 `outputStyles`| string|array| Custom output style files/directories (replaces default `output-styles/`)| `"./styles/"`
-`themes`| string|array| Color theme files/directories (replaces default `themes/`). See Themes| `"./themes/"`
 `lspServers`| string|array|object| [Language Server Protocol](<https://microsoft.github.io/language-server-protocol/>) configs for code intelligence (go to definition, find references, etc.)| `"./.lsp.json"`
-`monitors`| string|array| Background [Monitor](</docs/en/tools-reference#monitor-tool>) configurations that start automatically when the plugin is active. See Monitors| `"./monitors.json"`
+`experimental.themes`| string|array| Color theme files/directories (replaces default `themes/`). See Themes| `"./themes/"`
+`experimental.monitors`| string|array| Background [Monitor](</docs/en/tools-reference#monitor-tool>) configurations that start automatically when the plugin is active. See Monitors| `"./monitors.json"`
 `userConfig`| object| User-configurable values prompted at enable time. See User configuration| See below
 `channels`| array| Channel declarations for message injection (Telegram, Slack, Discord style). See Channels| See below
 `dependencies`| array| Other plugins this plugin requires, optionally with semver version constraints. See [Constrain plugin dependency versions](</docs/en/plugin-dependencies>)| `[{ "name": "secrets-vault", "version": "~2.1.0" }]`
+
+###
+
+​
+
+Experimental components
+
+Components under the `experimental` key, `themes` and `monitors`, have a manifest schema that may change between releases while they stabilize. Where you declare them is a separate migration: the top level still works, `claude plugin validate` warns, and a future release will require `experimental.*`.
 
 ###
 
@@ -492,7 +502,7 @@ The `server` field is required and must match a key in the plugin’s `mcpServer
 
 Path behavior rules
 
-For `skills`, `commands`, `agents`, `outputStyles`, `themes`, and `monitors`, a custom path replaces the default. If the manifest specifies `skills`, the default `skills/` directory is not scanned; if it specifies `monitors`, the default `monitors/monitors.json` is not loaded. Hooks, MCP servers, and LSP servers have different semantics for handling multiple sources.
+For `skills`, `commands`, `agents`, `outputStyles`, `experimental.themes`, and `experimental.monitors`, a custom path replaces the default. If the manifest specifies `skills`, the default `skills/` directory is not scanned; if it specifies `experimental.monitors`, the default `monitors/monitors.json` is not loaded. Hooks, MCP servers, and LSP servers have different semantics for handling multiple sources.
 
   * All paths must be relative to the plugin root and start with `./`
   * Components from custom paths use the same naming and namespacing rules
@@ -585,7 +595,7 @@ Plugin caching and file resolution
 
 Plugins are specified in one of two ways:
 
-  * Through `claude --plugin-dir`, for the duration of a session.
+  * Through `claude --plugin-dir` or `claude --plugin-url`, for the duration of a session.
   * Through a marketplace, installed for future sessions.
 
 For security and verification purposes, Claude Code copies _marketplace_ plugins to the user’s local **plugin cache** (`~/.claude/plugins/cache`) rather than using them in-place. Understanding this behavior is important when developing plugins that reference external files. Each installed version is a separate directory in the cache. When you update or uninstall a plugin, the previous version directory is marked as orphaned and removed automatically 7 days later. The grace period lets concurrent Claude Code sessions that already loaded the old version keep running without errors. Claude’s Glob and Grep tools skip orphaned version directories during searches, so file results don’t include outdated plugin code.
