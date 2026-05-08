@@ -256,12 +256,12 @@ Field| Required| Description
 ---|---|---
 `name`| Yes| Unique identifier using lowercase letters and hyphens
 `description`| Yes| When Claude should delegate to this subagent
-`tools`| No| Tools the subagent can use. Inherits all tools if omitted
+`tools`| No| Tools the subagent can use. Inherits all tools if omitted. To preload Skills into context, use the `skills` field rather than listing `Skill` here
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
 `model`| No| Model to use: `sonnet`, `opus`, `haiku`, a full model ID (for example, `claude-opus-4-7`), or `inherit`. Defaults to `inherit`
 `permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan`. Ignored for plugin subagents
 `maxTurns`| No| Maximum number of agentic turns before the subagent stops
-`skills`| No| [Skills](</docs/en/skills>) to load into the subagent’s context at startup. The full skill content is injected, not just made available for invocation. Subagents don’t inherit skills from the parent conversation
+`skills`| No| [Skills](</docs/en/skills>) to preload into the subagent’s context at startup. The full skill content is injected, not just the description. Subagents can still invoke unlisted project, user, and plugin skills through the Skill tool
 `mcpServers`| No| [MCP servers](</docs/en/mcp>) available to this subagent. Each entry is either a server name referencing an already-configured server (e.g., `"slack"`) or an inline definition with the server name as key and a full [MCP server config](</docs/en/mcp#installing-mcp-servers>) as value. Ignored for plugin subagents
 `hooks`| No| Lifecycle hooks scoped to this subagent. Ignored for plugin subagents
 `memory`| No| Persistent memory scope: `user`, `project`, or `local`. Enables cross-session learning
@@ -418,7 +418,7 @@ Use the `skills` field to inject skill content into a subagent’s context at st
 
     Implement API endpoints. Follow the conventions and patterns from the preloaded skills.
 
-The full content of each skill is injected into the subagent’s context, not just made available for invocation. Subagents don’t inherit skills from the parent conversation; you must list them explicitly. You cannot preload skills that set [`disable-model-invocation: true`](</docs/en/skills#control-who-invokes-a-skill>), since preloading draws from the same set of skills Claude can invoke. If a listed skill is missing or disabled, Claude Code skips it and logs a warning to the debug log.
+The full content of each listed skill is injected into the subagent’s context at startup. This field controls which skills are preloaded, not which skills the subagent can access: without it, the subagent can still discover and invoke project, user, and plugin skills through the Skill tool during execution. To prevent a subagent from invoking skills entirely, omit `Skill` from the `tools` list or add it to `disallowedTools`. You cannot preload skills that set [`disable-model-invocation: true`](</docs/en/skills#control-who-invokes-a-skill>), since preloading draws from the same set of skills Claude can invoke. If a listed skill is missing or disabled, Claude Code skips it and logs a warning to the debug log.
 
 This is the inverse of [running a skill in a subagent](</docs/en/skills#run-skills-in-a-subagent>). With `skills` in a subagent, the subagent controls the system prompt and loads skill content. With `context: fork` in a skill, the skill content is injected into the agent you specify. Both use the same underlying system.
 

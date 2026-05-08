@@ -68,7 +68,13 @@ Custom output styles are Markdown files with frontmatter and the text that will 
 
     [Define how the assistant should behave in this style...]
 
-You can save these files at the user level (`~/.claude/output-styles`) or project level (`.claude/output-styles`). [Plugins](</docs/en/plugins-reference>) can also ship output styles in an `output-styles/` directory.
+You can save these files at three levels:
+
+  * User: `~/.claude/output-styles`
+  * Project: `.claude/output-styles`
+  * Managed policy: `.claude/output-styles` inside the [managed settings directory](</docs/en/settings#settings-files>)
+
+[Plugins](</docs/en/plugins-reference>) can also ship output styles in an `output-styles/` directory.
 
 ###
 
@@ -83,6 +89,7 @@ Frontmatter| Purpose| Default
 `name`| Name of the output style, if not the file name| Inherits from file name
 `description`| Description of the output style, shown in the `/config` picker| None
 `keep-coding-instructions`| Whether to keep the parts of Claude Code’s system prompt related to coding.| false
+`force-for-plugin`| Plugin output styles only: apply this style automatically whenever the plugin is enabled, without requiring users to select it. Overrides the user’s `outputStyle` setting. If multiple enabled plugins set this, the first one loaded wins.| false
 
 ##
 

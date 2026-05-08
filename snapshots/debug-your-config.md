@@ -23,6 +23,7 @@ Command| Shows
 `/mcp`| Connected MCP servers and their status
 `/permissions`| Resolved allow and deny rules currently in effect
 `/doctor`| Configuration diagnostics: invalid keys, schema errors, installation health
+`/debug [issue]`| Enables debug logging for the session and prompts Claude to diagnose using the log output and settings paths
 `/status`| Active settings sources, including whether managed settings are in effect
 
 If a memory file is missing from `/memory`, check its location against [how CLAUDE.md files load](</docs/en/memory#how-claude-md-files-load>). Subdirectory `CLAUDE.md` files load on demand when Claude reads a file in that directory with the Read tool, not at session start. If `/memory` confirms the file loaded but Claude still isn’t following a particular instruction, the issue is likely how the instruction is written rather than whether it loaded. CLAUDE.md works well for the kinds of guidance you’d give a new teammate, such as project conventions, build commands, and where files belong. Adherence drops when an instruction is vague enough to interpret multiple ways, when two files give conflicting direction, or when the file has grown long enough that individual rules get less attention. [Write effective instructions](</docs/en/memory#write-effective-instructions>) covers the specificity, size, and structure patterns that keep adherence high.
@@ -35,7 +36,7 @@ CLAUDE.md and permissions solve different problems. CLAUDE.md tells Claude how y
 
 Check resolved settings
 
-Settings merge across managed, user, project, and local scopes. Managed settings always win when present. Among the rest, the closer scope overrides the broader one in the order local, then project, then user. Some settings can also be set by command-line flags or [environment variables](</docs/en/env-vars>), which act as another override layer. When a setting doesn’t seem to apply, the value you set is usually being overridden by another scope or an environment variable. Run `/doctor` to validate your configuration files and surface invalid keys or schema errors. Run `/status` to see which settings sources are active, including whether managed settings are in effect. To understand which scope wins for a given key, see [How scopes interact](</docs/en/settings#how-scopes-interact>).
+Settings merge across managed, user, project, and local scopes. Managed settings always win when present. Among the rest, the closer scope overrides the broader one in the order local, then project, then user. Some settings can also be set by command-line flags or [environment variables](</docs/en/env-vars>), which act as another override layer. When a setting doesn’t seem to apply, the value you set is usually being overridden by another scope or an environment variable. Run `/doctor` to validate your configuration files and surface invalid keys or schema errors. When `/doctor` reports issues, press `f` to send the diagnostic report to Claude and have it walk through fixes with you. Run `/status` to see which settings sources are active, including whether managed settings are in effect. To understand which scope wins for a given key, see [How scopes interact](</docs/en/settings#how-scopes-interact>).
 
 ##
 
@@ -63,7 +64,25 @@ Run `/hooks` to list every hook registered for the current session, grouped by e
 
 ​
 
-Common causes
+Test against a clean configuration
+
+If targeted checks don’t isolate the cause, or your configuration is in an unknown state, compare against a session that loads nothing from your usual setup. Point [`CLAUDE_CONFIG_DIR`](</docs/en/env-vars>) at an empty directory to bypass everything under `~/.claude`, and launch from a directory that has no `.claude` folder, `.mcp.json`, or `CLAUDE.md` so project configuration is also skipped.
+
+    cd /tmp && CLAUDE_CONFIG_DIR=/tmp/claude-clean claude
+
+The clean session has no user or project settings, hooks, MCP servers, plugins, or memory.
+
+  * Managed settings still apply if your organization deploys them, since they live at a system path outside `~/.claude`
+  * On Linux and Windows, you’ll be prompted to log in again because credentials are stored under the configuration directory
+  * On macOS, credentials are in the Keychain and carry over to the clean session
+
+If the problem disappears here, the cause is somewhere in your real `~/.claude` or project `.claude` files. Reintroduce them one at a time, by copying files into the temporary directory or by launching from your project, to find which one. If it persists in the clean session, the cause is outside your user and project configuration. Run `/status` to check whether managed settings are in effect, look for [environment variables](</docs/en/env-vars>) that affect Claude Code, then see [Troubleshooting](</docs/en/troubleshooting>).
+
+##
+
+​
+
+Check common causes
 
 Most configuration surprises trace back to a small set of location and syntax rules. Check these before assuming a bug:
 
@@ -80,6 +99,7 @@ Subdirectory `CLAUDE.md` instructions seem ignored| Subdirectory files load on d
 Subagent ignores `CLAUDE.md` instructions| Subagents don’t always inherit project memory| Put critical rules in the agent file body, which becomes the subagent’s system prompt. See [subagent configuration](</docs/en/sub-agents>).
 Cleanup logic never runs at session end| No `SessionEnd` hook configured| Add a `SessionEnd` hook in `settings.json`. See the [hook events list](</docs/en/hooks#hook-events>).
 MCP servers in `.mcp.json` never load| File is under `.claude/` or uses Claude Desktop’s config format| Project MCP config goes at the repository root as `.mcp.json`, not inside `.claude/`. See [MCP configuration](</docs/en/mcp>).
+MCP servers added under `mcpServers` in `settings.json` never appear| `settings.json` does not read an `mcpServers` key| Define project servers in `.mcp.json` at the repository root, or run `claude mcp add --scope user` for user-scoped servers. See [MCP configuration](</docs/en/mcp>).
 Project MCP server added but doesn’t appear| The one-time approval prompt was dismissed| Project-scoped servers require approval. Run `/mcp` to see status and approve.
 MCP server fails to start from some directories| `command` or `args` uses a relative file path| Use absolute paths for local scripts. Executables on your `PATH` like `npx` or `uvx` work as-is.
 MCP server starts without expected environment variables| Variables are in `settings.json` `env`, which doesn’t propagate to MCP child processes| Set per-server `env` inside `.mcp.json` instead.

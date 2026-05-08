@@ -92,7 +92,7 @@ Flag| Description| Example
 `--permission-mode`| Begin in a specified [permission mode](</docs/en/permission-modes>). Accepts `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, or `bypassPermissions`. Overrides `defaultMode` from settings files| `claude --permission-mode plan`
 `--permission-prompt-tool`| Specify an MCP tool to handle permission prompts in non-interactive mode| `claude -p --permission-prompt-tool mcp_auth_tool "query"`
 `--plugin-dir`| Load a plugin from a directory or `.zip` archive for this session only. Each flag takes one path. Repeat the flag for multiple plugins: `--plugin-dir A --plugin-dir B.zip`| `claude --plugin-dir ./my-plugin`
-`--plugin-url`| Fetch a plugin `.zip` archive from a URL for this session only. Each flag takes one URL. Repeat the flag for multiple plugins| `claude --plugin-url https://example.com/plugin.zip`
+`--plugin-url`| Fetch a plugin `.zip` archive from a URL for this session only. Repeat the flag for multiple plugins, or pass space-separated URLs in a single quoted value| `claude --plugin-url https://example.com/plugin.zip`
 `--print`, `-p`| Print response without interactive mode (see [Agent SDK documentation](</docs/en/agent-sdk/overview>) for programmatic usage details)| `claude -p "query"`
 `--remote`| Create a new [web session](</docs/en/claude-code-on-the-web>) on claude.ai with the provided task description| `claude --remote "Fix the login bug"`
 `--remote-control`, `--rc`| Start an interactive session with [Remote Control](</docs/en/remote-control#start-a-remote-control-session>) enabled so you can also control it from claude.ai or the Claude app. Optionally pass a name for the session| `claude --remote-control "My Project"`
@@ -111,7 +111,7 @@ Flag| Description| Example
 `--tools`| Restrict which built-in tools Claude can use. Use `""` to disable all, `"default"` for all, or tool names like `"Bash,Edit,Read"`| `claude --tools "Bash,Edit,Read"`
 `--verbose`| Enable verbose logging, shows full turn-by-turn output. Overrides the [`viewMode`](</docs/en/settings#available-settings>) setting for this session| `claude --verbose`
 `--version`, `-v`| Output the version number| `claude -v`
-`--worktree`, `-w`| Start Claude in an isolated [git worktree](</docs/en/worktrees>) at `<repo>/.claude/worktrees/<name>`. If no name is given, one is auto-generated| `claude -w feature-auth`
+`--worktree`, `-w`| Start Claude in an isolated [git worktree](</docs/en/worktrees>) at `<repo>/.claude/worktrees/<name>`. If no name is given, one is auto-generated. Pass `#<number>` or a GitHub pull request URL to fetch that PR from `origin` and branch the worktree from it| `claude -w feature-auth`
 
 ###
 

@@ -217,7 +217,7 @@ Add a GitHub repository that contains a `.claude-plugin/marketplace.json` file u
 
 Add from other Git hosts
 
-Add any git repository by providing the full URL. This works with any Git host, including GitLab, Bitbucket, and self-hosted servers: Using HTTPS:
+Add any git repository by providing the full URL. This works with any Git host, including GitLab, Bitbucket, and self-hosted servers. Include the `.git` suffix so Claude Code clones the repository rather than treating the URL as a direct link to a hosted `marketplace.json` file. Using HTTPS:
 
     /plugin marketplace add https://gitlab.com/company/plugins.git
 

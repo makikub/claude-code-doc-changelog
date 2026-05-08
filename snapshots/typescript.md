@@ -444,6 +444,7 @@ Property| Type| Default| Description
 `sessionStore`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>)| `undefined`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
 `settings`| `string | Settings`| `undefined`| Inline [settings](</docs/en/settings>) object or path to a settings file. Populates the flag-settings layer in the [precedence order](</docs/en/settings#settings-precedence>). Change at runtime with `applyFlagSettings()`
 `settingSources`| `SettingSource``[]`| CLI defaults (all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
+`skills`| `string[] | 'all'`| `undefined`| Skills available to the session. Pass `'all'` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowedTools`. See [Skills](</docs/en/agent-sdk/skills>)
 `spawnClaudeCodeProcess`| `(options: SpawnOptions) => SpawnedProcess`| `undefined`| Custom function to spawn the Claude Code process. Use to run Claude Code in VMs, containers, or remote environments
 `stderr`| `(data: string) => void`| `undefined`| Callback for stderr output
 `strictMcpConfig`| `boolean`| `false`| Enforce strict MCP validation
@@ -626,7 +627,7 @@ Configuration for a subagent defined programmatically.
 Field| Required| Description
 ---|---|---
 `description`| Yes| Natural language description of when to use this agent
-`tools`| No| Array of allowed tool names. If omitted, inherits all tools from parent
+`tools`| No| Array of allowed tool names. If omitted, inherits all tools from parent. To preload Skills into the agent’s context, use the `skills` field rather than listing `'Skill'` here
 `disallowedTools`| No| Array of tool names to explicitly disallow for this agent
 `prompt`| Yes| The agent’s system prompt
 `model`| No| Model override for this agent. Accepts an alias such as `'sonnet'`, `'opus'`, `'haiku'`, `'inherit'`, or a full model ID. If omitted or `'inherit'`, uses the main model
@@ -1333,6 +1334,7 @@ Base interface that all hook input types extend.
       transcript_path: string;
       cwd: string;
       permission_mode?: string;
+      effort?: { level: string };
       agent_id?: string;
       agent_type?: string;
     };

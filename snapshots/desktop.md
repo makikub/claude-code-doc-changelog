@@ -618,6 +618,20 @@ Administrators can distribute SSH connections to team members by adding `sshConf
 
 Each entry requires `id`, `name`, and `sshHost`. The `sshPort`, `sshIdentityFile`, and `startDirectory` fields are optional. Users can also add `sshConfigs` to their own `~/.claude/settings.json`, which is where connections added through the dialog are stored.
 
+####
+
+​
+
+Restrict which SSH hosts users can connect to
+
+Administrators can limit Desktop’s SSH sessions to an approved set of hosts by adding `sshHostAllowlist` to a [managed settings](</docs/en/settings#settings-precedence>) file. When set, users can only connect to hosts whose resolved hostname matches one of the patterns. Set it to an empty array to disable SSH sessions entirely. The following example allows connections to any host under `devboxes.example.com` and to a single named bastion host:
+
+    {
+      "sshHostAllowlist": ["*.devboxes.example.com", "bastion.example.com"]
+    }
+
+Patterns are case-insensitive. `*` matches any host, and `*.example.com` matches `example.com` and any subdomain. Anything else is an exact match. The check runs against the hostname after `~/.ssh/config` resolution via `ssh -G`, so `Host` aliases and `ProxyCommand`/`ProxyJump` entries are permitted as long as the resolved `HostName` matches. `sshHostAllowlist` is read from managed settings only; values in user or project settings are ignored. Only the Claude Desktop app honors this setting; the Claude Code CLI and IDE extensions do not read it, and it does not restrict `ssh` commands run through the Bash tool. It governs which hosts the Desktop app connects to, not network egress, so pair it with your organization’s network or zero-trust controls if you need a hard boundary.
+
 ##
 
 ​
@@ -653,6 +667,7 @@ Key| Description
 `disableAutoMode`| set to `"disable"` to prevent users from enabling [Auto](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) mode. Removes Auto from the mode selector. Also accepted under `permissions`.
 `autoMode`| customize what the auto mode classifier trusts and blocks across your organization. See [Configure auto mode](</docs/en/auto-mode-config>).
 `sshConfigs`| pre-configure SSH connections that appear in the environment dropdown. Users cannot edit or delete managed connections.
+`sshHostAllowlist`| restrict SSH sessions to hosts whose resolved hostname matches one of these patterns. An empty array disables SSH sessions. Read from managed settings only.
 
 A managed settings file deployed to disk on each machine applies to Desktop sessions. Managed settings pushed remotely through the admin console currently reach CLI and IDE sessions only, so for Desktop deployments either distribute the file via MDM or use the admin console controls above. `permissions.disableBypassPermissionsMode` and `disableAutoMode` also work in user and project settings, but placing them in managed settings prevents users from overriding them. `autoMode` is read from user settings, `.claude/settings.local.json`, and managed settings, but not from the checked-in `.claude/settings.json`: a cloned repo cannot inject its own classifier rules. For the complete list of managed-only settings including `allowManagedPermissionRulesOnly` and `allowManagedHooksOnly`, see [managed-only settings](</docs/en/permissions#managed-only-settings>).
 

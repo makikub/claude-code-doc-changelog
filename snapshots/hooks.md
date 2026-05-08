@@ -531,6 +531,7 @@ Field| Description
 `transcript_path`| Path to conversation JSON
 `cwd`| Current working directory when the hook is invoked
 `permission_mode`| Current [permission mode](</docs/en/permissions#permission-modes>): `"default"`, `"plan"`, `"acceptEdits"`, `"auto"`, `"dontAsk"`, or `"bypassPermissions"`. Not all events receive this field: see each event’s JSON example below to check
+`effort`| Object with a `level` field holding the active [effort level](</docs/en/model-config#adjust-effort-level>) for the turn: `"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`. If the requested effort exceeds what the current model supports, this is the downgraded level the model actually used, not the level you requested. The object matches the [status line](</docs/en/statusline#available-data>) `effort` field. Present for events that fire within a tool-use context, such as `PreToolUse`, `PostToolUse`, `Stop`, and `SubagentStop`, when the current model supports the effort parameter. The level is also available to hook commands and the Bash tool as the `$CLAUDE_EFFORT` environment variable.
 `hook_event_name`| Name of the event that fired
 
 When running with `--agent` or inside a subagent, two additional fields are included:
