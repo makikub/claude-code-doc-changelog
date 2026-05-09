@@ -59,6 +59,8 @@ HTTP servers are the recommended option for connecting to remote MCP servers. Th
     claude mcp add --transport http secure-api https://api.example.com/mcp \
       --header "Authorization: Bearer your-token"
 
+When configuring MCP servers via JSON in `.mcp.json`, `~/.claude.json`, or `claude mcp add-json`, the `type` field accepts `streamable-http` as an alias for `http`. The MCP specification uses the name `streamable-http` for this transport, so configurations copied from server documentation work without modification.
+
 ###
 
 ​
