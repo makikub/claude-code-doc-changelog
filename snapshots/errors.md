@@ -22,6 +22,8 @@ Message| Section
 `API Error: Repeated 529 Overloaded errors`| Server errors
 `Request timed out`| Server errors, or Network if the message mentions your internet connection
 `<model> is temporarily unavailable, so auto mode cannot determine the safety of...`| Server errors
+`Auto mode could not evaluate this action and is blocking it for safety`| Server errors
+`Auto mode classifier transcript exceeded context window`| Server errors
 `You've hit your session limit` / `You've hit your weekly limit`| Usage limits
 `Server is temporarily limiting requests`| Usage limits
 `Request rejected (429)`| Usage limits
@@ -124,15 +126,33 @@ This can happen during periods of high load or when a very large response is bei
 
 Auto mode cannot determine the safety of an action
 
-The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) uses to classify actions is overloaded, so auto mode blocked the action instead of approving it unchecked.
+The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) uses to classify actions could not produce a decision, so auto mode did not approve the action automatically. The message you see depends on why the classifier failed. Reads, searches, and edits inside your working directory skip the classifier, so they keep working in all of these cases. When the classifier model is overloaded:
 
     <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait briefly and then try this action again.
 
-Reads, searches, and edits inside your working directory skip the classifier, so they keep working during the outage. **What to do:**
+**What to do:**
 
   * Retry after a few seconds; Claude sees the same message and usually retries on its own
   * If retries keep failing, continue with read-only tasks and come back to the blocked action later
   * This is transient and unrelated to [auto mode eligibility](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>); you do not need to change settings
+
+When the classifier returned an unparseable response:
+
+    Auto mode could not evaluate this action and is blocking it for safety — run with --debug for details
+
+**What to do:**
+
+  * Retry the action; this usually succeeds on the next attempt
+  * Run `claude --debug` and repeat the action to see the underlying classifier response in the debug log
+
+When the conversation has grown larger than the classifier’s context window:
+
+    Auto mode classifier transcript exceeded context window — falling back to manual approval (try /compact to reduce conversation size)
+
+In an interactive session, auto mode falls back to a normal permission prompt for that action so you can approve or deny it manually. In [non-interactive mode](</docs/en/headless>) the run aborts because the transcript only grows and retrying cannot succeed. **What to do:**
+
+  * Approve or deny the action in the prompt that appears
+  * Run `/compact` to reduce the conversation size so subsequent actions fit within the classifier window again
 
 ##
 
