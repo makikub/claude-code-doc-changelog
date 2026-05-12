@@ -12,8 +12,9 @@ Output styles change how Claude responds, not what Claude knows. They modify the
 
 Built-in output styles
 
-Claude Code’s **Default** output style is the existing system prompt, designed to help you complete software engineering tasks efficiently. There are two additional built-in output styles focused on teaching you the codebase and how Claude operates:
+Claude Code’s **Default** output style is the existing system prompt, designed to help you complete software engineering tasks efficiently. There are three additional built-in output styles:
 
+  * **Proactive** : Claude executes immediately, makes reasonable assumptions instead of pausing for routine decisions, and prefers action over planning. This applies the same guidance as [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) without changing your permission mode, so you still see permission prompts before tools run.
   * **Explanatory** : Provides educational “Insights” in between helping you complete software engineering tasks. Helps you understand implementation choices and codebase patterns.
   * **Learning** : Collaborative, learn-by-doing mode where Claude will not only share “Insights” while coding, but also ask you to contribute small, strategic pieces of code yourself. Claude Code will add `TODO(human)` markers in your code for you to implement.
 

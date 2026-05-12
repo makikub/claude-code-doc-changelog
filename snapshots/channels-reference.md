@@ -12,7 +12,7 @@ A channel is an MCP server that pushes events into a Claude Code session so Clau
   * What you need: requirements and general steps
   * Example: build a webhook receiver: a minimal one-way walkthrough
   * Server options: the constructor fields
-  * Notification format: the event payload
+  * Notification format: the event payload and delivery behavior
   * Expose a reply tool: let Claude send messages back
   * Gate inbound messages: sender checks to prevent prompt injection
   * Relay permission prompts: forward tool approval prompts to remote channels
@@ -230,6 +230,8 @@ The event arrives in Claude’s context wrapped in a `<channel>` tag. The `sourc
     <channel source="your-channel" severity="high" run_id="1234">
     build failed on main: https://ci.example.com/run/1234
     </channel>
+
+Notifications are not acknowledged. The `await` on `mcp.notification()` resolves when the message is written to the transport, not when Claude has processed it. If the session hasn’t loaded your server as a channel, or the organization policy blocks it, events are dropped silently with no error returned to your server. If you need delivery confirmation, track event state in your server and expose a reply tool that Claude can call to report status back. Events queue into the session and are processed in order. If several notifications arrive while Claude is busy, they’re delivered together on the next turn and Claude handles them as a group. To process independent event streams concurrently, run separate sessions.
 
 ##
 

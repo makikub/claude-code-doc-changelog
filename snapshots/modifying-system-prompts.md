@@ -194,9 +194,9 @@ Using output styles
 
 Once created, activate output styles via:
 
-  * **CLI** : `/output-style [style-name]`
-  * **Settings** : `.claude/settings.local.json`
-  * **Create new** : `/output-style:new [description]`
+  * **CLI** : `/config`, then select Output style
+  * **Settings** : set `outputStyle` in `.claude/settings.local.json`
+  * **Create new** : add a Markdown file at `~/.claude/output-styles/` or `.claude/output-styles/`; see [Create a custom output style](</docs/en/output-styles#create-a-custom-output-style>) for the format
 
 **Note for SDK users:** Output styles are loaded when you include `settingSources: ['user']` or `settingSources: ['project']` (TypeScript) / `setting_sources=["user"]` or `setting_sources=["project"]` (Python) in your options.
 
@@ -417,7 +417,7 @@ Python
 
     import { query } from "@anthropic-ai/claude-agent-sdk";
 
-    // Assuming "Code Reviewer" output style is active (via /output-style)
+    // Assuming "Code Reviewer" output style is active (via /config or settings)
     // Add session-specific focus areas
     const messages = [];
 

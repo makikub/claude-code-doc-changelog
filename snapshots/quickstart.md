@@ -263,10 +263,10 @@ Before making changes, let Claude understand your code:
 
 Save time with shortcuts
 
-  * Press `?` to see all available keyboard shortcuts
+  * Type `/` to see all commands and skills
   * Use Tab for command completion
   * Press ↑ for command history
-  * Type `/` to see all commands and skills
+  * Press `Shift+Tab` to cycle permission modes
 
 ##
 

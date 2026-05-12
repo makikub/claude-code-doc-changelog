@@ -71,6 +71,7 @@ Control| What it does| Key settings
 [MCP server control](</docs/en/mcp#managed-mcp-configuration>)| Restrict which MCP servers users can add or connect to| `allowedMcpServers`, `deniedMcpServers`, `allowManagedMcpServersOnly`
 [Plugin marketplace control](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)| Restrict which marketplace sources users can add and install from| `strictKnownMarketplaces`, `blockedMarketplaces`
 [Hook restrictions](</docs/en/settings#hook-configuration>)| Only managed hooks load; restrict HTTP hook URLs| `allowManagedHooksOnly`, `allowedHttpHookUrls`
+[Disable agent view](</docs/en/agent-view#how-background-sessions-are-hosted>)| Turn off `claude agents`, `--bg`, `/background`, and the on-demand supervisor| `disableAgentView`
 [Version floor](</docs/en/settings>)| Prevent auto-update from installing below an org-wide minimum| `minimumVersion`
 
 Permission rules and sandboxing cover different layers. Denying WebFetch blocks Claude’s fetch tool, but if Bash is allowed, `curl` and `wget` can still reach any URL. Sandboxing closes that gap with a network domain allowlist enforced at the OS level. For the threat model these controls defend against, see [Security](</docs/en/security>).

@@ -10,7 +10,7 @@
 
 Keyboard shortcuts
 
-Keyboard shortcuts may vary by platform and terminal. Press `?` to see available shortcuts for your environment.**macOS users** : Option/Alt key shortcuts (`Alt+B`, `Alt+F`, `Alt+Y`, `Alt+M`, `Alt+P`) require configuring Option as Meta in your terminal:
+Keyboard shortcuts may vary by platform and terminal. In [fullscreen rendering](</docs/en/fullscreen>), press `?` in the transcript viewer to see available shortcuts there.**macOS users** : Option/Alt key shortcuts (`Alt+B`, `Alt+F`, `Alt+Y`, `Alt+M`, `Alt+P`) require configuring Option as Meta in your terminal:
 
   * **iTerm2** : Settings → Profiles → Keys → General → set Left/Right Option key to “Esc+”
   * **Apple Terminal** : Settings → Profiles → Keyboard → check “Use Option as Meta Key”
@@ -27,7 +27,7 @@ General controls
 Shortcut| Description| Context
 ---|---|---
 `Ctrl+C`| Cancel current input or generation| Standard interrupt
-`Ctrl+X Ctrl+K`| Kill all background agents. Press twice within 3 seconds to confirm| Background agent control
+`Ctrl+X Ctrl+K`| Kill all running [background subagents](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) in this session. Press twice within 3 seconds to confirm| Subagent control
 `Ctrl+D`| Exit Claude Code session| EOF signal
 `Ctrl+G` or `Ctrl+X Ctrl+E`| Open in default text editor| Edit your prompt or custom response in your default text editor. `Ctrl+X Ctrl+E` is the readline-native binding. Turn on Show last response in external editor in `/config` to prepend Claude’s previous reply as `#`-commented context above your prompt; the comment block is stripped when you save
 `Ctrl+L`| Redraw screen| Forces a full terminal redraw. Input and conversation history are kept. Use this to recover if the display becomes garbled or partially blank
@@ -38,6 +38,7 @@ Shortcut| Description| Context
 `Ctrl+T`| Toggle task list| Show or hide the task list in the terminal status area
 `Left/Right arrows`| Cycle through dialog tabs| Navigate between tabs in permission dialogs and menus
 `Up/Down arrows` or `Ctrl+P`/`Ctrl+N`| Move cursor or navigate command history| In multiline input, first moves the cursor within the prompt. Once the cursor is already on the top or bottom edge, pressing again navigates command history
+`Esc`| Interrupt Claude| Stop the current response or tool call mid-turn so you can redirect. Claude keeps the work done so far
 `Esc` \+ `Esc`| Rewind or summarize| Restore code and/or conversation to a previous point, or summarize from a selected message
 `Shift+Tab` or `Alt+M` (some configurations)| Cycle permission modes| Cycle through `default`, `acceptEdits`, `plan`, and any modes you have enabled, such as `auto` or `bypassPermissions`. See [permission modes](</docs/en/permission-modes>).
 `Option+P` (macOS) or `Alt+P` (Windows/Linux)| Switch model| Switch models without clearing your prompt
@@ -106,10 +107,12 @@ Shortcut| Description| Notes
 
 Transcript viewer
 
-When the transcript viewer is open (toggled with `Ctrl+O`), these shortcuts are available. `Ctrl+E` can be rebound via [`transcript:toggleShowAll`](</docs/en/keybindings>).
+When the transcript viewer is open (toggled with `Ctrl+O`), these shortcuts are available. In [fullscreen rendering](</docs/en/fullscreen>), press `?` to show the full shortcut reference panel inside the viewer. `Ctrl+E` can be rebound via [`transcript:toggleShowAll`](</docs/en/keybindings>).
 
 Shortcut| Description
 ---|---
+`?`| Toggle the keyboard shortcut help panel. Requires [fullscreen rendering](</docs/en/fullscreen>)
+`{` / `}`| Jump to the previous or next user prompt, like vim paragraph motion. Requires [fullscreen rendering](</docs/en/fullscreen>)
 `Ctrl+E`| Toggle show all content
 `[`| Write the full conversation to your terminal’s native scrollback so `Cmd+F`, tmux copy mode, and other native tools can search it. Requires [fullscreen rendering](</docs/en/fullscreen#search-and-review-the-conversation>)
 `v`| Write the conversation to a temporary file and open it in `$VISUAL` or `$EDITOR`. Requires [fullscreen rendering](</docs/en/fullscreen>)

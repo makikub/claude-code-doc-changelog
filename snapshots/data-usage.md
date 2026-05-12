@@ -122,31 +122,36 @@ Claude Code connects from users’ machines to Anthropic to log operational metr
 
 Default behaviors by API provider
 
-By default, error reporting, telemetry, and bug reporting are disabled when using Bedrock, Vertex, or Foundry. Session quality surveys and the WebFetch domain safety check are exceptions and run regardless of provider. You can opt out of all non-essential traffic, including surveys, at once by setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`. This variable does not affect the WebFetch check, which has its own opt-out. Here are the full default behaviors:
+By default, error reporting, telemetry, and bug reporting are disabled when using Bedrock, Vertex, Foundry, or Claude Platform on AWS. Session quality surveys and the WebFetch domain safety check are exceptions and run regardless of provider. You can opt out of all non-essential traffic, including surveys, at once by setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`. This variable does not affect the WebFetch check, which has its own opt-out. Here are the full default behaviors:
 
-Service| Claude API| Vertex API| Bedrock API| Foundry API
----|---|---|---|---
+Service| Claude API| Vertex API| Bedrock API| Foundry API| Claude Platform on AWS
+---|---|---|---|---|---
 **Anthropic (Metrics)**|  Default on.
 `DISABLE_TELEMETRY=1` to disable.| Default off.
 `CLAUDE_CODE_USE_VERTEX` must be 1.| Default off.
 `CLAUDE_CODE_USE_BEDROCK` must be 1.| Default off.
-`CLAUDE_CODE_USE_FOUNDRY` must be 1.
+`CLAUDE_CODE_USE_FOUNDRY` must be 1.| Default off.
+`CLAUDE_CODE_USE_ANTHROPIC_AWS` must be 1.
 **Sentry (Errors)**|  Default on.
 `DISABLE_ERROR_REPORTING=1` to disable.| Default off.
 `CLAUDE_CODE_USE_VERTEX` must be 1.| Default off.
 `CLAUDE_CODE_USE_BEDROCK` must be 1.| Default off.
-`CLAUDE_CODE_USE_FOUNDRY` must be 1.
+`CLAUDE_CODE_USE_FOUNDRY` must be 1.| Default off.
+`CLAUDE_CODE_USE_ANTHROPIC_AWS` must be 1.
 **Claude API (`/feedback` reports)**| Default on.
 `DISABLE_FEEDBACK_COMMAND=1` to disable.| Default off.
 `CLAUDE_CODE_USE_VERTEX` must be 1.| Default off.
 `CLAUDE_CODE_USE_BEDROCK` must be 1.| Default off.
-`CLAUDE_CODE_USE_FOUNDRY` must be 1.
+`CLAUDE_CODE_USE_FOUNDRY` must be 1.| Default off.
+`CLAUDE_CODE_USE_ANTHROPIC_AWS` must be 1.
 **Session quality surveys**|  Default on.
+`CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.| Default on.
 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.| Default on.
 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.| Default on.
 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.| Default on.
 `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1` to disable.
 **WebFetch domain safety check**|  Default on.
+`skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.| Default on.
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.| Default on.
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.| Default on.
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.| Default on.
