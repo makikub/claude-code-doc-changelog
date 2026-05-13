@@ -188,7 +188,7 @@ By default, if the remote settings fetch fails at startup, the CLI continues wit
       "forceRemoteSettingsRefresh": true
     }
 
-Before enabling this setting, ensure your network policies allow connectivity to `api.anthropic.com`. If that endpoint is unreachable, the CLI exits at startup and users cannot start Claude Code.
+Before enabling this setting, ensure your network policies allow connectivity to `api.anthropic.com`. If that endpoint is unreachable, the CLI exits at startup and users cannot start Claude Code. As of v2.1.139, the `claude auth` subcommands such as `claude auth login` are exempt from this check, so users can re-authenticate when expired credentials are the reason the settings fetch fails.
 
 ###
 
@@ -239,7 +239,7 @@ Scenario| Behavior
 ---|---
 User edits the cached settings file| Tampered file applies at startup, but correct settings restore on the next server fetch
 User deletes the cached settings file| First-launch behavior occurs: settings fetch asynchronously with a brief unenforced window
-API is unavailable| Cached settings apply if available, otherwise managed settings are not enforced until the next successful fetch. With `forceRemoteSettingsRefresh: true`, the CLI exits instead of continuing
+API is unavailable| Cached settings apply if available, otherwise managed settings are not enforced until the next successful fetch. With `forceRemoteSettingsRefresh: true`, the CLI exits instead of continuing, except for `claude auth` subcommands
 User authenticates with a different organization| Settings are not delivered for accounts outside the managed organization
 User configures a third-party model provider| Server-managed settings are bypassed. This includes setting `CLAUDE_CODE_USE_BEDROCK`, `CLAUDE_CODE_USE_MANTLE`, `CLAUDE_CODE_USE_VERTEX`, `CLAUDE_CODE_USE_FOUNDRY`, or a non-default `ANTHROPIC_BASE_URL`
 

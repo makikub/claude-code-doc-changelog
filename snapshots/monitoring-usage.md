@@ -959,6 +959,24 @@ Logged when conversation compaction completes. **Event Name** : `claude_code.com
   * `post_tokens`: Approximate token count after compaction
   * `error`: Error message when compaction failed
 
+####
+
+​
+
+Feedback survey event
+
+Logged when a session quality survey is shown or answered. See [Session quality surveys](</docs/en/data-usage#session-quality-surveys>) for what the surveys collect and how to control them. **Event Name** : `claude_code.feedback_survey` **Attributes** :
+
+  * All standard attributes
+  * `event.name`: `"feedback_survey"`
+  * `event.timestamp`: ISO 8601 timestamp
+  * `event.sequence`: monotonically increasing counter for ordering events within a session
+  * `event_type`: Survey lifecycle event, for example `"appeared"`, `"responded"`, or `"transcript_prompt_appeared"`
+  * `appearance_id`: Unique ID linking the events emitted for one survey instance
+  * `survey_type`: Which survey produced the event. `"session"` is the “How is Claude doing?” rating prompt
+  * `response`: The user’s selection on `responded` events
+  * `enabled_via_override`: `true` when [`CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL`](</docs/en/env-vars>) is set. Emitted as a boolean, not a string. Present on `session` survey events. Filter on this attribute to confirm the override is applied across a fleet
+
 ##
 
 ​

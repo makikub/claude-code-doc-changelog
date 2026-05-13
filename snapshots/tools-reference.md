@@ -41,7 +41,7 @@ Tool| Description| Permission Required
 `TaskUpdate`| Updates task status, dependencies, details, or deletes tasks| No
 `TeamCreate`| Creates an [agent team](</docs/en/agent-teams>) with multiple teammates. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set| No
 `TeamDelete`| Disbands an agent team and cleans up teammate processes. Only available when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set| No
-`TodoWrite`| Manages the session task checklist. Available in non-interactive mode and the [Agent SDK](</docs/en/headless>); interactive sessions use TaskCreate, TaskGet, TaskList, and TaskUpdate instead| No
+`TodoWrite`| Manages the session task checklist. Deprecated in favor of `TaskCreate`, `TaskGet`, `TaskList`, and `TaskUpdate`. Interactive sessions already use the Task tools by default. When you run `claude -p` or use the [Agent SDK](</docs/en/agent-sdk/overview>), `TodoWrite` is still the default. Set `CLAUDE_CODE_ENABLE_TASKS=1` to switch those to the Task tools before `TodoWrite` is removed| No
 `ToolSearch`| Searches for and loads deferred tools when [tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is enabled| No
 `WebFetch`| Fetches content from a specified URL. See WebFetch tool behavior| Yes
 `WebSearch`| Performs web searches. See WebSearch tool behavior| Yes

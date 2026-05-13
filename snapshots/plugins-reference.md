@@ -508,7 +508,7 @@ Whether a custom path replaces or extends the plugin’s default directory depen
   * **Adds to the default** : `skills`. The default `skills/` directory is always scanned, and directories listed in `skills` are loaded alongside it
   * **Own merge rules** : hooks, MCP servers, and LSP servers. See each section for how multiple sources combine
 
-For all path fields:
+When a plugin has both a default folder and the matching manifest key, Claude Code v2.1.140 and later flags the ignored folder in `/doctor`, `claude plugin list`, and the `/plugin` detail view. The plugin still loads using the manifest paths. No warning is shown when the manifest key points into the default folder, for example `"commands": ["./commands/deploy.md"]`, because the folder is addressed explicitly in that case. For all path fields:
 
   * All paths must be relative to the plugin root and start with `./`
   * Components from custom paths use the same naming and namespacing rules
@@ -772,7 +772,7 @@ Option| Description| Default
 `-s, --scope <scope>`| Uninstall from scope: `user`, `project`, or `local`| `user`
 `--keep-data`| Preserve the plugin’s persistent data directory|
 `--prune`| Also remove auto-installed dependencies that no other plugin requires. See plugin prune|
-`-y, --yes`| Skip the `--prune` confirmation prompt. Required when stdin is not a TTY|
+`-y, --yes`| Skip the `--prune` confirmation prompt. Required when stdin or stdout is not a TTY|
 `-h, --help`| Display help for command|
 
 **Aliases:** `remove`, `rm` By default, uninstalling from the last remaining scope also deletes the plugin’s `${CLAUDE_PLUGIN_DATA}` directory. Use `--keep-data` to preserve it, for example when reinstalling after testing a new version.
@@ -793,7 +793,7 @@ Option| Description| Default
 ---|---|---
 `-s, --scope <scope>`| Prune at scope: `user`, `project`, or `local`| `user`
 `--dry-run`| List what would be removed without removing anything|
-`-y, --yes`| Skip the confirmation prompt. Required when stdin is not a TTY|
+`-y, --yes`| Skip the confirmation prompt. Required when stdin or stdout is not a TTY|
 `-h, --help`| Display help for command|
 
 **Aliases:** `autoremove` The command lists orphaned dependencies and asks for confirmation before removing them. To remove a plugin and clean up its dependencies in one step, run `claude plugin uninstall <plugin> --prune`.

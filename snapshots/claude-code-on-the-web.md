@@ -32,8 +32,10 @@ Cloud sessions need access to your GitHub repositories to clone code and push br
 
 Method| How it works| Best for
 ---|---|---
-**GitHub App**|  Install the Claude GitHub App on specific repositories during [web onboarding](</docs/en/web-quickstart>). Access is scoped per repository.| Teams that want explicit per-repo authorization
-**`/web-setup`**|  Run `/web-setup` in your terminal to sync your local `gh` CLI token to your Claude account. Access matches whatever your `gh` token can see.| Individual developers who already use `gh`
+**GitHub App**|  Authorize the Claude GitHub App during [web onboarding](</docs/en/web-quickstart>).| Browser onboarding; teams that want Auto-fix
+**`/web-setup`**|  Run `/web-setup` in your terminal to sync your local `gh` CLI token to your Claude account.| Individual developers who already use `gh`
+
+With either method, a cloud session can access any repository the connecting GitHub account can see, not just the repositories the Claude GitHub App is installed on. App installation enables PR webhooks for Auto-fix; it is not a session-level access control. To restrict which repositories your team can reach from cloud sessions, restrict access on GitHub itself, for example by limiting team or repository membership for the connected GitHub accounts.
 
 Either method works. [`/schedule`](</docs/en/routines>) checks for either form of access and prompts you to run `/web-setup` if neither is configured. See [Connect from your terminal](</docs/en/web-quickstart#connect-from-your-terminal>) for the `/web-setup` walkthrough. The GitHub App is required for Auto-fix, which uses the App to receive PR webhooks. If you connect with `/web-setup` and later want Auto-fix, install the App on those repositories. Team and Enterprise admins can disable `/web-setup` with the Quick web setup toggle at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>).
 
@@ -781,6 +783,8 @@ There are a few ways to turn on auto-fix depending on where the PR came from and
   * **From the mobile app** : tell Claude to auto-fix the PR, for example “watch this PR and fix any CI failures or review comments”
   * **Any existing PR** : paste the PR URL into a session and tell Claude to auto-fix it
 
+Auto-fix is a per-PR toggle. To stop monitoring, open the CI status bar in the web session and clear the **Auto-fix** toggle, or tell Claude to stop watching the PR.
+
 ###
 
 ​
@@ -828,7 +832,7 @@ If a new session fails to start with `Session creation failed` or stalls at prov
 
   * Check [status.claude.com](<https://status.claude.com>) for cloud session incidents
   * Retry after a minute, as capacity is provisioned on demand
-  * Confirm your repository is reachable. Private repositories require either the GitHub App installed with access to that repository, or a `gh` token synced via `/web-setup`. See GitHub authentication options.
+  * Confirm your repository is reachable. The connecting GitHub account must have access to the repository on GitHub, either through the Claude GitHub App authorization or a `gh` token synced via `/web-setup` — installing the App on the repository is not required. See GitHub authentication options.
 
 ###
 

@@ -412,7 +412,7 @@ Parameter| Type| Default| Description
 ---|---|---|---
 `options.cwd`| `string`| `process.cwd()`| Directory to resolve project and local settings relative to
 `options.settingSources`| `SettingSource``[]`| All sources| Which filesystem sources to load. Pass `[]` to skip user, project, and local settings. Managed policy settings load in all cases
-`options.managedSettings`| `Settings`| `undefined`| Restrictive policy-tier settings merged at the managed-policy precedence level. Non-restrictive keys such as `model` are silently dropped
+`options.managedSettings`| `Settings`| `undefined`| Restrictive policy-tier settings supplied by the embedding host. Dropped by default when an admin-deployed managed tier is present; merged under that tier when [`parentSettingsBehavior`](</docs/en/settings#available-settings>) is `"merge"`. Non-restrictive keys such as `model` are silently dropped so this option can tighten managed policy but not loosen it
 `options.serverManagedSettings`| `Settings`| `undefined`| Server-managed settings payload from `/api/claude_code/settings`. Non-restrictive keys pass through unfiltered
 
 ####
@@ -492,6 +492,7 @@ Property| Type| Default| Description
 `mcpServers`| `Record<string, [`McpServerConfig`](#mcpserverconfig)>`| `{}`| MCP server configurations
 `model`| `string`| Default from CLI| Claude model to use
 `outputFormat`| `{ type: 'json_schema', schema: JSONSchema }`| `undefined`| Define output format for agent results. See [Structured outputs](</docs/en/agent-sdk/structured-outputs>) for details
+`outputStyle`| `string`| `undefined`| Name of an [output style](</docs/en/output-styles>) to activate for the session. The style must exist in a loaded `settingSources` location, such as `.claude/output-styles/`. See [Activate an output style](</docs/en/agent-sdk/modifying-system-prompts#activate-an-output-style>)
 `pathToClaudeCodeExecutable`| `string`| Auto-resolved from bundled native binary| Path to Claude Code executable. Only needed if optional dependencies were skipped during install or your platform isn’t in the supported set
 `permissionMode`| `PermissionMode`| `'default'`| Permission mode for the session
 `permissionPromptToolName`| `string`| `undefined`| MCP tool name for permission prompts
@@ -2086,6 +2087,77 @@ TodoWrite
 
 Creates and manages a structured task list for tracking progress.
 
+`TodoWrite` is deprecated and will be removed in a future release. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. Set `CLAUDE_CODE_ENABLE_TASKS=1` to opt in. See [Migrate to Task tools](</docs/en/agent-sdk/todo-tracking#migrate-to-task-tools>) for how monitoring code changes.
+
+###
+
+​
+
+TaskCreate
+
+**Tool name:** `TaskCreate`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskCreateInput = {
+      subject: string;
+      description: string;
+      activeForm?: string;
+      metadata?: Record<string, unknown>;
+    };
+
+Creates a single task and returns its assigned ID.
+
+###
+
+​
+
+TaskUpdate
+
+**Tool name:** `TaskUpdate`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskUpdateInput = {
+      taskId: string;
+      status?: "pending" | "in_progress" | "completed" | "deleted";
+      subject?: string;
+      description?: string;
+      activeForm?: string;
+      addBlocks?: string[];
+      addBlockedBy?: string[];
+      owner?: string;
+      metadata?: Record<string, unknown>;
+    };
+
+Patches one task by ID. Set `status` to `"deleted"` to remove it.
+
+###
+
+​
+
+TaskGet
+
+**Tool name:** `TaskGet`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskGetInput = {
+      taskId: string;
+    };
+
+Returns full details for one task, or `null` when the ID is not found.
+
+###
+
+​
+
+TaskList
+
+**Tool name:** `TaskList`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskListInput = {};
+
+Returns a snapshot of all tasks in the current list.
+
 ###
 
 ​
@@ -2559,6 +2631,91 @@ TodoWrite
     };
 
 Returns the previous and updated task lists.
+
+`TodoWrite` is deprecated and will be removed in a future release. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. Set `CLAUDE_CODE_ENABLE_TASKS=1` to opt in. See [Migrate to Task tools](</docs/en/agent-sdk/todo-tracking#migrate-to-task-tools>) for how monitoring code changes.
+
+###
+
+​
+
+TaskCreate
+
+**Tool name:** `TaskCreate`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskCreateOutput = {
+      task: {
+        id: string;
+        subject: string;
+      };
+    };
+
+Returns the created task with its assigned ID.
+
+###
+
+​
+
+TaskUpdate
+
+**Tool name:** `TaskUpdate`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskUpdateOutput = {
+      success: boolean;
+      taskId: string;
+      updatedFields: string[];
+      error?: string;
+      statusChange?: {
+        from: string;
+        to: string;
+      };
+    };
+
+Returns the update result, including which fields changed.
+
+###
+
+​
+
+TaskGet
+
+**Tool name:** `TaskGet`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskGetOutput = {
+      task: {
+        id: string;
+        subject: string;
+        description: string;
+        status: "pending" | "in_progress" | "completed";
+        blocks: string[];
+        blockedBy: string[];
+      } | null;
+    };
+
+Returns the full task record, or `null` when the ID is not found.
+
+###
+
+​
+
+TaskList
+
+**Tool name:** `TaskList`
+
+    // Not yet exported from the SDK; define locally.
+    type TaskListOutput = {
+      tasks: Array<{
+        id: string;
+        subject: string;
+        status: "pending" | "in_progress" | "completed";
+        owner?: string;
+        blockedBy: string[];
+      }>;
+    };
+
+Returns a snapshot of all tasks in the current list.
 
 ###
 

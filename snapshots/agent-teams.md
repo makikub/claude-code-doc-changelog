@@ -127,6 +127,8 @@ Claude decides the number of teammates to spawn based on your task, or you can s
     Create a team with 4 teammates to refactor these modules in parallel.
     Use Sonnet for each teammate.
 
+Teammates don’t inherit the lead’s `/model` selection by default. To change the model used when the prompt doesn’t specify one, set **Default teammate model** in `/config`. Pick **Default (leader’s model)** to have teammates follow the lead’s current model.
+
 ###
 
 ​
