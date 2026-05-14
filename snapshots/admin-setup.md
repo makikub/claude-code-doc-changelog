@@ -22,7 +22,7 @@ Review data handling| Data retention and compliance posture| [Data usage](</docs
 
 Choose your API provider
 
-Claude Code connects to Claude through one of several API providers. Your choice affects billing, authentication, and which compliance posture you inherit.
+Claude Code connects to Claude through one of several API providers. Your choice affects billing, authentication, which compliance posture you inherit, and which Claude Code features your developers can use.
 
 Provider| Choose this when
 ---|---
@@ -32,7 +32,7 @@ Amazon Bedrock| You want to inherit existing AWS compliance controls and billing
 Google Vertex AI| You want to inherit existing GCP compliance controls and billing
 Microsoft Foundry| You want to inherit existing Azure compliance controls and billing
 
-For the full provider comparison covering authentication, regions, and feature parity, see the [enterprise deployment overview](</docs/en/third-party-integrations>). Each provider’s auth setup is in [Authentication](</docs/en/authentication>). Proxy and firewall requirements in [Network configuration](</docs/en/network-config>) apply regardless of provider. If you want a single endpoint in front of multiple providers or centralized request logging, see [LLM gateway](</docs/en/llm-gateway>).
+Some Claude Code features require a Claude.ai account. [Claude Code on the web](</docs/en/claude-code-on-the-web>), [Routines](</docs/en/routines>), [Code Review](</docs/en/code-review>), [Remote Control](</docs/en/remote-control>), and the [Chrome extension](</docs/en/chrome>) are not available through Console API keys or cloud-provider credentials alone. If you deploy through Bedrock, Vertex, or Foundry, plan whether developers also need Claude for Teams or Enterprise seats. Each feature page lists its plan requirements. For the full provider comparison covering authentication, regions, and feature parity, see the [enterprise deployment overview](</docs/en/third-party-integrations>). Each provider’s auth setup is in [Authentication](</docs/en/authentication>). Proxy and firewall requirements in [Network configuration](</docs/en/network-config>) apply regardless of provider. If you want a single endpoint in front of multiple providers or centralized request logging, see [LLM gateway](</docs/en/llm-gateway>).
 
 ##
 
