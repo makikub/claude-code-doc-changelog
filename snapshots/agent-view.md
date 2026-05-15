@@ -66,7 +66,7 @@ You can use `claude agents` as your primary entry point instead of `claude`: dis
 
 Monitor sessions with agent view
 
-Run `claude agents` to open agent view. It takes over the full terminal and lists every session grouped by state, with pinned sessions and the ones that need you at the top. Each row shows the session’s name, current activity, and how long ago it last changed. The list shows every background session you’ve started, across all your projects. A session working in one repository and another in a different worktree both appear here, regardless of which directory you opened agent view from. Interactive sessions you have open in other terminals don’t appear until you background them. [Subagents](</docs/en/sub-agents>) and [teammates](</docs/en/agent-teams>) a session spawns aren’t listed as separate rows.
+Run `claude agents` to open agent view. It takes over the full terminal and lists every session grouped by state, with pinned sessions and the ones that need you at the top. Each row shows the session’s name, current activity, and how long ago it last changed. The list shows every background session you’ve started, across all your projects. A session working in one repository and another in a different worktree both appear here, regardless of which directory you opened agent view from. Interactive sessions you have open in other terminals don’t appear until you background them. [Subagents](</docs/en/sub-agents>) and [teammates](</docs/en/agent-teams>) a session spawns aren’t listed as separate rows. To scope the view to one project, launch with `claude agents --cwd <path>`. Only sessions started under that directory appear, including any running in a [worktree](</docs/en/worktrees>) dispatched from it.
 
     Pinned
       ✽ clawd walk cycle          Write assets/sprites/clawd-walk.png           3m
@@ -273,6 +273,10 @@ To run a specific subagent as the session’s main agent, combine `--bg` with `-
 
     claude --agent code-reviewer --bg "address review comments on PR 1234"
 
+Pass `--name` to set the session’s display name in agent view instead of the auto-generated one:
+
+    claude --bg --name "flaky-test-fix" "investigate the flaky SettingsChangeDetector test"
+
 After backgrounding, Claude prints the session’s short ID and the commands for managing it:
 
     backgrounded · 7c5dcf5d
@@ -307,9 +311,11 @@ The model name shown in the agent view header is the dispatch default. New sessi
 
 Permission mode, model, and effort
 
-A dispatched session reads its [settings](</docs/en/settings>) and [permission mode](</docs/en/permissions>) from the directory it runs in, the same as if you had started `claude` there. To set defaults for every session you dispatch from agent view, pass any of `--permission-mode`, `--model`, or `--effort` when opening it:
+A background session reads its [settings](</docs/en/settings>) from the directory it runs in, the same as if you had started `claude` there. The [permission mode](</docs/en/permissions>) depends on how you started the session. Backgrounding an existing session with `/bg` or `←` keeps the current permission mode, so a session you switched to `acceptEdits` or `auto` stays in that mode after detaching. Dispatching from the agent view input or running `claude --bg` from your shell uses the `defaultMode` from that directory’s settings, or the `permissionMode` from the dispatched [subagent’s frontmatter](</docs/en/sub-agents#supported-frontmatter-fields>). To set defaults for every session you dispatch from agent view, pass any of `--permission-mode`, `--model`, or `--effort` when opening it:
 
     claude agents --permission-mode plan --model opus --effort high
+
+Passing `--permission-mode`, `--model`, or `--effort` to `claude agents` requires Claude Code v2.1.142 or later. Earlier versions reject these flags with an unknown-option error.
 
 The active defaults appear in the footer below the dispatch input. Without these flags, the session uses the `defaultMode` from that directory’s settings or the `permissionMode` from the dispatched [subagent’s frontmatter](</docs/en/sub-agents#supported-frontmatter-fields>), and the model shown in the agent view header. Using `bypassPermissions` or `auto` is refused until you have accepted that mode by running `claude` with it once interactively, since those modes let a session you aren’t watching act without approval. The same applies whether you pass the mode to `claude agents` or to `claude --bg --permission-mode`.
 
@@ -343,7 +349,7 @@ Every background session has a short ID you can use from the shell. The ID is pr
 
 Command| Purpose
 ---|---
-`claude agents`| Open agent view
+`claude agents`| Open agent view. Pass `--cwd <path>` to list only sessions started under that directory
 `claude attach <id>`| Attach to a session in this terminal
 `claude logs <id>`| Print the session’s recent output
 `claude stop <id>`| Stop a session. Also accepts `claude kill`

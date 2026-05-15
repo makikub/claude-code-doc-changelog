@@ -485,6 +485,7 @@ Property| Type| Default| Description
 `fallbackModel`| `string`| `undefined`| Model to use if primary fails
 `forkSession`| `boolean`| `false`| When resuming with `resume`, fork to a new session ID instead of continuing the original session
 `hooks`| `Partial<Record<``HookEvent``, ``HookCallbackMatcher``[]>>`| `{}`| Hook callbacks for events
+`includeHookEvents`| `boolean`| `false`| Include hook lifecycle events in the message stream as `SDKHookStartedMessage`, `SDKHookProgressMessage`, and `SDKHookResponseMessage`
 `includePartialMessages`| `boolean`| `false`| Include partial message events
 `maxBudgetUsd`| `number`| `undefined`| Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for accuracy caveats
 `maxThinkingTokens`| `number`| `undefined`|  _Deprecated:_ Use `thinking` instead. Maximum tokens for thinking process
@@ -1813,7 +1814,11 @@ Union of all tool input types, exported from `@anthropic-ai/claude-agent-sdk`.
       | ReadMcpResourceInput
       | SubscribeMcpResourceInput
       | SubscribePollingInput
+      | TaskCreateInput
+      | TaskGetInput
+      | TaskListInput
       | TaskStopInput
+      | TaskUpdateInput
       | TodoWriteInput
       | UnsubscribeMcpResourceInput
       | UnsubscribePollingInput
@@ -2097,7 +2102,6 @@ TaskCreate
 
 **Tool name:** `TaskCreate`
 
-    // Not yet exported from the SDK; define locally.
     type TaskCreateInput = {
       subject: string;
       description: string;
@@ -2115,7 +2119,6 @@ TaskUpdate
 
 **Tool name:** `TaskUpdate`
 
-    // Not yet exported from the SDK; define locally.
     type TaskUpdateInput = {
       taskId: string;
       status?: "pending" | "in_progress" | "completed" | "deleted";
@@ -2138,7 +2141,6 @@ TaskGet
 
 **Tool name:** `TaskGet`
 
-    // Not yet exported from the SDK; define locally.
     type TaskGetInput = {
       taskId: string;
     };
@@ -2153,7 +2155,6 @@ TaskList
 
 **Tool name:** `TaskList`
 
-    // Not yet exported from the SDK; define locally.
     type TaskListInput = {};
 
 Returns a snapshot of all tasks in the current list.
@@ -2250,7 +2251,11 @@ Union of all tool output types.
       | MonitorOutput
       | NotebookEditOutput
       | ReadMcpResourceOutput
+      | TaskCreateOutput
+      | TaskGetOutput
+      | TaskListOutput
       | TaskStopOutput
+      | TaskUpdateOutput
       | TodoWriteOutput
       | WebFetchOutput
       | WebSearchOutput;
@@ -2642,7 +2647,6 @@ TaskCreate
 
 **Tool name:** `TaskCreate`
 
-    // Not yet exported from the SDK; define locally.
     type TaskCreateOutput = {
       task: {
         id: string;
@@ -2660,7 +2664,6 @@ TaskUpdate
 
 **Tool name:** `TaskUpdate`
 
-    // Not yet exported from the SDK; define locally.
     type TaskUpdateOutput = {
       success: boolean;
       taskId: string;
@@ -2682,7 +2685,6 @@ TaskGet
 
 **Tool name:** `TaskGet`
 
-    // Not yet exported from the SDK; define locally.
     type TaskGetOutput = {
       task: {
         id: string;
@@ -2704,7 +2706,6 @@ TaskList
 
 **Tool name:** `TaskList`
 
-    // Not yet exported from the SDK; define locally.
     type TaskListOutput = {
       tasks: Array<{
         id: string;
