@@ -49,7 +49,7 @@ Python
       prompt: "/compact",
       options: { maxTurns: 1 }
     })) {
-      if (message.type === "result") {
+      if (message.type === "result" && message.subtype === "success") {
         console.log("Command executed:", message.result);
       }
     }
@@ -231,7 +231,7 @@ Python
       options: { maxTurns: 5 }
     })) {
       // Command will process with $1="123" and $2="high"
-      if (message.type === "result") {
+      if (message.type === "result" && message.subtype === "success") {
         console.log("Issue fixed:", message.result);
       }
     }

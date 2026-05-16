@@ -123,6 +123,7 @@ Path under `~/.claude/`| Contents
 `tasks/`| Per-session task lists written by the task tools
 `shell-snapshots/`| Captured shell environment used by the Bash tool. Removed on clean exit. The sweep clears any left after a crash.
 `backups/`| Timestamped copies of `~/.claude.json` taken before config migrations
+`feedback-bundles/`| Redacted transcript archives written by `/feedback` on third-party providers, for sending to your Anthropic account team
 
 ###
 
