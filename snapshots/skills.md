@@ -400,7 +400,7 @@ When this skill runs:
   2. The output replaces the placeholder in the skill content
   3. Claude receives the fully-rendered prompt with actual PR data
 
-This is preprocessing, not something Claude executes. Claude only sees the final result. For multi-line commands, use a fenced code block opened with ````!` instead of the inline form:
+This is preprocessing, not something Claude executes. Claude only sees the final result. Substitution runs once over the original file. Command output is inserted as plain text and is not re-scanned for further `!`<command>`` placeholders, so a command cannot emit a placeholder for a later pass to expand. For multi-line commands, use a fenced code block opened with ````!` instead of the inline form:
 
     ## Environment
     ```!
