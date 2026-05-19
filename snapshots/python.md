@@ -28,21 +28,21 @@ Quick comparison
 
 Feature| `query()`| `ClaudeSDKClient`
 ---|---|---
-**Session**|  Creates new session each time| Reuses same session
+**Session**|  Creates a new session by default| Reuses same session
 **Conversation**|  Single exchange| Multiple exchanges in same context
 **Connection**|  Managed automatically| Manual control
 **Streaming Input**|  ✅ Supported| ✅ Supported
 **Interrupts**|  ❌ Not supported| ✅ Supported
 **Hooks**|  ✅ Supported| ✅ Supported
 **Custom Tools**|  ✅ Supported| ✅ Supported
-**Continue Chat**|  ❌ New session each time| ✅ Maintains conversation
+**Continue Chat**|  Manual via `continue_conversation` or `resume`| ✅ Automatic
 **Use Case**|  One-off tasks| Continuous conversations
 
 ###
 
 ​
 
-When to use `query()` (new session each time)
+When to use `query()` (one-off tasks)
 
 **Best for:**
 
@@ -77,7 +77,7 @@ Functions
 
 `query()`
 
-Creates a new session for each interaction with Claude Code. Returns an async iterator that yields messages as they arrive. Each call to `query()` starts fresh with no memory of previous interactions.
+Creates a new session for each interaction with Claude Code by default. Returns an async iterator that yields messages as they arrive. Each call to `query()` starts fresh with no memory of previous interactions unless you pass `continue_conversation=True` or `resume` in `ClaudeAgentOptions`. See [Sessions](</docs/en/agent-sdk/sessions>).
 
     async def query(
         *,
@@ -908,7 +908,7 @@ Configuration dataclass for Claude Code queries.
         plugins: list[SdkPluginConfig] = field(default_factory=list)
         max_thinking_tokens: int | None = None  # Deprecated: use thinking instead
         thinking: ThinkingConfig | None = None
-        effort: Literal["low", "medium", "high", "xhigh", "max"] | None = None
+        effort: EffortLevel | None = None
         enable_file_checkpointing: bool = False
         session_store: SessionStore | None = None
         session_store_flush: SessionStoreFlushMode = "batched"
@@ -954,7 +954,7 @@ Property| Type| Default| Description
 `skills`| `list[str] | Literal["all"] | None`| `None`| Skills available to the session. Pass `"all"` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowed_tools`. See [Skills](</docs/en/agent-sdk/skills>)
 `max_thinking_tokens`| `int | None`| `None`|  _Deprecated_ \- Maximum tokens for thinking blocks. Use `thinking` instead
 `thinking`| `ThinkingConfig` ` | None`| `None`| Controls extended thinking behavior. Takes precedence over `max_thinking_tokens`
-`effort`| `Literal["low", "medium", "high", "xhigh", "max"] | None`| `None`| Effort level for thinking depth
+`effort`| `EffortLevel` ` | None`| `None`| Effort level for thinking depth
 `session_store`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>) ` | None`| `None`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
 `session_store_flush`| `Literal["batched", "eager"]`| `"batched"`| When to flush mirrored transcript entries to `session_store`. `"batched"` flushes once per turn or when the buffer fills; `"eager"` triggers a background flush after every frame. Ignored when `session_store` is `None`
 
@@ -1165,7 +1165,7 @@ Configuration for a subagent defined programmatically.
         initialPrompt: str | None = None
         maxTurns: int | None = None
         background: bool | None = None
-        effort: Literal["low", "medium", "high", "xhigh", "max"] | int | None = None
+        effort: EffortLevel | int | None = None
         permissionMode: PermissionMode | None = None
 
 Field| Required| Description
@@ -1181,7 +1181,7 @@ Field| Required| Description
 `initialPrompt`| No| Auto-submitted as the first user turn when this agent runs as the main thread agent
 `maxTurns`| No| Maximum number of agentic turns before the agent stops
 `background`| No| Run this agent as a non-blocking background task when invoked
-`effort`| No| Reasoning effort level for this agent. Accepts a named level or an integer
+`effort`| No| Reasoning effort level for this agent. Accepts a named level or an integer. See `EffortLevel`
 `permissionMode`| No| Permission mode for tool execution within this agent. See `PermissionMode`
 
 `AgentDefinition` field names use camelCase, such as `disallowedTools`, `permissionMode`, and `maxTurns`. These names map directly to the wire format shared with the TypeScript SDK. This differs from `ClaudeAgentOptions`, which uses Python snake_case for the equivalent top-level fields such as `disallowed_tools` and `permission_mode`. Because `AgentDefinition` is a dataclass, passing a snake_case keyword raises a `TypeError` at construction time.
@@ -1200,6 +1200,22 @@ Permission modes for controlling tool execution.
         "plan",  # Planning mode - read-only tools only
         "dontAsk",  # Deny anything not pre-approved instead of prompting
         "bypassPermissions",  # Bypass all permission checks (use with caution)
+    ]
+
+###
+
+​
+
+`EffortLevel`
+
+Effort levels for guiding thinking depth.
+
+    EffortLevel = Literal[
+        "low",  # Minimal thinking, fastest responses
+        "medium",  # Moderate thinking
+        "high",  # Deep reasoning
+        "xhigh",  # Extended reasoning (Opus 4.7 only; falls back to "high" on other models)
+        "max",  # Maximum effort
     ]
 
 ###
@@ -1368,12 +1384,16 @@ Preset tools configuration for using Claude Code’s default tool set.
 
 Controls extended thinking behavior. A union of three configurations:
 
+    ThinkingDisplay = Literal["summarized", "omitted"]
+
     class ThinkingConfigAdaptive(TypedDict):
         type: Literal["adaptive"]
+        display: NotRequired[ThinkingDisplay]
 
     class ThinkingConfigEnabled(TypedDict):
         type: Literal["enabled"]
         budget_tokens: int
+        display: NotRequired[ThinkingDisplay]
 
     class ThinkingConfigDisabled(TypedDict):
         type: Literal["disabled"]
@@ -1382,11 +1402,11 @@ Controls extended thinking behavior. A union of three configurations:
 
 Variant| Fields| Description
 ---|---|---
-`adaptive`| `type`| Claude adaptively decides when to think
-`enabled`| `type`, `budget_tokens`| Enable thinking with a specific token budget
+`adaptive`| `type`, `display`| Claude adaptively decides when to think
+`enabled`| `type`, `budget_tokens`, `display`| Enable thinking with a specific token budget
 `disabled`| `type`| Disable thinking
 
-Because these are `TypedDict` classes, they’re plain dicts at runtime. Either construct them as dict literals or call the class like a constructor; both produce a `dict`. Access fields with `config["budget_tokens"]`, not `config.budget_tokens`:
+The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `ThinkingBlock` outputs. Because these are `TypedDict` classes, they’re plain dicts at runtime. Either construct them as dict literals or call the class like a constructor; both produce a `dict`. Access fields with `config["budget_tokens"]`, not `config.budget_tokens`:
 
     from claude_agent_sdk import ClaudeAgentOptions, ThinkingConfigEnabled
 
@@ -2424,7 +2444,7 @@ A `TypedDict` containing the hook event name and event-specific fields. The shap
         hookEventName: Literal["PostToolUse"]
         additionalContext: NotRequired[str]
         updatedToolOutput: NotRequired[Any]
-        updatedMCPToolOutput: NotRequired[Any]
+        updatedMCPToolOutput: NotRequired[Any]  # Deprecated: use updatedToolOutput, which works for all tools
 
     class PostToolUseFailureHookSpecificOutput(TypedDict):
         hookEventName: Literal["PostToolUseFailure"]
@@ -2860,7 +2880,7 @@ TodoWrite
 
 **Tool name:** `TodoWrite`
 
-`TodoWrite` is deprecated and will be removed in a future release. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. Set `CLAUDE_CODE_ENABLE_TASKS=1` to opt in. See [Migrate to Task tools](</docs/en/agent-sdk/todo-tracking#migrate-to-task-tools>) for how monitoring code changes.
+As of Claude Code v2.1.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](</docs/en/agent-sdk/todo-tracking#migrate-to-task-tools>) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
 
 **Input:**
 

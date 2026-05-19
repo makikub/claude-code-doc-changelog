@@ -890,9 +890,9 @@ You edited a settings file but the hooks don’t appear in the menu.
 
 ​
 
-Stop hook runs forever
+Stop hook hits the block cap
 
-Claude keeps working in an infinite loop instead of stopping. Your Stop hook script needs to check whether it already triggered a continuation. Parse the `stop_hook_active` field from the JSON input and exit early if it’s `true`:
+Claude keeps working instead of stopping, then ends the turn with a warning that the Stop hook blocked too many consecutive times. Claude Code overrides a Stop hook after it blocks 8 times in a row without progress. Your hook script needs to check whether it already triggered a continuation. Parse the `stop_hook_active` field from the JSON input and exit early if it’s `true`:
 
     #!/bin/bash
     INPUT=$(cat)
@@ -900,6 +900,8 @@ Claude keeps working in an infinite loop instead of stopping. Your Stop hook scr
       exit 0  # Allow Claude to stop
     fi
     # ... rest of your hook logic
+
+If your hook legitimately needs more than eight iterations to converge, raise the cap with [`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`](</docs/en/env-vars>).
 
 ###
 

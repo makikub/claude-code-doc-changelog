@@ -795,6 +795,7 @@ The following features are only available in the CLI or VS Code extension:
   * **Linux** : the desktop app is available on macOS and Windows only. On Linux, use the [CLI](</docs/en/quickstart>).
   * **Inline code suggestions** : Desktop does not provide autocomplete-style suggestions. It works through conversational prompts and explicit code changes.
   * **Agent teams** : multi-agent orchestration is available via the [CLI](</docs/en/agent-teams>) and [Agent SDK](</docs/en/headless>), not in Desktop.
+  * **Terminal-dialog commands** : built-in commands that open an interactive panel in the terminal, such as `/permissions`, `/config`, `/agents`, and `/doctor`, are not available in the Code tab and reply with `isn't available in this environment`. Edit [settings files](</docs/en/settings>) directly to manage permission rules and configuration, or run the command from the standalone CLI.
 
 ##
 

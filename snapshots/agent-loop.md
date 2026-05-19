@@ -110,7 +110,7 @@ Category| Tools| What they do
 **Execution**| `Bash`| Run shell commands, scripts, git operations
 **Web**| `WebSearch`, `WebFetch`| Search the web, fetch and parse pages
 **Discovery**| `ToolSearch`| Dynamically find and load tools on-demand instead of preloading all of them
-**Orchestration**| `Agent`, `Skill`, `AskUserQuestion`, `TodoWrite`| Spawn subagents, invoke skills, ask the user, track tasks
+**Orchestration**| `Agent`, `Skill`, `AskUserQuestion`, `TaskCreate`, `TaskUpdate`| Spawn subagents, invoke skills, ask the user, track tasks
 
 Beyond built-in tools, you can:
 

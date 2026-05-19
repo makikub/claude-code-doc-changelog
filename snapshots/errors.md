@@ -31,6 +31,7 @@ Message| Section
 `Not logged in · Please run /login`| Authentication
 `Invalid API key`| Authentication
 `This organization has been disabled`| Authentication
+`Your organization has disabled Claude subscription access`| Authentication
 `Routines are disabled by your organization's policy`| Authentication
 `OAuth token revoked` / `OAuth token has expired`| Authentication
 `does not meet scope requirement user:profile`| Authentication
@@ -48,6 +49,7 @@ Message| Section
 `thinking.type.enabled is not supported for this model`| Request errors
 `max_tokens must be greater than thinking.budget_tokens`| Request errors
 `API Error: 400 due to tool use concurrency issues`| Request errors
+`Claude Code is unable to respond to this request, which appears to violate our Usage Policy`| Request errors
 Responses seem lower quality than usual| Response quality
 
 ##
@@ -178,7 +180,7 @@ Claude Code blocks further requests until the reset time shown in the message. *
 
   * Wait for the reset time shown in the error
   * Run `/usage` to see your plan limits and when they reset
-  * Run `/extra-usage` to buy additional usage on Pro and Max, or to request it from your admin on Team and Enterprise. See [Extra usage for paid plans](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) for how this is billed.
+  * Run `/usage-credits` to buy additional usage on Pro and Max, or to request it from your admin on Team and Enterprise. See [usage credits for paid plans](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) for how this is billed.
   * To upgrade your plan for higher base limits, see [claude.com/pricing](<https://claude.com/pricing>)
 
 To watch your remaining allowance before you hit the limit, add the `rate_limits` fields to a [custom status line](</docs/en/statusline#rate-limit-usage>), or in the Desktop app click the [usage ring](</docs/en/desktop#check-usage>) next to the model picker.
@@ -206,9 +208,9 @@ Request rejected (429)
 
 You have hit the rate limit configured for your API key, Amazon Bedrock project, or Google Vertex AI project.
 
-    API Error: Request rejected (429) · this may be a temporary capacity issue
+    API Error: Request rejected (429) · this may be a temporary capacity issue. If it persists, check status.claude.com.
 
-**What to do:**
+The trailing sentence names where to check service health and varies by provider. Bedrock and Vertex AI configurations name that provider’s service status instead of the Anthropic status page. **What to do:**
 
   * Run `/status` and confirm the active credential is the one you expect. A stray `ANTHROPIC_API_KEY` in your environment can route requests through a low-tier key instead of your subscription.
   * Check your provider console for the active limits and request a higher tier if needed
@@ -292,6 +294,22 @@ Environment variables take precedence over `/login`, so a key exported in your s
   * Unset `ANTHROPIC_API_KEY` in the current shell and remove it from your shell profile, then relaunch `claude`
   * Run `/status` afterward to confirm the active credential is your subscription
   * If no environment variable is set and the error persists, the disabled organization is the one tied to your `/login`. Contact support or sign in with a different account.
+
+###
+
+​
+
+Your organization has disabled Claude subscription access
+
+Your Claude organization does not allow signing in to Claude Code with a subscription login. Running `/login` again with the same account returns the same error.
+
+    Your organization has disabled Claude subscription access for Claude Code · Use an Anthropic API key instead, or ask your admin to enable access
+
+This is a server-side organization setting, so it cannot be overridden from local settings, environment variables, or CLI flags. The Agent SDK and `-p` non-interactive mode surface this as the `oauth_org_not_allowed` error code. **What to do:**
+
+  * Ask your admin to enable Claude Code access for your organization
+  * Authenticate with a Console API key instead of your subscription. See [Claude Console authentication](</docs/en/authentication#claude-console-authentication>) for setup.
+  * If you are the admin and do not see an option to enable access, contact [Anthropic support](<https://support.claude.com>)
 
 ###
 
@@ -604,6 +622,22 @@ The conversation history reached the API in an inconsistent state, usually after
 All three variants mean the same thing: the sequence of `tool_use`, `tool_result`, and `thinking` blocks in history no longer matches what the API expects. **What to do:**
 
   * Run `/rewind`, or press Esc twice, to step back to a checkpoint before the corrupted turn and continue from there. See [Checkpointing](</docs/en/checkpointing>) for how checkpoints are created and restored.
+
+###
+
+​
+
+Usage Policy refusal
+
+The API declined to respond because content in the conversation triggered a [Usage Policy](<https://www.anthropic.com/legal/aup>) check. The message includes a Request ID you can quote to support if you believe the refusal is incorrect.
+
+    API Error: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Please double press esc to edit your last message or start a new session for Claude Code to assist with a different task.
+
+The check evaluates the full conversation, not only your latest prompt, so sending a new message in the same session usually re-triggers the same refusal. The same applies after exiting and reopening the session with `--continue` or `--resume`, since the transcript on disk still contains the triggering content. **What to do:**
+
+  * Press Esc twice or run `/rewind` to step back to a checkpoint before the turn that triggered the refusal, then rephrase or take a different approach. See [Checkpointing](</docs/en/checkpointing>).
+  * If you cannot identify which turn caused it, run `/clear` to start a fresh conversation in the same project. Your previous conversation is preserved on disk and remains available in `/resume`.
+  * In [non-interactive mode](</docs/en/headless>) (`-p`), where rewind is unavailable, retry with a rephrased prompt or start a new session without `--continue`.
 
 ##
 

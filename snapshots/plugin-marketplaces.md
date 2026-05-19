@@ -170,7 +170,7 @@ Field| Type| Description| Example
 `owner`| object| Marketplace maintainer information (see fields below)|
 `plugins`| array| List of available plugins| See below
 
-**Reserved names** : The following marketplace names are reserved for official Anthropic use and cannot be used by third-party marketplaces: `claude-code-marketplace`, `claude-code-plugins`, `claude-plugins-official`, `anthropic-marketplace`, `anthropic-plugins`, `agent-skills`, `knowledge-work-plugins`, `life-sciences`. Names that impersonate official marketplaces (like `official-claude-plugins` or `anthropic-tools-v2`) are also blocked.
+**Reserved names** : The following marketplace names are reserved for official Anthropic use and cannot be used by third-party marketplaces: `claude-code-marketplace`, `claude-code-plugins`, `claude-plugins-official`, `anthropic-marketplace`, `anthropic-plugins`, `agent-skills`, `anthropic-agent-skills`, `knowledge-work-plugins`, `life-sciences`. Names that impersonate official marketplaces, such as `official-claude-plugins` or `anthropic-tools-v2`, are also blocked.
 
 ###
 
@@ -228,6 +228,7 @@ Optional plugin fields
 
 Field| Type| Description
 ---|---|---
+`displayName`| string| Human-readable name shown in UI surfaces. Falls back to `name` when omitted. May contain spaces and any casing. Not used for namespacing or lookup. Requires Claude Code v2.1.143 or later.
 `description`| string| Brief plugin description
 `version`| string| Plugin version. If set (here or in `plugin.json`), the plugin is pinned to this string and users only receive updates when it changes. Omit to fall back to the git commit SHA. See Version resolution.
 `author`| object| Plugin author information (`name` required, `email` optional)
