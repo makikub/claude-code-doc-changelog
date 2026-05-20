@@ -14,7 +14,7 @@ Built-in output styles
 
 Claude Code’s **Default** output style is the existing system prompt, designed to help you complete software engineering tasks efficiently. There are three additional built-in output styles:
 
-  * **Proactive** : Claude executes immediately, makes reasonable assumptions instead of pausing for routine decisions, and prefers action over planning. This applies the same guidance as [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) without changing your permission mode, so you still see permission prompts before tools run.
+  * **Proactive** : Claude executes immediately, makes reasonable assumptions instead of pausing for routine decisions, and prefers action over planning. This is stronger autonomous-execution guidance than [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) applies, and it works without changing your permission mode, so you still see permission prompts before tools run.
   * **Explanatory** : Provides educational “Insights” in between helping you complete software engineering tasks. Helps you understand implementation choices and codebase patterns.
   * **Learning** : Collaborative, learn-by-doing mode where Claude will not only share “Insights” while coding, but also ask you to contribute small, strategic pieces of code yourself. Claude Code will add `TODO(human)` markers in your code for you to implement.
 
@@ -30,7 +30,7 @@ Run `/config` and select **Output style** to pick a style from a menu. Your sele
       "outputStyle": "Explanatory"
     }
 
-Because the output style is set in the system prompt at session start, changes take effect the next time you start a new session. This keeps the system prompt stable throughout a conversation so prompt caching can reduce latency and cost.
+Output style is part of the system prompt, which Claude Code reads once at session start. Changes take effect after `/clear` or a new session. See [How Claude Code uses prompt caching](</docs/en/prompt-caching#changing-output-style>) for what an output style change does to the cache.
 
 ##
 
@@ -72,7 +72,7 @@ Decide whether to keep Claude Code’s software engineering instructions. Set `k
 
 Switch to your style
 
-Run `/config` and select your style under **Output style**. It takes effect the next time you start a session.
+Run `/config` and select your style under **Output style**. It takes effect after `/clear` or the next time you start a session.
 
 [Plugins](</docs/en/plugins-reference>) can also ship output styles in an `output-styles/` directory.
 
@@ -128,6 +128,6 @@ Output styles| Modifies the system prompt| You want a different role, tone, or d
 Related resources
 
   * [Settings](</docs/en/settings>): where the `outputStyle` field lives and how settings precedence works
-  * [Permission modes](</docs/en/permission-modes>): the Proactive style mirrors auto mode without changing your permission mode
+  * [Permission modes](</docs/en/permission-modes>): how the Proactive style compares to auto mode
   * [Plugins](</docs/en/plugins>): package and distribute output styles alongside skills, hooks, and agents
   * [Debug your configuration](</docs/en/debug-your-config>): diagnose why an output style isn’t taking effect

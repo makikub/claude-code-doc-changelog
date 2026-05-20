@@ -50,7 +50,7 @@ Command| Purpose
 `/exit`| Exit the CLI. In an attached [background session](</docs/en/agent-view#attach-to-a-session>), this detaches and the session keeps running. Alias: `/quit`
 `/export [filename]`| Export the current conversation as plain text. With a filename, writes directly to that file. Without, opens a dialog to copy to clipboard or save to a file
 `/fast [on|off]`| Toggle [fast mode](</docs/en/fast-mode>) on or off
-`/feedback [report]`| Submit feedback about Claude Code. Alias: `/bug`
+`/feedback [report]`| Submit feedback, report a bug, or share your conversation. Aliases: `/bug`, `/share`
 `/fewer-permission-prompts`| **[Skill](</docs/en/skills#bundled-skills>).** Scan your transcripts for common read-only Bash and MCP tool calls, then add a prioritized allowlist to project `.claude/settings.json` to reduce permission prompts
 `/focus`| Toggle the focus view, which shows only your last prompt, a one-line tool-call summary with edit diffstats, and the final response. The selection persists across sessions; set [`viewMode`](</docs/en/settings#available-settings>) in settings to override it. Only available in [fullscreen rendering](</docs/en/fullscreen>)
 `/goal [condition|clear]`| Set a [goal](</docs/en/goal>): Claude keeps working across turns until the condition is met. With no argument, shows the current or most recently achieved goal. `clear`, `stop`, `off`, `reset`, `none`, or `cancel` removes an active goal early
@@ -69,7 +69,7 @@ Command| Purpose
 `/mcp`| Manage MCP server connections and OAuth authentication
 `/memory`| Edit `CLAUDE.md` memory files, enable or disable [auto-memory](</docs/en/memory#auto-memory>), and view auto-memory entries
 `/mobile`| Show QR code to download the Claude mobile app. Aliases: `/ios`, `/android`
-`/model [model]`| Select or change the AI model. For models that support it, use left/right arrows to [adjust effort level](</docs/en/model-config#adjust-effort-level>). With no argument, opens a picker that asks for confirmation when the conversation has prior output, since the next response re-reads the full history without cached context. Once confirmed, the change applies without waiting for the current response to finish
+`/model [model]`| Set the AI model for the current session. For models that support it, use left/right arrows to [adjust effort level](</docs/en/model-config#adjust-effort-level>). With no argument, opens a picker; press `d` on a row to also save that model as the default for new sessions. The picker asks for confirmation when the conversation has prior output, since the next response re-reads the full history without cached context. Once confirmed, the change applies without waiting for the current response to finish
 `/passes`| Share a free week of Claude Code with friends. Only visible if your account is eligible
 `/permissions`| Manage allow, ask, and deny rules for tool permissions. Opens an interactive dialog where you can view rules by scope, add or remove rules, manage working directories, and review [recent auto mode denials](</docs/en/auto-mode-config#review-denials>). Alias: `/allowed-tools`
 `/plan [description]`| Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug`
@@ -84,9 +84,11 @@ Command| Purpose
 `/remote-control`| Make this session available for [remote control](</docs/en/remote-control>) from claude.ai. Alias: `/rc`
 `/remote-env`| Configure the default remote environment for [web sessions started with `--remote`](</docs/en/claude-code-on-the-web#configure-your-environment>)
 `/rename [name]`| Rename the current session and show the name on the prompt bar. Without a name, auto-generates one from conversation history
-`/resume [session]`| Resume a conversation by ID or name, or open the session picker. Alias: `/continue`
+`/resume [session]`| Resume a conversation by ID or name, or open the session picker. As of v2.1.144, [background sessions](</docs/en/agent-view>) appear in the picker marked with `bg`. Alias: `/continue`
 `/review [PR]`| Review a pull request locally in your current session. For a deeper cloud-based review, see [`/ultrareview`](</docs/en/ultrareview>)
 `/rewind`| Rewind the conversation and/or code to a previous point, or summarize from a selected message. See [checkpointing](</docs/en/checkpointing>). Aliases: `/checkpoint`, `/undo`
+`/run`| **[Skill](</docs/en/skills#bundled-skills>).** Launch and drive your project’s app to see a change working in the running app, not just in tests. See [Run and verify your app](</docs/en/skills#run-and-verify-your-app>). Requires Claude Code v2.1.145 or later
+`/run-skill-generator`| **[Skill](</docs/en/skills#bundled-skills>).** Teach `/run` and `/verify` how to build, launch, and drive your project’s app from a clean environment by writing a per-project [skill](</docs/en/skills#run-and-verify-your-app>). Requires Claude Code v2.1.145 or later
 `/sandbox`| Toggle [sandbox mode](</docs/en/sandboxing>). Available on supported platforms only
 `/schedule [description]`| Create, update, list, or run [routines](</docs/en/routines>), which execute on Anthropic-managed cloud infrastructure. Claude walks you through the setup conversationally. Alias: `/routines`
 `/scroll-speed`| Adjust mouse wheel [scroll speed](</docs/en/fullscreen#mouse-wheel-scrolling>) interactively, with a ruler you can scroll while the dialog is open to preview the change. Available in [fullscreen rendering](</docs/en/fullscreen>) only and not in the JetBrains IDE terminal
@@ -111,6 +113,7 @@ Command| Purpose
 `/upgrade`| Open the upgrade page to switch to a higher plan tier
 `/usage`| Show session cost, plan usage limits, and activity stats. See the [cost tracking guide](</docs/en/costs#using-the-%2Fusage-command>) for subscription-specific details. `/cost` and `/stats` are aliases
 `/usage-credits`| Configure usage credits to keep working when you hit a limit. Previously `/extra-usage`
+`/verify`| **[Skill](</docs/en/skills#bundled-skills>).** Confirm a code change does what it should by building your project’s app, running it, and observing the result, rather than relying on tests or type checks. See [Run and verify your app](</docs/en/skills#run-and-verify-your-app>). Requires Claude Code v2.1.145 or later
 `/vim`| Removed in v2.1.92. To toggle between Vim and Normal editing modes, use `/config` → Editor mode
 `/voice [hold|tap|off]`| Toggle [voice dictation](</docs/en/voice-dictation>), or enable it in a specific mode. Requires a Claude.ai account
 `/web-setup`| Connect your GitHub account to [Claude Code on the web](</docs/en/web-quickstart#connect-from-your-terminal>) using your local `gh` CLI credentials. `/schedule` prompts for this automatically if GitHub isn’t connected

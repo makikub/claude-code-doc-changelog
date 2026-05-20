@@ -859,7 +859,7 @@ Model| Same as main session| From the subagent’s `model` field
 Permissions| Prompts surface in your terminal| Auto-denied when running in the background
 Prompt cache| Shared with main session| Separate cache
 
-Because a fork’s system prompt and tool definitions are identical to the parent, its first request reuses the parent’s prompt cache. This makes forking cheaper than spawning a fresh subagent for tasks that need the same context. When Claude spawns a fork through the Agent tool, it can pass `isolation: "worktree"` so the fork’s file edits are written to a separate git worktree instead of your checkout.
+Because a fork’s system prompt and tool definitions are identical to the parent, its first request reuses the parent’s [prompt cache](</docs/en/prompt-caching#subagents-and-the-cache>). This makes forking cheaper than spawning a fresh subagent for tasks that need the same context. When Claude spawns a fork through the Agent tool, it can pass `isolation: "worktree"` so the fork’s file edits are written to a separate git worktree instead of your checkout.
 
 ###
 

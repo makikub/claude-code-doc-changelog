@@ -20,6 +20,7 @@ Extensions plug into different parts of the agentic loop:
 
   * **[CLAUDE.md](</docs/en/memory>)** adds persistent context Claude sees every session
   * **[Skills](</docs/en/skills>)** add reusable knowledge and invocable workflows
+  * **[Code intelligence](</docs/en/tools-reference#lsp-tool-behavior>)** connects Claude to a language server for symbol-level navigation and live type errors
   * **[MCP](</docs/en/mcp>)** connects Claude to external services and tools
   * **[Subagents](</docs/en/sub-agents>)** run their own loops in isolated context, returning summaries
   * **[Agent teams](</docs/en/agent-teams>)** coordinate multiple independent sessions with shared tasks and peer-to-peer messaging
@@ -42,6 +43,7 @@ Feature| What it does| When to use it| Example
 **Skill**|  Instructions, knowledge, and workflows Claude can use| Reusable content, reference docs, repeatable tasks| `/deploy` runs your deployment checklist; API docs skill with endpoint patterns
 **Subagent**|  Isolated execution context that returns summarized results| Context isolation, parallel tasks, specialized workers| Research task that reads many files but returns only key findings
 **[Agent teams](</docs/en/agent-teams>)**|  Coordinate multiple independent Claude Code sessions| Parallel research, new feature development, debugging with competing hypotheses| Spawn reviewers to check security, performance, and tests simultaneously
+**[Code intelligence](</docs/en/tools-reference#lsp-tool-behavior>)**|  Language-server navigation and diagnostics| Typed languages, large codebases where grep is slow or imprecise| Jump to a symbol’s definition instead of reading the whole file
 **MCP**|  Connect to external services| External data or actions| Query your database, post to Slack, control a browser
 **Hook**|  Script, HTTP request, prompt, or subagent triggered by events| Automation that must run on every matching event| Run ESLint after every file edit
 
@@ -61,6 +63,7 @@ Claude gets a convention or command wrong twice| Add it to [CLAUDE.md](</docs/en
 You keep typing the same prompt to start a task| Save it as a user-invocable [skill](</docs/en/skills>)
 You paste the same playbook or multi-step procedure into chat for the third time| Capture it as a [skill](</docs/en/skills>)
 You keep copying data from a browser tab Claude can’t see| Connect that system as an [MCP server](</docs/en/mcp>)
+Claude reads many files to find where a symbol is defined or used| Install a [code intelligence plugin](</docs/en/discover-plugins#code-intelligence>) for your language
 A side task floods your conversation with output you won’t reference again| Route it through a [subagent](</docs/en/sub-agents>)
 You want something to happen every time without asking| Write a [hook](</docs/en/hooks-guide>)
 A second repository needs the same setup| Package it as a [plugin](</docs/en/plugins>)
@@ -210,6 +213,7 @@ Feature| When it loads| What loads| Context cost
 **CLAUDE.md**|  Session start| Full content| Every request
 **Skills**|  Session start + when used| Descriptions at start, full content when used| Low (descriptions every request)*
  **MCP servers**|  Session start| Tool names; full schemas on demand| Low until a tool is used
+**Code intelligence**|  After file edits and on demand| Diagnostics after edits; symbol locations on lookup| Low; reduces file reads elsewhere
 **Subagents**|  When spawned| Fresh context with specified skills| Isolated from main session
 **Hooks**|  On trigger| Nothing (runs externally)| Zero, unless hook returns additional context
 
@@ -229,6 +233,8 @@ Each feature loads at different points in your session. The tabs below explain w
 
   * MCP servers
 
+  * Code intelligence
+
   * Subagents
 
   * Hooks
@@ -244,6 +250,10 @@ Use `disable-model-invocation: true` for skills with side effects. This saves co
 **When:** Session start.**What loads:** Tool names from connected servers. Full JSON schemas stay deferred until Claude needs a specific tool.**Context cost:** [Tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is on by default, so idle MCP tools consume minimal context.**Reliability note:** MCP connections can fail silently mid-session. If a server disconnects, its tools disappear without warning. Claude may try to use a tool that no longer exists. If you notice Claude failing to use an MCP tool it previously could access, check the connection with `/mcp`.
 
 Run `/mcp` to see token costs per server. Disconnect servers you’re not actively using.
+
+**When:** After file edits, and on demand when Claude navigates code.**What loads:** Type errors and warnings after each file edit. Definition, reference, and type information when Claude looks up a symbol.**Context cost:** Low. Symbol lookups often replace broad file reads, so net context use can go down.
+
+The LSP tool is inactive until you install a [code intelligence plugin](</docs/en/discover-plugins#code-intelligence>) for your language.
 
 **When:** On demand, when you or Claude spawns one for a task.**What loads:** Fresh, isolated context containing:
 

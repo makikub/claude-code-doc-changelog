@@ -138,7 +138,7 @@ Once created, activate output styles via:
 
   * **CLI** : run `/config` and select an output style
   * **Settings** : set `outputStyle` in `.claude/settings.local.json`
-  * **TypeScript SDK** : set `options.outputStyle` to the style’s name
+  * **TypeScript SDK** : set `outputStyle` inside the inline `settings` object passed to `query()`, or point `settings` at a settings file that sets it. `outputStyle` is not a top-level `Options` field
 
 The Python SDK does not have an option to select an output style programmatically. For code-only deployments where you can’t write to `.claude/settings.local.json`, use `append` or a custom prompt string instead. **Note for SDK users:** Output styles are loaded when you include `settingSources: ['user']` or `settingSources: ['project']` (TypeScript) / `setting_sources=["user"]` or `setting_sources=["project"]` (Python) in your options.
 
@@ -379,6 +379,6 @@ See also
 
   * [Output styles](</docs/en/output-styles>): create, manage, and share output styles for the CLI, including the file format and storage locations
   * [How Claude remembers your project](</docs/en/memory>): what to put in CLAUDE.md, where to place it, and how to write effective project instructions
-  * [TypeScript SDK reference](</docs/en/agent-sdk/typescript>): the full `Options` type, including `systemPrompt`, `settingSources`, and `outputStyle`
+  * [TypeScript SDK reference](</docs/en/agent-sdk/typescript>): the full `Options` type, including `systemPrompt`, `settingSources`, and `settings`
   * [Python SDK reference](</docs/en/agent-sdk/python>): the full `ClaudeAgentOptions` type, including `system_prompt` and `setting_sources`
   * [Settings](</docs/en/settings>): the `settings.json` reference, including where output styles and other configuration are stored

@@ -8,6 +8,16 @@ The weekly dev digest highlights the features most likely to change how you work
 
 ​
 
+Week 20
+
+v2.1.139–v2.1.142
+
+May 11–15, 2026
+
+**Agent view** : `claude agents` opens one screen for every Claude Code session, showing what’s running, what’s blocked on you, and what’s done.Also this week: **`/goal`** keeps Claude working across turns until a completion condition holds; **fast mode** now runs on Opus 4.7 by default; and the **Rewind menu** can compress earlier context with “Summarize up to here”.[Read the Week 20 digest →](</docs/en/whats-new/2026-w20>)
+
+​
+
 Week 19
 
 v2.1.128–v2.1.136
