@@ -4,273 +4,132 @@
 >
 > Use this file to discover all available pages before exploring further.
 
-A session is the conversation history the SDK accumulates while your agent works. It contains your prompt, every tool call the agent made, every tool result, and every response. The SDK writes it to disk automatically so you can return to it later. Returning to a session means the agent has full context from before: files it already read, analysis it already performed, decisions it already made. You can ask a follow-up question, recover from an interruption, or branch off to try a different approach.
+A session is a saved conversation tied to a project directory. Claude Code stores it locally as you work, so you can resume where you left off, branch to try a different approach, or switch between tasks. The [desktop app](</docs/en/desktop#work-in-parallel-with-sessions>), [Claude Code on the web](</docs/en/claude-code-on-the-web>), and the [VS Code extension](</docs/en/vs-code#resume-past-conversations>) each maintain their own session history. This page covers the CLI:
 
-Sessions persist the **conversation** , not the filesystem. To snapshot and revert file changes the agent made, use [file checkpointing](</docs/en/agent-sdk/file-checkpointing>).
-
-This guide covers how to pick the right approach for your app, the SDK interfaces that track sessions automatically, how to capture session IDs and use `resume` and `fork` manually, and what to know about resuming sessions across hosts.
+  * Resume a previous conversation by flag, name, or PR
+  * Name sessions so you can find them later
+  * Browse sessions with the `/resume` picker
+  * Branch a conversation to try a different approach
+  * Export transcripts and find them on disk
 
 ##
 
 ​
 
-Choose an approach
+Resume a session
 
-How much session handling you need depends on your application’s shape. Session management comes into play when you send multiple prompts that should share context. Within a single `query()` call, the agent already takes as many turns as it needs, and permission prompts and `AskUserQuestion` are [handled in-loop](</docs/en/agent-sdk/user-input>) (they don’t end the call).
+Sessions are saved continuously to local transcript files as you work, so you can return to one after exiting or running `/clear`. Use these entry points:
 
-What you’re building| What to use
+Command| What it does
 ---|---
-One-shot task: single prompt, no follow-up| Nothing extra. One `query()` call handles it.
-Multi-turn chat in one process| `ClaudeSDKClient` (Python) or `continue: true` (TypeScript). The SDK tracks the session for you with no ID handling.
-Pick up where you left off after a process restart| `continue_conversation=True` (Python) / `continue: true` (TypeScript). Resumes the most recent session in the directory, no ID needed.
-Resume a specific past session (not the most recent)| Capture the session ID and pass it to `resume`.
-Try an alternative approach without losing the original| Fork the session.
-Stateless task, don’t want anything written to disk (TypeScript only)| Set [`persistSession: false`](</docs/en/agent-sdk/typescript#options>). The session exists only in memory for the duration of the call. Python always persists to disk.
+`claude --continue`| Resumes the most recent session in the current directory
+`claude --resume`| Opens the session picker
+`claude --resume <name>`| Resumes the named session directly
+`claude --from-pr <number>`| Resumes the session linked to that pull request
+`/resume`| Switches to a different conversation from inside an active session
+
+Sessions created with [`claude -p`](</docs/en/headless>) or the [Agent SDK](</docs/en/agent-sdk/overview>) do not appear in the session picker, but you can still resume one by passing its session ID to `claude --resume <session-id>`.
 
 ###
 
 ​
 
-Continue, resume, and fork
+Where the session picker looks
 
-Continue, resume, and fork are option fields you set on `query()` ([`ClaudeAgentOptions`](</docs/en/agent-sdk/python#claudeagentoptions>) in Python, [`Options`](</docs/en/agent-sdk/typescript#options>) in TypeScript). **Continue** and **resume** both pick up an existing session and add to it. The difference is how they find that session:
+Sessions are stored per project directory. By default the session picker shows interactive sessions from the current worktree, plus sessions started elsewhere that added the current directory with `/add-dir`. Use `Ctrl+W` to widen to all worktrees of the repository or `Ctrl+A` to widen to every project on this machine. Selecting a session from another worktree of the same repository resumes it in place. Selecting a session from an unrelated project copies a `cd` and resume command to your clipboard instead. Resuming by name resolves across the current repository and its worktrees. Both forms look for an exact match and resume it directly even if it lives in a different worktree:
 
-  * **Continue** finds the most recent session in the current directory. You don’t track anything. Works well when your app runs one conversation at a time.
-  * **Resume** takes a specific session ID. You track the ID. Required when you have multiple sessions (for example, one per user in a multi-user app) or want to return to one that isn’t the most recent.
-
-**Fork** is different: it creates a new session that starts with a copy of the original’s history. The original stays unchanged. Use fork to try a different direction while keeping the option to go back.
+Command| Exact match| Ambiguous name
+---|---|---
+`claude --resume <name>`| Resumes directly| Opens the session picker with the name pre-filled as a search term
+`/resume <name>`| Resumes directly| Reports an error; run `/resume` with no argument to open the session picker
 
 ##
 
 ​
 
-Automatic session management
+Name your sessions
 
-Both SDKs offer an interface that tracks session state for you across calls, so you don’t pass IDs around manually. Use these for multi-turn conversations within a single process.
+Give sessions descriptive names so they’re findable in the session picker and resumable by name. This matters most when you’re working on several tasks in parallel.
 
-###
+When| How to set the name
+---|---
+At startup| `claude -n auth-refactor`
+During a session| `/rename auth-refactor`. The name also appears on the prompt bar
+From the session picker| Highlight a session and press `Ctrl+R`
+On plan accept| Accepting a plan in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) names the session from the plan content unless you’ve already set one
 
-​
-
-Python: `ClaudeSDKClient`
-
-[`ClaudeSDKClient`](</docs/en/agent-sdk/python#claudesdkclient>) handles session IDs internally. Each call to `client.query()` automatically continues the same session. Call [`client.receive_response()`](</docs/en/agent-sdk/python#claudesdkclient>) to iterate over the messages for the current query. The client is typically used as an async context manager. This example runs two queries against the same `client`. The first asks the agent to analyze a module; the second asks it to refactor that module. Because both calls go through the same client instance, the second query has full context from the first without any explicit `resume` or session ID:
-
-Python
-
-    import asyncio
-    from claude_agent_sdk import (
-        ClaudeSDKClient,
-        ClaudeAgentOptions,
-        AssistantMessage,
-        ResultMessage,
-        TextBlock,
-    )
-
-    def print_response(message):
-        """Print only the human-readable parts of a message."""
-        if isinstance(message, AssistantMessage):
-            for block in message.content:
-                if isinstance(block, TextBlock):
-                    print(block.text)
-        elif isinstance(message, ResultMessage):
-            cost = (
-                f"${message.total_cost_usd:.4f}"
-                if message.total_cost_usd is not None
-                else "N/A"
-            )
-            print(f"[done: {message.subtype}, cost: {cost}]")
-
-    async def main():
-        options = ClaudeAgentOptions(
-            allowed_tools=["Read", "Edit", "Glob", "Grep"],
-        )
-
-        async with ClaudeSDKClient(options=options) as client:
-            # First query: client captures the session ID internally
-            await client.query("Analyze the auth module")
-            async for message in client.receive_response():
-                print_response(message)
-
-            # Second query: automatically continues the same session
-            await client.query("Now refactor it to use JWT")
-            async for message in client.receive_response():
-                print_response(message)
-
-    asyncio.run(main())
-
-See the [Python SDK reference](</docs/en/agent-sdk/python#choosing-between-query-and-claudesdkclient>) for details on when to use `ClaudeSDKClient` vs the standalone `query()` function.
-
-###
-
-​
-
-TypeScript: `continue: true`
-
-The TypeScript SDK doesn’t have a session-holding client object like Python’s `ClaudeSDKClient`. Instead, pass `continue: true` on each subsequent `query()` call and the SDK picks up the most recent session in the current directory. No ID tracking required. This example makes two separate `query()` calls. The first creates a fresh session; the second sets `continue: true`, which tells the SDK to find and resume the most recent session on disk. The agent has full context from the first call:
-
-TypeScript
-
-    import { query } from "@anthropic-ai/claude-agent-sdk";
-
-    // First query: creates a new session
-    for await (const message of query({
-      prompt: "Analyze the auth module",
-      options: { allowedTools: ["Read", "Glob", "Grep"] }
-    })) {
-      if (message.type === "result" && message.subtype === "success") {
-        console.log(message.result);
-      }
-    }
-
-    // Second query: continue: true resumes the most recent session
-    for await (const message of query({
-      prompt: "Now refactor it to use JWT",
-      options: {
-        continue: true,
-        allowedTools: ["Read", "Edit", "Write", "Glob", "Grep"]
-      }
-    })) {
-      if (message.type === "result" && message.subtype === "success") {
-        console.log(message.result);
-      }
-    }
-
-The experimental [V2 session API](</docs/en/agent-sdk/typescript-v2-preview>), which provided `createSession()` with a `send` / `stream` pattern, was removed in TypeScript Agent SDK 0.3.142. Use the `query()` function and the session options described on this page instead.
+Once a session is named, return to it with `claude --resume <name>` or `/resume <name>`. See Resume a session for how name resolution behaves across worktrees.
 
 ##
 
 ​
 
-Use session options with `query()`
+Use the session picker
 
-###
+Run `/resume` inside a session, or `claude --resume` with no arguments, to open the interactive session picker. Use these keyboard shortcuts to navigate, search, and widen the list:
 
-​
+Shortcut| Action
+---|---
+`↑` / `↓`| Navigate between sessions
+`→` / `←`| Expand or collapse grouped sessions
+`Enter`| Resume the highlighted session
+`Space`| Preview the session content. `Ctrl+V` also works on terminals that don’t capture it as paste
+`Ctrl+R`| Rename the highlighted session
+`/` or any printable character other than `Space`| Enter search mode and filter sessions. Paste a GitHub, GitHub Enterprise, GitLab, or Bitbucket pull or merge request URL to find the session that created it
+`Ctrl+A`| Show sessions from all projects on this machine. Press again to return to the current repository
+`Ctrl+W`| Show sessions from all worktrees of the current repository. Press again to return to the current worktree. Only shown in multi-worktree repositories
+`Ctrl+B`| Filter to sessions from the current git branch. Press again to show all branches
+`Esc`| Exit the session picker or search mode
 
-Capture the session ID
-
-Resume and fork require a session ID. Read it from the `session_id` field on the result message ([`ResultMessage`](</docs/en/agent-sdk/python#resultmessage>) in Python, [`SDKResultMessage`](</docs/en/agent-sdk/typescript#sdkresultmessage>) in TypeScript), which is present on every result regardless of success or error. In TypeScript the ID is also available earlier as a direct field on the init `SystemMessage`; in Python it’s nested inside `SystemMessage.data`.
-
-Python
-
-TypeScript
-
-    import asyncio
-    from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
-
-    async def main():
-        session_id = None
-
-        async for message in query(
-            prompt="Analyze the auth module and suggest improvements",
-            options=ClaudeAgentOptions(
-                allowed_tools=["Read", "Glob", "Grep"],
-            ),
-        ):
-            if isinstance(message, ResultMessage):
-                session_id = message.session_id
-                if message.subtype == "success":
-                    print(message.result)
-
-        print(f"Session ID: {session_id}")
-        return session_id
-
-    session_id = asyncio.run(main())
-
-###
-
-​
-
-Resume by ID
-
-Pass a session ID to `resume` to return to that specific session. The agent picks up with full context from wherever the session left off. Common reasons to resume:
-
-  * **Follow up on a completed task.** The agent already analyzed something; now you want it to act on that analysis without re-reading files.
-  * **Recover from a limit.** The first run ended with `error_max_turns` or `error_max_budget_usd` (see [Handle the result](</docs/en/agent-sdk/agent-loop#handle-the-result>)); resume with a higher limit.
-  * **Restart your process.** You captured the ID before shutdown and want to restore the conversation.
-
-This example resumes the session from Capture the session ID with a follow-up prompt. Because you’re resuming, the agent already has the prior analysis in context:
-
-Python
-
-TypeScript
-
-    # Earlier session analyzed the code; now build on that analysis
-    async for message in query(
-        prompt="Now implement the refactoring you suggested",
-        options=ClaudeAgentOptions(
-            resume=session_id,
-            allowed_tools=["Read", "Edit", "Write", "Glob", "Grep"],
-        ),
-    ):
-        if isinstance(message, ResultMessage) and message.subtype == "success":
-            print(message.result)
-
-If a `resume` call returns a fresh session instead of the expected history, the most common cause is a mismatched `cwd`. Sessions are stored under `~/.claude/projects/<encoded-cwd>/*.jsonl`, where `<encoded-cwd>` is the absolute working directory with every non-alphanumeric character replaced by `-` (so `/Users/me/proj` becomes `-Users-me-proj`). If your resume call runs from a different directory, the SDK looks in the wrong place. The session file also needs to exist on the current machine.
-
-To resume sessions across machines or in serverless environments, mirror transcripts to shared storage with a [`SessionStore` adapter](</docs/en/agent-sdk/session-storage>).
-
-###
-
-​
-
-Fork to explore alternatives
-
-Forking creates a new session that starts with a copy of the original’s history but diverges from that point. The fork gets its own session ID; the original’s ID and history stay unchanged. You end up with two independent sessions you can resume separately.
-
-Forking branches the conversation history, not the filesystem. If a forked agent edits files, those changes are real and visible to any session working in the same directory. To branch and revert file changes, use [file checkpointing](</docs/en/agent-sdk/file-checkpointing>).
-
-This example builds on Capture the session ID: you’ve already analyzed an auth module in `session_id` and want to explore OAuth2 without losing the JWT-focused thread. The first block forks the session and captures the fork’s ID (`forked_id`); the second block resumes the original `session_id` to continue down the JWT path. You now have two session IDs pointing at two separate histories:
-
-Python
-
-TypeScript
-
-    # Fork: branch from session_id into a new session
-    forked_id = None
-    async for message in query(
-        prompt="Instead of JWT, implement OAuth2 for the auth module",
-        options=ClaudeAgentOptions(
-            resume=session_id,
-            fork_session=True,
-        ),
-    ):
-        if isinstance(message, ResultMessage):
-            forked_id = message.session_id  # The fork's ID, distinct from session_id
-            if message.subtype == "success":
-                print(message.result)
-
-    print(f"Forked session: {forked_id}")
-
-    # Original session is untouched; resuming it continues the JWT thread
-    async for message in query(
-        prompt="Continue with the JWT approach",
-        options=ClaudeAgentOptions(resume=session_id),
-    ):
-        if isinstance(message, ResultMessage) and message.subtype == "success":
-            print(message.result)
+Each row shows the session name if set, otherwise the conversation summary or first prompt, along with time since last activity, message count, and git branch. Project path appears after you widen to all projects with `Ctrl+A`. Forked sessions created with `/branch`, `/rewind`, or `--fork-session` are grouped under their root session. Press `→` to expand a group.
 
 ##
 
 ​
 
-Resume across hosts
+Branch a session
 
-Session files are local to the machine that created them. To resume a session on a different host (CI workers, ephemeral containers, serverless), you have two options:
+Branching creates a copy of the conversation so far and switches you into it, leaving the original intact. Use it to try a different approach without losing the path you were on. From inside a session, run `/branch` with an optional name:
 
-  * **Move the session file.** Persist `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl` from the first run and restore it to the same path on the new host before calling `resume`. The `cwd` must match.
-  * **Don’t rely on session resume.** Capture the results you need (analysis output, decisions, file diffs) as application state and pass them into a fresh session’s prompt. This is often more robust than shipping transcript files around.
+    /branch try-streaming-approach
 
-Both SDKs expose functions for enumerating sessions on disk and reading their messages: [`listSessions()`](</docs/en/agent-sdk/typescript#listsessions>) and [`getSessionMessages()`](</docs/en/agent-sdk/typescript#getsessionmessages>) in TypeScript, [`list_sessions()`](</docs/en/agent-sdk/python#list_sessions>) and [`get_session_messages()`](</docs/en/agent-sdk/python#get_session_messages>) in Python. Use them to build custom session pickers, cleanup logic, or transcript viewers. Both SDKs also expose functions for looking up and mutating individual sessions: [`get_session_info()`](</docs/en/agent-sdk/python#get_session_info>), [`rename_session()`](</docs/en/agent-sdk/python#rename_session>), and [`tag_session()`](</docs/en/agent-sdk/python#tag_session>) in Python, and [`getSessionInfo()`](</docs/en/agent-sdk/typescript#getsessioninfo>), [`renameSession()`](</docs/en/agent-sdk/typescript#renamesession>), and [`tagSession()`](</docs/en/agent-sdk/typescript#tagsession>) in TypeScript. Use them to organize sessions by tag or give them human-readable titles.
+From the command line, combine `--continue` or `--resume` with `--fork-session`:
+
+    claude --continue --fork-session
+
+The original session is unchanged and remains available in the session picker. The `/branch` confirmation prints two session IDs: the new branch you are now in and the original. To return to the original, pass its ID to `/resume`, use the session picker, or run `/resume <original-name>`. Permissions you approved with “allow for this session” do not carry over to the new branch. If you resume the same session in two terminals without forking, messages from both interleave into one transcript. For checkpoint-based rewind within a single session, see [Checkpointing](</docs/en/checkpointing>).
 
 ##
 
 ​
 
-Related resources
+Manage context within a session
 
-  * [How the agent loop works](</docs/en/agent-sdk/agent-loop>): Understand turns, messages, and context accumulation within a session
-  * [File checkpointing](</docs/en/agent-sdk/file-checkpointing>): Track and revert file changes across sessions
-  * [Python `ClaudeAgentOptions`](</docs/en/agent-sdk/python#claudeagentoptions>): Full session option reference for Python
-  * [TypeScript `Options`](</docs/en/agent-sdk/typescript#options>): Full session option reference for TypeScript
+These commands control what’s in the context window without leaving the session:
+
+  * **`/clear`** : start fresh with an empty context. The previous conversation is saved and resumable
+  * **`/compact [instructions]`** : replace history with a summary, optionally focused on what you specify
+  * **`/context`** : show what is currently consuming context
+
+For how compaction interacts with CLAUDE.md, skills, and rules, see the [context window guide](</docs/en/context-window>). For strategies on when to clear versus compact, see [Best practices](</docs/en/best-practices#manage-your-session>).
+
+##
+
+​
+
+Export and locate session data
+
+Run `/export` to copy the current conversation to your clipboard or save it as a plain-text file, with messages and tool outputs rendered as readable text. Pass a filename to write directly to that file. Transcripts are stored as JSONL at `~/.claude/projects/<project>/<session-id>.jsonl`, where `<project>` is derived from your working directory path. Each line is a JSON object for a message, tool use, or metadata entry. To store sessions somewhere other than `~/.claude`, set [`CLAUDE_CONFIG_DIR`](</docs/en/env-vars>). These local files are removed after 30 days by default; change this with [`cleanupPeriodDays`](</docs/en/settings#available-settings>). To suppress transcript writes entirely, set [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](</docs/en/env-vars>), or in non-interactive mode use `--no-session-persistence`.
+
+##
+
+​
+
+See also
+
+These pages cover related session and parallelism mechanics:
+
+  * [Worktrees](</docs/en/worktrees>): run isolated parallel sessions on separate branches
+  * [Checkpointing](</docs/en/checkpointing>): rewind code and conversation to an earlier point
+  * [Context window](</docs/en/context-window>): what fills context and what survives compaction
+  * [Non-interactive mode](</docs/en/headless>): session behavior under `claude -p`
