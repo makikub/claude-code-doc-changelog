@@ -370,8 +370,8 @@ Setting| Description
 ---|---
 `allowedChannelPlugins`| Allowlist of channel plugins that may push messages. Replaces the default Anthropic allowlist when set. Requires `channelsEnabled: true`. See [Restrict which channel plugins can run](</docs/en/channels#restrict-which-channel-plugins-can-run>)
 `allowManagedHooksOnly`| When `true`, only managed hooks, SDK hooks, and hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. User, project, and all other plugin hooks are blocked
-`allowManagedMcpServersOnly`| When `true`, only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. See [Managed MCP configuration](</docs/en/mcp#managed-mcp-configuration>)
-`allowManagedPermissionRulesOnly`| When `true`, prevents user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply
+`allowManagedMcpServersOnly`| When `true`, only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. See [Managed MCP configuration](</docs/en/managed-mcp>)
+`allowManagedPermissionRulesOnly`| When `true`, prevents user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply. Does not affect the MCP server allowlist; for that, set `allowManagedMcpServersOnly`
 `blockedMarketplaces`| Blocklist of marketplace sources. Blocked sources are checked before downloading, so they never touch the filesystem. See [managed marketplace restrictions](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)
 `channelsEnabled`| Allow [channels](</docs/en/channels>) for the organization. See [enterprise controls](</docs/en/channels#enterprise-controls>) for the default on each plan
 `forceRemoteSettingsRefresh`| When `true`, blocks CLI startup until remote managed settings are freshly fetched and exits if the fetch fails. See [fail-closed enforcement](</docs/en/server-managed-settings#enforce-fail-closed-startup>)

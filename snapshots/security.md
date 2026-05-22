@@ -189,8 +189,9 @@ If you discover a security vulnerability in Claude Code:
 
 Related resources
 
-  * [Sandboxing](</docs/en/sandboxing>) \- Filesystem and network isolation for bash commands
-  * [Permissions](</docs/en/permissions>) \- Configure permissions and access controls
-  * [Monitoring usage](</docs/en/monitoring-usage>) \- Track and audit Claude Code activity
-  * [Development containers](</docs/en/devcontainer>) \- Secure, isolated environments
-  * [Anthropic Trust Center](<https://trust.anthropic.com>) \- Security certifications and compliance
+  * [Sandbox environments](</docs/en/sandbox-environments>): compare isolation approaches and choose one for your threat model
+  * [Sandboxing](</docs/en/sandboxing>): filesystem and network isolation for Bash commands
+  * [Permissions](</docs/en/permissions>): configure permissions and access controls
+  * [Monitoring usage](</docs/en/monitoring-usage>): track and audit Claude Code activity
+  * [Development containers](</docs/en/devcontainer>): secure, isolated environments
+  * [Anthropic Trust Center](<https://trust.anthropic.com>): security certifications and compliance

@@ -22,7 +22,7 @@ Claude Code runs on the following platforms and configurations:
     * Alpine Linux 3.19+
   * **Hardware** : 4 GB+ RAM, x64 or ARM64 processor
   * **Network** : internet connection required. See [network configuration](</docs/en/network-config#network-access-requirements>).
-  * **Shell** : Bash, Zsh, PowerShell, or CMD. On native Windows, [Git for Windows](<https://git-scm.com/downloads/win>) is recommended; Claude Code falls back to PowerShell when Git Bash is absent. WSL setups do not require Git for Windows.
+  * **Shell** : Bash, Zsh, PowerShell, or CMD.
   * **Location** : [Anthropic supported countries](<https://www.anthropic.com/supported-countries>)
 
 ###
@@ -91,19 +91,22 @@ You can run Claude Code natively on Windows or inside WSL. Pick based on where y
 
 Option| Requires| [Sandboxing](</docs/en/sandboxing>)| When to use
 ---|---|---|---
-Native Windows| [Git for Windows](<https://git-scm.com/downloads/win>) recommended; PowerShell used if absent| Not supported| Windows-native projects and tools
+Native Windows| None; [Git for Windows](<https://git-scm.com/downloads/win>) is optional| Not supported| Windows-native projects and tools
 WSL 2| WSL 2 enabled| Supported| Linux toolchains or sandboxed command execution
 WSL 1| WSL 1 enabled| Not supported| If WSL 2 is unavailable
 
-**Option 1: Native Windows with Git Bash** Install [Git for Windows](<https://git-scm.com/downloads/win>), then run the install command from PowerShell or CMD. You do not need to run as Administrator. Whether you install from PowerShell or CMD only affects which install command you run. Your prompt shows `PS C:\Users\YourName>` in PowerShell and `C:\Users\YourName>` without the `PS` in CMD. If you’re new to the terminal, the [terminal guide](</docs/en/terminal-guide#windows>) walks through each step. After installation, launch `claude` from PowerShell, CMD, or Git Bash. When Git Bash is installed, Claude Code uses it internally to execute commands regardless of where you launched it. If Claude Code can’t find your Git Bash installation, set the path in your [settings.json file](</docs/en/settings>):
+**Option 1: Native Windows** Run the install command from PowerShell or CMD. You do not need to run as Administrator. Installing [Git for Windows](<https://git-scm.com/downloads/win>) is optional. It enables the [Bash tool](</docs/en/tools-reference#bash-tool-behavior>) by providing Git Bash. Whether you install from PowerShell or CMD only affects which install command you run. Your prompt shows `PS C:\Users\YourName>` in PowerShell and `C:\Users\YourName>` without the `PS` in CMD. If you’re new to the terminal, the [terminal guide](</docs/en/terminal-guide#windows>) walks through each step. After installation, launch `claude` from any terminal.
 
-    {
-      "env": {
-        "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Program Files\\Git\\bin\\bash.exe"
-      }
-    }
+  * **Without Git for Windows** , Claude Code runs shell commands via the [PowerShell tool](</docs/en/tools-reference#powershell-tool>).
+  * **With Git for Windows** , Claude Code uses Git Bash for the [Bash tool](</docs/en/tools-reference#bash-tool-behavior>). If Claude Code can’t find Git Bash, set the path in your [settings.json file](</docs/en/settings>):
 
-Claude Code can also run PowerShell natively on Windows. When Git Bash is installed, the PowerShell tool is rolling out progressively as an additional option: set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` to opt in or `0` to opt out. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>) for setup and limitations. **Option 2: WSL** Open your WSL distribution and run the Linux installer from the install instructions above. You install and launch `claude` inside the WSL terminal, not from PowerShell or CMD.
+        {
+          "env": {
+            "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Program Files\\Git\\bin\\bash.exe"
+          }
+        }
+
+When Git for Windows is installed, the PowerShell tool is rolling out progressively as an additional option alongside Bash. Set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` to opt in or `0` to opt out. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>) for setup and limitations. **Option 2: WSL** Open your WSL distribution and run the Linux installer from the install instructions above. You install and launch `claude` inside the WSL terminal, not from PowerShell or CMD.
 
 ###
 
