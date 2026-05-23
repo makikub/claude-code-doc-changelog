@@ -26,7 +26,7 @@ Python
     })) {
       if (message.type === "system" && message.subtype === "init") {
         console.log("Available slash commands:", message.slash_commands);
-        // Example output: ["/compact", "/context", "/usage"]
+        // Example output: ["clear", "compact", "context", "usage"]
       }
     }
 
@@ -64,7 +64,7 @@ Common Slash Commands
 
 ​
 
-`/compact` \- Compact Conversation History
+`/compact` \- Compact conversation history
 
 The `/compact` command reduces the size of your conversation history by summarizing older messages while preserving important context:
 
@@ -89,9 +89,11 @@ Python
 
 ​
 
-Clearing the conversation
+`/clear` \- Reset conversation context
 
-The interactive `/clear` command is not available in the SDK. Each `query()` call already starts a fresh conversation, so to clear context, end the current `query()` and start a new one. The previous conversation stays on disk and can be returned to by passing its session ID to the [`resume` option](</docs/en/agent-sdk/sessions#resume-by-id>).
+The `/clear` command resets the conversation to an empty context, so subsequent prompts start with no prior conversation history. The previous conversation remains on disk and can be returned to by passing its session ID to the [`resume` option](</docs/en/agent-sdk/sessions#resume-by-id>). This is useful in [streaming input mode](</docs/en/agent-sdk/streaming-vs-single-mode>), where you send multiple prompts over a single connection. For one-shot `query()` calls, each call already starts with empty context, so sending `/clear` has no practical effect; start a new `query()` instead.
+
+`/clear` in the SDK requires Claude Code v2.1.117 or later. In earlier versions it is omitted from `slash_commands`.
 
 ##
 
@@ -191,7 +193,7 @@ Python
       if (message.type === "system" && message.subtype === "init") {
         // Will include both built-in and custom commands
         console.log("Available commands:", message.slash_commands);
-        // Example: ["/compact", "/context", "/usage", "/refactor", "/security-check"]
+        // Example: ["clear", "compact", "context", "usage", "refactor", "security-check"]
       }
     }
 
