@@ -15,6 +15,8 @@ Code Review analyzes your GitHub pull requests and posts findings as inline comm
   * Pricing
   * Troubleshooting failed runs and missing comments
 
+To review a diff locally in your terminal without installing the GitHub App, run the [`/code-review` command](</docs/en/commands>) in any Claude Code session. It reports correctness bugs in the current diff at a chosen effort level and can post findings as inline PR comments with `--comment`. The command was named `/simplify` before v2.1.147.
+
 ##
 
 ​
@@ -304,7 +306,7 @@ Related resources
 
 Code Review is designed to work alongside the rest of Claude Code. If you want to run reviews locally before opening a PR, need a self-hosted setup, or want to go deeper on how `CLAUDE.md` shapes Claude’s behavior across tools, these pages are good next stops:
 
-  * [Plugins](</docs/en/discover-plugins>): browse the plugin marketplace, including a `code-review` plugin for running on-demand reviews locally before pushing
+  * [Commands](</docs/en/commands>): run `/code-review` in a local Claude Code session to check a diff before pushing
   * [GitHub Actions](</docs/en/github-actions>): run Claude in your own GitHub Actions workflows for custom automation beyond code review
   * [GitLab CI/CD](</docs/en/gitlab-ci-cd>): self-hosted Claude integration for GitLab pipelines
   * [Memory](</docs/en/memory>): how `CLAUDE.md` files work across Claude Code
