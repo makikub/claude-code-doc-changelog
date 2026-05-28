@@ -102,6 +102,14 @@ These plugins bundle pre-configured [MCP servers](</docs/en/mcp>) so you can con
 
 ​
 
+Automatic security review
+
+The `security-guidance` plugin reviews each change Claude makes for common vulnerabilities and instructs Claude to fix what it finds in the same session. See [Catch security issues as Claude writes code](</docs/en/security-guidance>) for what it checks and how to add project-specific rules.
+
+###
+
+​
+
 Development workflows
 
 Plugins that add skills and agents for common development tasks:
@@ -187,7 +195,7 @@ Choose an installation scope:
 
 For example, select **commit-commands** (a plugin that adds git workflow skills) and install it to your user scope.You can also install directly from the command line:
 
-    /plugin install commit-commands@anthropics-claude-code
+    /plugin install commit-commands@claude-code-plugins
 
 See [Configuration scopes](</docs/en/settings#configuration-scopes>) to learn more about scopes.
 

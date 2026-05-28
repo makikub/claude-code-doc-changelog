@@ -110,7 +110,7 @@ The remote session title is chosen in this order:
   3. The last meaningful message in existing conversation history
   4. An auto-generated name like `myhost-graceful-unicorn`, where `myhost` is your machine’s hostname or the prefix you set with `--remote-control-session-name-prefix`
 
-If you didn’t set an explicit name, the title updates to reflect your prompt once you send one. If the environment already has an active session, you’ll be asked whether to continue it or start a new one. If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>).
+If you didn’t set an explicit name, the title updates to reflect your prompt once you send one. Renaming a session from claude.ai or the Claude app also updates the local title shown in `claude --resume`. If the environment already has an active session, you’ll be asked whether to continue it or start a new one. If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>).
 
 ###
 

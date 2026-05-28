@@ -316,7 +316,7 @@ Files in additional directories follow the same permission rules as the original
 
 Additional directories grant file access, not configuration
 
-Adding a directory extends where Claude can read and edit files. It does not make that directory a full configuration root: most `.claude/` configuration is not discovered from additional directories, though a few types are loaded as exceptions. The following configuration types are loaded from `--add-dir` directories:
+Adding a directory extends where Claude can read and edit files. It does not make that directory a full configuration root: most `.claude/` configuration is not discovered from additional directories, though a few types are loaded as exceptions. These exceptions apply only to directories added with the `--add-dir` flag or the `/add-dir` command. Directories listed in `permissions.additionalDirectories` in a settings file grant file access only and do not load any of the configuration below. The following configuration types are loaded from `--add-dir` directories:
 
 Configuration| Loaded from `--add-dir`
 ---|---
@@ -368,6 +368,7 @@ The following settings are only read from managed settings. Placing them in user
 
 Setting| Description
 ---|---
+`allowAllClaudeAiMcps`| When `true`, claude.ai connectors load alongside a deployed `managed-mcp.json` instead of being suppressed by its exclusive control. See [Managed MCP configuration](</docs/en/managed-mcp>)
 `allowedChannelPlugins`| Allowlist of channel plugins that may push messages. Replaces the default Anthropic allowlist when set. Requires `channelsEnabled: true`. See [Restrict which channel plugins can run](</docs/en/channels#restrict-which-channel-plugins-can-run>)
 `allowManagedHooksOnly`| When `true`, only managed hooks, SDK hooks, and hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. User, project, and all other plugin hooks are blocked
 `allowManagedMcpServersOnly`| When `true`, only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. See [Managed MCP configuration](</docs/en/managed-mcp>)

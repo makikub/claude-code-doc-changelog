@@ -505,7 +505,7 @@ Property| Type| Default| Description
 `disallowedTools`| `string[]`| `[]`| Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `effort`| `'low' | 'medium' | 'high' | 'xhigh' | 'max'`| `'high'`| Controls how much effort Claude puts into its response. Works with adaptive thinking to guide thinking depth
 `enableFileCheckpointing`| `boolean`| `false`| Enable file change tracking for rewinding. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
-`env`| `Record<string, string | undefined>`| `process.env`| Environment variables. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads, and Handle slow or stalled API responses for timeout-related variables. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header
+`env`| `Record<string, string | undefined>`| `process.env`| Environment variables. When set, this replaces the subprocess environment instead of merging with `process.env`, so pass `{ ...process.env, YOUR_VAR: 'value' }` to keep inherited variables like `PATH`. See Handle slow or stalled API responses for an example of this pattern, and [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header
 `executable`| `'bun' | 'deno' | 'node'`| Auto-detected| JavaScript runtime to use
 `executableArgs`| `string[]`| `[]`| Arguments to pass to the executable
 `extraArgs`| `Record<string, string | null>`| `{}`| Additional arguments
@@ -1411,7 +1411,8 @@ Available hook events.
       | "TaskCompleted"
       | "ConfigChange"
       | "WorktreeCreate"
-      | "WorktreeRemove";
+      | "WorktreeRemove"
+      | "MessageDisplay";
 
 ###
 
@@ -1468,7 +1469,8 @@ Union type of all hook input types.
       | TaskCompletedHookInput
       | ConfigChangeHookInput
       | WorktreeCreateHookInput
-      | WorktreeRemoveHookInput;
+      | WorktreeRemoveHookInput
+      | MessageDisplayHookInput;
 
 ###
 
@@ -1762,6 +1764,21 @@ Fires once after every tool call in a batch has resolved, before the next model 
     type WorktreeRemoveHookInput = BaseHookInput & {
       hook_event_name: "WorktreeRemove";
       worktree_path: string;
+    };
+
+####
+
+​
+
+`MessageDisplayHookInput`
+
+    type MessageDisplayHookInput = BaseHookInput & {
+      hook_event_name: "MessageDisplay";
+      turn_id: string;
+      message_id: string;
+      index: number;
+      final: boolean;
+      delta: string;
     };
 
 ###
@@ -3586,6 +3603,7 @@ Configuration for sandbox behavior. Use this to enable command sandboxing and co
 
     type SandboxSettings = {
       enabled?: boolean;
+      failIfUnavailable?: boolean;
       autoAllowBashIfSandboxed?: boolean;
       excludedCommands?: string[];
       allowUnsandboxedCommands?: boolean;
@@ -3599,6 +3617,7 @@ Configuration for sandbox behavior. Use this to enable command sandboxing and co
 Property| Type| Default| Description
 ---|---|---|---
 `enabled`| `boolean`| `false`| Enable sandbox mode for command execution
+`failIfUnavailable`| `boolean`| `true`| Stop at startup if `enabled` is `true` but the sandbox can’t start. Set `false` to fall back to unsandboxed execution with a warning on stderr
 `autoAllowBashIfSandboxed`| `boolean`| `true`| Auto-approve bash commands when sandbox is enabled
 `excludedCommands`| `string[]`| `[]`| Commands that always bypass sandbox restrictions (e.g., `['docker']`). These run unsandboxed automatically without model involvement
 `allowUnsandboxedCommands`| `boolean`| `true`| Allow the model to request running commands outside the sandbox. When `true`, the model can set `dangerouslyDisableSandbox` in tool input, which falls back to the permissions system
@@ -3607,6 +3626,8 @@ Property| Type| Default| Description
 `ignoreViolations`| `Record<string, string[]>`| `undefined`| Map of violation categories to patterns to ignore (e.g., `{ file: ['/tmp/*'], network: ['localhost'] }`)
 `enableWeakerNestedSandbox`| `boolean`| `false`| Enable a weaker nested sandbox for compatibility
 `ripgrep`| `{ command: string; args?: string[] }`| `undefined`| Custom ripgrep binary configuration for sandbox environments
+
+The sandbox depends on platform support and, on Linux, tools like `bubblewrap` and `socat`. When `enabled` is `true` and the sandbox can’t start, `query()` reports a `result` message with `subtype: "error_during_execution"` and the reason in `errors`, then stops. Watch for that subtype rather than expecting `query()` to throw before yielding messages.To run unsandboxed instead, set `failIfUnavailable: false`.
 
 ####
 

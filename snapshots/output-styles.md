@@ -24,7 +24,11 @@ Claude Code’s **Default** output style is the existing system prompt, designed
 
 Change your output style
 
-Run `/config` and select **Output style** to pick a style from a menu. Your selection is saved to `.claude/settings.local.json` at the [local project level](</docs/en/settings>). To set a style without the menu, edit the `outputStyle` field directly in a settings file:
+Run `/config` and select **Output style** to pick a style from a menu. Your selection is saved to `.claude/settings.local.json` at the [local project level](</docs/en/settings>).
+
+The standalone `/output-style` command was deprecated in v2.1.73 and removed in v2.1.91. Use `/config` or edit the `outputStyle` setting directly.
+
+To set a style without the menu, edit the `outputStyle` field directly in a settings file:
 
     {
       "outputStyle": "Explanatory"

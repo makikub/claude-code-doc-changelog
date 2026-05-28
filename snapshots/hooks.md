@@ -31,6 +31,7 @@ Event| When it fires
 `PostToolUseFailure`| After a tool call fails
 `PostToolBatch`| After a full batch of parallel tool calls resolves, before the next model call
 `Notification`| When Claude Code sends a notification
+`MessageDisplay`| While assistant message text is displayed
 `SubagentStart`| When a subagent is spawned
 `SubagentStop`| When a subagent finishes
 `TaskCreated`| When a task is being created via `TaskCreate`
@@ -209,7 +210,7 @@ Event| What the matcher filters| Example matcher values
 `UserPromptExpansion`| command name| your skill or command names
 `Elicitation`| MCP server name| your configured MCP server names
 `ElicitationResult`| MCP server name| same values as `Elicitation`
-`UserPromptSubmit`, `PostToolBatch`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`| no matcher support| always fires on every occurrence
+`UserPromptSubmit`, `PostToolBatch`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`| no matcher support| always fires on every occurrence
 
 The matcher runs against a field from the JSON input that Claude Code sends to your hook on stdin. For tool events, that field is `tool_name`. Each hook event section lists the full set of matcher values and the input schema for that event. This example runs a linting script only when Claude writes or edits a file:
 
@@ -648,6 +649,7 @@ Hook event| Can block?| What happens on exit 2
 `WorktreeCreate`| Yes| Any non-zero exit code causes worktree creation to fail
 `WorktreeRemove`| No| Failures are logged in debug mode only
 `InstructionsLoaded`| No| Exit code is ignored
+`MessageDisplay`| No| The original text is displayed
 
 ###
 
@@ -768,7 +770,8 @@ PermissionDenied| `hookSpecificOutput`| `retry: true` tells the model it may ret
 WorktreeCreate| path return| Command hook prints path on stdout; HTTP hook returns `hookSpecificOutput.worktreePath`. Hook failure or missing path fails creation
 Elicitation| `hookSpecificOutput`| `action` (accept/decline/cancel), `content` (form field values for accept)
 ElicitationResult| `hookSpecificOutput`| `action` (accept/decline/cancel), `content` (form field values override)
-SessionStart, Setup, SubagentStart| Context only| `hookSpecificOutput.additionalContext` adds context for Claude. SessionStart also accepts `initialUserMessage` and `watchPaths`. No blocking or decision control
+MessageDisplay| `hookSpecificOutput`| `displayContent` replaces the displayed text on screen. Display-only: the transcript and what Claude sees keep the original
+SessionStart, Setup, SubagentStart| Context only| `hookSpecificOutput.additionalContext` adds context for Claude. SessionStart also accepts `initialUserMessage`, `watchPaths`, `sessionTitle`, and `reloadSkills`. No blocking or decision control
 WorktreeRemove, Notification, SessionEnd, PostCompact, InstructionsLoaded, StopFailure, CwdChanged, FileChanged| None| No decision control. Used for side effects like logging or cleanup
 
 Here are examples of each pattern in action:
@@ -841,7 +844,7 @@ Matcher| When it fires
 
 SessionStart input
 
-In addition to the common input fields, SessionStart hooks receive `source`, `model`, and optionally `agent_type`. The `source` field indicates how the session started: `"startup"` for new sessions, `"resume"` for resumed sessions, `"clear"` after `/clear`, or `"compact"` after compaction. The `model` field contains the model identifier. If you start Claude Code with `claude --agent <name>`, an `agent_type` field contains the agent name.
+In addition to the common input fields, SessionStart hooks receive `source`, `model`, and optionally `agent_type` and `session_title`. The `source` field indicates how the session started: `"startup"` for new sessions, `"resume"` for resumed sessions, `"clear"` after `/clear`, or `"compact"` after compaction. The `model` field contains the model identifier. If you start Claude Code with `claude --agent <name>`, an `agent_type` field contains the agent name. The `session_title` field carries the current session title if one is already set, for example via `--name` or `/rename`. A hook that emits `sessionTitle` can check `session_title` first to avoid overwriting a title the user set explicitly.
 
     {
       "session_id": "abc123",
@@ -864,16 +867,26 @@ Field| Description
 ---|---
 `additionalContext`| String added to Claude’s context at the start of the conversation, before the first prompt. See Add context for Claude for how the text is delivered and what to put in it
 `initialUserMessage`| String used as the first user message of the session. Applies in [non-interactive mode](</docs/en/headless>) (`-p`), where it becomes the first turn even if no prompt is provided. If a prompt is provided, it follows as the next turn. Unlike `additionalContext`, which attaches to an existing turn, this creates the turn
+`sessionTitle`| Sets the session title, with the same effect as `/rename`. Use to name sessions automatically from the launch folder, git branch, or worktree name. Applies only when `source` is `"startup"` or `"resume"`; ignored on `"clear"` and `"compact"`
 `watchPaths`| Array of absolute paths to watch for FileChanged events during this session
+`reloadSkills`| Boolean. When `true`, Claude Code re-scans the [skill](</docs/en/skills>) and command directories after the SessionStart hooks complete, so skills the hook installed are available in the same session, starting with the first prompt
 
     {
       "hookSpecificOutput": {
         "hookEventName": "SessionStart",
-        "additionalContext": "Current branch: feat/auth-refactor\nUncommitted changes: src/auth.ts, src/login.tsx\nActive issue: #4211 Migrate to OAuth2"
+        "additionalContext": "Current branch: feat/auth-refactor\nUncommitted changes: src/auth.ts, src/login.tsx\nActive issue: #4211 Migrate to OAuth2",
+        "sessionTitle": "auth-refactor"
       }
     }
 
-Since plain stdout already reaches Claude for this event, a hook that only loads context can print to stdout directly without building JSON. Use the JSON form when you need to combine context with other fields such as `suppressOutput`.
+Since plain stdout already reaches Claude for this event, a hook that only loads context can print to stdout directly without building JSON. Use the JSON form when you need to combine context with other fields such as `suppressOutput` or `sessionTitle`. Use `reloadSkills` when a SessionStart hook installs or updates skills. Skill discovery normally runs before SessionStart hooks finish, so files the hook writes into `~/.claude/skills/` or `.claude/skills/` would otherwise only appear in the next session. This example syncs a shared skills repository and requests the re-scan:
+
+    #!/bin/bash
+
+    git -C ~/.claude/skills/team-skills pull --quiet 2>/dev/null || \
+      git clone --quiet https://git.example.com/your-org/team-skills.git ~/.claude/skills/team-skills
+
+    echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "reloadSkills": true}}'
 
 ####
 
@@ -1118,6 +1131,56 @@ Field| Description
         "additionalContext": "Additional context for this expansion"
       }
     }
+
+###
+
+​
+
+MessageDisplay
+
+Runs while an assistant message streams to the screen. Claude Code displays the message in increments: each time a batch of newly completed lines is ready to render, the hook runs once with those lines and Claude Code renders the hook’s replacement text in their place. A long message produces several calls; a short message may produce only one. Use this to reformat, redact, or condense Claude’s responses as they appear on screen. MessageDisplay is display-only: the replacement text changes only what is rendered on screen. The transcript and what Claude sees keep the original text, so Claude never sees the replacement, and verbose mode shows the original. MessageDisplay does not support matchers and fires for every assistant message that streams text; messages with no text, such as tool-call-only responses, do not trigger it. In non-interactive runs, including Agent SDK queries and `claude -p`, MessageDisplay runs once per assistant message instead of once per batch of lines. The single call arrives after the message completes and carries the full message text: `index` is `0`, `final` is `true`, and `delta` holds the entire message. A hook that collects the `delta` text for each message receives the same total text in both modes.
+
+####
+
+​
+
+MessageDisplay input
+
+In addition to the common input fields, MessageDisplay hooks receive identifiers for the turn and message, the position of this call within the message, and the new text in `delta`. Batch boundaries depend on how the text streams, so use `index` and `final` to track progress through a message rather than expecting lines to be grouped a particular way.
+
+Field| Description
+---|---
+`turn_id`| UUID of the current turn
+`message_id`| UUID of the assistant message being displayed. Stable across every batch of the same message. This is not the API `msg_…` id, so it cannot be correlated with transcript message ids
+`index`| Zero-based index of this batch within the message
+`final`| `true` on the message’s last batch. Each message has exactly one final batch
+`delta`| The newly completed lines since the prior batch, terminating newlines included. Always whole lines, except the final batch which may end mid-line. In interactive runs, the final batch’s delta is empty when the message ends on a newline, so treat `final`, not a non-empty delta, as the end-of-message signal. In Agent SDK and `claude -p` runs, the single call carries the entire message
+
+    {
+      "session_id": "abc123",
+      "transcript_path": "/Users/.../.claude/projects/.../transcript.jsonl",
+      "cwd": "/Users/my-project",
+      "hook_event_name": "MessageDisplay",
+      "turn_id": "0c9e6a2f-7d41-4f4e-9a15-3f4f7c2b8d10",
+      "message_id": "5b2a9c8e-1f63-4d8a-b7c4-9e0d2a6f1c3b",
+      "index": 0,
+      "final": false,
+      "delta": "Here is the plan:\n"
+    }
+
+####
+
+​
+
+MessageDisplay output
+
+In addition to the JSON output fields available to all hooks, MessageDisplay hooks can return `displayContent` to replace the delta on screen:
+
+Field| Description
+---|---
+`displayContent`| Text displayed in place of the delta. Omit it to display the original
+
+MessageDisplay hooks have no decision control. They cannot block the message or change what is stored in the transcript or sent to Claude.
 
 ###
 

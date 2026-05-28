@@ -89,6 +89,8 @@ Hooks let you run code at key points in Claude Code’s lifecycle: format files 
   * Reload environment when directory or files change
   * Auto-approve specific permission prompts
 
+For a production example of hooks that run a separate model review and feed findings back into the session, see [how the `security-guidance` plugin integrates with Claude Code](</docs/en/security-guidance#how-the-plugin-integrates-with-claude-code>).
+
 ###
 
 ​
@@ -429,6 +431,7 @@ Event| When it fires
 `PostToolUseFailure`| After a tool call fails
 `PostToolBatch`| After a full batch of parallel tool calls resolves, before the next model call
 `Notification`| When Claude Code sends a notification
+`MessageDisplay`| While assistant message text is displayed
 `SubagentStart`| When a subagent is spawned
 `SubagentStop`| When a subagent finishes
 `TaskCreated`| When a task is being created via `TaskCreate`
@@ -610,7 +613,7 @@ Event| What the matcher filters| Example matcher values
 `ElicitationResult`| MCP server name| same values as `Elicitation`
 `FileChanged`| literal filenames to watch (see [FileChanged](</docs/en/hooks#filechanged>))| `.envrc|.env`
 `UserPromptExpansion`| command name| your skill or command names
-`UserPromptSubmit`, `PostToolBatch`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`| no matcher support| always fires on every occurrence
+`UserPromptSubmit`, `PostToolBatch`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`, `MessageDisplay`| no matcher support| always fires on every occurrence
 
 A few more examples showing matchers on different event types:
 

@@ -305,7 +305,16 @@ You can control what subagents can do through tool access, permission modes, and
 
 Available tools
 
-Subagents can use any of Claude Code’s [internal tools](</docs/en/tools-reference>). By default, subagents inherit all tools from the main conversation, including MCP tools. To restrict tools, use either the `tools` field (allowlist) or the `disallowedTools` field (denylist). This example uses `tools` to exclusively allow Read, Grep, Glob, and Bash. The subagent can’t edit files, write files, or use any MCP tools:
+Subagents inherit the [internal tools](</docs/en/tools-reference>) and MCP tools available in the main conversation by default. The following tools depend on the main conversation’s UI or session state and are not available to subagents, even when listed in the `tools` field:
+
+  * `Agent`
+  * `AskUserQuestion`
+  * `EnterPlanMode`
+  * `ExitPlanMode`, unless the subagent’s `permissionMode` is `plan`
+  * `ScheduleWakeup`
+  * `WaitForMcpServers`
+
+To restrict tools, use either the `tools` field (allowlist) or the `disallowedTools` field (denylist). This example uses `tools` to exclusively allow Read, Grep, Glob, and Bash. The subagent can’t edit files, write files, or use any MCP tools:
 
     ---
     name: safe-researcher
@@ -377,7 +386,13 @@ Each entry in the list is either an inline server definition or a string referen
 
     Use the Playwright tools to navigate, screenshot, and interact with pages.
 
-Inline definitions use the same schema as `.mcp.json` server entries (`stdio`, `http`, `sse`, `ws`), keyed by the server name. To keep an MCP server out of the main conversation entirely and avoid its tool descriptions consuming context there, define it inline here rather than in `.mcp.json`. The subagent gets the tools; the parent conversation does not.
+Inline definitions use the same schema as `.mcp.json` server entries (`stdio`, `http`, `sse`, `ws`), keyed by the server name. To keep an MCP server out of the main conversation entirely and avoid its tool descriptions consuming context there, define it inline here rather than in `.mcp.json`. The subagent gets the tools; the parent conversation does not. As of v2.1.153, the MCP restrictions that apply to the main session also cover servers declared in subagent frontmatter:
+
+  * [`--strict-mcp-config`](</docs/en/cli-reference>) and [`--bare`](</docs/en/cli-reference>)
+  * [Enterprise managed MCP configuration](</docs/en/managed-mcp>)
+  * [`allowedMcpServers` and `deniedMcpServers` policies](</docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists>)
+
+When one of these blocks a server, Claude Code skips it and shows a warning naming the blocked servers. Managed-settings restrictions apply to every subagent regardless of how it is defined. `--strict-mcp-config` does not filter servers you pass inline via `--agents` or the SDK `agents` option, since those are explicit caller input.
 
 ####
 

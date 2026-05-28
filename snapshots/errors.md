@@ -82,7 +82,7 @@ API Error: 500 Internal server error
 
 Claude Code shows the status code and the API’s error message for any 5xx response. The example below shows a 500 response on the Anthropic API:
 
-    API Error: 500 Internal server error. This is a server-side issue, usually temporary — try again in a moment. If it persists, check status.claude.com.
+    API Error: 500 Internal server error. This is a server-side issue, usually temporary — try again in a moment. If it persists, check https://status.claude.com.
 
 The trailing sentence names where to check service health and varies by provider. Bedrock, Vertex AI, and Foundry configurations name that provider’s service status. A custom `ANTHROPIC_BASE_URL` names the gateway host. This indicates an unexpected failure inside the API. It is not caused by your prompt, settings, or account. **What to do:**
 
@@ -98,7 +98,7 @@ API Error: Repeated 529 Overloaded errors
 
 The API is temporarily at capacity across all users. Claude Code has already retried several times before showing this message:
 
-    API Error: Repeated 529 Overloaded errors. The API is at capacity — this is usually temporary. Try again in a moment. If it persists, check status.claude.com.
+    API Error: Repeated 529 Overloaded errors. The API is at capacity — this is usually temporary. Try again in a moment. If it persists, check https://status.claude.com.
 
 The trailing sentence varies by provider in the same way as the 500 error above. A 529 is not your usage limit and does not count against your quota. **What to do:**
 
@@ -209,7 +209,7 @@ Request rejected (429)
 
 You have hit the rate limit configured for your API key, Amazon Bedrock project, or Google Vertex AI project.
 
-    API Error: Request rejected (429) · this may be a temporary capacity issue. If it persists, check status.claude.com.
+    API Error: Request rejected (429) · this may be a temporary capacity issue. If it persists, check https://status.claude.com.
 
 The trailing sentence names where to check service health and varies by provider. Bedrock, Vertex AI, and Foundry configurations name that provider’s service status instead of the Anthropic status page. A custom `ANTHROPIC_BASE_URL` names the gateway host. **What to do:**
 

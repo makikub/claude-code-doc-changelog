@@ -157,7 +157,7 @@ Set the following environment variables to enable Bedrock:
 When enabling Bedrock for Claude Code, keep the following in mind:
 
   * `AWS_REGION` is a required environment variable. Claude Code does not read from the `.aws` config file for this setting.
-  * When using Bedrock, the `/login` and `/logout` commands are disabled since authentication is handled through AWS credentials.
+  * When using Bedrock, the `/logout` command is unavailable since authentication is handled through AWS credentials.
   * You can use settings files for environment variables like `AWS_PROFILE` that you don’t want to leak to other processes. See [Settings](</docs/en/settings>) for more information.
 
 ###

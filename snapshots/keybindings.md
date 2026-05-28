@@ -322,10 +322,21 @@ Action| Default| Description
 `diff:dismiss`| Escape| Close diff viewer
 `diff:previousSource`| Left| Previous diff source
 `diff:nextSource`| Right| Next diff source
-`diff:previousFile`| Up| Previous file in diff
-`diff:nextFile`| Down| Next file in diff
+`diff:previousFile`| Up, K| Previous file in the file list; scroll up one line in the detail view
+`diff:nextFile`| Down, J| Next file in the file list; scroll down one line in the detail view
 `diff:viewDetails`| Enter| View diff details
 `diff:back`| (context-specific)| Go back in diff viewer
+
+The diff detail view also binds pager-style keys to the standard scroll actions. These bindings are part of the `DiffDialog` context and apply only in the detail view; the `Scroll` context defaults listed under Scroll actions are unchanged.
+
+Action| Default| Description
+---|---|---
+`scroll:pageUp`| PageUp| Scroll up half a viewport
+`scroll:pageDown`| PageDown| Scroll down half a viewport
+`scroll:fullPageUp`| Shift+Space, B| Scroll up a full viewport
+`scroll:fullPageDown`| Space| Scroll down a full viewport
+`scroll:top`| G, Home| Jump to the top
+`scroll:bottom`| Shift+G, End| Jump to the bottom
 
 ###
 
@@ -339,7 +350,7 @@ Action| Default| Description
 ---|---|---
 `modelPicker:decreaseEffort`| Left| Decrease effort level
 `modelPicker:increaseEffort`| Right| Increase effort level
-`modelPicker:setAsDefault`| d| Set highlighted model as default for new sessions
+`modelPicker:thisSessionOnly`| s| Apply highlighted model to this session only
 
 ###
 
@@ -572,6 +583,7 @@ When vim mode is enabled via `/config` → Editor mode, keybindings and vim mode
   * The Escape key in vim mode switches INSERT to NORMAL mode; it does not trigger `chat:cancel`
   * Most Ctrl+key shortcuts pass through vim mode to the keybinding system
   * In vim NORMAL mode, `?` shows the help menu (vim behavior)
+  * In vim NORMAL mode, `/` opens history search, the same as Ctrl+R in standard mode
 
 ##
 

@@ -150,7 +150,7 @@ Aspect| MCP| Skill
 **Provides**|  Tools and data access| Knowledge, workflows, reference material
 **Examples**|  Slack integration, database queries, browser control| Code review checklist, deploy workflow, API style guide
 
-These solve different problems and work well together:**MCP** gives Claude the ability to interact with external systems. Without MCP, Claude can’t query your database or post to Slack.**Skills** give Claude knowledge about how to use those tools effectively, plus workflows you can trigger with `/<name>`. A skill might include your team’s database schema and query patterns, or a `/post-to-slack` workflow with your team’s message formatting rules.Example: An MCP server connects Claude to your database. A skill teaches Claude your data model, common query patterns, and which tables to use for different tasks.
+These solve different problems and work well together:**MCP** gives Claude purpose-built tools for an external system, with the connection and authentication handled by the server.**Skills** give Claude knowledge about how to use those tools effectively, plus workflows you can trigger with `/<name>`. A skill might include your team’s database schema and query patterns, or a `/post-to-slack` workflow with your team’s message formatting rules.Example: An MCP server connects Claude to your database. A skill teaches Claude your data model, common query patterns, and which tables to use for different tasks.
 
 A hook fires on a lifecycle event; a skill is loaded into context for Claude to apply.
 
@@ -247,9 +247,9 @@ Skills are extra capabilities in Claude’s toolkit. They can be reference mater
 
 Use `disable-model-invocation: true` for skills with side effects. This saves context and ensures only you trigger them.
 
-**When:** Session start.**What loads:** Tool names from connected servers. Full JSON schemas stay deferred until Claude needs a specific tool.**Context cost:** [Tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is on by default, so idle MCP tools consume minimal context.**Reliability note:** MCP connections can fail silently mid-session. If a server disconnects, its tools disappear without warning. Claude may try to use a tool that no longer exists. If you notice Claude failing to use an MCP tool it previously could access, check the connection with `/mcp`.
+**When:** Session start.**What loads:** Tool names from connected servers. Full JSON schemas stay deferred until Claude needs a specific tool.**Context cost:** [Tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is on by default, so idle MCP tools consume minimal context.
 
-Run `/mcp` to see token costs per server. Disconnect servers you’re not actively using.
+Run `/mcp` to see connection status and token costs per server. Claude Code [reconnects to remote servers automatically](</docs/en/mcp#automatic-reconnection>) if they drop, and you can disconnect servers you’re not actively using.
 
 **When:** After file edits, and on demand when Claude navigates code.**What loads:** Type errors and warnings after each file edit. Definition, reference, and type information when Claude looks up a symbol.**Context cost:** Low. Symbol lookups often replace broad file reads, so net context use can go down.
 

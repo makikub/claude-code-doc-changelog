@@ -199,7 +199,7 @@ This example reviews staged changes and creates a commit with an appropriate mes
 
 The `--allowedTools` flag uses [permission rule syntax](</docs/en/settings#permission-rule-syntax>). The trailing ` *` enables prefix matching, so `Bash(git diff *)` allows any command starting with `git diff`. The space before `*` is important: without it, `Bash(git diff*)` would also match `git diff-index`.
 
-User-invoked [skills](</docs/en/skills>) like `/commit` and [built-in commands](</docs/en/commands>) are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
+User-invoked [skills](</docs/en/skills>) like `/code-review` and [built-in commands](</docs/en/commands>) are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
 
 ###
 
