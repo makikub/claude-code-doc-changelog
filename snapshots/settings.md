@@ -213,6 +213,7 @@ Key| Description| Example
 `disabledMcpjsonServers`| List of specific MCP servers from `.mcp.json` files to reject| `["filesystem"]`
 `disableRemoteControl`| Disable [Remote Control](</docs/en/remote-control>): blocks `claude remote-control`, the `--remote-control` flag, auto-start, and the in-session toggle. Typically placed in [managed settings](</docs/en/permissions#managed-settings>) for per-device MDM enforcement, but works from any scope. Requires Claude Code v2.1.128 or later| `true`
 `disableSkillShellExecution`| Disable inline shell execution for `!`...`` and ````!` blocks in [skills](</docs/en/skills>) and custom commands from user, project, plugin, or additional-directory sources. Commands are replaced with `[shell command execution disabled by policy]` instead of being run. Bundled and managed skills are not affected. Most useful in [managed settings](</docs/en/permissions#managed-settings>) where users cannot override it| `true`
+`disableWorkflows`| Disable [dynamic workflows](</docs/en/workflows#turn-workflows-off>) and the bundled workflow commands. Default: `false`. Equivalent to setting `CLAUDE_CODE_DISABLE_WORKFLOWS` to `1`| `true`
 `editorMode`| Key binding mode for the input prompt: `"normal"` or `"vim"`. Default: `"normal"`. Appears in `/config` as **Editor mode**| `"vim"`
 `effortLevel`| Persist the [effort level](</docs/en/model-config#adjust-effort-level>) across sessions. Accepts `"low"`, `"medium"`, `"high"`, or `"xhigh"`. Written automatically when you run `/effort` with one of those values. `--effort` and [`CLAUDE_CODE_EFFORT_LEVEL`](</docs/en/env-vars>) override this for one session. See [Adjust effort level](</docs/en/model-config#adjust-effort-level>) for supported models| `"xhigh"`
 `enableAllProjectMcpServers`| Automatically approve all MCP servers defined in project `.mcp.json` files| `true`
@@ -263,6 +264,7 @@ Key| Description| Example
 `teammateMode`| How [agent team](</docs/en/agent-teams>) teammates display: `auto` (picks split panes in tmux or iTerm2, in-process otherwise), `in-process`, or `tmux`. `--teammate-mode` overrides this for one session. See [choose a display mode](</docs/en/agent-teams#choose-a-display-mode>)| `"in-process"`
 `terminalProgressBarEnabled`| Show the terminal progress bar in supported terminals: ConEmu, Ghostty 1.2.0+, and iTerm2 3.6.6+. Default: `true`. Appears in `/config` as **Terminal progress bar**| `false`
 `tui`| Terminal UI renderer. Use `"fullscreen"` for the flicker-free [alt-screen renderer](</docs/en/fullscreen>) with virtualized scrollback. Use `"default"` for the classic main-screen renderer. Set via `/tui`. You can also set the [`CLAUDE_CODE_NO_FLICKER`](</docs/en/env-vars>) environment variable| `"fullscreen"`
+`ultracode`| Turn on [ultracode](</docs/en/workflows#let-claude-decide-with-ultracode>) for the session. Session-only and not read from `settings.json`. Set through `/effort ultracode`, `--settings`, or an Agent SDK control request| `true`
 `useAutoModeDuringPlan`| Whether plan mode uses auto mode semantics when auto mode is available. Default: `true`. Not read from shared project settings. Appears in `/config` as “Use auto mode during plan”| `false`
 `viewMode`| Default transcript view mode on startup: `"default"`, `"verbose"`, or `"focus"`. Overrides the sticky `/focus` selection when set. The `--verbose` flag overrides this for one session| `"verbose"`
 `voice`| [Voice dictation](</docs/en/voice-dictation>) settings: `enabled` turns dictation on, `mode` selects `"hold"` or `"tap"`, and `autoSubmit` sends the prompt on key release in hold mode. Written automatically when you run `/voice`. Requires a Claude.ai account| `{ "enabled": true, "mode": "tap" }`
@@ -657,7 +659,7 @@ Plugin-related settings in `settings.json`:
 
 `enabledPlugins`
 
-Controls which plugins are enabled. Format: `"plugin-name@marketplace-name": true/false` **Scopes** :
+Controls which plugins are enabled. Format: `"plugin-name@marketplace-name": true/false`. A plugin with no entry at any scope falls back to its [`defaultEnabled`](</docs/en/plugins-reference#default-enablement>) value. **Scopes** :
 
   * **User settings** (`~/.claude/settings.json`): Personal plugin preferences
   * **Project settings** (`.claude/settings.json`): Project-specific plugins shared with team

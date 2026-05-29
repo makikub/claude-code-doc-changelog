@@ -47,6 +47,7 @@ Set environment variables for the session| `settings.json` `env`| project or glo
 Keep personal overrides out of git| `settings.local.json`| project only| [Settings scopes](</docs/en/settings#settings-files>)
 Add a prompt or capability you invoke with `/name`| `skills/<name>/SKILL.md`| project or global| [Skills](</docs/en/skills>)
 Define a specialized subagent with its own tools| `agents/*.md`| project or global| [Subagents](</docs/en/sub-agents>)
+Orchestrate many subagents from a script| `workflows/*.js`| project or global| [Dynamic workflows](</docs/en/workflows>)
 Connect external tools over MCP| `.mcp.json`| project only| [MCP](</docs/en/mcp>)
 Change how Claude formats responses| `output-styles/*.md`| project or global| [Output styles](</docs/en/output-styles>)
 
@@ -80,6 +81,7 @@ File| Scope| Commit| What it does| Reference
 `commands/*.md`| Project and global| ✓| Single-file prompts; same mechanism as skills| [Skills](</docs/en/skills>)
 `output-styles/*.md`| Project and global| ✓| Custom system-prompt sections| [Output styles](</docs/en/output-styles>)
 `agents/*.md`| Project and global| ✓| Subagent definitions with their own prompt and tools| [Subagents](</docs/en/sub-agents>)
+`workflows/*.js`| Project and global| ✓| Dynamic workflow scripts written by Claude and saved from `/workflows`; each file becomes a `/<name>` command| [Dynamic workflows](</docs/en/workflows>)
 `agent-memory/<name>/`| Project and global| ✓| Persistent memory for subagents| [Persistent memory](</docs/en/sub-agents#enable-persistent-memory>)
 `~/.claude.json`| Global only| | App state, OAuth, UI toggles, personal MCP servers| [Global config](</docs/en/settings#global-config-settings>)
 `projects/<project>/memory/`| Global only| | Auto memory: Claude’s notes to itself across sessions| [Auto memory](</docs/en/memory#auto-memory>)

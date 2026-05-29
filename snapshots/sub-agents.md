@@ -258,7 +258,7 @@ Field| Required| Description
 `description`| Yes| When Claude should delegate to this subagent
 `tools`| No| Tools the subagent can use. Inherits all tools if omitted. To preload Skills into context, use the `skills` field rather than listing `Skill` here
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
-`model`| No| Model to use: `sonnet`, `opus`, `haiku`, a full model ID (for example, `claude-opus-4-7`), or `inherit`. Defaults to `inherit`
+`model`| No| Model to use: `sonnet`, `opus`, `haiku`, a full model ID (for example, `claude-opus-4-8`), or `inherit`. Defaults to `inherit`
 `permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan`. Ignored for plugin subagents
 `maxTurns`| No| Maximum number of agentic turns before the subagent stops
 `skills`| No| [Skills](</docs/en/skills>) to preload into the subagent’s context at startup. The full skill content is injected, not just the description. Subagents can still invoke unlisted project, user, and plugin skills through the Skill tool
@@ -280,7 +280,7 @@ Choose a model
 The `model` field controls which [AI model](</docs/en/model-config>) the subagent uses:
 
   * **Model alias** : Use one of the available aliases: `sonnet`, `opus`, or `haiku`
-  * **Full model ID** : Use a full model ID such as `claude-opus-4-7` or `claude-sonnet-4-6`. Accepts the same values as the `--model` flag
+  * **Full model ID** : Use a full model ID such as `claude-opus-4-8` or `claude-sonnet-4-6`. Accepts the same values as the `--model` flag
   * **inherit** : Use the same model as the main conversation
   * **Omitted** : If not specified, defaults to `inherit` (uses the same model as the main conversation)
 

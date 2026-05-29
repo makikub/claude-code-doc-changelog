@@ -170,7 +170,7 @@ E
 
 Effort level
 
-A setting that controls how much of the adaptive-reasoning thinking budget Claude uses on each turn. Higher effort means more thinking tokens and deeper reasoning; lower effort is faster and cheaper. Effort is supported on Opus 4.7, Opus 4.6, and Sonnet 4.6. Learn more: [Adjust effort level](</docs/en/model-config#adjust-effort-level>)
+A setting that controls how much of the adaptive-reasoning thinking budget Claude uses on each turn. Higher effort means more thinking tokens and deeper reasoning; lower effort is faster and cheaper. Effort is supported on Opus 4.6 and later, and on Sonnet 4.6. Learn more: [Adjust effort level](</docs/en/model-config#adjust-effort-level>)
 
 ###
 
@@ -417,6 +417,20 @@ An action Claude can take: read a file, edit code, run a shell command, search t
 Turn
 
 One complete response from Claude within a session. A turn begins when you send a message and ends when Claude finishes responding, with any number of tool calls in between. Stop hooks fire at the end of each turn. A session consists of many turns, and the agentic loop describes what happens inside one. Learn more: [How Claude Code works](</docs/en/how-claude-code-works#the-agentic-loop>)
+
+##
+
+​
+
+V
+
+###
+
+​
+
+Verification loop
+
+How a session knows the work is actually done rather than just plausible. You give Claude a check it can run, such as a test suite, a build, or a screenshot comparison, and Claude iterates until the check passes instead of stopping after one attempt. A verification loop is the prerequisite for [`/goal`](</docs/en/goal>), unattended runs, and [dynamic workflows](</docs/en/workflows>): without one, the only thing deciding the agent is finished is the agent itself. Learn more: [Give Claude a way to verify its work](</docs/en/best-practices#give-claude-a-way-to-verify-its-work>)
 
 ##
 

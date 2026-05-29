@@ -156,7 +156,7 @@ Press `Space` on a selected row to open the peek panel. It shows what the sessio
 
 Attach to a session
 
-Press `Enter` or `→` on a selected row to attach. Agent view is replaced by the full interactive session, exactly as if you had run `claude` in that directory. When you attach, Claude posts a short recap of what happened while you were away. While attached, the session behaves like any other Claude Code session: every [command](</docs/en/commands>), keyboard shortcut, and feature works. Press `←` on an empty prompt to detach and return to agent view. If a dialog has focus and isn’t responding to `←`, press `Ctrl+Z` to detach immediately. `Ctrl+C` keeps its standard interrupt behavior while attached: it cancels a running response or `!` shell command rather than detaching. Pressing `Ctrl+C` twice on an empty prompt detaches, the same as in any session. Detaching never stops a background session: `←`, `Ctrl+Z`, `/exit`, and double `Ctrl+C` or double `Ctrl+D` all leave it running. To end a session from inside it, run `/stop`. After you’ve dispatched or backgrounded a session, pressing `←` on an empty prompt works from any Claude Code session, not only ones you attached to from agent view. It backgrounds the current session and opens agent view with that row selected, so you can switch sessions without leaving the terminal. The row is created even from a fresh session with no conversation history, so `→` returns to it. When that row is the only one, agent view shows an onboarding hint below it. You can turn this shortcut off in `/config` (the `leftArrowOpensAgents` setting).
+Press `Enter` or `→` on a selected row to attach. Agent view is replaced by the full interactive session, exactly as if you had run `claude` in that directory. When you attach, Claude posts a short recap of what happened while you were away. While attached, the session behaves like any other Claude Code session: every [command](</docs/en/commands>), keyboard shortcut, and feature works. Press `←` on an empty prompt to detach and return to agent view. If a dialog has focus and isn’t responding to `←`, press `Ctrl+Z` to detach immediately. `Ctrl+C` keeps its standard interrupt behavior while attached: it cancels a running response or `!` shell command rather than detaching. Pressing `Ctrl+C` twice on an empty prompt detaches, the same as in any session. Detaching never stops a background session: `←`, `Ctrl+Z`, `/exit`, and double `Ctrl+C` or double `Ctrl+D` all leave it running. To end a session from inside it, run `/stop`. Pressing `←` on an empty prompt works from any Claude Code session, not only ones you attached to from agent view. It backgrounds the current session and opens agent view with that row selected, so you can switch sessions without leaving the terminal. The row is created even from a fresh session with no conversation history, so `→` returns to it. When that row is the only one, agent view shows an onboarding hint below it. You can turn this shortcut off in `/config` (the `leftArrowOpensAgents` setting).
 
 ###
 
@@ -236,6 +236,7 @@ Input| Effect
 `@<agent-name>`| Mention a custom subagent anywhere in the prompt to run it as the main agent
 `@<repo>`| Mention a repository under the directory you opened agent view from to run the session there
 `/<command>`| Suggest [skills](</docs/en/skills>) and [commands](</docs/en/commands>) to dispatch as the prompt
+`! <command>`| Run a shell command as a background job instead of starting a Claude session. The job appears as a row you can attach to, watch, and detach from
 `#<number>` or a pull request URL| If a session is already working on that PR, select it instead of dispatching
 `Shift+Enter`| Dispatch and immediately attach to the new session
 
@@ -297,6 +298,22 @@ After backgrounding, Claude prints the session’s short ID and the commands for
       claude attach 7c5dcf5d    open in this terminal
       claude logs 7c5dcf5d      show recent output
       claude stop 7c5dcf5d      stop this session
+
+####
+
+​
+
+Run a shell command
+
+To run a shell command as a background job instead of a Claude session, type `!` as the first character of the agent view dispatch input. The `!` shows as a prefix and everything you type after it is the command. The following example dispatches `pytest -x` from the agent view input box:
+
+    ! pytest -x
+
+Press `Enter` to start the job. The same job can also be launched directly from your shell with `--exec`:
+
+    claude --bg --exec 'pytest -x'
+
+The command runs as a PTY-backed job and appears as a row in agent view, with the most recent line of output as its status. A shell job runs the command in place of Claude, so no model is invoked and the output is not sent to any session. To see the output, attach to the row, press `Space` to peek without attaching, or run `claude logs <id>` from your shell. The captured output stays in memory and is not written to disk. The row and its output clean up automatically about five minutes after the command exits, so read it before then if you need the result.
 
 ###
 
@@ -405,7 +422,7 @@ Every session listed in agent view is considered a background session, whether o
 
 The supervisor process
 
-Background sessions are hosted by a per-user supervisor process, separate from your terminal and from agent view. The supervisor starts automatically the first time you background a session or open agent view, and you don’t manage it directly. The supervisor and its sessions authenticate with the same credentials as your interactive sessions and make no additional network connections beyond the model API. Each background session is its own Claude Code process, managed by the supervisor rather than tied to your terminal. A session that’s actively working, waiting for your input, or has a terminal attached keeps its process running. A running background shell command, subagent, workflow, or monitor counts as active work, so a long-running process such as a dev server keeps the session alive. Once a session finishes and sits unattached for about an hour, the supervisor stops its process to free resources. A session you have pinned with `Ctrl+T` is exempt and keeps its process running while idle. The transcript and state stay on disk either way, and the next time you attach, peek, or reply to a stopped session, the supervisor starts a fresh process from where it left off. When every session has finished and no terminal is connected, the supervisor itself exits and starts again the next time you need it. When the host runs low on memory, the supervisor stops idle non-pinned sessions first and stops idle pinned ones only if that freed nothing. The supervisor watches the installed Claude Code binary on disk and restarts into the new version after the regular [auto-updater](</docs/en/setup#auto-updates>) replaces it. This is a local file watch, not a network check. Background sessions are detached processes, so they keep running through the restart and the new supervisor reconnects to them. An idle pinned session is also restarted in place onto the new version so it picks up the update without you reattaching.
+Background sessions are hosted by a per-user supervisor process, separate from your terminal and from agent view. The supervisor starts automatically the first time you background a session or open agent view, and you don’t manage it directly. The supervisor and its sessions authenticate with the same credentials as your interactive sessions and make no additional network connections beyond the model API. Each background session is its own Claude Code process, managed by the supervisor rather than tied to your terminal. A session that’s actively working, waiting for your input, or has a terminal attached keeps its process running. A running background shell command, subagent, dynamic workflow, or monitor counts as active work, so a long-running process such as a dev server keeps the session alive. Once a session finishes and sits unattached for about an hour, the supervisor stops its process to free resources. A session you have pinned with `Ctrl+T` is exempt and keeps its process running while idle. The transcript and state stay on disk either way, and the next time you attach, peek, or reply to a stopped session, the supervisor starts a fresh process from where it left off. When every session has finished and no terminal is connected, the supervisor itself exits and starts again the next time you need it. When the host runs low on memory, the supervisor stops idle non-pinned sessions first and stops idle pinned ones only if that freed nothing. The supervisor watches the installed Claude Code binary on disk and restarts into the new version after the regular [auto-updater](</docs/en/setup#auto-updates>) replaces it. This is a local file watch, not a network check. Background sessions are detached processes, so they keep running through the restart and the new supervisor reconnects to them. An idle pinned session is also restarted in place onto the new version so it picks up the update without you reattaching.
 
 ###
 
@@ -459,7 +476,7 @@ Before you dispatch your first session, agent view shows a short onboarding hint
 
 Cannot open agents because background tasks are running
 
-If pressing `←` to background the current session shows `Cannot open agents — N background task(s) running`, the session has in-flight work such as a subagent, a workflow, or a background shell command, and the shortcut won’t silently abandon it. Run `/tasks` to see what’s running, then `/bg` to confirm abandoning them. See From inside a session for what does and doesn’t transfer when you background.
+If pressing `←` to background the current session shows `Cannot open agents — N background task(s) running`, the session has in-flight work such as a subagent, a dynamic workflow, or a background shell command, and the shortcut won’t silently abandon it. Run `/tasks` to see what’s running, then `/bg` to confirm abandoning them. See From inside a session for what does and doesn’t transfer when you background.
 
 ###
 

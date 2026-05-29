@@ -361,7 +361,7 @@ When you first open a session, a grayed-out example command appears in the promp
   * Press **Tab** or **Right arrow** to place the suggestion in the prompt input, then **Enter** to submit
   * Start typing to dismiss it
 
-The suggestion runs as a background request that reuses the parent conversation’s prompt cache, so the additional cost is minimal. Claude Code skips suggestion generation when the cache is cold to avoid unnecessary cost. Suggestions are automatically skipped after the first turn of a conversation, in non-interactive mode, and in plan mode. To disable prompt suggestions entirely, set the environment variable or toggle the setting in `/config`:
+The suggestion runs as a background request that reuses the parent conversation’s prompt cache, so the additional cost is minimal. Claude Code skips suggestion generation when the cache is cold to avoid unnecessary cost. Suggestions are automatically skipped after the first turn of a conversation and in plan mode. In print mode they are off by default. Pass [`--prompt-suggestions`](</docs/en/cli-reference#cli-flags>) with `--output-format stream-json --verbose` to emit a `prompt_suggestion` message after each turn instead. To disable prompt suggestions entirely, set the environment variable or toggle the setting in `/config`:
 
     export CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false
 

@@ -20,7 +20,12 @@ Most commands are useful at a specific point in a session, from setting up a pro
 
 All commands
 
-The table below lists all the commands included in Claude Code. Entries marked **[Skill](</docs/en/skills#bundled-skills>)** are bundled skills. They use the same mechanism as skills you write yourself: a prompt handed to Claude, which Claude can also invoke automatically when relevant. Everything else is a built-in command whose behavior is coded into the CLI. To add your own commands, see [skills](</docs/en/skills>). In the table below, `<arg>` indicates a required argument and `[arg]` indicates an optional one.
+The table below lists all the commands included in Claude Code. Most are built-in commands whose behavior is coded into the CLI. Two kinds of entries are marked:
+
+  * **[Skill](</docs/en/skills#bundled-skills>)** : a bundled skill. It works like skills you write yourself: a prompt handed to Claude, which Claude can also invoke automatically when relevant.
+  * **[Workflow](</docs/en/workflows#bundled-workflows>)** : a bundled [dynamic workflow](</docs/en/workflows>) that fans work out across many subagents and runs in the background.
+
+To add your own commands, see [skills](</docs/en/skills>). In the table below, `<arg>` indicates a required argument and `[arg]` indicates an optional one.
 
 Not every command appears for every user. Availability depends on your platform, plan, and environment. For example, `/desktop` only shows on macOS and Windows when signed in with a Claude subscription, and `/upgrade` only shows on Pro and Max plans.
 
@@ -36,7 +41,7 @@ Command| Purpose
 `/chrome`| Configure [Claude in Chrome](</docs/en/chrome>) settings
 `/claude-api [migrate|managed-agents-onboard]`| **[Skill](</docs/en/skills#bundled-skills>).** Load Claude API reference material for your project’s language (Python, TypeScript, Java, Go, Ruby, C#, PHP, or cURL) and Managed Agents reference. Covers tool use, streaming, batches, structured outputs, and common pitfalls. Also activates automatically when your code imports `anthropic` or `@anthropic-ai/sdk`. Run `/claude-api migrate` to upgrade existing Claude API code to a newer model: Claude asks which files to scan and which model to target, then updates model IDs, thinking configuration, and other parameters that changed between versions. Run `/claude-api managed-agents-onboard` for an interactive walkthrough that creates a new Managed Agent from scratch
 `/clear [name]`| Start a new conversation with empty context. The previous conversation stays available in `/resume`. Pass a name to label the previous conversation in the `/resume` picker. To free up context while continuing the same conversation, use `/compact` instead. Aliases: `/reset`, `/new`
-`/code-review [low|medium|high|xhigh|max|ultra] [--fix] [--comment] [target]`| **[Skill](</docs/en/skills#bundled-skills>).** Review the current diff for correctness bugs and for reuse, simplification, and efficiency cleanups. Pass `--fix` to apply findings to your working tree, `--comment` to post them as inline GitHub PR comments, or `ultra` to run a deep [cloud review](</docs/en/ultrareview>). `/simplify` is equivalent to `/code-review --fix`. See [Review a diff locally](</docs/en/code-review#review-a-diff-locally>) for effort levels and targeting
+`/code-review [low|medium|high|xhigh|max|ultra] [--fix] [--comment] [target]`| **[Skill](</docs/en/skills#bundled-skills>).** Review the current diff for correctness bugs and for reuse, simplification, and efficiency cleanups. Pass `--fix` to apply findings to your working tree, `--comment` to post them as inline GitHub PR comments, or `ultra` to run a deep [cloud review](</docs/en/ultrareview>). From v2.1.154, `/simplify` runs a separate cleanup-only review that applies fixes without hunting for bugs. See [Review a diff locally](</docs/en/code-review#review-a-diff-locally>) for effort levels and targeting
 `/color [color|default]`| Set the prompt bar color for the current session. Available colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`. Use `default` to reset, or run with no argument to pick a random color. When [Remote Control](</docs/en/remote-control>) is connected, the color syncs to claude.ai/code
 `/compact [instructions]`| Free up context by summarizing the conversation so far. Optionally pass focus instructions for the summary. See [how compaction handles rules, skills, and memory files](</docs/en/context-window#what-survives-compaction>)
 `/config`| Open the [Settings](</docs/en/settings>) interface to adjust theme, model, [output style](</docs/en/output-styles>), and other preferences. Alias: `/settings`
@@ -44,10 +49,11 @@ Command| Purpose
 `/copy [N]`| Copy the last assistant response to clipboard. Pass a number `N` to copy the Nth-latest response: `/copy 2` copies the second-to-last. When code blocks are present, shows an interactive picker to select individual blocks or the full response. Press `w` in the picker to write the selection to a file instead of the clipboard, which is useful over SSH
 `/cost`| Alias for `/usage`
 `/debug [description]`| **[Skill](</docs/en/skills#bundled-skills>).** Enable debug logging for the current session and troubleshoot issues by reading the session debug log. Debug logging is off by default unless you started with `claude --debug`, so running `/debug` mid-session starts capturing logs from that point forward. Optionally describe the issue to focus the analysis
+`/deep-research <question>`| **[Workflow](</docs/en/workflows#bundled-workflows>).** Fan out web searches on a question, fetch and cross-check sources, and synthesize a cited report
 `/desktop`| Continue the current session in the Claude Code Desktop app. Requires macOS or Windows and a Claude subscription. Alias: `/app`
 `/diff`| Open an interactive diff viewer showing uncommitted changes and per-turn diffs. Use left/right arrows to switch between the current git diff and individual Claude turns, and up/down to browse files
 `/doctor`| Diagnose and verify your Claude Code installation and settings. Results show with status icons. Press `f` to have Claude fix any reported issues
-`/effort [level|auto]`| Set the model [effort level](</docs/en/model-config#adjust-effort-level>). Accepts `low`, `medium`, `high`, `xhigh`, or `max`; available levels depend on the model and `max` is session-only. `auto` resets to the model default. Without an argument, opens an interactive slider; use left and right arrows to pick a level and `Enter` to apply. Takes effect immediately without waiting for the current response to finish
+`/effort [level|auto]`| Set the model [effort level](</docs/en/model-config#adjust-effort-level>). Accepts `low`, `medium`, `high`, `xhigh`, `max`, or `ultracode`; available levels depend on the model, and `max` and `ultracode` are session-only. `ultracode` is a Claude Code setting that combines `xhigh` reasoning with automatic [workflow](</docs/en/workflows#let-claude-decide-with-ultracode>) orchestration. `auto` resets to the model default. Without an argument, opens an interactive slider; use left and right arrows to pick a level and `Enter` to apply. Takes effect immediately without waiting for the current response to finish
 `/exit`| Exit the CLI. In an attached [background session](</docs/en/agent-view#attach-to-a-session>), this detaches and the session keeps running. Alias: `/quit`
 `/export [filename]`| Export the current conversation as plain text. With a filename, writes directly to that file. Without, opens a dialog to copy to clipboard or save to a file
 `/fast [on|off]`| Toggle [fast mode](</docs/en/fast-mode>) on or off
@@ -97,6 +103,7 @@ Command| Purpose
 `/security-review`| Analyze pending changes on the current branch for security vulnerabilities. Reviews the git diff and identifies risks like injection, auth issues, and data exposure
 `/setup-bedrock`| Configure [Amazon Bedrock](</docs/en/amazon-bedrock>) authentication, region, and model pins through an interactive wizard. Only visible when `CLAUDE_CODE_USE_BEDROCK=1` is set. First-time Bedrock users can also access this wizard from the login screen
 `/setup-vertex`| Configure [Google Vertex AI](</docs/en/google-vertex-ai>) authentication, project, region, and model pins through an interactive wizard. Only visible when `CLAUDE_CODE_USE_VERTEX=1` is set. First-time Vertex AI users can also access this wizard from the login screen
+`/simplify [target]`| **[Skill](</docs/en/skills#bundled-skills>).** Review the changed code for cleanup opportunities and apply the fixes. Four review [agents](</docs/en/sub-agents>) run in parallel, covering reuse of existing helpers, simplification, efficiency, and whether the change sits at the right level of abstraction. From v2.1.154, the review does not look for correctness bugs. Use `/code-review` to find bugs. On earlier versions `/simplify` is equivalent to `/code-review --fix`. Pass a path or PR reference to review a specific target
 `/skills`| List available [skills](</docs/en/skills>). Press `t` to sort by token count. Press `Space` to [hide a skill from Claude or the `/` menu](</docs/en/skills#override-skill-visibility-from-settings>), then `Enter` to save
 `/stats`| Alias for `/usage`. Opens on the Stats tab
 `/status`| Open the Settings interface (Status tab) showing version, model, account, and connectivity. Works while Claude is responding, without waiting for the current response to finish
@@ -118,6 +125,7 @@ Command| Purpose
 `/vim`| Removed in v2.1.92. To toggle between Vim and Normal editing modes, use `/config` → Editor mode
 `/voice [hold|tap|off]`| Toggle [voice dictation](</docs/en/voice-dictation>), or enable it in a specific mode. Requires a Claude.ai account
 `/web-setup`| Connect your GitHub account to [Claude Code on the web](</docs/en/web-quickstart#connect-from-your-terminal>) using your local `gh` CLI credentials. `/schedule` prompts for this automatically if GitHub isn’t connected
+`/workflows`| Open the [workflow](</docs/en/workflows#watch-the-run>) progress view to watch, pause, resume, or save running and completed workflows
 
 ##
 

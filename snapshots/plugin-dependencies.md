@@ -117,7 +117,7 @@ A dependency is blocked by your organization’s plugin policy| Enable fails and
 A dependency is set to `false` at a scope with higher precedence than the target scope| Enable fails. Enable the dependency at that scope, or pass `--scope` to write there.
 All dependencies are installed and allowed| Enable succeeds and writes `true` for the plugin and each dependency that was not already enabled at the target scope.
 
-When you disable a plugin, Claude Code refuses if another enabled plugin still depends on it. The error names the plugins that depend on it and gives you a chained command that disables them in the right order, ending with the one you asked for. For example, if `deploy-kit` depends on `secrets-vault`, disabling `secrets-vault` alone fails with output similar to the following:
+This holds even when a dependency sets [`defaultEnabled: false`](</docs/en/plugins-reference#default-enablement>) in its manifest, because Claude Code writes an explicit `true` for it. The same applies at install: a dependency pulled in to satisfy an active plugin installs with `true` regardless of its own default. When you disable a plugin, Claude Code refuses if another enabled plugin still depends on it. The error names the plugins that depend on it and gives you a chained command that disables them in the right order, ending with the one you asked for. For example, if `deploy-kit` depends on `secrets-vault`, disabling `secrets-vault` alone fails with output similar to the following:
 
     secrets-vault is still required by deploy-kit. Disable that plugin first, or
     disable everything together: claude plugin disable deploy-kit@acme-tools && claude plugin disable secrets-vault@acme-tools
