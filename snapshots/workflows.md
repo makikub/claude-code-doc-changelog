@@ -132,7 +132,7 @@ To run a single task as a workflow without changing the session’s effort level
 
     Run a workflow to audit every API endpoint under src/routes/ for missing auth checks
 
-Claude Code highlights the word in your input and Claude writes a workflow script for the task instead of working through it turn by turn. If the run does what you wanted, you can save it as a command afterward. If Claude Code highlights the word when you didn’t mean to trigger one, press `alt+w` to ignore it for this prompt.
+Claude Code highlights the word in your input and Claude writes a workflow script for the task instead of working through it turn by turn. If the run does what you wanted, you can save it as a command afterward. If Claude Code highlights the word when you didn’t mean to trigger one, press `alt+w` to ignore it for this prompt, or press backspace while the cursor is right after the highlighted word. To stop the word from triggering at all, turn off Workflow keyword trigger in `/config`.
 
 ###
 

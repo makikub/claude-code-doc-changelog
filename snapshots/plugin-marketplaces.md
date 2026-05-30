@@ -166,7 +166,7 @@ Required fields
 
 Field| Type| Description| Example
 ---|---|---|---
-`name`| string| Marketplace identifier (kebab-case, no spaces). This is public-facing: users see it when installing plugins (for example, `/plugin install my-tool@your-marketplace`).| `"acme-tools"`
+`name`| string| Marketplace identifier (kebab-case, no spaces). This is public-facing: users see it when installing plugins (for example, `/plugin install my-tool@your-marketplace`). Each user can register only one marketplace per name: adding a second marketplace with the same name replaces the first. To publish multiple plugins under one marketplace name, list them all in a single `marketplace.json`.| `"acme-tools"`
 `owner`| object| Marketplace maintainer information (see fields below)|
 `plugins`| array| List of available plugins| See below
 

@@ -16,7 +16,7 @@ Tool| Description| Permission Required
 `CronList`| Lists all scheduled tasks in the session| No
 `Edit`| Makes targeted edits to specific files. See Edit tool behavior| Yes
 `EnterPlanMode`| Switches to plan mode to design an approach before coding| No
-`EnterWorktree`| Creates an isolated [git worktree](</docs/en/worktrees>) and switches into it. Pass a `path` to switch into an existing worktree of the current repository instead of creating a new one. Not available to subagents that already run in their own working directory, such as with [`isolation: worktree`](</docs/en/sub-agents#supported-frontmatter-fields>)| No
+`EnterWorktree`| Creates an isolated [git worktree](</docs/en/worktrees>) and switches into it. Pass a `path` to switch into an existing worktree of the current repository instead of creating a new one. From within a worktree session, or from a subagent with a pinned working directory such as [`isolation: worktree`](</docs/en/sub-agents#supported-frontmatter-fields>), only the `path` form is available and the target must be under `.claude/worktrees/`| No
 `ExitPlanMode`| Presents a plan for approval and exits plan mode| Yes
 `ExitWorktree`| Exits a worktree session and returns to the original directory. Not available to subagents that already run in their own working directory, such as with [`isolation: worktree`](</docs/en/sub-agents#supported-frontmatter-fields>)| No
 `Glob`| Finds files based on pattern matching. See Glob tool behavior| No
@@ -47,6 +47,7 @@ Tool| Description| Permission Required
 `WaitForMcpServers`| Waits for one or more [MCP servers](</docs/en/mcp>) that are still connecting in the background, so a request can use their tools without restarting the session. Claude calls it when a needed server is not connected yet. Only appears when [tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is disabled, since `ToolSearch` handles the wait when it’s enabled| No
 `WebFetch`| Fetches content from a specified URL. See WebFetch tool behavior| Yes
 `WebSearch`| Performs web searches. See WebSearch tool behavior| Yes
+`Workflow`| Runs a [dynamic workflow](</docs/en/workflows>): a script that orchestrates many subagents in the background and returns one consolidated result| Yes
 `Write`| Creates or overwrites files. See Write tool behavior| Yes
 
 ##
