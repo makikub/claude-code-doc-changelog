@@ -8,6 +8,26 @@ The weekly dev digest highlights the features most likely to change how you work
 
 ​
 
+Week 22
+
+v2.1.150–v2.1.157
+
+May 25–29, 2026
+
+**Claude Opus 4.8** : the new default model for Max, Team Premium, Enterprise pay-as-you-go, and Anthropic API accounts, with high effort by default and `/effort xhigh` for the hardest tasks.Also this week: **dynamic workflows** orchestrate dozens to hundreds of subagents from a script Claude writes; the **security-guidance plugin** reviews Claude’s changes for vulnerabilities as it works; and **fast mode** runs on Opus 4.8 at $10/$50 per MTok.[Read the Week 22 digest →](</docs/en/whats-new/2026-w22>)
+
+​
+
+Week 21
+
+v2.1.143–v2.1.149
+
+May 18–22, 2026
+
+**Auto mode on the Pro plan** : auto mode now runs on Pro accounts and supports Sonnet 4.6 alongside Opus, replacing permission prompts with background safety checks.Also this week: **`/usage`** breaks down what drives your plan limits by skill, subagent, plugin, and MCP server; the new **`/code-review`** command reports correctness bugs; and **background sessions** appear in `/resume` and stay alive when pinned.[Read the Week 21 digest →](</docs/en/whats-new/2026-w21>)
+
+​
+
 Week 20
 
 v2.1.139–v2.1.142
