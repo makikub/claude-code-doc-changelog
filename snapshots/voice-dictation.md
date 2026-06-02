@@ -8,6 +8,8 @@ Speak your prompts instead of typing them in the Claude Code CLI. Your speech is
 
 Voice dictation requires Claude Code v2.1.69 or later. Tap mode requires v2.1.116 or later. Check your version with `claude --version`.
 
+Dictation also works in [agent view](</docs/en/agent-view#peek-and-reply>). Hold or tap your push-to-talk key while the dispatch input or a peek-panel reply is focused to dictate to a background session.
+
 ##
 
 ​

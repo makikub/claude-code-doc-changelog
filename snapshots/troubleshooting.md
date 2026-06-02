@@ -12,7 +12,7 @@ Symptom| Go to
 Login loops, OAuth errors, `403 Forbidden`, “organization disabled”, Bedrock/Vertex/Foundry credentials| [Troubleshoot installation and login](</docs/en/troubleshoot-install#login-and-authentication>)
 Settings not applying, hooks not firing, MCP servers not loading| [Debug your configuration](</docs/en/debug-your-config>)
 `API Error: 5xx`, `529 Overloaded`, `429`, request validation errors| [Error reference](</docs/en/errors>)
-`model not found` or `you may not have access to it`| [Error reference](</docs/en/errors#theres-an-issue-with-the-selected-model>)
+`model not found` or `you may not have access to it`| [Error reference](</docs/en/errors#there%E2%80%99s-an-issue-with-the-selected-model>)
 VS Code extension not connecting or detecting Claude| [VS Code integration](</docs/en/vs-code#fix-common-issues>)
 JetBrains plugin or IDE not detected| [JetBrains integration](</docs/en/jetbrains#troubleshooting>)
 High CPU or memory, slow responses, hangs, search not finding files| Performance and stability below

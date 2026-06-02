@@ -49,10 +49,6 @@ Send multiple messages that process sequentially, with ability to interrupt
 
 Full access to all tools and custom MCP servers during the session
 
-## Hooks Support
-
-Use lifecycle hooks to customize behavior at various points
-
 ## Real-time Feedback
 
 See responses as they’re generated, not just final results
@@ -142,7 +138,7 @@ When to Use Single Message Input
 Use single message input when:
 
   * You need a one-shot response
-  * You do not need image attachments, hooks, etc.
+  * You do not need image attachments or mid-session control methods
   * You need to operate in a stateless environment, such as a lambda function
 
 ###
@@ -156,7 +152,6 @@ Single message input mode does **not** support:
   * Direct image attachments in messages
   * Dynamic message queueing
   * Real-time interruption
-  * Hook integration
   * Natural multi-turn conversations
 
 ###

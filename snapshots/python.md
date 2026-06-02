@@ -919,7 +919,7 @@ Property| Type| Default| Description
 `allowed_tools`| `list[str]`| `[]`| Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permission_mode` and `can_use_tool`. Use `disallowed_tools` to block tools. See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `system_prompt`| `str | SystemPromptPreset | None`| `None`| System prompt configuration. Pass a string for custom prompt, or use `{"type": "preset", "preset": "claude_code"}` for Claude Code’s system prompt. Add `"append"` to extend the preset
 `mcp_servers`| `dict[str, McpServerConfig] | str | Path`| `{}`| MCP server configurations or path to config file
-`strict_mcp_config`| `bool`| `False`| When `True`, use only the servers passed in `mcp_servers` and ignore project `.mcp.json`, user settings, and plugin-provided MCP servers. Maps to the CLI `--strict-mcp-config` flag
+`strict_mcp_config`| `bool`| `False`| When `True`, use only the servers passed in `mcp_servers` and ignore project `.mcp.json`, user settings, plugin-provided MCP servers, and [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>). Maps to the CLI `--strict-mcp-config` flag
 `permission_mode`| `PermissionMode | None`| `None`| Permission mode for tool usage
 `continue_conversation`| `bool`| `False`| Continue the most recent conversation
 `resume`| `str | None`| `None`| Session ID to resume
@@ -951,7 +951,7 @@ Property| Type| Default| Description
 `plugins`| `list[SdkPluginConfig]`| `[]`| Load custom plugins from local paths. See [Plugins](</docs/en/agent-sdk/plugins>) for details
 `sandbox`| `SandboxSettings` ` | None`| `None`| Configure sandbox behavior programmatically. See Sandbox settings for details
 `setting_sources`| `list[SettingSource] | None`| `None` (CLI defaults: all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
-`skills`| `list[str] | Literal["all"] | None`| `None`| Skills available to the session. Pass `"all"` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowed_tools`. See [Skills](</docs/en/agent-sdk/skills>)
+`skills`| `list[str] | Literal["all"] | None`| `None`| Skills available to the session. Pass `"all"` to enable every discovered skill, or a list of skill names. When set, the SDK adds the Skill tool to `allowed_tools` automatically. If you also pass `tools`, include `"Skill"` in that list. See [Skills](</docs/en/agent-sdk/skills>)
 `max_thinking_tokens`| `int | None`| `None`|  _Deprecated_ \- Maximum tokens for thinking blocks. Use `thinking` instead
 `thinking`| `ThinkingConfig` ` | None`| `None`| Controls extended thinking behavior. Takes precedence over `max_thinking_tokens`
 `effort`| `EffortLevel` ` | None`| `None`| Effort level for thinking depth
@@ -3066,7 +3066,7 @@ ExitPlanMode
 
 ListMcpResources
 
-**Tool name:** `ListMcpResources` **Input:**
+**Tool name:** `ListMcpResourcesTool` **Input:**
 
     {
         "server": str | None  # Optional server name to filter resources by
@@ -3093,7 +3093,7 @@ ListMcpResources
 
 ReadMcpResource
 
-**Tool name:** `ReadMcpResource` **Input:**
+**Tool name:** `ReadMcpResourceTool` **Input:**
 
     {
         "server": str,  # The MCP server name
@@ -3527,7 +3527,7 @@ Example usage
 
 `SandboxNetworkConfig`
 
-Network-specific configuration for sandbox mode.
+Network-specific configuration for sandbox mode. These settings apply to sandboxed Bash commands when `enabled` is `True` in the parent `SandboxSettings`. They do not restrict the WebFetch tool, which uses [permission rules](</docs/en/permissions#webfetch>) instead.
 
     class SandboxNetworkConfig(TypedDict, total=False):
         allowedDomains: list[str]

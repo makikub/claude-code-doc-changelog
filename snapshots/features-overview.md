@@ -300,7 +300,7 @@ Connect Claude to external services
 
 ## Hooks
 
-Automate workflows with hooks
+Automate actions with hooks
 
 ## Plugins
 

@@ -273,5 +273,5 @@ Related resources
 To go deeper on the pieces this page touches:
 
   * [Code Review](</docs/en/code-review>): set up the PR-time multi-agent review
-  * [Automate workflows with hooks](</docs/en/hooks-guide>): build your own checks at the same lifecycle points
+  * [Automate actions with hooks](</docs/en/hooks-guide>): build your own checks at the same lifecycle points
   * [Discover and install plugins](</docs/en/discover-plugins#official-anthropic-marketplace>): browse other official plugins

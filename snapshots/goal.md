@@ -15,7 +15,7 @@ The `/goal` command sets a completion condition and Claude keeps working toward 
 
 This page covers how to:
 
-  * Compare autonomous workflow approaches: `/loop`, Stop hooks, and auto mode
+  * Compare ways to keep a session running: `/loop`, Stop hooks, and auto mode
   * Set a goal and write an effective condition
   * Check status, clear early, and run non-interactively
   * See how evaluation works and requirements
@@ -24,7 +24,7 @@ This page covers how to:
 
 ​
 
-Compare to other autonomous workflows
+Compare ways to keep a session running
 
 Three approaches keep the current session running between prompts. Pick based on what should start the next turn:
 

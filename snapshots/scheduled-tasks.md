@@ -44,7 +44,7 @@ Interval and prompt| `/loop 5m check the deploy`| Your prompt runs on a fixed sc
 Prompt only| `/loop check the deploy`| Your prompt runs at an interval Claude chooses each iteration
 Interval only, or nothing| `/loop`| The built-in maintenance prompt runs, or your `loop.md` if one exists
 
-You can also pass another command as the prompt, for example `/loop 20m /review-pr 1234`, to re-run a packaged workflow each iteration.
+You can also pass another command as the prompt, for example `/loop 20m /review-pr 1234`, to re-run a saved skill or command each iteration.
 
 ###
 
