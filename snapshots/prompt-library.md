@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 This is a library of prompts to copy into Claude Code. Use it to explore ways of working you haven’t tried, or when you’re not sure where to start. The prompts are collected from various Anthropic guides, including [Common workflows](</docs/en/common-workflows>), [Best practices](</docs/en/best-practices>), and [How Anthropic teams use Claude Code](<https://claude.com/blog/how-anthropic-teams-use-claude-code>). They’re starting points rather than scripts. Open **Why this works** under any prompt to see the pattern behind it so you can write your own.
 
 ##

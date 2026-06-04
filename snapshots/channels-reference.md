@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 Channels are in [research preview](</docs/en/channels#research-preview>) and require Claude Code v2.1.80 or later. Team and Enterprise organizations must [explicitly enable them](</docs/en/channels#enterprise-controls>).
 
 A channel is an MCP server that pushes events into a Claude Code session so Claude can react to things happening outside the terminal. You can build a one-way or two-way channel. One-way channels forward alerts, webhooks, or monitoring events for Claude to act on. Two-way channels like chat bridges also expose a reply tool so Claude can send messages back. A channel with a trusted sender path can also opt in to relay permission prompts so you can approve or deny tool use remotely. This page covers:

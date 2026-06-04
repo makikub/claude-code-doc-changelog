@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) lets Claude Code run without permission prompts by routing each tool call through a classifier that blocks anything irreversible, destructive, or aimed outside your environment. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations.
 
 Auto mode is available to all users on the Anthropic API. On Amazon Bedrock, Google Cloud Vertex AI, and Microsoft Foundry, you must first [set `CLAUDE_CODE_ENABLE_AUTO_MODE`](</docs/en/permission-modes#enable-auto-mode-on-bedrock-vertex-ai-or-foundry>). If Claude Code reports auto mode as unavailable for your account, check the [full requirements](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), which also cover the supported models and admin enablement on Team and Enterprise plans.

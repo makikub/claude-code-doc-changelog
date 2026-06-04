@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 A [development container](<https://containers.dev/>), or dev container, lets you define an identical, isolated environment that every engineer on your team can run. With Claude Code installed in that container, commands Claude runs execute inside it rather than on the host machine, while edits to your project files appear in your local repository as you work. This page covers installing Claude Code in a dev container and the configuration topics that follow. Each topic is self-contained, so jump to the ones that match what you need to set up:
 
   * Persist authentication and settings across rebuilds

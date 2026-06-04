@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 This page collects short recipes for everyday development. For higher-level guidance on prompting and context management, see [Best practices](</docs/en/best-practices>). This page covers:
 
   * Prompt recipes for exploring code, fixing bugs, refactoring, testing, PRs, and documentation

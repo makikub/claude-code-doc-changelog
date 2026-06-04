@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 The [Model Context Protocol (MCP)](<https://modelcontextprotocol.io/introduction>) lets Claude Code use tools beyond its built-in set, such as searching an issue tracker, querying a database, or controlling a web browser. These tools come from MCP servers, which run on your machine or as hosted services. This guide walks you through connecting one MCP server end to end with the Claude Code CLI. By the end, you’ll have a server connected and responding, know where its configuration lives on disk, and know how to fix the most common connection errors.
 
 You can also add MCP servers from other surfaces, including the desktop app, VS Code, and the web. See Connect from other surfaces.

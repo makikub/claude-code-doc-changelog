@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 The Agent SDK spawns and supervises a `claude` CLI subprocess that owns a shell, a working directory, and session files on disk. Hosting it is not like hosting a stateless API wrapper. Every running agent is a long-lived process tied to local state, which shapes how you allocate resources, persist sessions, and scale across tenants. This page covers self-hosting on your own infrastructure: understand the subprocess model, choose a session pattern, provision the container, and handle production concerns like persistence, observability, auth, and multi-tenant isolation. For deployable Dockerfiles and Kubernetes manifests, see the [hosting cookbook](<https://github.com/anthropics/claude-cookbooks/tree/main/claude_agent_sdk/hosting>). If you do not need infrastructure control, custom isolation, or your own data plane, consider [Managed Agents](<https://platform.claude.com/docs/en/managed-agents/overview>) instead: a hosted REST API where Anthropic runs the agent and the sandbox, so your application sends events and streams back results with no hosting infrastructure to operate.
 
 For security hardening beyond basic sandboxing, including network controls, credential management, and isolation options, see [Secure Deployment](</docs/en/agent-sdk/secure-deployment>).

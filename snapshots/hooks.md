@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 For a quickstart guide with examples, see [Automate actions with hooks](</docs/en/hooks-guide>).
 
 Hooks are user-defined shell commands, HTTP endpoints, or LLM prompts that execute automatically at specific points in Claude Code’s lifecycle. Use this reference to look up event schemas, configuration options, JSON input/output formats, and advanced features like async hooks, HTTP hooks, and MCP tool hooks. If you’re setting up hooks for the first time, start with the [guide](</docs/en/hooks-guide>) instead.
@@ -205,7 +199,7 @@ Event| What the matcher filters| Example matcher values
 `ConfigChange`| configuration source| `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills`
 `CwdChanged`| no matcher support| always fires on every directory change
 `FileChanged`| literal filenames to watch (see FileChanged)| `.envrc|.env`
-`StopFailure`| error type| `rate_limit`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `unknown`
+`StopFailure`| error type| `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `unknown`
 `InstructionsLoaded`| load reason| `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`
 `UserPromptExpansion`| command name| your skill or command names
 `Elicitation`| MCP server name| your configured MCP server names
@@ -2158,7 +2152,7 @@ In addition to the common input fields, StopFailure hooks receive `error`, optio
 
 Field| Description
 ---|---
-`error`| Error type: `rate_limit`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, or `unknown`
+`error`| Error type: `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, or `unknown`
 `error_details`| Additional details about the error, when available
 `last_assistant_message`| The rendered error text shown in the conversation. Unlike `Stop` and `SubagentStop`, where this field holds Claude’s conversational output, for `StopFailure` it contains the API error string itself, such as `"API Error: Rate limit reached"`
 

@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 By default, anyone running Claude Code can connect any [MCP server](</docs/en/mcp>) they choose. Anthropic reviews connectors against its [listing criteria](<https://claude.com/docs/connectors/building/review-criteria>) before adding them to the [Anthropic Directory](<https://claude.ai/directory>), but doesn’t security-audit or manage any MCP server. As an administrator, you can restrict which servers run in your organization, from deploying a fixed approved set to disabling MCP entirely. This page covers how to:
 
   * Choose a pattern that matches how much control you need

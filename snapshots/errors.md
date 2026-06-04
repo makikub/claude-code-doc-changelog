@@ -1,9 +1,3 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
->
-> Use this file to discover all available pages before exploring further.
-
 This page lists runtime errors Claude Code displays and how to recover from each one, plus what to check when responses seem off without an error. For installation errors such as `command not found` or TLS failures during setup, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>). These errors and recovery commands apply across the CLI, the [Desktop app](</docs/en/desktop>), and [Claude Code on the web](</docs/en/claude-code-on-the-web>), since all three wrap the same Claude Code CLI. For surface-specific issues, see the troubleshooting section on that surface’s page.
 
 Claude Code calls the Claude API for model responses, so most runtime errors map to an underlying API error code. This page covers what each error means inside Claude Code and how to recover. For the raw HTTP status code definitions, see the [Claude Platform error reference](<https://platform.claude.com/docs/en/api/errors>).
