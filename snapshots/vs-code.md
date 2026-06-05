@@ -566,9 +566,17 @@ To uninstall the Claude Code extension:
   2. Search for “Claude Code”
   3. Click **Uninstall**
 
-To also remove extension data and reset all settings:
+To also remove extension data and reset all settings, delete the extension’s storage directory for your platform. On macOS:
 
-    rm -rf ~/.vscode/globalStorage/anthropic.claude-code
+    rm -rf ~/Library/"Application Support"/Code/User/globalStorage/anthropic.claude-code
+
+On Linux:
+
+    rm -rf ~/.config/Code/User/globalStorage/anthropic.claude-code
+
+On Windows, in PowerShell:
+
+    Remove-Item -Recurse -Force "$env:APPDATA\Code\User\globalStorage\anthropic.claude-code"
 
 For additional help, see the [troubleshooting guide](</docs/en/troubleshooting>).
 
