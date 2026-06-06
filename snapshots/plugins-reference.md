@@ -997,6 +997,8 @@ Option| Description| Default
 `--available`| Include available plugins from marketplaces. Requires `--json`|
 `-h, --help`| Display help for command|
 
+Within an interactive session, `/plugin list` prints the same listing inline. The interactive form accepts `--enabled` or `--disabled` to show only plugins in that state, and `ls` as a shorthand for `list`.
+
 ###
 
 ​

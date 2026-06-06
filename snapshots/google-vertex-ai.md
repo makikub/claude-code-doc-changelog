@@ -150,7 +150,7 @@ Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See 
 
 5\. Pin model versions
 
-Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to the latest version, which may not yet be enabled in your Vertex AI project when Anthropic releases an update. Claude Code falls back to the previous version at startup when the latest is unavailable, but pinning lets you control when your users move to a new model.
+Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Vertex AI, which can lag the newest release and may not yet be enabled in your project. Claude Code falls back to the previous version at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
 Set these environment variables to specific Vertex AI model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Vertex resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
 

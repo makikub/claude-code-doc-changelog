@@ -306,7 +306,11 @@ Run `/plugin` and go to the **Installed** tab to view, enable, disable, or unins
   * type to filter by plugin name or description
   * press Enter to open a plugin’s detail view and enable, disable, or uninstall it
 
-When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands. Disable a plugin without uninstalling:
+When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands. List installed plugins without opening the menu:
+
+    /plugin list
+
+Pass `--enabled` or `--disabled` to show only plugins in that state. Disable a plugin without uninstalling:
 
     /plugin disable plugin-name@marketplace-name
 

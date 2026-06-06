@@ -295,12 +295,22 @@ These fields apply to all hook types:
 Field| Required| Description
 ---|---|---
 `type`| yes| `"command"`, `"http"`, `"mcp_tool"`, `"prompt"`, or `"agent"`
-`if`| no| Permission rule syntax to filter when this hook runs, such as `"Bash(git *)"` or `"Edit(*.ts)"`. The hook only spawns if the tool call matches the pattern, or if a Bash command is too complex to parse. Only evaluated on tool events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, and `PermissionDenied`. On other events, a hook with `if` set never runs. Uses the same syntax as [permission rules](</docs/en/permissions>)
+`if`| no| Permission rule syntax to filter when this hook runs, such as `"Bash(git *)"` or `"Edit(*.ts)"`. The hook command only runs if the tool call matches the pattern. See the Bash matching table below for how Bash patterns evaluate against subcommands, `$()`, and backticks. Only evaluated on tool events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, and `PermissionDenied`. On other events, a hook with `if` set never runs. Uses the same syntax as [permission rules](</docs/en/permissions>)
 `timeout`| no| Seconds before canceling. Defaults: 600 for `command`, `http`, and `mcp_tool`; 30 for `prompt`; 60 for `agent`. `UserPromptSubmit` lowers the `command`, `http`, and `mcp_tool` default to 30, and `MessageDisplay` lowers it to 10
 `statusMessage`| no| Custom spinner message displayed while the hook runs
 `once`| no| If `true`, runs once per session then is removed. Only honored for hooks declared in skill frontmatter; ignored in settings files and agent frontmatter
 
-The `if` field holds exactly one permission rule. There is no `&&`, `||`, or list syntax for combining rules; to apply multiple conditions, define a separate hook handler for each. For Bash, the rule is matched against each subcommand of the tool input after leading `VAR=value` assignments are stripped, so `if: "Bash(git push *)"` matches both `FOO=bar git push` and `npm test && git push`. The hook runs if any subcommand matches, and always runs when the command is too complex to parse.
+The `if` field holds exactly one permission rule. There is no `&&`, `||`, or list syntax for combining rules; to apply multiple conditions, define a separate hook handler for each. For Bash patterns, whether your hook command runs depends on the shape of the pattern and the Bash command Claude is invoking. Leading `VAR=value` assignments are stripped before matching.
+
+`if` pattern| Bash command| Hook runs?| Why
+---|---|---|---
+`Bash(git *)`| `FOO=bar git push`| yes| leading assignments are stripped; `git push` matches
+`Bash(git *)`| `npm test && git push`| yes| each subcommand is checked; `git push` matches
+`Bash(rm *)`| `echo $(rm -rf /)`| yes| commands inside `$()` and backticks are checked; `rm -rf /` matches
+`Bash(rm *)`| `echo $(date)`| no| no subcommand matches `rm *`
+`Bash(git push *)`| `echo $(date)`| yes| patterns that constrain past the command name fail open on `$()`, backticks, or `$VAR`
+
+The filter also fails open, running your hook regardless of pattern, when the Bash command cannot be parsed. Because the `if` filter is best-effort, use the [permission system](</docs/en/permissions>) rather than a hook to enforce a hard allow or deny.
 
 ####
 
@@ -424,7 +434,7 @@ In addition to the common fields, prompt and agent hooks accept these fields:
 
 Field| Required| Description
 ---|---|---
-`prompt`| yes| Prompt text to send to the model. Use `$ARGUMENTS` as a placeholder for the hook input JSON
+`prompt`| yes| Prompt text to send to the model. Use `$ARGUMENTS` as a placeholder for the hook input JSON. Escape with a backslash to include literal text: `\$1.00` renders as `$1.00`
 `model`| no| Model to use for evaluation. Defaults to a fast model
 
 All matching hooks run in parallel, and identical handlers are deduplicated automatically. Command hooks are deduplicated by command string and `args`, and HTTP hooks are deduplicated by URL. Handlers run in the current directory with Claude Code’s environment. The `$CLAUDE_CODE_REMOTE` environment variable is set to `"true"` in remote web environments and not set in the local CLI.
@@ -737,6 +747,7 @@ Where the reminder appears depends on the event:
   * SessionStart, Setup, and SubagentStart: at the start of the conversation, before the first prompt
   * UserPromptSubmit and UserPromptExpansion: alongside the submitted prompt
   * PreToolUse, PostToolUse, PostToolUseFailure, and PostToolBatch: next to the tool result
+  * Stop and SubagentStop: at the end of the turn. The conversation continues so Claude can act on the feedback. See Stop decision control
 
 When several hooks return `additionalContext` for the same event, Claude receives all of the values. If a value exceeds 10,000 characters, Claude Code writes the full text to a file in the session directory and passes Claude the file path with a short preview instead. Use `additionalContext` for information Claude should know about the current state of your environment or the operation that just ran:
 
@@ -756,7 +767,7 @@ Not every event supports blocking or controlling behavior through JSON. The even
 
 Events| Decision pattern| Key fields
 ---|---|---
-UserPromptSubmit, UserPromptExpansion, PostToolUse, PostToolUseFailure, PostToolBatch, Stop, SubagentStop, ConfigChange, PreCompact| Top-level `decision`| `decision: "block"`, `reason`
+UserPromptSubmit, UserPromptExpansion, PostToolUse, PostToolUseFailure, PostToolBatch, Stop, SubagentStop, ConfigChange, PreCompact| Top-level `decision`| `decision: "block"`, `reason`. Stop and SubagentStop also accept `hookSpecificOutput.additionalContext` for non-error feedback that continues the conversation
 TeammateIdle, TaskCreated, TaskCompleted| Exit code or `continue: false`| Exit code 2 blocks the action with stderr feedback. JSON `{"continue": false, "stopReason": "..."}` also stops the teammate entirely, matching `Stop` hook behavior
 PreToolUse| `hookSpecificOutput`| `permissionDecision` (allow/deny/ask/defer), `permissionDecisionReason`
 PermissionRequest| `hookSpecificOutput`| `decision.behavior` (allow/deny)
@@ -1923,7 +1934,7 @@ In addition to the common input fields, SubagentStop hooks receive `stop_hook_ac
       "session_crons": []
     }
 
-SubagentStop hooks use the same decision control format as Stop hooks. They do not support `additionalContext`. Returning `decision: "block"` with a `reason` keeps the subagent running and delivers `reason` to the subagent as its next instruction. To inject context into the parent session after a subagent returns, use a `PostToolUse` hook on the `Agent` tool instead.
+SubagentStop hooks use the same decision control format as Stop hooks, including `hookSpecificOutput.additionalContext` with `hookEventName` set to `"SubagentStop"`, for non-error feedback that keeps the subagent running. Returning `decision: "block"` with a `reason` keeps the subagent running and delivers `reason` to the subagent as its next instruction. To inject context into the parent session after a subagent returns, use a `PostToolUse` hook on the `Agent` tool instead.
 
 ###
 
@@ -2128,10 +2139,20 @@ Field| Description
 ---|---
 `decision`| `"block"` prevents Claude from stopping. Omit to allow Claude to stop
 `reason`| Required when `decision` is `"block"`. Tells Claude why it should continue
+`hookSpecificOutput.additionalContext`| Non-error feedback for Claude. The conversation continues so Claude can act on it, but unlike `decision: "block"` it is shown in the transcript as hook feedback rather than a hook error
 
     {
       "decision": "block",
       "reason": "Must be provided when Claude is blocked from stopping"
+    }
+
+Use `additionalContext` when the hook is working as designed and giving Claude guidance, such as “run the test suite before finishing”. It keeps the conversation going through the same loop protections as `decision: "block"`, namely the `stop_hook_active` input and the 8-consecutive-continuation cap, but the transcript labels it `Stop hook feedback` and no hook error notification is shown:
+
+    {
+      "hookSpecificOutput": {
+        "hookEventName": "Stop",
+        "additionalContext": "Please run the test suite before finishing"
+      }
     }
 
 ###
