@@ -99,7 +99,7 @@ On Team, Enterprise, Claude API, and cloud provider plans, Anthropic does not tr
 Topic| What to know| Where to start
 ---|---|---
 Data usage policy| What Anthropic collects, how long it’s retained, what’s never used for training| [Data usage](</docs/en/data-usage>)
-Zero Data Retention (ZDR)| Nothing stored after the request completes. Available on Claude for Enterprise| [Zero data retention](</docs/en/zero-data-retention>)
+Zero Data Retention (ZDR)| Nothing stored after the request completes. Available to qualified accounts on Claude for Enterprise| [Zero data retention](</docs/en/zero-data-retention>)
 Security architecture| Network model, encryption, authentication, audit trail| [Security](</docs/en/security>)
 
 If you need request-level audit logging or to route traffic by data sensitivity, place an [LLM gateway](</docs/en/llm-gateway>) between developers and your provider. For regulatory requirements and certifications, see [Legal and compliance](</docs/en/legal-and-compliance>).
