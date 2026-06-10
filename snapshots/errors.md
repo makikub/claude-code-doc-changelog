@@ -19,12 +19,14 @@ Message| Section
 `Auto mode could not evaluate this action and is blocking it for safety`| Server errors
 `Auto mode classifier transcript exceeded context window`| Server errors
 `You've hit your session limit` / `You've hit your weekly limit`| Usage limits
+`Usage credits required for 1M context`| Usage limits
 `Server is temporarily limiting requests`| Usage limits
 `Request rejected (429)`| Usage limits
 `Credit balance is too low`| Usage limits
 `Not logged in · Please run /login`| Authentication
 `Invalid API key`| Authentication
 `This organization has been disabled`| Authentication
+`Your organization has disabled API key authentication`| Authentication
 `Your organization has disabled Claude subscription access`| Authentication
 `Routines are disabled by your organization's policy`| Authentication
 `OAuth token revoked` / `OAuth token has expired`| Authentication
@@ -184,6 +186,23 @@ To watch your remaining allowance before you hit the limit, add the `rate_limits
 
 ​
 
+Usage credits required for 1M context
+
+The selected model uses the 1M-token extended context window, and your plan only includes it through usage credits.
+
+    API Error: Usage credits required for 1M context · run /usage-credits to turn them on, or /model to switch to standard context
+
+This is an entitlement check, not a quota exhaustion. It fires even when your session and weekly allowances have capacity remaining. See [Extended context](</docs/en/model-config#extended-context>) for which plans include 1M context directly and which require usage credits. **What to do:**
+
+  * Run `/model` and select the variant without the `[1m]` suffix to fall back to the standard context window
+  * Run `/usage-credits` to turn on metered billing for the 1M variant on Pro and Max, or to request it from your admin on Team and Enterprise
+  * If the error persists after `/model`, a 1M model ID may be set elsewhere. See There’s an issue with the selected model for the configuration locations to check in priority order.
+  * To remove 1M variants from the model picker entirely, set [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](</docs/en/env-vars>)
+
+###
+
+​
+
 Server is temporarily limiting requests
 
 The API applied a short-lived throttle that is unrelated to your plan quota.
@@ -289,6 +308,27 @@ Environment variables take precedence over `/login`, so a key exported in your s
   * Unset `ANTHROPIC_API_KEY` in the current shell and remove it from your shell profile, then relaunch `claude`
   * Run `/status` afterward to confirm the active credential is your subscription
   * If no environment variable is set and the error persists, the disabled organization is the one tied to your `/login`. Contact support or sign in with a different account.
+
+###
+
+​
+
+Your organization has disabled API key authentication
+
+Your Console organization’s admin has turned off API key authentication, so the API rejects the key Claude Code is sending. The recovery hint after the `·` varies by where the key came from:
+
+    Your organization has disabled API key authentication · Run /login to sign in with your claude.ai account
+    Your organization has disabled API key authentication · Unset ANTHROPIC_API_KEY to use your claude.ai account instead
+    Your organization has disabled API key authentication · Unset ANTHROPIC_API_KEY and run /login to sign in with your claude.ai account
+    Your organization has disabled API key authentication · Unset the apiKeyHelper setting and run /login to sign in with your claude.ai account
+
+Environment variables and `apiKeyHelper` take precedence over `/login`, so running `/login` alone does not help while either is still supplying a key. See [Authentication precedence](</docs/en/authentication#authentication-precedence>). **What to do:**
+
+  * If the message names `ANTHROPIC_API_KEY`, unset it in the current shell and remove it from your shell profile or `.env` file, then relaunch `claude`
+  * If the message names `apiKeyHelper`, remove the [`apiKeyHelper`](</docs/en/settings#available-settings>) setting from your `settings.json`
+  * Run `/login` to sign in with your claude.ai account
+  * Run `/status` afterward to confirm the active credential is your subscription rather than an API key
+  * If you need API key authentication for automation, ask your organization admin to re-enable it in the Console
 
 ###
 
@@ -498,9 +538,8 @@ A pasted or attached image exceeds the API’s size or dimension limits.
     Image was too large. Double press esc to go back and try again with a smaller image.
     API Error: 400 ... image dimensions exceed max allowed size
 
-The image stays in conversation history after the error, so every subsequent message fails with the same error until you remove it. **What to do:**
+Claude Code replaces the unprocessable image with a text placeholder and retries, so subsequent messages succeed. On versions before 2.1.142, a pasted image could remain in the conversation and repeat the same error on every subsequent message. To recover on those versions, press Esc twice and step back past the turn where the image was added. **What to do:**
 
-  * Press Esc twice and step back past the turn where the image was added
   * Resize the image before pasting. The API accepts images up to 8000 pixels on the longest edge for a single image, or 2000 pixels when many images are in context.
   * Take a tighter screenshot of the relevant region instead of the full screen
 
@@ -661,7 +700,13 @@ The check evaluates the full conversation, not only your latest prompt, so sendi
 
 Responses seem lower quality than usual
 
-If Claude’s answers seem less capable than you expect but no error is shown, the cause is usually conversation state rather than the model itself. Claude Code does not silently change model versions. It can switch to a fallback model in specific cases such as an Opus quota being reached or a Bedrock or Vertex AI region lacking your model; the Model selection check below catches both, and [Model configuration](</docs/en/model-config>) explains when fallback applies. Check these first:
+If Claude’s answers seem less capable than you expect but no error is shown, the cause is usually conversation state rather than the model itself. Claude Code does not silently change model versions. It can switch to a fallback model in three specific cases:
+
+  * A configured [`--fallback-model`](</docs/en/cli-reference#cli-flags>) takes over after an availability error, for that turn only, with a notice in the transcript
+  * A Bedrock or Vertex AI startup check finds your default model unavailable
+  * [Automatic model fallback](</docs/en/model-config#automatic-model-fallback>) on Fable 5 moves the session to the default Opus model and shows a notice in the transcript
+
+The Model selection check below catches the second and third cases; the first appears as a transcript notice rather than a `/model` change. [Model configuration](</docs/en/model-config>) explains when each fallback applies. Check these first:
 
   * **Model selection** : run `/model` to confirm you are on the model you expect. A previous `/model` choice or an `ANTHROPIC_MODEL` environment variable may have you on a smaller model than you intended.
   * **Effort level** : run `/effort` to check the current reasoning level and raise it for hard debugging or design work. Defaults vary by model, so check before assuming you are below the maximum. See [Adjust effort level](</docs/en/model-config#adjust-effort-level>) for per-model defaults and the `ultrathink` shortcut.

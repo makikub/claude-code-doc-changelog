@@ -142,6 +142,8 @@ If this prints nothing, no `claude` is on your PATH yet. Go back to Verify your 
 
     ls -la ~/.local/bin/claude
 
+If either `ls` command prints `No such file or directory`, that’s not an error. It means nothing is installed at that location, so move on to the next check.
+
     ls -la ~/.claude/local/
 
     npm -g ls @anthropic-ai/claude-code 2>/dev/null
@@ -449,7 +451,7 @@ Git for Windows is optional. Claude Code uses the [PowerShell tool](</docs/en/to
       }
     }
 
-If your Git is installed somewhere else, find the path by running `where.exe git` in PowerShell and use the `bin\bash.exe` path from that directory.
+If your Git is installed somewhere else, find the path by running `where.exe git` in PowerShell and use the `bin\bash.exe` path from that directory. **If the path is correct and the file exists** but Claude Code still reports it as not found, endpoint security software such as AppLocker, Group Policy software restriction policies, or EDR agents may be interfering. On versions before v2.1.116, Claude Code spawned a child process (`cmd.exe`) to verify the path, which these policies can block — a common signal is that `cmd.exe /c dir "C:\Program Files\Git\bin\bash.exe"` works when you run it directly in PowerShell but fails silently when launched by `claude.exe`. Claude Code v2.1.116 and later check the filesystem directly, so update first. If the error persists on a current version, ask your IT team to allowlist `claude.exe` and the processes it spawns, including `cmd.exe` and `bash.exe`, in your endpoint protection policy.
 
 ###
 

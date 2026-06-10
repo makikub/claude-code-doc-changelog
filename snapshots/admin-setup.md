@@ -34,7 +34,7 @@ Some Claude Code features require a Claude.ai account. [Claude Code on the web](
 
 Decide how settings reach devices
 
-Managed settings define policy that takes precedence over local developer configuration. Claude Code looks for them in four places and uses the first one it finds on a given device.
+Managed settings define policy that takes precedence over local developer configuration. Claude Code checks the four sources below in priority order and applies the first one that returns a non-empty configuration.
 
 Mechanism| Delivery| Priority| Platforms
 ---|---|---|---

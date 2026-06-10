@@ -41,7 +41,7 @@ On the Mode tab, select auto-allow or regular permissions. Auto-allow runs sandb
 
 Run a Bash command
 
-Ask Claude to run a command, such as a build or a test suite. By default, commands inside the sandbox can write only to the working directory. The first time a command needs a new network domain, Claude Code prompts for approval.Commands that cannot run sandboxed fall back to the regular permission flow. To widen or narrow these boundaries, see Configure sandboxing.
+Ask Claude to run a command, such as a build or a test suite. By default, commands inside the sandbox can write only to the working directory and the session temp directory. The first time a command needs a new network domain, Claude Code prompts for approval.Commands that cannot run sandboxed fall back to the regular permission flow. To widen or narrow these boundaries, see Configure sandboxing.
 
 Selecting a mode in the panel writes to your project’s local settings at `.claude/settings.local.json`, which apply to the current project and are not checked into git. To enable the sandbox across all of your projects, set [`sandbox.enabled`](</docs/en/settings#sandbox-settings>) to `true` in your user settings at `~/.claude/settings.json`. To enforce sandboxing for every developer in an organization, use managed settings.
 
@@ -102,9 +102,10 @@ Claude Code offers two sandbox modes: **Auto-allow mode** : Bash commands will a
 
   * Explicit [deny rules](</docs/en/permissions>) are always respected
   * `rm` or `rmdir` commands that target `/`, your home directory, or other critical system paths still trigger a permission prompt
-  * [Ask rules](</docs/en/permissions>) apply to commands that fall back to the regular permission flow
+  * Content-scoped [ask rules](</docs/en/permissions>) like `Bash(git push *)` still force a prompt even for sandboxed commands
+  * A bare `Bash` ask rule, or the equivalent `Bash(*)` form, is skipped for commands that run sandboxed; it still applies to commands that fall back to the regular permission flow
 
-**Regular permissions mode** : All Bash commands go through the regular permission flow, even when sandboxed. This provides more control but requires more approvals. In both modes, the sandbox enforces the same filesystem and network restrictions. The difference is only in whether sandboxed commands are auto-approved or require explicit permission. Some commands cannot run inside the sandbox at all, such as tools that are incompatible with it or that need a host you have not allowed. Rather than failing the task or requiring you to turn sandboxing off, Claude Code includes an escape hatch: when a command fails because of sandbox restrictions, Claude analyzes the failure and may retry the command with the `dangerouslyDisableSandbox` parameter. The retried command runs outside the sandbox, so it goes through the regular permission flow and requires your approval. You can disable this escape hatch by setting `"allowUnsandboxedCommands": false` in your [sandbox settings](</docs/en/settings#sandbox-settings>). When disabled, which the `/sandbox` Overrides tab shows as **Strict sandbox mode** , the `dangerouslyDisableSandbox` parameter is completely ignored and all commands must run sandboxed or be explicitly listed in `excludedCommands`.
+**Regular permissions mode** : All Bash commands go through the regular permission flow, even when sandboxed. This provides more control but requires more approvals. In both modes, the sandbox enforces the same filesystem and network restrictions. The difference is only in whether sandboxed commands are auto-approved or require explicit permission. The session temp directory is writable inside the sandbox by default, alongside the working directory. Claude Code sets `$TMPDIR` to this directory for sandboxed commands, so tools that write temporary files work without extra configuration. Unsandboxed commands inherit your shell’s `$TMPDIR` unchanged, which means sandboxed and unsandboxed commands resolve `$TMPDIR` to different directories. To pass temporary files between the two, write them under the working directory instead. Some commands cannot run inside the sandbox at all, such as tools that are incompatible with it or that need a host you have not allowed. Rather than failing the task or requiring you to turn sandboxing off, Claude Code includes an escape hatch: when a command fails because of sandbox restrictions, Claude analyzes the failure and may retry the command with the `dangerouslyDisableSandbox` parameter. The retried command runs outside the sandbox, so it goes through the regular permission flow and requires your approval. You can disable this escape hatch by setting `"allowUnsandboxedCommands": false` in your [sandbox settings](</docs/en/settings#sandbox-settings>). When disabled, which the `/sandbox` Overrides tab shows as **Strict sandbox mode** , the `dangerouslyDisableSandbox` parameter is completely ignored and all commands must run sandboxed or be explicitly listed in `excludedCommands`.
 
 Auto-allow mode works independently of your permission mode setting. Even if you’re not in “accept edits” mode, sandboxed Bash commands will run automatically when auto-allow is enabled. This means Bash commands that modify files within the sandbox boundaries will execute without prompting, even when file edit tools would normally require approval.
 
@@ -114,7 +115,7 @@ Auto-allow mode works independently of your permission mode setting. Even if you
 
 Configure sandboxing
 
-Customize sandbox behavior through your `settings.json` file. See [Settings](</docs/en/settings#sandbox-settings>) for the complete configuration reference. By default, sandboxed commands can only write to the current working directory. If subprocess commands like `kubectl`, `terraform`, or `npm` need to write outside the project directory, use `sandbox.filesystem.allowWrite` to grant access to specific paths:
+Customize sandbox behavior through your `settings.json` file. See [Settings](</docs/en/settings#sandbox-settings>) for the complete configuration reference. By default, sandboxed commands can write only to the current working directory and the session temp directory. If subprocess commands like `kubectl`, `terraform`, or `npm` need to write outside those directories, use `sandbox.filesystem.allowWrite` to grant access to specific paths:
 
     {
       "sandbox": {
@@ -161,9 +162,9 @@ Filesystem isolation
 
 The sandboxed Bash tool restricts file system access to specific directories:
 
-  * **Default write behavior** : read and write access to the current working directory and its subdirectories
+  * **Default write behavior** : read and write access to the current working directory and its subdirectories, plus the session temp directory that `$TMPDIR` points to
   * **Default read behavior** : read access to the entire computer, except certain denied directories. Note that this default still allows reading credential files such as `~/.aws/credentials` and `~/.ssh/`. Add them to `denyRead` to block them.
-  * **Blocked access** : cannot modify files outside the current working directory without explicit permission, including shell configuration files such as `~/.bashrc` and system binaries in `/bin/`
+  * **Blocked access** : cannot modify files outside the current working directory and session temp directory without explicit permission, including shell configuration files such as `~/.bashrc` and system binaries in `/bin/`
   * **Git worktrees** : when the working directory is a [linked git worktree](</docs/en/worktrees>), the sandbox also allows writes to the main repository’s shared `.git` directory so commands such as `git commit` can update refs and the index. Writes to `hooks/` and `config` inside that directory remain denied.
   * **Configurable** : define custom allowed and denied paths through settings
 
@@ -244,7 +245,7 @@ Permission modes
 ---|---|---
 `/sandbox`| What a Bash command can access once it runs| The sandbox boundary itself, in auto-allow mode
 [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)| Whether each tool call runs| A classifier that reviews actions
-`--dangerously-skip-permissions`| Whether each tool call runs| Nothing. [Protected path](</docs/en/permission-modes#protected-paths>) checks are also skipped; only removing `/` or your home directory still prompts
+`--dangerously-skip-permissions`| Whether each tool call runs| Nothing. [Protected path](</docs/en/permission-modes#protected-paths>) checks are also skipped; only explicit [ask rules](</docs/en/permissions#manage-permissions>) and removing `/` or your home directory still prompt
 
 The sandbox’s auto-allow mode is separate from [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>): auto-allow approves Bash commands because the sandbox boundary contains them, while auto mode uses a classifier to review actions. The two work independently and can be combined. To choose an isolation boundary for unattended runs, see [Sandbox environments](</docs/en/sandbox-environments#how-isolation-relates-to-permission-modes>).
 

@@ -32,6 +32,7 @@ Claude Code is designed to work with most development environments, but may cons
   1. Use `/compact` regularly to reduce context size
   2. Close and restart Claude Code between major tasks
   3. Consider adding large build directories to your `.gitignore` file
+  4. Restart with [`claude --safe-mode`](</docs/en/cli-reference#cli-flags>) to check whether a plugin, MCP server, or hook is the source. It disables all customizations for the session; if usage drops, see [Debug your configuration](</docs/en/debug-your-config#test-against-a-clean-configuration>) to find which one
 
 If memory usage stays high after these steps, run `/heapdump` to write a JavaScript heap snapshot and a memory breakdown to `~/Desktop`. On Linux without a Desktop folder, the files are written to your home directory. The breakdown shows resident set size, JS heap, array buffers, and unaccounted native memory, which helps identify whether the growth is in JavaScript objects or in native code. To inspect retainers, open the `.heapsnapshot` file in Chrome DevTools under Memory → Load. Attach both files when reporting a memory issue on [GitHub](<https://github.com/anthropics/claude-code/issues>).
 

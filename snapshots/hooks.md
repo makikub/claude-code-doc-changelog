@@ -163,7 +163,7 @@ Location| Scope| Shareable
 ---|---|---
 `~/.claude/settings.json`| All your projects| No, local to your machine
 `.claude/settings.json`| Single project| Yes, can be committed to the repo
-`.claude/settings.local.json`| Single project| No, gitignored
+`.claude/settings.local.json`| Single project| No, gitignored when Claude Code creates it
 Managed policy settings| Organization-wide| Yes, admin-controlled
 [Plugin](</docs/en/plugins>) `hooks/hooks.json`| When plugin is enabled| Yes, bundled with the plugin
 [Skill](</docs/en/skills>) or [agent](</docs/en/sub-agents>) frontmatter| While the component is active| Yes, defined in the component file
@@ -308,7 +308,7 @@ The `if` field holds exactly one permission rule. There is no `&&`, `||`, or lis
 `Bash(git *)`| `npm test && git push`| yes| each subcommand is checked; `git push` matches
 `Bash(rm *)`| `echo $(rm -rf /)`| yes| commands inside `$()` and backticks are checked; `rm -rf /` matches
 `Bash(rm *)`| `echo $(date)`| no| no subcommand matches `rm *`
-`Bash(git push *)`| `echo $(date)`| yes| patterns that constrain past the command name fail open on `$()`, backticks, or `$VAR`
+`Bash(git push *)`| `echo $(date)`| yes| patterns that specify more than the command name run the hook anyway on `$()`, backticks, or `$VAR`
 
 The filter also fails open, running your hook regardless of pattern, when the Bash command cannot be parsed. Because the `if` filter is best-effort, use the [permission system](</docs/en/permissions>) rather than a hook to enforce a hard allow or deny.
 
@@ -779,7 +779,14 @@ MessageDisplay| `hookSpecificOutput`| `displayContent` replaces the displayed te
 SessionStart, Setup, SubagentStart| Context only| `hookSpecificOutput.additionalContext` adds context for Claude. SessionStart also accepts `initialUserMessage`, `watchPaths`, `sessionTitle`, and `reloadSkills`. No blocking or decision control
 WorktreeRemove, Notification, SessionEnd, PostCompact, InstructionsLoaded, StopFailure, CwdChanged, FileChanged| None| No decision control. Used for side effects like logging or cleanup
 
-Here are examples of each pattern in action:
+A few events can also rewrite content rather than only allow or block it:
+
+  * `PreToolUse` — `updatedInput` directly under `hookSpecificOutput` replaces a tool’s arguments before it runs (details)
+  * `PermissionRequest` — `updatedInput` inside the `decision` object (details)
+  * `PostToolUse` — `updatedToolOutput` replaces the tool’s result (details)
+  * `UserPromptSubmit` — cannot replace the prompt; only injects `additionalContext` alongside it
+
+For redaction or transformation use cases, intercept at `PreToolUse` for outbound tool inputs and `PostToolUse` for inbound tool results. Here are examples of each pattern in action:
 
   * Top-level decision
 

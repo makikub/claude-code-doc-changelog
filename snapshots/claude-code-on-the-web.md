@@ -60,6 +60,7 @@ Your repo’s `.claude/rules/`| Yes| Part of the clone
 Your repo’s `.claude/skills/`, `.claude/agents/`, `.claude/commands/`| Yes| Part of the clone
 Plugins declared in `.claude/settings.json`| Yes| Installed at session start from the [marketplace](</docs/en/plugin-marketplaces>) you declared. Requires network access to reach the marketplace source
 Your user `~/.claude/CLAUDE.md`| No| Lives on your machine, not in the repo
+Your user `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/commands/`| No| Live on your machine, not in the repo. Commit them to the repo’s `.claude/` directory instead. Skills you enable on claude.ai are loaded into cloud sessions automatically
 Plugins enabled only in your user settings| No| User-scoped `enabledPlugins` lives in `~/.claude/settings.json`. Declare them in the repo’s `.claude/settings.json` instead
 MCP servers you added with `claude mcp add`| No| Those write to your local user config, not the repo. Declare the server in [`.mcp.json`](</docs/en/mcp#project-scope>) instead
 Static API tokens and credentials| No| No dedicated secrets store exists yet. See below
@@ -319,6 +320,7 @@ Environments run behind an HTTP/HTTPS network proxy for security and abuse preve
   * Protection against malicious requests
   * Rate limiting and abuse prevention
   * Content filtering for enhanced security
+  * A DNS-level audit trail of requested hostnames
 
 ###
 
@@ -838,7 +840,7 @@ Remote Control session expired or access denied
 
   * Run `/login` locally to refresh your credentials, then reconnect
   * Confirm you are signed in to the same account that owns the session
-  * If you see `Remote Control may not be available for this organization`, your admin has not enabled remote sessions for your plan
+  * If you see `Remote Control may not be available for this organization`, your admin has not enabled cloud sessions for your plan
 
 ###
 

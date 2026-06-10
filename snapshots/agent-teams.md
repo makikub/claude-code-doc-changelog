@@ -95,7 +95,7 @@ Agent teams support two display modes:
 
 `tmux` has known limitations on certain operating systems and traditionally works best on macOS. Using `tmux -CC` in iTerm2 is the suggested entrypoint into `tmux`.
 
-The default is `"auto"`, which uses split panes if you’re already running inside a tmux session, and in-process otherwise. The `"tmux"` setting enables split-pane mode and auto-detects whether to use tmux or iTerm2 based on your terminal. To override, set [`teammateMode`](</docs/en/settings#available-settings>) in `~/.claude/settings.json`:
+The default is `"auto"`, which uses split panes if you’re already running inside a tmux session or your terminal is iTerm2, and in-process otherwise. The `"tmux"` setting enables split-pane mode and auto-detects whether to use tmux or iTerm2 based on your terminal. To override, set [`teammateMode`](</docs/en/settings#available-settings>) in `~/.claude/settings.json`:
 
     {
       "teammateMode": "in-process"
@@ -166,7 +166,7 @@ Task claiming uses file locking to prevent race conditions when multiple teammat
 
 Shut down teammates
 
-To gracefully end a teammate’s session:
+To gracefully end a teammate’s session, refer to it by name. For example, with a teammate named researcher:
 
     Ask the researcher teammate to shut down
 
@@ -182,7 +182,7 @@ When you’re done, ask the lead to clean up:
 
     Clean up the team
 
-This removes the shared team resources. When the lead runs cleanup, it checks for active teammates and fails if any are still running, so shut them down first.
+This removes the shared team resources. When the lead runs cleanup, it checks for active teammates and fails if any are still running, so shut them down first. Claude often cleans up on its own when the team’s work is done, so a later cleanup request may report that there is nothing to clean up.
 
 Always use the lead to clean up. Teammates should not run cleanup because their team context may not resolve correctly, potentially leaving resources in an inconsistent state.
 
@@ -239,7 +239,7 @@ See Choose a display mode for display configuration options. Teammate messages a
   * **Team config** : `~/.claude/teams/{team-name}/config.json`
   * **Task list** : `~/.claude/tasks/{team-name}/`
 
-Claude Code generates both of these automatically when you create a team and updates them as teammates join, go idle, or leave. The team config holds runtime state such as session IDs and tmux pane IDs, so don’t edit it by hand or pre-author it: your changes are overwritten on the next state update. To define reusable teammate roles, use subagent definitions instead. The team config contains a `members` array with each teammate’s name, agent ID, and agent type. Teammates can read this file to discover other team members. There is no project-level equivalent of the team config. A file like `.claude/teams/teams.json` in your project directory is not recognized as configuration; Claude treats it as an ordinary file.
+Claude Code generates both of these automatically when you create a team and updates them as teammates join, go idle, or leave. Both directories exist only while the team is active: they are removed when the team is cleaned up or when the session ends. The team config holds runtime state such as session IDs and tmux pane IDs, so don’t edit it by hand or pre-author it: your changes are overwritten on the next state update. To define reusable teammate roles, use subagent definitions instead. The team config contains a `members` array with each teammate’s name, agent ID, and agent type. Teammates can read this file to discover other team members. There is no project-level equivalent of the team config. A file like `.claude/teams/teams.json` in your project directory is not recognized as configuration; Claude treats it as an ordinary file.
 
 ###
 

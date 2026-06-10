@@ -1,4 +1,4 @@
-[Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) lets Claude Code run without permission prompts by routing each tool call through a classifier that blocks anything irreversible, destructive, or aimed outside your environment. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations.
+[Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) lets Claude Code run without routine permission prompts by routing tool calls through a classifier that blocks anything irreversible, destructive, or aimed outside your environment. Deny and explicit ask rules are evaluated before the classifier and still block or prompt. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations.
 
 Auto mode is available to all users on the Anthropic API. On Amazon Bedrock, Google Cloud Vertex AI, and Microsoft Foundry, you must first [set `CLAUDE_CODE_ENABLE_AUTO_MODE`](</docs/en/permission-modes#enable-auto-mode-on-bedrock-vertex-ai-or-foundry>). If Claude Code reports auto mode as unavailable for your account, check the [full requirements](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), which also cover the supported models and admin enablement on Team and Enterprise plans.
 
@@ -21,7 +21,7 @@ The classifier reads the same [CLAUDE.md](</docs/en/memory>) content Claude itse
 Scope| File| Use for
 ---|---|---
 One developer| `~/.claude/settings.json`| Personal trusted infrastructure
-One project, one developer| `.claude/settings.local.json`| Per-project trusted buckets or services, gitignored
+One project, one developer| `.claude/settings.local.json`| Per-project trusted buckets or services
 Organization-wide| [Managed settings](</docs/en/server-managed-settings>)| Trusted infrastructure distributed to all developers
 `--settings` flag or Agent SDK| Inline JSON| Per-invocation overrides for automation
 

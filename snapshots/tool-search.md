@@ -13,7 +13,7 @@ How tool search works
 
 When tool search is active, tool definitions are withheld from the context window. The agent receives a summary of available tools and searches for relevant ones when the task requires a capability not already loaded. The 3-5 most relevant tools are loaded into context, where they stay available for subsequent turns. If the conversation is long enough that the SDK compacts earlier messages to free space, previously discovered tools may be removed, and the agent searches again as needed. Tool search adds one extra round-trip the first time Claude discovers a tool (the search step), but for large tool sets this is offset by smaller context on every turn. With fewer than ~10 tools, loading everything upfront is typically faster. For details on the underlying API mechanism, see [Tool search in the API](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool>).
 
-Tool search requires Claude Sonnet 4 or later, or Claude Opus 4 or later. Haiku models do not support tool search.
+Tool search is supported on every Claude model except Haiku.
 
 ##
 
@@ -80,7 +80,7 @@ Limits
 
   * **Maximum tools:** 10,000 tools in your catalog
   * **Search results:** Returns 3-5 most relevant tools per search
-  * **Model support:** Claude Sonnet 4 and later, Claude Opus 4 and later (no Haiku)
+  * **Model support:** every Claude model except Haiku
 
 ##
 

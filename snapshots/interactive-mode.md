@@ -31,12 +31,12 @@ Shortcut| Description| Context
 `Ctrl+B`| Background running tasks| Backgrounds bash commands and agents. Tmux users press twice
 `Ctrl+T`| Toggle task list| Show or hide the task list in the terminal status area
 `Left/Right arrows`| Cycle through dialog tabs| Navigate between tabs in permission dialogs and menus
-`Up/Down arrows` or `Ctrl+P`/`Ctrl+N`| Move cursor or navigate command history| In multiline input, first moves the cursor within the prompt. Once the cursor is already on the top or bottom edge, pressing again navigates command history
+`Up/Down arrows` or `Ctrl+P`/`Ctrl+N`| Move cursor or navigate command history| When the input spans more than one visual row, whether wrapped or multiline, first moves the cursor within the prompt. Once the cursor is on the first or last visual row, pressing again navigates command history. As of v2.1.169, wrapped single-line input behaves the same as multiline
 `Esc`| Interrupt Claude| Stop the current response or tool call mid-turn so you can redirect. Claude keeps the work done so far
 `Esc` \+ `Esc`| Clear input draft, or rewind| When the prompt input contains text, double `Esc` clears it and saves the draft to history so `Up` recalls it. When the input is empty, double `Esc` opens the [rewind menu](</docs/en/checkpointing>) to restore or summarize code and conversation from a previous point
 `Shift+Tab` or `Alt+M` (some configurations)| Cycle permission modes| Cycle through `default`, `acceptEdits`, `plan`, and any modes you have enabled, such as `auto` or `bypassPermissions`. See [permission modes](</docs/en/permission-modes>).
 `Option+P` (macOS) or `Alt+P` (Windows/Linux)| Switch model| Switch models without clearing your prompt
-`Option+T` (macOS) or `Alt+T` (Windows/Linux)| Toggle extended thinking| Enable or disable extended thinking mode. As of v2.1.132 this shortcut works on macOS without configuring Option as Meta
+`Option+T` (macOS) or `Alt+T` (Windows/Linux)| Toggle extended thinking| Enable or disable extended thinking mode. Has no effect on Fable 5, which always uses extended thinking. As of v2.1.132 this shortcut works on macOS without configuring Option as Meta
 `Option+O` (macOS) or `Alt+O` (Windows/Linux)| Toggle fast mode| Enable or disable [fast mode](</docs/en/fast-mode>)
 
 ###

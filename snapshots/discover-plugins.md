@@ -169,7 +169,7 @@ Run `/plugin` to open the plugin manager. This opens a tabbed interface with fou
   * **Marketplaces** : add, remove, or update your added marketplaces
   * **Errors** : view any plugin loading errors
 
-Go to the **Discover** tab to see plugins from the marketplace you just added. Plugins marked as relevant to your current working directory are pinned at the top with a **suggested for this directory** label.
+Go to the **Discover** tab to see plugins from the marketplace you just added. When your administrator has allowlisted the marketplace via the [`pluginSuggestionMarketplaces`](</docs/en/settings#available-settings>) managed setting, plugins marked as relevant to your current working directory are pinned at the top with a **suggested for this directory** label.
 
 3
 
@@ -306,7 +306,7 @@ Run `/plugin` and go to the **Installed** tab to view, enable, disable, or unins
   * type to filter by plugin name or description
   * press Enter to open a plugin’s detail view and enable, disable, or uninstall it
 
-When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands. List installed plugins without opening the menu:
+The detail view shows the components the plugin contributes: commands, skills, agents, hooks, MCP servers, and LSP servers. The same inventory is available from the command line with `claude plugin details`. When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands. List installed plugins without opening the menu:
 
     /plugin list
 
@@ -337,7 +337,7 @@ When you install, enable, or disable plugins during a session, run `/reload-plug
 
     /reload-plugins
 
-Claude Code reloads all active plugins and shows counts for plugins, skills, agents, hooks, plugin MCP servers, and plugin LSP servers. Reloading has a token cost on the next request: newly loaded components announce themselves in content appended to the conversation, while the existing history still reads from the prompt cache. A plugin that provides MCP servers costs more when its tools aren’t deferred by [tool search](</docs/en/mcp#scale-with-mcp-tool-search>): the change invalidates the cache and the next request re-reads the entire conversation. See [enabling or disabling a plugin](</docs/en/prompt-caching#enabling-or-disabling-a-plugin>) for details.
+Claude Code reloads all active plugins and shows counts for plugins, skills, agents, hooks, plugin MCP servers, and plugin LSP servers. Reloading has a token cost on the next request: newly loaded components announce themselves in content appended to the conversation, while the existing history still reads from the prompt cache. A plugin that provides MCP servers costs more when its tools aren’t deferred by [tool search](</docs/en/mcp#scale-with-mcp-tool-search>): the change invalidates the cache and the next request re-reads the entire conversation. In that case `/reload-plugins` shows a warning and does not apply the reload; pass `--force` to apply anyway. See [enabling or disabling a plugin](</docs/en/prompt-caching#enabling-or-disabling-a-plugin>) for details.
 
 ##
 

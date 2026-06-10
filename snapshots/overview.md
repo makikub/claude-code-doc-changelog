@@ -147,7 +147,7 @@ Sessions aren’t tied to a single surface. Move work between environments as yo
 
   * Step away from your desk and keep working from your phone or any browser with [Remote Control](</docs/en/remote-control>)
   * Message [Dispatch](</docs/en/desktop#sessions-from-dispatch>) a task from your phone and open the Desktop session it creates
-  * Kick off a long-running task on the [web](</docs/en/claude-code-on-the-web>) or [iOS app](<https://apps.apple.com/app/claude-by-anthropic/id6473753684>), then pull it into your terminal with `claude --teleport`
+  * Kick off a long-running task on the [web](</docs/en/claude-code-on-the-web>) or [iOS app](<https://apps.apple.com/app/claude-by-anthropic/id6473753684>), then pull it into your terminal with `claude --teleport`. Teleport requires a claude.ai subscription.
   * Hand off a terminal session to the [Desktop app](</docs/en/desktop>) with `/desktop` for visual diff review
   * Route tasks from team chat: mention `@Claude` in [Slack](</docs/en/slack>) with a bug report and get a pull request back
 

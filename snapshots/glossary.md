@@ -52,7 +52,7 @@ Notes Claude writes for itself based on your corrections and preferences, stored
 
 Auto mode
 
-A permission mode where a separate classifier model reviews each action in the background instead of showing you approval prompts. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection. It never sees tool results, so injected instructions cannot influence its decisions. Auto mode is a research preview. Learn more: [Eliminate prompts with auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)
+A permission mode where a separate classifier model reviews actions in the background, so most run without approval prompts; explicit ask rules still prompt. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection. It never sees tool results, so injected instructions cannot influence its decisions. Auto mode is a research preview. Learn more: [Eliminate prompts with auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)
 
 ##
 
@@ -164,7 +164,7 @@ E
 
 Effort level
 
-A setting that controls how much of the adaptive-reasoning thinking budget Claude uses on each turn. Higher effort means more thinking tokens and deeper reasoning; lower effort is faster and cheaper. Effort is supported on Opus 4.6 and later, and on Sonnet 4.6. Learn more: [Adjust effort level](</docs/en/model-config#adjust-effort-level>)
+A setting that controls how much of the adaptive-reasoning thinking budget Claude uses on each turn. Higher effort means more thinking tokens and deeper reasoning; lower effort is faster and cheaper. Effort is supported on Fable 5, on Opus 4.6 and later, and on Sonnet 4.6. Learn more: [Adjust effort level](</docs/en/model-config#adjust-effort-level>)
 
 ###
 
@@ -172,7 +172,7 @@ A setting that controls how much of the adaptive-reasoning thinking budget Claud
 
 Extended thinking
 
-Visible step-by-step reasoning the model performs before responding. You can cap thinking tokens with `MAX_THINKING_TOKENS` or adjust the effort level. Thinking appears in gray italic text in the terminal. Learn more: [Use extended thinking](</docs/en/model-config#extended-thinking>)
+Visible step-by-step reasoning the model performs before responding. You can adjust it with the effort level, or cap thinking tokens with `MAX_THINKING_TOKENS` on models with a fixed thinking budget. Thinking appears in gray italic text in the terminal. Learn more: [Use extended thinking](</docs/en/model-config#extended-thinking>)
 
 ##
 
@@ -304,7 +304,7 @@ A dialog accepting a directory before Claude Code loads its configuration. Accep
 
 Prompt injection
 
-Hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you never asked for. Claude Code’s defenses include the permission system, command blocklists, and trust verification. Auto mode adds a server-side probe that scans tool results for suspicious content and a classifier that never sees tool results, so injected text cannot influence its approval decisions. Learn more: [Protect against prompt injection](</docs/en/security#protect-against-prompt-injection>)
+Hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you never asked for. Claude Code’s defenses include the permission system, command injection detection, and trust verification. Auto mode adds a server-side probe that scans tool results for suspicious content and a classifier that never sees tool results, so injected text cannot influence its approval decisions. Learn more: [Protect against prompt injection](</docs/en/security#protect-against-prompt-injection>)
 
 ##
 

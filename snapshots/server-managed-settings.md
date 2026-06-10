@@ -174,6 +174,20 @@ Claude Code applies settings updates automatically without a restart, except for
 
 ​
 
+Invalid entries in delivered settings
+
+Delivered payloads parse tolerantly with the same rules as the other managed sources. When a payload contains an entry that fails schema validation, Claude Code strips that entry, surfaces a validation error, and applies every remaining valid setting. See [Invalid entries in managed settings](</docs/en/settings#invalid-entries-in-managed-settings>) for the field-level behavior, including how security-enforcement fields are handled. Requires Claude Code v2.1.169 or later. Server-managed delivery adds these behaviors:
+
+  * The cache at `~/.claude/remote-settings.json` stores the salvaged payload with invalid entries removed. The raw invalid payload is never persisted.
+  * When no field in the payload can be salvaged, Claude Code keeps the last-accepted cached settings and records a fatal error.
+  * The security approval dialog evaluates the salvaged payload, so a stripped invalid entry is never presented for approval and never executes.
+
+To debug delivery issues, run `claude --debug-file <path>` and search the log for `Remote settings`. Validate a payload change with `claude doctor` on a test machine before rolling it out to the organization.
+
+###
+
+​
+
 Enforce fail-closed startup
 
 By default, if the remote settings fetch fails at startup, the CLI continues without managed settings. For environments where this brief unenforced window is unacceptable, set `forceRemoteSettingsRefresh: true` in your managed settings. When this setting is active, the CLI blocks at startup until remote settings are freshly fetched. If the fetch fails, the CLI exits rather than proceeding without the policy. This setting self-perpetuates: once delivered from the server, it is also cached locally so that subsequent startups enforce the same behavior even before the first successful fetch of a new session. To enable this, add the key to your managed settings configuration:

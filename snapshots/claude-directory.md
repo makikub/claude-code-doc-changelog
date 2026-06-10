@@ -68,7 +68,7 @@ File| Scope| Commit| What it does| Reference
 `CLAUDE.md`| Project and global| ✓| Instructions loaded every session| [Memory](</docs/en/memory>)
 `rules/*.md`| Project and global| ✓| Topic-scoped instructions, optionally path-gated| [Rules](</docs/en/memory#organize-rules-with-claude/rules/>)
 `settings.json`| Project and global| ✓| Permissions, hooks, env vars, model defaults| [Settings](</docs/en/settings>)
-`settings.local.json`| Project only| | Your personal overrides, auto-gitignored| [Settings scopes](</docs/en/settings#settings-files>)
+`settings.local.json`| Project only| | Your personal overrides, gitignored when Claude Code creates it| [Settings scopes](</docs/en/settings#settings-files>)
 `.mcp.json`| Project only| ✓| Team-shared MCP servers| [MCP scopes](</docs/en/mcp#mcp-installation-scopes>)
 `.worktreeinclude`| Project only| ✓| Gitignored files to copy into new worktrees| [Worktrees](</docs/en/worktrees#copy-gitignored-files-into-worktrees>)
 `skills/<name>/SKILL.md`| Project and global| ✓| Reusable prompts invoked with `/name` or auto-invoked| [Skills](</docs/en/skills>)

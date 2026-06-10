@@ -17,7 +17,7 @@ Mode| What runs without asking| Best for
 `dontAsk`| Only pre-approved tools| Locked-down CI and scripts
 `bypassPermissions`| Everything| Isolated containers and VMs only
 
-In every mode except `bypassPermissions`, writes to protected paths are never auto-approved, guarding repository state and Claude’s own configuration against accidental corruption. Modes set the baseline. Layer [permission rules](</docs/en/permissions#manage-permissions>) on top to pre-approve or block specific tools in any mode except `bypassPermissions`, which skips the permission layer entirely.
+In every mode except `bypassPermissions`, writes to protected paths are never auto-approved, guarding repository state and Claude’s own configuration against accidental corruption. Modes set the baseline. Layer [permission rules](</docs/en/permissions#manage-permissions>) on top to pre-approve or block specific tools. Deny rules and explicit ask rules apply in every mode, including `bypassPermissions`. Allow rules have no effect in that mode because everything else is already approved.
 
 ##
 
@@ -75,7 +75,7 @@ Use the mode selector next to the send button. Auto and Bypass permissions appea
 
 Use the mode dropdown next to the prompt box on [claude.ai/code](<https://claude.ai/code>) or in the mobile app. Permission prompts appear in claude.ai for approval. Which modes appear depends on where the session runs:
 
-  * **Cloud sessions** on [Claude Code on the web](</docs/en/claude-code-on-the-web>): Auto accept edits and Plan mode. Ask permissions, Auto, and Bypass permissions are not available.
+  * **Cloud sessions** on [Claude Code on the web](</docs/en/claude-code-on-the-web>): Accept edits, Plan mode, and Auto mode. Accept edits corresponds to `default` mode: the cloud environment pre-approves file edits regardless of mode, so the dropdown shows Accept edits instead of Ask permissions. `defaultMode: "acceptEdits"` from settings is still honored. Auto mode appears only when your organization allows it and the selected model supports it. Bypass permissions is not available.
   * **[Remote Control](</docs/en/remote-control>) sessions** on your local machine: Ask permissions, Auto accept edits, and Plan mode. Auto and Bypass permissions are not available.
 
 For Remote Control, you can also set the starting mode when launching the host:
@@ -142,7 +142,7 @@ Eliminate prompts with auto mode
 
 Auto mode requires Claude Code v2.1.83 or later.
 
-Auto mode lets Claude execute without permission prompts. A separate classifier model reviews actions before they run, blocking anything that escalates beyond your request, targets unrecognized infrastructure, or appears driven by hostile content Claude read. Auto mode also nudges Claude to keep working without stopping for clarifying questions, though Claude still asks when your prompt or a skill explicitly relies on it. For stronger autonomous behavior while keeping permission prompts, set the [Proactive output style](</docs/en/output-styles>) instead.
+Auto mode lets Claude execute without routine permission prompts. A separate classifier model reviews actions before they run, blocking anything that escalates beyond your request, targets unrecognized infrastructure, or appears driven by hostile content Claude read. Explicit [ask rules](</docs/en/permissions#manage-permissions>) still force a prompt. Auto mode also nudges Claude to keep working without stopping for clarifying questions, though Claude still asks when your prompt or a skill explicitly relies on it. For stronger autonomous behavior while keeping permission prompts, set the [Proactive output style](</docs/en/output-styles>) instead.
 
 Auto mode is a research preview. It reduces prompts but does not guarantee safety. Use it for tasks where you trust the general direction, not as a replacement for review on sensitive operations.
 
@@ -250,7 +250,7 @@ The classifier runs on a server-configured model that is independent of your `/m
 
 Allow only pre-approved tools with dontAsk mode
 
-`dontAsk` mode auto-denies every tool call that would otherwise prompt. Only actions matching your `permissions.allow` rules and [read-only Bash commands](</docs/en/permissions#read-only-commands>) can execute; explicit `ask` rules are denied rather than prompting. This makes the mode fully non-interactive for CI pipelines or restricted environments where you pre-define exactly what Claude may do. Set it at startup with the flag:
+`dontAsk` mode auto-denies every tool call that would otherwise prompt. Only actions matching your `permissions.allow` rules and [read-only Bash commands](</docs/en/permissions#read-only-commands>) can execute; explicit [`ask` rules](</docs/en/permissions#manage-permissions>) are denied rather than prompting. This makes the mode fully non-interactive for CI pipelines or restricted environments where you pre-define exactly what Claude may do. Cloud sessions on [Claude Code on the web](</docs/en/claude-code-on-the-web>) ignore `defaultMode: "dontAsk"`; see bypassPermissions for details. Set it at startup with the flag:
 
     claude --permission-mode dontAsk
 
@@ -260,7 +260,7 @@ Allow only pre-approved tools with dontAsk mode
 
 Skip all checks with bypassPermissions mode
 
-`bypassPermissions` mode disables permission prompts and safety checks so tool calls execute immediately. As of v2.1.126 this includes writes to protected paths, which earlier versions still prompted for. Removals targeting the filesystem root or home directory, such as `rm -rf /` and `rm -rf ~`, still prompt as a circuit breaker against model error. Only use this mode in isolated environments like containers, VMs, or dev containers without internet access, where Claude Code cannot damage your host system. You cannot enter `bypassPermissions` from a session that was started without one of the enabling flags; restart with one to enable it:
+`bypassPermissions` mode disables permission prompts and safety checks so tool calls execute immediately. As of v2.1.126 this includes writes to protected paths, which earlier versions still prompted for. Explicit [ask rules](</docs/en/permissions#manage-permissions>) still force a prompt in this mode, and removals targeting the filesystem root or home directory, such as `rm -rf /` and `rm -rf ~`, still prompt as a circuit breaker against model error. Only use this mode in isolated environments like containers, VMs, or dev containers without internet access, where Claude Code cannot damage your host system. You cannot enter `bypassPermissions` from a session that was started without one of the enabling flags; restart with one to enable it:
 
     claude --permission-mode bypassPermissions
 
@@ -268,9 +268,9 @@ The `--dangerously-skip-permissions` flag is equivalent. On Linux and macOS, Cla
 
     --dangerously-skip-permissions cannot be used with root/sudo privileges for security reasons
 
-The check is skipped automatically inside a recognized sandbox. To run autonomously in a container, use the [dev container](</docs/en/devcontainer>) configuration, which runs Claude Code as a non-root user.
+The check is skipped automatically inside a recognized sandbox. To run autonomously in a container, use the [dev container](</docs/en/devcontainer>) configuration, which runs Claude Code as a non-root user. [Claude Code on the web](</docs/en/claude-code-on-the-web>) does not honor `defaultMode: "bypassPermissions"` or `"dontAsk"` from your settings files, so a repository’s checked-in settings cannot start a cloud session in bypass-permissions mode. The setting is ignored silently and the session starts in the mode shown in the mode dropdown instead. See Switch permission modes for which modes cloud sessions offer.
 
-`bypassPermissions` offers no protection against prompt injection or unintended actions. For background safety checks without prompts, use auto mode instead. Administrators can block this mode by setting `permissions.disableBypassPermissionsMode` to `"disable"` in [managed settings](</docs/en/permissions#managed-settings>).
+`bypassPermissions` offers no protection against prompt injection or unintended actions. For background safety checks with far fewer prompts, use auto mode instead. Administrators can block this mode by setting `permissions.disableBypassPermissionsMode` to `"disable"` in [managed settings](</docs/en/permissions#managed-settings>).
 
 ##
 
@@ -287,7 +287,7 @@ Mode| Protected-path writes
 `dontAsk`| Denied
 `bypassPermissions`| Allowed
 
-Protected directories:
+[`permissions.allow`](</docs/en/permissions#manage-permissions>) rules in settings files do not pre-approve protected-path writes. The safety check runs before Claude Code evaluates allow rules from settings, so an entry such as `Edit(.claude/**)` in `~/.claude/settings.json` or `.claude/settings.json` does not change the per-mode outcome in the table above. In modes that prompt, the prompt for a `.claude/` write offers **Yes, and allow Claude to edit its own settings for this session** , which approves later `.claude/` writes in that session without prompting again. Protected directories:
 
   * `.git`
   * `.config/git`

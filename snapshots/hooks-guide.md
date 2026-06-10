@@ -458,7 +458,7 @@ Each hook has a `type` that determines how it runs. Most hooks use `"type": "com
 
 Combine results from multiple hooks
 
-When multiple hooks match the same event, every hook’s command runs to completion before Claude Code merges the results. One hook returning `deny` does not stop sibling hooks from executing. Don’t rely on one hook’s `deny` to suppress side effects in another hook. After all matching hooks finish, Claude Code combines their outputs. For `PreToolUse` permission decisions, the most restrictive answer wins: `deny` overrides `ask`, which overrides `allow`. Text from `additionalContext` is kept from every hook and passed to Claude together. The example below registers two `PreToolUse` hooks on `Bash`. The first appends every command to a log file and exits 0. The second runs a script that exits 2 to deny when the command contains `rm -rf`:
+When multiple hooks match the same event, every hook’s command runs to completion before Claude Code merges the results. One hook returning `deny` does not stop sibling hooks from executing. Don’t rely on one hook’s `deny` to suppress side effects in another hook. After all matching hooks finish, Claude Code combines their outputs. For `PreToolUse` permission decisions, the most restrictive answer wins, in the order `deny`, `defer`, `ask`, `allow`. Text from `additionalContext` is kept from every hook and passed to Claude together. The example below registers two `PreToolUse` hooks on `Bash`. The first appends every command to a log file and exits 0. The second runs a script that exits 2 to deny when the command contains `rm -rf`:
 
     {
       "hooks": {
@@ -708,7 +708,7 @@ Whether your hook command runs depends on the shape of your `if` pattern and the
 `Bash(git *)`| `npm test && git push`| yes| each subcommand is checked; `git push` matches
 `Bash(git *)`| `echo $(git log)`| yes| commands inside `$()` and backticks are checked; `git log` matches
 `Bash(git *)`| `echo $(date)`| no| no subcommand matches `git *`
-`Bash(git push *)`| `echo $(date)`| yes| patterns that constrain past the command name fail open on `$()`, backticks, or `$VAR`
+`Bash(git push *)`| `echo $(date)`| yes| patterns that specify more than the command name run the hook anyway on `$()`, backticks, or `$VAR`
 
 The filter also fails open, running your hook regardless of pattern, when the Bash command cannot be parsed. Because the filter is best-effort, use the [permission system](</docs/en/permissions>) rather than a hook to enforce a hard allow or deny. The `if` field accepts the same patterns as permission rules: `"Bash(git *)"`, `"Edit(*.ts)"`, and so on. To match multiple tool names, use separate handlers each with its own `if` value, or match at the `matcher` level where pipe alternation is supported. `if` only works on tool events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, and `PermissionDenied`. Adding it to any other event prevents the hook from running.
 
@@ -724,12 +724,12 @@ Location| Scope| Shareable
 ---|---|---
 `~/.claude/settings.json`| All your projects| No, local to your machine
 `.claude/settings.json`| Single project| Yes, can be committed to the repo
-`.claude/settings.local.json`| Single project| No, gitignored
+`.claude/settings.local.json`| Single project| No, gitignored when Claude Code creates it
 Managed policy settings| Organization-wide| Yes, admin-controlled
 [Plugin](</docs/en/plugins>) `hooks/hooks.json`| When plugin is enabled| Yes, bundled with the plugin
 [Skill](</docs/en/skills>) or [agent](</docs/en/sub-agents>) frontmatter| While the skill or agent is active| Yes, defined in the component file
 
-Run [`/hooks`](</docs/en/hooks#the-hooks-menu>) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Hooks configured in managed settings still run unless `disableAllHooks` is also set there. If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.
+Run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Hooks configured in managed settings still run unless `disableAllHooks` is also set there. If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.
 
 ##
 

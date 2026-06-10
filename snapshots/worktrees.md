@@ -18,7 +18,7 @@ If you omit the name, Claude generates one such as `bright-running-fox`:
 
     claude --worktree
 
-You can also ask Claude to “work in a worktree” during a session, and it will create one with the [`EnterWorktree`](</docs/en/tools-reference>) tool. Once in a worktree, Claude can switch directly to another one under `.claude/worktrees/` by calling `EnterWorktree` with the target path. The previous worktree stays on disk untouched. Before using `--worktree` in a directory for the first time, accept the workspace trust dialog by running `claude` once in that directory. If trust has not yet been accepted, `--worktree` exits with an error and prompts you to run `claude` in the directory first, including when combined with `-p`.
+You can also ask Claude to “work in a worktree” during a session, and it will create one with the [`EnterWorktree`](</docs/en/tools-reference>) tool. Once in a worktree, Claude can switch directly to another one under `.claude/worktrees/` by calling `EnterWorktree` with the target path. The previous worktree stays on disk untouched. Before using `--worktree` interactively in a directory for the first time, accept the workspace trust dialog by running `claude` once in that directory. If trust has not yet been accepted, `--worktree` exits with an error and prompts you to run `claude` in the directory first. Non-interactive runs with `-p` skip the [trust check](</docs/en/security>), so `claude -p --worktree` proceeds without it.
 
 Add `.claude/worktrees/` to your `.gitignore` so worktree contents don’t appear as untracked files in your main checkout.
 
@@ -78,7 +78,7 @@ When you exit a worktree session, cleanup depends on whether you made changes:
   * **Uncommitted changes, untracked files, or new commits exist** : Claude prompts you to keep or remove the worktree. Keeping preserves the directory and branch so you can return later. Removing deletes the worktree directory and its branch, discarding any uncommitted changes, untracked files, and commits
   * **Non-interactive runs** : worktrees created with `--worktree` alongside `-p` are not cleaned up automatically since there is no exit prompt. Remove them with `git worktree remove`
 
-Worktrees that Claude created for subagents and [background sessions](</docs/en/agent-view#how-file-edits-are-isolated>) are removed automatically once they are older than your [`cleanupPeriodDays`](</docs/en/settings#available-settings>) setting, provided they have no uncommitted changes, no untracked files, and no unpushed commits. Worktrees you create with `--worktree` are never removed by this sweep.
+Worktrees that Claude created for subagents and [background sessions](</docs/en/agent-view#how-file-edits-are-isolated>) are removed automatically once they are older than your [`cleanupPeriodDays`](</docs/en/settings#available-settings>) setting, provided they have no uncommitted changes, no untracked files, and no unpushed commits. Worktrees you create with `--worktree` are never removed by this sweep. While an agent is running, Claude runs `git worktree lock` on its worktree so that concurrent cleanup cannot remove it. The lock is released when the agent finishes. To clean up a worktree that the sweep keeps, run `git worktree remove`, adding `--force` if the worktree has uncommitted changes or untracked files.
 
 ##
 

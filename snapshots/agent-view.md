@@ -180,6 +180,7 @@ Filter| Shows
 `a:<name>`| Sessions running the named agent
 `s:<state>`| Sessions in the given state, such as `s:working`. Also accepts `s:blocked` for everything waiting on you
 `#<number>` or a PR URL| The session working on that pull request
+Any other URL| The session whose first prompt contained that URL
 
 ###
 
@@ -397,7 +398,7 @@ Command| Purpose
 ---|---
 `claude agents`| Open agent view
 `claude agents --cwd <path>`| Open agent view scoped to sessions started under `<path>`
-`claude agents --json`| Print live sessions as a JSON array and exit. Each entry has `pid`, `cwd`, `kind`, and `startedAt`, plus `sessionId`, `name`, and `status` when set. When `status` is `waiting`, `waitingFor` says what the session is blocked on, such as `permission prompt` or `input needed`. Combine with `--cwd <path>` to filter
+`claude agents --json`| Print active sessions as a JSON array and exit: every live session, plus background sessions that are still working or blocked even when their process has exited. Add `--all` to also include completed background sessions. Each entry has `cwd`, `kind`, and `startedAt`. Background entries also have `id`, usable with `claude attach`/`logs`/`stop`, and `state`: one of `working`, `blocked`, `done`, `failed`, or `stopped`. `pid` and `status` are present only while the process is alive, plus `waitingFor` when status is `waiting`, which says what the session is blocked on, such as `permission prompt` or `input needed`; `sessionId` and `name` appear when set. Combine with `--cwd <path>` to filter
 `claude attach <id>`| Attach to a session in this terminal
 `claude logs <id>`| Print the session’s recent output
 `claude stop <id>`| Stop a session. Also accepts `claude kill`
@@ -474,9 +475,9 @@ Before you dispatch your first session, agent view shows a short onboarding hint
 
 ​
 
-Cannot open agents because background tasks are running
+Cannot open agents because work is running in the background
 
-If pressing `←` to background the current session shows `Cannot open agents — N background task(s) running`, the session has in-flight work such as a subagent, a dynamic workflow, or a background shell command, and the shortcut won’t silently abandon it. Run `/tasks` to see what’s running, then `/bg` to confirm abandoning them. See From inside a session for what does and doesn’t transfer when you background.
+If pressing `←` to background the current session shows `Cannot open agents — N still running in the background`, the session has in-flight work such as a subagent, a dynamic workflow, or a background shell command, and the shortcut won’t silently abandon it. Run `/tasks` to see what’s running, then `/bg` to confirm abandoning them. See From inside a session for what does and doesn’t transfer when you background.
 
 ###
 

@@ -113,9 +113,9 @@ Click the **Session history** button at the top of the Claude Code panel to acce
 
 ​
 
-Resume remote sessions from Claude.ai
+Resume cloud sessions from Claude.ai
 
-If you use [Claude Code on the web](</docs/en/claude-code-on-the-web>), you can resume those remote sessions directly in VS Code. This requires signing in with **Claude.ai Subscription** , not Anthropic Console.
+If you use [Claude Code on the web](</docs/en/claude-code-on-the-web>), you can resume those cloud sessions directly in VS Code. This requires signing in with **Claude.ai Subscription** , not Anthropic Console.
 
 1
 
@@ -133,7 +133,7 @@ The dialog shows two tabs: Local and Remote. Click **Remote** to see sessions fr
 
 Select a session to resume
 
-Browse or search your remote sessions. Click any session to download it and continue the conversation locally.
+Browse or search your cloud sessions. Click any session to download it and continue the conversation locally.
 
 Only web sessions started with a GitHub repository appear in the Remote tab. Resuming loads the conversation history locally; changes are not synced back to claude.ai.
 

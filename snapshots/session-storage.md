@@ -87,6 +87,8 @@ Python
       }
     }
 
+The second query prints a summary of the files from the first query, which shows the agent resumed with full context from the store.
+
 ##
 
 ​
