@@ -1207,7 +1207,7 @@ For metrics
 
   * **Time series databases (for example, Prometheus)** : Rate calculations, aggregated metrics
   * **Columnar stores (for example, ClickHouse)** : Complex queries, unique user analysis
-  * **Full-featured observability platforms (for example, Honeycomb, Datadog)** : Advanced querying, visualization, alerting
+  * **Full-featured observability platforms (for example, Honeycomb, Datadog, Grafana Cloud)** : Advanced querying, visualization, alerting
 
 ###
 
@@ -1217,7 +1217,7 @@ For events/logs
 
   * **Log aggregation systems (for example, Elasticsearch, Loki)** : Full-text search, log analysis
   * **Columnar stores (for example, ClickHouse)** : Structured event analysis
-  * **Full-featured observability platforms (for example, Honeycomb, Datadog)** : Correlation between metrics and events
+  * **Full-featured observability platforms (for example, Honeycomb, Datadog, Grafana Cloud)** : Correlation between metrics and events
 
 ###
 
@@ -1228,7 +1228,7 @@ For traces
 Choose a backend that supports distributed trace storage and span correlation:
 
   * **Distributed tracing systems (for example, Jaeger, Zipkin, Grafana Tempo)** : Span visualization, request waterfalls, latency analysis
-  * **Full-featured observability platforms (for example, Honeycomb, Datadog)** : Trace search and correlation with metrics and logs
+  * **Full-featured observability platforms (for example, Honeycomb, Datadog, Grafana Cloud)** : Trace search and correlation with metrics and logs
 
 For organizations requiring Daily/Weekly/Monthly Active User (DAU/WAU/MAU) metrics, consider backends that support efficient unique value queries.
 

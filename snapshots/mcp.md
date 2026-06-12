@@ -237,7 +237,11 @@ Or inline in `plugin.json`:
     # Within Claude Code, see all MCP servers including plugin ones
     /mcp
 
-Plugin servers appear in the list with indicators showing they come from plugins. **Benefits of plugin MCP servers** :
+Plugin servers appear in the list with indicators showing they come from plugins. **Plugin MCP tool names** : Tools from a plugin-bundled MCP server include both the plugin name and the server key in their callable name. The full form is `mcp__plugin_<plugin-name>_<server-name>__<tool-name>`, where any character outside `A-Z`, `a-z`, `0-9`, `_`, and `-` is replaced with `_`. For the `database-tools` server bundled in a plugin named `my-plugin`, a `query` tool is callable as:
+
+    mcp__plugin_my-plugin_database-tools__query
+
+Use this full name when referencing the tool in [permission rules](</docs/en/permissions>), a skill’s `allowed-tools` list, or a [subagent’s `tools` field](</docs/en/sub-agents#available-tools>). **Benefits of plugin MCP servers** :
 
   * **Bundled distribution** : Tools and servers packaged together
   * **Automatic setup** : No manual MCP configuration needed

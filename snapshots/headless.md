@@ -237,6 +237,8 @@ If you’re running multiple conversations, capture the session ID to resume a s
     session_id=$(claude -p "Start a review" --output-format json | jq -r '.session_id')
     claude -p "Continue that review" --resume "$session_id"
 
+Run both commands from the same directory: session ID lookup is scoped to the current project directory and its git worktrees. See [Resume a session](</docs/en/sessions#resume-a-session>) for the full scope rules.
+
 ##
 
 ​
