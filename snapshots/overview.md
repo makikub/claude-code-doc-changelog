@@ -78,7 +78,7 @@ After installing, launch Claude, sign in, and click the **Code** tab to start co
 
 Run Claude Code in your browser with no local setup. Kick off long-running tasks and check back when they’re done, work on repos you don’t have locally, or run multiple tasks in parallel. Available on desktop browsers and the Claude iOS app.Start coding at [claude.ai/code](<https://claude.ai/code>).[Get started on the web →](</docs/en/web-quickstart>)
 
-A plugin for IntelliJ IDEA, PyCharm, WebStorm, and other JetBrains IDEs with interactive diff viewing and selection context sharing.Install the [Claude Code plugin](<https://plugins.jetbrains.com/plugin/27310-claude-code-beta->) from the JetBrains Marketplace and restart your IDE.[Get started with JetBrains →](</docs/en/jetbrains>)
+A plugin for IntelliJ IDEA, PyCharm, WebStorm, and other JetBrains IDEs with interactive diff viewing and selection context sharing.Install the [Claude Code plugin](<https://plugins.jetbrains.com/plugin/27310-claude-code-beta->) from the JetBrains Marketplace and restart your IDE. The plugin requires the Claude Code CLI, installed separately; see the [JetBrains setup steps](</docs/en/jetbrains#installation>).[Get started with JetBrains →](</docs/en/jetbrains>)
 
 ##
 

@@ -1038,12 +1038,14 @@ Configuration for loading plugins in the SDK.
     type SdkPluginConfig = {
       type: "local";
       path: string;
+      skipMcpDiscovery?: boolean;
     };
 
 Field| Type| Description
 ---|---|---
 `type`| `'local'`| Must be `'local'` (only local plugins currently supported)
 `path`| `string`| Absolute or relative path to the plugin directory
+`skipMcpDiscovery`| `boolean`| When `true`, the SDK loads skills, hooks, agents, and commands from this plugin but does not read its `.mcp.json` or manifest `mcpServers`. Set this when your application owns the plugin’s MCP connections.
 
 **Example:**
 
@@ -1371,15 +1373,17 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
       | { kind: "channel"; server: string }
       | { kind: "peer"; from: string; name?: string }
       | { kind: "task-notification" }
-      | { kind: "coordinator" };
+      | { kind: "coordinator" }
+      | { kind: "auto-continuation" };
 
 `kind`| Meaning
 ---|---
 `human`| Direct input from the end user. On user messages, an absent `origin` also means human input.
 `channel`| Message arriving on a [channel](</docs/en/channels>). `server` is the source MCP server name.
-`peer`| Message from another agent session via `SendMessage`. `from` is the sender address; `name` is the sender’s display name when available.
+`peer`| Reserved for messages from another agent session. `from` is the sender address and `name` is the sender’s display name when available. The Agent SDK does not emit this origin; treat as an unknown origin.
 `task-notification`| Synthetic turn injected after a background task finished. See `SDKTaskNotificationMessage`.
 `coordinator`| Message from a team coordinator in an [agent team](</docs/en/agent-teams>).
+`auto-continuation`| Synthetic turn injected when the session continues without fresh user input, such as a command result that triggers a follow-up prompt.
 
 ##
 
@@ -2401,6 +2405,7 @@ Agent
           status: "completed";
           agentId: string;
           content: Array<{ type: "text"; text: string }>;
+          resolvedModel?: string;
           totalToolUseCount: number;
           totalDurationMs: number;
           totalTokens: number;
@@ -2425,6 +2430,7 @@ Agent
           status: "async_launched";
           agentId: string;
           description: string;
+          resolvedModel?: string;
           prompt: string;
           outputFile: string;
           canReadOutputFile?: boolean;
@@ -2435,7 +2441,7 @@ Agent
           message: string;
         };
 
-Returns the result from the subagent. Discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"sub_agent_entered"` for interactive subagents.
+Returns the result from the subagent. Discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"sub_agent_entered"` for interactive subagents. The `resolvedModel` field on the `completed` and `async_launched` variants names the model the subagent actually ran on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later.
 
 ###
 
