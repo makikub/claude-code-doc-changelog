@@ -174,6 +174,8 @@ Field| Behavior when present but invalid
 ---|---
 `allowedMcpServers`| Enforced as an empty allowlist, so no MCP servers are admitted until the value is fixed. An individual invalid entry is stripped and the valid subset is enforced.
 `allowManagedMcpServersOnly`| Treated as `true`.
+`availableModels`| Enforced as an empty allowlist, so only the Default model is available until the value is fixed. An individual non-string entry is stripped and the valid subset is enforced. Applies in v2.1.175 and later.
+`enforceAvailableModels`| Treated as `true`. Applies in v2.1.175 and later.
 `forceLoginOrgUUID`| No organization is permitted to log in until the value is fixed.
 `deniedMcpServers`| An individual invalid entry is stripped and the valid subset is enforced. A wholly invalid value is dropped with a warning, since denying every server would block servers the policy never named.
 
@@ -212,7 +214,7 @@ Key| Description| Example
 `autoMode`| Customize what the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier blocks and allows. Contains `environment`, `allow`, `soft_deny`, and `hard_deny` arrays of prose rules. Include the literal string `"$defaults"` in an array to inherit the built-in rules at that position. See [Configure auto mode](</docs/en/auto-mode-config>). Not read from shared project settings| `{"soft_deny": ["$defaults", "Never run terraform apply"]}`
 `autoScrollEnabled`| In [fullscreen rendering](</docs/en/fullscreen>), follow new output to the bottom of the conversation. Default: `true`. Appears in `/config` as **Auto-scroll**. Permission prompts still scroll into view when this is off| `false`
 `autoUpdatesChannel`| Release channel to follow for updates. Use `"stable"` for a version that is typically about one week old and skips versions with major regressions, or `"latest"` (default) for the most recent release. To disable auto-updates entirely, set [`DISABLE_AUTOUPDATER`](</docs/en/setup#disable-auto-updates>) in `env`| `"stable"`
-`availableModels`| Restrict which models users can select for the main session, [subagents](</docs/en/sub-agents>), and the [advisor](</docs/en/advisor>). Does not affect the Default option. See [Restrict model selection](</docs/en/model-config#restrict-model-selection>)| `["sonnet", "haiku"]`
+`availableModels`| Restrict which models users can select for the main session, [subagents](</docs/en/sub-agents>), and the [advisor](</docs/en/advisor>). See [Restrict model selection](</docs/en/model-config#restrict-model-selection>)| `["sonnet", "haiku"]`
 `awaySummaryEnabled`| Show a one-line session recap when you return to the terminal after a few minutes away. Set to `false` or turn off Session recap in `/config` to disable. Same as [`CLAUDE_CODE_ENABLE_AWAY_SUMMARY`](</docs/en/env-vars>)| `true`
 `awsAuthRefresh`| Custom script that modifies the `.aws` directory (see [advanced credential configuration](</docs/en/amazon-bedrock#advanced-credential-configuration>))| `aws sso login --profile myprofile`
 `awsCredentialExport`| Custom script that outputs JSON with AWS credentials (see [advanced credential configuration](</docs/en/amazon-bedrock#advanced-credential-configuration>))| `/bin/generate_aws_grant.sh`
@@ -237,6 +239,7 @@ Key| Description| Example
 `effortLevel`| Persist the [effort level](</docs/en/model-config#adjust-effort-level>) across sessions. Accepts `"low"`, `"medium"`, `"high"`, or `"xhigh"`. Written automatically when you run `/effort` with one of those values. `--effort` and [`CLAUDE_CODE_EFFORT_LEVEL`](</docs/en/env-vars>) override this for one session. See [Adjust effort level](</docs/en/model-config#adjust-effort-level>) for supported models| `"xhigh"`
 `enableAllProjectMcpServers`| Automatically approve all MCP servers defined in project `.mcp.json` files| `true`
 `enabledMcpjsonServers`| List of specific MCP servers from `.mcp.json` files to approve| `["memory", "github"]`
+`enforceAvailableModels`| When `true` and `availableModels` is a non-empty list in managed or policy settings, the Default model is also constrained to the allowlist. See [Restrict model selection](</docs/en/model-config#restrict-model-selection>) for details and the [merge behavior](</docs/en/model-config#merge-behavior>) when `availableModels` is set at multiple levels. Requires Claude Code v2.1.175 or later| `true`
 `env`| Environment variables applied to every session and to subprocesses Claude Code spawns from it. As of v2.1.143, `NO_COLOR` and `FORCE_COLOR` set here are passed to subprocesses but do not change Claude Code’s own interface colors. Set those in your shell before launching `claude` to change interface colors| `{"FOO": "bar"}`
 `fallbackModel`| Fallback model(s) to try in order when the primary model is overloaded or unavailable. Claude Code switches to the next available model in the chain for the rest of the turn and shows a notice. `"default"` expands to the default model. Chains are capped at three models; extra entries are ignored. Unlike most array settings, this key does not merge across settings files: the highest-precedence file that defines it supplies the entire chain. The [`--fallback-model`](</docs/en/cli-reference#cli-flags>) flag overrides this for one session. See [Fallback model chains](</docs/en/model-config#fallback-model-chains>)| `["claude-sonnet-4-6", "claude-haiku-4-5"]`
 `fastModePerSessionOptIn`| When `true`, fast mode does not persist across sessions. Each session starts with fast mode off, requiring users to enable it with `/fast`. The user’s fast mode preference is still saved. See [Require per-session opt-in](</docs/en/fast-mode#require-per-session-opt-in>)| `true`
@@ -578,7 +581,7 @@ Settings apply in order of precedence. From highest to lowest:
 
 This hierarchy ensures that organizational policies are always enforced while still allowing teams and individuals to customize their experience. The same precedence applies whether you run Claude Code from the CLI, the [VS Code extension](</docs/en/vs-code>), or a [JetBrains IDE](</docs/en/jetbrains>). For example, if your user settings set `permissions.defaultMode` to `acceptEdits` and a project’s shared settings set it to `default`, the project value applies. The example below covers how array-valued settings such as permission rules combine instead.
 
-**Array settings merge across scopes.** When the same array-valued setting (such as `sandbox.filesystem.allowWrite` or `permissions.allow`) appears in multiple scopes, the arrays are **concatenated and deduplicated** , not replaced. This means lower-priority scopes can add entries without overriding those set by higher-priority scopes, and vice versa. For example, if managed settings set `allowWrite` to `["/opt/company-tools"]` and a user adds `["~/.kube"]`, both paths are included in the final configuration. The one exception is `fallbackModel`, an ordered chain where position carries meaning: the highest-precedence file that defines it supplies the entire value.
+**Array settings merge across scopes.** When the same array-valued setting (such as `sandbox.filesystem.allowWrite` or `permissions.allow`) appears in multiple scopes, the arrays are **concatenated and deduplicated** , not replaced. This means lower-priority scopes can add entries without overriding those set by higher-priority scopes, and vice versa. For example, if managed settings set `allowWrite` to `["/opt/company-tools"]` and a user adds `["~/.kube"]`, both paths are included in the final configuration. Two exceptions: `fallbackModel`, an ordered chain where position carries meaning so the highest-precedence file that defines it supplies the entire value, and as of v2.1.175, `availableModels`, where a managed or policy value replaces lower-precedence entries entirely. See [Merge behavior](</docs/en/model-config#merge-behavior>).
 
 ###
 
@@ -586,7 +589,12 @@ This hierarchy ensures that organizational policies are always enforced while st
 
 Verify active settings
 
-Run `/status` inside Claude Code to see which settings sources are active. The Status tab includes a `Setting sources` line that lists each layer Claude Code loaded for the current session, such as `User settings` or `Project local settings`. When [managed settings](</docs/en/admin-setup#decide-how-settings-reach-devices>) are in effect, the entry shows the delivery channel in parentheses, for example `Enterprise managed settings (remote)`, `(plist)`, `(HKLM)`, `(HKCU)`, or `(file)`. A layer appears in the list only when that source is loaded with at least one key, so an empty list means no settings sources were found. The `Setting sources` line confirms which sources are being read. It does not show which layer supplied each individual key. The Config tab in the same dialog is an editor for a fixed set of toggles such as theme and verbose output, not a view of your `settings.json` contents. If a settings file contains errors, such as invalid JSON or a value that fails validation, Claude Code shows a setup issues notice at startup and `/status` lists the affected files. Run `/doctor` to see the details for each error.
+Run `/status` and check the `Setting sources` line on the **Status** tab. It lists every settings layer Claude Code loaded for this session:
+
+  * If a layer such as `User settings` or `Project local settings` appears, that file is being read.
+  * If a layer is missing, that file was not found or contains no keys.
+
+When [managed settings](</docs/en/admin-setup#decide-how-settings-reach-devices>) are in effect, the entry shows the delivery channel in parentheses, for example `Enterprise managed settings (remote)`, `(plist)`, `(HKLM)`, `(HKCU)`, or `(file)`. If a settings file has invalid JSON or a value that fails validation, Claude Code shows a setup issues notice at startup and the **Status** tab lists the affected files. Run `/doctor` for the details of each error. The line confirms which files are being read, not which layer supplied each individual key. The **Config** tab in the same dialog edits built-in toggles such as theme and verbose output, not your `settings.json` contents.
 
 ###
 
@@ -599,7 +607,7 @@ Key points about the configuration system
   * **Skills** : Custom prompts that can be invoked with `/skill-name` or loaded by Claude automatically
   * **MCP servers** : Extend Claude Code with additional tools and integrations
   * **Precedence** : Higher-level configurations (Managed) override lower-level ones (User/Project)
-  * **Inheritance** : Settings merge across scopes; scalar values from higher-priority scopes override, and arrays concatenate (`fallbackModel` is the exception: the highest-precedence scope supplies the whole chain)
+  * **Inheritance** : Settings merge across scopes; scalar values from higher-priority scopes override, and arrays concatenate. Exceptions: `fallbackModel`, where the highest-precedence scope supplies the whole chain, and `availableModels`, where a managed or policy value replaces lower-precedence entries
 
 ###
 
