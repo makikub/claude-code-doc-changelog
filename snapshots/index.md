@@ -2,6 +2,26 @@ The weekly dev digest highlights the features most likely to change how you work
 
 ​
 
+Week 24
+
+v2.1.166–v2.1.176
+
+June 8–12, 2026
+
+**`/cd`** : move the current session to a new working directory mid-conversation without rebuilding the prompt cache.Also this week: **sub-agents can spawn their own sub-agents** (background chains are capped at five levels deep); **`--safe-mode`** starts Claude Code with all customizations disabled for troubleshooting; and **`fallbackModel`** configures up to three fallback models tried in order.[Read the Week 24 digest →](</docs/en/whats-new/2026-w24>)
+
+​
+
+Week 23
+
+v2.1.158–v2.1.165
+
+June 1–5, 2026
+
+**Auto mode on Bedrock, Vertex, and Foundry** : auto mode is now available on third-party providers for Opus 4.7 and Opus 4.8, replacing permission prompts with background safety checks.Also this week: **safer automatic edits** prompt before writing files that can run code in `acceptEdits` mode; **`/plugin list`** prints your installed plugins inline; and **version requirements** let managed deployments require an approved Claude Code version range.[Read the Week 23 digest →](</docs/en/whats-new/2026-w23>)
+
+​
+
 Week 22
 
 v2.1.150–v2.1.157

@@ -18,6 +18,7 @@ What you see| Solution
 `TLS connect error` or `SSL/TLS secure channel`| Update CA certificates
 `Failed to fetch version` or can’t reach download server| Check network and proxy settings
 `irm is not recognized` or `&& is not valid`| Use the right command for your shell
+`Cask 'claude-code' is unavailable: No Cask with this name exists`| Update Homebrew
 `'bash' is not recognized as the name of a cmdlet`| Use the Windows installer command
 `Claude Code on Windows requires either Git for Windows (for bash) or PowerShell`| Install a shell
 `Claude Code does not support 32-bit Windows`| Open Windows PowerShell, not the x86 entry
@@ -294,6 +295,19 @@ An `HTTP/2 200` line means you reached the server and the original failure was l
 On Windows:
 
          winget install Anthropic.ClaudeCode
+
+###
+
+​
+
+Homebrew cask unavailable or outdated
+
+Homebrew reports `Error: Cask 'claude-code' is unavailable: No Cask with this name exists` when your local copy of the Homebrew cask index predates the cask’s publication. Refresh the index and retry:
+
+    brew update
+    brew install --cask claude-code
+
+If Homebrew installs an older Claude Code version than you expect, the same stale index is usually the cause. The `claude-code` cask tracks the stable channel and is typically about one week behind the latest release; for the newest version run `brew install --cask claude-code@latest` instead. See [Configure release channel](</docs/en/setup#configure-release-channel>) for the difference between the two casks.
 
 ###
 
