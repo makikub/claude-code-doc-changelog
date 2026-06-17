@@ -39,7 +39,12 @@ Message types
 
 As the loop runs, the SDK yields a stream of messages. Each message carries a type that tells you what stage of the loop it came from. The five core types are:
 
-  * **`SystemMessage`:** session lifecycle events. The `subtype` field distinguishes them: `"init"` is the first message (session metadata), and `"compact_boundary"` fires after compaction. In TypeScript, the compact boundary is its own [`SDKCompactBoundaryMessage`](</docs/en/agent-sdk/typescript#sdkcompactboundarymessage>) type rather than a subtype of `SDKSystemMessage`.
+  * **`SystemMessage`:** session lifecycle events. The `subtype` field distinguishes them:
+    * `"init"`: the first message with session metadata
+    * `"compact_boundary"`: fires after compaction
+    * `"informational"`: plain-text status banners from the loop
+    * `"worker_shutting_down"`: the loop will end after the current turn because the host is exiting or Remote Control disconnected
+In TypeScript, each subtype other than `"init"` is its own type in the [`SDKMessage` union](</docs/en/agent-sdk/typescript#sdkmessage>) rather than a subtype of `SDKSystemMessage`.
   * **`AssistantMessage`:** emitted after each Claude response, including the final text-only one. Contains text content blocks and tool call blocks from that turn.
   * **`UserMessage`:** emitted after each tool execution with the tool result content sent back to Claude. Also emitted for any user inputs you stream mid-loop.
   * **`StreamEvent`:** only emitted when partial messages are enabled. Contains raw API streaming events (text deltas, tool input chunks). See [Stream responses](</docs/en/agent-sdk/streaming-output>).

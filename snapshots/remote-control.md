@@ -67,7 +67,7 @@ Optionally pass a name for the session:
 
     claude --remote-control "My Project"
 
-This gives you a full interactive session in your terminal that you can also control from claude.ai or the Claude app. Unlike `claude remote-control` (server mode), you can type messages locally while the session is also available remotely.As of v2.1.162, a Remote Control indicator stays in the footer below the input box while the connection is up. From v2.1.172, the indicator reads `/rc active` and is hidden when the terminal is too narrow to fit it; earlier versions always show `Remote Control active`. The indicator text is a link to the session on claude.ai, so you can reopen it from the terminal at any time. Select the indicator with the down arrow key and press Enter to open a status panel with the session URL and a QR code.
+This gives you a full interactive session in your terminal that you can also control from claude.ai or the Claude app. Unlike `claude remote-control` (server mode), you can type messages locally while the session is also available remotely.
 
 If you’re already in a Claude Code session and want to continue it remotely, use the `/remote-control` (or `/rc`) command:
 
@@ -77,13 +77,21 @@ Pass a name as an argument to set a custom session title:
 
     /remote-control My Project
 
-This starts a Remote Control session that carries over your current conversation history.As of v2.1.162, a Remote Control indicator appears in the footer below the input box and stays visible while the connection is up. From v2.1.172, the indicator reads `/rc active` and is hidden when the terminal is too narrow to fit it; earlier versions always show `Remote Control active`. The indicator text is a link to the session on claude.ai. Select it with the down arrow key and press Enter, or run `/remote-control` again, to open a status panel with the session URL and a QR code you can use to connect from another device.The `--verbose`, `--sandbox`, and `--no-sandbox` flags are not available with this command.
+This starts a Remote Control session that carries over your current conversation history.The `--verbose`, `--sandbox`, and `--no-sandbox` flags are not available with this command.
 
 In the [Claude Code VS Code extension](</docs/en/vs-code>), type `/remote-control` or `/rc` in the prompt box, or open the command menu with `/` and select it. Requires Claude Code v2.1.79 or later.
 
     /remote-control
 
 A banner appears above the prompt box showing connection status. Once connected, click **Open in browser** in the banner to go directly to the session, or find it in the session list at [claude.ai/code](<https://claude.ai/code>). The session URL is also posted in the conversation.To disconnect, click the close icon on the banner or run `/remote-control` again.Unlike the CLI, the VS Code command does not accept a name argument or display a QR code. The session title is derived from your conversation history or first prompt.
+
+###
+
+​
+
+Check connection status
+
+In an interactive terminal session, a `/rc active` indicator sits in the footer below the input box while the connection is up, and is hidden if the terminal is too narrow to fit it. The indicator text is a link to the session on claude.ai. Select it with the down arrow key and press Enter, or run `/remote-control` again, to open a status panel with the session URL and a QR code you can use to connect from another device. If the connection fails, the indicator turns red and reads `/rc failed`. Select it with the down arrow key and press Enter to see the failure reason and a dismiss option, or run `/remote-control` again to retry.
 
 ###
 
@@ -104,7 +112,7 @@ The remote session title is chosen in this order:
   3. The last meaningful message in existing conversation history
   4. An auto-generated name like `myhost-graceful-unicorn`, where `myhost` is your machine’s hostname or the prefix you set with `--remote-control-session-name-prefix`
 
-If you didn’t set an explicit name, the title updates to reflect your prompt once you send one. Renaming a session from claude.ai or the Claude app also updates the local title shown in `claude --resume`. If the environment already has an active session, you’ll be asked whether to continue it or start a new one. If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>).
+If you didn’t set an explicit name, the title updates to reflect your prompt once you send one. As of Claude Code v2.1.176, auto-generated titles match the language of your conversation, or the [`language`](</docs/en/settings#available-settings>) setting if one is configured. Renaming a session from claude.ai or the Claude app also updates the local title shown in `claude --resume`. If the environment already has an active session, you’ll be asked whether to continue it or start a new one. If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>).
 
 ###
 
@@ -220,12 +228,15 @@ Your cached account information is stale or incomplete. Run `claude auth login` 
 
 ”Remote Control is not yet enabled for your account”
 
-The eligibility check can fail with certain environment variables present:
+The Remote Control rollout has not reached your account, or your cached entitlements are out of date. If you recently changed plans, run `claude auth logout` then `claude auth login` to refresh them. Run `claude doctor` to see which individual eligibility check failed. Environment-variable conflicts, unreachable checks, and organization policy each produce their own message, so this error means the rollout gate itself.
 
-  * `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `DISABLE_TELEMETRY`: unset them and try again.
-  * `CLAUDE_CODE_USE_BEDROCK`, `CLAUDE_CODE_USE_VERTEX`, or `CLAUDE_CODE_USE_FOUNDRY`: Remote Control requires claude.ai authentication and does not work with third-party providers.
+###
 
-If none of these are set, run `/logout` then `/login` to refresh.
+​
+
+”Couldn’t verify Remote Control eligibility”
+
+Claude Code could not reach the feature-flag service to check whether Remote Control is enabled for your account, typically because you are offline or a proxy is blocking the request. Retry once you have network access, or run `claude doctor` for details. The related message “Couldn’t verify your organization’s Remote Control policy” has the same cause and the same fix. Both messages were added in v2.1.178.
 
 ###
 

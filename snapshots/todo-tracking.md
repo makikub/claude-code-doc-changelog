@@ -139,7 +139,7 @@ Match `block.name === "TodoWrite"`| Match `block.name === "TaskCreate"` or `"Tas
 Item shape: `{ content, status, activeForm }`| `TaskCreate` input: `{ subject, description, activeForm?, metadata? }`. `TaskUpdate` input: `{ taskId, status?, subject?, description?, activeForm?, addBlocks?, addBlockedBy?, owner?, metadata? }`. `status` is `"pending"`, `"in_progress"`, or `"completed"`; set `status: "deleted"` to delete
 Render `block.input.todos` directly| Accumulate items across calls, or read a snapshot from a `TaskList` tool result
 
-The assigned task ID is not in the `TaskCreate` input. It comes back in the matching `tool_result` as `{ task: { id, subject } }`, so capture it from the result block to key your map. The following example shows the minimal change to the Monitoring Todo Changes loop. To render a complete list, watch for a `TaskList` tool result in the stream or accumulate `TaskCreate` results and `TaskUpdate` inputs into a map:
+The assigned task ID is not in the `TaskCreate` input. It comes back in the matching `tool_result` as `{ task: { id, subject } }`, so capture it from the result block to key your map. The following example shows the minimal change to the Monitoring Todo Changes loop. To render a complete list, watch for a `TaskList` tool result in the stream or accumulate `TaskCreate` results and `TaskUpdate` inputs into a map. The streamed `tool_use` input is the raw shape the model emitted. Claude Code repairs some close-but-incorrect key names before execution, mapping `id` or `task_id` to `taskId` and `active_form` to `activeForm`, but that repair is not reflected in the stream. Read `TaskUpdate` input fields defensively, as the samples below do, rather than assuming the canonical name is always present.
 
 TypeScript
 
@@ -157,8 +157,14 @@ Python
           const input = block.input as { subject: string };
           console.log(`+ ${input.subject}`);
         } else if (block.name === "TaskUpdate") {
-          const input = block.input as { taskId: string; status?: string };
-          if (input.status) console.log(`  ${input.taskId} -> ${input.status}`);
+          const input = block.input as {
+            taskId?: string;
+            id?: string;
+            task_id?: string;
+            status?: string;
+          };
+          const taskId = input.taskId ?? input.id ?? input.task_id;
+          if (taskId && input.status) console.log(`  ${taskId} -> ${input.status}`);
         }
       }
     }

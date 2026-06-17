@@ -174,7 +174,7 @@ When Claude writes a workflow for a task youâ€™ll repeat, you can save that runâ
   * `.claude/workflows/` in your project: shared with everyone who clones the repo
   * `~/.claude/workflows/` in your home directory: available in every project, visible only to you
 
-Press Enter to save. The workflow runs as `/<name>` in future sessions from either location. If a project workflow and a personal workflow share a name, the project one runs.
+Press Enter to save. The workflow runs as `/<name>` in future sessions from either location. As of v2.1.178, saving to the project location writes to the closest `.claude/workflows/` directory that already exists between your working directory and the repository root, or to the repository root if none exists yet. Project workflows also load from every `.claude/workflows/` along that path, and when more than one defines the same name Claude Code runs the one closest to the working directory. If a project workflow and a personal workflow share a name, the project one runs.
 
 ###
 
