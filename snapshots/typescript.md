@@ -1325,7 +1325,7 @@ Generic text banner emitted by the loop. Carries non-error status lines, hook fe
 
 `SDKWorkerShuttingDownMessage`
 
-Emitted on graceful worker teardown so remote clients can show why the worker went away instead of waiting for heartbeat timeout. The `reason` is a short snake_case string set by the host CLI, such as `"host_exit"` or `"remote_control_disabled"`. Act on this only when streaming live. A resumed session replays past instances of this message, so ignore them in that case.
+Emitted on graceful worker teardown so remote clients can show why the worker exited instead of waiting for heartbeat timeout. The `reason` is a short snake_case string set by the host CLI, such as `"host_exit"` or `"remote_control_disabled"`. Act on this only when streaming live. A resumed session replays past instances of this message, so ignore them in that case.
 
     type SDKWorkerShuttingDownMessage = {
       type: "system";
@@ -1417,7 +1417,7 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
 ---|---
 `human`| Direct input from the end user. On user messages, an absent `origin` also means human input.
 `channel`| Message arriving on a [channel](</docs/en/channels>). `server` is the source MCP server name.
-`peer`| Reserved for messages from another agent session. `from` is the sender address and `name` is the sender’s display name when available. `senderTaskId` is the task ID of the in-process background subagent that sent the message; absent for cross-session peers. The Agent SDK does not emit this origin; treat as an unknown origin.
+`peer`| Message from another agent. For an in-process [teammate](</docs/en/agent-teams>) sending to `main` via `SendMessage`, `from` is the teammate’s name and `senderTaskId` is its task ID. For a cross-session peer such as another local Claude Code process, `from` is the sender address and `senderTaskId` is absent. The `name` field is reserved.
 `task-notification`| Synthetic turn injected after a background task finished. See `SDKTaskNotificationMessage`.
 `coordinator`| Message from a team coordinator in an [agent team](</docs/en/agent-teams>).
 `auto-continuation`| Synthetic turn injected when the session continues without fresh user input, such as a command result that triggers a follow-up prompt.

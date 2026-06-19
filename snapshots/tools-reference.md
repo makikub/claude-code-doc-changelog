@@ -3,6 +3,7 @@ Claude Code has access to a set of built-in tools that help it understand and mo
 Tool| Description| Permission Required
 ---|---|---
 `Agent`| Spawns a [subagent](</docs/en/sub-agents>) with its own context window to handle a task. See Agent tool behavior| No
+`Artifact`| Publishes an HTML or Markdown file as an [artifact](</docs/en/artifacts>): a private, interactive page on claude.ai you can share inside your organization. Requires a Team or Enterprise plan and `/login` authentication; see [Availability](</docs/en/artifacts#availability>)| Yes
 `AskUserQuestion`| Asks multiple-choice questions to gather requirements or clarify ambiguity| No
 `Bash`| Executes shell commands in your environment. See Bash tool behavior| Yes
 `CronCreate`| Schedules a recurring or one-shot prompt within the current session. Tasks are session-scoped and restored on `--resume` or `--continue` if unexpired. See [scheduled tasks](</docs/en/scheduled-tasks>)| No

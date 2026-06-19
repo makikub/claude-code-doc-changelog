@@ -42,6 +42,14 @@ The cycle Claude works through for every task: gather context, take action, veri
 
 ​
 
+Artifact
+
+A live, interactive web page Claude Code publishes from your session to a private URL on claude.ai, so you can see output visually or share it inside your organization instead of reading terminal text. The page updates in place when the session republishes. Artifacts you create from Claude Code appear in the same gallery as artifacts created in claude.ai conversations, but their sharing stops at your organization and they cannot be made public. Learn more: [Share session output as artifacts](</docs/en/artifacts>)
+
+###
+
+​
+
 Auto memory
 
 Notes Claude writes for itself based on your corrections and preferences, stored per git repository under `~/.claude/projects/`. All worktrees of the same repository share one auto memory directory. The first 200 lines or 25 KB of the `MEMORY.md` index loads at the start of every session. Auto memory is the Claude-written counterpart to CLAUDE.md, which you write. Learn more: [Auto memory](</docs/en/memory#auto-memory>)
