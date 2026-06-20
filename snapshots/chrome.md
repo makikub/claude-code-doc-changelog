@@ -192,7 +192,7 @@ Troubleshooting
 
 Extension not detected
 
-If Claude Code’s setup-issues line lists `chrome`:
+If Claude Code can’t detect the Chrome extension:
 
   1. Verify the Chrome extension is installed and enabled in `chrome://extensions`
   2. Verify Claude Code is up to date by running `claude --version`
