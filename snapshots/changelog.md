@@ -2,6 +2,14 @@ This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/ant
 
 ​
 
+2.1.185
+
+June 20, 2026
+
+  * The stream-stall hint now reads “Waiting for API response · will retry in …” instead of “No response from API · Retrying in …”, and triggers after 20s of silence instead of 10s
+
+​
+
 2.1.183
 
 June 19, 2026
