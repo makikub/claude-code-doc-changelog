@@ -92,7 +92,7 @@ Quick commands
 Shortcut| Description| Notes
 ---|---|---
 `/` at start| Command or skill| See commands and [skills](</docs/en/skills>)
-`!` at start| Shell mode| Run commands directly and add execution output to the session
+`!` at start| Shell mode| Run a command directly, add its output to the session, and have Claude respond to it
 `@`| File path mention| Trigger file path autocomplete
 
 ###
@@ -342,7 +342,7 @@ Shell mode:
   * Exit with `Escape`, `Backspace`, or `Ctrl+U` on an empty prompt
   * Pasting text that starts with `!` into an empty prompt enters shell mode automatically, matching typed `!` behavior
 
-This is useful for quick shell operations while maintaining conversation context.
+As of v2.1.186, Claude responds to the command output automatically once it lands in the transcript, so you can run `! npm test` and get an explanation of the failures without a second prompt. The response costs the same as sending a normal prompt. To restore the earlier behavior where the output is added to context without a response, set [`respondToBashCommands`](</docs/en/settings#available-settings>) to `false` in `settings.json`. Before v2.1.186, shell mode always added output to context without a response. This is useful for quick shell operations while maintaining conversation context.
 
 ##
 

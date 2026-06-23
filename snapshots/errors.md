@@ -33,6 +33,7 @@ Message| Section
 `OAuth token revoked` / `OAuth token has expired`| Authentication
 `does not meet scope requirement user:profile`| Authentication
 `Unable to connect to API`| Network
+`Waiting for API response · will retry in`| Automatic retries, or Network if it persists
 `SSL certificate verification failed`| Network
 `403` with `x-deny-reason: host_not_allowed` in a cloud or routine session| Network
 `Prompt is too long`| Request errors
@@ -56,11 +57,12 @@ Responses seem lower quality than usual| Response quality
 
 Automatic retries
 
-Claude Code retries transient failures before showing you an error. Server errors, overloaded responses, request timeouts, temporary 429 throttles, and dropped connections are all retried up to 10 times with exponential backoff. While retrying, the spinner shows a `Retrying in Ns · attempt x/y` countdown. When you see one of the errors on this page, those retries have already been exhausted. You can tune the behavior with two environment variables:
+Claude Code retries transient failures before showing you an error. Server errors, overloaded responses, request timeouts, temporary 429 throttles, and dropped connections are all retried up to 10 times with exponential backoff. While retrying, the spinner shows a `Retrying in Ns · attempt x/y` countdown. If no data arrives on the response stream for 20 seconds while a request is still pending, the spinner shows `Waiting for API response · will retry in … · check your network` before any retry has started. The request has not failed yet: the countdown runs to the point where Claude Code aborts the stalled connection and retries, so the banner clears on its own once data resumes or the retry succeeds. As of v2.1.185 the threshold is 20 seconds; earlier versions show the banner after 10 seconds with different wording. If it reappears on every attempt, treat it as a network issue. When you see one of the errors on this page, those retries have already been exhausted. You can tune the behavior with these environment variables:
 
 Variable| Default| Effect
 ---|---|---
-[`CLAUDE_CODE_MAX_RETRIES`](</docs/en/env-vars>)| 10| Number of retry attempts. Lower it to surface failures faster in scripts; raise it to wait through longer incidents.
+[`CLAUDE_CODE_MAX_RETRIES`](</docs/en/env-vars>)| 10| Number of retry attempts. Capped at 15 as of v2.1.186. Lower it to surface failures faster in scripts.
+[`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>)| unset| Set to `1` in unattended sessions such as CI jobs to retry `429` and `529` capacity errors indefinitely instead of failing after `CLAUDE_CODE_MAX_RETRIES` attempts.
 [`API_TIMEOUT_MS`](</docs/en/env-vars>)| 600000| Per-request timeout in milliseconds. Raise it for slow networks or proxies.
 
 ##
