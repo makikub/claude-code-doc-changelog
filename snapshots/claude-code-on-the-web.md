@@ -876,3 +876,4 @@ Related resources
   * [Settings reference](</docs/en/settings>): all configuration options
   * [Security](</docs/en/security>): isolation guarantees and data handling
   * [Data usage](</docs/en/data-usage>): what Anthropic retains from cloud sessions
+  * [Claude Tag](<https://claude.com/docs/claude-tag/overview>): an organization-managed @Claude in Slack that runs on the same cloud environment

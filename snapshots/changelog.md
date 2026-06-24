@@ -2,6 +2,34 @@ This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/ant
 
 ​
 
+2.1.187
+
+June 23, 2026
+
+  * Added `sandbox.credentials` setting to block sandboxed commands from reading credential files and secret environment variables
+  * Added org-configured model restrictions to the model picker, `--model`, `/model`, and `ANTHROPIC_MODEL`, with a “restricted by your organization’s settings” message when a restricted model is selected
+  * Added mouse click support to select menus (permission prompts, `/model`, `/config`, etc.) in fullscreen mode
+  * Fixed `--resume` failing with “No conversation found” when the original `-p` run produced no model turns
+  * Fixed `--json-schema` and workflow `agent({schema})` structured output: the model can no longer re-call `StructuredOutput` indefinitely after a successful call, and follow-up turns now reliably return structured output
+  * Fixed remote MCP tool calls that hang with no response for 5 minutes — they now abort with an error instead of blocking indefinitely (override with `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`)
+  * Fixed Claude Code Remote sessions taking ~2.7s longer to start after the agent proxy CA system-trust install was added
+  * Fixed pasted Korean/CJK text turning into mojibake in terminals that deliver paste as per-byte extended-key events
+  * Fixed `/update` over Remote Control hanging when a startup trust dialog would have shown
+  * Fixed background jobs in the agents view getting stuck in “working” indefinitely when the agent ended a turn without producing structured output
+  * Fixed channel connections dropping after navigating to the agents view and back, and after `/bg`, `/tui`, or `/update`
+  * Fixed agent stop notifications not correctly attributing who stopped the agent, and improved wording (“finished”/“stopped” instead of “came to rest”)
+  * Fixed subagent depth tracking: resumed subagents now restore their original spawn depth, and forked subagents now count toward the depth cap
+  * Fixed leaked agent worktree registrations: locked `.git/worktrees/` entries from killed agents are now cleaned up automatically
+  * Fixed Cmd+click not opening URLs in fullscreen mode in Ghostty on macOS
+  * Fixed `claude --help` not listing the `--bg`/`--background` flag
+  * Fixed Esc, Ctrl-C, and Ctrl-D not working while `/share` is uploading
+  * Improved `/install-github-app`: GitHub Actions workflow setup is now optional — you can install just the GitHub App and skip the workflow/secret steps
+  * Improved `/btw` with ←/→ arrow navigation to step through earlier answers
+  * Improved `/plugin` to surface plugins you haven’t used recently so you can clean them up
+  * [VSCode] Fixed extension becoming unresponsive when resuming a large session
+
+​
+
 2.1.186
 
 June 22, 2026
