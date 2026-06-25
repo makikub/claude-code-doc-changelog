@@ -21,7 +21,7 @@ Enable voice dictation
 Run `/voice` to enable dictation. The first time you enable it, Claude Code runs a microphone check. On macOS, this triggers the system microphone permission prompt for your terminal if it has never been granted.
 
     /voice
-    Voice mode enabled (hold). Hold Space to record. Dictation language: en (/config to change).
+    Voice mode enabled (hold). Hold space to record. Dictation language: en (/config to change).
 
 `/voice` accepts an optional mode argument:
 
@@ -41,7 +41,7 @@ Voice dictation persists across sessions. Set it directly in your [user settings
       }
     }
 
-While voice dictation is enabled, the input footer shows a `hold Space to speak` hint when the prompt is empty. The hint reflects your current `voice:pushToTalk` binding and updates if you rebind the dictation key. The hint text is the same in both modes, and it does not appear if you have a [custom status line](</docs/en/statusline>) configured. Transcription is tuned for coding vocabulary in both modes. Common development terms like `regex`, `OAuth`, `JSON`, and `localhost` are recognized correctly, and your current project name and git branch name are added as recognition hints automatically.
+While voice dictation is enabled, the input footer shows a `hold space to speak` hint when the prompt is empty. The hint reflects your current `voice:pushToTalk` binding and updates if you rebind the dictation key. The hint text is the same in both modes, and it does not appear if you have a [custom status line](</docs/en/statusline>) configured. Transcription is tuned for coding vocabulary in both modes. Common development terms like `regex`, `OAuth`, `JSON`, and `localhost` are recognized correctly, and your current project name and git branch name are added as recognition hints automatically.
 
 ##
 
@@ -56,7 +56,7 @@ To skip the warmup, switch to tap mode with `/voice tap`, or rebind to a modifie
 Your speech appears in the prompt as you speak, dimmed until the transcript is finalized. Release `Space` to stop recording and finalize the text. The transcript is inserted at your cursor position and the cursor stays at the end of the inserted text, so you can mix typing and dictation in any order. Hold `Space` again to append another recording, or move the cursor first to insert speech elsewhere in the prompt:
 
     > refactor the auth middleware to ▮
-      # hold Space, speak "use the new token validation helper"
+      # hold space, speak "use the new token validation helper"
     > refactor the auth middleware to use the new token validation helper▮
 
 By default, releasing the key inserts the transcript and waits for you to press `Enter`. Set `"autoSubmit": true` in the `voice` settings object to send the prompt automatically when you release the key, as long as the transcript is at least three words long.

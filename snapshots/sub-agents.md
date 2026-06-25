@@ -285,6 +285,8 @@ When Claude invokes a subagent, it can also pass a `model` parameter for that sp
   3. The subagent definition’s `model` frontmatter
   4. The main conversation’s model
 
+The environment variable, per-invocation parameter, and frontmatter values are checked against your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist. A value that resolves to an excluded model is not used and the subagent runs on the inherited model instead.
+
 ###
 
 ​
@@ -765,7 +767,7 @@ Consider [Skills](</docs/en/skills>) instead when you want reusable prompts or w
 
 Spawn nested subagents
 
-As of Claude Code v2.1.172, a subagent can spawn its own subagents. Use this when a delegated task itself splits into parallel subtasks, such as a reviewer subagent that dispatches a verifier per finding, so the intermediate output never reaches your main conversation. Only the top-level subagent’s summary returns to you. A nested subagent is configured the same way as a top-level one and resolves from the same scopes. The subagent panel below the prompt input shows the full tree: each row displays a `(+N)` count of descendants, and opening a row shows that subagent’s direct children with a path back to `main`. The Running tab in `/agents` lists running subagents as a flat list. Depth is counted as the number of subagent levels below the main conversation, regardless of whether each level runs in the foreground or background. A subagent at depth five does not receive the Agent tool and cannot spawn further. The limit is fixed and not configurable. To prevent a specific subagent from spawning others, omit `Agent` from its `tools` list or add it to `disallowedTools`. A fork still cannot spawn another fork. It can spawn other subagent types, and those count toward the depth limit.
+As of Claude Code v2.1.172, a subagent can spawn its own subagents. Use this when a delegated task itself splits into parallel subtasks, such as a reviewer subagent that dispatches a verifier per finding, so the intermediate output never reaches your main conversation. Only the top-level subagent’s summary returns to you. A nested subagent is configured the same way as a top-level one and resolves from the same scopes. The subagent panel below the prompt input shows the full tree: each row displays a `(+N)` count of descendants, and opening a row shows that subagent’s direct children with a path back to `main`. The Running tab in `/agents` lists running subagents as a flat list. Depth is counted as the number of subagent levels below the main conversation, regardless of whether each level runs in the foreground or background. A subagent at depth five does not receive the Agent tool and cannot spawn further. The limit is fixed and not configurable. As of Claude Code v2.1.187, a background subagent’s depth is fixed when it is first spawned, and resuming it later does not change that depth. For example, if your main conversation spawns subagent A, and A spawns a background subagent B at depth two, B is still at depth two when you resume it directly from the main conversation. Resuming a subagent from a shallower context does not let it spawn additional levels that the depth limit already prevented. To prevent a specific subagent from spawning others, omit `Agent` from its `tools` list or add it to `disallowedTools`. A fork still cannot spawn another fork. It can spawn other subagent types, and those count toward the depth limit.
 
 ###
 

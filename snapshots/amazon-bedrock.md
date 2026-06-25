@@ -355,10 +355,10 @@ The models available to you on Mantle may not include every model you use today.
     export CLAUDE_CODE_USE_BEDROCK=1
     export CLAUDE_CODE_USE_MANTLE=1
 
-To surface a Mantle model in the `/model` picker, list its ID in `availableModels` in your [settings file](</docs/en/settings>). This setting also restricts the picker to the listed entries, so include every alias you want to keep available:
+To surface a Mantle model in the `/model` picker, list its ID in `availableModels` in your [settings file](</docs/en/settings>). This setting also restricts the picker to the listed entries. Listing `anthropic.claude-haiku-4-5` removes the bare `haiku` alias from the picker, so also list version prefixes or full IDs for the versions you want to keep selectable. The Mantle ID and the `haiku` alias resolve to the same model family, so the merge keeps only the more specific entry. See [Merge behavior](</docs/en/model-config#merge-behavior>):
 
     {
-      "availableModels": ["opus", "sonnet", "haiku", "anthropic.claude-haiku-4-5"]
+      "availableModels": ["opus", "sonnet", "claude-haiku-4-5", "anthropic.claude-haiku-4-5"]
     }
 
 Entries with the `anthropic.` prefix are added as custom picker options and routed to Mantle. Replace `anthropic.claude-haiku-4-5` with the model ID your account has been granted. See [Restrict model selection](</docs/en/model-config#restrict-model-selection>) for how `availableModels` interacts with other model settings. When both providers are active, `/status` shows `Amazon Bedrock + Amazon Bedrock (Mantle)`.

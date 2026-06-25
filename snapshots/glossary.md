@@ -214,7 +214,7 @@ M
 
 Managed settings
 
-A settings file enforced org-wide by IT or DevOps, placed at an OS-level path outside `~/.claude`. Users cannot override or exclude managed settings. Use this for security policies, compliance requirements, or standardized tooling across a fleet. Learn more: [Server-managed settings](</docs/en/server-managed-settings>)
+Settings enforced org-wide by IT or DevOps, delivered from Anthropic’s servers through the admin console or deployed to devices at an OS-level path outside `~/.claude`. User and project settings cannot override managed settings. Server-managed delivery applies on [eligible configurations](</docs/en/server-managed-settings#platform-availability>); see [Security considerations](</docs/en/server-managed-settings#security-considerations>). Use this for security policies, compliance requirements, or standardized tooling across a fleet. Learn more: [Server-managed settings](</docs/en/server-managed-settings>) · [Settings files](</docs/en/settings#settings-files>)
 
 ###
 

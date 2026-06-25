@@ -653,7 +653,7 @@ These settings are configured through the [admin settings console](<https://clau
 
 Managed settings
 
-Managed settings override project and user settings and apply when Desktop spawns CLI sessions. You can set these keys in your organization’s [managed settings](</docs/en/settings#settings-precedence>) file or push them remotely through the admin console.
+Managed settings override project and user settings and apply to Claude Code sessions in Desktop. You can set these keys in your organization’s [managed settings](</docs/en/settings#settings-precedence>) file or push them remotely through the admin console.
 
 Key| Description
 ---|---
@@ -662,9 +662,15 @@ Key| Description
 `autoMode`| customize what the auto mode classifier trusts and blocks across your organization. See [Configure auto mode](</docs/en/auto-mode-config>).
 `sshConfigs`| pre-configure SSH connections that appear in the environment dropdown. Users cannot edit or delete managed connections.
 `sshHostAllowlist`| restrict SSH sessions to hosts whose resolved hostname matches one of these patterns. An empty array disables SSH sessions. Read from managed settings only.
-`managedMcpServers`| push MCP server configurations to all users in a third-party deployment. Each entry specifies a transport of `"http"`, `"sse"`, or `"stdio"`, connection details, and optionally a `toolPolicy` map that restricts which tools in that server users can invoke. Available in third-party (3P) Desktop deployments only.
+`managedMcpServers`| push MCP server configurations to all users in a third-party deployment. Each entry specifies a transport of `"http"`, `"sse"`, or `"stdio"`, connection details, and optionally a `toolPolicy` map that restricts which tools in that server users can invoke. Available in third-party (3P) Desktop deployments only. Deliver this key through the managed settings file or MDM, since third-party deployments do not receive admin-console settings.
 
-A managed settings file deployed to disk on each machine applies to Desktop sessions. Managed settings pushed remotely through the admin console currently reach CLI and IDE sessions only, so for Desktop deployments either distribute the file via MDM or use the admin console controls above. `permissions.disableBypassPermissionsMode` and `disableAutoMode` also work in user and project settings, but placing them in managed settings prevents users from overriding them. `autoMode` is read from user settings, `.claude/settings.local.json`, and managed settings, but not from the checked-in `.claude/settings.json`: a cloned repo cannot inject its own classifier rules. For the complete list of managed-only settings including `allowManagedPermissionRulesOnly` and `allowManagedHooksOnly`, see [managed-only settings](</docs/en/permissions#managed-only-settings>).
+Which managed settings reach a Desktop session depends on where that session runs. Model restrictions such as [`availableModels`](</docs/en/model-config#restrict-model-selection>) are enforced in Desktop’s Claude Code sessions the same way as in the terminal CLI; see [surface coverage](</docs/en/model-config#surface-coverage>).
+
+  * **Local sessions on this machine** : a managed settings file deployed to disk applies. Managed settings pushed remotely through the admin console also reach these sessions on Anthropic’s API when the session authenticates with an organization login or a directly configured API key, following the same [settings precedence](</docs/en/settings#settings-precedence>) as the terminal CLI.
+  * **Cloud sessions** : run on Anthropic-managed VMs and receive [server-managed settings](</docs/en/server-managed-settings>) only.
+  * **SSH sessions** : the session reads the managed settings file from the remote host. Desktop itself reads `sshConfigs` and `sshHostAllowlist` from the local machine’s managed settings when creating the connection.
+
+`permissions.disableBypassPermissionsMode` and `disableAutoMode` also work in user and project settings, but placing them in managed settings prevents users from overriding them. `autoMode` is read from user settings, `.claude/settings.local.json`, and managed settings, but not from the checked-in `.claude/settings.json`: a cloned repo cannot inject its own classifier rules. For the complete list of managed-only settings including `allowManagedPermissionRulesOnly` and `allowManagedHooksOnly`, see [managed-only settings](</docs/en/permissions#managed-only-settings>).
 
 ###
 

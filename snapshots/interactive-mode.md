@@ -180,7 +180,7 @@ Command| Action
 `T{char}`| Jump to just after previous occurrence of character
 `;`| Repeat last f/F/t/T motion
 `,`| Repeat last f/F/t/T motion in reverse
-`/`| Open reverse history search, same as `Ctrl+R`
+`/`| Open reverse history search, same as `Ctrl+R`. As of v2.1.191, the empty search prompt shows a hint: press `Esc` then `i` then `/` to open the command menu instead
 
 In vim normal mode, if the cursor is at the beginning or end of input and cannot move further, `j`/`k` and the arrow keys navigate command history instead.
 
@@ -284,7 +284,7 @@ Press `Ctrl+R` to interactively search through your command history:
      * Press `Ctrl+C` to cancel and restore your original input
      * Press `Backspace` on empty search to cancel
 
-The search displays matching commands with the search term highlighted, so you can find and reuse previous inputs.
+The search loads the 100 most recent unique prompts in the selected scope, with duplicates collapsed to the newest occurrence. Matching prompts display with the search term highlighted, so you can find and reuse previous inputs.
 
 ##
 
@@ -382,6 +382,7 @@ Key| Action
 ---|---
 `Space`, `Enter`, `Escape`| Dismiss the answer and return to the prompt
 `Up` / `Down`| Scroll the answer
+`Left` / `Right`| Step between this answer and your earlier `/btw` answers from the session. `Left` moves to older answers and `Right` returns toward the current one. Requires Claude Code v2.1.187 or later
 `c`| Copy the answer to your clipboard as raw Markdown. Use this instead of mouse selection, which captures the hard-wrapped terminal rendering rather than the source text
 `f`| Fork into a new session. The fork inherits the parent conversation plus this question and answer as real transcript turns, so you can continue with full tool access. The original session is preserved under [`/resume`](</docs/en/commands>). Available in local sessions only
 `x`| Clear the list of earlier `/btw` exchanges shown above the current answer
