@@ -127,7 +127,7 @@ Claude decides the number of teammates to spawn based on your task, or you can s
     Spawn 4 teammates to refactor these modules in parallel. Use Sonnet for
     each teammate.
 
-Teammates don’t inherit the lead’s `/model` selection by default. To change the model used when the prompt doesn’t specify one, set **Default teammate model** in `/config`. Pick **Default (leader’s model)** to have teammates follow the lead’s current model.
+Teammates don’t inherit the lead’s `/model` selection by default. To change the model used when the prompt doesn’t specify one, set **Default teammate model** in `/config`. Pick **Default (leader’s model)** to have teammates follow the lead’s current model. Teammates inherit the lead’s [effort level](</docs/en/model-config#adjust-effort-level>). In split-pane mode this applies from v2.1.186; earlier versions did not pass the lead’s session effort to split-pane teammates.
 
 ###
 

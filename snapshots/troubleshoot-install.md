@@ -26,7 +26,7 @@ What you see| Solution
 `Error loading shared library`| Wrong binary variant for your system
 `Illegal instruction`| Architecture or CPU instruction set mismatch
 `cannot execute binary file: Exec format error` in WSL| WSL1 native-binary regression
-PowerShell installer completes but `claude` is not found or shows an old version| Restart your terminal and verify PATH
+PowerShell installer completes but `claude` is not found or shows an old version| Add the install directory to your PATH, then open a new terminal
 `dyld: cannot load`, `dyld: Symbol not found`, or `Abort trap` on macOS| Binary incompatibility
 `Invoke-Expression: Missing argument in parameter list`| Install script returns HTML
 `App unavailable in region`| Claude Code is not available in your country. See [supported countries](<https://www.anthropic.com/supported-countries>).

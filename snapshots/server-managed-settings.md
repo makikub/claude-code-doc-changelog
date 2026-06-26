@@ -1,4 +1,4 @@
-Server-managed settings allow administrators to centrally configure Claude Code through a web-based interface on Claude.ai. Claude Code clients automatically receive these settings when users authenticate with an organization OAuth login or a directly configured API key, on platforms where server-managed delivery is supported. See Platform availability. This approach is designed for organizations that do not have device management infrastructure in place, or need to manage settings for users on unmanaged devices.
+Server-managed settings let organization Owners centrally configure Claude Code from [**Admin Settings > Claude Code > Managed settings**](<https://claude.ai/admin-settings/claude-code>) in the claude.ai console. Claude Code clients fetch these settings automatically when users authenticate with an organization OAuth login or a directly configured API key, on platforms where server-managed delivery is supported. See Platform availability. This approach is designed for organizations that do not have device management infrastructure in place, or that need to manage settings for users on unmanaged devices.
 
 Server-managed settings are available for [Claude for Teams](<https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_teams#team-&-enterprise>) and [Claude for Enterprise](<https://anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_enterprise>) customers.
 
@@ -11,6 +11,7 @@ Requirements
 To use server-managed settings, you need:
 
   * Claude for Teams or Claude for Enterprise plan
+  * The Owner or Primary Owner role in your Claude organization, to view and edit the configuration
   * Claude Code version 2.1.38 or later for Claude for Teams, or version 2.1.30 or later for Claude for Enterprise
   * Network access to `api.anthropic.com`
 
@@ -39,7 +40,7 @@ Configure server-managed settings
 
 Open the admin console
 
-In [Claude.ai](<https://claude.ai>), navigate to **Admin Settings > Claude Code > Managed settings**.
+In the claude.ai console, go to [**Admin Settings > Claude Code > Managed settings**](<https://claude.ai/admin-settings/claude-code>).If the link redirects you to a different Admin Settings page instead of the Claude Code page, your account doesn’t have the required role. Admin and other non-Owner roles can’t view or edit managed settings, so ask an Owner or Primary Owner in your organization to make the change. See Access control.
 
 2
 

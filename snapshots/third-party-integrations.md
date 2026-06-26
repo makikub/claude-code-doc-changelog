@@ -17,7 +17,7 @@ Authentication| Claude.ai SSO or email| API key| API key or AWS credentials| API
 Cost tracking| Usage dashboard| Usage dashboard| AWS Cost Explorer| AWS Cost Explorer| GCP Billing| Azure Cost Management
 Includes Claude on web| Yes| No| No| No| No| No
 Enterprise features| Team management, SSO, usage monitoring| None| IAM policies, CloudTrail| IAM policies, CloudTrail| IAM roles, Cloud Audit Logs| RBAC policies, Azure Monitor
-Select a deployment option to view setup instructions:
+For a feature-by-feature breakdown of what’s available on each option, see [Feature availability](</docs/en/feature-availability>). Select a deployment option to view setup instructions:
 
   * [Claude for Teams or Enterprise](</docs/en/authentication#claude-for-teams-or-enterprise>)
   * [Anthropic Console](</docs/en/authentication#claude-console-authentication>)
