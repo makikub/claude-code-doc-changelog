@@ -3,7 +3,7 @@ Tool search enables your agent to work with hundreds or thousands of tools by dy
   * **Context efficiency:** Tool definitions can consume large portions of the context window (50 tools can use 10-20K tokens), leaving less room for actual work.
   * **Tool selection accuracy:** Tool selection accuracy degrades with more than 30-50 tools loaded at once.
 
-Tool search is enabled by default. This page covers how it works, how to configure it, and how to optimize tool discovery.
+Tool search is enabled by default.
 
 ##
 

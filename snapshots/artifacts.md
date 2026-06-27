@@ -2,15 +2,6 @@ Artifacts are in beta. They require a Team or Enterprise plan and a session sign
 
 An artifact is a live, interactive web page that Claude Code publishes from your session to a private URL on claude.ai. You open it in a browser, and it updates in place as the session continues. Share it from the page header when you want a teammate to see it too. For example, use an artifact to walk a reviewer through a pull request with annotated diffs, build a dashboard from session data, or keep an investigation timeline that fills in as Claude works.
 
-This page covers how to:
-
-  * Decide when to use an artifact
-  * Create, update, and share an artifact
-  * Apply prompting patterns for richer pages
-  * Apply your own design system so artifacts match your product’s branding
-  * Understand the page constraints and availability requirements
-  * Disable or manage artifacts for your organization
-
 ##
 
 ​

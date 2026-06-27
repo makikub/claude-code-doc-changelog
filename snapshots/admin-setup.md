@@ -26,7 +26,7 @@ Amazon Bedrock| You want to inherit existing AWS compliance controls and billing
 Google Vertex AI| You want to inherit existing GCP compliance controls and billing
 Microsoft Foundry| You want to inherit existing Azure compliance controls and billing
 
-Some Claude Code features require a Claude.ai account. [Claude Code on the web](</docs/en/claude-code-on-the-web>), [Routines](</docs/en/routines>), [Code Review](</docs/en/code-review>), [Remote Control](</docs/en/remote-control>), and the [Chrome extension](</docs/en/chrome>) are not available through Console API keys or cloud-provider credentials alone. If you deploy through Bedrock, Vertex, or Foundry, plan whether developers also need Claude for Teams or Enterprise seats. Each feature page lists its plan requirements. For the full provider comparison covering authentication, regions, and feature parity, see the [enterprise deployment overview](</docs/en/third-party-integrations>). Each provider’s auth setup is in [Authentication](</docs/en/authentication>). Proxy and firewall requirements in [Network configuration](</docs/en/network-config>) apply regardless of provider. If you want a single endpoint in front of multiple providers or centralized request logging, see [LLM gateway](</docs/en/llm-gateway>).
+Some Claude Code features require a claude.ai account. [Claude Code on the web](</docs/en/claude-code-on-the-web>), [Routines](</docs/en/routines>), [Code Review](</docs/en/code-review>), [Remote Control](</docs/en/remote-control>), and the [Chrome extension](</docs/en/chrome>) aren’t available through Console API keys or cloud-provider credentials alone. If you deploy through Bedrock, Vertex, or Foundry, plan whether developers also need Claude for Teams or Enterprise seats. Each feature page lists its plan requirements. For the full provider comparison covering authentication, regions, and feature parity, see the [enterprise deployment overview](</docs/en/third-party-integrations>). Each provider’s auth setup is in [Authentication](</docs/en/authentication>). Proxy and firewall requirements in [Network configuration](</docs/en/network-config>) apply regardless of provider. If you want a single endpoint in front of multiple providers or centralized request logging, see [LLM gateway](</docs/en/llm-gateway>).
 
 ##
 
@@ -38,7 +38,7 @@ Managed settings define policy that takes precedence over local developer config
 
 Mechanism| Delivery| Priority| Platforms
 ---|---|---|---
-Server-managed| Claude.ai admin console| Highest| All
+Server-managed| claude.ai admin console| Highest| All
 plist / registry policy| macOS: `com.anthropic.claudecode` plist
 Windows: `HKLM\SOFTWARE\Policies\ClaudeCode`| High| macOS, Windows
 File-based managed| macOS: `/Library/Application Support/ClaudeCode/managed-settings.json`
@@ -46,7 +46,7 @@ Linux and WSL: `/etc/claude-code/managed-settings.json`
 Windows: `C:\Program Files\ClaudeCode\managed-settings.json`| Medium| All
 Windows user registry| `HKCU\SOFTWARE\Policies\ClaudeCode`| Lowest| Windows only
 
-Server-managed settings reach devices at authentication time and refresh hourly during active sessions, with no endpoint infrastructure. They require a Claude for Teams or Enterprise plan, so deployments on other providers need one of the file-based or OS-level mechanisms instead. If your organization mixes providers, configure [server-managed settings](</docs/en/server-managed-settings>) for Claude.ai users plus a [file-based or plist/registry fallback](</docs/en/settings#settings-files>) so other users still receive managed policy. The plist and HKLM registry locations work with any provider and resist tampering because they require admin privileges to write. The Windows user registry at HKCU is writable without elevation, so treat it as a convenience default rather than an enforcement channel. By default WSL reads only the Linux file path at `/etc/claude-code`. To extend your Windows registry and `C:\Program Files\ClaudeCode` policy to WSL on the same machine, set [`wslInheritsWindowsSettings: true`](</docs/en/settings#available-settings>) in either of those admin-only Windows sources. Whichever mechanism you choose, managed values take precedence over user and project settings. Array settings such as `permissions.allow` and `permissions.deny` merge entries from all sources, so developers can extend managed lists but not remove from them, with [two exceptions](</docs/en/settings#settings-precedence>) where the managed value replaces lower layers rather than merging: `fallbackModel` and `availableModels`. See [Server-managed settings](</docs/en/server-managed-settings>) and [Settings files and precedence](</docs/en/settings#settings-files>).
+Server-managed settings reach devices at authentication time and refresh hourly during active sessions, with no endpoint infrastructure. They require a Claude for Teams or Enterprise plan, so deployments on other providers need one of the file-based or OS-level mechanisms instead. If your organization mixes providers, configure [server-managed settings](</docs/en/server-managed-settings>) for claude.ai users plus a [file-based or plist/registry fallback](</docs/en/settings#settings-files>) so other users still receive managed policy. The plist and HKLM registry locations work with any provider and resist tampering because they require admin privileges to write. The Windows user registry at HKCU is writable without elevation, so treat it as a convenience default rather than an enforcement channel. By default, WSL reads only the Linux file path at `/etc/claude-code`. To extend your Windows registry and `C:\Program Files\ClaudeCode` policy to WSL on the same machine, set [`wslInheritsWindowsSettings: true`](</docs/en/settings#available-settings>) in either of those admin-only Windows sources. Whichever mechanism you choose, managed values take precedence over user and project settings. Array settings such as `permissions.allow` and `permissions.deny` merge entries from all sources, so developers can extend managed lists but not remove from them. For [two exceptions](</docs/en/settings#settings-precedence>), `fallbackModel` and `availableModels`, the managed value replaces lower layers rather than merging. See [Server-managed settings](</docs/en/server-managed-settings>) and [Settings files and precedence](</docs/en/settings#settings-files>).
 
 ##
 
@@ -61,7 +61,7 @@ Control| What it does| Key settings
 [Permission rules](</docs/en/permissions>)| Allow, ask, or deny specific tools and commands| `permissions.allow`, `permissions.deny`
 [Permission lockdown](</docs/en/permissions#managed-only-settings>)| Only managed permission rules apply; disable `--dangerously-skip-permissions`| `allowManagedPermissionRulesOnly`, `permissions.disableBypassPermissionsMode`
 [Sandboxing](</docs/en/sandboxing>)| OS-level filesystem and network isolation with domain allowlists| `sandbox.enabled`, `sandbox.network.allowedDomains`
-[Managed policy CLAUDE.md](</docs/en/memory#deploy-organization-wide-claude-md>)| Org-wide instructions loaded in every session, cannot be excluded| File at the managed policy path
+[Managed policy CLAUDE.md](</docs/en/memory#deploy-organization-wide-claude-md>)| Org-wide instructions loaded in every session, can’t be excluded| File at the managed policy path
 [MCP server control](</docs/en/managed-mcp>)| Restrict which MCP servers users can add or connect to, or deploy a fixed set| `allowedMcpServers`, `deniedMcpServers`, `allowManagedMcpServersOnly`, or a deployed `managed-mcp.json` file
 [Plugin marketplace control](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)| Restrict which marketplace sources users can add and install from| `strictKnownMarketplaces`, `blockedMarketplaces`
 [Customization lockdown](</docs/en/settings#strictpluginonlycustomization>)| Block skills, agents, hooks, and MCP servers from user and project sources, so they can only come from plugins or managed settings| `strictPluginOnlyCustomization`
@@ -95,7 +95,7 @@ Cloud providers expose spend through AWS Cost Explorer, GCP Billing, or Azure Co
 
 Review data handling
 
-On Team, Enterprise, Claude API, and cloud provider plans, Anthropic does not train models on your code or prompts. Your API provider determines retention and compliance posture.
+On Team, Enterprise, Claude API, and cloud provider plans, Anthropic doesn’t train models on your code or prompts. Your API provider determines retention and compliance posture.
 
 Topic| What to know| Where to start
 ---|---|---

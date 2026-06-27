@@ -33,7 +33,7 @@ With either method, a cloud session can access any repository the connecting Git
 
 Either method works. [`/schedule`](</docs/en/routines>) checks for either form of access and prompts you to run `/web-setup` if neither is configured. See [Connect from your terminal](</docs/en/web-quickstart#connect-from-your-terminal>) for the `/web-setup` walkthrough. The GitHub App is required for Auto-fix, which uses the App to receive PR webhooks. If you connect with `/web-setup` and later want Auto-fix, install the App on those repositories. Team and Enterprise Owners can disable `/web-setup` with the Quick web setup toggle at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>).
 
-Organizations with [Zero Data Retention](</docs/en/zero-data-retention>) enabled cannot use `/web-setup` or other cloud session features.
+Organizations with [Zero Data Retention](</docs/en/zero-data-retention>) enabled can’t use `/web-setup` or other cloud session features.
 
 ##
 
@@ -49,7 +49,7 @@ Each session runs in a fresh Anthropic-managed VM with your repository cloned. T
 
 What’s available in cloud sessions
 
-Cloud sessions start from a fresh clone of your repository. Anything committed to the repo is available. Anything you’ve installed or configured only on your own machine is not; your organization’s policy arrives separately through [server-managed settings](</docs/en/server-managed-settings>).
+Cloud sessions start from a fresh clone of your repository. Anything committed to the repo is available. Anything you’ve installed or configured only on your own machine isn’t available in the session. Your organization’s policy arrives separately through [server-managed settings](</docs/en/server-managed-settings>).
 
 | Available in cloud sessions| Why
 ---|---|---
@@ -59,7 +59,7 @@ Your repo’s `.mcp.json` MCP servers| Yes| Part of the clone
 Your repo’s `.claude/rules/`| Yes| Part of the clone
 Your repo’s `.claude/skills/`, `.claude/agents/`, `.claude/commands/`| Yes| Part of the clone
 Plugins declared in `.claude/settings.json`| Yes| Installed at session start from the [marketplace](</docs/en/plugin-marketplaces>) you declared. Requires network access to reach the marketplace source
-Your organization’s [server-managed settings](</docs/en/server-managed-settings>)| Yes| Fetched from Anthropic’s servers when the session starts. See [Surface coverage](</docs/en/model-config#surface-coverage>) for how `availableModels` is enforced in cloud sessions. Settings deployed to your device through MDM or managed settings files do not apply, because the session runs on an Anthropic-managed VM
+Your organization’s [server-managed settings](</docs/en/server-managed-settings>)| Yes| Fetched from Anthropic’s servers when the session starts. See [Surface coverage](</docs/en/model-config#surface-coverage>) for how `availableModels` is enforced in cloud sessions. Settings deployed to your device through MDM or managed settings files don’t apply, because the session runs on an Anthropic-managed VM
 Your user `~/.claude/CLAUDE.md`| No| Lives on your machine, not in the repo
 Your user `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/commands/`| No| Live on your machine, not in the repo. Commit them to the repo’s `.claude/` directory instead. Skills you enable on claude.ai are loaded into cloud sessions automatically
 Plugins enabled only in your user settings| No| User-scoped `enabledPlugins` lives in `~/.claude/settings.json`. Declare them in the repo’s `.claude/settings.json` instead
@@ -99,7 +99,7 @@ Category| Included
 
 Work with GitHub issues and pull requests
 
-Cloud sessions include built-in GitHub tools that let Claude read issues, list pull requests, fetch diffs, and post comments without any setup. These tools authenticate through the GitHub proxy using whichever method you configured under GitHub authentication options, so your token never enters the container. The `gh` CLI is not pre-installed. If you need a `gh` command the built-in tools don’t cover, like `gh release` or `gh workflow run`, install and authenticate it yourself:
+Cloud sessions include built-in GitHub tools that let Claude read issues, list pull requests, fetch diffs, and post comments without any setup. These tools authenticate through the GitHub proxy using whichever method you configured under GitHub authentication options, so your token never enters the container. The `gh` CLI isn’t pre-installed. If you need a `gh` command the built-in tools don’t cover, like `gh release` or `gh workflow run`, install and authenticate it yourself:
 
 1
 
@@ -129,7 +129,7 @@ Each cloud session has a transcript URL on claude.ai, and the session can read i
 
 Run tests, start services, and add packages
 
-Claude runs tests as part of working on a task. Ask for it in your prompt, like “fix the failing tests in `tests/`” or “run pytest after each change.” Test runners like pytest, jest, and cargo test work out of the box since they’re pre-installed. PostgreSQL and Redis are pre-installed but not running by default. Ask Claude to start each one during the session:
+Claude runs tests as part of working on a task. Ask for it in your prompt, like “fix the failing tests in `tests/`” or “run pytest after each change.” Test runners like pytest, jest, and cargo test are pre-installed and work without additional setup. PostgreSQL and Redis are pre-installed but not running by default. Ask Claude to start each one during the session:
 
     service postgresql start
 
@@ -166,7 +166,7 @@ Edit an environment| Select the cloud icon showing the current environment’s n
 Archive an environment| Open the environment for editing and select **Archive**. Archived environments are hidden from the selector but existing sessions keep running.
 Set the default for `--remote`| Run `/remote-env` in your terminal. If you have a single environment, this command shows your current configuration. `/remote-env` only selects the default; add, edit, and archive environments from the web interface.
 
-Environment variables use `.env` format with one `KEY=value` pair per line. Don’t wrap values in quotes, since quotes are stored as part of the value.
+Environment variables use `.env` format with one `KEY=value` pair per line. Don’t wrap values in quotes, since quotes are stored as part of the value. This example defines three variables:
 
     NODE_ENV=development
     LOG_LEVEL=debug
@@ -185,7 +185,7 @@ A setup script is a Bash script that runs when a new cloud session starts, befor
 
 If the script exits non-zero, the session fails to start. Append `|| true` to non-critical commands to avoid blocking the session on an intermittent install failure. Keep the script’s total runtime under roughly five minutes so the environment cache can build. Run independent installs in parallel with `&` and `wait`. If a single download won’t fit in the five-minute limit, move it to a SessionStart hook that launches it in the background.
 
-Setup scripts that install packages need network access to reach registries. The default **Trusted** network access allows connections to common package registries including npm, PyPI, RubyGems, and crates.io. Scripts will fail to install packages if your environment uses **None** network access.
+Setup scripts that install packages need network access to reach registries. The default **Trusted** network access allows connections to common package registries including npm, PyPI, RubyGems, and crates.io. Scripts fail to install packages if your environment uses **None** network access.
 
 ###
 
@@ -193,7 +193,7 @@ Setup scripts that install packages need network access to reach registries. The
 
 Environment caching
 
-The setup script runs the first time you start a session in an environment. After it completes, Anthropic snapshots the filesystem and reuses that snapshot as the starting point for later sessions. New sessions start with your dependencies, tools, and Docker images already on disk, and the setup script step is skipped. This keeps startup fast even when the script installs large toolchains or pulls container images. The cache captures files, not running processes. Anything the setup script writes to disk carries over. Services or containers it starts do not, so start those per session by asking Claude or with a SessionStart hook. The setup script runs again to rebuild the cache when you change the environment’s setup script or allowed network hosts, and when the cache reaches its expiry after roughly seven days. Resuming an existing session never re-runs the setup script. You don’t need to enable caching or manage snapshots yourself.
+The setup script runs the first time you start a session in an environment. After it completes, Anthropic snapshots the filesystem and reuses that snapshot as the starting point for later sessions. New sessions start with your dependencies, tools, and Docker images already on disk, and the setup script step is skipped. This keeps startup fast even when the script installs large toolchains or pulls container images. The cache captures files, not running processes. Anything the setup script writes to disk carries over. Services or containers it starts don’t, so start those per session by asking Claude or with a SessionStart hook. The setup script runs again to rebuild the cache when you change the environment’s setup script or allowed network hosts, and when the cache reaches its expiry after roughly seven days. Resuming an existing session never re-runs the setup script. You don’t need to enable caching or manage snapshots yourself.
 
 ###
 
@@ -657,9 +657,9 @@ From web to terminal
 Pull a cloud session into your terminal using any of these:
 
   * **Using`--teleport`**: from the command line, run `claude --teleport` for an interactive session picker, or `claude --teleport <session-id>` to resume a specific session directly. If you have uncommitted changes, you’ll be prompted to stash them first.
-  * **Using`/teleport`**: inside an existing CLI session, run `/teleport` (or `/tp`) to open the same session picker without restarting Claude Code.
-  * **From`/tasks`**: run `/tasks` to see your background sessions, then press `t` to teleport into one
-  * **From the web interface** : select **Open in CLI** to copy a command you can paste into your terminal
+  * **Using`/teleport`**: inside an existing CLI session, run `/teleport` or `/tp` to open the same session picker without restarting Claude Code.
+  * **From`/tasks`**: run `/tasks` to see your background sessions, then press `t` to teleport into one.
+  * **From the web interface** : select **Open in CLI** to copy a command you can paste into your terminal.
 
 When you teleport a session, Claude verifies you’re in the correct repository, fetches and checks out the branch from the cloud session, and loads the full conversation history into your terminal. `--teleport` is distinct from `--resume`. `--resume` reopens a conversation from this machine’s local history and doesn’t list cloud sessions; `--teleport` pulls a cloud session and its branch.
 
@@ -732,7 +732,7 @@ To share a session, toggle its visibility according to the account types below. 
 
 Share from an Enterprise or Team account
 
-For Enterprise and Team accounts, the two visibility options are **Private** and **Team**. Team visibility makes the session visible to other members of your claude.ai organization. Repository access verification is enabled by default, based on the GitHub account connected to the recipient’s account. Your account’s display name is visible to all recipients with access. [Claude in Slack](</docs/en/slack>) sessions are automatically shared with Team visibility.
+For Enterprise and Team accounts, the two visibility options are **Private** and **Team**. Team visibility makes the session visible to other members of your claude.ai organization. [Claude in Slack](</docs/en/slack>) sessions are automatically shared with Team visibility. Repository access verification is enabled by default, based on the GitHub account connected to the recipient’s account. Your account’s display name is visible to all recipients with access.
 
 ####
 
@@ -756,7 +756,7 @@ You can archive sessions to keep your session list organized. Archived sessions 
 
 Delete sessions
 
-Deleting a session permanently removes the session and its data. This action cannot be undone. You can delete a session in two ways:
+Deleting a session permanently removes the session and its data. This action can’t be undone. You can delete a session in two ways:
 
   * **From the sidebar** : filter for archived sessions, then hover over the session you want to delete and select the delete icon
   * **From the session menu** : open a session, select the dropdown next to the session title, and select **Delete**
@@ -794,7 +794,7 @@ When auto-fix is active, Claude receives GitHub events for the PR including new 
   * **Ambiguous requests** : if a reviewer’s comment could be interpreted multiple ways or involves something architecturally significant, Claude asks you before acting
   * **Duplicate or no-action events** : if an event is a duplicate or requires no change, Claude notes it in the session and moves on
 
-GitHub does not emit a webhook when the base branch advances and creates a merge conflict, so auto-fix cannot react to conflicts on its own. To resolve a conflict, open the session and ask Claude to rebase. Claude may reply to review comment threads on GitHub as part of resolving them. These replies are posted using your GitHub account, so they appear under your username, but each reply is labeled as coming from Claude Code so reviewers know it was written by the agent and not by you directly.
+GitHub does not emit a webhook when the base branch advances and creates a merge conflict, so auto-fix can’t react to conflicts on its own. To resolve a conflict, open the session and ask Claude to rebase. Claude may reply to review comment threads on GitHub as part of resolving them. These replies are posted using your GitHub account, so they appear under your username, but each reply is labeled as coming from Claude Code so reviewers know it was written by the agent and not by you directly.
 
 If your repository uses comment-triggered automation such as Atlantis, Terraform Cloud, or custom GitHub Actions that run on `issue_comment` events, be aware that Claude can reply on your behalf, which can trigger those workflows. Review your repository’s automation before enabling auto-fix, and consider disabling auto-fix for repositories where a PR comment can deploy infrastructure or run privileged operations.
 
@@ -829,7 +829,7 @@ If a new session fails to start with `Session creation failed` or stalls at prov
 
   * Check [status.claude.com](<https://status.claude.com>) for cloud session incidents
   * Retry after a minute, as capacity is provisioned on demand
-  * Confirm your repository is reachable. The connecting GitHub account must have access to the repository on GitHub, either through the Claude GitHub App authorization or a `gh` token synced via `/web-setup` — installing the App on the repository is not required. See GitHub authentication options.
+  * Confirm your repository is reachable. The connecting GitHub account must have access to the repository on GitHub, either through the Claude GitHub App authorization or a `gh` token synced via `/web-setup`. Installing the App on the repository isn’t required. See GitHub authentication options.
 
 ###
 

@@ -175,7 +175,7 @@ This differs from inference requests, which send a helper value in both headers.
     {
       "data": [
         { "id": "claude-sonnet-4-6", "display_name": "Claude Sonnet 4.6" },
-        { "id": "claude-opus-4-7" }
+        { "id": "claude-opus-4-8" }
       ]
     }
 

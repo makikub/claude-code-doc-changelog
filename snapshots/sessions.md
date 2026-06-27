@@ -1,10 +1,4 @@
-A session is a saved conversation tied to a project directory. Claude Code stores it locally as you work, so you can resume where you left off, branch to try a different approach, or switch between tasks. The [desktop app](</docs/en/desktop#work-in-parallel-with-sessions>), [Claude Code on the web](</docs/en/claude-code-on-the-web>), and the [VS Code extension](</docs/en/vs-code#resume-past-conversations>) each maintain their own session history. This page covers the CLI:
-
-  * Resume a previous conversation by flag, name, or PR
-  * Name sessions so you can find them later
-  * Browse sessions with the `/resume` picker
-  * Branch a conversation to try a different approach
-  * Export transcripts and find them on disk
+A session is a saved conversation tied to a project directory. Claude Code stores it locally as you work, so you can resume where you left off, branch to try a different approach, or switch between tasks. The [desktop app](</docs/en/desktop#work-in-parallel-with-sessions>), [Claude Code on the web](</docs/en/claude-code-on-the-web>), and the [VS Code extension](</docs/en/vs-code#resume-past-conversations>) each maintain their own session history. This page covers the CLI.
 
 ##
 
@@ -113,7 +107,39 @@ For how compaction interacts with CLAUDE.md, skills, and rules, see the [context
 
 Export and locate session data
 
-Run `/export` to copy the current conversation to your clipboard or save it as a plain-text file, with messages and tool outputs rendered as readable text. Pass a filename to write directly to that file. Transcripts are stored as JSONL at `~/.claude/projects/<project>/<session-id>.jsonl`, where `<project>` is derived from your working directory path. Each line is a JSON object for a message, tool use, or metadata entry. To store sessions somewhere other than `~/.claude`, set [`CLAUDE_CONFIG_DIR`](</docs/en/env-vars>). These local files are removed after 30 days by default; change this with [`cleanupPeriodDays`](</docs/en/settings#available-settings>). To suppress transcript writes entirely, set [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](</docs/en/env-vars>), or in non-interactive mode use `--no-session-persistence`.
+Run `/export` to copy the current conversation to your clipboard or save it as a plain-text file, with messages and tool outputs rendered as readable text. Pass a filename to write directly to that file.
+
+###
+
+​
+
+Access conversations from scripts
+
+`/export` produces a rendered transcript for a person to read. The interfaces below produce structured data for a script to parse: a JSON result from a run, the path to a session’s transcript file, or a live stream of events. Pick by what triggers the script:
+
+  * **Run Claude once and capture the result** : invoke `claude -p` with [`--output-format json` or `stream-json`](</docs/en/headless#get-structured-output>) to capture the result, session ID, usage, and cost of a non-interactive run as structured JSON.
+  * **Ask an existing session a question** : pass a session ID to [`claude -p --resume`](</docs/en/headless#continue-conversations>) to send a follow-up prompt, such as a summary request, and capture the structured response.
+  * **React to session events** : read the `transcript_path` field that [hooks](</docs/en/hooks#common-input-fields>) and [status line commands](</docs/en/statusline#available-data>) receive as input. A `SessionEnd` hook can archive the transcript when a session ends.
+  * **Embed Claude in a TypeScript or Python app** : use the [Agent SDK](</docs/en/agent-sdk/overview>) to receive each message programmatically.
+
+The example below uses the second interface. It sends a follow-up prompt to an existing session and reads the answer with `jq`:
+
+    claude -p --resume <session-id> --output-format json "summarize what we changed" | jq -r '.result'
+
+###
+
+​
+
+Where transcripts are stored
+
+By default, transcripts are stored as JSONL at `~/.claude/projects/<project>/<session-id>.jsonl`, where `<project>` is your working directory path with non-alphanumeric characters replaced by `-`. Each line is a JSON object for a message, tool use, or metadata entry. The entry format is internal to Claude Code and changes between versions, so scripts that parse these files directly can break on any release. To build on session data, use `/export` or the script interfaces instead. The location, retention, and write behavior are configurable:
+
+To| Set| Where
+---|---|---
+Move storage off `~/.claude`| [`CLAUDE_CONFIG_DIR`](</docs/en/env-vars>)| Environment variable
+Change the 30-day retention| [`cleanupPeriodDays`](</docs/en/settings#available-settings>)| `settings.json`
+Suppress transcript writes in all modes| [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](</docs/en/env-vars>)| Environment variable
+Suppress writes for one non-interactive run| [`--no-session-persistence`](</docs/en/cli-reference>)| CLI flag with `claude -p`
 
 ##
 

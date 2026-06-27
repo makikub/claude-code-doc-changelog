@@ -7,13 +7,6 @@ The `/goal` command sets a completion condition and Claude keeps working toward 
   * Splitting a large file into focused modules until each is under a size budget
   * Working through a labeled issue backlog until the queue is empty
 
-This page covers how to:
-
-  * Compare ways to keep a session running: `/loop`, Stop hooks, and auto mode
-  * Set a goal and write an effective condition
-  * Check status, clear early, and run non-interactively
-  * See how evaluation works and requirements
-
 ##
 
 ​

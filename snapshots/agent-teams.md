@@ -4,13 +4,6 @@ Agent teams let you coordinate multiple Claude Code instances working together. 
 
 This page describes agent teams as of v2.1.178. With `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` set, spawning a teammate no longer needs a setup step, and cleanup happens automatically when the session exits. Before v2.1.178, you asked Claude to create and name a team first, and Claude used the `TeamCreate` and `TeamDelete` tools to set it up and remove it. Both tools no longer exist. The `team_name` input on the Agent tool is accepted but ignored, and the `team_name` field in `TaskCreated`, `TaskCompleted`, and `TeammateIdle` [hook payloads](</docs/en/hooks#taskcreated>) carries the session-derived name and is deprecated.
 
-This page covers:
-
-  * When to use agent teams, including best use cases and how they compare with subagents
-  * Starting a team
-  * Controlling teammates, including display modes, task assignment, and delegation
-  * Best practices for parallel work
-
 ##
 
 ​

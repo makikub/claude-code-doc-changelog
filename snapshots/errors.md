@@ -691,7 +691,7 @@ Your Claude Code version is older than the minimum for Opus 4.7 or Opus 4.8. The
 
   * Run `claude update` and restart Claude Code. Opus 4.7 needs v2.1.111 or later. Opus 4.8 needs v2.1.154 or later
   * If you cannot upgrade, run `/model` and select Opus 4.6 or Sonnet instead
-  * If you hit this in the Agent SDK, see [SDK troubleshooting](</docs/en/agent-sdk/quickstart#troubleshooting>)
+  * If you hit this in the [Agent SDK](</docs/en/agent-sdk/overview>), upgrade the SDK package instead. Opus 4.8 needs TypeScript SDK v0.3.154 or later and Python SDK v0.2.88 or later
 
 ###
 

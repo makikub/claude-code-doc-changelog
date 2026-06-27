@@ -2,7 +2,7 @@
 
 Auto mode is available to all users on the Anthropic API. On Amazon Bedrock, Google Cloud Vertex AI, and Microsoft Foundry, you must first [set `CLAUDE_CODE_ENABLE_AUTO_MODE`](</docs/en/permission-modes#enable-auto-mode-on-bedrock-vertex-ai-or-foundry>). If Claude Code reports auto mode as unavailable for your account, check the [full requirements](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), which also cover the supported models and Owner enablement on Team and Enterprise plans.
 
-Out of the box, the classifier trusts only the working directory and the current repo’s configured remotes. Actions like pushing to your company’s source-control org or writing to a team cloud bucket are blocked until you add them to `autoMode.environment`. For how to enable auto mode and what it blocks by default, see [Permission modes](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>). This page is the configuration reference. This page covers how to:
+By default, the classifier trusts only the working directory and the current repo’s configured remotes. Actions like pushing to your company’s source-control org or writing to a team cloud bucket are blocked until you add them to `autoMode.environment`. For how to enable auto mode and what it blocks by default, see [Permission modes](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>). This page is the configuration reference. This page covers how to:
 
   * Choose where to set rules across CLAUDE.md, user settings, and managed settings
   * Define trusted infrastructure with `autoMode.environment`
@@ -25,9 +25,9 @@ One project, one developer| `.claude/settings.local.json`| Per-project trusted b
 Organization-wide| [Managed settings](</docs/en/server-managed-settings>)| Trusted infrastructure distributed to all developers
 `--settings` flag or Agent SDK| Inline JSON| Per-invocation overrides for automation
 
-The classifier does not read `autoMode` from shared project settings in `.claude/settings.json`, so a checked-in repo cannot inject its own allow rules. Entries from each scope are combined. A developer can extend `environment`, `allow`, `soft_deny`, and `hard_deny` with personal entries but cannot remove entries that managed settings provide. Because allow rules act as exceptions to soft block rules inside the classifier, a developer-added `allow` entry can override an organization `soft_deny` entry: the combination is additive, not a hard policy boundary.
+The classifier doesn’t read `autoMode` from shared project settings in `.claude/settings.json`, so a checked-in repo can’t inject its own allow rules. Entries from each scope are combined. A developer can extend `environment`, `allow`, `soft_deny`, and `hard_deny` with personal entries but can’t remove entries that managed settings provide. Because allow rules act as exceptions to soft block rules inside the classifier, a developer-added `allow` entry can override an organization `soft_deny` entry: the combination is additive, not a hard policy boundary.
 
-The classifier is a second gate that runs after the [permissions system](</docs/en/permissions>). For actions that must never run regardless of user intent or classifier configuration, use `permissions.deny` in managed settings, which blocks the action before the classifier is consulted and cannot be overridden.
+The classifier is a second gate that runs after the [permissions system](</docs/en/permissions>). For actions that must never run regardless of user intent or classifier configuration, use `permissions.deny` in managed settings, which blocks the action before the classifier is consulted and can’t be overridden.
 
 ##
 
@@ -83,14 +83,20 @@ The more specific context you give, the better the classifier can distinguish ro
 
 Override the block and allow rules
 
-Three additional fields let you replace the classifier’s built-in rule lists: `autoMode.hard_deny` for unconditional security boundaries, `autoMode.soft_deny` for destructive actions that user intent can clear, and `autoMode.allow` for exceptions. Each is an array of prose descriptions, read as natural-language rules. For tool-pattern-based hard blocks that run before the classifier, use [`permissions.deny`](</docs/en/permissions>). Inside the classifier, precedence works in four tiers:
+Three additional fields let you replace the classifier’s built-in rule lists:
 
-  * `hard_deny` rules block unconditionally. User intent and `allow` exceptions do not apply.
+  * `autoMode.hard_deny`: unconditional security boundaries
+  * `autoMode.soft_deny`: destructive actions that user intent can clear
+  * `autoMode.allow`: exceptions to soft block rules
+
+Each is an array of prose descriptions, read as natural-language rules. For tool-pattern-based hard blocks that run before the classifier, use [`permissions.deny`](</docs/en/permissions>). Inside the classifier, precedence works in four tiers:
+
+  * `hard_deny` rules block unconditionally. User intent and `allow` exceptions don’t apply.
   * `soft_deny` rules block next. User intent and `allow` exceptions can override these.
   * `allow` rules then override matching `soft_deny` rules as exceptions.
   * Explicit user intent overrides the remaining soft blocks: if the user’s message directly and specifically describes the exact action Claude is about to take, the classifier allows it even when a `soft_deny` rule matches.
 
-General requests don’t count as explicit intent. Asking Claude to “clean up the repo” does not authorize force-pushing, but asking Claude to “force-push this branch” does. To loosen, add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten, add to `soft_deny` for destructive risks specific to your environment that the defaults miss, or to `hard_deny` for security boundaries that must never be crossed. To keep the built-in rules while adding your own, include the literal string `"$defaults"` in the array. The default rules are spliced in at that position, so your custom rules can go before or after them, and you continue to inherit updates as the built-in list changes across releases.
+General requests don’t count as explicit intent. Asking Claude to “clean up the repo” doesn’t authorize force-pushing, but asking Claude to “force-push this branch” does. To loosen, add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten, add to `soft_deny` for destructive risks specific to your environment that the defaults miss, or to `hard_deny` for security boundaries that must never be crossed. To keep the built-in rules while adding your own, include the literal string `"$defaults"` in the array. The default rules are spliced in at that position, so your custom rules can go before or after them, and you continue to inherit updates as the built-in list changes across releases. The following example keeps the defaults in all four lists and adds organization-specific rules to each.
 
     {
       "autoMode": {
