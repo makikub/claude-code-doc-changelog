@@ -18,15 +18,17 @@ Tool| Description| Permission Required
 `Grep`| Searches for patterns in file contents. See Grep tool behavior| No
 `ListMcpResourcesTool`| Lists resources exposed by connected [MCP servers](</docs/en/mcp>)| No
 `LSP`| Code intelligence via language servers: jump to definitions, find references, report type errors and warnings. See LSP tool behavior| No
-`Monitor`| Runs a command in the background and feeds each output line back to Claude, so it can react to log entries, file changes, or polled status mid-conversation. See Monitor tool| Yes
+`Monitor`| Runs a command in the background and feeds each output line back to Claude, so it can react to log entries, file changes, or polled status mid-conversation. Can also open a WebSocket and treat each incoming message as an event. See Monitor tool| Yes
 `NotebookEdit`| Modifies Jupyter notebook cells. See NotebookEdit tool behavior| Yes
 `PowerShell`| Executes PowerShell commands natively. See PowerShell tool for availability| Yes
 `PushNotification`| Sends a desktop notification, and a phone push when [Remote Control](</docs/en/remote-control>) is connected, so a long-running task or [scheduled task](</docs/en/scheduled-tasks>) can reach you when you step away. Push delivery runs through Anthropic-hosted infrastructure, which is not accessible from Amazon Bedrock, Google Vertex AI, or Microsoft Foundry| No
 `Read`| Reads the contents of files. See Read tool behavior| No
 `ReadMcpResourceTool`| Reads a specific MCP resource by URI| No
 `RemoteTrigger`| Creates, updates, runs, and lists [Routines](</docs/en/routines>) on claude.ai. Backs the `/schedule` command. Routines live on claude.ai and require a Pro, Max, Team, or Enterprise plan, so this tool is not accessible from Amazon Bedrock, Google Vertex AI, or Microsoft Foundry| No
+`ReportFindings`| Reports code-review findings as a structured list, with a file, summary, and failure scenario per finding, so Claude Code can render them instead of printing them as text. Claude calls it when active code-review instructions tell it to. Requires Claude Code v2.1.196 or later| No
 `ScheduleWakeup`| Reschedules the next iteration of a [self-paced `/loop`](</docs/en/scheduled-tasks#let-claude-choose-the-interval>). Claude calls this at the end of each iteration to pick when the next one runs, between one minute and one hour out; you don’t call it directly. The pending wakeup appears in `session_crons` in [Stop hook input](</docs/en/hooks#stop-input>). Not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry, where a `/loop` prompt with no interval runs on a fixed schedule instead| No
 `SendMessage`| Sends a message to an [agent team](</docs/en/agent-teams>) teammate, or [resumes a subagent](</docs/en/sub-agents#resume-subagents>) by its agent ID. Stopped subagents auto-resume in the background. Structured team-protocol messages require agent teams| No
+`SendUserFile`| Sends files from the session to you with an optional caption, so a generated report, diagram, screenshot, or built artifact reaches your device instead of only being mentioned in the transcript. As of v2.1.196, the optional `display` input controls presentation: `render` opens the file inline in the client, `attach` shows a download card only, and when unset the client decides by file type. Available when a [Remote Control](</docs/en/remote-control>) client is connected or the session runs in a managed cloud environment such as [Claude Code on the web](</docs/en/claude-code-on-the-web>). Delivery runs through Anthropic-hosted infrastructure, so the tool is not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry| No
 `ShareOnboardingGuide`| Uploads `ONBOARDING.md` and returns a share link teammates can open in Claude Code. Called from `/team-onboarding` after the guide is written. Available to claude.ai subscribers on Pro, Max, Team, and Enterprise plans| Yes
 `Skill`| Executes a [skill](</docs/en/skills#control-who-invokes-a-skill>) within the main conversation| Yes
 `TaskCreate`| Creates a new task in the task list| No
@@ -188,8 +190,33 @@ The Monitor tool lets Claude watch something in the background and react when it
   * Poll a PR or CI job and report when its status changes
   * Watch a directory for file changes
   * Track output from any long-running script you point it at
+  * Connect to a WebSocket feed and report each message as it arrives
 
-Claude writes a small script for the watch, runs it in the background, and receives each output line as it arrives. You keep working in the same session and Claude interjects when an event lands. Stop a monitor by asking Claude to cancel it or by ending the session. Monitor uses the same [permission rules as Bash](</docs/en/permissions#tool-specific-permission-rules>), so `allow` and `deny` patterns you have set for Bash apply here too. It is not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry. It is also not available when `DISABLE_TELEMETRY` or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set. Plugins can declare monitors that start automatically when the plugin is active, instead of asking Claude to start them. See [plugin monitors](</docs/en/plugins-reference#monitors>).
+For most watches, Claude writes a small script, runs it in the background, and receives each output line as it arrives. For a server that already pushes events, Claude can open a WebSocket instead of running a script. You keep working in the same session and Claude interjects when an event arrives. Stop a monitor by asking Claude to cancel it or by ending the session. When Monitor runs a command, it uses the same [permission rules as Bash](</docs/en/permissions#tool-specific-permission-rules>), so `allow` and `deny` patterns you have set for Bash apply here too. The WebSocket source has its own approval prompt. The tool is not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry. It is also not available when `DISABLE_TELEMETRY` or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set. Plugins can declare monitors that start automatically when the plugin is active, instead of asking Claude to start them. See [plugin monitors](</docs/en/plugins-reference#monitors>).
+
+###
+
+​
+
+WebSocket source
+
+The WebSocket source requires Claude Code v2.1.195 or later.
+
+When a server already pushes events over a WebSocket, Claude can connect to it directly instead of writing a polling script. Each kind of socket activity either becomes an event or ends the watch:
+
+  * **Text messages** : each one becomes one event, even when the message spans multiple lines.
+  * **Binary messages** : not passed through. Claude receives a placeholder line such as `[binary frame, 512 bytes]` instead.
+  * **Messages larger than 1 MiB** : the watch ends, so subscribe to a filtered feed where one exists.
+  * **Socket close** : the watch ends and Claude receives the close code.
+
+A WebSocket watch takes a `ws` input in place of `command`, and a single Monitor call can’t combine the two. The `ws` input has two fields:
+
+Field| Required| Description
+---|---|---
+`url`| Yes| The endpoint to connect to. Must be a `ws://` or `wss://` URL with no embedded credentials or whitespace, using ASCII characters only
+`protocols`| No| WebSocket subprotocol names to offer during the handshake. Each entry must be a valid subprotocol token, and the list can’t contain duplicates
+
+The `timeout_ms` and `persistent` inputs behave the same as they do for a command: the watch ends at the deadline unless `persistent` is set, and `TaskStop` cancels it early. Opening a WebSocket prompts for approval, and the prompt doesn’t offer an option to skip future prompts for the same host. Claude Code denies URLs that point at a private, link-local, or cloud-metadata address, including hostnames that resolve to one. It also denies hosts in `sandbox.network.deniedDomains`, and when [`allowManagedDomainsOnly`](</docs/en/settings#sandbox-settings>) is set in managed settings, any host outside the managed allowlist.
 
 ##
 
@@ -241,7 +268,7 @@ Three additional settings control where PowerShell is used:
   * `"shell": "powershell"` on individual [command hooks](</docs/en/hooks#command-hook-fields>): runs that hook in PowerShell. Hooks spawn PowerShell directly, so this works regardless of `CLAUDE_CODE_USE_POWERSHELL_TOOL`.
   * `shell: powershell` in [skill frontmatter](</docs/en/skills#frontmatter-reference>): runs `!`command`` blocks in PowerShell. Requires the PowerShell tool to be enabled.
 
-The same main-session working-directory reset behavior described under the Bash tool section applies to PowerShell commands, including the `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` environment variable.
+The same main-session working-directory reset behavior described under the Bash tool section applies to PowerShell commands, including the `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` environment variable. As of v2.1.196, the PowerShell tool matches the Bash tool’s handling of search and diff exit codes. Exit code 1 from `grep`, `egrep`, `fgrep`, and `git grep` means no matches, and exit code 1 from `git diff` means differences exist, so these results aren’t reported to Claude as command failures.
 
 ###
 
@@ -262,7 +289,7 @@ Read tool behavior
 
 The Read tool takes a file path and returns the contents with line numbers. Claude is instructed to always pass absolute paths. By default, Read returns the file from the start. When a whole-file read exceeds the token limit, Read returns the first page with a `PARTIAL view` notice that tells Claude how much of the file it received and how to read more with `offset` and `limit`. A read that passes an explicit `offset` or `limit` and still exceeds the token limit returns an error. Read handles several file types beyond plain text:
 
-  * **Images** : PNG, JPG, and other image formats are returned as visual content that Claude can see, not as raw bytes. Claude Code resizes and recompresses large images to fit the model’s image size limits before sending them, so Claude may see a downscaled version of a large screenshot. If Claude misses fine pixel-level detail in a large image, ask it to crop the region of interest first, for example with ImageMagick via Bash.
+  * **Images** : PNG, JPG, and other image formats are returned as visual content that Claude can see, not as raw bytes. Claude Code resizes and recompresses large images to fit the model’s image size limits before sending them, so Claude may see a downscaled version of a large screenshot. As of v2.1.196, an image that is still larger than 500KB after that resize is re-encoded as a JPEG at reduced quality with its pixel dimensions unchanged. If Claude misses fine pixel-level detail in a large image, ask it to crop the region of interest first, for example with ImageMagick via Bash.
   * **PDFs** : Claude reads short `.pdf` files whole. For PDFs longer than 10 pages, it reads in ranges with a `pages` parameter, such as `"1-5"`, up to 20 pages at a time.
   * **Jupyter notebooks** : `.ipynb` files return all cells with their outputs, including code, markdown, and visualizations.
 

@@ -217,7 +217,7 @@ GitHub Actions
         with:
           anthropic_api_key: ${{ secrets.GATEWAY_API_KEY }}
 
-For a bearer-token gateway, pass the same secret as both the `anthropic_api_key` input and `ANTHROPIC_AUTH_TOKEN` in the workflow `env` block. The action requires `anthropic_api_key`, `CLAUDE_CODE_OAUTH_TOKEN`, or workload identity federation before it launches Claude Code, and it doesn’t read `ANTHROPIC_AUTH_TOKEN`, so the input satisfies that launch check while the env variable puts the key in the `Authorization` header the gateway reads. The copy in `x-api-key` is ignored:
+For a bearer-token gateway, pass the same secret twice: as the `anthropic_api_key` input and as `ANTHROPIC_AUTH_TOKEN` in the workflow `env` block. The action requires `anthropic_api_key`, `CLAUDE_CODE_OAUTH_TOKEN`, or workload identity federation before it launches Claude Code, and it doesn’t read `ANTHROPIC_AUTH_TOKEN`, so the input is there only to satisfy that launch check. The env variable is what puts the key in the `Authorization` header the gateway reads; the copy in `x-api-key` is ignored:
 
     env:
       ANTHROPIC_BASE_URL: https://llm-gateway.example.com
@@ -262,7 +262,10 @@ Python
 
 Slack, web, and Remote Control
 
-[Claude Code in Slack](</docs/en/slack>) and [Claude Code on the web](</docs/en/claude-code-on-the-web>) are Anthropic-hosted products that always use Anthropic’s API; they aren’t part of a gateway deployment. Gateway variables set in a cloud session’s environment configuration are not applied. If your traffic must stay on the gateway, don’t enable these surfaces for those users. [Remote Control](</docs/en/remote-control>) and [voice dictation](</docs/en/voice-dictation>) both rely on a claude.ai identity: Remote Control to pair a live session with your account, and voice dictation to reach the claude.ai transcription endpoint. They are unavailable while `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, or an `apiKeyHelper` is active. To use either, unset the gateway credential and log in with claude.ai instead; `/doctor` names the variable to unset.
+[Claude Code in Slack](</docs/en/slack>) and [Claude Code on the web](</docs/en/claude-code-on-the-web>) are Anthropic-hosted products that always use Anthropic’s API; they aren’t part of a gateway deployment. Gateway variables set in a cloud session’s environment configuration are not applied. If your traffic must stay on the gateway, don’t enable these surfaces for those users. [Remote Control](</docs/en/remote-control>) and [voice dictation](</docs/en/voice-dictation>) both rely on a claude.ai identity: Remote Control to pair a live session with your account, and voice dictation to reach the claude.ai transcription endpoint. They are unavailable while `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, or an `apiKeyHelper` is active. As of v2.1.196, Remote Control is also disabled while `ANTHROPIC_BASE_URL` points at a non-Anthropic host, so signing in with claude.ai isn’t enough on its own. To restore either feature, log in with claude.ai and unset the gateway variables it checks. `/doctor` names the credential variable to unset.
+
+  * Voice dictation: unset the gateway credential
+  * Remote Control: unset the gateway credential and `ANTHROPIC_BASE_URL`
 
 ##
 
@@ -292,7 +295,7 @@ You can also set `ANTHROPIC_CUSTOM_HEADERS` in the `env` block of a settings fil
 
     {
       "env": {
-        "ANTHROPIC_CUSTOM_HEADERS": "X-Org-Route: prod\nX-Tenant: acme"
+        "ANTHROPIC_CUSTOM_HEADERS": "X-Org-Route: prod\nX-Tenant: example"
       }
     }
 
@@ -345,7 +348,7 @@ Claude Code caches the helper’s output for five minutes by default and re-runs
 
 Route to a cloud provider through a gateway
 
-These configurations point Claude Code at a gateway through a provider-specific base URL variable in place of `ANTHROPIC_BASE_URL`. Bedrock and Vertex gateways accept those providers’ native request formats; Foundry and Claude Platform on AWS gateways accept the Anthropic Messages format and differ only in which base URL variable reaches them. Use one only if your gateway team specifically named Bedrock, Vertex, Foundry, or the Claude Platform on AWS. If the verification request above returned JSON, you can skip this section. Set the block for the provider your gateway team named. The skip-auth variables tell Claude Code not to sign requests with provider credentials, since the gateway holds those. If the gateway needs its own token, add `ANTHROPIC_AUTH_TOKEN` after the block, except for Foundry, which uses `ANTHROPIC_FOUNDRY_API_KEY` as shown.
+These configurations point Claude Code at a gateway through a provider-specific base URL variable in place of `ANTHROPIC_BASE_URL`. Bedrock and Agent Platform gateways accept those providers’ native request formats; Foundry and Claude Platform on AWS gateways accept the Anthropic Messages format and differ only in which base URL variable reaches them. Use one only if your gateway team specifically named Bedrock, Agent Platform, Foundry, or the Claude Platform on AWS. If the verification request above returned JSON, you can skip this section. Set the block for the provider your gateway team named. The skip-auth variables tell Claude Code not to sign requests with provider credentials, since the gateway holds those. If the gateway needs its own token, add `ANTHROPIC_AUTH_TOKEN` after the block, except for Foundry, which uses `ANTHROPIC_FOUNDRY_API_KEY` as shown.
 
 ####
 
@@ -369,7 +372,7 @@ Amazon Bedrock
 
 ​
 
-Google Vertex AI
+Google Cloud’s Agent Platform
 
   * Bash or Zsh
 

@@ -30,6 +30,7 @@ Message| Section
 `Your organization has disabled API key authentication`| Authentication
 `Your organization has disabled Claude subscription access`| Authentication
 `Routines are disabled by your organization's policy`| Authentication
+`Remote Control is only available when using Claude via api.anthropic.com`| Authentication
 `OAuth token revoked` / `OAuth token has expired`| Authentication
 `does not meet scope requirement user:profile`| Authentication
 `Unable to connect to API`| Network
@@ -391,6 +392,21 @@ This is a server-side setting, so it cannot be overridden from local settings, e
 
   * Ask an Owner in your organization to enable the **Routines** toggle at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>)
   * For one-off scheduled work that does not require organization-level routines, see [scheduled tasks](</docs/en/scheduled-tasks>)
+
+###
+
+​
+
+Remote Control requires the Anthropic API
+
+The session isn’t talking to the Anthropic API directly, so there is no claude.ai backend for [Remote Control](</docs/en/remote-control>) to pair with.
+
+    Remote Control is only available when using Claude via api.anthropic.com.
+
+This appears on Amazon Bedrock, Google Vertex AI, and Microsoft Foundry. As of v2.1.196 it also appears when [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at a host other than `api.anthropic.com`, such as an [LLM gateway](</docs/en/llm-gateway>) or proxy, even when you sign in with claude.ai. **What to do:**
+
+  * Unset `ANTHROPIC_BASE_URL` and restart the session, or start Remote Control from a session that talks to the Anthropic API directly
+  * For this and the other Remote Control startup messages, see [Troubleshoot Remote Control](</docs/en/remote-control#troubleshooting>)
 
 ###
 

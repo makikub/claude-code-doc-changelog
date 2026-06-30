@@ -559,6 +559,7 @@ Cloud services and monitoring
   * *.sentry.io
   * downloads.sentry-cdn.com
   * http-intake.logs.datadoghq.com
+  * browser-intake-us5-datadoghq.com
   * *.datadoghq.com
   * *.datadoghq.eu
   * api.honeycomb.io
@@ -603,7 +604,7 @@ Start a cloud session from the command line with the `--remote` flag:
 
     claude --remote "Fix the authentication bug in src/auth/login.ts"
 
-This creates a new cloud session on claude.ai. The session clones your current directory’s GitHub remote at your current branch, so push first if you have local commits, since the VM clones from GitHub rather than your machine. `--remote` works with a single repository at a time. The task runs in the cloud while you continue working locally.
+This creates a new cloud session on claude.ai. The session clones your current directory’s GitHub remote at your current branch, so push first if you have local commits, since the VM clones from GitHub rather than your machine. `--remote` works with a single repository at a time. The task runs in the cloud while you continue working locally. As of v2.1.195, the CLI shows a live checklist of setup steps, such as cloning the repository and running your setup script, while the cloud container starts. Messages you type while the container is provisioning are queued and sent once the session is ready.
 
 `--remote` creates cloud sessions. `--remote-control` is unrelated: it exposes a local CLI session for monitoring from the web. See [Remote Control](</docs/en/remote-control>).
 

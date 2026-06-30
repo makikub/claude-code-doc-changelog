@@ -426,6 +426,14 @@ Claude Code uses the Bedrock [Invoke API](<https://docs.aws.amazon.com/bedrock/l
 
 ​
 
+Zero token counts in /context
+
+The `/context` command counts tokens for each tool group by sending the tool schemas to the Bedrock count-tokens API. On Claude Code versions before v2.1.196, Bedrock rejected that request because the schemas carried fields its count-tokens API doesn’t accept, so every tool group showed 0 tokens. Other rows in the breakdown, such as messages and memory files, aren’t affected. Update to v2.1.196 or later.
+
+###
+
+​
+
 Mantle endpoint errors
 
 If `/status` does not show `Amazon Bedrock (Mantle)` after you set `CLAUDE_CODE_USE_MANTLE`, the variable is not reaching the process. Confirm it is exported in the shell where you launched `claude`, or set it in the `env` block of your [settings file](</docs/en/settings>). A `403` from the Mantle endpoint with valid credentials means your AWS account has not been granted access to the model you requested. Contact your AWS account team to request access. A `400` that names the model ID means that model is not served on Mantle. Mantle has its own model lineup separate from the standard Bedrock catalog, so inference profile IDs such as `us.anthropic.claude-sonnet-4-6` will not work. Use a Mantle-format ID, or enable both endpoints so Claude Code routes each request to the endpoint where the model is available.
