@@ -699,15 +699,15 @@ Your organization admin has disabled this model in the Claude Console, or it is 
 
 thinking.type.enabled is not supported for this model
 
-Your Claude Code version is older than the minimum for Opus 4.7 or Opus 4.8. The CLI sent a thinking configuration the model no longer accepts.
+Your Claude Code version is older than the minimum for Sonnet 5, Opus 4.8, or Opus 4.7. The CLI sent a thinking configuration the model no longer accepts.
 
     API Error: 400 ... "thinking.type.enabled" is not supported for this model. Use "thinking.type.adaptive" and "output_config.effort" to control thinking behavior.
 
 **What to do:**
 
-  * Run `claude update` and restart Claude Code. Opus 4.7 needs v2.1.111 or later. Opus 4.8 needs v2.1.154 or later
-  * If you cannot upgrade, run `/model` and select Opus 4.6 or Sonnet instead
-  * If you hit this in the [Agent SDK](</docs/en/agent-sdk/overview>), upgrade the SDK package instead. Opus 4.8 needs TypeScript SDK v0.3.154 or later and Python SDK v0.2.88 or later
+  * Run `claude update` and restart Claude Code. Opus 4.7 needs v2.1.111 or later. Opus 4.8 needs v2.1.154 or later. Sonnet 5 needs v2.1.197 or later
+  * If you can’t upgrade, run `/model` and select Opus 4.6 or Sonnet 4.6 instead
+  * If you hit this in the [Agent SDK](</docs/en/agent-sdk/overview>), upgrade the SDK package instead. Opus 4.8 needs TypeScript SDK v0.3.154 or later and Python SDK v0.2.88 or later. Sonnet 5 needs TypeScript SDK v0.3.197 or later
 
 ###
 

@@ -33,7 +33,7 @@ Additional dependencies
 
 Install Claude Code
 
-Prefer a graphical interface? The [Desktop app](</docs/en/desktop-quickstart>) lets you use Claude Code without the terminal. Download it for [macOS](<https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs>) or [Windows](<https://claude.com/download?utm_source=claude_code&utm_medium=docs>).New to the terminal? See the [terminal guide](</docs/en/terminal-guide>) for step-by-step instructions.
+Prefer a graphical interface? The [Desktop app](</docs/en/desktop-quickstart>) lets you use Claude Code without the terminal. Download it for [macOS](<https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs>), [Windows](<https://claude.com/download?utm_source=claude_code&utm_medium=docs>), or [Linux](<https://claude.com/download?utm_source=claude_code&utm_medium=docs>).New to the terminal? See the [terminal guide](</docs/en/terminal-guide>) for step-by-step instructions.
 
 To install Claude Code, use one of the following methods:
 

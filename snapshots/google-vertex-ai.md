@@ -155,7 +155,7 @@ Pin specific model versions when deploying to multiple users. Without pinning, m
 Set these environment variables to specific Vertex AI model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Vertex resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
-    export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-4-6'
+    export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-5'
     export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 For current and legacy model IDs, see [Models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>). See [Model configuration](</docs/en/model-config#pin-models-for-third-party-deployments>) for the full list of environment variables. Claude Code uses these default models when no pinning variables are set:
@@ -198,7 +198,7 @@ Create a dedicated GCP project for Claude Code to simplify cost tracking and acc
 
 1M token context window
 
-Claude Opus 4.6 and later, and Sonnet 4.6, support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) on Vertex AI. Claude Code automatically enables the extended context window when you select a 1M model variant. The setup wizard offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
+Claude Sonnet 5, Opus 4.6 and later, and Sonnet 4.6 support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) on Vertex AI. Sonnet 5 always runs with the 1M window, with no `[1m]` variant to select. For the other models, Claude Code automatically enables the extended context window when you select a 1M model variant. The setup wizard offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
 
 ##
 

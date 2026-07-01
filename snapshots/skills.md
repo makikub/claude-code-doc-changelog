@@ -105,7 +105,7 @@ When skills share the same name across levels, enterprise overrides personal, an
   * Its description says which directory it applies to.
   * Claude picks the variant that matches the files it is working on.
 
-Typing `/deploy` runs the project-root skill. Type the qualified name `/apps/web:deploy` to run the nested variant explicitly.
+Typing `/deploy` runs the project-root skill. Type the qualified name `/apps/web:deploy` to run the nested variant explicitly. A `<skill-name>` entry in the enterprise, personal, or project locations can be a symlink to a directory elsewhere on disk. Claude Code follows the symlink and reads `SKILL.md` from the target directory, and if the same target is reachable from more than one location, Claude Code loads the skill once. Plugin skills handle symlinks differently; see [Share files within a marketplace with symlinks](</docs/en/plugins-reference#share-files-within-a-marketplace-with-symlinks>).
 
 Add a `.claude-plugin/plugin.json` to a skill folder and it loads as a [plugin](</docs/en/plugins-reference#skills-directory-plugins>) named `<name>@skills-dir`, so it can bundle agents, hooks, and MCP servers. In a project’s `.claude/skills/`, this requires accepting the workspace trust dialog first.
 

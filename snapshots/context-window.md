@@ -45,7 +45,7 @@ Claude Code compacts automatically as you approach the limit, so a full context 
   * **Clear between tasks** : run `/clear` when switching to unrelated work. Old conversation crowds out the files you need next and costs tokens on every message.
   * **Delegate large reads** : send research to a [subagent](</docs/en/sub-agents>) so the file contents stay in its context window, not yours.
 
-If you need a larger window rather than a smaller conversation, Fable 5, Opus 4.6 and later, and Sonnet 4.6 support a 1 million token context window. See [Extended context](</docs/en/model-config#extended-context>) for availability by plan and how to select a `[1m]` model variant. Compaction works the same way at the larger limit.
+If you need a larger window rather than a smaller conversation, Fable 5, Sonnet 5, Opus 4.6 and later, and Sonnet 4.6 support a 1 million token context window. See [Extended context](</docs/en/model-config#extended-context>) for availability by plan and how to select a `[1m]` model variant. Sonnet 5 runs at 1M with no `[1m]` variant to select; see [Sonnet 5 context window](</docs/en/model-config#sonnet-5-context-window>) for its auto-compaction thresholds and the LLM gateway exception. Compaction works the same way at the larger limit.
 
 ##
 

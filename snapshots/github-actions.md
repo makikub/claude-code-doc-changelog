@@ -122,7 +122,7 @@ Before and After Example
         anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
         custom_instructions: "Follow our coding standards"
         max_turns: "10"
-        model: "claude-sonnet-4-6"
+        model: "claude-sonnet-5"
 
 **GA version (v1.0):**
 
@@ -133,7 +133,7 @@ Before and After Example
         claude_args: |
           --append-system-prompt "Follow our coding standards"
           --max-turns 10
-          --model claude-sonnet-4-6
+          --model claude-sonnet-5
 
 The action now automatically detects whether to run in interactive mode (responds to `@claude` mentions) or automation mode (runs immediately with a prompt) based on your configuration.
 
@@ -714,12 +714,12 @@ Pass CLI arguments
 
 The `claude_args` parameter accepts any Claude Code CLI arguments:
 
-    claude_args: "--max-turns 5 --model claude-sonnet-4-6 --mcp-config /path/to/config.json"
+    claude_args: "--max-turns 5 --model claude-sonnet-5 --mcp-config /path/to/config.json"
 
 Common arguments:
 
   * `--max-turns`: Maximum conversation turns (default: 10)
-  * `--model`: Model to use (for example, `claude-sonnet-4-6`)
+  * `--model`: Model to use (for example, `claude-sonnet-5`)
   * `--mcp-config`: Path to MCP configuration
   * `--allowedTools`: Comma-separated list of allowed tools. The `--allowed-tools` alias also works.
   * `--debug`: Enable debug output

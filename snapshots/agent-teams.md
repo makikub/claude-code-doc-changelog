@@ -246,7 +246,7 @@ The `skills` and `mcpServers` frontmatter fields in a subagent definition are no
 
 Permissions
 
-Teammates start with the lead’s permission settings. If the lead runs with `--dangerously-skip-permissions`, all teammates do too. After spawning, you can change individual teammate modes, but you can’t set per-teammate modes at spawn time.
+Teammates start with the lead’s permission settings. If the lead runs with `--dangerously-skip-permissions`, all teammates do too. After spawning, you can change individual teammate modes, but you can’t set per-teammate modes at spawn time. When one agent sends another a message over `SendMessage`, the receiving agent is told it came from another Claude session, not from you. A teammate cannot approve a permission prompt or supply consent on your behalf, and a teammate that was denied an action cannot relay it to another teammate to bypass the check. In [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), the classifier treats an approval claim relayed from another agent as untrusted input rather than confirmation from you. Teammate permission prompts bubble up to the lead session, so approve them there yourself.
 
 ###
 

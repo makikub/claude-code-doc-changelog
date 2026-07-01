@@ -90,7 +90,7 @@ Flag| Description| Example
 `--max-budget-usd`| Maximum dollar amount to spend on API calls before stopping (print mode only)| `claude -p --max-budget-usd 5.00 "query"`
 `--max-turns`| Limit the number of agentic turns (print mode only). Exits with an error when the limit is reached. No limit by default| `claude -p --max-turns 3 "query"`
 `--mcp-config`| Load MCP servers from JSON files or strings (space-separated)| `claude --mcp-config ./mcp.json`
-`--model`| Sets the model for the current session with an alias for the latest model (`sonnet`, `opus`, `haiku`, or `fable`) or a model’s full name. Overrides the [`model`](</docs/en/settings#available-settings>) setting and [`ANTHROPIC_MODEL`](</docs/en/model-config#environment-variables>)| `claude --model claude-sonnet-4-6`
+`--model`| Sets the model for the current session with an alias for the latest model (`sonnet`, `opus`, `haiku`, or `fable`) or a model’s full name. Overrides the [`model`](</docs/en/settings#available-settings>) setting and [`ANTHROPIC_MODEL`](</docs/en/model-config#environment-variables>)| `claude --model claude-sonnet-5`
 `--name`, `-n`| Set a display name for the session, shown in `/resume` and the terminal title. You can resume a named session with `claude --resume <name>`.
 
 [`/rename`](</docs/en/commands>) changes the name mid-session and also shows it on the prompt bar| `claude -n "my-feature-work"`
