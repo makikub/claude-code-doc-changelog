@@ -318,7 +318,7 @@ WebSearch tool behavior
 
 WebSearch runs a query against Anthropic’s [web search](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool>) backend and returns result titles and URLs. It does not fetch the result pages. To read a page Claude finds in search results, it follows up with WebFetch. The tool may issue up to eight backend searches per call, refining the search internally before returning results. Claude can scope results with `allowed_domains` to include only certain hosts, or `blocked_domains` to exclude them. The two lists can’t be combined in a single call. The search backend is not configurable. To search with a different provider, add an [MCP server](</docs/en/mcp>) that exposes a search tool. WebSearch permission rules take no specifier. A bare `WebSearch` entry in `allow` or `deny` is the only form.
 
-WebSearch is available on the Claude API and Microsoft Foundry. On Google Cloud Vertex AI it works with Claude 4 models, including Opus, Sonnet, and Haiku. Amazon Bedrock does not expose the server-side web search tool.
+WebSearch is available on the Claude API and Microsoft Foundry. On Google Cloud Vertex AI it works with Claude 4 and later models, including Opus, Sonnet, and Haiku. Amazon Bedrock does not expose the server-side web search tool.
 
 ##
 

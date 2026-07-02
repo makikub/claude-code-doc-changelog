@@ -574,7 +574,7 @@ To uninstall the Claude Code extension:
   2. Search for “Claude Code”
   3. Click **Uninstall**
 
-To also remove extension data and reset all settings, delete the extension’s storage directory for your platform. On macOS:
+Running `claude` in a VS Code integrated terminal reinstalls the extension automatically. To keep it uninstalled, turn off **Auto-install IDE extension** in `/config`, or set [`autoInstallIdeExtension`](</docs/en/settings#global-config-settings>) to `false`. You can also set the [`CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL`](</docs/en/env-vars>) environment variable to `1`. To also remove extension data and reset all settings, delete the extension’s storage directory for your platform. On macOS:
 
     rm -rf ~/Library/"Application Support"/Code/User/globalStorage/anthropic.claude-code
 

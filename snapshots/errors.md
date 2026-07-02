@@ -683,7 +683,7 @@ Your active subscription plan does not include the model you selected.
 
 Model is restricted by your organization’s settings
 
-Your organization admin has disabled this model in the Claude Console, or it is excluded by an [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist in managed settings. When the restricted model was set with `--model`, `ANTHROPIC_MODEL`, or the `model` setting, Claude Code substitutes an allowed model and continues. Typing `/model <name>` for a restricted model is rejected with `Run /model to choose a different model.` and the session keeps its current model.
+Your organization admin has disabled this model in the claude.ai admin console, or it is excluded by an [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist in managed settings. When the restricted model was set with `--model`, `ANTHROPIC_MODEL`, or the `model` setting, Claude Code substitutes an allowed model and continues. Typing `/model <name>` for a restricted model is rejected with `Run /model to choose a different model.` and the session keeps its current model.
 
     Model "claude-opus-4-8" is restricted by your organization's settings. Using claude-sonnet-4-6 instead.
 

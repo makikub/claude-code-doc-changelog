@@ -173,7 +173,7 @@ Level| Behavior| Good for
 `"low"`| Minimal reasoning, fast responses| File lookups, listing directories
 `"medium"`| Balanced reasoning| Routine edits, standard tasks
 `"high"`| Thorough analysis| Refactors, debugging
-`"xhigh"`| Extended reasoning depth| Coding and agentic tasks; recommended on Fable 5 and Opus 4.7+
+`"xhigh"`| Extended reasoning depth| Coding and agentic tasks; recommended on Fable 5, Opus 4.7+, and Sonnet 5
 `"max"`| Maximum reasoning depth| Multi-step problems requiring deep analysis
 
 If you don’t set `effort`, both SDKs leave the parameter unset and defer to the model’s default behavior.

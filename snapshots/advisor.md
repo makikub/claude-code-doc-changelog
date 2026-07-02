@@ -75,7 +75,7 @@ Main model| Accepted advisors| Notes
 Haiku 4.5| Fable, Opus, Sonnet| Haiku can call the advisor but cannot act as one
 Sonnet 4.6| Fable, Opus, Sonnet|
 Sonnet 5| Fable, Opus, Sonnet 5| A Sonnet 4.6 advisor is rejected
-Opus 4.6 or later| Fable, Opus at or above the main model’s version| An Opus 4.7 main with an Opus 4.6 advisor is rejected
+Opus 4.6 or later| Fable, Opus at or above the main model’s version| An Opus 4.7 main with an Opus 4.6 advisor is rejected. An Opus 4.6 main also accepts a Sonnet 5 advisor
 Fable 5 (v2.1.170+)| Fable| An Opus or Sonnet advisor is rejected
 
 Fable 5 requires Claude Code v2.1.170 or later and Fable 5 access, whether it acts as the main model or the advisor. Set the advisor as `opus`, `sonnet`, or `fable`. These aliases resolve to the latest version of each model. You can also pass a full model ID such as `claude-opus-4-8`. Subagents inherit the configured advisor and apply the same pairing check against their own model. Claude Code validates the pairing before sending a request:
