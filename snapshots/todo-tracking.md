@@ -34,6 +34,8 @@ The SDK automatically creates todos for:
 
 Examples
 
+Before running these examples, install the Claude Agent SDK by following the [quickstart](</docs/en/agent-sdk/quickstart>).
+
 ###
 
 ​

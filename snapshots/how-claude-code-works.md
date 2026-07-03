@@ -188,7 +188,6 @@ Ask Claude Code for help
 Claude Code can teach you how to use it. Ask questions like “how do I set up hooks?” or “what’s the best way to structure my CLAUDE.md?” and Claude will explain. Built-in commands also guide you through setup:
 
   * `/init` walks you through creating a CLAUDE.md for your project
-  * `/agents` helps you configure custom subagents
   * `/doctor` diagnoses common issues with your installation
 
 ###

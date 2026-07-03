@@ -21,7 +21,7 @@ For a feature-by-feature breakdown of what’s available on each option, see [Fe
 
   * [Claude for Teams or Enterprise](</docs/en/authentication#claude-for-teams-or-enterprise>)
   * [Anthropic Console](</docs/en/authentication#claude-console-authentication>)
-  * [Claude apps gateway](</docs/en/claude-apps-gateway>), a self-hosted gateway that adds IdP sign-in in front of Amazon Bedrock, Google Vertex AI, Microsoft Foundry, or the Anthropic API
+  * [Claude apps gateway](</docs/en/claude-apps-gateway>), a self-hosted gateway that adds IdP sign-in in front of Amazon Bedrock, Claude Platform on AWS, Google Vertex AI, Microsoft Foundry, or the Anthropic API
   * [Amazon Bedrock](</docs/en/amazon-bedrock>)
   * [Claude Platform on AWS](</docs/en/claude-platform-on-aws>)
   * [Google Vertex AI](</docs/en/google-vertex-ai>)

@@ -15,9 +15,12 @@ Message| Section
 `API Error: 500 Internal server error`| Server errors
 `API Error: Repeated 529 Overloaded errors`| Server errors
 `Request timed out`| Server errors, or Network if the message mentions your internet connection
+`Server error mid-response. The response above may be incomplete.`| Server errors
+`Connection closed mid-response` / `Response stalled mid-stream`| Server errors
 `<model> is temporarily unavailable, so auto mode cannot determine the safety of...`| Server errors
 `Auto mode could not evaluate this action and is blocking it for safety`| Server errors
 `Auto mode classifier transcript exceeded context window`| Server errors
+`Agent terminated early due to an API error`| Server errors
 `You've hit your session limit` / `You've hit your weekly limit`| Usage limits
 `Usage credits required for 1M context`| Usage limits
 `Server is temporarily limiting requests`| Usage limits
@@ -33,9 +36,12 @@ Message| Section
 `Remote Control is only available when using Claude via api.anthropic.com`| Authentication
 `OAuth token revoked` / `OAuth token has expired`| Authentication
 `does not meet scope requirement user:profile`| Authentication
+`AWS credentials expired or invalid`| Authentication
+`AWS authentication failed`| Authentication
 `Unable to connect to API`| Network
 `Waiting for API response · will retry in`| Automatic retries, or Network if it persists
 `SSL certificate verification failed`| Network
+`SSL certificate error (...)` during login or startup| Network
 `403` with `x-deny-reason: host_not_allowed` in a cloud or routine session| Network
 `Prompt is too long`| Request errors
 `Error during compaction: Conversation too long`| Request errors
@@ -51,6 +57,7 @@ Message| Section
 `max_tokens must be greater than thinking.budget_tokens`| Request errors
 `API Error: 400 due to tool use concurrency issues`| Request errors
 `Claude Code is unable to respond to this request, which appears to violate our Usage Policy`| Request errors
+`--bg and --print conflict`| Command-line errors
 Responses seem lower quality than usual| Response quality
 
 ##
@@ -59,12 +66,17 @@ Responses seem lower quality than usual| Response quality
 
 Automatic retries
 
-Claude Code retries transient failures before showing you an error. Server errors, overloaded responses, request timeouts, temporary 429 throttles, and dropped connections are all retried up to 10 times with exponential backoff. While retrying, the spinner shows a `Retrying in Ns · attempt x/y` countdown. If no data arrives on the response stream for 20 seconds while a request is still pending, the spinner shows `Waiting for API response · will retry in … · check your network` before any retry has started. The request has not failed yet: the countdown runs to the point where Claude Code aborts the stalled connection and retries, so the banner clears on its own once data resumes or the retry succeeds. As of v2.1.185 the threshold is 20 seconds; earlier versions show the banner after 10 seconds with different wording. If it reappears on every attempt, treat it as a network issue. When you see one of the errors on this page, those retries have already been exhausted. You can tune the behavior with these environment variables:
+Claude Code retries transient failures before showing you an error. Server errors, overloaded responses, request timeouts, temporary 429 throttles, and dropped connections are all retried up to 10 times with exponential backoff. As of v2.1.198, this covers connections that drop in the middle of a response before any visible output has streamed: Claude Code re-issues the request with the same backoff and the turn continues instead of stopping with a connection error. As of v2.1.199, temporary 429 throttles that don’t carry your plan’s quota headers are also retried when you’re signed in with a claude.ai subscription; earlier versions retried them only for API key and Enterprise sign-ins. Two failure classes aren’t retried, because a retry can’t succeed:
+
+  * As of v2.1.199, a TLS certificate validation failure, such as a TLS-inspecting proxy, a missing `NODE_EXTRA_CA_CERTS` bundle, or an expired certificate, fails on the first attempt so the fix appears immediately instead of after the full retry budget. See SSL certificate errors. Transient TLS conditions such as a handshake timeout still retry.
+  * As of v2.1.199, a server error that arrives after Claude has already streamed visible output keeps the partial response and appends an incomplete-response notice instead of retrying, since re-running the request could execute the same tools twice. Earlier versions discarded the partial output and reported the turn as an error.
+
+While retrying, the spinner shows a `Retrying in Ns · attempt x/y` countdown after an error label. The label names the specific reason from the first attempt for failures you can act on right away: the network is down, a TLS handshake failed, or you hit a rate limit. For other errors it reads `API error` at first. As of v2.1.198 it switches to the specific reason from the third attempt, or on the final attempt when `CLAUDE_CODE_MAX_RETRIES` allows fewer than three; earlier versions switch only on the final attempt. As of v2.1.198, the usual spinner tip is suppressed during retries. Once the error reason is revealed, if the failure is a 529 overload the line below the countdown also names where to check service status: `status.claude.com` on the Anthropic API, or the provider or gateway host named in the message on other configurations. If no data arrives on the response stream for 20 seconds while a request is still pending, the spinner shows `Waiting for API response · will retry in … · check your network` before any retry has started. The request has not failed yet: the countdown runs to the point where Claude Code aborts the stalled connection and retries, so the banner clears on its own once data resumes or the retry succeeds. As of v2.1.185 the threshold is 20 seconds; earlier versions show the banner after 10 seconds with different wording. If it reappears on every attempt, treat it as a network issue. When you see one of the errors on this page, those retries have already been exhausted, unless it belongs to a class that isn’t retried, such as a certificate-validation failure. You can tune the behavior with these environment variables:
 
 Variable| Default| Effect
 ---|---|---
-[`CLAUDE_CODE_MAX_RETRIES`](</docs/en/env-vars>)| 10| Number of retry attempts. Capped at 15 as of v2.1.186. Lower it to surface failures faster in scripts.
-[`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>)| unset| Set to `1` in unattended sessions such as CI jobs to retry `429` and `529` capacity errors indefinitely instead of failing after `CLAUDE_CODE_MAX_RETRIES` attempts.
+[`CLAUDE_CODE_MAX_RETRIES`](</docs/en/env-vars>)| 10| Number of retry attempts. Capped at 15 as of v2.1.186; as of v2.1.199 `CLAUDE_CODE_RETRY_WATCHDOG` raises the default and removes the cap. Lower it to surface failures faster in scripts.
+[`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>)| unset| Set to `1` in unattended sessions such as CI jobs to retry `429` and `529` capacity errors indefinitely instead of failing after `CLAUDE_CODE_MAX_RETRIES` attempts. As of v2.1.199 it also raises the default retry count for other transient errors, such as server errors, timeouts, and dropped connections, to 300, roughly three hours of backoff, and removes the cap of 15 on `CLAUDE_CODE_MAX_RETRIES` if you set that variable explicitly.
 [`API_TIMEOUT_MS`](</docs/en/env-vars>)| 600000| Per-request timeout in milliseconds. Raise it for slow networks or proxies.
 
 ##
@@ -101,7 +113,7 @@ The API is temporarily at capacity across all users. Claude Code has already ret
 
     API Error: Repeated 529 Overloaded errors. The API is at capacity — this is usually temporary. Try again in a moment. If it persists, check https://status.claude.com.
 
-The trailing sentence varies by provider in the same way as the 500 error above. A 529 is not your usage limit and does not count against your quota. **What to do:**
+The trailing sentence varies by provider in the same way as the 500 error above. A 529 is not your usage limit and doesn’t count against your quota. **What to do:**
 
   * Check [status.claude.com](<https://status.claude.com>), or the provider status page named in the message, for capacity notices
   * Try again in a few minutes
@@ -113,11 +125,11 @@ The trailing sentence varies by provider in the same way as the 500 error above.
 
 Request timed out
 
-The API did not respond before the connection deadline.
+The API didn’t respond before the connection deadline.
 
     Request timed out
 
-This can happen during periods of high load or when a very large response is being generated. The default request timeout is 10 minutes. **What to do:**
+This can happen during periods of high load or when the model is generating a very large response. The default request timeout is 10 minutes. **What to do:**
 
   * Retry the request
   * For long-running tasks, break the work into smaller prompts
@@ -128,9 +140,31 @@ This can happen during periods of high load or when a very large response is bei
 
 ​
 
+The response above may be incomplete
+
+A streaming response failed after Claude had already produced visible output. Re-sending the request could run the same tool calls twice, so Claude Code keeps what already streamed and appends this notice instead of discarding the turn. Which variant you see names the cause:
+
+    API Error: Server error mid-response. The response above may be incomplete.
+    API Error: Connection closed mid-response. The response above may be incomplete.
+    API Error: Response stalled mid-stream. The response above may be incomplete.
+
+  * `Server error mid-response`: a mid-stream overloaded or 5xx server error. This variant requires Claude Code v2.1.199 or later; before then that case discarded the partial output and reported the whole turn as an error.
+  * `Connection closed mid-response`: the connection dropped.
+  * `Response stalled mid-stream`: the stream stopped sending data.
+
+**What to do:**
+
+  * Read the response that streamed. Nothing has been lost, but the final sentences or tool calls may be missing.
+  * Reply with `continue` to have Claude pick up where it stopped
+  * If the same error appears before any visible output, Claude Code retries the request instead of finalizing it. See Automatic retries.
+
+###
+
+​
+
 Auto mode cannot determine the safety of an action
 
-The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) uses to classify actions could not produce a decision, so auto mode did not approve the action automatically. The message you see depends on why the classifier failed. Reads, searches, and edits inside your working directory skip the classifier, so they keep working in all of these cases. When the classifier model is overloaded:
+The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) uses to classify actions couldn’t produce a decision, so auto mode didn’t approve the action automatically. The message you see depends on why the classifier failed. Reads, searches, and edits inside your working directory skip the classifier, so they keep working in all of these cases. When the classifier model is overloaded:
 
     <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait briefly and then try this action again.
 
@@ -138,7 +172,7 @@ The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-aut
 
   * Retry after a few seconds; Claude sees the same message and usually retries on its own
   * If retries keep failing, continue with read-only tasks and come back to the blocked action later
-  * This is transient and unrelated to [auto mode eligibility](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>); you do not need to change settings
+  * This is transient and unrelated to [auto mode eligibility](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>); you don’t need to change settings
 
 When the classifier returned an unparseable response:
 
@@ -155,7 +189,7 @@ When a separate API safety check blocked the classifier request because of earli
 
 **What to do:**
 
-  * This is not a decision about your action. A safety filter on the API was triggered by existing content in your conversation when auto mode sent the conversation to the classifier
+  * This is not a decision about your action. Content already in your conversation triggered a safety filter on the API when auto mode sent the conversation to the classifier
   * Retrying will not help; the same conversation content will trigger the filter again
   * Switch to a different [permission mode](</docs/en/permission-modes>) so you can approve the action when prompted, or start a fresh conversation without the triggering content
 
@@ -163,10 +197,27 @@ When the conversation has grown larger than the classifier’s context window:
 
     Auto mode classifier transcript exceeded context window — falling back to manual approval (try /compact to reduce conversation size)
 
-In an interactive session, auto mode falls back to a normal permission prompt for that action so you can approve or deny it manually. In [non-interactive mode](</docs/en/headless>) the run aborts because the transcript only grows and retrying cannot succeed. **What to do:**
+In an interactive session, auto mode falls back to a normal permission prompt for that action so you can approve or deny it manually. In [non-interactive mode](</docs/en/headless>) the run aborts because the transcript only grows and retrying can’t succeed. **What to do:**
 
   * Approve or deny the action in the prompt that appears
   * Run `/compact` to reduce the conversation size so subsequent actions fit within the classifier window again
+
+###
+
+​
+
+Agent terminated early due to an API error
+
+A [subagent](</docs/en/sub-agents>)’s API request failed terminally, for example because a usage limit was reached or retries for a server error ran out, so the subagent stopped before finishing its task. This message requires Claude Code v2.1.199 or later; before then the API error text was returned to Claude as if it were the subagent’s result.
+
+    Agent terminated early due to an API error: <error detail>
+
+**What to do:**
+
+  * Match the error detail after the colon to its own section on this page, such as Usage limits or Server errors, and follow that section’s steps
+  * Once the underlying error clears, ask Claude to retry the task or [resume the subagent](</docs/en/sub-agents#resume-subagents>)
+
+When a rate limit, overload, or server error interrupts a foreground subagent that already produced output, Claude receives that partial output marked as incomplete instead of this error. See [API errors in subagents](</docs/en/sub-agents#api-errors-in-subagents>).
 
 ##
 
@@ -224,7 +275,7 @@ The API applied a short-lived throttle that is unrelated to your plan quota.
 
     API Error: Server is temporarily limiting requests (not your usage limit)
 
-This is retried automatically before being shown. **What to do:**
+Claude Code tells these apart from your plan limit by the absence of the unified quota headers a real limit response carries. As of v2.1.199 this is retried automatically with backoff before being shown, whichever way you authenticate. On earlier versions, a session signed in with a claude.ai subscription failed the turn on the first occurrence; only API key and Enterprise sign-ins retried it. **What to do:**
 
   * Wait briefly and try again
   * Check [status.claude.com](<https://status.claude.com>) if it persists
@@ -285,7 +336,7 @@ No valid credential is available for this session.
   * Run `/login` to authenticate with your Claude subscription or Console account
   * If you expected an environment variable to authenticate you, confirm `ANTHROPIC_API_KEY` is set and exported in the shell where you launched `claude`
   * For CI or automation where interactive login is not possible, configure an [`apiKeyHelper`](</docs/en/settings#available-settings>) script that fetches a key at startup
-  * See [Authentication precedence](</docs/en/authentication#authentication-precedence>) to understand which credential wins when several are present
+  * See [Authentication precedence](</docs/en/authentication#authentication-precedence>) to understand which credential Claude Code uses when several are present
 
 If you are prompted to log in repeatedly, see [Not logged in or token expired](</docs/en/troubleshoot-install#not-logged-in-or-token-expired>) for system clock and macOS Keychain fixes.
 
@@ -295,7 +346,7 @@ If you are prompted to log in repeatedly, see [Not logged in or token expired](<
 
 Could not resolve authentication method
 
-The session reached the API client without any credential. This appears in [background sessions](</docs/en/agent-view>), cloud sessions, and Agent SDK contexts where the interactive login check does not run before the first request.
+The session reached the API client without any credential. This appears in [background sessions](</docs/en/agent-view>), cloud sessions, and Agent SDK contexts where the interactive login check doesn’t run before the first request.
 
     Could not resolve authentication method. Expected one of apiKey, authToken, credentials, config, or profile to be set. Or for one of the "X-Api-Key" or "Authorization" headers to be explicitly omitted
 
@@ -347,14 +398,14 @@ Environment variables take precedence over `/login`, so a key exported in your s
 
 Your organization has disabled API key authentication
 
-Your Console organization’s admin has turned off API key authentication, so the API rejects the key Claude Code is sending. The recovery hint after the `·` varies by where the key came from:
+This message requires Claude Code v2.1.169 or later. Your Console organization’s admin has turned off API key authentication, so the API rejects the key Claude Code is sending. The recovery hint after the `·` varies by where the key came from:
 
     Your organization has disabled API key authentication · Run /login to sign in with your claude.ai account
     Your organization has disabled API key authentication · Unset ANTHROPIC_API_KEY to use your claude.ai account instead
     Your organization has disabled API key authentication · Unset ANTHROPIC_API_KEY and run /login to sign in with your claude.ai account
     Your organization has disabled API key authentication · Unset the apiKeyHelper setting and run /login to sign in with your claude.ai account
 
-Environment variables and `apiKeyHelper` take precedence over `/login`, so running `/login` alone does not help while either is still supplying a key. See [Authentication precedence](</docs/en/authentication#authentication-precedence>). **What to do:**
+Environment variables and `apiKeyHelper` take precedence over `/login`, so running `/login` alone doesn’t help while either is still supplying a key. See [Authentication precedence](</docs/en/authentication#authentication-precedence>). **What to do:**
 
   * If the message names `ANTHROPIC_API_KEY`, unset it in the current shell and remove it from your shell profile or `.env` file, then relaunch `claude`
   * If the message names `apiKeyHelper`, remove the [`apiKeyHelper`](</docs/en/settings#available-settings>) setting from your `settings.json`
@@ -368,11 +419,11 @@ Environment variables and `apiKeyHelper` take precedence over `/login`, so runni
 
 Your organization has disabled Claude subscription access
 
-Your Claude organization does not allow signing in to Claude Code with a subscription login. Running `/login` again with the same account returns the same error.
+Your Claude organization doesn’t allow signing in to Claude Code with a subscription login. Running `/login` again with the same account returns the same error.
 
     Your organization has disabled Claude subscription access for Claude Code · Use an Anthropic API key instead, or ask your admin to enable access
 
-This is a server-side organization setting, so it cannot be overridden from local settings, environment variables, or CLI flags. The Agent SDK and `-p` non-interactive mode surface this as the `oauth_org_not_allowed` error code. **What to do:**
+This is a server-side organization setting, so it can’t be overridden from local settings, environment variables, or CLI flags. The Agent SDK and `-p` non-interactive mode surface this as the `oauth_org_not_allowed` error code. **What to do:**
 
   * Ask your admin to enable Claude Code access for your organization
   * Authenticate with a Console API key instead of your subscription. See [Claude Console authentication](</docs/en/authentication#claude-console-authentication>) for setup.
@@ -388,7 +439,7 @@ An Owner in your Team or Enterprise organization has turned off routines at the 
 
     Routines are disabled by your organization's policy.
 
-This is a server-side setting, so it cannot be overridden from local settings, environment variables, or CLI flags. **What to do:**
+This is a server-side setting, so it can’t be overridden from local settings, environment variables, or CLI flags. **What to do:**
 
   * Ask an Owner in your organization to enable the **Routines** toggle at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>)
   * For one-off scheduled work that does not require organization-level routines, see [scheduled tasks](</docs/en/scheduled-tasks>)
@@ -439,7 +490,39 @@ The stored token predates a permission scope that a newer feature needs. You see
 
 **What to do:**
 
-  * Run `/login` to mint a new token with the current scopes. You do not need to log out first.
+  * Run `/login` to get a new token with the current scopes. You don’t need to log out first.
+
+###
+
+​
+
+AWS credentials expired or invalid
+
+This message requires Claude Code v2.1.198 or later and only appears when [`awsAuthRefresh`](</docs/en/amazon-bedrock#advanced-credential-configuration>) is set in your settings file. Your AWS session token expired or was rejected, and the automatic refresh Claude Code already ran didn’t produce a credential the API accepts. It appears on a 401 from [Claude Platform on AWS](</docs/en/claude-platform-on-aws>) or the [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>), which is how those providers report an expired security token. The action hint in the middle names the `awsAuthRefresh` command from your settings, so it varies. The stable part is the leading `AWS credentials expired or invalid`:
+
+    AWS credentials expired or invalid · run /login and select "Claude Platform on AWS · refresh credentials", or run `aws sso login --profile myprofile` in another terminal · API Error: 401 ...
+
+Without `awsAuthRefresh` configured, the same 401 shows the generic `Please run /login` message instead, which can’t refresh AWS credentials. **What to do:**
+
+  * Run the `awsAuthRefresh` command named in the message, such as `aws sso login --profile myprofile`, in another terminal and complete the browser sign-in, then retry
+  * In an interactive session, run `/login`, choose **3rd-party platform** , then select **Claude Platform on AWS · refresh credentials** under **Using 3rd-party platforms** to run the same command without restarting Claude Code. See [Configure AWS credentials](</docs/en/claude-platform-on-aws#1-configure-aws-credentials>)
+  * If the error repeats after the refresh command succeeds, confirm the identity is valid outside Claude Code with `aws sts get-caller-identity` in the same shell and profile
+
+###
+
+​
+
+AWS authentication failed
+
+This message requires Claude Code v2.1.198 or later and only appears when [`awsAuthRefresh`](</docs/en/amazon-bedrock#advanced-credential-configuration>) is set in your settings file. Your AWS provider returned a 403, or [Amazon Bedrock](</docs/en/amazon-bedrock>) returned a 401. Claude Code can’t tell which cause you hit. Amazon Bedrock reports an expired security token as a 403, but a 403 is also how it reports an authorization denial, such as an `AccessDeniedException` from a missing IAM permission or a model that isn’t enabled for your account. A 401 from Amazon Bedrock also lands here rather than under AWS credentials expired or invalid, because Bedrock doesn’t report an expired token as a 401. A 401 from that endpoint typically comes from something else in the request path, such as a corporate proxy. A credential refresh fixes an expired token and can’t fix the other causes, so the message offers both:
+
+    AWS authentication failed · run /login and select "Claude Platform on AWS · refresh credentials", or run `aws sso login --profile myprofile` in another terminal · if credentials are current, check AWS permissions and model access · API Error: 403 ...
+
+The action hint in the middle names the `awsAuthRefresh` command from your settings, so it varies. The stable part is the leading `AWS authentication failed`. **What to do:**
+
+  * Run the `awsAuthRefresh` command named in the message, or `aws sso login`, in case an expired credential is the cause
+  * If your credentials are current, confirm the IAM permissions in [IAM configuration](</docs/en/amazon-bedrock#iam-configuration>) are attached to the identity you’re using and that the selected model is enabled for your account and region
+  * Run `aws sts get-caller-identity` to confirm which identity your requests use; a stale `AWS_PROFILE` or default profile is a common cause of a permission mismatch
 
 ##
 
@@ -489,11 +572,15 @@ A proxy or security appliance on your network is intercepting TLS traffic with i
     Unable to connect to API: SSL certificate verification failed. Check your proxy or corporate SSL certificates
     Unable to connect to API: Self-signed certificate detected
 
+As of v2.1.199, a certificate validation failure isn’t retried, so this error appears on the first attempt instead of after the full retry budget. Earlier versions spent a few minutes retrying before showing it. Transient TLS conditions, such as a handshake timeout, still retry. During `/login` and the startup connectivity check, the same failure is reported with the OpenSSL code and the fix inline:
+
+    SSL certificate error (UNABLE_TO_GET_ISSUER_CERT_LOCALLY). If you are behind a corporate proxy or TLS-intercepting firewall, set NODE_EXTRA_CA_CERTS to your CA bundle path, or ask IT to allowlist *.anthropic.com. Run /doctor for details.
+
 **What to do:**
 
   * Export your organization’s CA bundle and point Claude Code at it with `NODE_EXTRA_CA_CERTS=/path/to/ca-bundle.pem`
   * See [Network configuration](</docs/en/network-config#custom-ca-certificates>) for full setup instructions
-  * Do not set `NODE_TLS_REJECT_UNAUTHORIZED=0`, which disables certificate validation entirely
+  * Don’t set `NODE_TLS_REJECT_UNAUTHORIZED=0`, which disables certificate validation entirely
 
 ###
 
@@ -556,7 +643,7 @@ Error during compaction: Conversation too long
 This can happen when the window is already full at the moment auto-compact triggers, or when you run `/compact` after seeing `Prompt is too long`. **What to do:**
 
   * Press Esc twice to open the message list and step back several turns. This drops the most recent messages from context. Then run `/compact` again.
-  * If stepping back does not free enough space, run `/clear` to start a fresh session. Your previous conversation is preserved and can be reopened with `/resume`.
+  * If stepping back doesn’t free enough space, run `/clear` to start a fresh session. Your previous conversation is preserved and can be reopened with `/resume`.
 
 ###
 
@@ -596,14 +683,14 @@ Claude Code replaces the unprocessable image with a text placeholder and retries
 
 Unable to resize image
 
-Claude Code could not downscale an attached image before sending it to the API.
+Claude Code couldn’t downscale an attached image before sending it to the API.
 
     Unable to resize image — image processing is unavailable and dimensions could not be read from the file header. Please convert the image to PNG, JPEG, GIF, or WebP.
     Unable to resize image — dimensions exceed the 2000x2000px limit and image processing failed. Please resize the image to reduce its pixel dimensions.
     Unable to resize image (… raw, … base64). The image exceeds the … API limit and compression failed. Please resize the image manually or use a smaller image.
     Unable to resize image — could not verify image dimensions are within the 2000x2000px API limit.
 
-Claude Code normally resizes large images automatically. These errors mean the native image processor failed to load or returned an error, so the image could not be resized to fit within API limits. **What to do:**
+Claude Code normally resizes large images automatically. These errors mean the native image processor failed to load or returned an error, so the image couldn’t be resized to fit within API limits. **What to do:**
 
   * If the message asks you to convert the image, convert it to PNG, JPEG, GIF, or WebP and attach it again. Claude Code can verify dimensions for these formats without the image processor.
   * If the message reports a dimension or size limit, resize or recompress the image below that limit before attaching.
@@ -614,7 +701,7 @@ Claude Code normally resizes large images automatically. These errors mean the n
 
 PDF errors
 
-The PDF you attached could not be processed.
+The PDF you attached couldn’t be processed.
 
     PDF too large (max 100 pages, 32 MB). Try splitting it or extracting text first.
     PDF is password protected. Try removing protection or extracting text first.
@@ -637,7 +724,7 @@ A proxy or LLM gateway between Claude Code and the API stripped the `anthropic-b
     API Error: 400 ... Extra inputs are not permitted ... tools.0.custom.input_examples
     API Error: 400 ... Unexpected value(s) for the `anthropic-beta` header
 
-Claude Code sends beta-only fields such as `context_management`, `effort`, and tool `input_examples` alongside an `anthropic-beta` header that enables them. When a gateway forwards the body but drops the header, the API sees fields it does not recognize. **What to do:**
+Claude Code sends beta-only fields such as `context_management`, `effort`, and tool `input_examples` alongside an `anthropic-beta` header that enables them. When a gateway forwards the body but drops the header, the API sees fields it doesn’t recognize. **What to do:**
 
   * Configure your gateway to forward the `anthropic-beta` header. See [feature pass-through](</docs/en/llm-gateway-protocol#feature-pass-through>) for what gateways must forward.
   * As a fallback, set [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](</docs/en/env-vars>) before launching. This disables features that require the beta header so requests succeed through a gateway that cannot forward it.
@@ -657,7 +744,7 @@ The configured model name was not recognized or your account lacks access to it.
   * **Interactive CLI** : run `/model` to pick from models available to your account.
   * **Non-interactive mode (`-p`)**: pass `--model` with a valid alias or ID, or set [`ANTHROPIC_MODEL`](</docs/en/env-vars>). The error text shows `Run --model` on this surface.
   * **Agent SDK** : the error text omits the hint because the model is set programmatically. Set [`model` on `Options`](</docs/en/agent-sdk/typescript#options>) in TypeScript or [`ClaudeAgentOptions(model=...)`](</docs/en/agent-sdk/python#claudeagentoptions>) in Python, and handle the structured `model_not_found` error to surface your own retry or model picker.
-  * Use an alias such as `sonnet` or `opus` instead of a full versioned ID. Aliases resolve to a maintained default so they do not go stale. See [Model configuration](</docs/en/model-config>).
+  * Use an alias such as `sonnet` or `opus` instead of a full versioned ID. Aliases resolve to a maintained default so they don’t go stale. See [Model configuration](</docs/en/model-config>).
   * If the wrong model keeps coming back in the CLI, a stale ID is set somewhere. Check in [priority order](</docs/en/model-config#setting-your-model>): the `--model` flag, the `ANTHROPIC_MODEL` environment variable, then the `model` field in `.claude/settings.local.json`, your project’s `.claude/settings.json`, and `~/.claude/settings.json`. Remove the stale value and Claude Code falls back to your account default.
   * For Vertex AI deployments, see [Vertex AI troubleshooting](</docs/en/google-vertex-ai#troubleshooting>).
 
@@ -690,7 +777,7 @@ Your organization admin has disabled this model in the claude.ai admin console, 
 **What to do:**
 
   * Run `/model` to pick from the models your organization allows. Restricted models are hidden from the picker.
-  * If the restricted model was set in `--model`, `ANTHROPIC_MODEL`, or the `model` field of a settings file, remove or update that value so the notice does not recur on each launch
+  * If the restricted model was set in `--model`, `ANTHROPIC_MODEL`, or the `model` field of a settings file, remove or update that value so the notice doesn’t recur on each launch
   * If you need access to the restricted model, ask your organization admin to enable it. See [Organization model restrictions](</docs/en/model-config#organization-model-restrictions>).
 
 ###
@@ -738,7 +825,7 @@ The conversation history reached the API in an inconsistent state, usually after
 
 All three variants mean the same thing: the sequence of `tool_use`, `tool_result`, and `thinking` blocks in history no longer matches what the API expects. **What to do:**
 
-  * If you are using Opus 4.7 or Opus 4.8, run `claude update` first. Versions before v2.1.156 can trigger this error during normal tool use, and `/rewind` does not clear it.
+  * If you are using Opus 4.7 or Opus 4.8, run `claude update` first. Versions before v2.1.156 can trigger this error during normal tool use, and `/rewind` doesn’t clear it.
   * Run `/rewind`, or press Esc twice, to step back to a checkpoint before the corrupted turn and continue from there. See [Checkpointing](</docs/en/checkpointing>) for how checkpoints are created and restored.
 
 ###
@@ -754,8 +841,31 @@ The API declined to respond because content in the conversation triggered a [Usa
 The check evaluates the full conversation, not only your latest prompt, so sending a new message in the same session usually re-triggers the same refusal. The same applies after exiting and reopening the session with `--continue` or `--resume`, since the transcript on disk still contains the triggering content. **What to do:**
 
   * Press Esc twice or run `/rewind` to step back to a checkpoint before the turn that triggered the refusal, then rephrase or take a different approach. See [Checkpointing](</docs/en/checkpointing>).
-  * If you cannot identify which turn caused it, run `/clear` to start a fresh conversation in the same project. Your previous conversation is preserved on disk and remains available in `/resume`.
+  * If you can’t identify which turn caused it, run `/clear` to start a fresh conversation in the same project. Your previous conversation is preserved on disk and remains available in `/resume`.
   * In [non-interactive mode](</docs/en/headless>) (`-p`), where rewind is unavailable, retry with a rephrased prompt in a new session without `--continue`. Policy checks vary by model, so switching to a different model with `--model` may also resolve the refusal in some cases.
+
+##
+
+​
+
+Command-line errors
+
+These errors come from Claude Code’s own validation of the `claude` command line. Claude Code prints them immediately, before it creates a session or sends any API request.
+
+###
+
+​
+
+Conflict between —bg and —print
+
+This message requires Claude Code v2.1.198 or later. You combined `--bg` with `-p` or `--print` in the same `claude` invocation. `--bg` starts a [background session](</docs/en/agent-view#from-your-shell>) that you later attach to with `claude agents`, while `--print` runs [non-interactively](</docs/en/headless>) and never starts the interactive session that `claude agents` attaches to. Before v2.1.198 this combination silently created a background job that could never be attached to.
+
+    --bg and --print conflict: --print never starts the interactive session that `claude agents` attaches to, so the job would be unattachable. The prompt is the positional — drop --print: `claude --bg '<task>'`.
+
+**What to do:**
+
+  * Drop `-p` or `--print`. `--bg` takes the prompt as its positional argument, so `claude --bg "<task>"` is the complete command. See [Dispatch new agents from your shell](</docs/en/agent-view#from-your-shell>).
+  * To run the prompt non-interactively and print the result instead of creating a background session, drop `--bg` and run `claude -p "<task>"`
 
 ##
 
@@ -763,7 +873,7 @@ The check evaluates the full conversation, not only your latest prompt, so sendi
 
 Responses seem lower quality than usual
 
-If Claude’s answers seem less capable than you expect but no error is shown, the cause is usually conversation state rather than the model itself. Claude Code does not silently change model versions. It can switch to a fallback model in three specific cases:
+If Claude’s answers seem less capable than you expect but no error is shown, the cause is usually conversation state rather than the model itself. Claude Code doesn’t silently change model versions. It can switch to a fallback model in three specific cases:
 
   * A configured [`--fallback-model`](</docs/en/cli-reference#cli-flags>) takes over after an availability error, for that turn only, with a notice in the transcript
   * A Bedrock or Vertex AI startup check finds your default model unavailable
@@ -784,7 +894,7 @@ When a response goes wrong, rewinding usually works better than replying with co
 
 Report an error
 
-This page covers errors from the Claude API. For errors from other Claude Code components, see the relevant guide:
+For errors from components this page doesn’t cover, see the relevant guide:
 
   * MCP server failed to connect or authenticate: [MCP](</docs/en/mcp>)
   * Hook script failed or blocked a tool: [Debug hooks](</docs/en/hooks#debug-hooks>)

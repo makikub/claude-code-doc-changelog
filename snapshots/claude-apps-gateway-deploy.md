@@ -76,7 +76,7 @@ Run the gateway as a Deployment, like any stateless service:
   * Terminate TLS at the Ingress and set `listen.public_url` to the Ingress hostname
   * Point the readiness probe at `GET /readyz` and the liveness probe at `GET /healthz`
 
-**Workload identity** Prefer the platform’s workload identity over static keys: IRSA on EKS for Bedrock, Workload Identity on GKE for Agent Platform, and workload identity on AKS for Foundry. Set `auth: {}` in the upstream block, or `use_azure_ad: true` for Foundry, and the gateway picks up the pod’s identity through that provider’s default credential chain. For a cross-cloud pairing, such as a Bedrock upstream on GKE, set explicit credentials in the upstream’s `auth` block instead. The [`upstreams` reference](</docs/en/claude-apps-gateway-config#upstreams>) has per-platform setup details.
+**Workload identity** Prefer the platform’s workload identity over static keys: IRSA on EKS for Bedrock and for Claude Platform on AWS, Workload Identity on GKE for Agent Platform, and workload identity on AKS for Foundry. Set `auth: {}` in the upstream block, or `use_azure_ad: true` for Foundry, and the gateway picks up the pod’s identity through that provider’s default credential chain. For a cross-cloud pairing, such as a Bedrock upstream on GKE, set explicit credentials in the upstream’s `auth` block instead. The [`upstreams` reference](</docs/en/claude-apps-gateway-config#upstreams>) has per-platform setup details.
 
 ###
 

@@ -81,7 +81,7 @@ Branching creates a copy of the conversation so far and switches you into it, le
 
     /branch try-streaming-approach
 
-From the command line, combine `--continue` or `--resume` with `--fork-session`:
+If you omit the name, Claude Code names the new branch after the first prompt in the conversation. As of v2.1.198 this also applies after [compaction](</docs/en/how-claude-code-works#when-context-fills-up>); earlier versions fell back to the literal name `Branched conversation` instead of looking past the compaction summary to the original first prompt. From the command line, combine `--continue` or `--resume` with `--fork-session`:
 
     claude --continue --fork-session
 
