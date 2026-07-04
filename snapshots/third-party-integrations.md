@@ -6,7 +6,7 @@ Organizations can deploy Claude Code through Anthropic directly or through a clo
 
 Compare deployment options
 
-For most organizations, Claude for Teams or Claude for Enterprise provides the best experience. Team members get access to both Claude Code and Claude on the web with a single subscription, centralized billing, and no infrastructure setup required. **Claude for Teams** is self-service and includes collaboration features, admin tools, and billing management. Best for smaller teams that need to get started quickly. **Claude for Enterprise** adds SSO and domain capture, role-based permissions, compliance API access, and managed policy settings for deploying organization-wide Claude Code configurations. Best for larger organizations with security and compliance requirements. Learn more about [Team plans](<https://support.claude.com/en/articles/9266767-what-is-the-team-plan>) and [Enterprise plans](<https://support.claude.com/en/articles/9797531-what-is-the-enterprise-plan>). If your organization has specific infrastructure requirements, compare the options below: Feature| Claude for Teams/Enterprise| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Vertex AI| Microsoft Foundry
+For most organizations, Claude for Teams or Claude for Enterprise provides the best experience. Team members get access to both Claude Code and Claude on the web with a single subscription, centralized billing, and no infrastructure setup required. **Claude for Teams** is self-service and includes collaboration features, admin tools, and billing management. Best for smaller teams that need to get started quickly. **Claude for Enterprise** adds SSO and domain capture, role-based permissions, compliance API access, and managed policy settings for deploying organization-wide Claude Code configurations. Best for larger organizations with security and compliance requirements. Learn more about [Team plans](<https://support.claude.com/en/articles/9266767-what-is-the-team-plan>) and [Enterprise plans](<https://support.claude.com/en/articles/9797531-what-is-the-enterprise-plan>). If your organization has specific infrastructure requirements, compare the options below: Feature| Claude for Teams/Enterprise| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud’s Agent Platform, formerly Vertex AI| Microsoft Foundry
 ---|---|---|---|---|---|---
 Best for| Most organizations (recommended)| Individual developers| AWS-native deployments| AWS Marketplace billing with Claude API features| GCP-native deployments| Azure-native deployments
 Billing| **Teams:** $150/seat (Premium) with PAYG available
@@ -21,10 +21,10 @@ For a feature-by-feature breakdown of what’s available on each option, see [Fe
 
   * [Claude for Teams or Enterprise](</docs/en/authentication#claude-for-teams-or-enterprise>)
   * [Anthropic Console](</docs/en/authentication#claude-console-authentication>)
-  * [Claude apps gateway](</docs/en/claude-apps-gateway>), a self-hosted gateway that adds IdP sign-in in front of Amazon Bedrock, Claude Platform on AWS, Google Vertex AI, Microsoft Foundry, or the Anthropic API
+  * [Claude apps gateway](</docs/en/claude-apps-gateway>), a self-hosted gateway that adds IdP sign-in in front of Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, Microsoft Foundry, or the Anthropic API
   * [Amazon Bedrock](</docs/en/amazon-bedrock>)
   * [Claude Platform on AWS](</docs/en/claude-platform-on-aws>)
-  * [Google Vertex AI](</docs/en/google-vertex-ai>)
+  * [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>)
   * [Microsoft Foundry](</docs/en/microsoft-foundry>)
 
 ##
@@ -50,7 +50,7 @@ Amazon Bedrock
 
   * LLM Gateway
 
-Route Bedrock traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
+Route Amazon Bedrock traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
 
     # Enable Bedrock
     export CLAUDE_CODE_USE_BEDROCK=1
@@ -59,7 +59,7 @@ Route Bedrock traffic through your corporate proxy by setting the following [env
     # Configure corporate proxy
     export HTTPS_PROXY='https://proxy.example.com:8080'
 
-Route Bedrock traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
+Route Amazon Bedrock traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
 
     # Enable Bedrock
     export CLAUDE_CODE_USE_BEDROCK=1
@@ -78,7 +78,7 @@ Microsoft Foundry
 
   * LLM Gateway
 
-Route Foundry traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
+Route Microsoft Foundry traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
 
     # Enable Microsoft Foundry
     export CLAUDE_CODE_USE_FOUNDRY=1
@@ -88,7 +88,7 @@ Route Foundry traffic through your corporate proxy by setting the following [env
     # Configure corporate proxy
     export HTTPS_PROXY='https://proxy.example.com:8080'
 
-Route Foundry traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
+Route Microsoft Foundry traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
 
     # Enable Microsoft Foundry
     export CLAUDE_CODE_USE_FOUNDRY=1
@@ -101,15 +101,15 @@ Route Foundry traffic through your LLM gateway by setting the following [environ
 
 ​
 
-Google Vertex AI
+Google Cloud’s Agent Platform
 
   * Corporate proxy
 
   * LLM Gateway
 
-Route Vertex AI traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
+Route Google Cloud’s Agent Platform traffic through your corporate proxy by setting the following [environment variables](</docs/en/env-vars>):
 
-    # Enable Vertex
+    # Enable Agent Platform
     export CLAUDE_CODE_USE_VERTEX=1
     export CLOUD_ML_REGION=us-east5
     export ANTHROPIC_VERTEX_PROJECT_ID=your-project-id
@@ -117,9 +117,9 @@ Route Vertex AI traffic through your corporate proxy by setting the following [e
     # Configure corporate proxy
     export HTTPS_PROXY='https://proxy.example.com:8080'
 
-Route Vertex AI traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
+Route Google Cloud’s Agent Platform traffic through your LLM gateway by setting the following [environment variables](</docs/en/env-vars>):
 
-    # Enable Vertex
+    # Enable Agent Platform
     export CLAUDE_CODE_USE_VERTEX=1
 
     # Configure LLM gateway
@@ -171,7 +171,7 @@ Encourage new users to try Claude Code for codebase Q&A, or on smaller bug fixes
 
 Pin model versions for cloud providers
 
-If you deploy through [Bedrock](</docs/en/amazon-bedrock>), [Vertex AI](</docs/en/google-vertex-ai>), [Foundry](</docs/en/microsoft-foundry>), or [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), pin specific model versions using `ANTHROPIC_DEFAULT_FABLE_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Without pinning, model aliases resolve to Claude Code’s built-in default for that provider, which can lag the newest release and may not yet be enabled in your account. Pinning lets you control when your users move to a new model. See [Model configuration](</docs/en/model-config#pin-models-for-third-party-deployments>) for what each provider does when the default is unavailable.
+If you deploy through [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), [Microsoft Foundry](</docs/en/microsoft-foundry>), or [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), pin specific model versions using `ANTHROPIC_DEFAULT_FABLE_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Without pinning, model aliases resolve to Claude Code’s built-in default for that provider, which can lag the newest release and may not yet be enabled in your account. Pinning lets you control when your users move to a new model. See [Model configuration](</docs/en/model-config#pin-models-for-third-party-deployments>) for what each provider does when the default is unavailable.
 
 ###
 

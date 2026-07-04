@@ -46,7 +46,7 @@ Run `/install-github-app` in the Claude Code terminal to set up the integration 
 
   * You must be a repository admin to install the GitHub app and add secrets
   * The GitHub app will request read & write permissions for Contents, Issues, and Pull requests
-  * This quickstart method is only available for direct Claude API users. If you’re using Amazon Bedrock or Google Vertex AI, see the Using with Amazon Bedrock & Google Vertex AI section.
+  * This quickstart method is only available for direct Claude API users. If you’re using Amazon Bedrock or Google Cloud’s Agent Platform, see the Using with Amazon Bedrock and Google Cloud section.
 
 ##
 
@@ -320,7 +320,7 @@ When responding to issue or PR comments, Claude automatically responds to @claud
 
 ​
 
-Using with Amazon Bedrock & Google Vertex AI
+Using with Amazon Bedrock and Google Cloud
 
 For enterprise environments, you can use Claude Code GitHub Actions with your own cloud infrastructure. This approach gives you control over data residency and billing while maintaining the same functionality.
 
@@ -336,9 +336,9 @@ Before setting up Claude Code GitHub Actions with cloud providers, you need:
 
 ​
 
-For Google Cloud Vertex AI:
+For Google Cloud’s Agent Platform:
 
-  1. A Google Cloud Project with Vertex AI enabled
+  1. A Google Cloud Project with Google Cloud’s Agent Platform enabled
   2. Workload Identity Federation configured for GitHub Actions
   3. A service account with the required permissions
   4. A GitHub App (recommended) or use the default GITHUB_TOKEN
@@ -351,14 +351,14 @@ For Amazon Bedrock:
 
   1. An AWS account with Amazon Bedrock enabled
   2. GitHub OIDC Identity Provider configured in AWS
-  3. An IAM role with Bedrock permissions
+  3. An IAM role with Amazon Bedrock permissions
   4. A GitHub App (recommended) or use the default GITHUB_TOKEN
 
 1
 
 Create a custom GitHub App (Recommended for 3P Providers)
 
-For best control and security when using 3P providers like Vertex AI or Bedrock, we recommend creating your own GitHub App:
+For best control and security when using 3P providers like Google Cloud’s Agent Platform or Amazon Bedrock, we recommend creating your own GitHub App:
 
   1. Go to <https://github.com/settings/apps/new>
   2. Fill in the basic information:
@@ -427,7 +427,7 @@ OIDC is more secure than using static AWS access keys because credentials are te
 
 See [AWS documentation](<https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html>) for detailed OIDC setup instructions.
 
-Google Vertex AI
+Google Cloud's Agent Platform
 
 **Configure Google Cloud to allow GitHub Actions to authenticate securely without storing credentials.**
 
@@ -438,7 +438,7 @@ Google Vertex AI
   1. **Enable APIs** in your Google Cloud project:
      * IAM Credentials API
      * Security Token Service (STS) API
-     * Vertex AI API
+     * Google Cloud’s Agent Platform API
   2. **Create Workload Identity Federation resources** :
      * Create a Workload Identity Pool
      * Add a GitHub OIDC provider with:
@@ -483,7 +483,7 @@ For Claude API (Direct):
 
 ​
 
-For Google Cloud Vertex AI
+For Google Cloud’s Agent Platform
 
   1. **For GCP Authentication** :
      * `GCP_WORKLOAD_IDENTITY_PROVIDER`
@@ -508,7 +508,7 @@ For Amazon Bedrock
 
 Create workflow files
 
-Create GitHub Actions workflow files that integrate with your cloud provider. The examples below show complete configurations for both Amazon Bedrock and Google Vertex AI:
+Create GitHub Actions workflow files that integrate with your cloud provider. The examples below show complete configurations for both Amazon Bedrock and Google Cloud’s Agent Platform:
 
 Amazon Bedrock workflow
 
@@ -516,13 +516,13 @@ Amazon Bedrock workflow
 
   * Amazon Bedrock access enabled with Claude model permissions
   * GitHub configured as an OIDC identity provider in AWS
-  * IAM role with Bedrock permissions that trusts GitHub Actions
+  * IAM role with Amazon Bedrock permissions that trusts GitHub Actions
 
 **Required GitHub secrets:**
 
 Secret Name| Description
 ---|---
-`AWS_ROLE_TO_ASSUME`| ARN of the IAM role for Bedrock access
+`AWS_ROLE_TO_ASSUME`| ARN of the IAM role for Amazon Bedrock access
 `APP_ID`| Your GitHub App ID (from app settings)
 `APP_PRIVATE_KEY`| The private key you generated for your GitHub App
 
@@ -574,22 +574,22 @@ Secret Name| Description
               use_bedrock: "true"
               claude_args: '--model us.anthropic.claude-sonnet-4-6 --max-turns 10'
 
-The model ID format for Bedrock includes a region prefix (for example, `us.anthropic.claude-sonnet-4-6`).
+The model ID format for Amazon Bedrock includes a region prefix (for example, `us.anthropic.claude-sonnet-4-6`).
 
-Google Vertex AI workflow
+Google Cloud's Agent Platform workflow
 
 **Prerequisites:**
 
-  * Vertex AI API enabled in your GCP project
+  * Google Cloud’s Agent Platform API enabled in your GCP project
   * Workload Identity Federation configured for GitHub
-  * Service account with Vertex AI permissions
+  * Service account with Google Cloud’s Agent Platform permissions
 
 **Required GitHub secrets:**
 
 Secret Name| Description
 ---|---
 `GCP_WORKLOAD_IDENTITY_PROVIDER`| Workload identity provider resource name
-`GCP_SERVICE_ACCOUNT`| Service account email with Vertex AI access
+`GCP_SERVICE_ACCOUNT`| Service account email with Google Cloud’s Agent Platform access
 `APP_ID`| Your GitHub App ID (from app settings)
 `APP_PRIVATE_KEY`| The private key you generated for your GitHub App
 
@@ -675,7 +675,7 @@ Ensure you’re using the GitHub App or custom app (not Actions user), check wor
 
 Authentication errors
 
-Confirm API key is valid and has sufficient permissions. For Bedrock/Vertex, check credentials configuration and ensure secrets are named correctly in workflows.
+Confirm API key is valid and has sufficient permissions. For Amazon Bedrock or Google Cloud’s Agent Platform, check credentials configuration and ensure secrets are named correctly in workflows.
 
 ##
 
@@ -701,10 +701,10 @@ Parameter| Description| Required
 `github_token`| GitHub token for API access| No
 `trigger_phrase`| Custom trigger phrase (default: “@claude”)| No
 `use_bedrock`| Use Amazon Bedrock instead of Claude API| No
-`use_vertex`| Use Google Vertex AI instead of Claude API| No
+`use_vertex`| Use Google Cloud’s Agent Platform instead of Claude API| No
 
 *Prompt is optional - when omitted for issue/PR comments, Claude responds to trigger phrase
-**Required for direct Claude API, not for Bedrock/Vertex
+**Required for direct Claude API, not for Amazon Bedrock or Google Cloud’s Agent Platform
 
 ####
 

@@ -156,7 +156,7 @@ Resources
 
 Network
 
-The SDK needs outbound HTTPS to `api.anthropic.com`, or to your provider’s regional endpoint when running on Bedrock or Vertex. If your agents use [MCP servers](</docs/en/agent-sdk/mcp>) or external tools, they need outbound access to those endpoints as well. For production, route outbound traffic through an egress proxy that enforces domain allowlists, injects credentials, and logs requests. See [Secure Deployment](</docs/en/agent-sdk/secure-deployment>) for the full pattern. For inbound traffic, expose an HTTP or WebSocket port on the container. Your application handles client requests on that port and calls the SDK internally; the subprocess itself does not listen on the network.
+The SDK needs outbound HTTPS to `api.anthropic.com`, or to your provider’s regional endpoint when running on Amazon Bedrock or Google Cloud’s Agent Platform. If your agents use [MCP servers](</docs/en/agent-sdk/mcp>) or external tools, they need outbound access to those endpoints as well. For production, route outbound traffic through an egress proxy that enforces domain allowlists, injects credentials, and logs requests. See [Secure Deployment](</docs/en/agent-sdk/secure-deployment>) for the full pattern. For inbound traffic, expose an HTTP or WebSocket port on the container. Your application handles client requests on that port and calls the SDK internally; the subprocess itself does not listen on the network.
 
 ##
 

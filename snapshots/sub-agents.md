@@ -225,7 +225,7 @@ Field| Required| Description
 `tools`| No| Tools the subagent can use. Inherits all tools if omitted. To preload Skills into context, use the `skills` field rather than listing `Skill` here
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
 `model`| No| Model to use: `sonnet`, `opus`, `haiku`, `fable`, a full model ID (for example, `claude-opus-4-8`), or `inherit`. Defaults to `inherit`
-`permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan`. Ignored for plugin subagents
+`permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, or `manual` as an alias for `default`. The `manual` alias requires Claude Code v2.1.200 or later. Ignored for plugin subagents
 `maxTurns`| No| Maximum number of agentic turns before the subagent stops
 `skills`| No| [Skills](</docs/en/skills>) to preload into the subagent’s context at startup. The full skill content is injected, not only the description. Subagents can still invoke unlisted project, user, and plugin skills through the Skill tool
 `mcpServers`| No| [MCP servers](</docs/en/mcp>) available to this subagent. Each entry is either a server name referencing an already-configured server (e.g., `"slack"`) or an inline definition with the server name as key and a full [MCP server config](</docs/en/mcp#installing-mcp-servers>) as value. Ignored for plugin subagents
@@ -678,7 +678,7 @@ API errors in subagents
 
 As of v2.1.199, a subagent whose run ends on an API error, such as a usage limit or a repeated server error, reports that failure back to Claude instead of returning the error text as if it were the subagent’s findings. What Claude receives depends on where the subagent ran:
 
-  * **Foreground** : if a rate limit, overload, or server error cuts off a subagent that already produced output, the Agent tool returns that partial output with a note that the subagent was cut off and didn’t finish its task. Otherwise the tool call fails with [`Agent terminated early due to an API error`](</docs/en/errors#agent-terminated-early-due-to-an-api-error>), followed by the error detail.
+  * **Foreground** : if a rate limit, overload, or server error cuts off a subagent that already produced text output, the Agent tool returns that partial output with a note that the subagent was cut off and didn’t finish its task. A subagent that produced nothing, or whose only output was tool calls, fails with [`Agent terminated early due to an API error`](</docs/en/errors#agent-terminated-early-due-to-an-api-error>), followed by the error detail. In v2.1.199, a rate limit, overload, or server error that cut off the tool-calls-only shape returned an empty partial result containing only the cut-off note instead.
   * **Background** : the subagent is marked failed, and the message Claude receives when it ends names the API error and includes the subagent’s last output, so partial work isn’t lost.
 
 Once the underlying API error clears, ask Claude to retry the task or resume the subagent.

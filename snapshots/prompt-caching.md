@@ -30,8 +30,8 @@ Where the cache lives
 Caching happens server-side, in whichever infrastructure serves your model. Where that is depends on how you authenticate:
 
   * **API key, Claude subscription, or[Claude Platform on AWS](</docs/en/claude-platform-on-aws>)**: the cache lives in Anthropic’s infrastructure, accessed through the [Claude API](<https://platform.claude.com/docs>)
-  * **Bedrock or Vertex AI** : the cache lives in your cloud provider’s serving infrastructure
-  * **Foundry** : requests route to Anthropic’s infrastructure
+  * **Amazon Bedrock or Google Cloud’s Agent Platform** : the cache lives in your cloud provider’s serving infrastructure
+  * **Microsoft Foundry** : requests route to Anthropic’s infrastructure
   * **Custom`ANTHROPIC_BASE_URL` or [LLM gateway](</docs/en/llm-gateway>)**: the cache lives wherever your requests are forwarded, and whether caching works depends on the gateway
 
 For what each provider stores and processes, see [data usage](</docs/en/data-usage>). Wherever the cache lives, entries expire after a period of inactivity, and Cache lifetime below covers the TTL and how to extend it.
@@ -88,7 +88,7 @@ Connecting or disconnecting an MCP server
 Tool definitions sit in the system prompt layer, so the cache invalidates when the set of tool definitions in the request changes between turns. Toggling the [advisor tool](</docs/en/advisor>) is an exception: its definition sits after the cache breakpoint, so enabling or disabling `/advisor` keeps the cached prefix intact. Whether an [MCP server](</docs/en/mcp>) change does this depends on whether its tools are deferred by [tool search](</docs/en/mcp#scale-with-mcp-tool-search>) or loaded into the prefix:
 
   * **Deferred tools** , the default on supported models: a server connecting, disconnecting, or changing its tool list only appends new content and doesn’t disturb anything already cached.
-  * **Tools loaded into the prefix** : any change to them invalidates the cache. This happens when [tool search is unavailable or disabled](</docs/en/mcp#configure-tool-search>), such as on Haiku models, on Vertex AI, or with a custom `ANTHROPIC_BASE_URL` gateway. It also happens for a server or tool marked [`alwaysLoad`](</docs/en/mcp#exempt-a-server-from-deferral>), and for definitions kept upfront by [threshold-based loading](</docs/en/mcp#configure-tool-search>).
+  * **Tools loaded into the prefix** : any change to them invalidates the cache. This happens when [tool search is unavailable or disabled](</docs/en/mcp#configure-tool-search>), such as on Haiku models, on Google Cloud’s Agent Platform, or with a custom `ANTHROPIC_BASE_URL` gateway. It also happens for a server or tool marked [`alwaysLoad`](</docs/en/mcp#exempt-a-server-from-deferral>), and for definitions kept upfront by [threshold-based loading](</docs/en/mcp#configure-tool-search>).
 
 When tools load into the prefix, the most common cause of an invalidation is a server connecting or disconnecting mid-session, which can happen without any action on your part: a stdio server’s process exits, an HTTP session expires, or a server [reconnects automatically after a transient failure](</docs/en/mcp#automatic-reconnection>). A connected server can also push a [dynamic tool update](</docs/en/mcp#dynamic-tool-updates>) that changes its tool list. Editing your MCP config does not by itself change the cache. The new config takes effect only after a restart, which is when the server connects or disconnects.
 
@@ -223,7 +223,7 @@ On a Claude subscription, Claude Code requests the one-hour TTL automatically. U
 
 On an API key or third-party provider
 
-On an API key, Bedrock, Vertex, Foundry, or Claude Platform on AWS, you pay the per-token rates, so the TTL stays at the cheaper five minutes by default. To opt into the [one-hour TTL](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching#1-hour-cache-duration>), set `ENABLE_PROMPT_CACHING_1H=1`. On Bedrock, prompt caching support, minimum cacheable prefix length, and one-hour TTL availability all vary by model. If cache token counts stay at zero, check [supported models, regions, and limits](<https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html#prompt-caching-models>) in the Bedrock documentation.
+On an API key, Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or Claude Platform on AWS, you pay the per-token rates, so the TTL stays at the cheaper five minutes by default. To opt into the [one-hour TTL](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching#1-hour-cache-duration>), set `ENABLE_PROMPT_CACHING_1H=1`. On Amazon Bedrock, prompt caching support, minimum cacheable prefix length, and one-hour TTL availability all vary by model. If cache token counts stay at zero, check [supported models, regions, and limits](<https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html#prompt-caching-models>) in the Amazon Bedrock documentation.
 
 ###
 

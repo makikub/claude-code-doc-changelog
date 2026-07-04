@@ -12,7 +12,7 @@ The table below shows which Claude Code features support GHES and any difference
 
 Feature| GHES support| Notes
 ---|---|---
-Claude Code on the web| ✅ Supported| An Owner connects the GHES instance once; developers use `claude --remote` or [claude.ai/code](<https://claude.ai/code>) as usual
+Claude Code on the web| ✅ Supported| An Owner connects the GHES instance once; developers use `claude --cloud` or [claude.ai/code](<https://claude.ai/code>) as usual
 Code Review| ✅ Supported| Same automated PR reviews as github.com
 Claude Security| ✅ Supported| Available in public beta for Enterprise plans at [claude.ai/security](<https://claude.ai/security>)
 Teleport sessions| ✅ Supported| Move sessions between web and terminal with `--teleport`
@@ -108,7 +108,7 @@ Once an Owner has connected the GHES instance, no developer-side configuration i
 
 Then start a web session. Claude detects the GHES host from your git remote and routes the session through your organization’s configured instance:
 
-    claude --remote "Add retry logic to the payment webhook handler"
+    claude --cloud "Add retry logic to the payment webhook handler"
 
 The session runs on Anthropic infrastructure, clones your repository from GHES, and pushes changes back to a branch. Monitor progress with `/tasks` or at [claude.ai/code](<https://claude.ai/code>). See [Claude Code on the web](</docs/en/claude-code-on-the-web>) for the full cloud session workflow including diff review, auto-fix, and routines.
 
@@ -199,7 +199,7 @@ Troubleshooting
 
 Web session fails to clone repository
 
-If `claude --remote` fails with a clone error, verify that an Owner has completed setup for your GHES instance and that the GitHub App is installed on the repository you’re working in. Ask the Owner who connected the instance to confirm that the hostname registered in Claude settings matches the hostname in your git remote.
+If `claude --cloud` fails with a clone error, verify that an Owner has completed setup for your GHES instance and that the GitHub App is installed on the repository you’re working in. Ask the Owner who connected the instance to confirm that the hostname registered in Claude settings matches the hostname in your git remote.
 
 ###
 

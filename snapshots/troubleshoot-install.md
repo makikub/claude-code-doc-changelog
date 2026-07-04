@@ -14,7 +14,7 @@ What you see| Solution
 `syntax error near unexpected token '<'`| Install script returns HTML
 `curl: (22) The requested URL returned error: 403`| Install script returned 403
 `curl: (23)` or `curl: (56) Failure writing output to destination`| Check connectivity or use an alternative installer
-`Killed` during install on Linux| Add swap space for low-memory servers
+`Killed` during install on Linux, or `Installation was killed before it could finish (exit code 137)`| Free memory or add swap space
 `TLS connect error` or `SSL/TLS secure channel`| Update CA certificates
 `Failed to fetch version` or can’t reach download server| Check network and proxy settings
 `irm is not recognized` or `&& is not valid`| Use the right command for your shell
@@ -33,8 +33,8 @@ PowerShell installer completes but `claude` is not found or shows an old version
 `App unavailable in region`| Claude Code is not available in your country. See [supported countries](<https://www.anthropic.com/supported-countries>).
 `unable to get local issuer certificate`| Configure corporate CA certificates
 `OAuth error` or `403 Forbidden`| Fix authentication
-`Could not load the default credentials` or `Could not load credentials from any providers`| Bedrock, Vertex, or Foundry credentials
-`ChainedTokenCredential authentication failed` or `CredentialUnavailableError`| Bedrock, Vertex, or Foundry credentials
+`Could not load the default credentials` or `Could not load credentials from any providers`| Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry credentials
+`ChainedTokenCredential authentication failed` or `CredentialUnavailableError`| Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry credentials
 `API Error: 500`, `529 Overloaded`, `429`, or other 4xx and 5xx errors not listed above| See the [Error reference](</docs/en/errors>)
 
 If your issue isn’t listed, work through the diagnostic checks below to narrow down the cause.
@@ -413,13 +413,14 @@ If the PowerShell installer fails with `Failed to download binary: The process c
 
 Install killed on low-memory Linux servers
 
-If you see `Killed` during installation on a VPS or cloud instance:
+A `Killed` message during install usually means the Linux out-of-memory (OOM) killer terminated the `claude install` step because the system ran out of free memory. This is common on small VPS and cloud instances. The install script reports the cause and exits with code 137:
 
     Setting up Claude Code...
-    Installing Claude Code native build latest...
     bash: line 142: 34803 Killed    "$binary_path" install ${TARGET:+"$TARGET"}
+    Installation was killed before it could finish (exit code 137). This usually means the system ran out of memory.
+    Claude Code needs roughly 512MB of free memory to install. Free up memory, then run this script again.
 
-The Linux OOM killer terminated the process because the system ran out of memory. Claude Code requires at least 4 GB of available RAM. **Solutions:**
+Before v2.1.200, the script exited with only the shell’s bare `Killed` line and no explanation. Installing needs roughly 512 MB of free memory, and running Claude Code needs more. See the [system requirements](</docs/en/setup#system-requirements>). **Solutions:**
 
   1. **Add swap space** if your server has limited RAM. Swap uses disk space as overflow memory, letting the install complete even with low physical RAM. Create a 2 GB swap file and enable it:
 
@@ -692,13 +693,13 @@ If Claude Code prompts you to log in again after a session, your OAuth token may
 
 ​
 
-Bedrock, Vertex, or Foundry credentials not loading
+Bedrock, Agent Platform, or Foundry credentials not loading
 
-If you configured Claude Code to use a cloud provider and see `Could not load credentials from any providers` on Bedrock, `Could not load the default credentials` on Vertex, or `ChainedTokenCredential authentication failed` on Foundry, your cloud provider CLI is likely not authenticated in the current shell. For Bedrock, confirm your AWS credentials are valid:
+If you configured Claude Code to use a cloud provider and see `Could not load credentials from any providers` on Amazon Bedrock, `Could not load the default credentials` on Google Cloud’s Agent Platform, or `ChainedTokenCredential authentication failed` on Microsoft Foundry, your cloud provider CLI is likely not authenticated in the current shell. For Amazon Bedrock, confirm your AWS credentials are valid:
 
     aws sts get-caller-identity
 
-For Vertex AI, confirm `ANTHROPIC_VERTEX_PROJECT_ID` and `CLOUD_ML_REGION` are set in your shell, then set application default credentials:
+For Google Cloud’s Agent Platform, confirm `ANTHROPIC_VERTEX_PROJECT_ID` and `CLOUD_ML_REGION` are set in your shell, then set application default credentials:
 
     gcloud auth application-default login
 
@@ -706,7 +707,7 @@ For Microsoft Foundry, confirm `ANTHROPIC_FOUNDRY_API_KEY` is set, or sign in wi
 
     az login
 
-If credentials work in your terminal but not in the VS Code or JetBrains extension, the IDE process likely didn’t inherit your shell environment. Set the provider environment variables in the IDE’s own settings, or launch the IDE from a terminal where they’re already exported. See [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Vertex AI](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>) for full provider setup.
+If credentials work in your terminal but not in the VS Code or JetBrains extension, the IDE process likely didn’t inherit your shell environment. Set the provider environment variables in the IDE’s own settings, or launch the IDE from a terminal where they’re already exported. See [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>) for full provider setup.
 
 ##
 

@@ -272,7 +272,7 @@ P
 
 Permission mode
 
-The baseline approval behavior for the session. Cycle with `Shift+Tab` in the CLI or use the mode selector in VS Code, Desktop, and claude.ai. Available modes are `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, and `bypassPermissions`. Learn more: [Choose a permission mode](</docs/en/permission-modes>)
+The baseline approval behavior for the session. Cycle with `Shift+Tab` in the CLI or use the mode selector in VS Code, Desktop, and claude.ai. Available modes are `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, and `bypassPermissions`. The `default` mode is labeled Manual in the CLI and in the VS Code and JetBrains extensions, and Claude Code accepts `manual` as an alias for the value. Learn more: [Choose a permission mode](</docs/en/permission-modes>)
 
 ###
 
@@ -402,7 +402,7 @@ T
 
 Teleport
 
-A command, `/teleport`, that pulls a cloud Claude Code session into your local terminal. Claude fetches the branch, loads the conversation history, and resumes from the web session’s last state. The reverse direction is `--remote`, which sends a local task to run on the web. Learn more: [From web to terminal](</docs/en/claude-code-on-the-web#from-web-to-terminal>)
+A command, `/teleport`, that pulls a cloud Claude Code session into your local terminal. Claude fetches the branch, loads the conversation history, and resumes from the web session’s last state. The reverse direction is `--cloud`, which sends a local task to run on the web. Learn more: [From web to terminal](</docs/en/claude-code-on-the-web#from-web-to-terminal>)
 
 ###
 

@@ -62,9 +62,9 @@ TypeScript
         uuid: str  # Unique identifier for this event
         session_id: str  # Session identifier
         event: dict[str, Any]  # The raw Claude API stream event
-        parent_tool_use_id: str | None  # Parent tool ID if from a subagent
+        parent_tool_use_id: str | None  # Always None
 
-The `event` field contains the raw streaming event from the [Claude API](<https://platform.claude.com/docs/en/build-with-claude/streaming#event-types>). Common event types include:
+The `parent_tool_use_id` field is always `None` in Python and `null` in TypeScript. Stream events are emitted for the main session only; token-level deltas from subagents aren’t forwarded. To attribute output to a subagent, use complete messages, which carry `parent_tool_use_id`. See [Detect subagent invocation](</docs/en/agent-sdk/subagents#detect-subagent-invocation>). The `event` field contains the raw streaming event from the [Claude API](<https://platform.claude.com/docs/en/build-with-claude/streaming#event-types>). Common event types include:
 
 Event Type| Description
 ---|---

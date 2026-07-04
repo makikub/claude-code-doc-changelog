@@ -4,37 +4,37 @@
 
 Prerequisites
 
-Before configuring Claude Code with Vertex AI, ensure you have:
+Before configuring Claude Code with Google Cloud’s Agent Platform, formerly Vertex AI, ensure you have:
 
   * A Google Cloud Platform (GCP) account with billing enabled
-  * A GCP project with Vertex AI API enabled
+  * A GCP project with Google Cloud’s Agent Platform API enabled
   * Access to desired Claude models (for example, Claude Sonnet 4.6)
   * Google Cloud SDK (`gcloud`) installed and configured
   * Quota allocated in desired GCP region
 
-To sign in with your own Vertex AI credentials, follow Sign in with Vertex AI below. To deploy Claude Code across a team, use the manual setup steps and pin your model versions before rolling out.
+To sign in with your own Google Cloud’s Agent Platform credentials, follow Sign in with Google Cloud’s Agent Platform below. To deploy Claude Code across a team, use the manual setup steps and pin your model versions before rolling out.
 
 ##
 
 ​
 
-Sign in with Vertex AI
+Sign in with Agent Platform
 
-If you have Google Cloud credentials and want to start using Claude Code through Vertex AI, the login wizard walks you through it. You complete the GCP-side prerequisites once per project; the wizard handles the Claude Code side.
+If you have Google Cloud credentials and want to start using Claude Code through Google Cloud’s Agent Platform, the login wizard walks you through it. You complete the GCP-side prerequisites once per project; the wizard handles the Claude Code side.
 
-The Vertex AI setup wizard requires Claude Code v2.1.98 or later. Run `claude --version` to check.
+The Google Cloud’s Agent Platform setup wizard requires Claude Code v2.1.98 or later. Run `claude --version` to check.
 
 1
 
 Enable Claude models in your GCP project
 
-Enable the Vertex AI API for your project, then request access to the Claude models you want in the [Vertex AI Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>). See IAM configuration for the permissions your account needs.
+Enable Google Cloud’s Agent Platform API for your project, then request access to the Claude models you want in the [Google Cloud’s Agent Platform Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>). See IAM configuration for the permissions your account needs.
 
 2
 
-Start Claude Code and choose Vertex AI
+Start Claude Code and choose Google Cloud's Agent Platform
 
-Run `claude`. At the login prompt, select **3rd-party platform** , then **Google Vertex AI**.
+Run `claude`. At the login prompt, select **3rd-party platform** , then **Google Vertex AI** , the label the login prompt still uses for Google Cloud’s Agent Platform.
 
 3
 
@@ -50,9 +50,9 @@ After you’ve signed in, run `/setup-vertex` any time to reopen the wizard and 
 
 Region configuration
 
-Claude Code supports Vertex AI [global](<https://cloud.google.com/blog/products/ai-machine-learning/global-endpoint-for-claude-models-generally-available-on-vertex-ai>), multi-region, and regional endpoints. Set `CLOUD_ML_REGION` to `global`, a multi-region location such as `eu` or `us`, or a specific region such as `us-east5`. Claude Code selects the correct Vertex AI hostname for each form, including the `aiplatform.eu.rep.googleapis.com` and `aiplatform.us.rep.googleapis.com` hosts for multi-region locations.
+Claude Code supports Google Cloud’s Agent Platform [global](<https://cloud.google.com/blog/products/ai-machine-learning/global-endpoint-for-claude-models-generally-available-on-vertex-ai>), multi-region, and regional endpoints. Set `CLOUD_ML_REGION` to `global`, a multi-region location such as `eu` or `us`, or a specific region such as `us-east5`. Claude Code selects the correct Google Cloud’s Agent Platform hostname for each form, including the `aiplatform.eu.rep.googleapis.com` and `aiplatform.us.rep.googleapis.com` hosts for multi-region locations.
 
-Vertex AI may not support the Claude Code default models on every endpoint type. Model availability varies across [specific regions](<https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#genai-partner-models>), multi-region locations, and [global endpoints](<https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models#supported_models>). You may need to switch to a supported location or specify a supported model.
+Google Cloud’s Agent Platform may not support the Claude Code default models on every endpoint type. Model availability varies across [specific regions](<https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#genai-partner-models>), multi-region locations, and [global endpoints](<https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models#supported_models>). You may need to switch to a supported location or specify a supported model.
 
 ##
 
@@ -60,20 +60,20 @@ Vertex AI may not support the Claude Code default models on every endpoint type.
 
 Set up manually
 
-To configure Vertex AI through environment variables instead of the wizard, for example in CI or a scripted enterprise rollout, follow the steps below.
+To configure Google Cloud’s Agent Platform through environment variables instead of the wizard, for example in CI or a scripted enterprise rollout, follow the steps below.
 
 ###
 
 ​
 
-1\. Enable Vertex AI API
+1\. Enable Agent Platform API
 
-Enable the Vertex AI API in your GCP project:
+Enable Google Cloud’s Agent Platform API in your GCP project:
 
     # Set your project ID
     gcloud config set project YOUR-PROJECT-ID
 
-    # Enable Vertex AI API
+    # Enable Agent Platform API
     gcloud services enable aiplatform.googleapis.com
 
 ###
@@ -82,9 +82,9 @@ Enable the Vertex AI API in your GCP project:
 
 2\. Request model access
 
-Request access to Claude models in Vertex AI:
+Request access to Claude models in Google Cloud’s Agent Platform:
 
-  1. Navigate to the [Vertex AI Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>)
+  1. Navigate to the [Google Cloud’s Agent Platform Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>)
   2. Search for “Claude” models
   3. Request access to desired Claude models (for example, Claude Sonnet 4.6)
   4. Wait for approval (may take 24-48 hours)
@@ -97,7 +97,7 @@ Request access to Claude models in Vertex AI:
 
 Claude Code uses standard Google Cloud authentication. For more information, see [Google Cloud authentication documentation](<https://cloud.google.com/docs/authentication>). Claude Code v2.1.121 or later supports [X.509 certificate-based Workload Identity Federation](<https://cloud.google.com/iam/docs/workload-identity-federation-with-x509-certificates>) through the same Application Default Credentials chain. Set `GOOGLE_APPLICATION_CREDENTIALS` to the path of your credential configuration file.
 
-Claude Code uses `ANTHROPIC_VERTEX_PROJECT_ID` as the project ID for Vertex AI requests. The `GCLOUD_PROJECT` and `GOOGLE_CLOUD_PROJECT` environment variables and the credential file referenced by `GOOGLE_APPLICATION_CREDENTIALS` take precedence over it. If none of these are set, the project ID is resolved from your `gcloud` configuration or the attached service account.
+Claude Code uses `ANTHROPIC_VERTEX_PROJECT_ID` as the project ID for Google Cloud’s Agent Platform requests. The `GCLOUD_PROJECT` and `GOOGLE_CLOUD_PROJECT` environment variables and the credential file referenced by `GOOGLE_APPLICATION_CREDENTIALS` take precedence over it. If none of these are set, the project ID is resolved from your `gcloud` configuration or the attached service account.
 
 ####
 
@@ -124,12 +124,12 @@ The command’s output is displayed to the user, but interactive input isn’t s
 
 Set the following environment variables:
 
-    # Enable Vertex AI integration
+    # Enable Agent Platform integration
     export CLAUDE_CODE_USE_VERTEX=1
     export CLOUD_ML_REGION=global
     export ANTHROPIC_VERTEX_PROJECT_ID=YOUR-PROJECT-ID
 
-    # Optional: Override the Vertex endpoint URL for custom endpoints or gateways
+    # Optional: Override the Agent Platform endpoint URL for custom endpoints or gateways
     # export ANTHROPIC_VERTEX_BASE_URL=https://aiplatform.googleapis.com
 
     # Optional: Disable prompt caching if needed
@@ -142,7 +142,7 @@ Set the following environment variables:
     export VERTEX_REGION_CLAUDE_HAIKU_4_5=us-east5
     export VERTEX_REGION_CLAUDE_4_6_SONNET=europe-west1
 
-Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See the [Environment variables reference](</docs/en/env-vars>) for the full list. Check [Vertex Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>) to determine which models support global endpoints versus regional only. [Prompt caching](</docs/en/prompt-caching>) is enabled automatically. To disable it, set `DISABLE_PROMPT_CACHING=1`. To request a 1-hour cache TTL instead of the 5-minute default, set `ENABLE_PROMPT_CACHING_1H=1`; cache writes with a 1-hour TTL are billed at a higher rate. For heightened rate limits, contact Google Cloud support. When using Vertex AI, the `/logout` command is unavailable since authentication is handled through Google Cloud credentials. Claude Code disables [MCP tool search](</docs/en/mcp#scale-with-mcp-tool-search>) by default on Vertex AI, so MCP tool definitions load upfront. Vertex AI supports tool search for Claude Sonnet 4.5 and later and Claude Opus 4.5 and later. Set `ENABLE_TOOL_SEARCH=true` to enable it on those models. Earlier models on Vertex AI do not accept the required beta header, and requests fail if you enable tool search with them.
+Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See the [Environment variables reference](</docs/en/env-vars>) for the full list. Check [Google Cloud’s Agent Platform Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>) to determine which models support global endpoints versus regional only. [Prompt caching](</docs/en/prompt-caching>) is enabled automatically. To disable it, set `DISABLE_PROMPT_CACHING=1`. To request a 1-hour cache TTL instead of the 5-minute default, set `ENABLE_PROMPT_CACHING_1H=1`; cache writes with a 1-hour TTL are billed at a higher rate. For heightened rate limits, contact Google Cloud support. When using Google Cloud’s Agent Platform, the `/logout` command is unavailable since authentication is handled through Google Cloud credentials. Claude Code disables [MCP tool search](</docs/en/mcp#scale-with-mcp-tool-search>) by default on Google Cloud’s Agent Platform, so MCP tool definitions load upfront. Google Cloud’s Agent Platform supports tool search for Claude Sonnet 4.5 and later and Claude Opus 4.5 and later. Set `ENABLE_TOOL_SEARCH=true` to enable it on those models. Earlier models on Google Cloud’s Agent Platform do not accept the required beta header, and requests fail if you enable tool search with them.
 
 ###
 
@@ -150,9 +150,9 @@ Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See 
 
 5\. Pin model versions
 
-Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Vertex AI, which can lag the newest release and may not yet be enabled in your project. Claude Code falls back to the previous version at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
+Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Google Cloud’s Agent Platform, which can lag the newest release and may not yet be enabled in your project. Claude Code falls back to the previous version at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
-Set these environment variables to specific Vertex AI model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Vertex resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
+Set these environment variables to specific Google Cloud’s Agent Platform model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Google Cloud’s Agent Platform resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-5'
@@ -165,7 +165,7 @@ Model type| Default value
 Primary model| `claude-sonnet-4-5@20250929`
 Small/fast model| Same as primary model
 
-Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Vertex AI, Claude Code defaults this to the primary model because Haiku may not be enabled in every project or region. To use Haiku for background tasks, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` to a model ID that is available in your project. To customize models further:
+Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Google Cloud’s Agent Platform, Claude Code defaults this to the primary model because Haiku may not be enabled in every project or region. To use Haiku for background tasks, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` to a model ID that is available in your project. To customize models further:
 
     export ANTHROPIC_MODEL='claude-opus-4-8'
     export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
@@ -176,7 +176,7 @@ Background tasks such as session title generation use the small/fast model, norm
 
 Startup model checks
 
-When Claude Code starts with Vertex AI configured, it verifies that the models it intends to use are accessible in your project. This check requires Claude Code v2.1.98 or later. If you have pinned a model version that is older than the current Claude Code default, and your project can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](</docs/en/settings>) and restarts Claude Code. Declining is remembered until the next default version change. If you have not pinned a model and the current default is unavailable in your project, Claude Code falls back to the previous version for the current session and shows a notice. The fallback is not persisted. Enable the newer model in [Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>) or pin a version to make the choice permanent.
+When Claude Code starts with Google Cloud’s Agent Platform configured, it verifies that the models it intends to use are accessible in your project. This check requires Claude Code v2.1.98 or later. If you have pinned a model version that is older than the current Claude Code default, and your project can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](</docs/en/settings>) and restarts Claude Code. Declining is remembered until the next default version change. If you have not pinned a model and the current default is unavailable in your project, Claude Code falls back to the previous version for the current session and shows a notice. The fallback is not persisted. Enable the newer model in [Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>) or pin a version to make the choice permanent.
 
 ##
 
@@ -188,7 +188,7 @@ Assign the required IAM permissions: The `roles/aiplatform.user` role includes t
 
   * `aiplatform.endpoints.predict` \- Required for model invocation and token counting
 
-For more restrictive permissions, create a custom role with only the permissions above. For details, see [Vertex IAM documentation](<https://cloud.google.com/vertex-ai/docs/general/access-control>).
+For more restrictive permissions, create a custom role with only the permissions above. For details, see [Google Cloud’s Agent Platform IAM documentation](<https://cloud.google.com/vertex-ai/docs/general/access-control>).
 
 Create a dedicated GCP project for Claude Code to simplify cost tracking and access control.
 
@@ -198,7 +198,7 @@ Create a dedicated GCP project for Claude Code to simplify cost tracking and acc
 
 1M token context window
 
-Claude Sonnet 5, Opus 4.6 and later, and Sonnet 4.6 support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) on Vertex AI. Sonnet 5 always runs with the 1M window, with no `[1m]` variant to select. For the other models, Claude Code automatically enables the extended context window when you select a 1M model variant. The setup wizard offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
+Claude Sonnet 5, Opus 4.6 and later, and Sonnet 4.6 support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) on Google Cloud’s Agent Platform. Sonnet 5 always runs with the 1M window, with no `[1m]` variant to select. For the other models, Claude Code automatically enables the extended context window when you select a 1M model variant. The setup wizard offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
 
 ##
 
@@ -235,6 +235,6 @@ If you encounter 429 errors:
 
 Additional resources
 
-  * [Vertex AI documentation](<https://cloud.google.com/vertex-ai/docs>)
-  * [Vertex AI pricing](<https://cloud.google.com/vertex-ai/pricing>)
-  * [Vertex AI quotas and limits](<https://cloud.google.com/vertex-ai/docs/quotas>)
+  * [Google Cloud’s Agent Platform documentation](<https://cloud.google.com/vertex-ai/docs>)
+  * [Google Cloud’s Agent Platform pricing](<https://cloud.google.com/vertex-ai/pricing>)
+  * [Google Cloud’s Agent Platform quotas and limits](<https://cloud.google.com/vertex-ai/docs/quotas>)

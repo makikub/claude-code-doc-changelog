@@ -1,4 +1,4 @@
-The advisor tool is experimental and requires Claude Code v2.1.98 or later with the Anthropic API. It is not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry. Behavior, pricing, and availability may change.
+The advisor tool is experimental and requires Claude Code v2.1.98 or later with the Anthropic API. It is not available on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. Behavior, pricing, and availability may change.
 
 The advisor tool lets Claude consult a second, typically stronger model at key moments during a task, such as before committing to an approach, when stuck on a recurring error, or before declaring a task complete. The advisor receives the full conversation, including every tool call and result, and returns guidance that Claude applies before continuing. The advisor runs server-side on Anthropic’s infrastructure as a [server tool](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool>), available to both subscription and API-billed accounts. You choose which model acts as the advisor, and Claude decides when to call it. This page covers how to enable the advisor, which model pairings are accepted, what Claude shows during a consultation, and how advisor usage is billed.
 
@@ -142,7 +142,7 @@ Requirements
 The advisor tool requires all of the following:
 
   * **Claude Code v2.1.98 or later** : run `claude update` to upgrade.
-  * **Anthropic API only** : the advisor is a server-executed tool. It is not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry. Through an [LLM gateway](</docs/en/llm-gateway>) configured with `ANTHROPIC_BASE_URL`, availability depends on whether the gateway forwards the request intact to the Anthropic API.
+  * **Anthropic API only** : the advisor is a server-executed tool. It is not available on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. Through an [LLM gateway](</docs/en/llm-gateway>) configured with `ANTHROPIC_BASE_URL`, availability depends on whether the gateway forwards the request intact to the Anthropic API.
   * **Supported main model** : Opus 4.6 or later, Sonnet 4.6 or later, or Haiku 4.5. Fable 5 also qualifies on Claude Code v2.1.170 or later.
 
 ##

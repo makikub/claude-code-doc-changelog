@@ -37,7 +37,7 @@ Claude Code behaves the same everywhere. What changes is where code executes and
 **Code runs on**|  Anthropic cloud VM| Your machine| Your machine| Your machine or cloud VM
 **You chat from**|  claude.ai or mobile app| claude.ai or mobile app| Your terminal| The Desktop UI
 **Uses your local config**|  No, repo only| Yes| Yes| Yes for local, no for cloud
-**Requires GitHub**|  Yes, or [bundle a local repo](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>) via `--remote`| No| No| Only for cloud sessions
+**Requires GitHub**|  Yes, or [bundle a local repo](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>) via `--cloud`| No| No| Only for cloud sessions
 **Keeps running if you disconnect**|  Yes| While terminal stays open| No| Depends on session type
 **[Permission modes](</docs/en/permission-modes>)**|  Accept edits, Plan, Auto| Ask, Auto accept edits, Plan| All modes| Depends on session type
 **Network access**|  Configurable per environment| Your machine’s network| Your machine’s network| Depends on session type
@@ -109,7 +109,7 @@ In the Claude Code CLI, run:
 
     /web-setup
 
-This syncs your `gh` token to your Claude account. If you don’t have a cloud environment yet, `/web-setup` creates one with Trusted network access and no setup script. You can [edit the environment or add variables](</docs/en/claude-code-on-the-web#configure-your-environment>) afterward. Once `/web-setup` completes, you can start cloud sessions from your terminal with [`--remote`](</docs/en/claude-code-on-the-web#from-terminal-to-web>) or set up recurring tasks with [`/schedule`](</docs/en/routines>).
+This syncs your `gh` token to your Claude account. If you don’t have a cloud environment yet, `/web-setup` creates one with Trusted network access and no setup script. You can [edit the environment or add variables](</docs/en/claude-code-on-the-web#configure-your-environment>) afterward. Once `/web-setup` completes, you can start cloud sessions from your terminal with [`--cloud`](</docs/en/claude-code-on-the-web#from-terminal-to-web>) or set up recurring tasks with [`/schedule`](</docs/en/routines>).
 
 ##
 
@@ -236,7 +236,7 @@ Enterprise organizations may need an Owner to enable Claude Code on the web. Con
 
 ​
 
-”Could not create a cloud environment” or “No cloud environment available” when using `--remote` or ultraplan
+”Could not create a cloud environment” or “No cloud environment available” when using `--cloud` or ultraplan
 
 Remote-session features create a default cloud environment automatically if you don’t have one. If you see “Could not create a cloud environment”, automatic creation failed. If you see “No cloud environment available”, your CLI predates automatic creation. In either case, run `/web-setup` in the Claude Code CLI to create one manually, or visit [claude.ai/code](<https://claude.ai/code>) and follow the **Create your environment** step above.
 

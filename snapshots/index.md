@@ -38,7 +38,7 @@ v2.1.158–v2.1.165
 
 June 1–5, 2026
 
-**Auto mode on Bedrock, Vertex, and Foundry** : auto mode is now available on third-party providers for Opus 4.7 and Opus 4.8, replacing permission prompts with background safety checks.Also this week: **safer automatic edits** prompt before writing files that can run code in `acceptEdits` mode; **`/plugin list`** prints your installed plugins inline; and **version requirements** let managed deployments require an approved Claude Code version range.[Read the Week 23 digest →](</docs/en/whats-new/2026-w23>)
+**Auto mode on Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry** : auto mode is now available on third-party providers for Opus 4.7 and Opus 4.8, replacing permission prompts with background safety checks.Also this week: **safer automatic edits** prompt before writing files that can run code in `acceptEdits` mode; **`/plugin list`** prints your installed plugins inline; and **version requirements** let managed deployments require an approved Claude Code version range.[Read the Week 23 digest →](</docs/en/whats-new/2026-w23>)
 
 ​
 

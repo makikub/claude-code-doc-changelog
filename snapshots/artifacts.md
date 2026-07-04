@@ -170,7 +170,7 @@ Requirement| Available when
 ---|---
 Plan| Pro, Max, Team, or Enterprise. On Pro and Max plans, artifacts are private to you, and no admin management applies. On Team plans, artifacts are on by default. On Enterprise plans, an Owner enables them in claude.ai admin settings.
 Authentication| Signed in to claude.ai with `/login`. Sessions using an API key, [gateway token](</docs/en/llm-gateway>), or cloud-provider credential cannot publish.
-Model provider| Anthropic API. Not available on [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud Vertex AI](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>).
+Model provider| Anthropic API. Not available on [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>).
 Organization policy| Customer-managed encryption keys (CMEK), HIPAA, and [Zero Data Retention](</docs/en/zero-data-retention>) are not enabled for the organization.
 Surface| Claude Code CLI, or the Claude desktop app version 1.13576.0 or later. Off by default in [Agent SDK](</docs/en/agent-sdk/overview>), GitHub Action, and MCP-server contexts, and when [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](</docs/en/env-vars>) is set.
 
