@@ -32,7 +32,7 @@ Shortcut| Description| Context
 `Ctrl+T`| Toggle Claude’s task checklist| Show or hide Claude’s to-do checklist in the status area. This is not the background-task view; use [`/tasks`](</docs/en/commands>) to see running shells and subagents
 `Left/Right arrows`| Cycle through dialog tabs| Navigate between tabs in permission dialogs and menus
 `Up/Down arrows` or `Ctrl+P`/`Ctrl+N`| Move cursor or navigate command history| When the input spans more than one visual row, whether wrapped or multiline, first moves the cursor within the prompt. Once the cursor is on the first or last visual row, pressing again navigates command history. As of v2.1.169, wrapped single-line input behaves the same as multiline
-`Esc`| Interrupt Claude| Stop the current response or tool call mid-turn so you can redirect. Claude keeps the work done so far
+`Esc`| Interrupt Claude, or close a dialog| Stop the current response or tool call mid-turn so you can redirect. Claude keeps the work done so far. When a dialog such as a permission prompt is open, `Esc` closes the dialog rather than interrupting Claude. Before v2.1.202, `Esc` on some dialogs interrupted Claude and left the dialog open
 `Esc` \+ `Esc`| Clear input draft, or rewind| When the prompt input contains text, double `Esc` clears it and saves the draft to history so `Up` recalls it. When the input is empty, double `Esc` opens the [rewind menu](</docs/en/checkpointing>) to restore or summarize code and conversation from a previous point
 `Shift+Tab` or `Alt+M` (some configurations)| Cycle permission modes| Cycle through `default` (labeled Manual in the mode indicator), `acceptEdits`, `plan`, and any modes you have enabled, such as `auto` or `bypassPermissions`. See [permission modes](</docs/en/permission-modes>).
 `Option+P` (macOS) or `Alt+P` (Windows/Linux)| Switch model| Switch models without clearing your prompt
@@ -284,7 +284,7 @@ Press `Ctrl+R` to interactively search through your command history:
      * Press `Ctrl+C` to cancel and restore your original input
      * Press `Backspace` on empty search to cancel
 
-The search loads the 100 most recent unique prompts in the selected scope, with duplicates collapsed to the newest occurrence. Matching prompts display with the search term highlighted, so you can find and reuse previous inputs.
+The search loads the 100 most recent unique prompts in the selected scope, with duplicates collapsed to the newest occurrence. Matching prompts display with the search term highlighted, so you can find and reuse previous inputs. Accepting a match or canceling the search takes effect immediately, even while Claude Code is still loading the history. Before v2.1.202, accepting or canceling during that load could report an internal error.
 
 ##
 

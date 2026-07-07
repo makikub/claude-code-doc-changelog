@@ -290,7 +290,11 @@ Claude Code publishes signed apt, dnf, and apk repositories. Each repository off
 
   * apk
 
-For Debian and Ubuntu. The following commands configure the `stable` channel:
+For Debian and Ubuntu. The install commands below download the signing key with `curl`, which fresh Debian and Ubuntu installations may not include. If the download fails with `sudo: curl: command not found`, install curl first:
+
+    sudo apt install curl
+
+The following commands configure the `stable` channel:
 
     sudo install -d -m 0755 /etc/apt/keyrings
     sudo curl -fsSL https://downloads.claude.ai/keys/claude-code.asc \

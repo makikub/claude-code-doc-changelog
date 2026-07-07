@@ -88,6 +88,8 @@ For enterprise environments requiring client certificate authentication:
     # Optional: Passphrase for encrypted private key
     export CLAUDE_CODE_CLIENT_KEY_PASSPHRASE="your-passphrase"
 
+Claude Code reads the certificate and key files at startup and re-reads them each time it applies settings, including when settings change during a session. To rotate the certificate and key, replace the files at the same paths.
+
 ##
 
 ​

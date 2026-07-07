@@ -25,6 +25,10 @@ Install from Anthropic’s apt repository so that updates arrive through your sy
 
 Add Anthropic's apt repository
 
+This step downloads the signing key with `curl`, which fresh Debian and Ubuntu installations may not include. If the download command fails with `sudo: curl: command not found`, install curl first:
+
+    sudo apt install curl
+
 Download Anthropic’s signing key:
 
     sudo curl -fsSLo /usr/share/keyrings/claude-desktop-archive-keyring.asc https://downloads.claude.ai/claude-desktop/key.asc
@@ -59,11 +63,11 @@ The fingerprint should be `31DD DE24 DDFA B679 F42D 7BD2 BAA9 29FF 1A7E CACE`.
 
 Install from a downloaded file
 
-If you can’t use the apt repository, download the `.deb` package for your architecture (x64 or arm64) from [claude.com/download](<https://claude.com/download>), then either open it with your software installer or run from your download directory:
+If you can’t use the apt repository, first download the `.deb` package for your architecture, x64 or arm64, from [claude.com/download](<https://claude.com/download>). Then open the downloaded file with your software installer, or install it with apt from the directory that contains the downloaded file:
 
     sudo apt install ./claude-desktop_*.deb
 
-A `.deb` installed this way doesn’t receive updates. To get updates through apt, add the repository as shown above, or uncomment the `deb` line in the placeholder entry the package writes to `/etc/apt/sources.list.d/claude-desktop.list`.
+If apt reports `E: Unsupported file ./claude-desktop_*.deb given on commandline`, the pattern didn’t match a `.deb` file in the current directory. Confirm the download completed, then run the command again from the directory that contains the file. A `.deb` installed this way doesn’t receive updates. To get updates through apt, add the repository as shown above, or uncomment the `deb` line in the placeholder entry the package writes to `/etc/apt/sources.list.d/claude-desktop.list`.
 
 ##
 
