@@ -127,6 +127,8 @@ Event| When it fires
   * `prompt`: evaluate a prompt with an LLM (uses `$ARGUMENTS` placeholder for context)
   * `agent`: run an agentic verifier with tools for complex verification tasks
 
+Hooks that target the plugin’s own bundled MCP server must use its scoped names. Tool matchers and `if` fields take the scoped tool name `mcp__plugin_<plugin-name>_<server-name>__<tool>`, and an `mcp_tool` hook’s `server` field takes `plugin:<plugin-name>:<server-name>`. A matcher written against the bare server key never fires. See [Match MCP tools](</docs/en/hooks#match-mcp-tools>) and [Plugin-provided MCP servers](</docs/en/mcp#plugin-provided-mcp-servers>).
+
 ###
 
 ​
