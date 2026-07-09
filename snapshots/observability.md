@@ -66,6 +66,31 @@ TypeScript
 
     asyncio.run(main())
 
+    import { query } from "@anthropic-ai/claude-agent-sdk";
+
+    const otelEnv = {
+      CLAUDE_CODE_ENABLE_TELEMETRY: "1",
+      // Required for traces, which are in beta. Metrics and log events do not need this.
+      CLAUDE_CODE_ENHANCED_TELEMETRY_BETA: "1",
+      // Choose an exporter per signal. Use otlp for the SDK; see the Note below.
+      OTEL_TRACES_EXPORTER: "otlp",
+      OTEL_METRICS_EXPORTER: "otlp",
+      OTEL_LOGS_EXPORTER: "otlp",
+      // Standard OTLP transport configuration.
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf",
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://collector.example.com:4318",
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer your-token",
+    };
+
+    for await (const message of query({
+      prompt: "List the files in this directory",
+      // env replaces the inherited environment in TypeScript, so spread
+      // process.env first to keep PATH, ANTHROPIC_API_KEY, and other variables.
+      options: { env: { ...process.env, ...otelEnv } },
+    })) {
+      console.log(message);
+    }
+
 Because the child process inherits your application’s environment by default, you can achieve the same result by exporting these variables in a Dockerfile, Kubernetes manifest, or shell profile and omitting `options.env` entirely.
 
 The `console` exporter writes telemetry to standard output, which the SDK uses as its message channel. Do not set `console` as an exporter value when running through the SDK. To inspect telemetry locally, point `OTEL_EXPORTER_OTLP_ENDPOINT` at a local collector or an all-in-one Jaeger container instead.
@@ -88,6 +113,13 @@ TypeScript
         "OTEL_LOGS_EXPORT_INTERVAL": "1000",
         "OTEL_TRACES_EXPORT_INTERVAL": "1000",
     }
+
+    const otelEnv = {
+      // ... exporter configuration from the previous example ...
+      OTEL_METRIC_EXPORT_INTERVAL: "1000",
+      OTEL_LOGS_EXPORT_INTERVAL: "1000",
+      OTEL_TRACES_EXPORT_INTERVAL: "1000",
+    };
 
 ##
 
@@ -134,6 +166,16 @@ TypeScript
         },
     )
 
+    const options = {
+      env: {
+        ...process.env,
+        // ... exporter configuration ...
+        OTEL_SERVICE_NAME: "support-triage-agent",
+        OTEL_RESOURCE_ATTRIBUTES:
+          "service.version=1.4.0,deployment.environment=production",
+      },
+    };
+
 ##
 
 ​
@@ -154,6 +196,14 @@ TypeScript
             "OTEL_RESOURCE_ATTRIBUTES": f"enduser.id={quote(request.user_id)},tenant.id={quote(request.tenant_id)}",
         },
     )
+
+    const options = {
+      env: {
+        ...process.env,
+        // ... exporter configuration ...
+        OTEL_RESOURCE_ATTRIBUTES: `enduser.id=${encodeURIComponent(request.userId)},tenant.id=${encodeURIComponent(request.tenantId)}`,
+      },
+    };
 
 With end-user identity attached, the `tool_decision`, `tool_result`, `mcp_server_connection`, and `permission_mode_changed` events, which export as log records named with a `claude_code.` prefix, become a per-user audit trail you can forward to a Security Information and Event Management (SIEM) platform. See [Audit security events](</docs/en/monitoring-usage#audit-security-events>) in the Monitoring reference for the full list of security-relevant events and the attributes each one carries.
 

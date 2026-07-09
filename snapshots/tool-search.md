@@ -60,6 +60,34 @@ Python
       }
     }
 
+    import asyncio
+    from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+    async def main():
+        options = ClaudeAgentOptions(
+            mcp_servers={
+                "enterprise-tools": {
+                    "type": "http",
+                    "url": "https://tools.example.com/mcp",
+                }
+            },
+            allowed_tools=[
+                "mcp__enterprise-tools__*"
+            ],  # Wildcard pre-approves all tools from this server
+            env={
+                "ENABLE_TOOL_SEARCH": "auto:5"  # Activate tool search when tools exceed 5% of context
+            },
+        )
+
+        async for message in query(
+            prompt="Find and run the appropriate database query",
+            options=options,
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+
+    asyncio.run(main())
+
 Setting `ENABLE_TOOL_SEARCH` to `"false"` disables tool search and loads all tool definitions into context on every turn. This removes the search round-trip, which can be faster when the tool set is small (fewer than ~10 tools) and the definitions fit comfortably in the context window.
 
 ##

@@ -296,6 +296,14 @@ PowerShell
 
     CLAUDE_CODE_NO_FLICKER=1 claude
 
+    $env:CLAUDE_CODE_NO_FLICKER = "1"; claude
+
+    {
+      "env": {
+        "CLAUDE_CODE_NO_FLICKER": "1"
+      }
+    }
+
 ##
 
 ​

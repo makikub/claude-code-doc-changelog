@@ -11,7 +11,7 @@ Tool| Description| Permission required
 `CronList`| Lists all scheduled tasks in the session| No
 `Edit`| Makes targeted edits to specific files. See Edit tool behavior| Yes
 `EnterPlanMode`| Switches to plan mode to design an approach before coding| No
-`EnterWorktree`| Creates an isolated [git worktree](</docs/en/worktrees>) and switches into it. Pass a `path` to switch into an existing worktree of the current repository instead of creating a new one. From within a worktree session, or from a subagent with a pinned working directory such as [`isolation: worktree`](</docs/en/sub-agents#supported-frontmatter-fields>), only the `path` form is available and the target must be under `.claude/worktrees/`| No
+`EnterWorktree`| Creates an isolated [git worktree](</docs/en/worktrees>) and switches into it. Pass a `path` to switch into an existing worktree instead of creating a new one. On first entry the target may be a worktree of the current repository or, in a multi-repo workspace, of a repository nested inside it. Before v2.1.203, a nested repository’s worktree was rejected. From within a worktree session, or from a subagent with a pinned working directory such as [`isolation: worktree`](</docs/en/sub-agents#supported-frontmatter-fields>), only the `path` form is available and the target must be under `.claude/worktrees/` of the session’s repository| No
 `ExitPlanMode`| Presents a plan for approval and exits plan mode| Yes
 `ExitWorktree`| Exits a worktree session and returns to the original directory. Not available to subagents that already run in their own working directory, such as with [`isolation: worktree`](</docs/en/sub-agents#supported-frontmatter-fields>)| No
 `Glob`| Finds files based on pattern matching. See Glob tool behavior| No
@@ -34,8 +34,8 @@ Tool| Description| Permission required
 `TaskCreate`| Creates a new task in the task list| No
 `TaskGet`| Retrieves full details for a specific task| No
 `TaskList`| Lists all tasks with their current status| No
-`TaskOutput`| (Deprecated) Retrieves output from a background task. Prefer `Read` on the task’s output file path| No
-`TaskStop`| Stops a running background task by ID. As of v2.1.198, also accepts an [agent-team teammate](</docs/en/agent-teams>) or a named background agent by agent ID or name| No
+`TaskOutput`| Retrieves output from a background task. Deprecated in favor of `Read` on the task’s output file path. When no task matches the ID, the error lists the running background agents by ID and description. Before v2.1.203, the error named only the missing ID| No
+`TaskStop`| Stops a running background task by ID. It also accepts an [agent-team teammate](</docs/en/agent-teams>) or a named background agent by agent ID or name. Before v2.1.198, it accepted only a background task ID. When no task matches the ID, the error lists the running background agents by ID and description, including agents that another agent spawned. Before v2.1.203, the error listed running teammates and named agents but not background agents another agent spawned, so those couldn’t be identified or stopped from the main conversation| No
 `TaskUpdate`| Updates task status, dependencies, details, or deletes tasks| No
 `TodoWrite`| Manages the session task checklist. Disabled by default as of v2.1.142 in favor of `TaskCreate`, `TaskGet`, `TaskList`, and `TaskUpdate`. Set `CLAUDE_CODE_ENABLE_TASKS=0` to re-enable| No
 `ToolSearch`| Searches for and loads deferred tools when [tool search](</docs/en/mcp#scale-with-mcp-tool-search>) is enabled| No

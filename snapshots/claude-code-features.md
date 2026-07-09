@@ -31,6 +31,28 @@ TypeScript
         if isinstance(message, ResultMessage) and message.subtype == "success":
             print(f"\nResult: {message.result}")
 
+    import { query } from "@anthropic-ai/claude-agent-sdk";
+
+    for await (const message of query({
+      prompt: "Help me refactor the auth module",
+      options: {
+        // "user" loads from ~/.claude/, "project" loads from ./.claude/ in cwd.
+        // Together they give the agent access to CLAUDE.md, skills, hooks, and
+        // permissions from both locations.
+        settingSources: ["user", "project"],
+        allowedTools: ["Read", "Edit", "Bash"]
+      }
+    })) {
+      if (message.type === "assistant") {
+        for (const block of message.message.content) {
+          if (block.type === "text") console.log(block.text);
+        }
+      }
+      if (message.type === "result" && message.subtype === "success") {
+        console.log(`\nResult: ${message.result}`);
+      }
+    }
+
 Each source loads settings from a specific location, where `<cwd>` is the working directory you pass via the `cwd` option, or the process’s current directory if unset. For the full type definition, see [`SettingSource`](</docs/en/agent-sdk/typescript#settingsource>) (TypeScript) or [`SettingSource`](</docs/en/agent-sdk/python#settingsource>) (Python).
 
 Source| What it loads| Location
@@ -115,6 +137,23 @@ TypeScript
         if isinstance(message, ResultMessage) and message.subtype == "success":
             print(message.result)
 
+    import { query } from "@anthropic-ai/claude-agent-sdk";
+
+    // Skills in .claude/skills/ are discovered automatically
+    // when settingSources includes "project"
+    for await (const message of query({
+      prompt: "Review this PR using our code review checklist",
+      options: {
+        settingSources: ["user", "project"],
+        skills: "all",
+        allowedTools: ["Read", "Grep", "Glob"]
+      }
+    })) {
+      if (message.type === "result" && message.subtype === "success") {
+        console.log(message.result);
+      }
+    }
+
 Skills must be created as filesystem artifacts (`.claude/skills/<name>/SKILL.md`). The SDK does not have a programmatic API for registering skills. See [Agent Skills in the SDK](</docs/en/agent-sdk/skills>) for full details.
 
 For more on creating and using skills, see [Agent Skills in the SDK](</docs/en/agent-sdk/skills>).
@@ -169,6 +208,42 @@ TypeScript
     ):
         if isinstance(message, ResultMessage) and message.subtype == "success":
             print(message.result)
+
+    import { query, type HookInput, type HookJSONOutput } from "@anthropic-ai/claude-agent-sdk";
+
+    // PreToolUse hook callback. HookInput is a discriminated union on
+    // hook_event_name, so narrowing on it gives TypeScript the right
+    // tool_input shape for this event.
+    const auditBash = async (input: HookInput): Promise<HookJSONOutput> => {
+      if (input.hook_event_name !== "PreToolUse") return {};
+      const toolInput = input.tool_input as { command?: string };
+      if (toolInput.command?.includes("rm -rf")) {
+        return {
+          hookSpecificOutput: {
+            hookEventName: "PreToolUse",
+            permissionDecision: "deny",
+            permissionDecisionReason: "Destructive command blocked",
+          },
+        };
+      }
+      return {}; // Empty object: allow the tool to proceed
+    };
+
+    // Filesystem hooks from .claude/settings.json run automatically
+    // when settingSources loads them. You can also add programmatic hooks:
+    for await (const message of query({
+      prompt: "Refactor the auth module",
+      options: {
+        settingSources: ["project"], // Loads hooks from .claude/settings.json
+        hooks: {
+          PreToolUse: [{ matcher: "Bash", hooks: [auditBash] }]
+        }
+      }
+    })) {
+      if (message.type === "result" && message.subtype === "success") {
+        console.log(message.result);
+      }
+    }
 
 ###
 

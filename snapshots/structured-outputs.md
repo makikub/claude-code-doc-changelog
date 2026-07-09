@@ -79,6 +79,34 @@ Python
       }
     }
 
+    import asyncio
+    from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+    # Define the shape of data you want back
+    schema = {
+        "type": "object",
+        "properties": {
+            "company_name": {"type": "string"},
+            "founded_year": {"type": "number"},
+            "headquarters": {"type": "string"},
+        },
+        "required": ["company_name"],
+    }
+
+    async def main():
+        async for message in query(
+            prompt="Research Anthropic and provide key company information",
+            options=ClaudeAgentOptions(
+                output_format={"type": "json_schema", "schema": schema}
+            ),
+        ):
+            # The result message contains structured_output with validated data
+            if isinstance(message, ResultMessage) and message.structured_output:
+                print(message.structured_output)
+                # {'company_name': 'Anthropic', 'founded_year': 2021, 'headquarters': 'San Francisco, CA'}
+
+    asyncio.run(main())
+
 ##
 
 ​
@@ -137,6 +165,43 @@ Python
         }
       }
     }
+
+    import asyncio
+    from pydantic import BaseModel
+    from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+    class Step(BaseModel):
+        step_number: int
+        description: str
+        estimated_complexity: str  # 'low', 'medium', 'high'
+
+    class FeaturePlan(BaseModel):
+        feature_name: str
+        summary: str
+        steps: list[Step]
+        risks: list[str]
+
+    async def main():
+        async for message in query(
+            prompt="Plan how to add dark mode support to a React app. Break it into implementation steps.",
+            options=ClaudeAgentOptions(
+                output_format={
+                    "type": "json_schema",
+                    "schema": FeaturePlan.model_json_schema(),
+                }
+            ),
+        ):
+            if isinstance(message, ResultMessage) and message.structured_output:
+                # Validate and get fully typed result
+                plan = FeaturePlan.model_validate(message.structured_output)
+                print(f"Feature: {plan.feature_name}")
+                print(f"Summary: {plan.summary}")
+                for step in plan.steps:
+                    print(
+                        f"{step.step_number}. [{step.estimated_complexity}] {step.description}"
+                    )
+
+    asyncio.run(main())
 
 **Benefits:**
 
@@ -217,6 +282,50 @@ Python
       }
     }
 
+    import asyncio
+    from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+    # Define structure for TODO extraction
+    todo_schema = {
+        "type": "object",
+        "properties": {
+            "todos": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "text": {"type": "string"},
+                        "file": {"type": "string"},
+                        "line": {"type": "number"},
+                        "author": {"type": "string"},
+                        "date": {"type": "string"},
+                    },
+                    "required": ["text", "file", "line"],
+                },
+            },
+            "total_count": {"type": "number"},
+        },
+        "required": ["todos", "total_count"],
+    }
+
+    async def main():
+        # Agent uses Grep to find TODOs, Bash to get git blame info
+        async for message in query(
+            prompt="Find all TODO comments in this codebase and identify who added them",
+            options=ClaudeAgentOptions(
+                output_format={"type": "json_schema", "schema": todo_schema}
+            ),
+        ):
+            if isinstance(message, ResultMessage) and message.structured_output:
+                data = message.structured_output
+                print(f"Found {data['total_count']} TODOs")
+                for todo in data["todos"]:
+                    print(f"{todo['file']}:{todo['line']} - {todo['text']}")
+                    if "author" in todo:
+                        print(f"  Added by {todo['author']} on {todo['date']}")
+
+    asyncio.run(main())
+
 ##
 
 ​
@@ -255,6 +364,20 @@ Python
         }
       }
     }
+
+    async for message in query(
+        prompt="Extract contact info from the document",
+        options=ClaudeAgentOptions(
+            output_format={"type": "json_schema", "schema": contact_schema}
+        ),
+    ):
+        if isinstance(message, ResultMessage):
+            if message.subtype == "success" and message.structured_output:
+                # Use the validated output
+                print(message.structured_output)
+            elif message.subtype == "error_max_structured_output_retries":
+                # Handle the failure
+                print("Could not produce valid output")
 
 **Tips for avoiding errors:**
 

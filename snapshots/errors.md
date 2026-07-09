@@ -59,6 +59,7 @@ Message| Section
 `max_tokens must be greater than thinking.budget_tokens`| Request errors
 `API Error: 400 due to tool use concurrency issues`| Request errors
 `Claude Code is unable to respond to this request, which appears to violate our Usage Policy`| Request errors
+`<model> has safety measures that flagged this message for a cybersecurity topic`| Request errors
 `Installation was killed before it could finish (exit code 137)`| Installation errors
 `The connection dropped while downloading the update`| Installation errors
 `--bg and --print conflict`| Command-line errors
@@ -876,11 +877,34 @@ The API declined to respond because content in the conversation triggered a [Usa
 
     API Error: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Please double press esc to edit your last message or start a new session for Claude Code to assist with a different task.
 
-The check evaluates the full conversation, not only your latest prompt, so sending a new message in the same session usually re-triggers the same refusal. The same applies after exiting and reopening the session with `--continue` or `--resume`, since the transcript on disk still contains the triggering content. **What to do:**
+The check evaluates the full conversation, not only your latest prompt, so sending a new message in the same session usually re-triggers the same refusal. The same applies after exiting and reopening the session with `--continue` or `--resume`, since the transcript on disk still contains the triggering content. On [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), and [Microsoft Foundry](</docs/en/microsoft-foundry>), this message also covers requests the model’s safety measures flagged as a cybersecurity topic. See Safety measures flagged a cybersecurity topic. **What to do:**
 
   * Press Esc twice or run `/rewind` to step back to a checkpoint before the turn that triggered the refusal, then rephrase or take a different approach. See [Checkpointing](</docs/en/checkpointing>).
   * If you can’t identify which turn caused it, run `/clear` to start a fresh conversation in the same project. Your previous conversation is preserved on disk and remains available in `/resume`.
   * In [non-interactive mode](</docs/en/headless>) (`-p`), where rewind is unavailable, retry with a rephrased prompt in a new session without `--continue`. Policy checks vary by model, so switching to a different model with `--model` may also resolve the refusal in some cases.
+
+###
+
+​
+
+Safety measures flagged a cybersecurity topic
+
+The model’s safety measures flagged content in the conversation as a cybersecurity topic. The message names the model that flagged the request:
+
+    API Error: Opus 4.8 has safety measures that flagged this message for a cybersecurity topic. To learn about the Cyber Verification Program and apply for access, visit our help center: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude.
+
+    If you were not engaging in a cybersecurity topic, please send feedback via /feedback.
+
+The message links to the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>), which grants access for legitimate cybersecurity work. The safeguard itself is server-side and predates v2.1.203; this release changed only the wording of the message and the page it links to. What you see depends on your provider and mode:
+
+  * On [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), and [Microsoft Foundry](</docs/en/microsoft-foundry>), a cybersecurity flag produces the Usage Policy refusal message instead.
+  * [Non-interactive mode](</docs/en/headless>) omits the `/feedback` sentence.
+
+Before v2.1.203, the message read `<model>'s safeguards flagged this message for a cybersecurity topic. If your work requires this access, you can apply for an exemption:` followed by an exemption form link. **What to do:**
+
+  * If your work requires this content, apply for access through the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>)
+  * If your request wasn’t about a cybersecurity topic, run `/feedback` to report the false positive
+  * To keep working in the same session, press Esc twice or run `/rewind` to step back to a checkpoint before the turn that triggered the flag, then take a different approach. See [Checkpointing](</docs/en/checkpointing>).
 
 ##
 

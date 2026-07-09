@@ -16,6 +16,8 @@ Python
 
     query({ prompt, options: { cwd: "/work/session-a" } })
 
+    query(prompt=prompt, options=ClaudeAgentOptions(cwd="/work/session-a"))
+
 ###
 
 ​
@@ -87,6 +89,17 @@ Python
     })) {
       // ...
     }
+
+    from claude_agent_sdk import query, ClaudeAgentOptions
+
+    async for message in query(
+        prompt=user_input,
+        options=ClaudeAgentOptions(
+            resume=session_id,            # looked up from your database by user
+            session_store=session_store,  # S3, Redis, Postgres, or your own adapter
+        ),
+    ):
+        ...
 
 See [Session storage](</docs/en/agent-sdk/session-storage>) for the full `SessionStore` interface and reference adapters.
 
@@ -270,6 +283,21 @@ Python
     })) {
       // ...
     }
+
+    from claude_agent_sdk import query, ClaudeAgentOptions
+
+    async for message in query(
+        prompt=prompt,
+        options=ClaudeAgentOptions(
+            cwd=tenant_dir,
+            setting_sources=[],
+            env={
+                "CLAUDE_CONFIG_DIR": config_dir,
+                "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
+            },
+        ),
+    ):
+        ...
 
 For per-tenant network controls, see [Secure Deployment](</docs/en/agent-sdk/secure-deployment>).
 
