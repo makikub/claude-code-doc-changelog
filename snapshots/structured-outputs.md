@@ -221,7 +221,7 @@ The `outputFormat` (TypeScript) or `output_format` (Python) option accepts an ob
   * `type`: Set to `"json_schema"` for structured outputs
   * `schema`: A [JSON Schema](<https://json-schema.org/understanding-json-schema/about>) object defining your output structure. You can generate this from a Zod schema with `z.toJSONSchema()` or a Pydantic model with `.model_json_schema()`
 
-The SDK supports standard JSON Schema features including all basic types (object, array, string, number, boolean, null), `enum`, `const`, `required`, nested objects, and `$ref` definitions. For the full list of supported features and limitations, see [JSON Schema limitations](<https://platform.claude.com/docs/en/build-with-claude/structured-outputs#json-schema-limitations>).
+The SDK supports standard JSON Schema features including all basic types (object, array, string, number, boolean, null), `enum`, `const`, `required`, nested objects, and `$ref` definitions. For the full list of supported features and limitations, see [JSON Schema limitations](<https://platform.claude.com/docs/en/build-with-claude/structured-outputs#json-schema-limitations>). A schema that isn’t valid JSON Schema fails the run at startup with an error naming the problem. Before v2.1.205, an invalid schema was silently ignored and the agent returned unstructured text. The `format` keyword, such as `"format": "email"`, is accepted as an annotation and isn’t enforced by the SDK’s validator. Before v2.1.205, any schema containing `format` was treated as invalid.
 
 ##
 

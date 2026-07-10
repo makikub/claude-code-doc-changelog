@@ -162,10 +162,10 @@ Control what Claude can do
 
 Press `Shift+Tab` to cycle through permission modes:
 
-  * **Default** : Claude asks before file edits and shell commands
-  * **Auto-accept edits** : Claude edits files and runs common filesystem commands like `mkdir` and `mv` without asking, still asks for other commands
-  * **Plan mode** : Claude explores and proposes a plan without editing your source files; permission prompts still apply as in default mode
-  * **Auto mode** : Claude evaluates all actions with background safety checks. Currently a research preview
+  * **Manual** : Claude asks before file edits and shell commands
+  * **Accept edits** : Claude edits files and runs common filesystem commands like `mkdir` and `mv` without asking, still asks for other commands
+  * **Plan** : Claude explores and proposes a plan without editing your source files; permission prompts still apply as in Manual mode
+  * **Auto** : Claude evaluates all actions with background safety checks. Currently a research preview
 
 You can also allow specific commands in `.claude/settings.json` so Claude doesn’t ask each time. This is useful for trusted commands like `npm test` or `git status`. Settings can be scoped from organization-wide policies down to personal preferences. See [Permissions](</docs/en/permissions>) for details.
 
@@ -188,7 +188,7 @@ Ask Claude Code for help
 Claude Code can teach you how to use it. Ask questions like “how do I set up hooks?” or “what’s the best way to structure my CLAUDE.md?” and Claude will explain. Built-in commands also guide you through setup:
 
   * `/init` walks you through creating a CLAUDE.md for your project
-  * `/doctor` diagnoses common issues with your installation
+  * `/doctor` runs a setup checkup that diagnoses installation and configuration issues and can fix them
 
 ###
 

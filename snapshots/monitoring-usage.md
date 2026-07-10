@@ -293,7 +293,7 @@ The script must output valid JSON with string key-value pairs representing HTTP 
 
 If the helper fails or prints output that doesn’t meet these requirements, Claude Code reports the error in:
 
-  * `/doctor` output
+  * `/status` output
   * The debug log, when running with [`--debug`](</docs/en/cli-reference#cli-flags>) or after running `/debug` in the session
   * stderr, in non-interactive sessions started with `-p`
 

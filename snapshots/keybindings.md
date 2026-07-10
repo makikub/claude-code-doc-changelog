@@ -63,7 +63,8 @@ Context| Description
 `Select`| Generic select/list components
 `Plugin`| Plugin dialog (browse, discover, manage)
 `Scroll`| Conversation scrolling and text selection in fullscreen mode
-`Doctor`| `/doctor` diagnostics screen
+
+Before v2.1.205, a `Doctor` context and a `doctor:fix` action existed for the `/doctor` diagnostics screen.
 
 ##
 
@@ -394,18 +395,6 @@ Action| Default| Description
 
 ​
 
-Doctor actions
-
-Actions available in the `Doctor` context:
-
-Action| Default| Description
----|---|---
-`doctor:fix`| F| Send the diagnostics report to Claude to fix the reported issues. Only active when issues are found
-
-###
-
-​
-
 Voice actions
 
 Actions available in the `Chat` context when [voice dictation](</docs/en/voice-dictation>) is enabled:
@@ -600,4 +589,4 @@ Claude Code validates your keybindings and shows warnings for:
   * Terminal multiplexer conflicts
   * Duplicate bindings in the same context
 
-Run `/doctor` to see any keybinding warnings.
+Claude Code reports warnings when the file loads and writes each one to the debug log. Start Claude Code with [`--debug`](</docs/en/cli-reference#cli-flags>) to see the details.

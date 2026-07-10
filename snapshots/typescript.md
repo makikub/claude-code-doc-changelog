@@ -581,7 +581,7 @@ The CLI subprocess reads several environment variables that control API timeouts
 Interface returned by the `query()` function.
 
     interface Query extends AsyncGenerator<SDKMessage, void> {
-      interrupt(): Promise<void>;
+      interrupt(): Promise<SDKControlInterruptResponse | undefined>;
       rewindFiles(
         userMessageId: string,
         options?: { dryRun?: boolean }
@@ -613,7 +613,7 @@ Methods
 
 Method| Description
 ---|---
-`interrupt()`| Interrupts the query (only available in streaming input mode)
+`interrupt()`| Interrupts the query. Only available in streaming input mode. When the CLI advertises the `interrupt_receipt_v1` capability in `SDKSystemMessage.capabilities`, resolves with an `SDKControlInterruptResponse` listing the queued messages that survive the interrupt. Resolves `undefined` on CLIs before v2.1.205
 `rewindFiles(userMessageId, options?)`| Restores files to their state at the specified user message. Pass `{ dryRun: true }` to preview changes. Requires `enableFileCheckpointing: true`. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
 `setPermissionMode()`| Changes the permission mode (only available in streaming input mode)
 `setModel()`| Changes the model (only available in streaming input mode)
@@ -701,6 +701,26 @@ Return type of `initializationResult()`. Contains session initialization data.
     };
 
 When a client sends `initialize` to a session that is already running, the control-response wrapper also carries an optional `pending_permission_requests` array. The field is on the response wrapper itself, not in the `SDKControlInitializeResponse` payload above. Each entry is a complete `control_request` message with the same `{ type: "control_request", request_id, request }` shape the session streams for permission requests while running. These are requests that were issued before the client connected and are still awaiting a reply. The SDK reads the array for you and dispatches each entry to your `canUseTool` callback, the same redelivery that `reinitialize()` triggers after a transport gap. Handle repeated request IDs idempotently, because an entry can repeat a request the callback already received before the connection dropped.
+
+###
+
+​
+
+`SDKControlInterruptResponse`
+
+The interrupt receipt: the value `interrupt()` resolves with on a CLI that advertises the `interrupt_receipt_v1` capability in `SDKSystemMessage.capabilities`. Requires Claude Code v2.1.205 or later. Earlier CLIs answer the interrupt with an empty success payload, so `interrupt()` resolves to `undefined`.
+
+    type SDKControlInterruptResponse = {
+      still_queued: string[];
+    };
+
+`still_queued` lists the UUIDs of user messages that survive the interrupt: messages still in the queue, plus any batch already dequeued for the next turn but not yet reachable by the abort. Each one runs as its own turn after the interrupt unless you cancel it first. Use the receipt to decide whether to resend anything; resending a message that is already listed produces a duplicate turn. Interpret the list with these caveats:
+
+  * Only messages that were enqueued with a UUID appear. An empty array doesn’t mean nothing else will run.
+  * Only main-thread messages are listed. Messages addressed to a subagent are out of scope.
+  * The list can include UUIDs your client never sent, such as [scheduled task](</docs/en/scheduled-tasks>) triggers. Ignore UUIDs you don’t recognize instead of treating them as an error.
+
+The receipt is a snapshot taken at the moment the interrupt is processed, and on a clean interrupt it arrives before the interrupted turn’s `SDKResultMessage`. Read the receipt rather than inspecting the queue after that result: the loop starts the next queued turn immediately, so the queue you inspect after the result has already changed.
 
 ###
 
@@ -1271,7 +1291,14 @@ System initialization message.
       output_style: string;
       skills: string[];
       plugins: { name: string; path: string }[];
+      capabilities?: string[];
     };
+
+The `capabilities` array names the protocol behaviors this CLI implements, so you can feature-detect instead of comparing `claude_code_version` strings. It is an open set: ignore values you don’t recognize, and check for the specific capability whose behavior you rely on. The field requires Claude Code v2.1.205 or later and is absent on earlier CLIs.
+
+Capability| Meaning
+---|---
+`interrupt_receipt_v1`| `interrupt()` resolves with an `SDKControlInterruptResponse` receipt naming the queued messages that survive the interrupt
 
 ###
 
@@ -1417,7 +1444,13 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
     type SDKMessageOrigin =
       | { kind: "human" }
       | { kind: "channel"; server: string }
-      | { kind: "peer"; from: string; name?: string; senderTaskId?: string }
+      | {
+          kind: "peer";
+          from: string;
+          name?: string;
+          senderTaskId?: string;
+          body?: string;
+        }
       | { kind: "task-notification" }
       | { kind: "coordinator" }
       | { kind: "auto-continuation" };
@@ -1426,7 +1459,7 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
 ---|---
 `human`| Direct input from the end user. On user messages, an absent `origin` also means human input.
 `channel`| Message arriving on a [channel](</docs/en/channels>). `server` is the source MCP server name.
-`peer`| Message from another agent. For an in-process [teammate](</docs/en/agent-teams>) sending to `main` via `SendMessage`, `from` is the teammate’s name and `senderTaskId` is its task ID. For a cross-session peer such as another local Claude Code process, `from` is the sender address and `senderTaskId` is absent. The `name` field is reserved.
+`peer`| Message from another agent. For an in-process [teammate](</docs/en/agent-teams>) sending to `main` via `SendMessage`, `from` is the teammate’s name and `senderTaskId` is its task ID. For a cross-session peer such as another local Claude Code process, `from` is the sender address and `senderTaskId` is absent. `name` and `body` require Claude Code v2.1.205 or later. `name` is the sender’s display name, normalized by Claude Code: it strips Unicode control, format, surrogate, and line or paragraph separator code points, then trims the result and caps it at 64 code points with an ellipsis. `body` is the decoded message body with the peer envelope stripped, byte-exact with what the model sees. For a teammate message `body` is always present; for a cross-session peer it is present only when the turn is exactly one peer envelope formed by Claude Code. Render `name` and `body` instead of re-parsing the message text.
 `task-notification`| Synthetic turn injected after a background task finished. See `SDKTaskNotificationMessage`.
 `coordinator`| Message from a team coordinator in an [agent team](</docs/en/agent-teams>).
 `auto-continuation`| Synthetic turn injected when the session continues without fresh user input, such as a command result that triggers a follow-up prompt.
@@ -2353,13 +2386,14 @@ ExitPlanMode
 **Tool name:** `ExitPlanMode`
 
     type ExitPlanModeInput = {
+      /** Deprecated: no longer used. */
       allowedPrompts?: Array<{
         tool: "Bash";
         prompt: string;
       }>;
     };
 
-Exits planning mode. Optionally specifies prompt-based permissions needed to implement the plan.
+Exits plan mode. The `allowedPrompts` field is deprecated and ignored; Claude Code still accepts it so existing callers and transcripts validate. Before v2.1.205, it requested prompt-based Bash permissions for implementing the plan.
 
 ###
 

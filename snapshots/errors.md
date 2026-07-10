@@ -62,7 +62,11 @@ Message| Section
 `<model> has safety measures that flagged this message for a cybersecurity topic`| Request errors
 `Installation was killed before it could finish (exit code 137)`| Installation errors
 `The connection dropped while downloading the update`| Installation errors
+`Download timed out: exceeded the total deadline`| Installation errors
 `--bg and --print conflict`| Command-line errors
+`Error: --json-schema is not a valid JSON Schema`| Command-line errors
+`Could not import <server>: <reason>`| Command-line errors
+`Marketplace "<name>" is registered from an untrusted source`| Plugin errors
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
 Responses seem lower quality than usual| Response quality
 
@@ -580,7 +584,7 @@ A proxy or security appliance on your network is intercepting TLS traffic with i
 
 As of v2.1.199, a certificate validation failure isn’t retried, so this error appears on the first attempt instead of after the full retry budget. Earlier versions spent a few minutes retrying before showing it. Transient TLS conditions, such as a handshake timeout, still retry. During `/login` and the startup connectivity check, the same failure is reported with the OpenSSL code and the fix inline:
 
-    SSL certificate error (UNABLE_TO_GET_ISSUER_CERT_LOCALLY). If you are behind a corporate proxy or TLS-intercepting firewall, set NODE_EXTRA_CA_CERTS to your CA bundle path, or ask IT to allowlist *.anthropic.com. Run /doctor for details.
+    SSL certificate error (UNABLE_TO_GET_ISSUER_CERT_LOCALLY). If you are behind a corporate proxy or TLS-intercepting firewall, set NODE_EXTRA_CA_CERTS to your CA bundle path, or ask IT to allowlist *.anthropic.com. Run `claude doctor` for details.
 
 **What to do:**
 
@@ -813,7 +817,7 @@ Your organization admin has disabled this model in the claude.ai admin console, 
 
     Model "claude-opus-4-8" is restricted by your organization's settings. Using claude-sonnet-4-6 instead.
 
-**What to do:**
+Claude Code treats a model family alias, one of `opus`, `sonnet`, `haiku`, or `fable`, as a request for that family rather than for its newest version. On the Anthropic API and on [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), a restricted family alias resolves to the newest version of the family that your organization and the `availableModels` allowlist permit, and the substitution notice names that version. Claude Code rejects `/model <alias>` only when every version of the family is restricted. Before v2.1.205, a family alias was substituted or rejected based on its newest version alone, even when an older version of the same family was allowed. **What to do:**
 
   * Run `/model` to pick from the models your organization allows. Restricted models are hidden from the picker.
   * If the restricted model was set in `--model`, `ANTHROPIC_MODEL`, or the `model` field of a settings file, remove or update that value so the notice doesn’t recur on each launch
@@ -940,9 +944,9 @@ The connection to the download server closed while `claude install`, `claude upd
 
     The connection dropped while downloading the update (attempt 3/3: aborted). Check your network — proxies sometimes cut off large downloads.
 
-The text in parentheses names which attempt failed and the underlying network error. `claude update` precedes the message with `Error: Failed to install native update` on stderr. The usual cause is a proxy or gateway that closes a long transfer before it finishes. The Claude Code binary is a large download, so a proxy connection limit that never affects normal API traffic can still interrupt it. **What to do:**
+The text in parentheses names which attempt failed and the underlying network error. `claude update` precedes the message with `Error: Failed to install native update` on stderr. A download that stays connected but doesn’t finish within 10 minutes fails with `Download timed out: exceeded the total deadline` instead. Claude Code doesn’t retry a timed-out download, because a connection too slow to finish inside the deadline won’t finish on an immediate retry either. The steps below apply to both messages. Before v2.1.205, the same 10-minute deadline was reported as the HTTP client’s generic `timeout of 600000ms exceeded`. The usual cause is a proxy or gateway that closes a long transfer before it finishes. The Claude Code binary is a large download, so a proxy connection limit that never affects normal API traffic can still interrupt it. **What to do:**
 
-  * Run `claude update` again. On an otherwise healthy network, the download usually succeeds on the next run.
+  * Run `claude update` again. On an otherwise healthy network, the download usually succeeds on the next run. For the timed-out message, run it again from a faster or less throttled network.
   * If your network requires a proxy, set `HTTPS_PROXY` before running the installer or `claude update`. See [Check network connectivity](</docs/en/troubleshoot-install#check-network-connectivity>).
   * If a corporate proxy keeps closing the transfer, ask your network team to allow the full download from `downloads.claude.ai`. See [Network access requirements](</docs/en/network-config#network-access-requirements>).
   * Run `claude doctor` from your shell for installation diagnostics
@@ -953,7 +957,7 @@ The text in parentheses names which attempt failed and the underlying network er
 
 Command-line errors
 
-These errors come from Claude Code’s own validation of the `claude` command line. Claude Code prints them immediately, before it creates a session or sends any API request.
+These errors come from the `claude` command line and its subcommands. Claude Code prints them before running your prompt or sending any API request.
 
 ###
 
@@ -969,6 +973,61 @@ This message requires Claude Code v2.1.198 or later. You combined `--bg` with `-
 
   * Drop `-p` or `--print`. `--bg` takes the prompt as its positional argument, so `claude --bg "<task>"` is the complete command. See [Dispatch new agents from your shell](</docs/en/agent-view#from-your-shell>).
   * To run the prompt non-interactively and print the result instead of creating a background session, drop `--bg` and run `claude -p "<task>"`
+
+###
+
+​
+
+The —json-schema value is not a valid JSON Schema
+
+The schema you passed to [`--json-schema`](</docs/en/cli-reference#cli-flags>) in [non-interactive mode](</docs/en/headless#get-structured-output>) failed JSON Schema compilation, so `claude` exits with code 1 instead of running the prompt. Before v2.1.205, an invalid schema produced unstructured output with no error, and any schema that used the `format` keyword was treated as invalid.
+
+    Error: --json-schema is not a valid JSON Schema: data/type must be equal to one of the allowed values
+
+The text after the second colon is the validator’s diagnostic and names the keyword or location that failed. Schemas that use the `format` keyword, such as `"format": "email"`, are valid: Claude Code accepts `format` as an annotation and doesn’t enforce it. Claude Code runs two checks before schema compilation: it rejects a value that isn’t parseable JSON with `Error: --json-schema is not valid JSON`, and valid JSON that isn’t an object with `Error: --json-schema must be a JSON object`. **What to do:**
+
+  * Fix the part of the schema the diagnostic names, then rerun the command
+  * If the diagnostic is `schema too large`, reduce the schema’s nesting and `$ref` reuse
+  * See [Get structured output](</docs/en/headless#get-structured-output>) for a working schema and command
+
+###
+
+​
+
+Could not import a server from Claude Desktop
+
+Claude Code couldn’t add one of the servers you selected in `claude mcp add-from-claude-desktop`. The command still imports the other selected servers and prints one line per server it couldn’t add. Before v2.1.205, the first server that failed stopped the import and none of the selected servers were added.
+
+    Could not import my server: Invalid name my server. Names can only contain letters, numbers, hyphens, and underscores.
+
+The text after the server name is the reason. The most common one is the name check: Claude Desktop allows characters in server names, such as spaces and periods, that `claude mcp` restricts to letters, numbers, hyphens, and underscores. Other reasons include a server configuration that fails validation and a server blocked by your organization’s [MCP policy](</docs/en/managed-mcp>). **What to do:**
+
+  * Rename the server in `claude_desktop_config.json` to use only letters, numbers, hyphens, and underscores, then run `claude mcp add-from-claude-desktop` again
+  * Add that server directly with `claude mcp add` or `claude mcp add-json` under a valid name. See [Import MCP servers from Claude Desktop](</docs/en/mcp#import-mcp-servers-from-claude-desktop>).
+
+##
+
+​
+
+Plugin errors
+
+These errors come from [plugin](</docs/en/plugins>) and [marketplace](</docs/en/plugin-marketplaces>) configuration. For plugin problems that don’t produce one of the messages on this page, such as a marketplace URL that doesn’t load or a plugin that installs but doesn’t appear, see [Plugin troubleshooting](</docs/en/discover-plugins#troubleshooting>).
+
+###
+
+​
+
+Marketplace is registered from an untrusted source
+
+The marketplace is registered under a name that is [reserved for official Anthropic marketplaces](</docs/en/plugin-marketplaces#marketplace-schema>), but its registered source isn’t an `anthropics` GitHub repository. Claude Code re-checks reserved names every time it loads or refreshes a marketplace, so the marketplace and the plugins installed from it stop loading. Before v2.1.205, the name was checked only when the marketplace was added, so an entry registered before its name became reserved kept loading.
+
+    Marketplace "claude-community" is registered from an untrusted source: The name 'claude-community' is reserved for official Anthropic marketplaces. Only repositories from 'github.com/anthropics/' can use this name. To fix it, remove the marketplace and re-add it from the official source.
+
+**What to do:**
+
+  * Run `claude plugin marketplace remove <name>`, then add the marketplace again from the official `github.com/anthropics` repository
+  * If you publish a third-party marketplace that used the name before it became reserved, rename it and ask users to re-add it from your source
+  * See the reserved name list under [Marketplace schema](</docs/en/plugin-marketplaces#marketplace-schema>)
 
 ##
 
@@ -1011,7 +1070,7 @@ The Model selection check below catches the second and third cases; the first ap
   * **Model selection** : run `/model` to confirm you are on the model you expect. A previous `/model` choice or an `ANTHROPIC_MODEL` environment variable may have you on a smaller model than you intended.
   * **Effort level** : run `/effort` to check the current reasoning level and raise it for hard debugging or design work. Defaults vary by model, so check before assuming you are below the maximum. See [Adjust effort level](</docs/en/model-config#adjust-effort-level>) for per-model defaults and the `ultrathink` shortcut.
   * **Context pressure** : run `/context` to see how full the window is. If it is near capacity, run `/compact` at a natural breakpoint or `/clear` to start fresh. See [Explore the context window](</docs/en/context-window>) for how auto-compact affects earlier turns.
-  * **Stale instructions** : large or outdated `CLAUDE.md` files and MCP tool definitions consume context and can steer responses. `/doctor` flags oversized memory files and subagent definitions; `/context` shows MCP tool token usage.
+  * **Stale instructions** : large or outdated `CLAUDE.md` files and MCP tool definitions consume context and can steer responses. The `/doctor` checkup flags oversized memory files and unused extensions, and `/context` shows MCP tool token usage. Before v2.1.205, `/doctor` opened a diagnostics screen that flagged oversized memory files and subagent definitions.
 
 When a response goes wrong, rewinding usually works better than replying with corrections. Press Esc twice or run `/rewind` to step back to before the bad turn, then rephrase the prompt with more specifics. Correcting in-thread keeps the wrong attempt in context, which can anchor later answers to it. See [Checkpointing](</docs/en/checkpointing>). If quality still seems off after checking the above, run `/feedback` and describe what you expected versus what you got. Feedback submitted this way includes the conversation transcript, which is the fastest way for Anthropic to diagnose a real regression. See Report an error if `/feedback` is unavailable in your environment. If Sonnet 5 refuses a request and cites a suspected prompt injection on Claude Code v2.1.200 or earlier, run `claude update` to pick up the v2.1.201 fix.
 
@@ -1030,6 +1089,6 @@ For errors from components this page doesn’t cover, see the relevant guide:
 If an error is not listed here or the suggested fix does not help:
 
   * Run `/feedback` inside Claude Code to send the transcript and a description to Anthropic. The command also offers to open a prefilled GitHub issue. On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and other third-party providers, `/feedback` saves a local archive you can send to your Anthropic account representative instead.
-  * Run `/doctor` to check for local configuration problems
+  * Run `claude doctor` from your shell for a read-only diagnostic of your installation, or run the `/doctor` checkup inside Claude Code to find and fix setup problems
   * Check [status.claude.com](<https://status.claude.com>) for active incidents
   * Search [existing issues](<https://github.com/anthropics/claude-code/issues>) on GitHub

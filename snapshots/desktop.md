@@ -15,8 +15,8 @@ apt or .deb for Ubuntu and Debian
 For Windows ARM64, download the [ARM64 installer](<https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs>). On Linux, install with apt; see [Claude Desktop on Linux](</docs/en/desktop-linux>). After installing, launch Claude, sign in, and click the **Code** tab. The first time you open it on Windows, you need [Git for Windows](<https://git-scm.com/downloads/win>) installed; restart the app after installing it. For a walkthrough of your first session, see the [Get started guide](</docs/en/desktop-quickstart>). In the Code tab, each conversation is a **session** : it has its own chat history, project folder, and code changes, independent of any other session. The sidebar lists your sessions and lets you run several in parallel. Within a session you can:
 
   * Review and comment on diffs, then watch the resulting PR through CI
-  * Preview your running app in an embedded browser while Claude verifies its own changes
-  * Arrange panes for the chat, diff, preview, terminal, and file editor side by side
+  * Preview your running app in the Browser pane while Claude verifies its own changes, and open external sites alongside it
+  * Arrange panes for the chat, diff, browser, terminal, and file editor side by side
   * Ask a side question that uses the session’s context without derailing it
   * Connect external tools like GitHub, Slack, and Linear
   * Let Claude open apps and control your screen
@@ -72,21 +72,21 @@ The prompt box supports two ways to bring in external context:
 
 Choose a permission mode
 
-Permission modes control how much autonomy Claude has during a session: whether it asks before editing files, running commands, or both. You can switch modes at any time using the mode selector next to the send button. Start with Ask permissions to see exactly what Claude does, then move to Auto accept edits or Plan mode as you get comfortable.
+Permission modes control how much autonomy Claude has during a session: whether it asks before editing files, running commands, or both. You can switch modes at any time using the mode selector next to the send button. Start with Manual to see exactly what Claude does, then move to Accept edits or Plan as you get comfortable.
 
 Mode| Settings key| Behavior
 ---|---|---
-**Ask permissions**| `default`| Claude asks before editing files or running commands. You see a diff and can accept or reject each change. Recommended for new users.
-**Auto accept edits**| `acceptEdits`| Claude auto-accepts file edits and common filesystem commands like `mkdir`, `touch`, and `mv`, but still asks before running other terminal commands. Use this when you trust file changes and want faster iteration.
-**Plan mode**| `plan`| Claude reads files and runs commands to explore, then proposes a plan without editing your source code. Good for complex tasks where you want to review the approach first.
+**Manual**| `default`| Claude asks before editing files or running commands. You see a diff and can accept or reject each change. Recommended for new users.
+**Accept edits**| `acceptEdits`| Claude auto-accepts file edits and common filesystem commands like `mkdir`, `touch`, and `mv`, but still asks before running other terminal commands. Use this when you trust file changes and want faster iteration.
+**Plan**| `plan`| Claude reads files and runs commands to explore, then proposes a plan without editing your source code. Good for complex tasks where you want to review the approach first.
 **Auto**| `auto`| Claude executes all actions with background safety checks that verify alignment with your request. Reduces permission prompts while maintaining oversight. Enable in your Settings → Claude Code. See availability requirements below.
-**Bypass permissions**| `bypassPermissions`| Claude runs without permission prompts, except those forced by explicit [ask rules](</docs/en/permissions#manage-permissions>); equivalent to `--dangerously-skip-permissions` in the CLI. Enable in your Settings → Claude Code under “Allow bypass permissions mode”. Only use this in sandboxed containers or VMs. Enterprise admins can disable this option.
+**Bypass permissions**| `bypassPermissions`| Claude runs without permission prompts, except those forced by explicit [ask rules](</docs/en/permissions#manage-permissions>) or by safety classifiers when Claude acts on external sites; equivalent to `--dangerously-skip-permissions` in the CLI. Enable in your Settings → Claude Code under “Allow bypass permissions mode”. Only use this in sandboxed containers or VMs. Enterprise admins can disable this option.
 
-The `dontAsk` permission mode is available only in the [CLI](</docs/en/permission-modes#allow-only-pre-approved-tools-with-dontask-mode>). Auto mode is a research preview available to all users on the Anthropic API and requires Claude Opus 4.6 or later, or Sonnet 4.6 or later. In Enterprise deployments that route Desktop to Google Cloud’s Agent Platform, auto mode is off until you [set `CLAUDE_CODE_ENABLE_AUTO_MODE`](</docs/en/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry>), and only Claude Sonnet 5, Opus 4.7, and Opus 4.8 are supported there.
+Earlier versions of the Code tab labeled these modes Ask permissions, Auto accept edits, and Plan mode. The `dontAsk` permission mode is available only in the [CLI](</docs/en/permission-modes#allow-only-pre-approved-tools-with-dontask-mode>). Auto mode is a research preview available to all users on the Anthropic API and requires Claude Opus 4.6 or later, or Sonnet 4.6 or later. In Enterprise deployments that route Desktop to Google Cloud’s Agent Platform, auto mode is off until you [set `CLAUDE_CODE_ENABLE_AUTO_MODE`](</docs/en/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry>), and only Claude Sonnet 5, Opus 4.7, and Opus 4.8 are supported there.
 
-Start complex tasks in Plan mode so Claude maps out an approach before making changes. Once you approve the plan, switch to Auto accept edits or Ask permissions to execute it. See [explore first, then plan, then code](</docs/en/best-practices#explore-first-then-plan-then-code>) for more on this workflow.
+Start complex tasks in Plan so Claude maps out an approach before making changes. Once you approve the plan, switch to Accept edits or Manual to execute it. See [explore first, then plan, then code](</docs/en/best-practices#explore-first-then-plan-then-code>) for more on this workflow.
 
-Cloud sessions support Accept edits, Plan mode, and Auto mode. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Ask permissions. Bypass permissions is not available because the cloud environment is already sandboxed. Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
+Cloud sessions support Accept edits, Plan, and Auto. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Manual. Bypass permissions is not available because the cloud environment is already sandboxed. Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
 
 ###
 
@@ -94,15 +94,50 @@ Cloud sessions support Accept edits, Plan mode, and Auto mode. Accept edits corr
 
 Preview your app
 
-Claude can start a dev server and open an embedded browser to verify its changes. This works for frontend web apps as well as backend servers: Claude can test API endpoints, view server logs, and iterate on issues it finds. In most cases, Claude starts the server automatically after editing project files. You can also ask Claude to preview at any time. By default, Claude auto-verifies changes after every edit. The preview pane can also open static HTML files, PDFs, images, and videos from your project. Click an HTML, PDF, image, or video path in the chat to open it in preview. From the preview pane, you can:
+Claude can start a dev server and open it in the Browser pane to verify its changes. This works for frontend web apps as well as backend servers: Claude can test API endpoints, view server logs, and iterate on issues it finds. In most cases, Claude starts the server automatically after editing project files. You can also ask Claude to preview at any time. By default, Claude auto-verifies changes after every edit. The Browser pane can also open static HTML files, PDFs, images, and videos from your project. Click an HTML, PDF, image, or video path in the chat to open it there. From the Browser pane, you can:
 
-  * Interact with your running app directly in the embedded browser
+  * Interact with your running app directly in the Browser pane
   * Watch Claude verify its own changes automatically: it takes screenshots, inspects the DOM, clicks elements, fills forms, and fixes issues it finds
-  * Start or stop servers from the **Preview** dropdown in the session toolbar
+  * Start or stop servers from the server dropdown in the session toolbar
   * Persist cookies and local storage across server restarts by selecting **Persist sessions** in the dropdown, so you don’t have to re-login during development
   * Edit the server configuration or stop all servers at once
 
-Claude creates the initial server configuration based on your project. If your app uses a custom dev command, edit `.claude/launch.json` to match your setup. See Configure preview servers for the full reference. To clear saved session data, toggle **Persist preview sessions** off in Settings → Claude Code. To disable preview entirely, toggle off **Preview** in Settings → Claude Code.
+Claude creates the initial server configuration based on your project. If your app uses a custom dev command, edit `.claude/launch.json` to match your setup. See Configure preview servers for the full reference. To clear saved session data, or to turn the Browser off entirely, use the toggles in Settings → Claude Code.
+
+###
+
+​
+
+Browse external sites
+
+The Browser pane is a tabbed browser, so you can open documentation, issue trackers, or any other site next to your running app. To open the Browser, press **Cmd+Shift+B** on macOS or **Ctrl+Shift+B** on Windows, or select it from the **Views** menu. When you click an external link in the chat, a chooser offers **Open in app** to use the Browser pane or **Default browser** to use your own; **Cmd** -click on macOS or **Ctrl** -click on Windows opens a link in your system browser directly. You can sign in to sites in the pane, including popup sign-in flows such as Google OAuth. Claude can read and interact with external pages using the same tools it uses to verify your app, with two additional safety checks:
+
+  * Safety classifiers review Claude’s write actions on external pages, such as clicking and typing, in every permission mode. These are the same classifiers auto mode uses, and when they flag an action, you get a permission prompt regardless of mode.
+  * In permission modes other than Auto and Bypass permissions, a domain allowlist check also applies before Claude navigates to a new site.
+
+####
+
+​
+
+Approve Claude’s actions on a site
+
+The first time Claude acts on an external site, a permission card appears and Claude waits for your choice: **Allow once** , **Always allow** , or **Deny**. **Allow once** approves the action without saving anything. **Always allow** saves the approval for that site on your device, and you can revoke it in Settings. Each site needs its own approval, including subdomains. Your local dev servers and project files don’t need approval, so auto-verify keeps working without prompts. Even on an approved site, Claude won’t purchase items, create accounts, or bypass CAPTCHAs without your input. Browsing in the Browser pane uses the same safety model as the [Claude in Chrome extension](</docs/en/chrome>). See [Using Claude in Chrome safely](<https://support.claude.com/en/articles/12902428-using-claude-in-chrome-safely>) for how Claude handles sensitive sites and risky actions.
+
+####
+
+​
+
+Choose between the Browser and the Chrome extension
+
+The Browser pane uses a clean browser profile, separate from your personal browser, with none of your saved logins or history. Use it for building and testing your app and for sites that don’t need your identity. When you want Claude to act as you in your logged-in sessions, use the [Claude in Chrome extension](</docs/en/chrome>) instead, which shares your browser’s login state.
+
+####
+
+​
+
+Restrict external browsing for your organization
+
+The Browser follows the same [site allowlist and blocklist controls](<https://support.claude.com/en/articles/13065128-claude-in-chrome-admin-controls>) as the Claude in Chrome extension. If your organization already configured those lists for the extension, the Browser respects them automatically. Administrators can also turn off Claude’s tools on external pages with the `browserExternalPageTools` managed setting. With tools disabled, users can still navigate to external sites; Claude’s tools can’t read or act on them.
 
 ###
 
@@ -146,7 +181,7 @@ PR monitoring requires the [GitHub CLI (`gh`)](<https://cli.github.com/>) to be 
 
 Arrange your workspace
 
-The Code tab is built around panes you can arrange in any layout: chat, diff, preview, terminal, file, plan, tasks, and subagent. Drag a pane by its header to reposition it, or drag a pane edge to resize it. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane. Open additional panes from the **Views** menu in the session toolbar.
+The Code tab is built around panes you can arrange in any layout: chat, diff, browser, terminal, file, plan, tasks, and subagent. Drag a pane by its header to reposition it, or drag a pane edge to resize it. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane. Open additional panes from the **Views** menu in the session toolbar.
 
 The pane layout, terminal, file editor, and view modes in this section require Claude Desktop v1.2581.0 or later. Open **Claude → Check for Updates** on macOS or **Help → Check for Updates** on Windows to update.
 
@@ -164,7 +199,7 @@ The integrated terminal lets you run commands alongside your session without swi
 
 Open and edit files
 
-Click a file path in the chat or diff viewer to open it in the file pane. HTML, PDF, image, and video paths open in the preview pane instead. Make spot edits and click **Save** to write them back. If the file changed on disk since you opened it, the pane warns you and lets you override or discard. Click **Discard** to revert your edits, or click the path in the pane header to copy the absolute path. The file pane is available in local and SSH sessions. For cloud sessions, ask Claude to make the change.
+Click a file path in the chat or diff viewer to open it in the file pane. HTML, PDF, image, and video paths open in the Browser pane instead. Make spot edits and click **Save** to write them back. If the file changed on disk since you opened it, the pane warns you and lets you override or discard. Click **Discard** to revert your edits, or click the path in the pane header to copy the absolute path. The file pane is available in local and SSH sessions. For cloud sessions, ask Claude to make the change.
 
 ###
 
@@ -212,8 +247,8 @@ Shortcut| Action
 `Cmd` `Shift` `]` / `Cmd` `Shift` `[`| Next or previous session
 `Esc`| Stop Claude’s response
 `Cmd` `Shift` `D`| Toggle diff pane
-`Cmd` `Shift` `P`| Toggle preview pane
-`Cmd` `Shift` `S`| Select an element in preview
+`Cmd` `Shift` `B`| Toggle Browser pane
+`Cmd` `Shift` `S`| Select an element in the Browser
 `Ctrl` ```| Toggle terminal pane
 `Cmd` `\`| Close focused pane
 `Cmd` `;`| Open side chat
@@ -413,7 +448,7 @@ Install plugins
 
 Configure preview servers
 
-Claude automatically detects your dev server setup and stores the configuration in `.claude/launch.json` at the root of the folder you selected when starting the session. Preview uses this folder as its working directory, so if you selected a parent folder, subfolders with their own dev servers won’t be detected automatically. To work with a subfolder’s server, either start a session in that folder directly or add a configuration manually. To customize how your server starts, for example to use `yarn dev` instead of `npm run dev` or to change the port, edit the file manually or click **Edit configuration** in the Preview dropdown to open it in your code editor. The file supports JSON with comments.
+Claude automatically detects your dev server setup and stores the configuration in `.claude/launch.json` at the root of the folder you selected when starting the session. Preview uses this folder as its working directory, so if you selected a parent folder, subfolders with their own dev servers won’t be detected automatically. To work with a subfolder’s server, either start a session in that folder directly or add a configuration manually. To customize how your server starts, for example to use `yarn dev` instead of `npm run dev` or to change the port, edit the file manually or click **Edit configuration** in the server dropdown to open it in your code editor. The file supports JSON with comments.
 
     {
       "version": "0.0.1",
@@ -435,7 +470,7 @@ You can define multiple configurations to run different servers from the same pr
 
 Auto-verify changes
 
-When `autoVerify` is enabled, Claude automatically verifies code changes after editing files. It takes screenshots, checks for errors, and confirms changes work before completing its response. Auto-verify is on by default. Disable it per-project by adding `"autoVerify": false` to `.claude/launch.json`, or toggle it from the **Preview** dropdown menu.
+When `autoVerify` is enabled, Claude automatically verifies code changes after editing files. It takes screenshots, checks for errors, and confirms changes work before completing its response. Auto-verify is on by default. Disable it per-project by adding `"autoVerify": false` to `.claude/launch.json`, or toggle it from the server dropdown menu.
 
     {
       "version": "0.0.1",
@@ -664,6 +699,7 @@ Key| Description
 `permissions.disableBypassPermissionsMode`| set to `"disable"` to prevent users from enabling Bypass permissions mode.
 `disableAutoMode`| set to `"disable"` to prevent users from enabling [Auto](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) mode. Removes Auto from the mode selector. Also accepted under `permissions`.
 `autoMode`| customize what the auto mode classifier trusts and blocks across your organization. See [Configure auto mode](</docs/en/auto-mode-config>).
+`browserExternalPageTools`| set to `"disabled"` to prevent Claude from using tools to read or act on external pages in the Browser pane. Users can still navigate to external sites themselves, and local dev server previews are unaffected.
 `sshConfigs`| pre-configure SSH connections that appear in the environment dropdown. Users cannot edit or delete managed connections.
 `sshHostAllowlist`| restrict SSH sessions to hosts whose resolved hostname matches one of these patterns. An empty array disables SSH sessions. Read from managed settings only.
 `managedMcpServers`| push MCP server configurations to all users in a third-party deployment. Each entry specifies a transport of `"http"`, `"sse"`, or `"stdio"`, connection details, and optionally a `toolPolicy` map that restricts which tools in that server users can invoke. Available in third-party (3P) Desktop deployments only. Deliver this key through the managed settings file or MDM, since third-party deployments do not receive admin-console settings.
@@ -773,9 +809,9 @@ This table compares core capabilities between the CLI and Desktop. For a full li
 
 Feature| CLI| Desktop
 ---|---|---
-Permission modes| All modes including `dontAsk`| Ask permissions, Auto accept edits, Plan mode, Auto, and Bypass permissions via Settings
+Permission modes| All modes including `dontAsk`| Manual, Accept edits, and Plan. Auto and Bypass permissions appear in the mode selector after you enable them in Settings
 `--dangerously-skip-permissions`| CLI flag| Bypass permissions mode. Enable in Settings → Claude Code → “Allow bypass permissions mode”
-[Third-party providers](</docs/en/third-party-integrations>)| Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry| Anthropic’s API by default. Enterprise deployments can configure Google Cloud’s Agent Platform and gateway providers. See the [enterprise configuration guide](<https://support.claude.com/en/articles/12622667-enterprise-configuration>). To run the Code tab on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or a self-hosted LLM gateway, see the [Cowork on 3P research preview](<https://claude.com/docs/cowork/3p/overview>).
+[Third-party providers](</docs/en/third-party-integrations>)| Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry| Anthropic’s API by default. Enterprise deployments can configure Google Cloud’s Agent Platform and gateway providers. See the [enterprise configuration guide](<https://support.claude.com/en/articles/12622667-enterprise-configuration>). To run the Code tab on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or a self-hosted LLM gateway, see [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>).
 [MCP servers](</docs/en/mcp>)| Configure in settings files| Connectors UI for local and SSH sessions, or settings files
 [Plugins](</docs/en/plugins>)| `/plugin` command| Plugin manager UI
 @mention files| Text-based| With autocomplete; local and SSH sessions only
@@ -795,11 +831,11 @@ What’s not available in Desktop
 
 The following features are only available in the CLI or VS Code extension, except where noted:
 
-  * **Third-party providers** : Desktop connects to Anthropic’s API by default. Enterprise deployments can configure Google Cloud’s Agent Platform and gateway providers via [managed settings](<https://support.claude.com/en/articles/12622667-enterprise-configuration>). For Amazon Bedrock or Microsoft Foundry in the CLI, see the [quickstart](</docs/en/quickstart>). As an exception to the section above, the [Cowork on 3P research preview](<https://claude.com/docs/cowork/3p/overview>) runs the Code tab on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or a self-hosted LLM gateway.
+  * **Third-party providers** : Desktop connects to Anthropic’s API by default. Enterprise deployments can configure Google Cloud’s Agent Platform and gateway providers via [managed settings](<https://support.claude.com/en/articles/12622667-enterprise-configuration>). For Amazon Bedrock or Microsoft Foundry in the CLI, see the [quickstart](</docs/en/quickstart>). As an exception to the section above, [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>) runs the Code tab on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or a self-hosted LLM gateway.
   * **Linux (beta)** : Computer Use isn’t yet available in the Linux desktop app. See [Claude Desktop on Linux](</docs/en/desktop-linux>).
   * **Inline code suggestions** : Desktop does not provide autocomplete-style suggestions. It works through conversational prompts and explicit code changes.
   * **Agent teams** : parallel Claude Code sessions that message each other are available in the [CLI](</docs/en/agent-teams>), not in Desktop. For multi-agent work inside one session, use [dynamic workflows](</docs/en/workflows>), which run in Desktop.
-  * **Terminal-dialog commands** : built-in commands that open an interactive panel in the terminal, such as `/permissions`, `/config`, and `/doctor`, are not available in the Code tab and reply with `isn't available in this environment`. Edit [settings files](</docs/en/settings>) directly to manage permission rules and configuration, or run the command from the standalone CLI.
+  * **Terminal-dialog commands** : built-in commands that open an interactive panel in the terminal, such as `/permissions` and `/config`, are not available in the Code tab and reply with `isn't available in this environment`. `/config` sets a setting when you pass `key=value`, for example `/config theme=dark`; only its picker form is unavailable. Edit [settings files](</docs/en/settings>) directly to manage permission rules and configuration, or run the command from the standalone CLI.
 
 ##
 
