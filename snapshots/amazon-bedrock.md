@@ -171,7 +171,7 @@ The active profile is `AWS_PROFILE` if set, otherwise `default`. Set `AWS_SHARED
 
 Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Amazon Bedrock, which can lag the newest release and may not yet be available in your account. Claude Code falls back to the previous version at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
-Set these environment variables to specific Amazon Bedrock model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Amazon Bedrock resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
+Set these environment variables to specific Amazon Bedrock model IDs. Without these variables, the `opus` alias on Amazon Bedrock resolves to Opus 4.8 and the `sonnet` alias resolves to Sonnet 4.5. Set each variable to pin its alias to a specific version:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='us.anthropic.claude-sonnet-4-6'
@@ -181,7 +181,7 @@ These variables use cross-region inference profile IDs (with the `us.` prefix). 
 
 Model type| Default value
 ---|---
-Primary model| `us.anthropic.claude-sonnet-4-5-20250929-v1:0`
+Primary model| `us.anthropic.claude-opus-4-8`
 Small/fast model| Same as primary model
 
 Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Amazon Bedrock, Claude Code defaults this to the primary model because Haiku may not be enabled in every account or region. To use Haiku for background tasks, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` to a model ID that is available in your account. To customize models further, use one of these methods:

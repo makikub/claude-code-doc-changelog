@@ -35,7 +35,14 @@ Model alias| Behavior
 **`opus[1m]`**|  Uses Opus with a [1 million token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) for long sessions
 **`opusplan`**|  Special mode that uses `opus` during plan mode, then switches to `sonnet` for execution
 
-On the Anthropic API, `opus` resolves to Opus 4.8 and `sonnet` resolves to Sonnet 5. On [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), `opus` resolves to Opus 4.7 and `sonnet` resolves to Sonnet 4.6. On Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry, `opus` resolves to Opus 4.6 and `sonnet` resolves to Sonnet 4.5; newer models are available on those providers by selecting the full model name explicitly or setting `ANTHROPIC_DEFAULT_OPUS_MODEL` or `ANTHROPIC_DEFAULT_SONNET_MODEL`. Aliases point to the recommended version for your provider and update over time. To pin to a specific version, use the full model name, for example `claude-opus-4-8`, or set the corresponding environment variable like `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+What each alias resolves to depends on the provider:
+
+  * **Anthropic API** : `opus` resolves to Opus 4.8 and `sonnet` resolves to Sonnet 5.
+  * **[Claude Platform on AWS](</docs/en/claude-platform-on-aws>)** : `opus` resolves to Opus 4.8 and `sonnet` resolves to Sonnet 4.6.
+  * **Amazon Bedrock and Google Cloud’s Agent Platform** : `opus` resolves to Opus 4.8 and `sonnet` resolves to Sonnet 4.5.
+  * **Microsoft Foundry** : `opus` resolves to Opus 4.6 and `sonnet` resolves to Sonnet 4.5.
+
+Where an alias resolves to an older model, newer models are available by selecting the full model name explicitly or setting `ANTHROPIC_DEFAULT_OPUS_MODEL` or `ANTHROPIC_DEFAULT_SONNET_MODEL`. Aliases point to the recommended version for your provider and update over time. To pin to a specific version, use the full model name, for example `claude-opus-4-8`, or set the corresponding environment variable like `ANTHROPIC_DEFAULT_OPUS_MODEL`.
 
 Sonnet 5 requires Claude Code v2.1.197 or later. Opus 4.8 requires v2.1.154 or later. Run `claude update` to upgrade.
 
@@ -79,7 +86,7 @@ Typing `/model <name>` directly behaves like `Enter`. A model set with `/model` 
   * any name that starts with `claude-`
   * a value you configured yourself as a custom model option or in `modelOverrides`
 
-Claude Code rejects an unrecognized string with `Model "<name>" is not a recognized model id.` and the session keeps its current model, instead of saving the string and failing on the next request. See [the error reference](</docs/en/errors#model-is-not-a-recognized-model-id>) for recovery steps. The check runs only on the Anthropic API. On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), and behind an [LLM gateway](</docs/en/llm-gateway>) or a custom `ANTHROPIC_BASE_URL`, your provider or gateway defines the model names, so Claude Code passes any string through without checking it. The check also doesn’t cover the `--model` flag, the `ANTHROPIC_MODEL` environment variable, or the `model` setting; a mistyped value there produces [There’s an issue with the selected model](</docs/en/errors#there%E2%80%99s-an-issue-with-the-selected-model>) on the first request instead. When the requested model has a scheduled retirement date or is automatically remapped to a newer version, Claude Code shows a warning that names the requested model. Interactive sessions show it as a startup notice. From v2.1.182, the same warning is written to stderr in [non-interactive mode](</docs/en/headless>) when using the default text output format. The check also covers a `model` set in [subagent frontmatter](</docs/en/sub-agents>). The stderr warning is suppressed for `--output-format json` and `stream-json`; read the actual model from the `modelUsage` field of the [result message](</docs/en/headless#get-structured-output>) instead. Example usage:
+Claude Code rejects an unrecognized string with `Model "<name>" is not a recognized model id.` and the session keeps its current model, instead of saving the string and failing on the next request. See [the error reference](</docs/en/errors#model-is-not-a-recognized-model-id>) for recovery steps. The check runs only on the Anthropic API. On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), and behind an [LLM gateway](</docs/en/llm-gateway>) or a custom `ANTHROPIC_BASE_URL`, your provider or gateway defines the model names, so Claude Code passes any string through without checking it. The check also doesn’t cover the `--model` flag, the `ANTHROPIC_MODEL` environment variable, or the `model` setting; a mistyped value there produces [There’s an issue with the selected model](</docs/en/errors#theres-an-issue-with-the-selected-model>) on the first request instead. When the requested model has a scheduled retirement date or is automatically remapped to a newer version, Claude Code shows a warning that names the requested model. Interactive sessions show it as a startup notice. From v2.1.182, the same warning is written to stderr in [non-interactive mode](</docs/en/headless>) when using the default text output format. The check also covers a `model` set in [subagent frontmatter](</docs/en/sub-agents>). The stderr warning is suppressed for `--output-format json` and `stream-json`; read the actual model from the `modelUsage` field of the [result message](</docs/en/headless#get-structured-output>) instead. Example usage:
 
     # Start with Opus
     claude --model opus
@@ -274,9 +281,10 @@ Special model behavior
 The behavior of `default` depends on your account type:
 
   * **Max, Team Premium, Enterprise pay-as-you-go, and Anthropic API** : defaults to Opus 4.8
-  * **Claude Platform on AWS** : defaults to Opus 4.7
+  * **Claude Platform on AWS** : defaults to Opus 4.8
   * **Pro, Team Standard, and Enterprise subscription seats** : defaults to Sonnet 5
-  * **Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry** : defaults to Sonnet 4.5
+  * **Amazon Bedrock and Google Cloud’s Agent Platform** : defaults to Opus 4.8
+  * **Microsoft Foundry** : defaults to Sonnet 4.5
 
 Enterprise pay-as-you-go means an Enterprise organization billed by usage rather than by subscription seat. When an admin has set an organization default model, `default` resolves to that model instead of the account-type default above. Requires Claude Code v2.1.196 or later. When managed settings enforce the allowlist for the Default model and the account-type default is not in `availableModels`, `default` resolves to the enforced Default instead of the account-type default above. When both apply, the organization default replaces the account-type default first and enforcement then applies to it: an allowlisted organization default is kept, while one outside the list resolves to the enforced Default. Fable 5 is not the default model on any account type. Sessions use Fable 5 only after you choose it, with `/model fable`, a `model` setting, or the `best` alias where Fable 5 is available. Choosing it with `/model` saves it as the selected model in your user settings, so later sessions start on Fable 5 until you change models.
 
@@ -320,7 +328,7 @@ The `--fallback-model` flag takes precedence over the `fallbackModel` setting. E
 
 Automatic model fallback
 
-This section covers content-based fallback from Fable 5. For availability-based fallback when a model is overloaded or unavailable, see Fallback model chains. Fable 5 runs with safety classifiers for cybersecurity and biology content. When a classifier flags a request, Claude Code re-runs that request on the default Opus model and shows a notice in the transcript: Opus 4.8 on the Anthropic API and [LLM gateway](</docs/en/llm-gateway>) deployments, or Opus 4.7 on [Claude Platform on AWS](</docs/en/claude-platform-on-aws>). The session then continues on that Opus model. To return to Fable 5, run `/model fable`. The fallback target is checked against `availableModels`. When it is blocked, no fallback occurs. The refusal is shown as a normal error and the session’s model is unchanged.
+This section covers content-based fallback from Fable 5. For availability-based fallback when a model is overloaded or unavailable, see Fallback model chains. Fable 5 runs with safety classifiers for cybersecurity and biology content. When a classifier flags a request, Claude Code re-runs that request on Opus 4.8 and shows a notice in the transcript. The session then continues on that Opus model. To return to Fable 5, run `/model fable`. The fallback target is checked against `availableModels`. When it is blocked, no fallback occurs. The refusal is shown as a normal error and the session’s model is unchanged.
 
 ####
 

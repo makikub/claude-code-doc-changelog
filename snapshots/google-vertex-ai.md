@@ -152,7 +152,7 @@ Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See 
 
 Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Google Cloud’s Agent Platform, which can lag the newest release and may not yet be enabled in your project. Claude Code falls back to the previous version at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
-Set these environment variables to specific Google Cloud’s Agent Platform model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Google Cloud’s Agent Platform resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
+Set these environment variables to specific Google Cloud’s Agent Platform model IDs. Without these variables, the `opus` alias on Google Cloud’s Agent Platform resolves to Opus 4.8 and the `sonnet` alias resolves to Sonnet 4.5. Set each variable to pin its alias to a specific version:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-5'
@@ -162,7 +162,7 @@ For current and legacy model IDs, see [Models overview](<https://platform.claude
 
 Model type| Default value
 ---|---
-Primary model| `claude-sonnet-4-5@20250929`
+Primary model| `claude-opus-4-8`
 Small/fast model| Same as primary model
 
 Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Google Cloud’s Agent Platform, Claude Code defaults this to the primary model because Haiku may not be enabled in every project or region. To use Haiku for background tasks, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` to a model ID that is available in your project. To customize models further:

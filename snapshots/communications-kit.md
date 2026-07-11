@@ -304,7 +304,7 @@ Control and safety
     it to ship. You shouldn't have to pick one forever.
 
     *Shift+Tab* cycles through how much Claude can do without asking: *Manual* (the
-    `default` setting value) asks before each action, *acceptEdits* lets file
+    `default` setting value) asks before file edits and most shell commands, *acceptEdits* lets file
     edits and common filesystem commands
     flow through while still checking before other shell commands, and *plan*
     proposes changes for your approval before anything is touched. Plan mode is
@@ -516,7 +516,7 @@ Question| Response
 ”Does it work in VS Code?”| Yes. There is a VS Code extension and a JetBrains plugin with the same features, embedded in your editor. [VS Code →](</docs/en/vs-code>)
 “Do I have to configure anything first?”| No. Install, then run `claude` in any repo. Run `/init` once and you’re set. [Quickstart →](</docs/en/quickstart>)
 “Where does my code go?”| The CLI runs in your terminal and sends context to Anthropic’s API for inference, with no third-party servers. Under your Enterprise plan, your code and prompts are not used to train models. [Data usage →](</docs/en/data-usage>)
-“Can it see my whole repo?”| It reads what you give it access to. File reads inside your working directory don’t prompt; permission prompts gate edits, shell commands, and anything outside that directory. [Permissions →](</docs/en/permissions>)
+“Can it see my whole repo?”| It reads what you give it access to. File reads inside your working directory don’t prompt; permission prompts gate edits, non-read-only shell commands, and file-tool reads outside that directory. A built-in set of read-only shell commands such as `ls` and `cat` runs without prompting; restrict it with [sandbox `denyRead` rules](</docs/en/sandboxing#filesystem-isolation>). [Permissions →](</docs/en/permissions>)
 “How is this different from Copilot?”| Copilot autocompletes lines. Claude Code is an agent that reads files, runs commands, and makes multi-file edits. [Overview →](</docs/en/overview>)
 “What should I try first?”| A bug you’ve been putting off because it’s tedious. “The test in [file] is flaky, figure out why.” [Quickstart →](</docs/en/quickstart>)
 
