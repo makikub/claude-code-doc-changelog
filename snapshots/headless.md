@@ -152,7 +152,12 @@ Field| Type| Description
 `uuid`| string| unique event identifier
 `session_id`| string| session the event belongs to
 
-The `system/init` event reports session metadata including the model, tools, MCP servers, and loaded plugins. It is the first event in the stream unless [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](</docs/en/env-vars>) is set, in which case `plugin_install` events precede it. The event also carries an optional `capabilities` array of strings naming the protocol behaviors this Claude Code version implements, such as `interrupt_receipt_v1`. Check it to feature-detect instead of comparing version strings, and ignore values you don’t recognize. The field requires Claude Code v2.1.205 or later and is absent from earlier versions. See [`SDKSystemMessage`](</docs/en/agent-sdk/typescript#sdksystemmessage>) for the capability list. Use the plugin fields to fail CI when a plugin did not load:
+The `system/init` event reports session metadata including the model, tools, MCP servers, and loaded plugins. It is the first event in the stream unless startup events precede it:
+
+  * `plugin_install` events, when [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](</docs/en/env-vars>) is set.
+  * [`hook_started`, `hook_progress`, and `hook_response` events](</docs/en/agent-sdk/typescript#sdkhookstartedmessage>), while a configured [`SessionStart`](</docs/en/hooks#sessionstart>) or [`Setup`](</docs/en/hooks#setup>) hook runs. These stream as the hook produces them. Claude Code v2.1.169 through v2.1.203 delivered them in one batch after the hook completed, still ahead of `system/init`; v2.1.204 restored live delivery.
+
+The event also carries an optional `capabilities` array of strings naming the protocol behaviors this Claude Code version implements, such as `interrupt_receipt_v1`. Check it to feature-detect instead of comparing version strings, and ignore values you don’t recognize. The field requires Claude Code v2.1.205 or later and is absent from earlier versions. See [`SDKSystemMessage`](</docs/en/agent-sdk/typescript#sdksystemmessage>) for the capability list. Use the plugin fields to fail CI when a plugin did not load:
 
 Field| Type| Description
 ---|---|---

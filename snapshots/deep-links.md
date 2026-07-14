@@ -7,8 +7,6 @@ A deep link is a `claude-cli://` URL that opens Claude Code in a new terminal wi
 
 This page covers how to build a link, embed one in a runbook or trigger it from the shell, and manage or disable handler registration on each platform.
 
-Deep links require Claude Code v2.1.91 or later.
-
 ##
 
 ​

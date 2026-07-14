@@ -100,6 +100,14 @@ Amazon Bedrock API keys provide a simpler authentication method without needing 
 
 ​
 
+Credential caching and resolution timeout
+
+Claude Code resolves the AWS default credential provider chain once and keeps the resolved credentials in memory. It reuses them until five minutes before they expire, or for one hour when they carry no expiration, so an SSO-backed profile requests credentials from IAM Identity Center about once per credential lifetime. A credential error from the API clears the cache, and the retry resolves fresh credentials. Before v2.1.207, Claude Code resolved the chain on every API request, so an SSO-backed profile requested fresh credentials from IAM Identity Center each time and could be throttled in large deployments. The cache covers every credential option above except an Amazon Bedrock API key, which doesn’t use the provider chain. To resolve the chain on every request instead, set [`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1`](</docs/en/env-vars>). Each resolve of the chain times out after 60 seconds. If a step in the chain stalls, for example a `credential_process` helper that waits for input it can’t receive, the request fails with [`AWS default-chain credential resolve timed out`](</docs/en/errors#aws-default-chain-credential-resolve-timed-out>). If your chain runs an interactive sign-in that legitimately needs longer, such as browser-based SSO with MFA through a wrapper like `aws-vault`, raise the limit in milliseconds with [`CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS`](</docs/en/env-vars>). Before v2.1.207, a stalled credential resolution left the request waiting indefinitely.
+
+####
+
+​
+
 Advanced credential configuration
 
 Claude Code supports automatic credential refresh for AWS SSO and corporate identity providers. Add these settings to your Claude Code settings file (see [Settings](</docs/en/settings>) for file locations). These two settings have different trigger conditions:
@@ -129,7 +137,7 @@ Claude Code supports automatic credential refresh for AWS SSO and corporate iden
       }
     }
 
-As of Claude Code v2.1.181, the flat output from `aws configure export-credentials --format process` is also accepted, with the same keys at the top level instead of nested under `Credentials`. `Expiration` is optional. As of Claude Code v2.1.176, when the command returns a valid ISO 8601 `Expiration`, Claude Code caches the credentials until five minutes before that time. Without it, or on earlier versions, credentials are cached for one hour.
+As of Claude Code v2.1.181, the flat output from `aws configure export-credentials --format process` is also accepted, with the same keys at the top level instead of nested under `Credentials`. `Expiration` is optional. As of Claude Code v2.1.176, when the command returns a valid ISO 8601 `Expiration`, Claude Code caches the credentials until five minutes before that time. Without it, or on earlier versions, credentials are cached for one hour. When you configure `awsCredentialExport` without `awsAuthRefresh`, Claude Code uses the exported credentials directly and doesn’t re-resolve the AWS default credential provider chain at startup. Before v2.1.206, startup also re-resolved the default provider chain, which made a live SSO or STS call outside your proxy configuration and could block the first prompt for several minutes on networks with restricted egress.
 
 ###
 
@@ -169,9 +177,9 @@ The active profile is `AWS_PROFILE` if set, otherwise `default`. Set `AWS_SHARED
 
 4\. Pin model versions
 
-Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Amazon Bedrock, which can lag the newest release and may not yet be available in your account. Claude Code falls back to the previous version at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
+Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Amazon Bedrock, which can lag the newest release and may not yet be available in your account. Claude Code falls back to an earlier or lower-tier model at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
-Set these environment variables to specific Amazon Bedrock model IDs. Without these variables, the `opus` alias on Amazon Bedrock resolves to Opus 4.8 and the `sonnet` alias resolves to Sonnet 4.5. Set each variable to pin its alias to a specific version:
+Set these environment variables to specific Amazon Bedrock model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Amazon Bedrock resolves to Opus 4.8, and without `ANTHROPIC_DEFAULT_SONNET_MODEL`, the `sonnet` alias resolves to Sonnet 4.5. This example pins each alias to a specific version:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='us.anthropic.claude-sonnet-4-6'
@@ -182,9 +190,16 @@ These variables use cross-region inference profile IDs (with the `us.` prefix). 
 Model type| Default value
 ---|---
 Primary model| `us.anthropic.claude-opus-4-8`
-Small/fast model| Same as primary model
+Small/fast model| `us.anthropic.claude-sonnet-4-5-20250929-v1:0`
 
-Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Amazon Bedrock, Claude Code defaults this to the primary model because Haiku may not be enabled in every account or region. To use Haiku for background tasks, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` to a model ID that is available in your account. To customize models further, use one of these methods:
+Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Amazon Bedrock, Claude Code uses the default Sonnet model for background tasks because Haiku may not be enabled in every account or region. Two selections change which model carries them:
+
+  * When you select a primary model with `--model`, `ANTHROPIC_MODEL`, or the `model` setting, background tasks use that model. Setting `ANTHROPIC_DEFAULT_OPUS_MODEL` without `ANTHROPIC_DEFAULT_SONNET_MODEL` counts as a selection too, because the built-in Sonnet model may not be enabled in an account that steers its own Opus.
+  * To use Haiku for background tasks, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` to a model ID that is available in your account.
+
+Opus models have a higher per-token price than Sonnet models, so a deployment that doesn’t pin a primary model is billed at the Opus rate once it updates to v2.1.207 or later. To keep Sonnet 4.5 as the primary model, set `ANTHROPIC_MODEL` to its full model ID. A deployment that steers the default with `ANTHROPIC_DEFAULT_SONNET_MODEL` and doesn’t set `ANTHROPIC_DEFAULT_OPUS_MODEL` keeps its steered Sonnet model as the default.
+
+Before v2.1.207, the primary model on Amazon Bedrock defaulted to Sonnet 4.5, the `opus` alias resolved to Opus 4.6, and background tasks always used the primary model. To customize models further, use one of these methods:
 
     # Using inference profile ID
     export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6'
@@ -228,7 +243,7 @@ When a user selects one of these versions in `/model`, Claude Code calls Amazon 
 
 Startup model checks
 
-When Claude Code starts with Amazon Bedrock configured, it verifies that the models it intends to use are accessible in your account. This check requires Claude Code v2.1.94 or later. If you have pinned a model version that is older than the current Claude Code default, and your account can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](</docs/en/settings>) and restarts Claude Code. Declining is remembered until the next default version change. Pins that point to an application inference profile ARN are skipped, since those are managed by your administrator. If you have not pinned a model and the current default is unavailable in your account, Claude Code falls back to the previous version for the current session and shows a notice. The fallback is not persisted. Enable the newer model in your Amazon Bedrock account or pin a version to make the choice permanent.
+When Claude Code starts with Amazon Bedrock configured, it verifies that the models it intends to use are accessible in your account. If you have pinned a model version that is older than the current Claude Code default, and your account can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](</docs/en/settings>) and restarts Claude Code. Declining is remembered until the next default version change. Pins that point to an application inference profile ARN are skipped, since those are managed by your administrator. If you have not pinned a model and the current default is unavailable in your account, Claude Code falls back for the current session and shows a notice. It tries earlier versions of the default model first and, when the default is an Opus model and no Opus version is available, falls back to the default Sonnet model. The fallback is not persisted. Enable the newer model in your Amazon Bedrock account or pin a version to make the choice permanent.
 
 ##
 
@@ -283,7 +298,7 @@ Create a dedicated AWS account for Claude Code to simplify cost tracking and acc
 
 1M token context window
 
-Claude Sonnet 5, Opus 4.6 and later, and Sonnet 4.6 support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window>) on Amazon Bedrock. Sonnet 5 is served through the Mantle endpoint and always runs with the 1M window, with no `[1m]` variant to select. For the other models, Claude Code automatically enables the extended context window when you select a 1M model variant. The setup wizard offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
+Claude Sonnet 5, Opus 4.6 and later, and Sonnet 4.6 support the [1M token context window](<https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model>) on Amazon Bedrock. Sonnet 5 is served through the Mantle endpoint and always runs with the 1M window, with no `[1m]` variant to select. For the other models, Claude Code automatically enables the extended context window when you select a 1M model variant. The setup wizard offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>) for details.
 
 ##
 
@@ -318,8 +333,6 @@ AWS Guardrails
 Use the Mantle endpoint
 
 Mantle is an Amazon Bedrock endpoint that serves Claude models through the native Anthropic API shape rather than the Amazon Bedrock Invoke API. It uses the same AWS credentials, IAM permissions, and `awsAuthRefresh` configuration described earlier on this page.
-
-Mantle requires Claude Code v2.1.94 or later. Run `claude --version` to check.
 
 ###
 

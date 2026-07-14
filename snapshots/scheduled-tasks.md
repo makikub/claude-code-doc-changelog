@@ -1,5 +1,3 @@
-Scheduled tasks require Claude Code v2.1.72 or later. Check your version with `claude --version`.
-
 Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](</docs/en/channels>): your CI can push the failure into the session directly. To keep the session working turn after turn until a condition is met rather than on an interval, see [`/goal`](</docs/en/goal>). Tasks are session-scoped: they live in the current conversation and stop when you start a new one. Resuming with `--resume` or `--continue` brings back any task that hasn’t expired: a recurring task created within the last 7 days, or a one-shot whose scheduled time hasn’t passed yet. For scheduling that survives independently of any session, use [Routines](</docs/en/routines>) to create a routine on Anthropic-managed infrastructure, set up a [Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), or use [GitHub Actions](</docs/en/github-actions>).
 
 ##

@@ -48,6 +48,19 @@ Windows user registry| `HKCU\SOFTWARE\Policies\ClaudeCode`| Lowest| Windows only
 
 A configured [`policyHelper`](</docs/en/settings#compute-managed-settings-with-a-policy-helper>) preempts all four sources: its output becomes the only managed configuration for the run. See [Settings precedence](</docs/en/settings#settings-precedence>). Server-managed settings reach devices at authentication time and refresh hourly during active sessions, with no endpoint infrastructure. Delivery through the claude.ai admin console requires a Claude for Teams or Enterprise plan. Deployments on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry can get the same remote delivery by running a [Claude apps gateway](</docs/en/claude-apps-gateway>), or use one of the file-based or OS-level mechanisms instead. If your organization mixes providers, configure [server-managed settings](</docs/en/server-managed-settings>) for claude.ai users plus a [file-based or plist/registry fallback](</docs/en/settings#settings-files>) so other users still receive managed policy. The plist and HKLM registry locations work with any provider and resist tampering because they require admin privileges to write. The Windows user registry at HKCU is writable without elevation, so treat it as a convenience default rather than an enforcement channel. By default, WSL reads only the Linux file path at `/etc/claude-code`. To extend your Windows registry and `C:\Program Files\ClaudeCode` policy to WSL on the same machine, set [`wslInheritsWindowsSettings: true`](</docs/en/settings#available-settings>) in either of those admin-only Windows sources. Whichever mechanism you choose, managed values take precedence over user and project settings. Array settings such as `permissions.allow` and `permissions.deny` merge entries from all sources, so developers can extend managed lists but not remove from them. For [two exceptions](</docs/en/settings#settings-precedence>), `fallbackModel` and `availableModels`, the managed value replaces lower layers rather than merging. See [Server-managed settings](</docs/en/server-managed-settings>) and [Settings files and precedence](</docs/en/settings#settings-files>).
 
+###
+
+​
+
+WSL sessions in Claude Code Desktop
+
+On Windows, [Claude Code Desktop can run Code sessions inside a WSL 2 distribution](</docs/en/desktop-wsl>). The session’s Claude Code process runs inside the distribution, so it resolves managed settings through the WSL discovery path above: Windows-only sources don’t reach it unless `wslInheritsWindowsSettings: true` is deployed. On devices where managed settings are present, Desktop WSL sessions are unavailable by default. If your organization wants to enable them, contact your Anthropic account team. When they’re enabled:
+
+  * Deploy `wslInheritsWindowsSettings: true` through the HKLM registry or the `C:\Program Files\ClaudeCode` file so WSL sessions inherit the same policy as host sessions.
+  * Verify by running `/status` inside a WSL session: the `Setting sources` line should show `Enterprise managed settings` with the Windows source you deployed, `(HKLM)` or `(file)`.
+
+Processes inside the WSL 2 utility VM aren’t visible to Windows-side endpoint detection sensors. If you use CrowdStrike Falcon, enable the Falcon sensor for Linux on WSL 2 with the two exclusions CrowdStrike’s WSL documentation requires, for the WSL virtual machine process and the VM disk image, so in-distro process and file activity is observable. Claude Code’s [OpenTelemetry tool-execution telemetry](</docs/en/monitoring-usage>) is emitted identically for WSL and native sessions.
+
 ##
 
 ​
@@ -79,15 +92,16 @@ Organizations whose members authenticate through claude.ai or the Anthropic API 
 
 Set up usage visibility
 
-Choose monitoring based on what you need to report on.
+Choose monitoring based on what you need to report on. The dashboards, APIs, and spend controls differ between Claude for Teams or Enterprise plans and Claude Console organizations, so check the Availability column before you plan your reporting around a capability.
 
 Capability| What you get| Availability| Where to start
 ---|---|---|---
 Usage monitoring| OpenTelemetry export of sessions, tools, and tokens| All providers| [Monitoring usage](</docs/en/monitoring-usage>)
-Analytics dashboard| Per-user metrics, contribution tracking, leaderboard| Anthropic only| [Analytics](</docs/en/analytics>)
-Cost tracking| Spend limits, rate limits, and usage attribution| Anthropic; on third-party clouds, a [Claude apps gateway](</docs/en/claude-apps-gateway>) provides per-user attribution and [spend limits](</docs/en/claude-apps-gateway-spend-limits>)| [Costs](</docs/en/costs>)
+Analytics dashboard| Adoption and contribution metrics with a leaderboard on Teams / Enterprise; per-user usage and spend metrics on Console| Teams / Enterprise at [claude.ai/analytics](<https://claude.ai/analytics/claude-code>), Console at [platform.claude.com/claude-code](<https://platform.claude.com/claude-code>)| [Analytics](</docs/en/analytics>)
+Programmatic reporting| Per-user usage and cost data over an API| [Enterprise Analytics API](<https://platform.claude.com/docs/en/api/admin/analytics>) for Enterprise, [Claude Code Analytics API](<https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api>) for Console| [Costs](</docs/en/costs#manage-costs-for-your-organization>)
+Spend controls| Spend limits and rate limits| Admin settings for Teams / Enterprise, workspace limits for Console; on third-party clouds, cloud budget controls or a [Claude apps gateway](</docs/en/claude-apps-gateway>) with per-user [spend limits](</docs/en/claude-apps-gateway-spend-limits>)| [Costs](</docs/en/costs#manage-costs-for-your-organization>)
 
-Cloud providers expose spend through AWS Cost Explorer, GCP Billing, or Azure Cost Management. Claude for Teams and Enterprise plans include a usage dashboard at [claude.ai/analytics/claude-code](<https://claude.ai/analytics/claude-code>).
+On Teams and Enterprise, per-user usage and spend numbers come from the [spend report](<https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans>) in your organization’s analytics settings, not the analytics dashboard. Cloud providers expose spend through AWS Cost Explorer, GCP Billing, or Azure Cost Management. For planning enterprise budgets across Claude chat, Claude Code, and Cowork, see the [Claude Enterprise consumption guide](<https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide>).
 
 ##
 

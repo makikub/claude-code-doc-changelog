@@ -44,7 +44,7 @@ The cycle Claude works through for every task: gather context, take action, veri
 
 Artifact
 
-A live, interactive web page Claude Code publishes from your session to a private URL on claude.ai, so you can see output visually or share it inside your organization instead of reading terminal text. The page updates in place when the session republishes. Artifacts you create from Claude Code appear in the same gallery as artifacts created in claude.ai conversations, but their sharing stops at your organization and they cannot be made public. Learn more: [Share session output as artifacts](</docs/en/artifacts>)
+A live, interactive web page Claude Code publishes from your session to a private URL on claude.ai, so you can see output visually or share it instead of reading terminal text. The page updates in place when the session republishes. Artifacts you create from Claude Code appear in the same gallery as artifacts created in claude.ai conversations. Sharing depends on your plan: on Pro and Max, a public link that anyone can open; on Team and Enterprise, sharing within your organization, plus public links once an Owner enables them. Learn more: [Share session output as artifacts](</docs/en/artifacts>)
 
 ###
 
@@ -104,7 +104,7 @@ An MCP server that pushes events into your running session so Claude can react t
 
 Checkpoint
 
-A restore point created at each prompt you send. Claude Code snapshots files before every edit so a checkpoint can revert them. Press `Esc` twice or run `/rewind` to restore code, conversation, or both to an earlier point, or to summarize part of the conversation from a selected message. Checkpoints are local to the session, separate from git, and don’t track changes made through the Bash tool. Learn more: [Checkpointing](</docs/en/checkpointing>)
+A restore point created at each prompt you send. Claude Code snapshots files before every edit so a checkpoint can revert them. Press `Esc` twice or run `/rewind` to restore code, conversation, or both to an earlier point, or to summarize part of the conversation from a selected message. Checkpoints are saved with the conversation, so a resumed session can still `/rewind` to them. They’re separate from git and don’t track changes made through the Bash tool. Learn more: [Checkpointing](</docs/en/checkpointing>)
 
 ###
 
@@ -244,7 +244,7 @@ N
 
 Non-interactive mode
 
-A mode that executes a single prompt and exits without a conversational session, invoked with `-p` or `--print`. Used for CI, scripts, and piping. The [Agent SDK](</docs/en/agent-sdk/overview>) is the Python and TypeScript equivalent. Formerly called headless mode. Learn more: [Run Claude Code programmatically](</docs/en/headless>)
+A mode that executes a single prompt and exits without an interactive prompt, invoked with `-p` or `--print`. Used for CI, scripts, and piping. The run is still saved as a resumable session unless you pass `--no-session-persistence`. The [Agent SDK](</docs/en/agent-sdk/overview>) is the Python and TypeScript equivalent. Formerly called headless mode. Learn more: [Run Claude Code programmatically](</docs/en/headless>)
 
 ##
 
@@ -272,7 +272,7 @@ P
 
 Permission mode
 
-The baseline approval behavior for the session. Cycle with `Shift+Tab` in the CLI or use the mode selector in VS Code, Desktop, and claude.ai. Available modes are `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, and `bypassPermissions`. The `default` mode is labeled Manual in the CLI and in the VS Code and JetBrains extensions, and Claude Code accepts `manual` as an alias for the value. Learn more: [Choose a permission mode](</docs/en/permission-modes>)
+The baseline approval behavior for the session. Cycle with `Shift+Tab` in the CLI or use the mode selector in VS Code, Desktop, and claude.ai. Available modes are `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, and `bypassPermissions`. The `default` mode is labeled Manual in the CLI, in the VS Code and JetBrains extensions, and in the desktop app, and Claude Code accepts `manual` as an alias for the value. Learn more: [Choose a permission mode](</docs/en/permission-modes>)
 
 ###
 

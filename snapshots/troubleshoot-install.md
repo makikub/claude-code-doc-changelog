@@ -148,7 +148,7 @@ If this prints nothing, no `claude` is on your PATH yet. Go back to Verify your 
 
     ls -la ~/.local/bin/claude
 
-If either `ls` command prints `No such file or directory`, that’s not an error. It means nothing is installed at that location, so move on to the next check.
+A native install shows a symlink into `~/.local/share/claude/versions/`. A script or a symlink you created yourself at this path is a custom launcher, which [auto-update leaves in place](</docs/en/setup#auto-updates>).If either `ls` command prints `No such file or directory`, that’s not an error. It means nothing is installed at that location, so move on to the next check.
 
     ls -la ~/.claude/local/
 

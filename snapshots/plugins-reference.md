@@ -254,7 +254,7 @@ Plugin monitors require Claude Code v2.1.105 or later.
     [
       {
         "name": "deploy-status",
-        "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/poll-deploy.sh ${user_config.api_endpoint}",
+        "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/poll-deploy.sh",
         "description": "Deployment status changes"
       },
       {
@@ -279,7 +279,7 @@ Field| Description
 ---|---
 `when`| Controls when the monitor starts. `"always"` starts it at session start and on plugin reload, and is the default. `"on-skill-invoke:<skill-name>"` starts it the first time the named skill in this plugin is dispatched
 
-The `command` value supports the same variable substitutions as MCP and LSP server configs: `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`, `${CLAUDE_PROJECT_DIR}`, `${user_config.*}`, and any `${ENV_VAR}` from the environment. Prefix the command with `cd "${CLAUDE_PLUGIN_ROOT}" && ` if the script needs to run from the plugin’s own directory. Disabling a plugin mid-session does not stop monitors that are already running. They stop when the session ends.
+The `command` value supports the path substitutions `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`, and `${CLAUDE_PROJECT_DIR}`, plus any `${ENV_VAR}` from the environment. Prefix the command with `cd "${CLAUDE_PLUGIN_ROOT}" && ` if the script needs to run from the plugin’s own directory. A monitor `command` can’t reference `${user_config.*}` values. The command runs through a shell, so Claude Code rejects the monitor with an [error](</docs/en/errors#plugin-command-references-user-config>) instead of substituting the value. Have the monitor script read the value from a config file it owns. Before v2.1.207, monitor commands substituted `${user_config.*}` values. Disabling a plugin mid-session does not stop monitors that are already running. They stop when the session ends.
 
 ###
 
@@ -536,7 +536,7 @@ Field| Required| Description
 `multiple`| No| For `string` type, allow an array of strings
 `min` / `max`| No| Bounds for `number` type
 
-Each value is available for substitution as `${user_config.KEY}` in MCP and LSP server configs, hook commands, and monitor commands. Non-sensitive values can also be substituted in skill and agent content. All values are exported to plugin subprocesses as `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables. Non-sensitive values are stored in `settings.json` under `pluginConfigs[<plugin-id>].options`. Sensitive values go to the system keychain (or `~/.claude/.credentials.json` where the keychain is unavailable). Keychain storage is shared with OAuth tokens and has an approximately 2 KB total limit, so keep sensitive values small.
+Each value is available for substitution as `${user_config.KEY}` in MCP and LSP server configs, except the MCP [`headersHelper`](</docs/en/mcp#use-dynamic-headers-for-custom-authentication>) field, and in [exec-form](</docs/en/hooks#exec-form-and-shell-form>) hook commands. Non-sensitive values can also be substituted in skill and agent content. All values are exported to hook processes as `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables, where `<KEY>` is the option key uppercased. Claude Code rejects a `${user_config.KEY}` reference in any command string it passes to a shell: a shell-form hook command, a monitor command, or an MCP `headersHelper`. Substituting a configured value into a shell command would let the shell run whatever that value contains, so the component fails with an [error](</docs/en/errors#plugin-command-references-user-config>) instead. For a hook, switch to exec form or read `$CLAUDE_PLUGIN_OPTION_<KEY>` from the environment. For a monitor or `headersHelper`, read the value inside the script. Before v2.1.207, these command strings substituted `${user_config.KEY}` values. Non-sensitive values are stored under the [`pluginConfigs`](</docs/en/settings#pluginconfigs>) key in `settings.json` as `pluginConfigs[<plugin-id>].options`. Claude Code writes the key to user settings and reads it back from user settings, the `--settings` flag, and managed settings only; entries in a project’s `.claude/settings.json` or `.claude/settings.local.json` are ignored. Before v2.1.207, Claude Code also read project and local settings. Sensitive values go to the macOS Keychain, or to `~/.claude/.credentials.json` on platforms where no supported keychain is available. Keychain storage is shared with OAuth tokens and has an approximately 2 KB total limit, so keep sensitive values small.
 
 ###
 
