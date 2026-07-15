@@ -13,6 +13,8 @@ For the `model` setting in Claude Code, you can configure either:
     * Microsoft Foundry: a deployment name
     * Google Cloud’s Agent Platform: a version name
 
+For guidance on which model and effort level fit different kinds of work, see [Choosing a Claude model and effort level in Claude Code](<https://claude.com/blog/claude-model-and-effort-level-in-claude-code>) on the blog.
+
 `ANTHROPIC_BASE_URL` changes where requests are sent, not which model answers them. To route Claude through an LLM gateway, see [LLM gateways](</docs/en/llm-gateway>).
 
 ###
@@ -536,7 +538,7 @@ Environment variable| Description
 `ANTHROPIC_DEFAULT_OPUS_MODEL`| The model to use for `opus`, or for `opusplan` when Plan Mode is active.
 `ANTHROPIC_DEFAULT_SONNET_MODEL`| The model to use for `sonnet`, or for `opusplan` when Plan Mode is not active.
 `ANTHROPIC_DEFAULT_HAIKU_MODEL`| The model to use for `haiku`, or [background functionality](</docs/en/costs#background-token-usage>)
-`CLAUDE_CODE_SUBAGENT_MODEL`| The model to use for all [subagents](</docs/en/sub-agents#choose-a-model>) and [agent teams](</docs/en/agent-teams>). Overrides the per-invocation `model` parameter and the subagent definition’s `model` frontmatter. Set to `inherit` to use normal model resolution instead
+`CLAUDE_CODE_SUBAGENT_MODEL`| The model to use for all [subagents](</docs/en/sub-agents#choose-a-model>), [agent teams](</docs/en/agent-teams>), and the agents a [workflow](</docs/en/workflows>) runs. Accepts an alias such as `haiku` or a full model name, and overrides the per-invocation `model` parameter and the subagent definition’s `model` frontmatter. Set to `inherit` to use normal model resolution instead
 
 Note: `ANTHROPIC_SMALL_FAST_MODEL` is deprecated in favor of `ANTHROPIC_DEFAULT_HAIKU_MODEL`.
 

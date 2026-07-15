@@ -68,7 +68,7 @@ You can delete individual Claude Code on the web sessions at any time. Deleting 
 
 Data access
 
-For all first party users, you can learn more about what data is logged for local Claude Code and remote Claude Code. [Remote Control](</docs/en/remote-control>) sessions follow the local data flow since all execution happens on your machine. Note for remote Claude Code, Claude accesses the repository where you initiate your Claude Code session. Claude does not access repositories that you have connected but have not started a session in.
+For all first party users, you can learn more about what data is logged for local Claude Code and remote Claude Code. [Remote Control](</docs/en/remote-control>) sessions follow the local data flow since all execution happens on your machine; while connected, the session transcript is also stored on Anthropic servers to sync the conversation across devices, as described in [Connection and security](</docs/en/remote-control#connection-and-security>). Note for remote Claude Code, Claude accesses the repository where you initiate your Claude Code session. Claude does not access repositories that you have connected but have not started a session in.
 
 ##
 

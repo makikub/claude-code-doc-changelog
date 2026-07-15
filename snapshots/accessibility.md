@@ -16,7 +16,7 @@ Pick the method that matches how often you use a screen reader:
 
 The methods are listed in precedence order: the [`--ax-screen-reader`](</docs/en/cli-reference#cli-flags>) flag overrides the [`CLAUDE_AX_SCREEN_READER`](</docs/en/env-vars>) environment variable, which overrides the [`axScreenReader`](</docs/en/settings#available-settings>) setting.
 
-If you use Claude Code over SSH, set the environment variable or setting on the remote machine where Claude Code runs. When the mode is on, the first thing Claude Code prints is a confirmation line naming the method that turned it on: `[Screen Reader Mode: on via flag]`, `[Screen Reader Mode: on via env]`, or `[Screen Reader Mode: on via settings]`; this method-naming format requires Claude Code v2.1.206 or later. Earlier versions print `[Accessible screen reader mode: on]`.
+If you use Claude Code over SSH, set the environment variable or setting on the remote machine where Claude Code runs. When the mode is on, the first thing Claude Code prints is a confirmation line naming the method that turned it on: `[Screen Reader Mode: on via flag]`, `[Screen Reader Mode: on via env]`, or `[Screen Reader Mode: on via settings]`. The method-naming format requires Claude Code v2.1.206 or later. When Claude Code relaunches itself, for example to finish installing an update, the new process inherits the mode through the `CLAUDE_AX_SCREEN_READER` environment variable, so its confirmation line reads `[Screen Reader Mode: on via env]` regardless of which method you used. Earlier versions print `[Accessible screen reader mode: on]`.
 
 ##
 

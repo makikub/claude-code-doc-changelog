@@ -29,6 +29,7 @@ Message| Section
 `Not logged in · Please run /login`| Authentication
 `Could not resolve authentication method`| Authentication
 `Invalid API key`| Authentication
+`Your apiKeyHelper script is failing`| Authentication
 `This organization has been disabled`| Authentication
 `Your organization has disabled API key authentication`| Authentication
 `Your organization has disabled Claude subscription access`| Authentication
@@ -43,6 +44,7 @@ Message| Section
 `AWS default-chain credential resolve timed out`| Authentication
 `Unable to connect to API`| Network
 `Waiting for API response · will retry in`| Automatic retries, or Network if it persists
+`Bedrock streaming response has content-type "..."; expected "application/vnd.amazon.eventstream"`| Network
 `SSL certificate verification failed`| Network
 `SSL certificate error (...)` during login or startup| Network
 `403` with `x-deny-reason: host_not_allowed` in a cloud or routine session| Network
@@ -74,6 +76,10 @@ Message| Section
 `references ${user_config.*} in a shell-form command`| Plugin errors
 `Monitor "<name>" from plugin <plugin> references ${user_config.*} in its command`| Plugin errors
 `headersHelper for MCP server '<name>' references ${user_config.*}`| Plugin errors
+`would be spawned with zero tools — refusing`| Tool errors
+`File is covered by a Read deny rule in your permission settings`| Tool errors
+`Can't open MCP settings in a background session`| Background session errors
+`CLAUDE_CODE_PROCESS_WRAPPER: launcher ...`| Background session errors
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
 Responses seem lower quality than usual| Response quality
 
@@ -83,10 +89,11 @@ Responses seem lower quality than usual| Response quality
 
 Automatic retries
 
-Claude Code retries transient failures before showing you an error. Server errors, overloaded responses, request timeouts, temporary 429 throttles, and dropped connections are all retried up to 10 times with exponential backoff. As of v2.1.198, this covers connections that drop in the middle of a response before any visible output has streamed: Claude Code re-issues the request with the same backoff and the turn continues instead of stopping with a connection error. As of v2.1.199, temporary 429 throttles that don’t carry your plan’s quota headers are also retried when you’re signed in with a claude.ai subscription; earlier versions retried them only for API key and Enterprise sign-ins. Two failure classes aren’t retried, because a retry can’t succeed:
+Claude Code retries transient failures before showing you an error. Server errors, overloaded responses, request timeouts, temporary 429 throttles, and dropped connections are all retried up to 10 times with exponential backoff. As of v2.1.198, this covers connections that drop in the middle of a response before any visible output has streamed: Claude Code re-issues the request with the same backoff and the turn continues instead of stopping with a connection error. As of v2.1.199, temporary 429 throttles that don’t carry your plan’s quota headers are also retried when you’re signed in with a claude.ai subscription; earlier versions retried them only for API key and Enterprise sign-ins. Some failure classes aren’t retried, because a retry can’t succeed:
 
   * As of v2.1.199, a TLS certificate validation failure, such as a TLS-inspecting proxy, a missing `NODE_EXTRA_CA_CERTS` bundle, or an expired certificate, fails on the first attempt so the fix appears immediately instead of after the full retry budget. See SSL certificate errors. Transient TLS conditions such as a handshake timeout still retry.
   * As of v2.1.199, a server error that arrives after Claude has already streamed visible output keeps the partial response and appends an incomplete-response notice instead of retrying, since re-running the request could execute the same tools twice. Earlier versions discarded the partial output and reported the turn as an error.
+  * An Amazon Bedrock streaming response with an unexpected content-type fails on the first attempt, because the gateway or proxy rewriting the response would rewrite the retry the same way. Requires Claude Code v2.1.208 or later.
 
 While retrying, the spinner shows a `Retrying in Ns · attempt x/y` countdown after an error label. The label names the specific reason from the first attempt for failures you can act on right away: the network is down, a TLS handshake failed, or you hit a rate limit. For other errors it reads `API error` at first. As of v2.1.198 it switches to the specific reason from the third attempt, or on the final attempt when `CLAUDE_CODE_MAX_RETRIES` allows fewer than three; earlier versions switch only on the final attempt. As of v2.1.198, the usual spinner tip is suppressed during retries. Once the error reason is revealed, if the failure is a 529 overload the line below the countdown also names where to check service status: `status.claude.com` on the Anthropic API, or the provider or gateway host named in the message on other configurations. If no data arrives on the response stream for 20 seconds while a request is still pending, the spinner shows `Waiting for API response · will retry in … · check your network` before any retry has started. The request has not failed yet: the countdown runs to the point where Claude Code aborts the stalled connection and retries, so the banner clears on its own once data resumes or the retry succeeds. As of v2.1.185 the threshold is 20 seconds; earlier versions show the banner after 10 seconds with different wording. If it reappears on every attempt, treat it as a network issue. When you see one of the errors on this page, those retries have already been exhausted, unless it belongs to a class that isn’t retried, such as a certificate-validation failure. You can tune the behavior with these environment variables:
 
@@ -397,6 +404,23 @@ The `ANTHROPIC_API_KEY` environment variable or `apiKeyHelper` script returned a
 
 ​
 
+Your apiKeyHelper script is failing
+
+The command configured in the [`apiKeyHelper`](</docs/en/settings#available-settings>) setting exited with an error, timed out, or printed nothing to stdout. Without a key from the script, the request reaches the API with a placeholder credential, and the API rejects it with `401`.
+
+    Your apiKeyHelper script is failing · This usually means you need to re-authenticate with your provider · Run /status to see the script's error output
+
+Claude Code re-runs the script and retries the request up to two more times before showing this message, so the failure surfaces within three attempts. Before v2.1.208, Claude Code spent the full retry budget resending the request with the placeholder credential and then reported a generic `401` authentication error instead of the script failure. Running `/login` doesn’t help here: the helper’s output [takes precedence](</docs/en/authentication#authentication-precedence>) over a saved login for as long as the setting is present. **What to do:**
+
+  * Run the command configured in `apiKeyHelper` directly in your shell to reproduce the failure
+  * If the command reports an expired session, re-authenticate with your credential provider, for example by signing in to your SSO or secrets vault again
+  * Fix the command so it prints the key to stdout and exits with code 0. See [rotate credentials with apiKeyHelper](</docs/en/llm-gateway-connect#rotate-credentials-with-apikeyhelper>) for a working setup.
+  * Run `/status` to confirm `apiKeyHelper` is the active credential source. Each time the command fails, its exit code and error output appear in a `Cloud authentication` panel in the terminal.
+
+###
+
+​
+
 This organization has been disabled
 
 A stale `ANTHROPIC_API_KEY` from a disabled Console organization is overriding your subscription login.
@@ -584,7 +608,7 @@ Common causes are a `credential_process` command in your AWS profile that waits 
 
 Network and connection errors
 
-These errors mean a network request from Claude Code failed to reach its destination. They usually originate in your local network, proxy, or firewall, or in the cloud environment’s network policy.
+These errors mean a network request from Claude Code failed to reach its destination, or something between Claude Code and the API altered the response on its way back. They usually originate in your local network, proxy, or firewall, or in the cloud environment’s network policy.
 
 ###
 
@@ -614,6 +638,21 @@ If `curl` succeeds but Claude Code still fails, the cause is usually something b
   * On Linux and WSL, check `/etc/resolv.conf` for an unreachable nameserver. WSL in particular can inherit a broken resolver from the host.
   * On macOS, a VPN client that was disconnected or uninstalled can leave a tunnel interface or routing rule behind. Check `ifconfig` for stale `utun` interfaces and remove the VPN’s network extension in System Settings.
   * Docker Desktop and similar container runtimes can intercept outbound traffic. Quit them and retry to rule this out.
+
+###
+
+​
+
+Bedrock streaming response has an unexpected content-type
+
+A gateway or proxy between Claude Code and [Amazon Bedrock](</docs/en/amazon-bedrock>) is transforming the streaming response body or its `Content-Type` header. Amazon Bedrock streams responses as `application/vnd.amazon.eventstream`, and Claude Code rejects a successful streaming response that reports a different content-type instead of decoding a body it can’t read. The request isn’t retried.
+
+    Bedrock streaming response has content-type "text/event-stream"; expected "application/vnd.amazon.eventstream". A gateway or proxy between Claude Code and Bedrock is likely transforming the response body — Bedrock's binary event-stream format must be passed through unmodified. Set CLAUDE_CODE_DISABLE_BEDROCK_CONTENT_TYPE_GUARD=1 to suppress this check while the gateway is being fixed.
+
+Before v2.1.208, the same misconfiguration surfaced as `API Error: Truncated event message received` after the whole response had been buffered. **What to do:**
+
+  * Configure the gateway to pass the `InvokeModelWithResponseStream` response body and its `Content-Type` header through unmodified. An intermediary that re-emits the stream as server-sent events is a common cause.
+  * If the gateway rewrites only the header and passes the binary body through intact, set [`CLAUDE_CODE_DISABLE_BEDROCK_CONTENT_TYPE_GUARD=1`](</docs/en/env-vars>) to skip the check until the gateway is fixed. See [Streaming errors behind a gateway or proxy](</docs/en/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy>).
 
 ###
 
@@ -1113,6 +1152,84 @@ An MCP `headersHelper` reports:
   * For a hook, add an `args` array so it runs in [exec form](</docs/en/hooks#exec-form-and-shell-form>), where each `${user_config.KEY}` becomes one argument with no shell in between. Or drop the reference and read the `$CLAUDE_PLUGIN_OPTION_<KEY>` environment variable inside the script
   * For a monitor, drop the reference and have the monitor script read the value from a config file
   * For a `headersHelper`, move `${user_config.KEY}` into the server’s `headers` field, which isn’t shell-parsed, or read the value inside the helper script
+
+##
+
+​
+
+Tool errors
+
+These errors come from Claude’s built-in tools refusing an input. Claude corrects most tool errors on its own; the two below need a change from you, because they come from a subagent definition or a permission rule you control.
+
+###
+
+​
+
+Agent would be spawned with zero tools
+
+Nothing in a [subagent’s `tools` list](</docs/en/sub-agents#supported-frontmatter-fields>) resolved to a tool, so Claude Code refuses to launch the subagent rather than start one that can’t act. The message groups the entries by why they didn’t resolve: not a recognized tool, a tool that isn’t available to subagents, or recognized but matching no tool in the current session. Omitting the `tools` field never triggers this refusal. An MCP server pattern such as `mcp__github__*` isn’t exempt: when no connected tool comes from that server, the launch is refused with the pattern in the matched-nothing group. Before v2.1.208, the subagent launched with no tools and returned an empty or confusing result.
+
+    Agent 'code-reviewer' would be spawned with zero tools — refusing. Its tools list resolved to nothing: unrecognized [Grpe]. Fix the agent's tools frontmatter or pass a different subagent_type.
+
+**What to do:**
+
+  * Correct each entry the error names against the [tools available to subagents](</docs/en/sub-agents#available-tools>)
+  * Remove entries for tools the session doesn’t have, such as MCP tools from a server that isn’t connected
+  * To give the subagent every tool the parent has, delete the `tools` field instead of listing tools
+
+###
+
+​
+
+File is covered by a Read deny rule
+
+The Edit tool was called on a path matched by a [`Read` deny rule](</docs/en/permissions#read-and-edit>), including creating a new file at that path. Editing rewrites content Claude has to be able to read back, so the call is refused before any file access. The rule blocks the Edit tool only: Write and NotebookEdit aren’t covered by `Read` deny rules. Before v2.1.208, only an `Edit` deny rule blocked edits, and a `Read` deny rule alone didn’t.
+
+    File is covered by a Read deny rule in your permission settings and cannot be edited.
+
+**What to do:**
+
+  * If Claude should be able to edit the file, remove or narrow the `Read` deny rule in `/permissions` or in [settings](</docs/en/settings#permission-settings>)
+  * If the file must stay untouched, keep the rule and add an `Edit` deny rule for the same path so the Write and NotebookEdit tools are blocked too
+
+##
+
+​
+
+Background session errors
+
+[Background sessions](</docs/en/agent-view>) run without an interactive terminal of their own, so commands that need one behave differently there. These messages appear in the transcript of a background session, in agent view or after attaching.
+
+###
+
+​
+
+Commands refused in a background session
+
+Commands that open an interactive dialog are refused in a background session with a message naming a form that works there or telling you to run the command from a regular terminal. `/install-github-app`, the `/mcp` settings list, and the authentication actions in the MCP server menu are all refused this way. Before v2.1.208, they opened their dialog inside the background session. In v2.1.208 only, the `/model` picker was also refused in a background session, and `/upgrade` printed the upgrade URL instead of opening a browser. The wording names the command that was refused. The `/mcp` settings list reports:
+
+    Can't open MCP settings in a background session — use `/mcp enable|disable|reconnect <server>` to steer, or run /mcp from an interactive terminal to authenticate.
+
+**What to do:**
+
+  * Use the form the message names, such as `/mcp reconnect <server>`, `/mcp enable`, or `/mcp disable`
+  * For sign-in and authorization flows, run the command from a regular `claude` session in a terminal
+
+###
+
+​
+
+CLAUDE_CODE_PROCESS_WRAPPER launcher errors
+
+[`CLAUDE_CODE_PROCESS_WRAPPER`](</docs/en/corporate-launcher>) is set, and its value can’t be used, so Claude Code refuses to start the affected process rather than run it without the launcher. Configuration problems are reported with a message that starts with the variable name and states the reason, for example:
+
+    CLAUDE_CODE_PROCESS_WRAPPER: launcher `/opt/corp/launcher` is not an executable regular file
+
+A launcher that starts but exits without replacing itself with Claude Code fails the session it was starting, and the session’s row in agent view reports that the launcher `must exec, not daemonize`, followed by anything the launcher printed. A session that can’t start or reach the background service because of the launcher reports the launcher problem as the reason inside `Couldn't reach the background service (...)`. **What to do:**
+
+  * Set the variable to the absolute path of an executable that ends by calling `exec "$@"`. See [the launcher contract](</docs/en/corporate-launcher#the-launcher-contract>) for the full contract
+  * Check `/status`, which shows the resolved launch command in its Self-exec entry and warns when the running background service doesn’t match it, or run `claude daemon status` from a shell
+  * After fixing the value in the `env` block of [settings](</docs/en/corporate-launcher#set-up-the-launcher>), restart the background service with `claude daemon stop --any` so the next dispatch starts a wrapped one
 
 ##
 

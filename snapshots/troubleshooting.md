@@ -41,6 +41,14 @@ If memory usage stays high after these steps, run `/heapdump` to write a JavaScr
 
 ​
 
+Large tables are cut off in the terminal
+
+A Markdown table with more than 200 rows renders its first 200 rows followed by a `… N more rows not shown` line. Only the display is capped: the full table stays in the conversation, and [`/copy`](</docs/en/commands>) copies every row. For a table too large to read in the terminal, ask Claude to write it to a file instead. Before v2.1.208, Claude Code rendered every row, so resuming a session that contained a very large table could stall while it re-rendered.
+
+###
+
+​
+
 Auto-compaction stops with a thrashing error
 
 If you see `Autocompact is thrashing: the context refilled to the limit...`, automatic compaction succeeded but a file or tool output immediately refilled the context window several times in a row. Claude Code stops retrying to avoid wasting API calls on a loop that isn’t making progress. To recover:

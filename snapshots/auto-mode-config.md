@@ -201,7 +201,7 @@ Three CLI subcommands help you inspect and validate your configuration. Print th
 
     claude auto-mode defaults
 
-Print what the classifier actually uses as JSON, with your settings applied where set and defaults otherwise:
+To read one rule’s full wording without piping through `jq`, pass `--label` with the start of the rule’s label, such as `claude auto-mode defaults --label 'Git Destructive'`. Matching is a case-insensitive prefix on each rule’s label, and sections with no match print as empty lists. Requires Claude Code v2.1.208 or later. Print what the classifier actually uses as JSON, with your settings applied where set and defaults otherwise:
 
     claude auto-mode config
 

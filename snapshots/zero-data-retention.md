@@ -59,6 +59,7 @@ Feature| Reason
 [Cloud sessions](</docs/en/desktop#cloud-sessions>) from the Desktop app| Requires persistent session data that includes prompts and completions.
 [Artifacts](</docs/en/artifacts>)| Requires storing published page content on Anthropic-operated infrastructure.
 Feedback submission (`/feedback`)| Submitting feedback sends conversation data to Anthropic.
+[Remote Control](</docs/en/remote-control>)| Stores the session transcript on Anthropic servers to sync the conversation across devices.
 
 These features are blocked in the backend regardless of client-side display. If you see a disabled feature in the Claude Code terminal during startup, attempting to use it returns an error indicating the organization’s policies do not allow that action. Future features may also be disabled if they require storing prompts or completions.
 
