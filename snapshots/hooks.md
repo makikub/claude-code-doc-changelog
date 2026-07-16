@@ -583,7 +583,7 @@ Field| Description
 `agent_id`| Unique identifier for the subagent. Present only when the hook fires inside a subagent call. Use this to distinguish subagent hook calls from main-thread calls.
 `agent_type`| Agent name (for example, `"Explore"` or `"security-reviewer"`). Present when the session uses `--agent` or the hook fires inside a subagent. For subagents, the subagent’s type takes precedence over the session’s `--agent` value. For [custom subagents](</docs/en/sub-agents>), this is the `name` field from the agent’s frontmatter, not the filename. For subagents shipped by a [plugin](</docs/en/plugins>), this is the plugin-scoped identifier such as `my-plugin:reviewer`, not the bare frontmatter name. See SubagentStart for how to write a matcher against a plugin-scoped name.
 
-Only `SessionStart` hooks can receive a `model` field, and it is not guaranteed to be present. There is no `$CLAUDE_MODEL` environment variable. A hook process inherits the parent environment, so it can read `$ANTHROPIC_MODEL` if you set it in your shell, but that value doesn’t change when you switch models with `/model` during a session. For example, a `PreToolUse` hook for a Bash command receives this on stdin:
+Only `SessionStart` hooks can receive a `model` field, and it is not guaranteed to be present. There is no `$CLAUDE_MODEL` environment variable. A hook process inherits the parent environment, so it can read `$ANTHROPIC_MODEL` if you set it in your shell, but that value doesn’t change when you switch models with `/model` during a session. One set of variables is not inherited: Claude Code [removes `OTEL_*` exporter variables from every subprocess it spawns](</docs/en/monitoring-usage#administrator-configuration>), including hooks. For example, a `PreToolUse` hook for a Bash command receives this on stdin:
 
     {
       "session_id": "abc123",
@@ -1308,7 +1308,7 @@ Field| Type| Example| Description
 ---|---|---|---
 `command`| string| `"npm test"`| The shell command to execute
 `description`| string| `"Run test suite"`| Optional description of what the command does
-`timeout`| number| `120000`| Optional timeout in milliseconds
+`timeout`| number| `120000`| Optional timeout in milliseconds. Values above the [maximum](</docs/en/tools-reference#bash-tool-behavior>) are reduced to the maximum rather than rejected
 `run_in_background`| boolean| `false`| Whether to run the command in background
 
 ##### Write
@@ -1439,7 +1439,7 @@ PreToolUse decision control
 
 Field| Description
 ---|---
-`permissionDecision`| `"allow"` skips the permission prompt, except for tools that require user interaction. `"deny"` prevents the tool call. `"ask"` prompts the user to confirm. `"defer"` exits gracefully so the tool can be resumed later. [Deny and ask rules](</docs/en/permissions#manage-permissions>) are still evaluated regardless of what the hook returns
+`permissionDecision`| `"allow"` skips the permission prompt, except for tools that require user interaction and connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>). `"deny"` prevents the tool call. `"ask"` prompts the user to confirm. `"defer"` exits gracefully so the tool can be resumed later. [Deny and ask rules](</docs/en/permissions#manage-permissions>) are still evaluated regardless of what the hook returns
 `permissionDecisionReason`| For `"allow"` and `"ask"`, shown to the user but not Claude. For `"deny"`, shown to Claude. For `"defer"`, ignored
 `updatedInput`| Modifies the tool’s input parameters before execution. Replaces the entire input object, so include unchanged fields alongside modified ones. Combine with `"allow"` to auto-approve, or `"ask"` to show the modified input to the user. For `"defer"`, ignored
 `additionalContext`| String added to Claude’s context alongside the tool result. Ignored when `permissionDecision` is `"defer"`. See Add context for Claude
@@ -1458,7 +1458,7 @@ When multiple PreToolUse hooks return different decisions, precedence is `deny` 
       }
     }
 
-`AskUserQuestion` and `ExitPlanMode` require user interaction and normally block in [non-interactive mode](</docs/en/headless>) with the `-p` flag. Returning `permissionDecision: "allow"` together with `updatedInput` satisfies that requirement: the hook reads the tool’s input from stdin, collects the answer through your own UI, and returns it in `updatedInput` so the tool runs without prompting. Returning `"allow"` alone is not sufficient for these tools. For `AskUserQuestion`, echo back the original `questions` array and add an `answers` object mapping each question’s text to the chosen answer. As of v2.1.199, an MCP tool whose server marks it with [`_meta["anthropic/requiresUserInteraction"]`](</docs/en/mcp#require-approval-for-a-specific-tool>) is stricter: a hook can’t skip its approval prompt with `"allow"`, with or without `updatedInput`, because Claude Code can’t confirm the hook collected the interaction the tool needs.
+`AskUserQuestion` and `ExitPlanMode` require user interaction and normally block in [non-interactive mode](</docs/en/headless>) with the `-p` flag. Returning `permissionDecision: "allow"` together with `updatedInput` satisfies that requirement: the hook reads the tool’s input from stdin, collects the answer through your own UI, and returns it in `updatedInput` so the tool runs without prompting. Returning `"allow"` alone is not sufficient for these tools. For `AskUserQuestion`, echo back the original `questions` array and add an `answers` object mapping each question’s text to the chosen answer. Connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) prompt even when a hook returns `"allow"`. As of v2.1.199, an MCP tool whose server marks it with [`_meta["anthropic/requiresUserInteraction"]`](</docs/en/mcp#require-approval-for-a-specific-tool>) is stricter: a hook can’t skip its approval prompt with `"allow"`, with or without `updatedInput`, because Claude Code can’t confirm the hook collected the interaction the tool needs.
 
 PreToolUse previously used top-level `decision` and `reason` fields, but these are deprecated for this event. Use `hookSpecificOutput.permissionDecision` and `hookSpecificOutput.permissionDecisionReason` instead. The deprecated values `"approve"` and `"block"` map to `"allow"` and `"deny"` respectively. Other events like PostToolUse and Stop continue to use top-level `decision` and `reason` as their current format.
 

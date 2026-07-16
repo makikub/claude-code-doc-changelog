@@ -380,11 +380,11 @@ Mode| Behavior
 `default`| Standard permission checking with prompts
 `acceptEdits`| Auto-accept file edits and common filesystem commands for paths in the working directory or `additionalDirectories`
 `auto`| [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>): a background classifier reviews commands and protected-directory writes
-`dontAsk`| Auto-deny permission prompts (explicitly allowed tools still work)
+`dontAsk`| Auto-deny permission prompts. Explicitly allowed tools still work; `AskUserQuestion`, connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>), and MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) are denied even if you’ve allowed them
 `bypassPermissions`| Skip permission prompts
 `plan`| Plan mode (read-only exploration)
 
-Use `bypassPermissions` with caution. It skips permission prompts, allowing the subagent to execute operations without approval, including writes to `.git`, `.config/git`, `.claude`, `.vscode`, `.idea`, `.husky`, `.cargo`, `.devcontainer`, `.yarn`, and `.mvn`. Explicit [`ask` rules](</docs/en/permissions#manage-permissions>) and root and home directory removals such as `rm -rf /` still prompt. See [permission modes](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>) for details.
+Use `bypassPermissions` with caution. It skips permission prompts, allowing the subagent to execute operations without approval, including writes to `.git`, `.config/git`, `.claude`, `.vscode`, `.idea`, `.husky`, `.cargo`, `.devcontainer`, `.yarn`, and `.mvn`.Explicit [`ask` rules](</docs/en/permissions#manage-permissions>), connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>), MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>), and root and home directory removals such as `rm -rf /` still prompt. See [permission modes](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>) for details.
 
 If the parent uses `bypassPermissions` or `acceptEdits`, this takes precedence and can’t be overridden. If the parent uses [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), the subagent inherits auto mode and any `permissionMode` in its frontmatter is ignored: the classifier evaluates the subagent’s tool calls with the same block and allow rules as the parent session.
 

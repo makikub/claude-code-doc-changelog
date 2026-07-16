@@ -108,7 +108,14 @@ For security details about cloud execution, see [Security](</docs/en/security#cl
 
 Telemetry services
 
-Claude Code connects from users’ machines to Anthropic to log operational metrics such as latency, reliability, and usage patterns. This logging does not include any code or file paths. Data is encrypted in transit and at rest. To opt out of telemetry, set the `DISABLE_TELEMETRY` environment variable. Claude Code connects from users’ machines to Sentry for operational error logging. The data is encrypted in transit using TLS and at rest using 256-bit AES encryption. Read more in the [Sentry security documentation](<https://sentry.io/security/>). To opt out of error logging, set the `DISABLE_ERROR_REPORTING` environment variable. When you run the `/feedback` command, a copy of your conversation history including code is sent to Anthropic. Before submitting, you choose how much history to include: the current session only, which is the default, or also other sessions from the same project over the last 24 hours or 7 days. The data is encrypted in transit via TLS and stored in Google Cloud Storage, which encrypts stored data at rest by default. Optionally, a GitHub issue is created in the public repository. To opt out, set the `DISABLE_FEEDBACK_COMMAND` environment variable to `1`. When you use a third-party provider such as Amazon Bedrock or Google Cloud’s Agent Platform, or have no Anthropic credentials configured, `/feedback` writes the report to a local archive under `~/.claude/feedback-bundles/` instead of sending it to Anthropic. Known API key and token patterns are redacted before the archive is written. Nothing leaves your machine until you send that file to your Anthropic account representative or attach it to a support request.
+Claude Code sends two kinds of operational telemetry: usage metrics and error reports. You can turn each off individually with the environment variables below, or disable all non-essential traffic at once by setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`. **Metrics** : latency, reliability, and usage patterns, sent to Anthropic and to third-party logging infrastructure over TLS. Metrics never include your code, prompts, or file paths. Set `DISABLE_TELEMETRY=1` to opt out. **Error reports** : error messages and stack traces from Claude Code’s own internals, sent to a third-party error tracking service over TLS. Claude Code redacts known patterns of secrets, file paths, email addresses, and other personal information before anything leaves your machine. Set `DISABLE_ERROR_REPORTING=1` to opt out. Error reporting is on only when all of these apply:
+
+  * you sign in with a Claude Pro or Max subscription
+  * you’re running Claude Code v2.1.198 or later
+  * you’re connecting directly to the Claude API
+  * your organization doesn’t have a zero data retention or HIPAA agreement
+
+When you run the `/feedback` command, a copy of your conversation history including code is sent to Anthropic. Before submitting, you choose how much history to include: the current session only, which is the default, or also other sessions from the same project over the last 24 hours or 7 days. The data is encrypted in transit via TLS and stored in Google Cloud Storage, which encrypts stored data at rest by default. Optionally, a GitHub issue is created in the public repository. To opt out, set the `DISABLE_FEEDBACK_COMMAND` environment variable to `1`. When you use a third-party provider such as Amazon Bedrock or Google Cloud’s Agent Platform, or have no Anthropic credentials configured, `/feedback` writes the report to a local archive under `~/.claude/feedback-bundles/` instead of sending it to Anthropic. Known API key and token patterns are redacted before the archive is written. Nothing leaves your machine until you send that file to your Anthropic account representative or attach it to a support request.
 
 ##
 
@@ -120,13 +127,13 @@ By default, error reporting, telemetry, and bug reporting are disabled when usin
 
 Service| Claude API| Google Cloud’s Agent Platform API| Amazon Bedrock API| Microsoft Foundry API| Claude Platform on AWS
 ---|---|---|---|---|---
-**Anthropic (Metrics)**|  Default on.
+**Metrics**|  Default on.
 `DISABLE_TELEMETRY=1` to disable.| Default off.
 `CLAUDE_CODE_USE_VERTEX` must be 1.| Default off.
 `CLAUDE_CODE_USE_BEDROCK` must be 1.| Default off.
 `CLAUDE_CODE_USE_FOUNDRY` must be 1.| Default off.
 `CLAUDE_CODE_USE_ANTHROPIC_AWS` must be 1.
-**Sentry (Errors)**|  Default on.
+**Error reports**|  On for Pro and Max sign-ins on v2.1.198+, otherwise off.
 `DISABLE_ERROR_REPORTING=1` to disable.| Default off.
 `CLAUDE_CODE_USE_VERTEX` must be 1.| Default off.
 `CLAUDE_CODE_USE_BEDROCK` must be 1.| Default off.
@@ -151,7 +158,7 @@ Service| Claude API| Google Cloud’s Agent Platform API| Amazon Bedrock API| Mi
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.| Default on.
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.
 
-All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)). As of v2.1.126, when a host platform sets `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`, metrics default to on for Google Cloud’s Agent Platform, Amazon Bedrock, and Microsoft Foundry, and follow the standard `DISABLE_TELEMETRY` opt-out. Sentry error reporting and `/feedback` reports remain off by default on those providers.
+All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)). As of v2.1.126, when a host platform sets `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`, metrics default to on for Google Cloud’s Agent Platform, Amazon Bedrock, and Microsoft Foundry, and follow the standard `DISABLE_TELEMETRY` opt-out. Error reporting and `/feedback` reports remain off by default on those providers.
 
 ###
 

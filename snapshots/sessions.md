@@ -95,7 +95,7 @@ Manage context within a session
 
 These commands control what’s in the context window without leaving the session:
 
-  * **`/clear`** : start fresh with an empty context. The previous conversation is saved and resumable
+  * **`/clear`** : start fresh with an empty context. The previous conversation is saved and resumable with `/resume`, or, in the same Claude Code process, from [the rewind menu’s previous-session entry](</docs/en/checkpointing#rewind-past-a-cleared-conversation>)
   * **`/compact [instructions]`** : replace history with a summary, optionally focused on what you specify
   * **`/context`** : show what is currently consuming context
 

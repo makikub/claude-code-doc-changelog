@@ -129,7 +129,14 @@ Prefix| Meaning| Example
 `~/`| Relative to home directory| `~/.kube` becomes `$HOME/.kube`
 `./` or no prefix| Relative to the project root for project settings, or to `~/.claude` for user settings| `./output` in `.claude/settings.json` resolves to `<project-root>/output`
 
-This syntax differs from [Read and Edit permission rules](</docs/en/permissions#read-and-edit>), which use `//path` for absolute and `/path` for project-relative. Sandbox filesystem paths use standard conventions: `/tmp/build` is absolute. You can also deny write or read access using `sandbox.filesystem.denyWrite` and `sandbox.filesystem.denyRead`, and re-allow specific paths within a denied region using `sandbox.filesystem.allowRead`. The example below blocks reading from the entire home directory while still allowing reads from the current project. Place it in your project’s `.claude/settings.json`, because the relative path `.` resolves to the project root only when the configuration lives in project settings:
+This syntax differs from [Read and Edit permission rules](</docs/en/permissions#read-and-edit>), which use `//path` for absolute and `/path` for project-relative. Sandbox filesystem paths use standard conventions: `/tmp/build` is absolute. You can also deny write or read access using `sandbox.filesystem.denyWrite` and `sandbox.filesystem.denyRead`, and re-allow specific paths within a denied region using `sandbox.filesystem.allowRead`. When read rules overlap, the more specific path wins:
+
+Example rules| Result
+---|---
+`"denyRead": ["~/"]` with `"allowRead": ["~/projects"]`| `~/projects` is readable and the rest of the home directory stays blocked. The narrower allow re-opens that part of the denied region
+`"allowRead": ["~/"]` with `"denyRead": ["~/.env"]`| `~/.env` stays blocked and the rest of the home directory is readable. An exact deny holds inside a wider allow, so a broad allow can’t silently re-expose a secret
+
+The example below blocks reading from the entire home directory while still allowing reads from the current project. Place it in your project’s `.claude/settings.json`, because the relative path `.` resolves to the project root only when the configuration lives in project settings:
 
     {
       "sandbox": {
@@ -292,7 +299,7 @@ Permission modes
 ---|---|---
 `/sandbox`| What a Bash command can access once it runs| The sandbox boundary itself, in auto-allow mode
 [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)| Whether each tool call runs| A classifier that reviews actions
-`--dangerously-skip-permissions`| Whether each tool call runs| Nothing. [Protected path](</docs/en/permission-modes#protected-paths>) checks are also skipped; only explicit [ask rules](</docs/en/permissions#manage-permissions>) and removing `/` or your home directory still prompt
+`--dangerously-skip-permissions`| Whether each tool call runs| Nothing. [Protected path](</docs/en/permission-modes#protected-paths>) checks are also skipped; only explicit [ask rules](</docs/en/permissions#manage-permissions>), connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>), MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>), and removing `/` or your home directory still prompt
 
 The sandbox’s auto-allow mode is separate from [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>): auto-allow approves Bash commands because the sandbox boundary contains them, while auto mode uses a classifier to review actions. The two work independently and can be combined. To choose an isolation boundary for unattended runs, see [Sandbox environments](</docs/en/sandbox-environments#how-isolation-relates-to-permission-modes>).
 

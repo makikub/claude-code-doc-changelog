@@ -263,7 +263,7 @@ Subscription plans include a rolling usage allowance. When it runs out you see o
     You've hit your weekly limit · resets Mon 12:00am
     You've hit your Opus limit · resets 3:45pm
 
-Claude Code blocks further requests until the reset time shown in the message. The session and weekly limits are shared across all models, so switching models doesn’t restore access. The Opus limit applies only to Opus requests, so switching to another model with `/model` keeps you working. **What to do:**
+Claude Code blocks further requests until the reset time shown in the message. The session and weekly limits are shared across all models, so switching models doesn’t restore access. The Opus limit applies only to Opus requests, so switching to another model with `/model` keeps you working. Usage counts against the session and weekly allowances at the same time. A single burst of heavy activity, such as a large workflow fanout, can exhaust the weekly allowance before the session window resets. **What to do:**
 
   * Wait for the reset time shown in the error
   * For the Opus limit, run `/model` and switch to another model to keep working

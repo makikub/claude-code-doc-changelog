@@ -1,7 +1,5 @@
 A plugin can depend on other plugins by listing them in `plugin.json` or in its marketplace entry. By default, a dependency tracks the latest available version, so an upstream release can change the dependency under your plugin without warning. Version constraints let you hold a dependency at a tested version range until you choose to move. When you install a plugin that declares dependencies, Claude Code resolves and installs them automatically and lists which dependencies were added at the end of the install output. If a dependency later goes missing, `/reload-plugins` and the background plugin auto-update reinstall it, provided its marketplace is already in your configured marketplaces. Re-running `claude plugin install` on the dependent plugin, or adding a marketplace with `claude plugin marketplace add`, also resolves any outstanding missing dependencies. Dependencies from a marketplace you have not added are left unresolved. This guide is for plugin authors who declare dependencies in `plugin.json` and for marketplace maintainers who tag releases. To install plugins that have dependencies, see [Discover and install plugins](</docs/en/discover-plugins>). For the full manifest schema, see the [Plugins reference](</docs/en/plugins-reference>).
 
-Dependency version constraints require Claude Code v2.1.110 or later.
-
 ##
 
 ​
@@ -38,6 +36,35 @@ Field| Type| Description
 `marketplace`| string| A different marketplace to resolve `name` in. Cross-marketplace dependencies are blocked unless the target marketplace is listed in `allowCrossMarketplaceDependenciesOn` in the root marketplace’s `marketplace.json`.
 
 The `version` field accepts any expression supported by Node’s `semver` package, including caret, tilde, hyphen, and comparator ranges. Pre-release versions such as `2.0.0-beta.1` are excluded unless your range opts in with a pre-release suffix like `^2.0.0-0`.
+
+##
+
+​
+
+Bundle plugins for a team
+
+Besides the required `name`, a plugin manifest can consist of only a `dependencies` array. Installing it pulls in every dependency, which makes it a way to package a curated plugin set behind one install. For example, a platform team can publish role-specific bundles in an internal marketplace so engineers run one `claude plugin install` instead of installing each tool separately:
+
+.claude-plugin/plugin.json
+
+    {
+      "name": "backend-standard",
+      "version": "1.0.0",
+      "description": "Standard plugin set for backend engineers",
+      "dependencies": [
+        "secrets-vault",
+        "deploy-kit",
+        { "name": "db-migrate", "version": "^3.0" },
+        "oncall-runbook"
+      ]
+    }
+
+Installing `backend-standard` resolves and installs all four dependencies. To add a tool to the standard set later, publish a new `backend-standard` version with the extra dependency. Auto-update is off by default for non-Anthropic marketplaces, so engineers pick up the new version in one of two ways:
+
+  * Enable auto-update for the marketplace in `/plugin`. The next auto-update moves the bundle to the new version and installs any dependencies it adds.
+  * Run `claude plugin update backend-standard`, then `/reload-plugins` to install the newly added dependencies.
+
+To roll bundles out across an organization, add the bundle plugin to `enabledPlugins` in [managed settings](</docs/en/settings#enabledplugins>).
 
 ##
 

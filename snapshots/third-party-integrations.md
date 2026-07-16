@@ -27,6 +27,8 @@ For a feature-by-feature breakdown of what’s available on each option, see [Fe
   * [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>)
   * [Microsoft Foundry](</docs/en/microsoft-foundry>)
 
+For Amazon Bedrock and Google Vertex AI, you can also run `claude` and select **3rd-party platform** at the login prompt to launch an interactive setup wizard.
+
 ##
 
 ​

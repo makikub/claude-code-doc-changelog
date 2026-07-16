@@ -551,11 +551,20 @@ For example, a `PreToolUse` hook can deny a tool call and tell Claude why, or es
 
 With `"deny"`, Claude Code cancels the tool call and feeds `permissionDecisionReason` back to Claude. These `permissionDecision` values are specific to `PreToolUse`:
 
-  * `"allow"`: skip the interactive permission prompt. Deny and ask rules, including enterprise managed deny lists, still apply
+  * `"allow"`: skip the interactive permission prompt. Deny and ask rules, including enterprise managed deny lists, still apply, as do prompts for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) and MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>)
   * `"deny"`: cancel the tool call and send the reason to Claude
   * `"ask"`: show the permission prompt to the user as normal
 
-A fourth value, `"defer"`, is available in [non-interactive mode](</docs/en/headless>) with the `-p` flag. It exits the process with the tool call preserved so an Agent SDK wrapper can collect input and resume. See [Defer a tool call for later](</docs/en/hooks#defer-a-tool-call-for-later>) in the reference. Returning `"allow"` skips the interactive prompt but doesn’t override [permission rules](</docs/en/permissions#manage-permissions>). If a deny rule matches the tool call, the call is blocked even when your hook returns `"allow"`. If an ask rule matches, the user is still prompted. This means deny rules from any settings scope, including [managed settings](</docs/en/settings#settings-files>), always take precedence over hook approvals. Other events use different decision patterns. For example, `PostToolUse` and `Stop` hooks use a top-level `decision: "block"` field, while `PermissionRequest` uses `hookSpecificOutput.decision.behavior`. See the [summary table](</docs/en/hooks#decision-control>) in the reference for a full breakdown by event. For `UserPromptSubmit` hooks, use `additionalContext` instead to inject text into Claude’s context. Hooks with `type: "prompt"` handle output differently: see Prompt-based hooks.
+A fourth value, `"defer"`, is available in [non-interactive mode](</docs/en/headless>) with the `-p` flag. It exits the process with the tool call preserved so an Agent SDK wrapper can collect input and resume. See [Defer a tool call for later](</docs/en/hooks#defer-a-tool-call-for-later>) in the reference. Returning `"allow"` skips the interactive prompt but doesn’t override [permission rules](</docs/en/permissions#manage-permissions>). If a deny rule matches the tool call, the call is blocked even when your hook returns `"allow"`. If an ask rule matches, the user is still prompted, and so are connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) and MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>). This means deny rules from any settings scope, including [managed settings](</docs/en/settings#settings-files>), always take precedence over hook approvals. Other events use different decision patterns. For example, `PostToolUse` and `Stop` hooks use a top-level `decision: "block"` field, while `PermissionRequest` uses `hookSpecificOutput.decision.behavior`. See the [summary table](</docs/en/hooks#decision-control>) in the reference for a full breakdown by event. For `UserPromptSubmit` hooks, use `hookSpecificOutput.additionalContext` instead to inject text into Claude’s context. Nest `additionalContext` inside `hookSpecificOutput`; if you place it at the top level of the JSON, Claude Code silently ignores it. For example, this output adds the current branch state to every prompt:
+
+    {
+      "hookSpecificOutput": {
+        "hookEventName": "UserPromptSubmit",
+        "additionalContext": "Current branch: release-42. Deploy freeze until Friday."
+      }
+    }
+
+See [UserPromptSubmit decision control](</docs/en/hooks#userpromptsubmit-decision-control>) for the full output shape, including blocking prompts and setting the session title. Hooks with `type: "prompt"` handle output differently: see Prompt-based hooks.
 
 ###
 
@@ -578,7 +587,7 @@ Without a matcher, a hook fires on every occurrence of its event. Matchers let y
       }
     }
 
-The `"Edit|Write"` matcher fires only when Claude uses the `Edit` or `Write` tool, not when it uses `Bash`, `Read`, or any other tool. See [Matcher patterns](</docs/en/hooks#matcher-patterns>) for how plain names and regular expressions are evaluated.
+The `"Edit|Write"` matcher fires only when Claude uses the `Edit` or `Write` tool, not when it uses `Bash`, `Read`, or any other tool. On Claude Code v2.1.191 or later, a comma separates alternatives the same way, so `"Edit, Write"` is equivalent. See [Matcher patterns](</docs/en/hooks#matcher-patterns>) for how plain names and regular expressions are evaluated.
 
 Claude can also create or modify files by running shell commands through the `Bash` tool. If your hook must see every file change, such as for compliance scanning or audit logging, add a [`Stop`](</docs/en/hooks#stop>) hook that scans the working tree once per turn. For per-call coverage instead, also match `Bash` and have your script list modified and untracked files with `git status --porcelain`.
 
@@ -843,7 +852,7 @@ Keep these constraints in mind when designing hooks:
 
 Hooks and permission modes
 
-`PreToolUse` hooks fire before any permission-mode check. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings. Hooks can tighten restrictions but not loosen them past what permission rules allow.
+`PreToolUse` hooks fire before any permission-mode check. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings, and it can’t suppress the prompt for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) or MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>). Hooks can tighten restrictions but not loosen them past what permission rules allow.
 
 ###
 

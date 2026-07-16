@@ -208,11 +208,7 @@ Remote Control and [Claude Code on the web](</docs/en/claude-code-on-the-web>) b
 
 Mobile push notifications
 
-When Remote Control is active, Claude can send push notifications to your phone. Claude decides when to push. It typically sends one when a long-running task finishes or when it needs a decision from you to continue. You can also request a push in your prompt, for example `notify me when the tests finish`. Beyond the two on/off toggles below, there is no per-event configuration.
-
-Mobile push notifications require Claude Code v2.1.110 or later.
-
-To set up mobile push notifications:
+When Remote Control is active, Claude can send push notifications to your phone. Claude decides when to push. It typically sends one when a long-running task finishes or when it needs a decision from you to continue. You can also request a push in your prompt, for example `notify me when the tests finish`. Beyond the two on/off toggles below, there is no per-event configuration. To set up mobile push notifications:
 
 1
 
@@ -260,7 +256,7 @@ Limitations
     * Text-output commands: `/compact`, `/clear`, `/context`, `/usage`, `/exit`, `/usage-credits` (runs the text form instead of opening the in-CLI dialog), `/recap`, `/reload-plugins`
     * `/model`, `/effort`, `/fast`, `/color`, and `/rename`: pass the value as an argument, for example `/model sonnet` or `/effort high`. From mobile and web, `/model` and `/effort` take the argument in place of the terminal picker or slider.
     * `/mcp`, from v2.1.166: returns a text summary of server status instead of opening the picker, and accepts the `reconnect`, `enable`, and `disable` [subcommands](</docs/en/commands#all-commands>). Unlike the local CLI, `/mcp reconnect` without a server name reconnects every server that has failed or needs authentication.
-    * `/config`, from v2.1.181: pass `key=value` to set a setting, or run it with no argument to list the keys you can set.
+    * `/config`, from v2.1.181: from the mobile app, pass `key=value` to set a setting, or run it with no argument to list the keys you can set. On the web, `/config` opens the Claude Code section of your settings instead, and ignores text after the command.
 
 ##
 

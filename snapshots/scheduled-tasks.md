@@ -67,7 +67,7 @@ When you omit the interval, Claude chooses one dynamically instead of running on
 
 When you ask for a dynamic `/loop` schedule, Claude may use the [Monitor tool](</docs/en/tools-reference#monitor-tool>) directly. Monitor runs a background script and streams each output line back, which avoids polling altogether and is often more token-efficient and responsive than re-running a prompt on an interval. A dynamically scheduled loop appears in your scheduled task list like any other task, so you can list or cancel it the same way. The jitter rules don’t apply to it, but the seven-day expiry does: the loop ends automatically seven days after you start it.
 
-On Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry, a prompt with no interval runs on a fixed 10-minute schedule instead.
+On Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry, a prompt with no interval runs on a fixed 10-minute schedule instead.
 
 ###
 
@@ -87,7 +87,7 @@ Claude does not start new initiatives outside that scope, and irreversible actio
 
 A bare `/loop` runs this prompt at a dynamically chosen interval. Add an interval, for example `/loop 15m`, to run it on a fixed schedule instead. To replace the built-in prompt with your own default, see Customize the default prompt with loop.md.
 
-On Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry, `/loop` with no prompt prints the usage message instead of running the maintenance prompt.
+On Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry, `/loop` with no prompt prints the usage message instead of running the maintenance prompt.
 
 ###
 
@@ -113,7 +113,7 @@ The file is plain Markdown with no required structure. Write it as if you were t
 
 Edits to `loop.md` take effect on the next iteration, so you can refine the instructions while a loop is running. When no `loop.md` exists in either location, the loop falls back to the built-in maintenance prompt. Keep the file concise: content beyond 25,000 bytes is truncated.
 
-On Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry, `loop.md` isn’t read and `/loop` with no prompt prints the usage message instead.
+On Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry, `loop.md` isn’t read and `/loop` with no prompt prints the usage message instead.
 
 ###
 

@@ -492,7 +492,7 @@ Property| Type| Default| Description
 `allowDangerouslySkipPermissions`| `boolean`| `false`| Enable bypassing permissions. Required when using `permissionMode: 'bypassPermissions'`
 `allowedTools`| `string[]`| `[]`| Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permissionMode` and `canUseTool`. Use `disallowedTools` to block tools. See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `betas`| `SdkBeta``[]`| `[]`| Enable beta features
-`canUseTool`| `CanUseTool`| `undefined`| Custom permission function, invoked only when the [permission flow](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) falls through to a prompt. Not invoked for calls auto-approved by `allowedTools`, allow rules, or `permissionMode`. See `CanUseTool` for details
+`canUseTool`| `CanUseTool`| `undefined`| Custom permission function, invoked only when the [permission flow](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) falls through to a prompt. Not invoked for calls auto-approved by `allowedTools`, allow rules, or `permissionMode`. `AskUserQuestion`, connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>), and MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) reach it even if you’ve allowed them; in `dontAsk` mode these are denied instead. See `CanUseTool` for details
 `continue`| `boolean`| `false`| Continue the most recent conversation
 `cwd`| `string`| `process.cwd()`| Current working directory
 `debug`| `boolean`| `false`| Enable debug mode for the Claude Code process
@@ -641,7 +641,7 @@ Method| Description
 
 Changes [settings](</docs/en/settings>) on a running session without restarting the query. Use it when a setting that has no dedicated setter needs to change mid-session, such as tightening `permissions` after the agent reads untrusted input. `setModel()` and `setPermissionMode()` are dedicated setters for those two keys; `applyFlagSettings()` is the general form that accepts any subset of the settings keys, and passing `model` here behaves the same as `setModel()`. Only some keys take effect mid-session:
 
-  * **Applied on the next turn** : `model`, `effortLevel`, `ultracode`, `permissions`, `hooks`, `skillOverrides`, `fastMode`, `awaySummaryEnabled`, `agent`. Switching `agent` also applies that agent’s model override, hooks, and system prompt on the next turn.
+  * **Applied on the next turn** : `model`, `effortLevel`, `ultracode`, `permissions`, `hooks`, `skillOverrides`, `fastMode`, `agent`. Switching `agent` also applies that agent’s model override, hooks, and system prompt on the next turn.
   * **No effect mid-session** : the system prompt options. These are resolved once at startup, so the running session keeps the original value even though the call succeeds. To change them, start a new session.
 
 `effortLevel` accepts an [effort level](</docs/en/model-config#adjust-effort-level>) name. It also accepts `"ultracode"`, which runs the session at `xhigh` effort and turns on [ultracode](</docs/en/workflows#let-claude-decide-with-ultracode>). The `Settings` type declares `effortLevel` without that value, so pass the equivalent `{ ultracode: true }` in TypeScript. The `ultracode` value requires Claude Code v2.1.203 or later and is accepted only by `applyFlagSettings()`, not by the `effortLevel` key in a settings file. The values are written to the flag-settings layer, the same layer the inline `settings` option of `query()` populates at startup. Flag settings sit near the top of the [settings precedence order](</docs/en/settings#settings-precedence>): they override user, project, and local settings, and only managed policy settings can override them. This is the same tier the on-page precedence section calls programmatic options. Successive calls shallow-merge top-level keys. A second call with `{ permissions: {...} }` replaces the entire `permissions` object from the prior call rather than deep-merging into it. To clear a key from the flag layer and fall back to lower-precedence sources, pass `null` for that key. Passing `undefined` has no effect because JSON serialization drops it. Only available in streaming input mode, the same constraint as `setModel()` and `setPermissionMode()`. The example below switches the active model mid-session, then clears the override so the model falls back to whatever the user or project settings specify.
@@ -911,7 +911,7 @@ Programmatic options such as `agents`, `allowedTools`, and `settings` override u
 
 `CanUseTool`
 
-Custom permission function type for controlling tool usage. The function is the SDK replacement for the interactive permission prompt: it’s invoked only when the [permission evaluation flow](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) resolves to a prompt. Tool calls already approved by an `allowedTools` entry, a settings allow rule, or the permission mode, such as `acceptEdits` or `bypassPermissions`, never invoke it. To gate every tool call, use a [`PreToolUse` hook](</docs/en/agent-sdk/hooks>) instead.
+Custom permission function type for controlling tool usage. The function is the SDK replacement for the interactive permission prompt: it’s invoked only when the [permission evaluation flow](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) resolves to a prompt. Tool calls already approved by an `allowedTools` entry, a settings allow rule, or the permission mode, such as `acceptEdits` or `bypassPermissions`, never invoke it. To gate every tool call, use a [`PreToolUse` hook](</docs/en/agent-sdk/hooks>) instead. `AskUserQuestion`, MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>), and connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) reach the function even when an allow rule matches. In `dontAsk` mode these calls are denied instead, without invoking it.
 
     type CanUseTool = (
       toolName: string,
@@ -2067,7 +2067,7 @@ Bash
 
     type BashInput = {
       command: string;
-      timeout?: number;
+      timeout?: number; // milliseconds, max 600000; higher values are clamped to the max
       description?: string;
       run_in_background?: boolean;
       dangerouslyDisableSandbox?: boolean;
@@ -3728,7 +3728,7 @@ Emitted whenever the set of live background tasks changes: a task starts, comple
 
 `SDKThinkingTokensMessage`
 
-Emitted while Claude is producing a thinking block, including a redacted one, carrying a running estimate of the thinking tokens generated so far. `estimated_tokens` is the running total for the current thinking block and `estimated_tokens_delta` is the increment carried by this frame. Use it for progress display; the authoritative billed count is the result message’s `usage.output_tokens`. Requires Claude Code v2.1.153 or later.
+Emitted while Claude is producing a thinking block, including a redacted one, carrying a running estimate of the thinking tokens generated so far. `estimated_tokens` is the running total for the current thinking block and `estimated_tokens_delta` is the increment carried by this frame. Use it for progress display. The final count for the top-level agent loop is the result message’s `usage.output_tokens`, which [doesn’t include subagent tokens](</docs/en/agent-sdk/cost-tracking#get-the-total-cost-of-a-query>); use `modelUsage` for whole-tree accounting. Requires Claude Code v2.1.153 or later.
 
     type SDKThinkingTokensMessage = {
       type: "system";
@@ -3986,7 +3986,7 @@ Property| Type| Default| Description
 
 Permissions Fallback for Unsandboxed Commands
 
-When `allowUnsandboxedCommands` is enabled, the model can request to run commands outside the sandbox by setting `dangerouslyDisableSandbox: true` in the tool input. These requests fall back to the existing permissions system, meaning your `canUseTool` handler is invoked, allowing you to implement custom authorization logic.
+When `allowUnsandboxedCommands` is enabled, the model can request to run commands outside the sandbox by setting `dangerouslyDisableSandbox: true` in the tool input. These requests fall back to the existing permissions system, meaning your `canUseTool` handler is invoked, allowing you to implement custom authorization logic. In the example below, `isCommandAuthorized` stands in for an authorization check you define.
 
 **`excludedCommands` vs `allowUnsandboxedCommands`:**
 

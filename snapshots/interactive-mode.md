@@ -128,7 +128,7 @@ Hold or tap `Space`| Voice dictation| Requires [voice dictation](</docs/en/voice
 
 Commands
 
-Type `/` in Claude Code to see all available commands, or type `/` followed by any letters to filter. The `/` menu shows everything you can invoke: built-in commands, bundled and user-authored [skills](</docs/en/skills>), and commands contributed by [plugins](</docs/en/plugins>) and [MCP servers](</docs/en/mcp#use-mcp-prompts-as-commands>). Not all built-in commands are visible to every user since some depend on your platform or plan. See the [commands reference](</docs/en/commands>) for the full list of commands included in Claude Code.
+Type `/` in Claude Code to see all available commands, or type `/` followed by any letters to filter. The `/` menu shows everything you can invoke: built-in commands, bundled and user-authored [skills](</docs/en/skills>), and commands contributed by [plugins](</docs/en/plugins>) and [MCP servers](</docs/en/mcp#use-mcp-prompts-as-commands>). Not all built-in commands are visible to every user since some depend on your platform or plan. In [fullscreen rendering](</docs/en/fullscreen#use-the-mouse>), the `/` command and `@` file suggestion lists also respond to the mouse: hovering highlights a row and clicking accepts it. See the [commands reference](</docs/en/commands>) for the full list of commands included in Claude Code.
 
 ##
 
