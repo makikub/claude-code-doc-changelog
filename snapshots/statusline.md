@@ -78,7 +78,7 @@ These examples use Bash scripts, which work on macOS and Linux. On Windows, see 
 
 Create a script that reads JSON and prints output
 
-Claude Code sends JSON data to your script via stdin. This script uses [`jq`](<https://jqlang.github.io/jq/>), a command-line JSON parser you may need to install, to extract the model name, directory, and context percentage, then prints a formatted line.Save this to `~/.claude/statusline.sh` (where `~` is your home directory, such as `/Users/username` on macOS or `/home/username` on Linux):
+Claude Code sends JSON data to your script via stdin. This script uses [`jq`](<https://jqlang.org/>), a command-line JSON parser you may need to install, to extract the model name, directory, and context percentage, then prints a formatted line.Save this to `~/.claude/statusline.sh` (where `~` is your home directory, such as `/Users/username` on macOS or `/home/username` on Linux):
 
     #!/bin/bash
     # Read JSON data that Claude Code sends to stdin
@@ -148,7 +148,7 @@ Field| Description
 `workspace.added_dirs`| Additional directories added via `/add-dir` or `--add-dir`. Empty array if none have been added
 `workspace.git_worktree`| Git worktree name when the current directory is inside a linked worktree created with `git worktree add`. Absent in the main working tree. Populated for any git worktree, unlike `worktree.*` which applies only to `--worktree` sessions
 `workspace.repo.host`, `workspace.repo.owner`, `workspace.repo.name`| Repository identity parsed from the `origin` remote, for example `"github.com"`, `"anthropics"`, `"claude-code"`. Absent outside a git repository or when no `origin` remote is configured
-`cost.total_cost_usd`| Estimated session cost in USD, computed client-side. May differ from your actual bill
+`cost.total_cost_usd`| Estimated session cost in USD, computed client-side. May differ from your actual bill. Resets to $0 when `/clear` starts a new session
 `cost.total_duration_ms`| Total wall-clock time since the session started, in milliseconds
 `cost.total_api_duration_ms`| Total time spent waiting for API responses in milliseconds
 `cost.total_lines_added`, `cost.total_lines_removed`| Lines of code changed
@@ -316,7 +316,7 @@ These examples show common status line patterns. To use any example:
   2. Make it executable: `chmod +x ~/.claude/statusline.sh`
   3. Add the path to your settings
 
-The Bash examples use [`jq`](<https://jqlang.github.io/jq/>) to parse JSON. Python and Node.js have built-in JSON parsing.
+The Bash examples use [`jq`](<https://jqlang.org/>) to parse JSON. Python and Node.js have built-in JSON parsing.
 
 ###
 

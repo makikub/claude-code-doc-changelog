@@ -13,23 +13,27 @@ Python
 TypeScript
 
     from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
+    import asyncio
 
-    async for message in query(
-        prompt="Help me refactor the auth module",
-        options=ClaudeAgentOptions(
-            # "user" loads from ~/.claude/, "project" loads from ./.claude/ in cwd.
-            # Together they give the agent access to CLAUDE.md, skills, hooks, and
-            # permissions from both locations.
-            setting_sources=["user", "project"],
-            allowed_tools=["Read", "Edit", "Bash"],
-        ),
-    ):
-        if isinstance(message, AssistantMessage):
-            for block in message.content:
-                if hasattr(block, "text"):
-                    print(block.text)
-        if isinstance(message, ResultMessage) and message.subtype == "success":
-            print(f"\nResult: {message.result}")
+    async def main():
+        async for message in query(
+            prompt="Help me refactor the auth module",
+            options=ClaudeAgentOptions(
+                # "user" loads from ~/.claude/, "project" loads from ./.claude/ in cwd.
+                # Together they give the agent access to CLAUDE.md, skills, hooks, and
+                # permissions from both locations.
+                setting_sources=["user", "project"],
+                allowed_tools=["Read", "Edit", "Bash"],
+            ),
+        ):
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if hasattr(block, "text"):
+                        print(block.text)
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(f"\nResult: {message.result}")
+
+    asyncio.run(main())
 
     import { query } from "@anthropic-ai/claude-agent-sdk";
 
@@ -53,7 +57,7 @@ TypeScript
       }
     }
 
-Each source loads settings from a specific location, where `<cwd>` is the working directory you pass via the `cwd` option, or the process’s current directory if unset. For the full type definition, see [`SettingSource`](</docs/en/agent-sdk/typescript#settingsource>) (TypeScript) or [`SettingSource`](</docs/en/agent-sdk/python#settingsource>) (Python).
+When this runs, the assistant’s response prints to stdout, followed by a final result line once the run completes. Each source loads settings from a specific location, where `<cwd>` is the working directory you pass via the `cwd` option, or the process’s current directory if unset. For the full type definition, see [`SettingSource`](</docs/en/agent-sdk/typescript#settingsource>) (TypeScript) or [`SettingSource`](</docs/en/agent-sdk/python#settingsource>) (Python).
 
 Source| What it loads| Location
 ---|---|---
@@ -123,19 +127,23 @@ Python
 TypeScript
 
     from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+    import asyncio
 
     # Skills in .claude/skills/ are discovered automatically
     # when settingSources includes "project"
-    async for message in query(
-        prompt="Review this PR using our code review checklist",
-        options=ClaudeAgentOptions(
-            setting_sources=["user", "project"],
-            skills="all",
-            allowed_tools=["Read", "Grep", "Glob"],
-        ),
-    ):
-        if isinstance(message, ResultMessage) and message.subtype == "success":
-            print(message.result)
+    async def main():
+        async for message in query(
+            prompt="Review this PR using our code review checklist",
+            options=ClaudeAgentOptions(
+                setting_sources=["user", "project"],
+                skills="all",
+                allowed_tools=["Read", "Grep", "Glob"],
+            ),
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+
+    asyncio.run(main())
 
     import { query } from "@anthropic-ai/claude-agent-sdk";
 
@@ -176,11 +184,12 @@ Python
 TypeScript
 
     from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, ResultMessage
+    import asyncio
 
     # PreToolUse hook callback. Positional args:
     #   input_data: HookInput dict with tool_name, tool_input, hook_event_name
     #   tool_use_id: str | None, the ID of the tool call being intercepted
-    #   context: HookContext, carries session metadata
+    #   context: HookContext, reserved for future abort-signal support
     async def audit_bash(input_data, tool_use_id, context):
         command = input_data.get("tool_input", {}).get("command", "")
         if "rm -rf" in command:
@@ -195,19 +204,22 @@ TypeScript
 
     # Filesystem hooks from .claude/settings.json run automatically
     # when settingSources loads them. You can also add programmatic hooks:
-    async for message in query(
-        prompt="Refactor the auth module",
-        options=ClaudeAgentOptions(
-            setting_sources=["project"],  # Loads hooks from .claude/settings.json
-            hooks={
-                "PreToolUse": [
-                    HookMatcher(matcher="Bash", hooks=[audit_bash]),
-                ]
-            },
-        ),
-    ):
-        if isinstance(message, ResultMessage) and message.subtype == "success":
-            print(message.result)
+    async def main():
+        async for message in query(
+            prompt="Refactor the auth module",
+            options=ClaudeAgentOptions(
+                setting_sources=["project"],  # Loads hooks from .claude/settings.json
+                hooks={
+                    "PreToolUse": [
+                        HookMatcher(matcher="Bash", hooks=[audit_bash]),
+                    ]
+                },
+            ),
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+
+    asyncio.run(main())
 
     import { query, type HookInput, type HookJSONOutput } from "@anthropic-ai/claude-agent-sdk";
 
@@ -254,7 +266,7 @@ When to use which hook type
 Hook type| Best for
 ---|---
 **Filesystem** (`settings.json`)| Sharing hooks between CLI and SDK sessions. Supports `"command"` (shell scripts), `"http"` (POST to an endpoint), `"mcp_tool"` (call a connected MCP server’s tool), `"prompt"` (LLM evaluates a prompt), and `"agent"` (spawns a verifier agent). These fire in the main agent and any subagents it spawns.
-**Programmatic** (callbacks in `query()`)| Application-specific logic, structured decisions, and in-process integration. These also fire inside subagents. The callback receives `agent_id` and `agent_type` to distinguish.
+**Programmatic** (callbacks in `query()`)| Application-specific logic, structured decisions, and in-process integration. These also fire inside subagents. The hook input, the callback’s first argument, carries `agent_id` and `agent_type` fields that identify which agent fired the hook.
 
 The TypeScript SDK supports additional hook events beyond Python, including `SessionStart`, `SessionEnd`, `TeammateIdle`, and `TaskCompleted`. See the [hooks guide](</docs/en/agent-sdk/hooks>) for the full event compatibility table.
 

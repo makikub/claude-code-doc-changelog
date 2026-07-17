@@ -51,7 +51,7 @@ Label| Meaning
 `Permission Required:`| A permission prompt waiting for your answer
 `Cost:`| The session cost summary when Claude Code exits, if your account [shows costs](</docs/en/costs>)
 
-The terminal cursor follows the input caret, so a screen reader’s read-current-line command answers “where am I” with the prompt you’re editing.
+The terminal cursor follows the input caret, so a screen reader’s read-current-line command answers “where am I” with the prompt you’re editing. Cycling [permission modes](</docs/en/permission-modes>) with `Shift+Tab` announces the mode you land on, such as `[plan mode on]` or `[accept edits on]`. Claude Code prints the announcement once and doesn’t repeat it on later redraws. Requires Claude Code v2.1.210 or later.
 
 ###
 
@@ -116,7 +116,7 @@ Known limitations
 Some behaviors aren’t adapted for screen reader mode:
 
   * Screen reader mode doesn’t turn on automatically when a screen reader is running.
-  * Mode changes, such as entering [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>), aren’t announced yet.
+  * Claude Code doesn’t announce a permission mode change made in any way other than cycling with `Shift+Tab`, such as entering [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) from a command.
   * Attaching to a [background session](</docs/en/agent-view>) with `claude attach` or from agent view enters the terminal’s alternate screen, which has no native scrollback. This is the [same behavior as other attached sessions](</docs/en/fullscreen>). To get back out, press Left Arrow on an empty prompt, or Ctrl+Z if a dialog has focus.
   * Claude Code announces costs in the summary it prints at exit, not per turn.
   * Screen reader mode doesn’t change [non-interactive mode](</docs/en/headless>) with the `-p` flag. Non-interactive mode already writes plain text and remains an alternative for scripting.

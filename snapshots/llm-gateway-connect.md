@@ -21,7 +21,7 @@ Run `claude`. If it opens to the login screen instead of a session, no gateway c
 
 Check the Status tab
 
-If Claude Code started a session without showing the login screen, run `/status`, open the **Status** tab, and check two lines:
+If Claude Code started a session without showing the login screen, run `/status`, which opens on the **Status** tab, and check two lines:
 
   * `Anthropic base URL`: this line only appears when a gateway address is set. If it isn’t there, Claude Code isn’t pointed at the gateway; configure it yourself below.
   * `Auth token` or `API key`: a line naming `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_API_KEY`, or an `apiKeyHelper` confirms a gateway credential is active. A `Login method` line naming a claude.ai account instead means the credential wasn’t distributed; set it yourself.
@@ -95,7 +95,7 @@ Replace the values with the ones your gateway team gave you:
     $env:ANTHROPIC_BASE_URL = "https://llm-gateway.example.com"
     $env:ANTHROPIC_AUTH_TOKEN = "sk-gateway-key"
 
-Shell exports apply only to that terminal session and programs started from it; an editor launched from the dock or Start menu won’t see them. To make them persist across new terminals, add the same lines to your shell profile, such as `~/.zshrc`, `~/.bashrc`, or your PowerShell `$PROFILE`, or use a settings file instead.
+Shell exports apply only to that terminal session and programs started from it. An editor launched from the dock or Start menu won’t see them. To make the values persist across new terminals, add the same lines to your shell profile, such as `~/.zshrc`, `~/.bashrc`, or your PowerShell `$PROFILE`. If you export the gateway only in your shell, it doesn’t reliably reach background agents hosted by the [supervisor](</docs/en/agent-view#how-background-sessions-are-hosted>); see [how each background session sources its gateway](</docs/en/agent-view#the-supervisor-process>). Use a settings file for any gateway that background agents must always route through.
 
 ####
 
@@ -103,7 +103,7 @@ Shell exports apply only to that terminal session and programs started from it; 
 
 Set in a settings file
 
-To make the configuration apply everywhere Claude Code runs without depending on your shell, set the variables in the `env` block of a [settings file](</docs/en/settings>). Settings files have different scopes:
+To make the configuration apply everywhere Claude Code runs, including [background agents](</docs/en/agent-view#how-background-sessions-are-hosted>), set the variables in the `env` block of a [settings file](</docs/en/settings>) instead of relying on your shell. Settings files have different scopes:
 
   * `~/.claude/settings.json` applies to all your projects. On Windows the path is `%USERPROFILE%\.claude\settings.json`
   * `.claude/settings.local.json` applies to one project. Claude Code adds it to your gitignore when it creates the file; if you create it yourself, add it to your gitignore manually first so you don’t accidentally commit your credential
@@ -481,7 +481,7 @@ Error| Cause| Fix
 A startup warning naming two credential sources and ending in `auth may not work as expected`. Older versions show `Auth conflict: Both a token (SOURCE) and an API key (SOURCE) are set` instead.| A gateway credential and a saved login are both active; the variable is used for requests, but the stale login can cause unexpected auth behavior| Unset the variable to use the saved login, or run `/logout` to use the gateway credential
 `401` errors naming an invalid or unrecognized token| The credential isn’t one the gateway issued, or it’s in a header the gateway doesn’t read| Confirm the variable matches your credential kind in the credential table, and regenerate the key at the gateway if it was revoked
 `Your apiKeyHelper script is failing`| The command in the [`apiKeyHelper`](</docs/en/settings#available-settings>) setting exited with an error, timed out, or printed nothing, so requests carry a placeholder key| Run the command directly to see why it fails, and re-authenticate with your credential provider if it reports an expired session; see [the error reference](</docs/en/errors#your-apikeyhelper-script-is-failing>)
-`Unable to connect to API (ConnectionRefused)`, or `(ECONNREFUSED)` from npm installs, often after a silent pause while Claude Code [retries with backoff](</docs/en/errors#automatic-retries>)| Nothing answered at the base URL: the address is wrong, or a VPN or firewall blocks the path to the gateway| Run the curl test above, which fails immediately with the same cause, and confirm the URL and network path with your gateway team
+`Unable to connect to API (ConnectionRefused)` when nothing answers at the address, `Unable to connect to API (FailedToOpenSocket)` when the hostname doesn’t resolve, or `(ECONNREFUSED)` from npm installs, often after a silent pause while Claude Code [retries with backoff](</docs/en/errors#automatic-retries>)| Nothing answered at the base URL: the address is wrong, or a VPN or firewall blocks the path to the gateway| Run the curl test above, which fails immediately with the same cause, and confirm the URL and network path with your gateway team
 `API returned an empty or malformed response (HTTP 200)`| The gateway or an intermediate proxy returned a non-API response, often an HTML error or login page| Test with the curl request above; fix the gateway route that returns non-JSON
 `400` errors naming `context_management`, `Extra inputs are not permitted`, or other unrecognized fields| The gateway forwards requests to an upstream that rejects fields Claude Code sends to Anthropic-format endpoints| Set `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`, which suppresses most pre-release fields; see [feature pass-through](</docs/en/llm-gateway-protocol#feature-pass-through>). Some betas aren’t gated by this flag; for those, set the matching `CLAUDE_CODE_USE_*` provider variable so Claude Code sends only what that provider accepts
 `400` errors naming `thinking` or `adaptive`, such as `Input tag 'adaptive' found`| The upstream model build doesn’t accept adaptive reasoning, which Claude Code requests for Claude 4.6 and later models| Upgrade the gateway’s upstream. On Opus 4.6 and Sonnet 4.6, `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` works instead. The [model configuration](</docs/en/model-config>) capability variables apply only to the provider configurations, such as `CLAUDE_CODE_USE_BEDROCK` and `CLAUDE_CODE_USE_VERTEX`, not behind an `ANTHROPIC_BASE_URL` gateway

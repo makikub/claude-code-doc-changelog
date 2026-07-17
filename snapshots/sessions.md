@@ -13,7 +13,7 @@ Command| What it does
 `claude --continue`| Resumes the most recent session in the current directory
 `claude --resume`| Opens the session picker
 `claude --resume <name>`| Resumes the named session directly
-`claude --from-pr <number>`| Resumes the session linked to that pull request
+`claude --from-pr <number>`| Opens the session picker filtered to sessions linked to that pull request
 `/resume`| Switches to a different conversation from inside an active session
 
 Sessions created with [`claude -p`](</docs/en/headless>) or the [Agent SDK](</docs/en/agent-sdk/overview>) do not appear in the session picker, but you can still resume one by passing its session ID to `claude --resume <session-id>`. Run this from the directory the session was started in: session ID lookup is scoped to the current project directory and its git worktrees, so a session created elsewhere reports `No conversation found with session ID: <session-id>`.
@@ -22,9 +22,25 @@ Sessions created with [`claude -p`](</docs/en/headless>) or the [Agent SDK](</do
 
 ​
 
+What a resumed session restores
+
+A resumed session restores the conversation along with the state saved in it:
+
+  * Conversation history: the full history, including tool calls and results.
+  * Model: the session continues on the model it was using. The model isn’t restored when it has been retired or isn’t allowed by `availableModels`, when a `--model` flag or `ANTHROPIC_MODEL`-family environment variable picks one at launch, or on providers that use provider-specific deployment IDs, such as [Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry](</docs/en/third-party-integrations>); see [model configuration](</docs/en/model-config#setting-your-model>) for the resolution order.
+  * Permission mode: the mode the session was in. `plan` and `bypassPermissions` are never restored; [bypassing permissions](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>) must be enabled again at launch, with one of its launch flags or `permissions.defaultMode: "bypassPermissions"` in [settings](</docs/en/settings#permission-settings>). `auto` is restored only when your account still meets the [auto mode requirements](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>). Pass `--permission-mode` to override the restored mode.
+  * Active goal: a [goal](</docs/en/goal#resume-with-an-active-goal>) that was still active when the session ended carries over; its turn count, timer, and token-spend baseline reset.
+  * Scheduled tasks: [tasks that haven’t expired](</docs/en/scheduled-tasks#limitations>) are restored. Background Bash and monitor tasks aren’t.
+
+Not every configuration flag from the original launch is restored. If the session depended on `--mcp-config`, `--settings`, `--plugin-dir`, `--fallback-model`, or directories added with `--add-dir`, pass them again when you resume; directories added mid-session with `/add-dir` aren’t restored either, though the session picker still uses them to locate the session. The standard settings files, such as `settings.json` and `settings.local.json`, are re-read at launch, so configuration that lives in them doesn’t need to be passed again.
+
+###
+
+​
+
 Where the session picker looks
 
-Sessions are stored per project directory. By default the session picker shows interactive sessions from the current worktree, plus sessions started elsewhere that added the current directory with `/add-dir`. Use `Ctrl+W` to widen to all worktrees of the repository or `Ctrl+A` to widen to every project on this machine. From v2.1.169, moving a session with [`/cd`](</docs/en/commands>) relocates it to the new directory’s project storage, so it appears in that directory’s picker afterward. As of v2.1.196, a moved session stays out of the old directory’s picker even after a crash or forced exit. On earlier versions, it could also reappear in the old directory’s list after an exit that wasn’t clean when the old path contained special characters such as underscores. Selecting a session from another worktree of the same repository resumes it in place. Selecting a session from an unrelated project copies a `cd` and resume command to your clipboard instead. Resuming by name resolves across the current repository and its worktrees. Both forms look for an exact match and resume it directly even if it lives in a different worktree:
+Sessions are stored per project directory. By default the session picker shows interactive sessions from the current worktree, plus sessions started elsewhere that added the current directory with `/add-dir`. Use `Ctrl+W` to widen to all worktrees of the repository or `Ctrl+A` to widen to every project on this machine. Sessions whose first prompt was a [`/loop`](</docs/en/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop>) command don’t appear in the picker; running `/loop` later in a conversation doesn’t hide the session. Before v2.1.211, a `/loop` run early in a conversation hid the session from the picker permanently. From v2.1.169, moving a session with [`/cd`](</docs/en/commands>) relocates it to the new directory’s project storage, so it appears in that directory’s picker afterward. As of v2.1.196, a moved session stays out of the old directory’s picker even after a crash or forced exit. On earlier versions, it could also reappear in the old directory’s list after an exit that wasn’t clean when the old path contained special characters such as underscores. Selecting a session from another worktree of the same repository resumes it in place. Selecting a session from an unrelated project copies a `cd` and resume command to your clipboard instead. Resuming by name resolves across the current repository and its worktrees. Both forms look for an exact match and resume it directly even if it lives in a different worktree:
 
 Command| Exact match| Ambiguous name
 ---|---|---

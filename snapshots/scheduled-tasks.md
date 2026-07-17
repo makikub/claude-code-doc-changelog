@@ -41,7 +41,7 @@ You can also pass a skill as the prompt, for example `/loop 20m /review-pr 1234`
   * built-in commands such as `/permissions`, `/model`, or `/clear`
   * skills marked [`disable-model-invocation: true`](</docs/en/skills#frontmatter-reference>)
   * skills withheld from Claude by a [`skillOverrides`](</docs/en/skills#override-skill-visibility-from-settings>) setting or a `Skill` [deny rule](</docs/en/skills#restrict-claude%E2%80%99s-skill-access>)
-  * [MCP prompts](</docs/en/mcp#use-mcp-prompts-as-commands>) such as `/mcp__github__list_prs`; skills an MCP server exposes still run
+  * [MCP prompts](</docs/en/mcp#use-mcp-prompts-as-commands>) such as `/mcp__github__list_prs`
 
 ###
 

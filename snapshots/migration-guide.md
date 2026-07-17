@@ -60,7 +60,7 @@ After:
 
     {
       "dependencies": {
-        "@anthropic-ai/claude-agent-sdk": "^0.2.0"
+        "@anthropic-ai/claude-agent-sdk": "^0.3.0"
       }
     }
 
@@ -74,9 +74,9 @@ For Python Projects
 
 **1\. Uninstall the old package:**
 
-    pip uninstall claude-code-sdk
+    pip uninstall -y claude-code-sdk
 
-**2\. Install the new package:**
+If the old package isn’t installed, pip prints `WARNING: Skipping claude-code-sdk as it is not installed.` That’s expected and you can continue to the next step. **2\. Install the new package:**
 
     pip install claude-agent-sdk
 
@@ -164,28 +164,32 @@ Python
       }
     });
 
-    # BEFORE (v0.0.x) - Used Claude Code's system prompt by default
-    async for message in query(prompt="Hello"):
-        print(message)
-
-    # AFTER (v0.1.0) - Uses minimal system prompt by default
-    # To get the old behavior, explicitly request Claude Code's preset:
     from claude_agent_sdk import query, ClaudeAgentOptions
+    import asyncio
 
-    async for message in query(
-        prompt="Hello",
-        options=ClaudeAgentOptions(
-            system_prompt={"type": "preset", "preset": "claude_code"}  # Use the preset
-        ),
-    ):
-        print(message)
+    async def main():
+        # BEFORE (v0.0.x) - Used Claude Code's system prompt by default
+        async for message in query(prompt="Hello"):
+            print(message)
 
-    # Or use a custom system prompt:
-    async for message in query(
-        prompt="Hello",
-        options=ClaudeAgentOptions(system_prompt="You are a helpful coding assistant"),
-    ):
-        print(message)
+        # AFTER (v0.1.0) - Uses minimal system prompt by default
+        # To get the old behavior, explicitly request Claude Code's preset:
+        async for message in query(
+            prompt="Hello",
+            options=ClaudeAgentOptions(
+                system_prompt={"type": "preset", "preset": "claude_code"}  # Use the preset
+            ),
+        ):
+            print(message)
+
+        # Or use a custom system prompt:
+        async for message in query(
+            prompt="Hello",
+            options=ClaudeAgentOptions(system_prompt="You are a helpful coding assistant"),
+        ):
+            print(message)
+
+    asyncio.run(main())
 
 **Why this changed:** Provides better control and isolation for SDK applications. You can now build agents with custom behavior without inheriting Claude Code’s CLI-focused instructions.
 
@@ -219,21 +223,25 @@ Python
     });
 
     from claude_agent_sdk import query, ClaudeAgentOptions
+    import asyncio
 
-    async for message in query(
-        prompt="Hello",
-        options=ClaudeAgentOptions(setting_sources=[]),  # No filesystem settings loaded
-    ):
-        print(message)
+    async def main():
+        async for message in query(
+            prompt="Hello",
+            options=ClaudeAgentOptions(setting_sources=[]),  # No filesystem settings loaded
+        ):
+            print(message)
 
-    # Or load only specific sources:
-    async for message in query(
-        prompt="Hello",
-        options=ClaudeAgentOptions(
-            setting_sources=["project"]  # Only project settings
-        ),
-    ):
-        print(message)
+        # Or load only specific sources:
+        async for message in query(
+            prompt="Hello",
+            options=ClaudeAgentOptions(
+                setting_sources=["project"]  # Only project settings
+            ),
+        ):
+            print(message)
+
+    asyncio.run(main())
 
 Isolation is especially important for CI/CD pipelines, deployed applications, test environments, and multi-tenant systems where local customizations should not leak in.
 

@@ -17,11 +17,13 @@ The Session block in `/usage` shows API token usage and is intended for API user
 The Session block at the top of `/usage` shows detailed token usage statistics for your current session. The dollar figure is an estimate computed locally from token counts and may differ from your actual bill. For authoritative billing, see the Usage page in the [Claude Console](<https://platform.claude.com/usage>).
 
     Total cost:            $0.55
-    Total duration (API):  6m 19.7s
-    Total duration (wall): 6h 33m 10.2s
+    Total duration (API):  6m 20s
+    Total duration (wall): 6h 33m 10s
     Total code changes:    0 lines added, 0 lines removed
+    Usage by model:
+       claude-sonnet-4-6:  1.2k input, 5.3k output, 940.0k cache read, 50.0k cache write ($0.55)
 
-On a Pro, Max, Team, or Enterprise plan, `/usage` also shows a breakdown of what counts against your plan limits. It attributes recent usage to skills, subagents, plugins, and individual MCP servers, with each shown as a percentage of the total. Press `d` or `w` to switch between the last 24 hours and the last 7 days. The figures are approximate and computed from local session history on this machine, so usage from other devices or claude.ai is not included. When the request for your plan limits fails, most often because the usage endpoint is rate limited, `/usage` shows the last usage bars it loaded on this machine within the past 60 minutes, along with a `Showing last-known usage` note stating how long ago that data was fetched. Press `r` to retry; a successful retry replaces the last-known bars with fresh data. Without a snapshot from the past 60 minutes, `/usage` reports that the usage endpoint is rate limited and offers the same retry shortcut. Before v2.1.208, a rate-limited request in a session that hadn’t loaded usage yet always showed the error with no bars. In the [VS Code extension](</docs/en/vs-code#check-account-and-usage>), the same breakdown appears in the Account & usage dialog with a Day and Week toggle. Requires Claude Code v2.1.174 or later.
+These totals reset when `/clear` starts a new session, so the next session’s total cost starts at $0. Before v2.1.211, they kept accumulating across `/clear` for the lifetime of the Claude Code process. On a Pro, Max, Team, or Enterprise plan, `/usage` also shows a breakdown of what counts against your plan limits. It attributes recent usage to skills, subagents, plugins, and individual MCP servers, with each shown as a percentage of the total. Press `d` or `w` to switch between the last 24 hours and the last 7 days. The figures are approximate and computed from local session history on this machine, so usage from other devices or claude.ai is not included. When the request for your plan limits fails, most often because the usage endpoint is rate limited, `/usage` shows the last usage bars it loaded on this machine within the past 60 minutes, along with a `Showing last-known usage` note stating how long ago that data was fetched. Press `r` to retry; a successful retry replaces the last-known bars with fresh data. Without a snapshot from the past 60 minutes, `/usage` reports that the usage endpoint is rate limited and offers the same retry shortcut. Before v2.1.208, a rate-limited request in a session that hadn’t loaded usage yet always showed the error with no bars. In the [VS Code extension](</docs/en/vs-code#check-account-and-usage>), the same breakdown appears in the Account & usage dialog with a Day and Week toggle. Requires Claude Code v2.1.174 or later.
 
 ###
 
@@ -29,14 +31,14 @@ On a Pro, Max, Team, or Enterprise plan, `/usage` also shows a breakdown of what
 
 Set a spend limit on Pro and Max
 
-On Pro and Max plans, the `/usage-credits` command opens a dialog in the CLI where you manage [usage credits](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>). From the dialog you can:
+On Pro and Max plans, the `/usage-credits` command opens a dialog in the CLI where you manage [usage credits](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>). The command requires signing in with your claude.ai subscription through `/login` and isn’t available with API key authentication. From the dialog you can:
 
   * Turn on usage credits for your account
   * Buy more usage credits, either a listed bundle or a custom amount
   * Set, change, or remove your monthly spend limit
   * Configure auto-reload, which buys more usage credits automatically when your balance falls below a threshold you set
 
-On Claude Code versions before v2.1.207 and on accounts where the in-CLI dialog isn’t available, `/usage-credits` opens the usage-credits billing page in your browser instead. On Team and Enterprise plans, members with billing access get the same browser page, and members without billing access send a request from the CLI asking their admin to turn on usage credits or raise the limit. Changing the monthly spend limit requires billing access on the account. If you reach the limit while you still have usage credits available, Claude Code prompts you to raise or remove it so you can continue without leaving the CLI. Amounts you type into the dialog, such as a custom purchase amount, the monthly spend limit, or the auto-reload threshold and target, must be digits, optionally followed by a period and one or two decimal digits, for example `20` or `20.50`. Any other input, including commas, shows an inline error and isn’t saved. Versions before v2.1.207 don’t show the dialog and open the billing page instead. Claude Code asks you to type `yes` to confirm every purchase and every auto-reload change, whatever the amount, and the purchase confirmation shows the post-tax total you are approving. Changing the monthly spend limit asks for the same typed confirmation only above $1,000, or above 1,000 units of a non-US-dollar billing currency. Before v2.1.208, purchases and auto-reload changes used that threshold too, so smaller amounts went through the standard dialog flow without the extra typed `yes` step. Amount fields open prefilled with a suggested value, and the first digit you type replaces the suggestion instead of appending to it. The screen that turns on usage credits opens with Cancel selected, so turning them on takes a deliberate selection rather than a stray Enter. Both require Claude Code v2.1.208 or later.
+On Claude Code versions before v2.1.207 and on accounts where the in-CLI dialog isn’t available, `/usage-credits` opens the usage-credits billing page in your browser instead. On Team and Enterprise plans, members with billing access get the same browser page, and members without billing access request usage credits from their admin through the CLI. Because that request notifies your organization’s admins, the CLI asks for confirmation before sending it. Select **Send request** to ask your admin to turn on usage credits or raise the limit, or cancel to send nothing; canceling reports `No request sent to your admin.` The confirmation appears only in interactive sessions, so in non-interactive mode with the `-p` flag and from [Remote Control](</docs/en/remote-control>), `/usage-credits` doesn’t send a request and instead tells you to run the command in an interactive session. Before v2.1.211, Claude Code sent the request as soon as you ran the command, without a confirmation step. Changing the monthly spend limit requires billing access on the account. If you reach the limit while you still have usage credits available, Claude Code prompts you to raise or remove it so you can continue without leaving the CLI. Amounts you type into the dialog, such as a custom purchase amount, the monthly spend limit, or the auto-reload threshold and target, must be digits, optionally followed by a period and one or two decimal digits, for example `20` or `20.50`. Any other input, including commas, shows an inline error and isn’t saved. Versions before v2.1.207 don’t show the dialog and open the billing page instead. Claude Code asks you to type `yes` to confirm every purchase and every auto-reload change, whatever the amount, and the purchase confirmation shows the post-tax total you are approving. Changing the monthly spend limit asks for the same typed confirmation only above $1,000, or above 1,000 units of a non-US-dollar billing currency. Before v2.1.208, purchases and auto-reload changes used that threshold too, so smaller amounts went through the standard dialog flow without the extra typed `yes` step. Amount fields open prefilled with a suggested value, and the first digit you type replaces the suggestion instead of appending to it. The screen that turns on usage credits opens with Cancel selected, so turning them on takes a deliberate selection rather than a stray Enter. Both require Claude Code v2.1.208 or later.
 
 ##
 
@@ -157,7 +159,7 @@ Manage context proactively
 Use `/usage` to check your current token usage, or [configure your status line](</docs/en/statusline#context-window-usage>) to display it continuously.
 
   * **Clear between tasks** : Use `/clear` to start fresh when switching to unrelated work. Stale context wastes tokens on every subsequent message. Use `/rename` before clearing so you can easily find the session later, then `/resume` to return to it.
-  * **Add custom compaction instructions** : `/compact Focus on code samples and API usage` tells Claude what to preserve during summarization.
+  * **Add custom compaction instructions** : `/compact Focus on code samples and API usage` tells Claude what to preserve during summarization. In a fresh session, `/compact` prints `Not enough messages to compact.` because there’s no conversation history to summarize yet.
 
 You can also customize compaction behavior in your CLAUDE.md file at the root of your project:
 
@@ -236,6 +238,8 @@ The hook calls this script. Create the folder with `mkdir -p ~/.claude/hooks`, s
       echo "{}"
     fi
 
+To verify the setup, run `/hooks` and check that the hook appears under PreToolUse. You can also start Claude Code with `claude --debug` and run a test command such as `npm test`. The debug log shows `modified tool input keys: [command]` when the hook rewrites the command.
+
 ###
 
 ​
@@ -284,7 +288,7 @@ Work efficiently on complex tasks
 
 For longer or more complex work, these habits help avoid wasted tokens from going down the wrong path:
 
-  * **Use plan mode for complex tasks** : Press Shift+Tab to enter [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) before implementation. Claude explores the codebase and proposes an approach for your approval, preventing expensive re-work when the initial direction is wrong.
+  * **Use plan mode for complex tasks** : Press Shift+Tab to cycle to [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) before implementation. Claude explores the codebase and proposes an approach for your approval, preventing expensive re-work when the initial direction is wrong.
   * **Course-correct early** : If Claude starts heading the wrong direction, press Escape to stop immediately. Use `/rewind` or double-tap Escape to restore conversation and code to a previous checkpoint.
   * **Give verification targets** : Include test cases, paste screenshots, or define expected output in your prompt. When Claude can verify its own work, it catches issues before you need to request fixes.
   * **Test incrementally** : Write one file, test it, then continue. This catches issues early when they’re cheap to fix.

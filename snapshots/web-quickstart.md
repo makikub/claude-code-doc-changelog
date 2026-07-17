@@ -230,7 +230,11 @@ Enterprise organizations may need an Owner to enable Claude Code on the web. Con
 
 `/web-setup` shows “No commands match” or “Unknown command”
 
-`/web-setup` runs inside the Claude Code CLI, not your shell. Launch `claude` first, then type `/web-setup` at the prompt. If you typed it inside Claude Code and the command menu shows `No commands match "/web-setup"`, or submitting it returns `Unknown command: /web-setup`, the command is hidden because a requirement isn’t met. The cause is usually that you’re authenticated with an API key or third-party provider instead of a claude.ai subscription. Run `/login` to sign in with your claude.ai account.
+`/web-setup` runs inside the Claude Code CLI, not your shell. Launch `claude` first, then type `/web-setup` at the prompt. If you typed it inside Claude Code and the command menu shows `No commands match "/web-setup"`, or submitting it returns `Unknown command: /web-setup`, the command is hidden because a requirement isn’t met. The cause is usually that you’re authenticated with an API key or third-party provider instead of a claude.ai subscription. Run `/login` to sign in with your claude.ai account. On Team and Enterprise plans, the command is also hidden when any of the following apply:
+
+  * an administrator has disabled Claude Code on the web for your organization
+  * an administrator has disabled the [Quick web setup toggle](</docs/en/claude-code-on-the-web#github-authentication-options>)
+  * your Enterprise organization has [Zero Data Retention](</docs/en/zero-data-retention>) enabled, which makes Claude Code on the web unavailable
 
 ###
 

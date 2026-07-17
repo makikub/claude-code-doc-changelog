@@ -42,7 +42,7 @@ Every deep link starts with `claude-cli://open`, which is the only path the hand
 
     claude-cli://open
 
-Add parameters to control where the session starts and what the prompt box contains:
+To try a link without putting it on a page, paste it into your browser’s address bar or open it from the shell. Add parameters to control where the session starts and what the prompt box contains:
 
 Parameter| Description
 ---|---
@@ -106,7 +106,7 @@ To use this in your own runbook, replace `acme/web-gateway` with your service’
 
 Open a link from the shell
 
-You can also open a deep link from a shell script, alias, or automation rather than by clicking it. Call your operating system’s URL-opening command with the link as the argument.
+You can also open a deep link from a shell script, alias, or automation rather than by clicking it. Call your operating system’s URL-opening command with the link as the argument. These commands rely on the handler that Claude Code registers when you send your first prompt of an interactive session on the machine.
 
   * macOS
 
@@ -122,6 +122,8 @@ Most desktop environments provide `xdg-open`, which passes the URL to the regist
 
     xdg-open "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
 
+On success, a new terminal window opens with Claude Code running and the prompt pre-filled. If the shell reports that `xdg-open` isn’t found, see Troubleshooting.
+
 In PowerShell, `Start-Process` passes the URL to the registered handler:
 
     Start-Process "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
@@ -136,7 +138,7 @@ In `cmd.exe`, `start` treats its first quoted argument as a window title, so pas
 
 Registration and supported platforms
 
-Claude Code registers the `claude-cli://` handler with your operating system the first time you start an interactive session on macOS, Linux, and Windows. You do not run a separate install command. Registration writes to user-level locations only:
+Claude Code registers the `claude-cli://` handler with your operating system on macOS, Linux, and Windows when you send your first prompt of an interactive session. Starting `claude` and exiting without sending a prompt doesn’t register the handler. You don’t run a separate install command. Registration writes to user-level locations only:
 
 Platform| Handler location
 ---|---
@@ -166,7 +168,15 @@ Troubleshooting
 
 Clicking the link does nothing
 
-The handler likely is not registered yet. Start an interactive `claude` session once on that machine, exit, and try the link again. If you are on Linux without a desktop environment, `xdg-open` may have nothing to dispatch to.
+The handler likely isn’t registered yet. Registration happens when you send your first prompt of an interactive session, not when the session starts. Start an interactive `claude` session on that machine, send any prompt, exit, and try the link again. If you are on Linux without a desktop environment, `xdg-open` may have nothing to dispatch to.
+
+###
+
+​
+
+xdg-open is not found on Linux
+
+The `xdg-open` command is part of the `xdg-utils` package, which minimal server images, containers, and WSL distributions often leave out. Install `xdg-utils` with your distribution’s package manager, for example `sudo apt install xdg-utils`, then run the command again. If the command then runs but nothing opens, `xdg-open` may have no desktop environment to dispatch to; see Clicking the link does nothing.
 
 ###
 

@@ -32,6 +32,7 @@ First, create a Claude resource in Azure:
      * Claude Opus
      * Claude Sonnet
      * Claude Haiku
+When you configure a deployment, you also choose its [hosting option](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>), which determines whether inference runs on Azure or on Anthropic infrastructure.
 
 ###
 

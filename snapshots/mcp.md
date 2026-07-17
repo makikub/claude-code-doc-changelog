@@ -35,7 +35,7 @@ In a Claude Code session, run:
 
     /plugin install mcp-server-dev@claude-plugins-official
 
-If Claude Code reports that the marketplace is not found, run `/plugin marketplace add anthropics/claude-plugins-official` first, then retry the install. Once installed, run `/reload-plugins` to activate it in the current session.
+If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install. Once installed, run `/reload-plugins` to activate it in the current session.
 
 2
 
@@ -97,7 +97,7 @@ The SSE (Server-Sent Events) transport is deprecated. Use HTTP servers instead, 
 
 Option 3: Add a local stdio server
 
-Stdio servers run as local processes on your machine. They’re ideal for tools that need direct system access or custom scripts. Claude Code sets `CLAUDE_PROJECT_DIR` in the spawned server’s environment to the project root, so your server can resolve project-relative paths without depending on the working directory. This is the same directory hooks receive in their `CLAUDE_PROJECT_DIR` variable. Read it from inside your server process, for example `process.env.CLAUDE_PROJECT_DIR` in Node or `os.environ["CLAUDE_PROJECT_DIR"]` in Python. `CLAUDE_PROJECT_DIR` is the stable project root and doesn’t change when you add or remove working directories mid-session. A server that limits its own filesystem access to a set of allowed directories should implement the MCP `roots/list` request instead. Claude Code answers `roots/list` with the session’s launch directory plus every [additional working directory](</docs/en/permissions#working-directories>) you’ve granted with `--add-dir`, `/add-dir`, or the `additionalDirectories` setting. Claude Code sends `notifications/roots/list_changed` when that set changes. Before v2.1.203, `roots/list` returned only the launch directory and Claude Code didn’t send `notifications/roots/list_changed`. This variable is set in the server’s environment, not in Claude Code’s own environment, so referencing it via `${VAR}` expansion in a project- or user-scoped `.mcp.json` `command` or `args` requires a default such as `${CLAUDE_PROJECT_DIR:-.}`. Plugin-provided MCP configurations substitute `${CLAUDE_PROJECT_DIR}` directly and don’t need the default.
+Stdio servers run as local processes on your machine. They’re ideal for tools that need direct system access or custom scripts. Claude Code sets `CLAUDE_PROJECT_DIR` in the spawned server’s environment to the project root, so your server can resolve project-relative paths without depending on the working directory. This is the same directory hooks receive in their `CLAUDE_PROJECT_DIR` variable. Read it from inside your server process, for example `process.env.CLAUDE_PROJECT_DIR` in Node or `os.environ["CLAUDE_PROJECT_DIR"]` in Python. `CLAUDE_PROJECT_DIR` is the stable project root and doesn’t change when you add or remove working directories mid-session. A server that limits its own filesystem access to a set of allowed directories should implement the MCP `roots/list` request instead. Claude Code answers `roots/list` with the session’s launch directory plus every [additional working directory](</docs/en/permissions#working-directories>) you’ve granted with `--add-dir`, `/add-dir`, or the `additionalDirectories` setting. Claude Code sends `notifications/roots/list_changed` when that set changes. Before v2.1.203, `roots/list` returned only the launch directory and Claude Code didn’t send `notifications/roots/list_changed`. This variable is set in the server’s environment, not in Claude Code’s own environment, so referencing it via `${VAR}` expansion in the `command` or `args` of a project-scoped `.mcp.json` entry or a local- or user-scoped server entry in `~/.claude.json` requires a default such as `${CLAUDE_PROJECT_DIR:-.}`. Plugin-provided MCP configurations substitute `${CLAUDE_PROJECT_DIR}` directly and don’t need the default.
 
     # Basic syntax
     claude mcp add [options] <name> -- <command> [args...]
@@ -146,7 +146,7 @@ Once configured, you can manage your MCP servers with these commands:
     # (within Claude Code) Check server status
     /mcp
 
-Project-scoped servers from `.mcp.json` that are awaiting your approval appear in `claude mcp list` as `⏸ Pending approval`. Run `claude` interactively to review and approve them. `claude mcp get <name>` shows pending servers as `⏸ Pending approval` and rejected servers as `✗ Rejected`. As of v2.1.196, `claude mcp list` and `claude mcp get` read `.mcp.json` approvals only from settings files that aren’t checked into the repository until you trust the workspace by running `claude` in it and accepting the workspace trust dialog. A cloned repository can’t approve its own servers: [`enableAllProjectMcpServers` or `enabledMcpjsonServers`](</docs/en/settings#available-settings>) committed to the project’s `.claude/settings.json` is ignored in an untrusted folder, and the server stays at `⏸ Pending approval` instead of being connected and health-checked. Approvals from these sources still apply in an untrusted folder:
+Project-scoped servers from `.mcp.json` that are awaiting your approval appear in `claude mcp list` and `claude mcp get <name>` as `⏸ Pending approval (run `claude` to approve)`. Run `claude` interactively to review and approve them. `claude mcp get <name>` shows rejected servers as `✘ Rejected (see disabledMcpjsonServers in settings)`. As of v2.1.196, `claude mcp list` and `claude mcp get` read `.mcp.json` approvals only from settings files that aren’t checked into the repository until you trust the workspace by running `claude` in it and accepting the workspace trust dialog. A cloned repository can’t approve its own servers: [`enableAllProjectMcpServers` or `enabledMcpjsonServers`](</docs/en/settings#available-settings>) committed to the project’s `.claude/settings.json` is ignored in an untrusted folder, and the server stays at `⏸ Pending approval` instead of being connected and health-checked. Approvals from these sources still apply in an untrusted folder:
 
   * your user `~/.claude/settings.json`
   * managed settings
@@ -234,7 +234,10 @@ Or inline in `plugin.json`:
 
 **Plugin MCP features** :
 
-  * **Automatic lifecycle** : at session startup, servers for enabled plugins connect automatically. If you enable or disable a plugin during a session, run `/reload-plugins` to connect or disconnect its MCP servers
+  * **Automatic lifecycle** : servers connect and disconnect at these points:
+    * At session startup, servers for enabled plugins connect automatically
+    * If you enable or disable a plugin during a session, run `/reload-plugins` to connect or disconnect its MCP servers
+    * In [web sessions](</docs/en/claude-code-on-the-web>), an MCP call to a plugin server that isn’t connected yet, such as right after an idle session wakes, starts the server on demand and waits for it to connect. Before v2.1.211, plugin servers in a web session reconnected only when the next message started a turn, so MCP calls after an idle session woke failed until then
   * **Path placeholders** : `${CLAUDE_PLUGIN_ROOT}` resolves to the plugin’s installation directory, `${CLAUDE_PLUGIN_DATA}` to its [persistent state](</docs/en/plugins-reference#persistent-data-directory>) directory, and `${CLAUDE_PROJECT_DIR}` to the stable project root. Substitution applies to:
     * `stdio` servers: `command`, `args`, `env`
     * `http`, `sse`, and `ws` servers: `url`, `headers`, and `headersHelper`. Before v2.1.195, `headersHelper` passed the placeholder through as a literal string
@@ -388,7 +391,7 @@ Claude Code supports environment variable expansion in `.mcp.json` files, allowi
       }
     }
 
-If a referenced environment variable isn’t set and has no default value, Claude Code leaves the literal `${VAR}` text in the value and reports a missing-variable warning for that server. The config still loads, so set the variable or add a `:-default` fallback so the server starts with the value you intend.
+If a referenced environment variable isn’t set and has no default value, the config still loads: Claude Code reports a missing-variable warning for that server in `claude mcp list` output and uses the unexpanded `${VAR}` text as-is. Set the variable or add a `:-default` fallback so the server starts with the value you intend.
 
 ##
 

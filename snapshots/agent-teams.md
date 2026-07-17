@@ -1,4 +1,4 @@
-Agent teams are experimental and disabled by default. Enable them by adding `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` to your [settings.json](</docs/en/settings>) or environment. Without that variable, no team is set up at session start, no team directories are written, and Claude does not spawn or propose teammates. Agent teams have known limitations around session resumption, task coordination, and shutdown behavior.
+Agent teams are experimental and disabled by default. Enable them by setting `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in your [settings.json](</docs/en/settings>) or environment. Without that variable, no team is set up at session start, no team directories are written, and Claude does not spawn or propose teammates. Agent teams have known limitations around session resumption, task coordination, and shutdown behavior.
 
 Agent teams let you coordinate multiple Claude Code instances working together. One session acts as the team lead, coordinating work, assigning tasks, and synthesizing results. Teammates work independently, each in its own context window, and communicate directly with each other. Unlike [subagents](</docs/en/sub-agents>), which run within a single session and can only report back to the main agent, you can also interact with individual teammates directly without going through the lead.
 
@@ -65,7 +65,7 @@ After enabling agent teams, describe the task and the teammates you want in natu
     their codebase. Spawn three teammates to explore this from different angles:
     one on UX, one on technical architecture, one playing devil's advocate.
 
-From there, Claude populates a [shared task list](</docs/en/interactive-mode#task-list>), spawns teammates for each perspective, has them explore the problem, and synthesizes findings when finished. The lead’s terminal lists teammates in the agent panel below the prompt input. From the panel:
+From there, Claude populates a [shared task list](</docs/en/interactive-mode#task-list>), spawns teammates for each perspective, has them explore the problem, and synthesizes findings when finished. Claude may sometimes use [subagents](</docs/en/sub-agents>) instead of creating a team. Subagents appear in the same agent panel as teammates, so the panel alone doesn’t confirm a team formed. If Claude spawned subagents instead, ask again and explicitly request an agent team. The lead’s terminal lists teammates in the agent panel below the prompt input. From the panel:
 
   * **Up and down arrows** : select a teammate
   * **Enter** : open the selected teammate’s transcript and message it directly
@@ -104,7 +104,7 @@ To set the mode for a single session, pass it as a flag:
 
     claude --teammate-mode auto
 
-Split-pane mode requires either [tmux](<https://github.com/tmux/tmux/wiki>) or iTerm2 with the [`it2` CLI](<https://github.com/mkusaka/it2>). To install manually:
+The `--teammate-mode` flag is experimental and doesn’t appear in `claude --help`. Split-pane mode requires either [tmux](<https://github.com/tmux/tmux/wiki>) or iTerm2 with the [`it2` CLI](<https://github.com/mkusaka/it2>). To install manually:
 
   * **tmux** : install through your system’s package manager. See the [tmux wiki](<https://github.com/tmux/tmux/wiki/Installing>) for platform-specific instructions.
   * **iTerm2** : install the [`it2` CLI](<https://github.com/mkusaka/it2>), then enable the Python API in **iTerm2 → Settings → General → Magic → Enable Python API**.
@@ -226,7 +226,7 @@ See Choose a display mode for display configuration options. Teammate messages a
   * **Team config** : `~/.claude/teams/{team-name}/config.json`
   * **Task list** : `~/.claude/tasks/{team-name}/`
 
-Claude Code generates both of these automatically at session startup and updates them as teammates join, go idle, or leave. The team config directory is removed when the session ends. The task list directory persists locally and is never uploaded, so resumed sessions keep their tasks. Retention is governed by the same [`cleanupPeriodDays`](</docs/en/settings#available-settings>) you already control for session transcripts. The team config holds runtime state such as session IDs and tmux pane IDs, so don’t edit it by hand or pre-author it: your changes are overwritten on the next state update. To define reusable teammate roles, use subagent definitions instead. The team config contains a `members` array with each teammate’s name, agent ID, and agent type. Teammates can read this file to discover other team members. There is no project-level equivalent of the team config. A file like `.claude/teams/teams.json` in your project directory is not recognized as configuration; Claude treats it as an ordinary file.
+Claude Code generates both of these automatically at session startup and updates them as teammates join, go idle, or leave. The team config directory is removed when the session ends. The task list directory persists locally and is never uploaded, so resumed sessions keep their tasks. Retention is governed by the same [`cleanupPeriodDays`](</docs/en/settings#available-settings>) you already control for session transcripts. The team config holds runtime state such as session IDs and tmux pane IDs, so don’t edit it by hand or pre-author it: your changes are overwritten on the next state update. To define reusable teammate roles, use subagent definitions instead. The team config contains a `members` array with each member’s name and agent ID. The lead’s entry always carries the agent type `team-lead`; a teammate’s entry includes an agent type only when the teammate was spawned from a subagent definition. Teammates can read this file to discover other team members. There is no project-level equivalent of the team config. A file like `.claude/teams/teams.json` in your project directory is not recognized as configuration; Claude treats it as an ordinary file.
 
 ###
 

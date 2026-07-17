@@ -73,7 +73,7 @@ You can also install with [apt, dnf, or apk](</docs/en/setup#install-with-linux-
 
     claude
 
-If you encounter any issues during installation, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>).
+Claude Code opens an interactive session in your terminal. If you encounter any issues during installation, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>).
 
 ###
 
@@ -108,11 +108,15 @@ When Git for Windows is installed, the PowerShell tool is rolling out progressiv
 
 Alpine Linux and musl-based distributions
 
-The native installer on Alpine and other musl/uClibc-based distributions requires `libgcc`, `libstdc++`, and `ripgrep`. Install these using your distribution’s package manager, then set `USE_BUILTIN_RIPGREP=0`. This example installs the required packages on Alpine:
+Installing Claude Code on Alpine and other musl/uClibc-based distributions requires `bash` and `curl` for the install command, and `libgcc`, `libstdc++`, and `ripgrep` at runtime. Alpine doesn’t include `bash` or `curl` by default, so the documented install command fails with a `not found` error until you install them. Install these packages using your distribution’s package manager, then set `USE_BUILTIN_RIPGREP=0`. This example installs the required packages on Alpine:
 
-    apk add libgcc libstdc++ ripgrep
+    apk add bash curl libgcc libstdc++ ripgrep
 
-Then set `USE_BUILTIN_RIPGREP` to `0` in your [`settings.json`](</docs/en/settings#available-settings>) file:
+On Alpine, `ripgrep` is in the community repository. If `apk` reports that the package is missing, add the community repository to `/etc/apk/repositories`, using your Alpine version:
+
+    echo "https://dl-cdn.alpinelinux.org/alpine/v3.22/community" >> /etc/apk/repositories
+
+Run `apk update` to refresh the package index, and retry the `apk add` command. Then set `USE_BUILTIN_RIPGREP` to `0` in your [`settings.json`](</docs/en/settings#available-settings>) file:
 
     {
       "env": {
@@ -130,9 +134,11 @@ After installing, confirm Claude Code is working:
 
     claude --version
 
-If this fails with `command not found` or another error, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>). For a more detailed check of your installation and configuration, run [`claude doctor`](</docs/en/troubleshooting#get-more-help>):
+A working installation prints a version number such as `2.1.211 (Claude Code)`. If this fails with `command not found` or another error, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>). For a more detailed check of your installation and configuration, run [`claude doctor`](</docs/en/troubleshooting#get-more-help>):
 
     claude doctor
+
+`claude doctor` prints read-only installation and settings diagnostics without starting a session, including install health, settings-file validation errors, and any warnings with suggested fixes.
 
 ##
 
@@ -140,7 +146,7 @@ If this fails with `command not found` or another error, see [Troubleshoot insta
 
 Authenticate
 
-Claude Code requires a Pro, Max, Team, Enterprise, or Console account. The free Claude.ai plan does not include Claude Code access. You can also use Claude Code with a third-party API provider like [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>). After installing, log in by running `claude` and following the browser prompts. See [Authentication](</docs/en/authentication>) for all account types and team setup options.
+Claude Code requires a Pro, Max, Team, Enterprise, or Console account. The free Claude.ai plan does not include Claude Code access. You can also use Claude Code with a third-party API provider like [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>). After installing, log in by running `claude` and following the browser prompts. If the `ANTHROPIC_API_KEY` environment variable is set, Claude Code prompts you once to approve the key instead of opening a browser. See [Authentication](</docs/en/authentication>) for all account types and team setup options.
 
 ##
 
@@ -219,6 +225,8 @@ Update manually
 To apply an update immediately without waiting for the next background check, run:
 
     claude update
+
+When an update installs, the command reports `Successfully updated from <old version> to version <new version>`. If you’re already on the newest version, it reports `Claude Code is up to date (<version>)`. Installs managed by Homebrew, WinGet, or apk report `Claude is up to date!` instead.
 
 ##
 

@@ -18,7 +18,7 @@ Requirements
 Before using Remote Control, confirm that your environment meets these conditions:
 
   * **Subscription** : available on Pro, Max, Team, and Enterprise plans. API keys are not supported. On Team and Enterprise, an Owner must first enable the Remote Control toggle in [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>).
-  * **Authentication** : run `claude` and use `/login` to sign in through claude.ai if you haven’t already.
+  * **Authentication** : run `claude` and use `/login` to sign in through claude.ai if you haven’t already. Without an eligible login, `claude remote-control` exits with an error, while `claude --remote-control` still starts an interactive session and shows a Remote Control failure notification shortly after launch.
   * **API endpoint** : not available on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. As of v2.1.196, Remote Control is also disabled when [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at a host other than `api.anthropic.com`, such as an [LLM gateway](</docs/en/llm-gateway>) or proxy. Unset the variable to use Remote Control.
   * **Workspace trust** : run `claude` in your project directory at least once to accept the workspace trust dialog.
 
@@ -84,7 +84,7 @@ In the [Claude Code VS Code extension](</docs/en/vs-code>), type `/remote-contro
 
     /remote-control
 
-A banner appears above the prompt box showing connection status. Once connected, click **Open in browser** in the banner to go directly to the session, or find it in the session list at [claude.ai/code](<https://claude.ai/code>). The session URL is also posted in the conversation.To disconnect, click the close icon on the banner or run `/remote-control` again.Unlike the CLI, the VS Code command does not accept a name argument or display a QR code. The session title is derived from your conversation history or first prompt.
+A banner appears above the prompt box showing connection status. Once connected, click **claude.ai/code** in the banner to go directly to the session, or find it in the session list at [claude.ai/code](<https://claude.ai/code>). Claude Code also posts the session URL in the conversation.To disconnect, click the close icon on the banner or run `/remote-control` again.Unlike the CLI, the VS Code command does not accept a name argument or display a QR code. The session title is derived from your conversation history or first prompt.
 
 ###
 
@@ -255,8 +255,9 @@ Limitations
   * **Some commands are local-only** : commands that only run in the terminal interface, such as `/plugin` or `/resume`, work only from the local CLI, whether or not you pass an argument. The following work from mobile and web:
     * Text-output commands: `/compact`, `/clear`, `/context`, `/usage`, `/exit`, `/usage-credits` (runs the text form instead of opening the in-CLI dialog), `/recap`, `/reload-plugins`
     * `/model`, `/effort`, `/fast`, `/color`, and `/rename`: pass the value as an argument, for example `/model sonnet` or `/effort high`. From mobile and web, `/model` and `/effort` take the argument in place of the terminal picker or slider.
-    * `/mcp`, from v2.1.166: returns a text summary of server status instead of opening the picker, and accepts the `reconnect`, `enable`, and `disable` [subcommands](</docs/en/commands#all-commands>). Unlike the local CLI, `/mcp reconnect` without a server name reconnects every server that has failed or needs authentication.
+    * `/mcp`, from v2.1.166: from the mobile app, returns a text summary of server status instead of opening the picker. On the web, `/mcp` on its own opens a directory of [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>) instead of returning the summary. The `reconnect`, `enable`, and `disable` [subcommands](</docs/en/commands#all-commands>) work from both. Unlike the local CLI, `/mcp reconnect` without a server name reconnects every server that has failed or needs authentication.
     * `/config`, from v2.1.181: from the mobile app, pass `key=value` to set a setting, or run it with no argument to list the keys you can set. On the web, `/config` opens the Claude Code section of your settings instead, and ignores text after the command.
+    * On Team and Enterprise, `/usage-credits` from mobile or web doesn’t send a [usage-credits request to your admin](</docs/en/costs#set-a-spend-limit-on-pro-and-max>). Sending requires a confirmation that appears only in the interactive CLI, so the command tells you to run it there instead. Before v2.1.211, the text form sent the request without confirmation.
 
 ##
 

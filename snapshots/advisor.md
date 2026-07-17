@@ -22,9 +22,9 @@ You can set the advisor model in three ways:
   * **`advisorModel` setting**: configure a persistent default in your [settings file](</docs/en/settings>)
   * **`--advisor` flag**: set the advisor for a single session at launch
 
-If any of these sets an advisor model, the advisor is enabled for sessions whose main model supports it. To stop using it, see Turn the advisor off.
+If any of these sets an advisor model, the advisor is enabled for sessions whose main model supports it, and an `Advisor Tool (experimental) is on and may use more tokens · /advisor` notification appears after the session starts. To stop using it, see Turn the advisor off.
 
-To use Fable 5 as the advisor, you need Claude Code v2.1.170 or later and [Fable 5 access](</docs/en/model-config#work-with-fable-5>) for your organization.
+Claude Code doesn’t offer Fable 5 as the advisor. For organizations with [Fable 5 access](</docs/en/model-config#work-with-fable-5>), the `/advisor` picker lists it as a dimmed, unselectable row labeled `Fable 5 (temporarily unavailable)`, and Claude Code rejects `/advisor fable` and `--advisor fable`. Fable 5 as the main model isn’t affected.A remotely configured rollout controls when Fable 5 returns as an advisor option.
 
 ###
 
@@ -36,7 +36,7 @@ Run `/advisor` without arguments to open a picker listing the available advisor 
 
     /advisor opus
 
-Your selection is saved to `advisorModel` in your user settings and persists across sessions. If your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist excludes the saved advisor model, the advisor is not invoked until you pick an allowed model with `/advisor`. If your current main model does not support the advisor, the selection is still saved and activates when you switch to a compatible main model with [`/model`](</docs/en/model-config#setting-your-model>).
+The command confirms with `Advisor set to` followed by the advisor model name. Your selection is saved to `advisorModel` in your user settings and persists across sessions. If your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist excludes the saved advisor model, the advisor is not invoked until you pick an allowed model with `/advisor`. If your current main model does not support the advisor, the selection is still saved and activates when you switch to a compatible main model with [`/model`](</docs/en/model-config#setting-your-model>).
 
 ###
 
@@ -60,7 +60,7 @@ To set the advisor for a single session without changing your saved setting, lau
 
     claude --advisor opus
 
-The flag takes precedence over the `advisorModel` setting for that session. It exits with an error if the session’s main model does not support the advisor, or if the requested advisor model is excluded by your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist.
+The flag takes precedence over the `advisorModel` setting for that session, and isn’t listed in `claude --help`. It exits with an error if the session’s main model does not support the advisor, or if the requested advisor model is excluded by your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist.
 
 ##
 
@@ -68,7 +68,7 @@ The flag takes precedence over the `advisorModel` setting for that session. It e
 
 Choose an advisor model
 
-The advisor must be at least as capable as the main model. The accepted advisors for each main model are:
+The advisor must be at least as capable as the main model. Fable 5 satisfies the capability check but isn’t offered as the advisor, so the Fable entries in the following table apply once the rollout returns it as an option. The accepted advisors for each main model are:
 
 Main model| Accepted advisors| Notes
 ---|---|---
@@ -77,9 +77,9 @@ Sonnet 4.6| Fable, Opus, Sonnet|
 Sonnet 5| Fable, Opus, Sonnet 5| A Sonnet 4.6 advisor is rejected
 Opus 4.6| Fable, Opus, Sonnet 5| Sonnet 5 and Opus 4.6 are ranked as equally capable, so an Opus 4.6 main accepts a Sonnet 5 advisor
 Opus 4.7 or later| Fable, Opus 4.7, Opus 4.8| Opus 4.7 and Opus 4.8 are ranked as equally capable, so either accepts the other as an advisor. An Opus 4.7 main with an Opus 4.6 or Sonnet 5 advisor is rejected
-Fable 5 (v2.1.170+)| Fable| An Opus or Sonnet advisor is rejected
+Fable 5 (v2.1.170+)| Fable| An Opus or Sonnet advisor is rejected. Fable isn’t offered as the advisor, so a Fable 5 main model runs without one
 
-Fable 5 requires Claude Code v2.1.170 or later and Fable 5 access, whether it acts as the main model or the advisor. Set the advisor as `opus`, `sonnet`, or `fable`. These aliases resolve to the latest version of each model. You can also pass a full model ID such as `claude-opus-4-8`. Subagents inherit the configured advisor and apply the same pairing check against their own model. Claude Code validates the pairing before sending a request:
+Fable 5 requires Claude Code v2.1.170 or later and Fable 5 access, whether it acts as the main model or the advisor. Set the advisor as `opus` or `sonnet`, or as `fable` once the rollout returns it as an option. These aliases resolve to the latest version of each model. You can also pass a full model ID such as `claude-opus-4-8`. Subagents inherit the configured advisor and apply the same pairing check against their own model. Claude Code validates the pairing before sending a request:
 
   * If the advisor is less capable than the main model, the advisor is not attached to the main model’s requests. The `/advisor` command output and a notification show this. Subagents whose own model satisfies the pairing may still use the advisor.
   * If the main model or the advisor is a model Claude Code does not recognize, the advisor is not attached.
@@ -90,7 +90,7 @@ Fable 5 requires Claude Code v2.1.170 or later and Fable 5 access, whether it ac
 
 Common model pairings
 
-Any accepted pairing works. These combinations balance cost against capability in different ways:
+Any accepted pairing works. Pairings that use Fable 5 as the advisor apply once Fable 5 returns as an advisor option. These combinations balance cost against capability in different ways:
 
 Pairing| When to use
 ---|---
@@ -142,7 +142,7 @@ Requirements
 The advisor tool requires all of the following:
 
   * **Anthropic API only** : the advisor is a server-executed tool. It is not available on Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, or Microsoft Foundry. Through an [LLM gateway](</docs/en/llm-gateway>) configured with `ANTHROPIC_BASE_URL`, availability depends on whether the gateway forwards the request intact to the Anthropic API.
-  * **Supported main model** : Opus 4.6 or later, Sonnet 4.6 or later, or Haiku 4.5. Fable 5 also qualifies on Claude Code v2.1.170 or later.
+  * **Supported main model** : Opus 4.6 or later, Sonnet 4.6 or later, or Haiku 4.5. Fable 5 also qualifies on Claude Code v2.1.170 or later, but a Fable 5 main accepts only a Fable advisor and Fable isn’t offered as the advisor, so a Fable 5 session runs without one until the rollout returns it as an option.
 
 ##
 

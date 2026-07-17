@@ -101,7 +101,13 @@ To limit what a subagent can reach in the first place, narrow its `tools` field,
 
 Bash tool behavior
 
-The Bash tool runs each command in a separate process with the following persistence behavior:
+The Bash tool runs each command in a separate process.
+
+###
+
+​
+
+What persists between commands
 
   * When Claude runs `cd` in the main session, the new working directory carries over to later Bash commands as long as it stays inside the project directory or an [additional working directory](</docs/en/permissions#working-directories>) you added with `--add-dir`, `/add-dir`, or `additionalDirectories` in settings. Subagent sessions never carry over working directory changes.
     * If `cd` lands outside those directories, Claude Code resets to the project directory and appends `Shell cwd was reset to <dir>` to the tool result.
@@ -109,12 +115,29 @@ The Bash tool runs each command in a separate process with the following persist
   * Environment variables don’t persist. An `export` in one command won’t be available in the next.
   * Aliases and shell functions defined in your shell startup file are available. At session start, Claude Code sources `~/.zshrc`, `~/.bashrc`, or `~/.profile` depending on your shell, captures the resulting aliases, functions, and shell options, and applies them to every Bash command.
 
-Activate your virtualenv or conda environment before launching Claude Code. To make environment variables persist across Bash commands, set [`CLAUDE_ENV_FILE`](</docs/en/env-vars>) to a shell script before launching Claude Code, or use a [SessionStart hook](</docs/en/hooks#persist-environment-variables>) to populate it dynamically. Two limits bound each command:
+Activate your virtualenv or conda environment before launching Claude Code. To make environment variables persist across Bash commands, set [`CLAUDE_ENV_FILE`](</docs/en/env-vars>) to a shell script before launching Claude Code, or use a [SessionStart hook](</docs/en/hooks#persist-environment-variables>) to populate it dynamically.
+
+###
+
+​
+
+Timeout and output limits
+
+Two limits bound each command:
 
   * **Timeout** : two minutes by default. Claude can request up to 10 minutes per command with the `timeout` parameter. Override the default and ceiling with [`BASH_DEFAULT_TIMEOUT_MS` and `BASH_MAX_TIMEOUT_MS`](</docs/en/env-vars>).
   * **Output length** : 30,000 characters by default. When a command produces more than that, Claude Code saves the full output to a file in the session directory and gives Claude the file path plus a short preview from the start. Claude reads or searches that file when it needs the rest. Raise the limit with [`BASH_MAX_OUTPUT_LENGTH`](</docs/en/env-vars>), up to a hard ceiling of 150,000 characters.
 
-For long-running processes such as dev servers or watch builds, Claude can set `run_in_background: true` to start the command as a background task and continue working while it runs. List and stop background tasks with `/tasks`. In non-interactive mode with the `-p` flag, [background tasks end shortly after the run’s final result](</docs/en/headless#background-tasks-at-exit>).
+###
+
+​
+
+Background commands
+
+For long-running processes such as dev servers or watch builds, Claude can set `run_in_background: true` to start the command as a background task and continue working while it runs. List and stop background tasks with `/tasks`. In non-interactive mode with the `-p` flag, [background tasks end shortly after the run’s final result](</docs/en/headless#background-tasks-at-exit>). When a command reaches its timeout without finishing, Claude Code moves it to the background instead of stopping it, so Claude keeps working while the command runs to completion. Claude Code never auto-backgrounds a command that starts with `sleep`, and setting [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](</docs/en/env-vars#variables>) disables auto-backgrounding along with the rest of the background task functionality. The result of a command moved this way states what happened:
+
+  * When the timeout triggers the move, the result reports it explicitly: `Command did not complete within its 120s timeout and was moved to the background`, with the seconds matching the timeout that applied, followed by the task ID and the path of the file the output is being written to.
+  * A `cd`, `pushd`, `popd`, or `chdir` inside a command that is moved to the background never carries over: the result states `Session cwd remains <dir>; directory changes made by the backgrounded command do not apply to subsequent commands.`, so Claude doesn’t act on a directory change that didn’t happen.
 
 ##
 
@@ -153,7 +176,7 @@ Grep tool behavior
 The Grep tool searches file contents for patterns. Where Glob finds files by name, Grep finds lines inside them. Grep is built on [ripgrep](<https://github.com/BurntSushi/ripgrep>) and uses ripgrep’s regex syntax, not POSIX grep. Patterns that include regex metacharacters need escaping. For example, finding `interface{}` in Go code takes the pattern `interface\{\}`. A pattern, glob, or file type that ripgrep rejects returns an error that includes ripgrep’s diagnostic, so Claude can correct the input and search again. Before v2.1.208, Claude Code reported a rejected input as `No files found` instead of an error, even when the searched-for text existed in the target files. Three output modes control what comes back:
 
   * `files_with_matches`: file paths only, no line content. This is the default.
-  * `content`: matching lines with file and line number.
+  * `content`: matching lines with file and line number. When the tool’s `offset` parameter points past the last match for a pattern that has matches, Grep returns `No entries at this offset`, so Claude widens or resets the offset instead of concluding the pattern doesn’t match.
   * `count`: match count per file, followed by a total across all matching files. The total covers every match even when the tool’s `head_limit` or `offset` parameters truncate the listed per-file entries. Before v2.1.208, the total only summed the listed entries.
 
 Claude can scope results by file with the `glob` parameter, such as `**/*.tsx`, or by language with the `type` parameter, such as `py` or `rust`. By default, patterns match within a single line. Claude can set `multiline: true` to match across line boundaries. Grep respects `.gitignore`, so gitignored files are skipped. To search a gitignored file, Claude passes its path directly.

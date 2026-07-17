@@ -103,6 +103,8 @@ If the Search tool, `@file` mentions, custom agents, or custom skills aren’t f
 
     apk add ripgrep
 
+`ripgrep` is in Alpine’s community repository. If `apk` reports that the package is missing, see [Alpine Linux setup](</docs/en/setup#alpine-linux-and-musl-based-distributions>).
+
     pacman -S ripgrep
 
     winget install BurntSushi.ripgrep.MSVC

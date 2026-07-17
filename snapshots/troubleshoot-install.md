@@ -511,6 +511,8 @@ Output mentioning `GNU libc` or `GLIBC` means glibc. Output mentioning `musl` me
 
          apk add libgcc libstdc++ ripgrep
 
+On Alpine, `ripgrep` is in the community repository. If `apk` reports that the package is missing, see [Alpine Linux setup](</docs/en/setup#alpine-linux-and-musl-based-distributions>).
+
 ###
 
 ​
@@ -687,7 +689,7 @@ This fallback also applies on native Windows or any terminal where pasting into 
 
 Not logged in or token expired
 
-If Claude Code prompts you to log in again after a session, your OAuth token may have expired. Run `/login` to re-authenticate. If this happens frequently, check that your system clock is accurate, as token validation depends on correct timestamps. On macOS, login can also fail when the Keychain is locked or its password is out of sync with your account password, which prevents Claude Code from saving credentials. Run `claude doctor` to check Keychain access. To unlock the Keychain manually, run `security unlock-keychain ~/Library/Keychains/login.keychain-db`. If unlocking doesn’t help, open Keychain Access, select the `login` keychain, and choose Edit > Change Password for Keychain “login” to resync it with your account password.
+If Claude Code prompts you to log in again after a session, your OAuth token may have expired. Run `/login` to re-authenticate. If this happens frequently, check that your system clock is accurate, as token validation depends on correct timestamps. Parallel sessions on one machine share a saved login and coordinate its renewal so that only one process refreshes the token at a time. Before v2.1.211, waking the machine from sleep could cause two sessions to renew with the same token, which revoked the saved login and prompted every open session to log in again at once. On macOS, login can also fail when the Keychain is locked or its password is out of sync with your account password, which prevents Claude Code from saving credentials. Run `claude doctor` to check Keychain access. To unlock the Keychain manually, run `security unlock-keychain ~/Library/Keychains/login.keychain-db`. If unlocking doesn’t help, open Keychain Access, select the `login` keychain, and choose Edit > Change Password for Keychain “login” to resync it with your account password.
 
 ###
 

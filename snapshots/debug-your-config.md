@@ -6,11 +6,11 @@ When Claude ignores an instruction or a feature you configured doesn’t appear,
 
 See what loaded into context
 
-The `/context` command shows everything occupying the context window for the current session, broken down by category: system prompt, memory files, skills, custom subagents with the source each loaded from, MCP tools, and conversation messages. Run it first to confirm whether your `CLAUDE.md`, rules, or skill descriptions are present at all. For detail on a specific category, follow up with the dedicated command:
+The `/context` command shows everything occupying the context window for the current session, broken down by category: system prompt, system tools, MCP tools, custom subagents with the source each loaded from, memory files, skills, and conversation messages. Run it first to confirm whether your `CLAUDE.md`, rules, or skill descriptions are present at all. For detail on a specific category, follow up with the dedicated command:
 
 Command| Shows
 ---|---
-`/memory`| Which `CLAUDE.md` and rules files loaded, plus auto-memory entries
+`/memory`| Memory file locations across user and project scopes with the option to open each in your editor, plus access to the auto memory folder and the auto memory toggle
 `/skills`| Available skills from project, user, and plugin sources
 `/hooks`| Active hook configurations
 `/mcp`| Connected MCP servers and their status
@@ -19,7 +19,7 @@ Command| Shows
 `/debug [issue]`| Enables debug logging for the session and prompts Claude to diagnose using the log output and settings paths
 `/status`| Active settings sources, including whether managed settings are in effect
 
-If a memory file is missing from `/memory`, check its location against [how CLAUDE.md files load](</docs/en/memory#how-claude-md-files-load>). Subdirectory `CLAUDE.md` files load on demand when Claude reads a file in that directory with the Read tool, not at session start. If `/memory` confirms the file loaded but Claude still isn’t following a particular instruction, the issue is likely how the instruction is written rather than whether it loaded. CLAUDE.md works well for the kinds of guidance you’d give a new teammate, such as project conventions, build commands, and where files belong. Adherence drops when an instruction is vague enough to interpret multiple ways, when two files give conflicting direction, or when the file has grown long enough that individual rules get less attention. [Write effective instructions](</docs/en/memory#write-effective-instructions>) covers the specificity, size, and structure patterns that keep adherence high.
+If a memory file is missing from the `/context` breakdown, check its location against [how CLAUDE.md files load](</docs/en/memory#how-claude-md-files-load>). Subdirectory `CLAUDE.md` files load on demand when Claude reads a file in that directory with the Read tool, not at session start. If `/context` confirms the file loaded but Claude still isn’t following a particular instruction, the issue is likely how the instruction is written rather than whether it loaded. CLAUDE.md works well for the kinds of guidance you’d give a new teammate, such as project conventions, build commands, and where files belong. Adherence drops when an instruction is vague enough to interpret multiple ways, when two files give conflicting direction, or when the file has grown long enough that individual rules get less attention. [Write effective instructions](</docs/en/memory#write-effective-instructions>) covers the specificity, size, and structure patterns that keep adherence high.
 
 CLAUDE.md and permissions solve different problems. CLAUDE.md tells Claude how your project works so it makes good decisions. [Permissions](</docs/en/permissions>) and [hooks](</docs/en/hooks>) enforce limits regardless of what Claude decides. Use CLAUDE.md for “we do it this way here.” Use permissions or hooks for security boundaries and anything that must never happen, where you need a guarantee instead of guidance.
 
@@ -69,7 +69,7 @@ Start with [`claude --safe-mode`](</docs/en/cli-reference#cli-flags>), which lau
 
     cd /tmp && CLAUDE_CONFIG_DIR=/tmp/claude-clean claude
 
-The clean session has no user or project settings, hooks, MCP servers, plugins, or memory.
+The clean session has no user or project settings, hooks, MCP servers, plugins, or memory. On the first launch, expect the first-run setup screens, starting with theme selection. If you see them, the clean configuration directory is in effect. Later launches with the same directory skip these screens because Claude Code saves onboarding state there.
 
   * Managed settings still apply if your organization deploys them, since they live at a system path outside `~/.claude`
   * On Linux and Windows, you’ll be prompted to log in again because credentials are stored under the configuration directory

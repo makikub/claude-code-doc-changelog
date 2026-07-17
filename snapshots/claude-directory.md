@@ -122,6 +122,8 @@ Path under `~/.claude/`| Contents
 `feedback-bundles/`| Redacted transcript archives written by `/feedback` on third-party providers or when no Anthropic credentials are configured, for sending to your Anthropic account team
 `todos/`, `statsig/`, `logs/`| Legacy directories from older versions. No longer written. The sweep removes their contents and then the empty directory.
 
+`sessions/` holds one small file per running session, used to detect concurrent sessions and crashes. It isn’t part of the age-based sweep: Claude Code removes each file when its session exits and clears crash leftovers on the next launch.
+
 ###
 
 ​
@@ -135,6 +137,8 @@ Path under `~/.claude/`| Contents
 `history.jsonl`| Every prompt you’ve typed, with timestamp and project path. Used for up-arrow recall.
 `stats-cache.json`| Aggregated token and cost counts shown by `/usage`
 `remote-settings.json`| Cached copy of [server-managed settings](</docs/en/server-managed-settings>) for your organization. Only present when your organization has configured them. Refreshed on each launch.
+`cache/changelog.md`| Cached copy of the Claude Code changelog, used to show release notes after an update. Refreshed in the background.
+`policy-limits.json`| Cached feature policy settings for your organization. Only present for some account types. Refreshed automatically.
 
 Other small cache and lock files appear depending on which features you use and are safe to delete.
 
@@ -163,19 +167,34 @@ Run `claude project purge` to delete the state Claude Code holds for one project
   * Matching prompt lines in `history.jsonl`
   * The project’s entry in `~/.claude.json`
 
-The command prints the full deletion plan and asks for confirmation before removing anything. Preview the plan without deleting anything:
+The command prints the full deletion plan and asks for confirmation before removing anything. The examples below use `~/work/my-repo` as a placeholder. Replace it with the path to your project. If no state matches the path, the command prints an error and exits with status 1. Preview the plan without deleting anything:
 
     claude project purge ~/work/my-repo --dry-run
+
+The plan lists each matching item and why it is included:
+
+    Purge plan for /home/user/work/my-repo:
+
+      dir:    /home/user/.claude/projects/-home-user-work-my-repo
+               project transcripts (.jsonl) and memory/
+      config: projects["/home/user/work/my-repo"]
+               project entry in ~/.claude.json (trust, history, MCP servers)
+      filter: /home/user/.claude/history.jsonl
+               12 prompt(s) typed in this project
+
+    shell-snapshots/ are not project-scoped and will not be touched
+    backups/ may still contain this project entry in old .claude.json snapshots (/home/user/.claude/backups); at most 5 are kept and they rotate out automatically
+    Dry run: 3 item(s) would be deleted.
 
 Delete with a single confirmation prompt:
 
     claude project purge ~/work/my-repo
 
-Omit the path to pick a project from an interactive list. Skip the confirmation prompt for use in scripts:
+The command prints the same plan, then asks `Delete 3 item(s) for /home/user/work/my-repo? This cannot be undone. [y/N]` and deletes only if you answer `y`. Omit the path to pick a project from an interactive list. Skip the confirmation prompt for use in scripts:
 
     claude project purge ~/work/my-repo --yes
 
-Pass `--all` instead of a path to purge state for every project at once, which deletes `history.jsonl` outright rather than filtering it. Pass `-i` to step through the deletion plan one item at a time. The command leaves `shell-snapshots/` and `backups/` alone because those are not project-scoped, and warns about them in the plan output. It exits with status 1 if no state matches the given path. You can also delete any of the application-data paths above by hand. New sessions are unaffected. The table below shows what you lose for past sessions.
+Pass `--all` instead of a path to purge state for every project at once, which deletes `history.jsonl` outright rather than filtering it. Pass `-i` to step through the deletion plan one item at a time. The command leaves `shell-snapshots/` and `backups/` alone because those are not project-scoped, and warns about them in the plan output. You can also delete any of the application-data paths above by hand. New sessions are unaffected. The table below shows what you lose for past sessions.
 
 Delete| You lose
 ---|---
@@ -184,6 +203,8 @@ Delete| You lose
 `~/.claude/file-history/`| Checkpoint restore for past sessions
 `~/.claude/stats-cache.json`| Historical totals shown by `/usage`
 `~/.claude/remote-settings.json`| Nothing. Re-fetched on next launch.
+`~/.claude/cache/changelog.md`| Nothing. Refreshed in the background.
+`~/.claude/policy-limits.json`| Nothing. Refreshed automatically.
 `~/.claude/debug/`, `~/.claude/plans/`, `~/.claude/paste-cache/`, `~/.claude/image-cache/`, `~/.claude/session-env/`, `~/.claude/tasks/`, `~/.claude/shell-snapshots/`, `~/.claude/backups/`| Nothing user-facing
 `~/.claude/todos/`, `~/.claude/statsig/`, `~/.claude/logs/`| Nothing. Legacy directories not written by current versions.
 

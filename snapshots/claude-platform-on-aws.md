@@ -32,13 +32,13 @@ Claude Code supports two authentication methods for Claude Platform on AWS. Choo
     aws sso login --profile my-profile
     export AWS_PROFILE=my-profile
 
-For CI and automation, give the runner an IAM role with permission to invoke the Anthropic service and set `AWS_REGION`. The credential chain picks the role up automatically. If your SSO credentials expire mid-session, configure [`awsAuthRefresh`](</docs/en/amazon-bedrock#advanced-credential-configuration>) so Claude Code re-runs your login command and retries instead of failing. Automatic refresh on Claude Platform on AWS requires Claude Code v2.1.198 or later; earlier versions stop with a prompt to run `/login`, which can’t refresh AWS credentials. Add the command to your `settings.json`:
+For CI and automation, give the runner an IAM role with permission to invoke the Anthropic service and set `AWS_REGION`. The credential chain picks the role up automatically. If your SSO credentials expire mid-session, configure [`awsAuthRefresh`](</docs/en/amazon-bedrock#advanced-credential-configuration>) so Claude Code re-runs your login command and retries instead of failing. Automatic refresh on Claude Platform on AWS requires Claude Code v2.1.198 or later; earlier versions stop with a prompt to run `/login`, which can’t refresh AWS credentials. Add the command to your [settings file](</docs/en/settings>), such as `~/.claude/settings.json`:
 
     {
       "awsAuthRefresh": "aws sso login --profile my-profile"
     }
 
-With `awsAuthRefresh` configured, `/login` shows a **Claude Platform on AWS · refresh credentials** option under **Using 3rd-party platforms**. Selecting it runs the configured command and re-reads your AWS credentials without restarting Claude Code. **Option B: Workspace API key** A workspace API key is a long-lived secret, useful when you don’t want to manage federated AWS credentials. Generate one in the AWS Console under **Claude Platform on AWS → API keys** and set it as `ANTHROPIC_AWS_API_KEY`:
+Claude Code also runs this command at startup when it can’t validate your existing AWS credentials, and shows the command’s output in a Cloud authentication panel until the login completes. With `awsAuthRefresh` configured, `/login` shows a **Claude Platform on AWS · refresh credentials** option under **Using 3rd-party platforms**. Selecting it runs the configured command and re-reads your AWS credentials without restarting Claude Code. **Option B: Workspace API key** A workspace API key is a long-lived secret, useful when you don’t want to manage federated AWS credentials. Generate one in the AWS Console under **Claude Platform on AWS → API keys** and set it as `ANTHROPIC_AWS_API_KEY`:
 
     export ANTHROPIC_AWS_API_KEY=sk-ant-xxxxx
 
@@ -58,7 +58,7 @@ Set the environment variables that route Claude Code through Claude Platform on 
     export ANTHROPIC_AWS_WORKSPACE_ID=wrkspc_01ABCDEFGHIJKLMN
     export AWS_REGION=us-east-1
 
-`ANTHROPIC_AWS_WORKSPACE_ID` is required and is sent on every request as the `anthropic-workspace-id` header. The base URL is computed from `AWS_REGION` as `https://aws-external-anthropic.{region}.api.aws`. To override the URL directly, set `ANTHROPIC_AWS_BASE_URL`. Claude Platform on AWS is opt-in even when AWS credentials are present in your environment. Amazon Bedrock and Microsoft Foundry take precedence in provider routing, so unset `CLAUDE_CODE_USE_BEDROCK` and `CLAUDE_CODE_USE_FOUNDRY` if they’re set.
+`ANTHROPIC_AWS_WORKSPACE_ID` is required and is sent on every request as the `anthropic-workspace-id` header. Replace the example `wrkspc_01ABCDEFGHIJKLMN` value with your own workspace ID from your Claude Platform on AWS setup. The base URL is computed from `AWS_REGION` as `https://aws-external-anthropic.{region}.api.aws`. To override the URL directly, set `ANTHROPIC_AWS_BASE_URL`. Claude Platform on AWS is opt-in even when AWS credentials are present in your environment. Amazon Bedrock and Microsoft Foundry take precedence in provider routing, so unset `CLAUDE_CODE_USE_BEDROCK` and `CLAUDE_CODE_USE_FOUNDRY` if they’re set.
 
 ###
 
@@ -74,6 +74,18 @@ Claude Platform on AWS uses the same model IDs as the direct Claude API. The def
     export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5
 
 For the full list of model IDs and aliases, see [Models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>). For other model-related variables, see [Model configuration](</docs/en/model-config>). [Prompt caching](</docs/en/prompt-caching>) is enabled automatically. To request a 1-hour cache TTL instead of the 5-minute default, set `ENABLE_PROMPT_CACHING_1H=1`. The API bills 1-hour cache writes at a higher rate. See [prompt caching pricing](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing>) for the rates.
+
+###
+
+​
+
+4\. Launch and verify
+
+Start Claude Code and confirm the routing:
+
+    claude
+
+The startup banner shows `Claude Platform on AWS` when the provider is active. Run `/status` to check the details: the `API provider` line reads `Claude Platform on AWS`, and the output includes your `Workspace ID`, the `AWS region`, and the `Claude Platform on AWS base URL` if you set an override.
 
 ##
 
@@ -136,7 +148,7 @@ The IAM principal Claude Code resolved likely lacks permission to invoke the Ant
 
 Requests fail with a missing-workspace error
 
-`ANTHROPIC_AWS_WORKSPACE_ID` is likely unset or empty. Every Claude Platform on AWS request must include the workspace ID. It is not implied by your AWS credentials. Find the ID under **Workspaces** on the AWS Console service page and export it before starting Claude Code.
+`ANTHROPIC_AWS_WORKSPACE_ID` is likely unset or empty. Every Claude Platform on AWS request must include the workspace ID. It is not implied by your AWS credentials. Find the ID in your Claude Platform on AWS setup and export it before starting Claude Code.
 
 ###
 
