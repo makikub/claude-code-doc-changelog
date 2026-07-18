@@ -38,7 +38,7 @@ For CI and automation, give the runner an IAM role with permission to invoke the
       "awsAuthRefresh": "aws sso login --profile my-profile"
     }
 
-Claude Code also runs this command at startup when it can’t validate your existing AWS credentials, and shows the command’s output in a Cloud authentication panel until the login completes. With `awsAuthRefresh` configured, `/login` shows a **Claude Platform on AWS · refresh credentials** option under **Using 3rd-party platforms**. Selecting it runs the configured command and re-reads your AWS credentials without restarting Claude Code. **Option B: Workspace API key** A workspace API key is a long-lived secret, useful when you don’t want to manage federated AWS credentials. Generate one in the AWS Console under **Claude Platform on AWS → API keys** and set it as `ANTHROPIC_AWS_API_KEY`:
+Claude Code also runs this command at startup when it can’t validate your existing AWS credentials, and shows the command’s output in an `Authentication` panel until the login completes. Before v2.1.212, the panel was titled `Cloud authentication`. With `awsAuthRefresh` configured, `/login` shows a **Claude Platform on AWS · refresh credentials** option under **Using 3rd-party platforms**. Selecting it runs the configured command and re-reads your AWS credentials without restarting Claude Code. **Option B: Workspace API key** A workspace API key is a long-lived secret, useful when you don’t want to manage federated AWS credentials. Generate one in the AWS Console under **Claude Platform on AWS → API keys** and set it as `ANTHROPIC_AWS_API_KEY`:
 
     export ANTHROPIC_AWS_API_KEY=sk-ant-xxxxx
 

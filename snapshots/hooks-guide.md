@@ -14,7 +14,7 @@ To create a hook, add a `hooks` block to a settings file. This walkthrough creat
 
 Add the hook to your settings
 
-Open `~/.claude/settings.json` and add a `Notification` hook. The example below uses `osascript` for macOS; see Get notified when Claude needs input for Linux and Windows commands.
+Open `~/.claude/settings.json` and add a `Notification` hook. If the file doesn’t exist, create it. The example below uses `osascript` for macOS; see Get notified when Claude needs input for Linux and Windows commands.
 
     {
       "hooks": {
@@ -773,7 +773,7 @@ Agent-based hooks
 
 Agent hooks are experimental. Behavior and configuration may change in future releases. For production workflows, prefer [command hooks](</docs/en/hooks#command-hook-fields>).
 
-When verification requires inspecting files or running commands, use `type: "agent"` hooks. Unlike prompt hooks, which make a single LLM call, agent hooks spawn a subagent that can read files, search code, and use other tools to verify conditions before returning a decision. Agent hooks use the same `"ok"` / `"reason"` response format as prompt hooks, but with a longer default timeout of 60 seconds and up to 50 tool-use turns. This example verifies that tests pass before allowing Claude to stop:
+When verification requires inspecting files or running commands, use `type: "agent"` hooks. Unlike prompt hooks, which make a single LLM call, agent hooks spawn a subagent that can read files, search code, and use other tools to verify conditions before returning a decision. Agent hooks use the same `"ok"` / `"reason"` response format as prompt hooks, but with a longer default timeout of 60 seconds and up to 50 tool-use turns. The `$ARGUMENTS` placeholder in the prompt is replaced with the hook’s JSON input. See [prompt and agent hook fields](</docs/en/hooks#prompt-and-agent-hook-fields>). This example verifies that tests pass before allowing Claude to stop:
 
     {
       "hooks": {
@@ -852,7 +852,7 @@ Keep these constraints in mind when designing hooks:
 
 Hooks and permission modes
 
-`PreToolUse` hooks fire before any permission-mode check. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings, and it can’t suppress the prompt for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) or MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>). Hooks can tighten restrictions but not loosen them past what permission rules allow.
+`PreToolUse` hooks fire before any permission-mode check, in every [permission mode](</docs/en/permission-modes>), including `dontAsk`. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings, and it can’t suppress the prompt for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) or MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>). Hooks can tighten restrictions but not loosen them past what permission rules allow.
 
 ###
 

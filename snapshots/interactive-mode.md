@@ -399,7 +399,7 @@ Side questions have full visibility into the current conversation, so you can as
   * **Single response** : there are no follow-up turns in the overlay. To continue the thread, fork it into its own session with `f`.
   * **Low cost** : the side question reuses the parent conversation’s prompt cache, so the additional cost is minimal.
 
-Earlier side questions from the same session appear as a dimmed list above the current answer. They stay out of the conversation history but remain visible in the overlay until you clear them. Once the answer appears, the overlay accepts these keys.
+Earlier side questions from the same session appear as a dimmed list above the current answer. They stay out of the conversation history but remain visible in the overlay until you clear them. To return to the overlay after dismissing it, run `/btw` with no question. The overlay reopens on your most recent exchange. Press `Left` to step back through earlier answers. Before v2.1.212, `/btw` without a question printed a usage message instead. Once the answer appears, the overlay accepts these keys.
 
 Key| Action
 ---|---

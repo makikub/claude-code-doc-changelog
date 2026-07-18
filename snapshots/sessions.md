@@ -62,7 +62,7 @@ During a session| `/rename auth-refactor`. The name also appears on the prompt b
 From the session picker| Highlight a session and press `Ctrl+R`
 On plan accept| Accepting a plan in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) names the session from the plan content unless you’ve already set one
 
-Once a session is named, return to it with `claude --resume <name>` or `/resume <name>`. See Resume a session for how name resolution behaves across worktrees. Interactive sessions you never name still get a default display name when they start. Requires Claude Code v2.1.196 or later. The default combines the working directory’s name with a two-character suffix, for example `my-app-3f`, and identifies the session in listings of running sessions, such as [agent view](</docs/en/agent-view>) and `claude agents --json` output. The default isn’t a resume handle: `claude --resume <name>`, `/resume <name>`, and the session picker match only names you set. Naming the session replaces the default.
+Once a session is named, return to it with `claude --resume <name>` or `/resume <name>`. See Resume a session for how name resolution behaves across worktrees. Interactive sessions you never name still get a default display name when they start. Requires Claude Code v2.1.196 or later. The default combines the working directory’s name with a two-character suffix, for example `my-app-3f`, and identifies the session in listings of running sessions, such as [agent view](</docs/en/agent-view>) and `claude agents --json` output. The default isn’t a resume handle: `claude --resume <name>`, `/resume <name>`, and the session picker match only names you set. Naming the session replaces the default. If you don’t name a session, Claude Code generates a session title for it: a short summary of your first prompt, written by a background request to the small/fast model, normally a Haiku-class model. Naming the session with `--name` or `/rename` replaces the generated title. You see the generated title in the session picker and in the statusline [`session_name`](</docs/en/statusline>) field when no name is set; like the default display name, it isn’t a resume handle.
 
 ##
 
@@ -85,7 +85,7 @@ Shortcut| Action
 `Ctrl+B`| Filter to sessions from the current git branch. Press again to show all branches
 `Esc`| Exit the session picker or search mode
 
-Each row shows the session name if set, otherwise the conversation summary or first prompt, along with time since last activity, message count, and git branch. Project path appears after you widen to all projects with `Ctrl+A`. Forked sessions created with `/branch`, `/rewind`, or `--fork-session` are grouped under their root session. Press `→` to expand a group.
+Each row shows the session name if you set one, otherwise the AI-generated session title, conversation summary, or first prompt, along with time since last activity, git branch, and file size. Widen to all projects with `Ctrl+A` to also see each session’s project path. Sessions created with `/branch` or `--fork-session` get their own session IDs and appear as separate rows. When the picker finds more than one entry for the same session, it groups them under a single row. Press `→` to expand a group.
 
 ##
 
@@ -111,7 +111,7 @@ Manage context within a session
 
 These commands control what’s in the context window without leaving the session:
 
-  * **`/clear`** : start fresh with an empty context. The previous conversation is saved and resumable with `/resume`, or, in the same Claude Code process, from [the rewind menu’s previous-session entry](</docs/en/checkpointing#rewind-past-a-cleared-conversation>)
+  * **`/clear`** : start fresh with an empty context. Claude Code saves the previous conversation; resume it with `/resume`, or, in the same Claude Code process, from [the rewind menu’s previous-session entry](</docs/en/checkpointing#rewind-past-a-cleared-conversation>). You keep a name you set with `--name` or `/rename` in the new conversation, but not an AI-generated session title
   * **`/compact [instructions]`** : replace history with a summary, optionally focused on what you specify
   * **`/context`** : show what is currently consuming context
 

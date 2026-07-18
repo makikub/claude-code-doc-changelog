@@ -27,6 +27,8 @@ Compare with subagents
 
 Both agent teams and [subagents](</docs/en/sub-agents>) let you parallelize work, but they operate differently. Choose based on whether your workers need to communicate with each other:
 
+Subagents only report results back to the main agent and never talk to each other. In agent teams, teammates share a task list, claim work, and communicate directly with each other.
+
 | Subagents| Agent teams
 ---|---|---
 **Context**|  Own context window; results return to the caller| Own context window; fully independent

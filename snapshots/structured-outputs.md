@@ -124,7 +124,7 @@ Python
 
 Type-safe schemas with Zod and Pydantic
 
-Instead of writing JSON Schema by hand, you can use [Zod](<https://zod.dev/>) (TypeScript) or [Pydantic](<https://docs.pydantic.dev/latest/>) (Python) to define your schema. These libraries generate the JSON Schema for you and let you parse the response into a fully-typed object you can use throughout your codebase with autocomplete and type checking. The example below defines a schema for a feature implementation plan with a summary, list of steps (each with complexity level), and potential risks. The agent plans the feature and returns a typed `FeaturePlan` object. You can then access properties like `plan.summary` and iterate over `plan.steps` with full type safety.
+Instead of writing JSON Schema by hand, you can use [Zod](<https://zod.dev/>) (TypeScript) or [Pydantic](<https://docs.pydantic.dev/latest/>) (Python) to define your schema. These libraries generate the JSON Schema for you and let you parse the response into a fully-typed object you can use throughout your codebase with autocomplete and type checking. The example below defines a schema for a feature implementation plan with a summary, list of steps (each with complexity level), and potential risks. The agent plans the feature and returns a typed `FeaturePlan` object. You can then access properties like `plan.summary` and iterate over `plan.steps` with full type safety. The SDK validates schemas with JSON Schema draft-07, so schemas that declare a newer version are rejected. Zod targets draft 2020-12 by default, so pass `target: "draft-7"` when converting your schema.
 
 TypeScript
 
@@ -149,8 +149,8 @@ Python
 
     type FeaturePlan = z.infer<typeof FeaturePlan>;
 
-    // Convert to JSON Schema
-    const schema = z.toJSONSchema(FeaturePlan);
+    // Convert to JSON Schema using the draft-07 target the SDK expects
+    const schema = z.toJSONSchema(FeaturePlan, { target: "draft-7" });
 
     // Use in query
     try {
@@ -241,7 +241,7 @@ Output format configuration
 The `outputFormat` (TypeScript) or `output_format` (Python) option accepts an object with:
 
   * `type`: Set to `"json_schema"` for structured outputs
-  * `schema`: A [JSON Schema](<https://json-schema.org/understanding-json-schema/about>) object defining your output structure. You can generate this from a Zod schema with `z.toJSONSchema()` or a Pydantic model with `.model_json_schema()`
+  * `schema`: A [JSON Schema](<https://json-schema.org/understanding-json-schema/about>) object defining your output structure. You can generate this from a Zod schema with `z.toJSONSchema(schema, { target: "draft-7" })` or a Pydantic model with `.model_json_schema()`
 
 The SDK supports standard JSON Schema features including all basic types (object, array, string, number, boolean, null), `enum`, `const`, `required`, nested objects, and `$ref` definitions. For the full list of supported features and limitations, see [JSON Schema limitations](<https://platform.claude.com/docs/en/build-with-claude/structured-outputs#json-schema-limitations>). A schema that isn’t valid JSON Schema fails the run at startup with an error naming the problem. Before v2.1.205, an invalid schema was silently ignored and the agent returned unstructured text. The `format` keyword, such as `"format": "email"`, is accepted as an annotation and isn’t enforced by the SDK’s validator. Before v2.1.205, any schema containing `format` was treated as invalid.
 
@@ -365,14 +365,14 @@ Python
 
 Error handling
 
-Structured output generation can fail when the agent cannot produce valid JSON matching your schema. This typically happens when the schema is too complex for the task, the task itself is ambiguous, or the agent hits its retry limit trying to fix validation errors. It can also happen without any validation failure: a [model fallback](</docs/en/model-config#automatic-model-fallback>) can retract an already-completed output mid-stream, and if no retry replaces it the run ends with the same error. Check the `errors` field on the result message to tell the two causes apart before debugging your schema. When an error occurs, the result message has a `subtype` indicating what went wrong:
+Structured output generation can fail when the agent cannot produce valid JSON matching your schema. This typically happens when the schema is too complex for the task, the task itself is ambiguous, or the agent hits its retry limit trying to fix validation errors. It can also happen without any validation failure: a [model fallback](</docs/en/model-config#automatic-model-fallback>) can retract an already-completed output mid-stream, and if no retry replaces it the run ends with the same error. Check the `errors` list on the result message to tell the two causes apart before debugging your schema. When an error occurs, the result message has a `subtype` indicating what went wrong:
 
 Subtype| Meaning
 ---|---
 `success`| Output was generated and validated successfully
 `error_max_structured_output_retries`| No valid output remained after multiple attempts (validation failures, or a model-fallback retraction with no successful retry)
 
-The example below checks the `subtype` field to determine whether the output was generated successfully or if you need to handle a failure:
+A result can also end with subtype `success` but no `structured_output` value, for example when the run completes without the agent producing a structured output. Treat that case as a failure as well. The example below treats a result as successful only when the `subtype` is `success` and `structured_output` is present, and handles every other result as a failure:
 
 TypeScript
 
@@ -405,6 +405,8 @@ Python
             console.log(msg.structured_output);
           } else if (msg.subtype === "error_max_structured_output_retries") {
             console.error("Could not produce valid output");
+          } else {
+            console.error("Run ended without a structured output");
           }
         }
       }
@@ -443,6 +445,8 @@ Python
                         print(message.structured_output)
                     elif message.subtype == "error_max_structured_output_retries":
                         print("Could not produce valid output")
+                    else:
+                        print("Run ended without a structured output")
         except Exception as error:
             # A single-shot query() raises after yielding an error result.
             # If the failure was an error result, the subtype branches above

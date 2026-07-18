@@ -389,7 +389,7 @@ The tasks pane shows the background work running inside the current session: sub
 
 Run long-running tasks remotely
 
-For large refactors, test suites, migrations, or other long-running tasks, select **Remote** instead of **Local** when starting a session. Cloud sessions run on Anthropic’s cloud infrastructure and continue even if you close the app or shut down your computer. Check back anytime to see progress or steer Claude in a different direction. You can also monitor cloud sessions from [claude.ai/code](<https://claude.ai/code>) or the Claude iOS app. Cloud sessions also support multiple repositories. After selecting a cloud environment, click the **+** button next to the repo pill to add additional repositories to the session. Each repo gets its own branch selector. This is useful for tasks that span multiple codebases, such as updating a shared library and its consumers. See [Claude Code on the web](</docs/en/claude-code-on-the-web>) for more on how cloud sessions work.
+For large refactors, test suites, migrations, or other long-running tasks, select **Remote** instead of **Local** when starting a session. Cloud sessions run on Anthropic’s cloud infrastructure and continue even if you close the app or shut down your computer. Check back anytime to see progress or steer Claude in a different direction. You can also monitor cloud sessions from [claude.ai/code](<https://claude.ai/code>) or the [Claude mobile app](</docs/en/mobile>). Cloud sessions also support multiple repositories. After selecting a cloud environment, click the **+** button next to the repo pill to add additional repositories to the session. Each repo gets its own branch selector. This is useful for tasks that span multiple codebases, such as updating a shared library and its consumers. See [Claude Code on the web](</docs/en/claude-code-on-the-web>) for more on how cloud sessions work.
 
 ###
 
@@ -416,7 +416,7 @@ Sessions from Dispatch
 
 Extend Claude Code
 
-Connect external services, add reusable workflows, customize Claude’s behavior, and configure preview servers. To manage connectors, skills, and plugins in one place, click **Customize** in the sidebar.
+Connect external services, add reusable workflows, customize Claude’s behavior, and configure preview servers. To manage connectors, skills, and plugins in one place, click **Customize** in the sidebar. The [Cowork](<https://claude.com/product/cowork>) tab in the Desktop app sources its skills, plugins, and connectors from this Customize configuration, which syncs through your claude.ai account, not from the CLI’s `~/.claude` directory.
 
 ###
 
@@ -432,7 +432,7 @@ For local and SSH sessions, click the **+** button next to the prompt box and se
 
 Use skills
 
-[Skills](</docs/en/skills>) extend what Claude can do. Claude loads them automatically when relevant, or you can invoke one directly: type `/` in the prompt box or click the **+** button and select **Slash commands** to browse what’s available. This includes [built-in commands](</docs/en/commands>), your [custom skills](</docs/en/skills#create-your-first-skill>), project skills from your codebase, and skills from any [installed plugins](</docs/en/plugins>). Select one and it appears highlighted in the input field. Type your task after it and send as usual. You can send a command while Claude is working, the same as any other message, and the session returns to idle once the turn finishes. Before v2.1.206, a command sent mid-turn could leave the session showing as running and messages you sent afterward weren’t delivered.
+[Skills](</docs/en/skills>) extend what Claude can do. Claude loads them automatically when relevant, or you can invoke one directly: type `/` in the prompt box or click the **+** button and select **Slash commands** to browse what’s available. This includes [built-in commands](</docs/en/commands>), your [custom skills](</docs/en/skills#create-your-first-skill>), project skills from your codebase, and skills from any [installed plugins](</docs/en/plugins>). Select one and it appears highlighted in the input field. Type your task after it and send as usual. You can send a command while Claude is working, the same as any other message, and the session returns to idle once the turn finishes. Before v2.1.206, a command sent mid-turn could leave the session showing as running and messages you sent afterward weren’t delivered. Personal skills in `~/.claude/skills/` apply to local sessions; an SSH session reads `~/.claude/skills/` from the remote host’s home directory, not from your machine. Cloud sessions load the skills enabled for your claude.ai account instead. See [Skills in Cowork and cloud sessions](</docs/en/skills#skills-in-cowork-and-cloud-sessions>).
 
 ###
 
@@ -440,7 +440,7 @@ Use skills
 
 Install plugins
 
-[Plugins](</docs/en/plugins>) are reusable packages that add skills, agents, hooks, MCP servers, and LSP configurations to Claude Code. You can install plugins from the desktop app without using the terminal. For local and SSH sessions, click the **+** button next to the prompt box and select **Plugins** to see your installed plugins and their skills. To add a plugin, select **Add plugin** from the submenu to open the plugin browser, which shows available plugins from your configured [marketplaces](</docs/en/plugin-marketplaces>) including the official Anthropic marketplace. Select **Manage plugins** to enable, disable, or uninstall plugins. Plugins can be scoped to your user account, a specific project, or local-only. If your organization manages plugins centrally, those plugins are available in desktop sessions the same way they are in the CLI. The plugin browser is not available in cloud sessions, but plugins declared in the repository’s `.claude/settings.json` under [`enabledPlugins`](</docs/en/settings#enabledplugins>) still load. Plugins aren’t available in WSL sessions. For the full plugin reference including creating your own plugins, see [plugins](</docs/en/plugins>).
+[Plugins](</docs/en/plugins>) are reusable packages that add skills, agents, hooks, MCP servers, and LSP configurations to Claude Code. You can install plugins from the desktop app without using the terminal. For local and SSH sessions, click the **+** button next to the prompt box and select **Plugins** to see your installed plugins and their skills. To add a plugin, select **Add plugin** from the submenu to open the plugin browser, which shows available plugins from your configured [marketplaces](</docs/en/plugin-marketplaces>) including the official Anthropic marketplace. Select **Manage plugins** to enable, disable, or uninstall plugins. Plugins can be scoped to your user account, a specific project, or local-only. If your organization manages plugins centrally, those plugins are available in desktop sessions the same way they are in the CLI. The plugin browser is not available in cloud sessions, and plugins you install from the desktop app aren’t available for cloud sessions; to use a plugin in a cloud session, declare it in the repository’s `.claude/settings.json` under [`enabledPlugins`](</docs/en/settings#enabledplugins>) so it [installs at session start](</docs/en/claude-code-on-the-web#what%E2%80%99s-available-in-cloud-sessions>). Plugins aren’t available in WSL sessions. For the full plugin reference including creating your own plugins, see [plugins](</docs/en/plugins>).
 
 ###
 
@@ -997,4 +997,4 @@ Still stuck?
   * Open Help → Get Support in the desktop app, or visit the [Claude support center](<https://support.claude.com/>) directly
   * For problems that also reproduce in the standalone `claude` CLI, search or file a bug on [GitHub Issues](<https://github.com/anthropics/claude-code/issues>)
 
-When reporting a problem, include your desktop app version, your operating system, the exact error message, and relevant logs. On macOS, check Console.app. On Windows, check Event Viewer → Windows Logs → Application.
+When reporting a problem, include your desktop app version, your operating system, the exact error message, and relevant logs. On macOS, check Console.app. On Windows, check Event Viewer → Windows Logs → Application. Review log excerpts before posting them to a public issue; they can include file paths and other details from your environment.

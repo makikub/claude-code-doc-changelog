@@ -2,6 +2,16 @@ The weekly dev digest highlights the features most likely to change how you work
 
 ​
 
+Week 29
+
+v2.1.207–v2.1.212
+
+July 13–17, 2026
+
+**Artifacts call your MCP connectors** : a published artifact can pull live data and take actions through each viewer’s own MCP connectors when they open the page, and this week also adds public sharing links, editor roles on Team and Enterprise, and artifacts created from Claude Tag sessions.Also this week: **screen reader mode** replaces the visual terminal interface with plain, linear text for screen readers such as VoiceOver and NVDA; **`/fork`** copies your conversation into a new background session while you keep working; and **auto mode** no longer needs an opt-in variable on Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry.[Read the Week 29 digest →](</docs/en/whats-new/2026-w29>)
+
+​
+
 Week 28
 
 v2.1.202–v2.1.206

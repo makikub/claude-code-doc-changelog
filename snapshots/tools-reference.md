@@ -332,6 +332,7 @@ WebFetch takes a URL and a prompt describing what to extract. It fetches the pag
   * Large pages are truncated to a fixed character limit before processing.
   * Responses are cached for 15 minutes, so repeated fetches of the same URL return quickly.
   * When a URL redirects to a different host, WebFetch returns a text result that names the original URL and the redirect target instead of following it. Claude then fetches the new URL with a second WebFetch call.
+  * When the extraction step hits an overloaded API, Claude Code retries it with backoff; a fetch that still fails returns an error result. Before v2.1.212, the API error text could reach Claude as if it were the extracted page content.
 
 In the default and `acceptEdits` permission modes, WebFetch prompts the first time it reaches a new domain, except for a built-in set of preapproved documentation domains that fetch without a prompt. To allow another domain in advance without a prompt, add a permission rule like `WebFetch(domain:example.com)`. The `auto` and `bypassPermissions` [permission modes](</docs/en/permissions#permission-modes>) skip the prompt entirely. An explicit `WebFetch(domain:...)` rule in `deny`, `ask`, or `allow` takes precedence over the preapproved set, so you can block a preapproved domain or require a prompt for it. WebFetch sets a `User-Agent` header beginning with `Claude-User`, and an `Accept` header that prefers Markdown over HTML so servers that support content negotiation can return Markdown directly. You configure [sandbox](</docs/en/sandboxing>) network rules separately, so a domain you want a sandboxed process to reach still needs an explicit sandbox permission rule.
 
@@ -341,9 +342,17 @@ In the default and `acceptEdits` permission modes, WebFetch prompts the first ti
 
 WebSearch tool behavior
 
-WebSearch runs a query against Anthropic’s [web search](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool>) backend and returns result titles and URLs. It doesn’t fetch the result pages. To read a page Claude finds in search results, it follows up with WebFetch. The tool may issue up to eight backend searches per call, refining the search internally before returning results. Claude can scope results with `allowed_domains` to include only certain hosts, or `blocked_domains` to exclude them. The two lists can’t be combined in a single call. The search backend is not configurable. To search with a different provider, add an [MCP server](</docs/en/mcp>) that exposes a search tool. WebSearch permission rules take no specifier. A bare `WebSearch` entry in `allow` or `deny` is the only form.
+WebSearch runs a query against Anthropic’s [web search](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool>) backend and returns result titles and URLs. It doesn’t fetch the result pages. To read a page Claude finds in search results, it follows up with WebFetch. The tool may issue up to eight backend searches per call, refining the search internally before returning results. Claude can scope results with `allowed_domains` to include only certain hosts, or `blocked_domains` to exclude them. The two lists can’t be combined in a single call. When the search request hits an overloaded API, Claude Code retries it with backoff; a call that still fails returns an error result. Before v2.1.212, the API error text could reach Claude as if it were search results. WebSearch permission rules take no specifier. A bare `WebSearch` entry in `allow` or `deny` is the only form. The search backend is not configurable. To search with a different provider, add an [MCP server](</docs/en/mcp>) that exposes a search tool.
 
 WebSearch is available on the Claude API, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), and Microsoft Foundry. On Google Cloud’s Agent Platform it works with Claude 4 and later models, including Opus, Sonnet, and Haiku. Amazon Bedrock doesn’t expose the server-side web search tool.
+
+###
+
+​
+
+Session search limit
+
+A session can make at most 200 WebSearch calls, counted across the main conversation and every [subagent](</docs/en/sub-agents>) it spawns, so searches made by parallel research fan-outs count against the same limit. The limit requires Claude Code v2.1.212 or later. When Claude reaches the limit, further calls return a notice telling Claude to continue with the information it already gathered, rather than an error that would invite a retry. You don’t see the notice: a capped call appears in the conversation as a search that did nothing, and if Claude genuinely needs more searches, the notice tells it to ask you to raise the limit. Set the [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](</docs/en/env-vars>) environment variable to change the cap; it accepts a positive whole number, so the cap can be raised but not turned off. Running [`/clear`](</docs/en/commands#all-commands>) resets the count under the same rule as the [session subagent limit](</docs/en/sub-agents>).
 
 ##
 

@@ -157,7 +157,7 @@ CLAUDE.md
     - Be sure to typecheck when you're done making a series of code changes
     - Prefer running single tests, and not the whole test suite, for performance
 
-CLAUDE.md is loaded every session, so only include things that apply broadly. For domain knowledge or workflows that are only relevant sometimes, use [skills](</docs/en/skills>) instead. Claude loads them on demand without bloating every conversation. Keep it concise. For each line, ask: _“Would removing this cause Claude to make mistakes?”_ If not, cut it. Bloated CLAUDE.md files cause Claude to ignore your actual instructions!
+Run `/context` to confirm Claude loaded the file. CLAUDE.md is loaded every session, so only include things that apply broadly. For domain knowledge or workflows that are only relevant sometimes, use [skills](</docs/en/skills>) instead. Claude loads them on demand without bloating every conversation. Keep it concise. For each line, ask: _“Would removing this cause Claude to make mistakes?”_ If not, cut it. Bloated CLAUDE.md files cause Claude to ignore your actual instructions!
 
 ✅ Include| ❌ Exclude
 ---|---
@@ -351,7 +351,7 @@ Let Claude interview you
 
 For larger features, have Claude interview you first. Start with a minimal prompt and ask Claude to interview you using the `AskUserQuestion` tool.
 
-Claude asks about things you might not have considered yet, including technical implementation, UI/UX, edge cases, and tradeoffs.
+Claude asks about things you might not have considered yet, including technical implementation, UI/UX, edge cases, and tradeoffs. Replace `[brief description]` with your feature before sending the prompt.
 
     I want to build [brief description]. Interview me in detail using the AskUserQuestion tool.
 
@@ -472,6 +472,8 @@ With `claude -p "your prompt"`, you can run Claude non-interactively, without an
 
     # Streaming for real-time processing
     claude -p "Analyze this log file" --output-format stream-json --verbose
+
+The first command prints plain text. The `json` format returns a single JSON object with a `result` field. The `stream-json` format prints one JSON object per line, starting with an init event.
 
 ###
 
