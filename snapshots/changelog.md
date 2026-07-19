@@ -2,6 +2,14 @@ This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/ant
 
 ​
 
+2.1.215
+
+July 19, 2026
+
+  * Claude no longer runs the `/verify` and `/code-review` skills on its own; invoke them with `/verify` or `/code-review` when you want them
+
+​
+
 2.1.214
 
 July 18, 2026
