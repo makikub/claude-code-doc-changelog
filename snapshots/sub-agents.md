@@ -276,6 +276,7 @@ Available tools
 Subagents inherit the [internal tools](</docs/en/tools-reference>) and MCP tools available in the main conversation by default. The following tools depend on the main conversation’s UI or session state and aren’t available to subagents, even when listed in the `tools` field:
 
   * `AskUserQuestion`
+  * `EndConversation`, which can end only the main conversation; see [EndConversation tool behavior](</docs/en/tools-reference#endconversation-tool-behavior>)
   * `EnterPlanMode`
   * `ExitPlanMode`, unless the subagent’s `permissionMode` is `plan`
   * `ScheduleWakeup`

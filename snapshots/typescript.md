@@ -138,7 +138,7 @@ Creates a type-safe MCP tool definition for use with SDK MCP servers.
       description: string,
       inputSchema: Schema,
       handler: (args: InferShape<Schema>, extra: unknown) => Promise<CallToolResult>,
-      extras?: { annotations?: ToolAnnotations }
+      extras?: { annotations?: ToolAnnotations; searchHint?: string; alwaysLoad?: boolean }
     ): SdkMcpToolDefinition<Schema>;
 
 ####
@@ -153,7 +153,7 @@ Parameter| Type| Description
 `description`| `string`| A description of what the tool does
 `inputSchema`| `Schema extends AnyZodRawShape`| Zod schema defining the tool’s input parameters (supports both Zod 3 and Zod 4)
 `handler`| `(args, extra) => Promise<``CallToolResult``>`| Async function that executes the tool logic
-`extras`| `{ annotations?: ``ToolAnnotations`` }`| Optional MCP tool annotations providing behavioral hints to clients
+`extras`| `{ annotations?: ``ToolAnnotations``; searchHint?: string; alwaysLoad?: boolean }`| Optional extras. `annotations` provides MCP behavioral hints to clients. `searchHint` is a one-line capability phrase shown in the deferred-tool list when [tool search](</docs/en/agent-sdk/tool-search>) is active. `alwaysLoad: true` keeps this tool’s full schema in the initial prompt instead of deferring it
 
 ####
 
@@ -195,7 +195,9 @@ Creates an MCP server instance that runs in the same process as your application
     function createSdkMcpServer(options: {
       name: string;
       version?: string;
+      instructions?: string;
       tools?: Array<SdkMcpToolDefinition<any>>;
+      alwaysLoad?: boolean;
     }): McpSdkServerConfigWithInstance;
 
 ####
@@ -208,7 +210,9 @@ Parameter| Type| Description
 ---|---|---
 `options.name`| `string`| The name of the MCP server
 `options.version`| `string`| Optional version string
+`options.instructions`| `string`| Optional server instructions, returned from `initialize` and surfaced to the model as an MCP instructions block
 `options.tools`| `Array<SdkMcpToolDefinition>`| Array of tool definitions created with `tool()`
+`options.alwaysLoad`| `boolean`| When `true`, every tool from this server stays in the initial prompt and is never deferred behind [tool search](</docs/en/agent-sdk/tool-search>). Combines with per-tool `alwaysLoad` in `tool()`
 
 ###
 
