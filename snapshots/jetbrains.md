@@ -77,7 +77,7 @@ Use the `/ide` command in any external terminal to connect Claude Code to your J
 
     /ide
 
-If you want Claude to have access to the same files as your IDE, start Claude Code from the same directory as your IDE project root.
+When the connection succeeds, Claude Code confirms with a message like `Connected to IntelliJ IDEA.` If Claude Code detects a running IDE that doesn’t have the plugin, `/ide` installs the plugin for you and asks you to restart the IDE. If you want Claude to have access to the same files as your IDE, start Claude Code from the same directory as your IDE project root.
 
 ##
 
@@ -148,9 +148,7 @@ Special configurations
 
 Remote development
 
-When using JetBrains Remote Development, you must install the plugin in the remote host via **Settings → Plugin (Host)**.
-
-The plugin must be installed on the remote host, not on your local client machine.
+When using JetBrains Remote Development, you must install the plugin on the remote host via **Settings → Plugin (Host)** , not on your local client machine.
 
 ###
 
@@ -176,7 +174,7 @@ From inside your WSL shell, run:
 
     hostname -I
 
-Note the subnet, for example `172.21.123.45` is in `172.21.0.0/16`.
+Note your subnet: take the first two segments of the address and follow them with `.0.0/16`. For example, if the address is `172.21.123.45`, your subnet is `172.21.0.0/16`.
 
 2
 
@@ -230,11 +228,11 @@ If the plugin is installed but Claude Code features don’t appear in your IDE:
 
 IDE not detected
 
-If running `claude` shows “No available IDEs detected”:
+If the `/ide` command shows “No available IDEs detected”:
 
   * Verify the plugin is installed and enabled
   * Restart the IDE completely
-  * Check that you’re running Claude Code from the integrated terminal
+  * If you expected an automatic connection without running `/ide`, check that you launched `claude` from the IDE’s integrated terminal
   * For WSL users, see WSL configuration above
 
 ###

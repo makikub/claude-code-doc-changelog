@@ -32,7 +32,7 @@ In Claude Code, run:
 
     /plugin install telegram@claude-plugins-official
 
-If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.After installing, run `/reload-plugins` to activate the plugin’s configure command.
+If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. After installing, run `/reload-plugins` to activate the plugin’s configure command.
 
 3
 
@@ -105,7 +105,7 @@ In Claude Code, run:
 
     /plugin install discord@claude-plugins-official
 
-If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.After installing, run `/reload-plugins` to activate the plugin’s configure command.
+If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. After installing, run `/reload-plugins` to activate the plugin’s configure command.
 
 5
 
@@ -157,7 +157,7 @@ In Claude Code, run:
 
     /plugin install imessage@claude-plugins-official
 
-If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.
+If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. Claude Code then suggests running `/reload-plugins`; you can skip that here, because restarting in the next step picks up the plugin.
 
 3
 
@@ -207,7 +207,7 @@ Start a Claude Code session and run the install command:
 
     /plugin install fakechat@claude-plugins-official
 
-If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.
+If Claude Code reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`. If it reports that the plugin is not found in the marketplace, your local copy is outdated: refresh it with `/plugin marketplace update claude-plugins-official`. Then retry the install.When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. Claude Code then suggests running `/reload-plugins`; you can skip that here, because restarting in the next step picks up the plugin.
 
 2
 
@@ -217,7 +217,7 @@ Exit Claude Code, then restart with `--channels` and pass the fakechat plugin yo
 
     claude --channels plugin:fakechat@claude-plugins-official
 
-The fakechat server starts automatically.
+The fakechat server starts automatically. The startup screen shows a channels notice stating that messages from `plugin:fakechat@claude-plugins-official` inject directly in this session. If the plugin isn’t installed or isn’t on the approved allowlist, a warning line naming the problem appears below that notice.
 
 You can pass several plugins to `--channels`, space-separated.
 
@@ -227,9 +227,9 @@ Push a message in
 
 Open the fakechat UI at <http://localhost:8787> and type a message:
 
-    hey, what's in my working directory?
+    what's in my working directory?
 
-The message arrives in your Claude Code session as a `<channel source="fakechat">` event. Claude reads it, does the work, and calls fakechat’s `reply` tool. The answer shows up in the chat UI.
+The message arrives in your Claude Code session. The terminal shows it as an inbound channel line like `← fakechat · web: what's in my working directory?`, while the model receives it as a `<channel source="plugin:fakechat:fakechat">` event, using the plugin’s scoped server name. Claude reads it, does the work, and calls fakechat’s `reply` tool. The first reply triggers a permission prompt in your terminal; approve it, and the answer shows up in the chat UI.
 
 If Claude hits a permission prompt while you’re away from the terminal, the session pauses until you respond. Channel servers that declare the [permission relay capability](</docs/en/channels-reference#relay-permission-prompts>) can forward these prompts to you so you can approve or deny remotely. For unattended use, [`--dangerously-skip-permissions`](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>) bypasses most prompts, but only use it in environments you trust. Explicit ask rules, connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>), and MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) still prompt. When you run channels in non-interactive mode with `-p`, tools that need terminal input, such as multiple-choice questions and plan mode approval, are disabled so the session never stalls waiting for input.
 
@@ -301,7 +301,7 @@ When `allowedChannelPlugins` is set, it replaces the Anthropic allowlist entirel
 
 Research preview
 
-Channels are a research preview feature. Availability is rolling out gradually, and the `--channels` flag syntax and protocol contract may change based on feedback. During the preview, `--channels` only accepts plugins from an Anthropic-maintained allowlist, or from your organization’s allowlist if an admin has set `allowedChannelPlugins`. The channel plugins in [claude-plugins-official](<https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins>) are the default approved set. If you pass something that isn’t on the effective allowlist, Claude Code starts normally but the channel doesn’t register, and the startup notice tells you why. To test a channel you’re building, use `--dangerously-load-development-channels`. See [Test during the research preview](</docs/en/channels-reference#test-during-the-research-preview>) for information about testing custom channels that you build. Report issues or feedback on the [Claude Code GitHub repository](<https://github.com/anthropics/claude-code/issues>).
+Channels are a research preview feature. Availability is rolling out gradually, and the `--channels` flag syntax and protocol contract may change based on feedback. Neither `--channels` nor `--dangerously-load-development-channels` appears in `claude --help` while the feature is in preview. The flags work even though they aren’t listed. During the preview, `--channels` only accepts plugins from an Anthropic-maintained allowlist, or from your organization’s allowlist if an admin has set `allowedChannelPlugins`. The channel plugins in [claude-plugins-official](<https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins>) are the default approved set. If you pass something that isn’t on the effective allowlist, Claude Code starts normally but the channel doesn’t register, and the startup notice tells you why. To test a channel you’re building, use `--dangerously-load-development-channels`. See [Test during the research preview](</docs/en/channels-reference#test-during-the-research-preview>) for information about testing custom channels that you build. Report issues or feedback on the [Claude Code GitHub repository](<https://github.com/anthropics/claude-code/issues>).
 
 ##
 

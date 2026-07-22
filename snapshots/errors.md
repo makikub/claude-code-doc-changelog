@@ -26,7 +26,7 @@ Message| Section
 `Server is temporarily limiting requests`| Usage limits
 `Request rejected (429)`| Usage limits
 `Credit balance is too low`| Usage limits
-`Failed to update spend limit` / `Failed to update auto-reload` / `Could not update your spend limit`| Usage limits
+`Could not update your spend limit`| Usage limits
 `Not logged in · Please run /login`| Authentication
 `Could not resolve authentication method`| Authentication
 `Invalid API key`| Authentication
@@ -356,17 +356,15 @@ Your Console organization has run out of prepaid credits.
 
 ​
 
-Failed to update spend limit or auto-reload
+Could not update your spend limit
 
-The server rejected a spend limit or auto-reload change you made from the [`/usage-credits` dialog](</docs/en/costs#set-a-spend-limit-on-pro-and-max>) or from the prompt that appears when you reach your spend limit.
+The server rejected a spend limit change you made from the prompt that appears when you reach your spend limit.
 
-    Failed to update spend limit: <reason from the server>
-    Failed to update auto-reload: <reason from the server>
     Could not update your spend limit: <reason from the server>
 
-When the server explains the rejection, for example a ceiling on auto-reload amounts, the message ends with that reason, and retrying the same value fails again. When the failure has no server-provided reason, such as a dropped connection, the message is the generic form without the trailing reason, and the spend limit prompt adds `Press Enter to retry`. Before v2.1.216, Claude Code showed the generic form for every failure. **What to do:**
+When the server explains the rejection, the message ends with that reason, and retrying the same value fails again. When the failure has no server-provided reason, such as a dropped connection, the message reads `Could not update your spend limit. Press Enter to retry.` and retrying can succeed. Before v2.1.216, Claude Code showed the generic form for every failure. **What to do:**
 
-  * If the message includes a reason, enter a value that satisfies it, such as a lower amount
+  * If the message includes a reason, choose a limit that satisfies it, such as a lower amount
   * If the message shows only the generic form, retry; the failure may be transient
   * If the change keeps failing, make it from your [claude.ai billing settings](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) in the browser instead
 
@@ -1466,8 +1464,9 @@ Skipped paths keep their current contents. Before v2.1.216, `/rewind` wrote and 
 
 **What to do:**
 
-  * Run Claude Code with `--debug` and repeat the restore. The debug log names each skipped path.
-  * If a skipped file is a link you created on purpose, such as a config file managed by a dotfile manager or a file hard-linked by tools like pnpm, restore its contents from [version control](</docs/en/checkpointing#not-a-replacement-for-version-control>) instead
+  * Identify which files were skipped so you can handle each one with the steps below. The message gives only a count, so list your project’s links to find them: `find . -type l` for symlinks and `find . -type f -links +1` for hard-linked files.
+    * If debug logging is on, the log at `~/.claude/debug/<session-id>.txt` names each skipped path as the restore runs. Turn it on with `/debug` before your next restore to skip the search.
+  * If a skipped file is a link you created on purpose, such as a config file managed by a dotfile manager or a file hard-linked by tools like pnpm, the rewind left its contents alone. To undo the session’s changes to it, ask Claude to reverse the edit or edit the file yourself
   * If you didn’t create the link, inspect the path before trusting its contents: something replaced the file after the checkpoint
 
 ##

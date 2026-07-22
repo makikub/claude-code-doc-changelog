@@ -16,6 +16,7 @@ For Windows ARM64, download the [ARM64 installer](<https://claude.ai/api/desktop
 
   * Review and comment on diffs, then watch the resulting PR through CI
   * Preview your running app in the Browser pane while Claude verifies its own changes, and open external sites alongside it
+  * Watch Claude [run and test your iOS app](</docs/en/desktop-ios-simulator>) in the iOS Simulator pane
   * Arrange panes for the chat, diff, browser, terminal, and file editor side by side
   * Ask a side question that uses the session’s context without derailing it
   * Connect external tools like GitHub, Slack, and Linear
@@ -181,7 +182,7 @@ PR monitoring requires the [GitHub CLI (`gh`)](<https://cli.github.com/>) to be 
 
 Arrange your workspace
 
-The Code tab is built around panes you can arrange in any layout: chat, diff, browser, terminal, file, plan, tasks, and subagent. Drag a pane by its header to reposition it, or drag a pane edge to resize it. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane. Open additional panes from the **Views** menu in the session toolbar.
+The Code tab is built around panes you can arrange in any layout: chat, diff, browser, terminal, file, plan, tasks, and subagent, along with the [iOS Simulator](</docs/en/desktop-ios-simulator>) on macOS. Drag a pane by its header to reposition it, or drag a pane edge to resize it. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane. Open additional panes from the **Views** menu in the session toolbar.
 
 The pane layout, terminal, file editor, and view modes in this section require Claude Desktop v1.2581.0 or later. Open **Claude → Check for Updates** on macOS or **Help → Check for Updates** on Windows to update.
 
@@ -274,7 +275,7 @@ Click the usage ring next to the model picker to see your current context window
 
 Let Claude use your computer
 
-Computer use lets Claude open your apps, control your screen, and work directly on your machine the way you would. Ask Claude to test a native app in a mobile simulator, interact with a desktop tool that has no CLI, or automate something that only works through a GUI.
+Computer use lets Claude open your apps, control your screen, and work directly on your machine the way you would. Ask Claude to interact with a desktop tool that has no CLI, or automate something that only works through a GUI. For running and testing iOS apps, Desktop opens the dedicated [iOS Simulator pane](</docs/en/desktop-ios-simulator>) instead of controlling your screen; the pane works without enabling computer use.
 
 Computer use is a research preview on macOS and Windows that requires a Pro or Max plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running.
 
@@ -293,9 +294,10 @@ Claude has several ways to interact with an app or service, and computer use is 
   * If you have a connector for a service, Claude uses the connector.
   * If the task is a shell command, Claude uses Bash.
   * If the task is browser work and you have [Claude in Chrome](</docs/en/chrome>) set up, Claude uses that.
+  * If the task is running or testing an iOS app, Claude uses the [iOS Simulator pane](</docs/en/desktop-ios-simulator>), which doesn’t use screen control.
   * If none of those apply, Claude uses computer use.
 
-The per-app access tiers reinforce this: browsers are capped at view-only, and terminals and IDEs at click-only, steering Claude toward the dedicated tool even when computer use is active. Screen control is reserved for things nothing else can reach, like native apps, hardware control panels, mobile simulators, or proprietary tools without an API.
+The per-app access tiers reinforce this: browsers are capped at view-only, and terminals and IDEs at click-only, steering Claude toward the dedicated tool even when computer use is active. Screen control is reserved for things nothing else can reach, like native apps, hardware control panels, or proprietary tools without an API.
 
 ###
 
@@ -499,10 +501,42 @@ Field| Type| Description
 `autoPort`| boolean| How to handle port conflicts. See below
 `program`| string| A script to run with `node`. See when to use `program` vs `runtimeExecutable`
 `args`| string[]| Arguments passed to `program`. Only used when `program` is set
+`url`| string| The address the preview opens instead of `http://localhost:<port>`. See open the preview at a specific URL
 
 ##### When to use `program` vs `runtimeExecutable`
 
 Use `runtimeExecutable` with `runtimeArgs` to start a dev server through a package manager. For example, `"runtimeExecutable": "npm"` with `"runtimeArgs": ["run", "dev"]` runs `npm run dev`. Use `program` when you have a standalone script you want to run with `node` directly. For example, `"program": "server.js"` runs `node server.js`. Pass additional flags with `args`.
+
+##### Open the preview at a specific URL
+
+By default, the preview opens `http://localhost:<port>`. Set `url` when your server needs a different address. Common cases are servers that require local HTTPS, apps that use `*.localhost` subdomains, and apps that sign you in through a redirect.
+
+    {
+      "version": "0.0.1",
+      "configurations": [
+        {
+          "name": "my-app",
+          "runtimeExecutable": "npm",
+          "runtimeArgs": ["run", "dev"],
+          "port": 8443,
+          "url": "https://localhost:8443"
+        }
+      ]
+    }
+
+Localhost addresses open directly, exactly like the default port address. This includes `localhost`, any `*.localhost` subdomain, `127.0.0.1`, and `::1`. For security, a localhost `url` must be just your server’s origin — no path or query, and the port must match the entry’s port. To show a specific page, ask Claude to navigate there after the preview opens. A localhost `url` with a path, query, or mismatched port is reported as a configuration error that names the url and shows the fix. Any other address asks for your permission the first time it opens, the same way browsing to a new site in the preview does. External addresses may include paths. Choose **Always allow** to skip the prompt for that site in the future. Organization policies that restrict external sites in the preview still apply. To preview a server you already run yourself, set `url` without a command. Claude attaches the preview to your running server instead of starting one:
+
+    {
+      "version": "0.0.1",
+      "configurations": [
+        {
+          "name": "my-app",
+          "url": "https://app.localhost:3000"
+        }
+      ]
+    }
+
+The `url` must be `http` or `https`, and must not contain a username or password.
 
 ####
 
@@ -701,6 +735,7 @@ Key| Description
 `disableAutoMode`| set to `"disable"` to prevent users from enabling [Auto](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) mode. Removes Auto from the mode selector. Also accepted under `permissions`.
 `autoMode`| customize what the auto mode classifier trusts and blocks across your organization. See [Configure auto mode](</docs/en/auto-mode-config>).
 `browserExternalPageTools`| set to `"disabled"` to prevent Claude from using tools to read or act on external pages in the Browser pane. Users can still navigate to external sites themselves, and local dev server previews are unaffected.
+`disableMobileSimulatorTools`| set to `true` to block Claude’s tools for controlling and capturing devices in the [iOS Simulator pane](</docs/en/desktop-ios-simulator#turn-off-simulator-access>). The pane stays usable for the user’s own taps; only Claude’s access is removed.
 `disableBrowserExternalNavigation`| set to `true` to turn off external browsing in the Browser pane entirely. Neither users nor Claude can navigate to external sites, and localhost dev server previews are unaffected. The value must be the JSON boolean `true`; the string `"true"` is ignored.
 `sshConfigs`| pre-configure SSH connections that appear in the environment dropdown. Users cannot edit or delete managed connections.
 `sshHostAllowlist`| restrict SSH sessions to hosts whose resolved hostname matches one of these patterns. An empty array disables SSH sessions. Read from managed settings only.
@@ -861,6 +896,7 @@ Session isolation| [`--worktree`](</docs/en/cli-reference>) flag| Automatic work
 Multiple sessions| Separate terminals| Sidebar tabs
 Recurring tasks| Cron jobs, CI pipelines| [Scheduled tasks](</docs/en/desktop-scheduled-tasks>)
 Computer use| [Enable via `/mcp`](</docs/en/computer-use>) on macOS| App and screen control on macOS and Windows
+iOS simulator| Drive the simulator via [computer use](</docs/en/computer-use#test-a-simulator-flow>)| [iOS Simulator pane](</docs/en/desktop-ios-simulator>) opens automatically
 Dispatch integration| Not available| Dispatch sessions in the sidebar
 Scripting and automation| [`--print`](</docs/en/cli-reference>), [Agent SDK](</docs/en/headless>)| Not available
 

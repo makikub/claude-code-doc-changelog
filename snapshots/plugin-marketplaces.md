@@ -62,7 +62,10 @@ my-marketplace/plugins/quality-review-plugin/.claude-plugin/plugin.json
     {
       "name": "quality-review-plugin",
       "description": "Adds a quality-review skill for quick code reviews",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "author": {
+        "name": "Your Name"
+      }
     }
 
 Setting `version` means users only receive updates when you change this field, so bump it on every release. If you omit `version` and host this marketplace in git, every commit automatically counts as a new version. See Version resolution to choose the right approach.
@@ -93,10 +96,11 @@ my-marketplace/.claude-plugin/marketplace.json
 
 Add and install
 
-Add the marketplace and install the plugin.
+From the directory that contains `my-marketplace`, start Claude Code and run the following commands. The install command opens a plugin details view where you select an installation scope to confirm the install, and `/reload-plugins` activates the plugin in your current session.
 
     /plugin marketplace add ./my-marketplace
     /plugin install quality-review-plugin@my-plugins
+    /reload-plugins
 
 6
 
@@ -872,7 +876,7 @@ Earlier versions of Claude Code ignore the `renames` field and report `plugin-no
 
 Validation and testing
 
-Test your marketplace before sharing. Validate your marketplace JSON syntax:
+Test your marketplace before sharing. From your marketplace directory, validate the JSON syntax:
 
     claude plugin validate .
 
@@ -963,7 +967,7 @@ Option| Description
 ---|---
 `--json`| Output as JSON
 
-With `--json`, each entry includes `name`, `source`, and source-specific fields: `repo` for GitHub sources, `url` for git and URL sources, and `path` for local sources. GitHub and git sources also include a `ref` field when the marketplace was added with a pinned branch or tag.
+With `--json`, each entry includes `name`, `source`, an `installLocation` field with the local cache path where the marketplace is stored, and source-specific fields: `repo` for GitHub sources, `url` for git and URL sources, and `path` for local sources. GitHub and git sources also include a `ref` field when the marketplace was added with a pinned branch or tag.
 
 ###
 
@@ -1074,8 +1078,8 @@ Private repository authentication fails
 **Symptoms** : Authentication errors when installing plugins from private repositories **Solutions** : For manual installation and updates:
 
   * Verify you’re authenticated with your git provider (for example, run `gh auth status` for GitHub)
-  * Check that your credential helper is configured correctly: `git config --global credential.helper`
-  * Try cloning the repository manually to verify your credentials work
+  * Check that your credential helper is configured: `git config --global credential.helper`
+  * Run `git ls-remote <marketplace-url>` to test whether git can authenticate on its own. If git asks for a username or password, store the credential first: for GitHub over HTTPS, run `gh auth setup-git`, and for SSH remotes, load your key into `ssh-agent`
 
 For background auto-updates:
 
