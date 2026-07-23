@@ -33,7 +33,7 @@ Start a session
 
 Before you send your first message, configure four things in the prompt area:
 
-  * **Environment** : choose where Claude runs. Select **Local** for your machine, **Remote** for Anthropic-hosted cloud sessions, an **SSH connection** for a remote machine you manage, or on Windows a [**WSL distribution**](</docs/en/desktop-wsl>). See environment configuration.
+  * **Environment** : choose where Claude runs. Select **Local** for your machine, **Cloud** for Anthropic-hosted cloud sessions, an **SSH connection** for a remote machine you manage, or on Windows a [**WSL distribution**](</docs/en/desktop-wsl>). See environment configuration.
   * **Project folder** : select the folder or repository Claude works in. For cloud sessions, you can add multiple repositories.
   * **Model** : pick a [model](</docs/en/model-config#available-models>) from the dropdown next to the send button. You can change this during the session.
   * **Permission mode** : choose how much autonomy Claude has from the mode selector. You can change this during the session.
@@ -391,7 +391,7 @@ The tasks pane shows the background work running inside the current session: sub
 
 Run long-running tasks remotely
 
-For large refactors, test suites, migrations, or other long-running tasks, select **Remote** instead of **Local** when starting a session. Cloud sessions run on Anthropic’s cloud infrastructure and continue even if you close the app or shut down your computer. Check back anytime to see progress or steer Claude in a different direction. You can also monitor cloud sessions from [claude.ai/code](<https://claude.ai/code>) or the [Claude mobile app](</docs/en/mobile>). Cloud sessions also support multiple repositories. After selecting a cloud environment, click the **+** button next to the repo pill to add additional repositories to the session. Each repo gets its own branch selector. This is useful for tasks that span multiple codebases, such as updating a shared library and its consumers. See [Claude Code on the web](</docs/en/claude-code-on-the-web>) for more on how cloud sessions work.
+For large refactors, test suites, migrations, or other long-running tasks, select **Cloud** instead of **Local** when starting a session. Cloud sessions run on Anthropic’s cloud infrastructure and continue even if you close the app or shut down your computer. Check back anytime to see progress or steer Claude in a different direction. You can also monitor cloud sessions from [claude.ai/code](<https://claude.ai/code>) or the [Claude mobile app](</docs/en/mobile>). Cloud sessions also support multiple repositories. After selecting a cloud environment, click the **+** button next to the repo pill to add additional repositories to the session. Each repo gets its own branch selector. This is useful for tasks that span multiple codebases, such as updating a shared library and its consumers. See [Claude Code on the web](</docs/en/claude-code-on-the-web>) for more on how cloud sessions work.
 
 ###
 
@@ -628,7 +628,7 @@ Environment configuration
 The environment you pick when starting a session determines where Claude executes and how you connect:
 
   * **Local** : runs on your machine with direct access to your files
-  * **Remote** : runs on Anthropic’s cloud infrastructure. Sessions continue even if you close the app.
+  * **Cloud** : runs on Anthropic’s cloud infrastructure. Sessions continue even if you close the app.
   * **SSH** : runs on a remote machine you connect to over SSH, such as your own servers, cloud VMs, or dev containers
   * **WSL** (Windows): runs inside a [WSL 2 distribution](</docs/en/desktop-wsl>) on your machine, using its Linux toolchain and native paths
 

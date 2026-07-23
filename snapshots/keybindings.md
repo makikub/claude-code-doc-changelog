@@ -54,7 +54,7 @@ Context| Description
 `Task`| Background task is running
 `ThemePicker`| Theme picker dialog
 `Attachments`| Image attachment navigation in select dialogs
-`Footer`| Footer indicator navigation (tasks, teams, diff)
+`Footer`| Footer indicator navigation (tasks, teams, diff, artifacts)
 `MessageSelector`| Rewind and summarize dialog message selection
 `DiffDialog`| Diff viewer navigation
 `ModelPicker`| Model picker effort level
@@ -289,6 +289,7 @@ Action| Default| Description
 `footer:down`| Down| Navigate down in footer
 `footer:openSelected`| Enter| Open selected footer item
 `footer:clearSelection`| Escape| Clear footer selection
+`footer:dismiss`| Backspace, Delete| Dismiss the selected [artifact](</docs/en/artifacts>) link from the footer; the published artifact itself is unaffected. On other footer rows, these keys have no effect. Requires v2.1.217 or later
 
 ###
 

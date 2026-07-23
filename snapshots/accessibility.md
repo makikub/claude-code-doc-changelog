@@ -51,7 +51,13 @@ Label| Meaning
 `Permission Required:`| A permission prompt waiting for your answer
 `Cost:`| The session cost summary when Claude Code exits, if your account [shows costs](</docs/en/costs>)
 
-The terminal cursor follows the input caret, so a screen reader’s read-current-line command answers “where am I” with the prompt you’re editing. Cycling [permission modes](</docs/en/permission-modes>) with `Shift+Tab` announces the mode you land on, such as `[plan mode on]` or `[accept edits on]`. Claude Code prints the announcement once and doesn’t repeat it on later redraws. Requires Claude Code v2.1.210 or later.
+The terminal cursor follows the input caret, so a screen reader’s read-current-line command answers “where am I” with the prompt you’re editing. When you delete a word or a line in the input, Claude Code announces the deleted text. Requires Claude Code v2.1.218 or later. The announcement covers:
+
+  * Deleting a word with `Ctrl+W`, `Option+Delete` on macOS, or `Ctrl+Backspace` on Windows
+  * Deleting to the start of the line with `Ctrl+U` or `Cmd+Backspace`
+  * Deleting to the end of the line with `Ctrl+K`
+
+See the [text editing shortcuts](</docs/en/interactive-mode#text-editing>) for what each key does. Cycling [permission modes](</docs/en/permission-modes>) with `Shift+Tab` announces the mode you land on, such as `[plan mode on]` or `[accept edits on]`. Claude Code prints the announcement once and doesn’t repeat it on later redraws. Requires Claude Code v2.1.210 or later.
 
 ###
 
@@ -103,7 +109,7 @@ Accessibility settings beyond screen reader mode
 
 These options address accessibility needs outside of screen reader mode. All of them work alongside it.
 
-  * The `CLAUDE_CODE_ACCESSIBILITY` [environment variable](</docs/en/env-vars>) is for screen magnifiers. Set `CLAUDE_CODE_ACCESSIBILITY=1` to keep the native terminal cursor visible so that magnifiers, such as macOS Zoom, can track the cursor position.
+  * The `CLAUDE_CODE_ACCESSIBILITY` [environment variable](</docs/en/env-vars>) is for screen magnifiers. Set `CLAUDE_CODE_ACCESSIBILITY=1` to keep the native terminal cursor visible so that magnifiers, such as macOS Zoom, can track the cursor position. The cursor follows keyboard focus: the input caret while you type, and the highlighted row as you move through menus and panels, such as `/config` and `/plugin`, with the arrow keys. Row tracking in menus and panels requires Claude Code v2.1.218 or later.
   * The `prefersReducedMotion` [setting](</docs/en/settings#available-settings>) reduces or disables spinners, shimmer, and other animations without changing the rest of the interface.
   * The `theme` [setting](</docs/en/settings#available-settings>) selects the interface colors, including the colorblind-friendly `dark-daltonized` and `light-daltonized` themes.
 

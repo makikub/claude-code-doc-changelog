@@ -47,7 +47,7 @@ When you’re in plan mode and Claude needs to understand your codebase, it dele
 A capable agent for complex, multi-step tasks that require both exploration and action.
 
   * **Model** : inherits from the main conversation
-  * **Tools** : all tools
+  * **Tools** : every tool available to subagents
   * **Purpose** : complex research, multi-step operations, code modifications
 
 Claude delegates to general-purpose when the task requires both exploration and modification, complex reasoning to interpret results, or multiple dependent steps.
@@ -208,7 +208,7 @@ Claude Code watches `~/.claude/agents/` and `.claude/agents/`. When you add or e
     You are a code reviewer. When invoked, analyze the code and provide
     specific, actionable feedback on quality, security, and best practices.
 
-The frontmatter defines the subagent’s metadata and configuration. The body becomes the system prompt that guides the subagent’s behavior. Subagents receive only this system prompt plus basic environment details like the working directory, not the full Claude Code system prompt. In [non-interactive mode](</docs/en/headless>), the [`--append-subagent-system-prompt`](</docs/en/cli-reference#cli-flags>) flag appends the text you provide to the end of every subagent’s system prompt, including nested subagents. Requires Claude Code v2.1.205 or later. A subagent starts in the main conversation’s current working directory. Within a subagent, `cd` commands don’t persist between Bash or PowerShell tool calls and don’t affect the main conversation’s working directory. To give the subagent an isolated copy of the repository instead, set `isolation: worktree`. A subagent with `isolation: worktree` runs its Bash and PowerShell commands inside its worktree. A command whose working directory resolves to your main checkout instead, for example because the worktree directory was removed while the subagent was running, fails with an error. Before v2.1.203, such a command could run in the main checkout. This working-directory check covers the whole repository containing the directory you launched Claude Code from. When your session runs in a linked [worktree](</docs/en/worktrees>) of its own, the check also covers the main checkout that worktree is linked from. Before v2.1.210, the check covered only the launch directory itself. A command whose working directory resolved elsewhere in the same repository, such as the repository root when you launched Claude Code from a monorepo subdirectory, ran there instead of failing.
+The frontmatter defines the subagent’s metadata and configuration. The body becomes the system prompt that guides the subagent’s behavior. Subagents receive only this system prompt plus basic environment details like the working directory, not the full Claude Code system prompt. In [non-interactive mode](</docs/en/headless>), the [`--append-subagent-system-prompt`](</docs/en/cli-reference#cli-flags>) flag appends the text you provide to the end of every subagent’s system prompt, including nested subagents. Requires Claude Code v2.1.205 or later. A subagent starts in the main conversation’s current working directory. Within a subagent, `cd` commands don’t persist between Bash or PowerShell tool calls and don’t affect the main conversation’s working directory. To give the subagent an isolated copy of the repository instead, set `isolation: worktree`. A subagent with `isolation: worktree` runs its Bash and PowerShell commands inside its worktree. A command whose working directory resolves to your main checkout instead, for example because the worktree directory was removed while the subagent was running, fails with an error. Before v2.1.203, such a command could run in the main checkout. This working-directory check covers the whole repository containing the directory you launched Claude Code from. When your session runs in a linked [worktree](</docs/en/worktrees>) of its own, the check also covers the main checkout that worktree is linked from. Before v2.1.210, the check covered only the launch directory itself. A command whose working directory resolved elsewhere in the same repository, such as the repository root when you launched Claude Code from a monorepo subdirectory, ran there instead of failing. For Bash commands, Claude Code also checks the command itself: a command that redirects git into the main checkout fails with an error, whether it uses `git -C`, `--git-dir`, a `GIT_DIR` or `GIT_WORK_TREE` variable, or a `cd` into the main checkout first. A command too complex to check also fails, with an error telling Claude to split it into separate plain commands. This check applies to Bash only; PowerShell commands get only the working-directory check.
 
 ####
 
@@ -222,7 +222,7 @@ Field| Required| Description
 ---|---|---
 `name`| Yes| Unique identifier using lowercase letters and hyphens. [Hooks](</docs/en/hooks#subagentstart>) receive this value as `agent_type`. The filename doesn’t have to match
 `description`| Yes| When Claude should delegate to this subagent
-`tools`| No| Tools the subagent can use. Inherits all tools if omitted. If no entry in the list resolves to a tool, the subagent fails to launch with an error naming the entries. To preload Skills into context, use the `skills` field rather than listing `Skill` here
+`tools`| No| Tools the subagent can use. Inherits every tool available to subagents if omitted. If no entry in the list resolves to a tool, the subagent usually [fails to launch](</docs/en/errors#agent-would-be-spawned-with-zero-tools>) with an error naming the entries. To preload Skills into context, use the `skills` field rather than listing `Skill` here
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
 `model`| No| Model to use: `sonnet`, `opus`, `haiku`, `fable`, a full model ID (for example, `claude-opus-4-8`), or `inherit`. Defaults to `inherit`
 `permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, or `manual` as an alias for `default`. The `manual` alias requires Claude Code v2.1.200 or later. Ignored for plugin subagents
@@ -273,16 +273,19 @@ You can control what subagents can do through tool access, permission modes, and
 
 Available tools
 
-Subagents inherit the [internal tools](</docs/en/tools-reference>) and MCP tools available in the main conversation by default. The following tools depend on the main conversation’s UI or session state and aren’t available to subagents, even when listed in the `tools` field:
+Subagents inherit the [built-in tools](</docs/en/tools-reference>) and MCP tools available in the main conversation, narrowed by two filters: the first removes a short list of tools from every subagent, and the second reduces the built-in tool set for subagents that run in the background, which is the default. Forks skip both filters and receive the main conversation’s exact tool pool. The first filter removes these tools, even when listed in the `tools` field:
 
+  * `Agent`, until you turn on nested spawning; in a fork the tool stays listed but returns an error instead of spawning
   * `AskUserQuestion`
   * `EndConversation`, which can end only the main conversation; see [EndConversation tool behavior](</docs/en/tools-reference#endconversation-tool-behavior>)
   * `EnterPlanMode`
   * `ExitPlanMode`, unless the subagent’s `permissionMode` is `plan`
   * `ScheduleWakeup`
+  * `TaskOutput`
   * `WaitForMcpServers`
+  * `Workflow`
 
-The `Agent` tool itself is inherited, so a subagent can spawn nested subagents. To restrict tools, use the `tools` field as an allowlist or the `disallowedTools` field as a denylist. This example uses `tools` to allow only Read, Grep, Glob, and Bash. The subagent can’t edit files, write files, or use any MCP tools:
+The second filter applies to subagents running in the background. Apart from `Agent` and `ExitPlanMode`, which follow the first filter’s conditions wherever the subagent runs, a background subagent keeps every MCP tool but only these built-in tools: `Read`, `Grep`, `Glob`, `Bash`, `PowerShell`, `Edit`, `Write`, `NotebookEdit`, `WebFetch`, `WebSearch`, `TodoWrite`, `Skill`, `ToolSearch`, `EnterWorktree`, `ExitWorktree`, `Monitor`, `TaskStop`, `SendMessage`, and `Artifact`. Claude Code removes every other built-in tool from a background subagent, whether inherited or listed in the `tools` field, so the same definition can resolve to different tools in the foreground and the background. The removal reports no error unless it leaves the `tools` list [resolving to nothing](</docs/en/errors#agent-would-be-spawned-with-zero-tools>). Teammates in [agent teams](</docs/en/agent-teams>) additionally keep the task tools and cron tools: `TaskCreate`, `TaskGet`, `TaskList`, `TaskUpdate`, `CronCreate`, `CronDelete`, and `CronList`. To restrict tools, use the `tools` field as an allowlist or the `disallowedTools` field as a denylist. This example uses `tools` to allow only Read, Grep, Glob, and Bash. The subagent can’t edit files, write files, or use any MCP tools:
 
     ---
     name: safe-researcher
@@ -290,15 +293,15 @@ The `Agent` tool itself is inherited, so a subagent can spawn nested subagents. 
     tools: Read, Grep, Glob, Bash
     ---
 
-This example uses `disallowedTools` to inherit every tool from the main conversation except Write and Edit. The subagent keeps Bash, MCP tools, and everything else:
+This example uses `disallowedTools` to inherit the subagent’s tool pool except Write and Edit. The subagent keeps Bash, MCP tools, and the rest of its pool:
 
     ---
     name: no-writes
-    description: Inherits every tool except file writes
+    description: Inherits the available tools except file writes
     disallowedTools: Write, Edit
     ---
 
-If both are set, `disallowedTools` is applied first, then `tools` is resolved against the remaining pool. A tool listed in both is removed. When nothing in the `tools` list resolves to a tool, for example because every entry is misspelled or names a tool that isn’t available to subagents, Claude Code refuses to launch the subagent and the Agent tool returns an error naming the unresolved entries. Before v2.1.208, that subagent launched with no tools and could return an empty or confusing result. Both fields accept MCP server-level patterns in addition to exact tool names: `mcp__<server>` or `mcp__<server>__*` grants or removes every tool from the named server. In `disallowedTools`, `mcp__*` also removes every MCP tool from any server. This example removes every tool from the `github` MCP server while keeping tools from other servers and every built-in tool:
+If both are set, `disallowedTools` is applied first, then `tools` is resolved against the remaining pool. A tool listed in both is removed. When nothing in the `tools` list resolves to a tool, for example because every entry is misspelled or names a tool that isn’t available to subagents, Claude Code usually refuses to launch the subagent and the Agent tool returns an error naming the unresolved entries; see [Agent would be spawned with zero tools](</docs/en/errors#agent-would-be-spawned-with-zero-tools>) for the message and how to fix each entry. Before v2.1.208, that subagent launched with no tools and could return an empty or confusing result. Both fields accept MCP server-level patterns in addition to exact tool names: `mcp__<server>` or `mcp__<server>__*` grants or removes every tool from the named server. In `disallowedTools`, `mcp__*` also removes every MCP tool from any server. This example removes every tool from the `github` MCP server while keeping tools from other servers and the built-in tools in its pool:
 
     ---
     name: local-only
@@ -326,7 +329,7 @@ This is an allowlist: only the `worker` and `researcher` subagents can be spawne
 
     tools: Agent, Read, Bash
 
-If `Agent` is omitted from the `tools` list entirely, the agent can’t spawn any subagents. The `Agent(agent_type)` allowlist syntax applies only to an agent running as the main thread with `claude --agent`. In a subagent definition, listing `Agent` in `tools` lets that subagent spawn nested subagents, but any type list inside the parentheses is ignored.
+If you omit `Agent` from the `tools` list entirely, the agent can’t spawn any subagents with the Agent tool. The `Agent(agent_type)` allowlist syntax applies only to an agent running as the main thread with `claude --agent`. In a subagent definition, listing `Agent` in `tools` lets that subagent spawn subagents of its own once you allow nested spawning, but any type list inside the parentheses is ignored.
 
 ####
 
@@ -407,7 +410,7 @@ Use the `skills` field to inject skill content into a subagent’s context at st
 
     Implement API endpoints. Follow the conventions and patterns from the preloaded skills.
 
-The full content of each listed skill is injected into the subagent’s context at startup. This field controls which skills are preloaded, not which skills the subagent can access: without it, the subagent can still discover and invoke project, user, and plugin skills through the Skill tool during execution. To prevent a subagent from invoking skills entirely, omit `Skill` from the `tools` list or add it to `disallowedTools`. You can’t preload skills that set [`disable-model-invocation: true`](</docs/en/skills#control-who-invokes-a-skill>), since preloading draws from the same set of skills Claude can invoke. If a listed skill is missing or disabled, Claude Code skips it and logs a warning to the debug log.
+The full content of each listed skill is injected into the subagent’s context at startup. This field controls which skills are preloaded, not which skills the subagent can access: without it, the subagent can still discover and invoke project, user, and plugin skills through the Skill tool during execution. To prevent a subagent from invoking skills entirely, omit `Skill` from the `tools` list or add it to `disallowedTools`. You can’t preload skills that set [`disable-model-invocation: true`](</docs/en/skills#control-who-invokes-a-skill>), since preloading draws from the same set of skills Claude can invoke. This includes the bundled `/verify` and `/code-review` skills: only you can run them, so they can’t be preloaded either. If a listed skill is missing or disabled, Claude Code skips it and logs a warning to the debug log.
 
 This is the inverse of [running a skill in a subagent](</docs/en/skills#run-skills-in-a-subagent>). With `skills` in a subagent, the subagent controls the system prompt and loads skill content. With `context: fork` in a skill, the skill content is injected into the agent you specify. Both use the same underlying system.
 
@@ -436,7 +439,7 @@ Scope| Location| Use when
 `project`| `.claude/agent-memory/<name-of-agent>/`| the subagent’s knowledge is project-specific and shareable via version control
 `local`| `.claude/agent-memory-local/<name-of-agent>/`| the subagent’s knowledge is project-specific but shouldn’t be checked into version control
 
-When memory is enabled:
+Subagent memory is part of [auto memory](</docs/en/memory#auto-memory>): if you turn auto memory off, with the `autoMemoryEnabled` setting or `CLAUDE_CODE_DISABLE_AUTO_MEMORY`, the `memory` field has no effect and the subagent launches without the memory instructions or the memory tool access described below. When memory is enabled:
 
   * The subagent’s system prompt includes instructions for reading and writing to the memory directory.
   * The subagent’s system prompt also includes the first 200 lines or 25KB of `MEMORY.md` in the memory directory, whichever comes first, with instructions to curate `MEMORY.md` if it exceeds that limit.
@@ -637,7 +640,7 @@ Your full message still goes to Claude, which writes the subagent’s task promp
 
     claude --agent code-reviewer
 
-The subagent’s system prompt replaces the default Claude Code system prompt entirely, the same way [`--system-prompt`](</docs/en/cli-reference>) does. `CLAUDE.md` files and project memory still load through the normal message flow. The agent name appears as `@<name>` in the startup header so you can confirm it’s active. This works with built-in and custom subagents, and the choice persists when you resume the session. For a plugin-provided subagent, you can pass only the agent name and Claude Code finds it:
+The subagent’s system prompt replaces the default Claude Code system prompt entirely, the same way [`--system-prompt`](</docs/en/cli-reference>) does. `CLAUDE.md` files and project memory still load through the normal message flow. The agent name appears as `@<name>` in the startup header so you can confirm it’s active. This works with built-in and custom subagents, and the choice persists when you resume the session: Claude Code restores the agent’s system prompt, tool restrictions, and model along with the conversation. If the agent no longer exists when you resume, the session continues with the default tools and system prompt and shows a [warning naming the agent](</docs/en/errors#session-agent-no-longer-available>). For a plugin-provided subagent, you can pass only the agent name and Claude Code finds it:
 
     claude --agent security-reviewer
 
@@ -664,7 +667,7 @@ Subagents can run in the foreground or the background:
   * **Foreground subagents** block the main conversation until complete. Permission prompts are passed through to you as they come up.
   * **Background subagents** run concurrently while you continue working. As of v2.1.186, when a background subagent reaches a tool call that needs permission, the prompt surfaces in your main session and names the subagent that is asking. Approve to let the subagent continue, or press Esc to deny that one tool call without stopping the subagent. Before v2.1.186, background subagents auto-denied any tool call that would have prompted.
 
-As of v2.1.198, subagents run in the background by default. Claude runs a subagent in the foreground when it needs the result before continuing. The default changes where a subagent runs, not what it’s allowed to do: background subagents still surface every permission prompt in your main session. Before v2.1.198, Claude chose between foreground and background based on the task. A background subagent’s results reach Claude as a completion notification in a later turn. Claude waits for that notification before reporting the subagent’s results, and if you ask about progress first, it reports that the subagent is still running. Before v2.1.211, Claude sometimes reported results for a background subagent that hadn’t finished. You can also steer this yourself:
+As of v2.1.198, subagents run in the background by default. Claude runs a subagent in the foreground when it needs the result before continuing. Background subagents run with a smaller built-in tool set than foreground subagents, and they surface every permission prompt in your main session. A background subagent’s results reach Claude as a completion notification in a later turn. Claude waits for that notification before reporting the subagent’s results, and if you ask about progress first, it reports that the subagent is still running. Before v2.1.211, Claude sometimes reported results for a background subagent that hadn’t finished. You can also steer this yourself:
 
   * Ask Claude to run a task in the background or in the foreground
   * Press **Ctrl+B** to background a running task
@@ -766,9 +769,19 @@ Consider [Skills](</docs/en/skills>) instead when you want reusable prompts or w
 
 ​
 
-Spawn nested subagents
+Let subagents spawn their own subagents
 
-As of Claude Code v2.1.172, a subagent can spawn its own subagents. Use this when a delegated task itself splits into parallel subtasks, such as a reviewer subagent that dispatches a verifier per finding, so the intermediate output never reaches your main conversation. Only the top-level subagent’s summary returns to you. A nested subagent is configured the same way as a top-level one and resolves from the same scopes. The subagent panel below the prompt input shows the full tree: each row displays a `(+N)` count of descendants, and as of v2.1.193, opening a row shows that subagent’s siblings and direct children with a path back to `main`. Depth is counted as the number of subagent levels below the main conversation, regardless of whether each level runs in the foreground or background. A subagent at depth five doesn’t receive the Agent tool and can’t spawn further. The limit is fixed and not configurable. As of Claude Code v2.1.187, a background subagent’s depth is fixed when it is first spawned, and resuming it later doesn’t change that depth. For example, if your main conversation spawns subagent A, and A spawns a background subagent B at depth two, B is still at depth two when you resume it directly from the main conversation. Resuming a subagent from a shallower context doesn’t let it spawn additional levels that the depth limit already prevented. To prevent a specific subagent from spawning others, omit `Agent` from its `tools` list or add it to `disallowedTools`. A fork still can’t spawn another fork. It can spawn other subagent types, and those count toward the depth limit.
+By default, a subagent can’t spawn subagents of its own, so a subagent you ask to delegate does the work itself and returns one summary. While nesting is off, Claude Code withholds the `Agent` tool from every subagent except a fork, which inherits the parent’s full tool list. `Agent` stays in that list, but returns an error instead of spawning. Nested subagents suit a delegated task that itself splits into parallel subtasks, such as a reviewer subagent that dispatches a verifier per finding, so the intermediate output never reaches your main conversation. Only the top-level subagent’s summary returns to you. To allow nesting, set [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](</docs/en/env-vars>) to the number of subagent layers you want below your main conversation. For example, this entry in [`settings.json`](</docs/en/settings>) allows two layers:
+
+    {
+      "env": {
+        "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "2"
+      }
+    }
+
+With this value, your subagents can delegate to a second layer of their own, and that second layer can’t delegate further. A nested subagent is configured the same way as a top-level one and resolves from the same scopes. To keep one subagent from spawning while nesting is on, such as a reviewer that should stay read-only, omit `Agent` from its `tools` list or add it to `disallowedTools`. The subagent panel below the prompt input shows the full tree: each row displays a `(+N)` count of descendants, and as of v2.1.193, opening a row shows that subagent’s siblings and direct children with a path back to `main`.
+
+From Claude Code v2.1.172 through v2.1.216, subagents could nest by default, up to five layers deep, and the limit couldn’t be changed.
 
 ###
 
@@ -776,7 +789,20 @@ As of Claude Code v2.1.172, a subagent can spawn its own subagents. Use this whe
 
 Session subagent limit
 
-By default, Claude can spawn at most 200 subagents per session. To raise the limit, set [`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`](</docs/en/env-vars>) to any positive whole number; there is no upper bound, but the limit can’t be turned off. Requires Claude Code v2.1.212 or later. Every subagent Claude spawns with the Agent tool counts toward the limit: nested subagents, forks, and background subagents, including subagents that a [workflow](</docs/en/workflows>)’s agents spawn with the Agent tool. An in-session fork you start yourself with `/subtask` counts too: it spends the same budget, though the limit blocks only subagents Claude spawns with the Agent tool, so your own `/subtask` still starts after Claude reaches the limit. A session you create with `/fork` doesn’t count; it runs as a separate background session with its own budget. Before v2.1.212, the in-session fork was named `/fork`. Agents a workflow script spawns with `agent()` don’t count; workflows have their own per-run limit. A finished subagent still counts. When Claude reaches the limit, the Agent tool fails with `Subagent spawn limit reached`, and the error tells Claude to complete the remaining work directly with its own tools. Run [`/clear`](</docs/en/commands#all-commands>) to reset the count and start a new conversation with the full budget. If work that can still spawn subagents survives the clear, such as a running workflow, the count carries over instead. This limit is separate from the depth limit, which caps how deeply subagents nest.
+Three separate limits control subagent use, each with its own variable: this one caps the total spawned over a session, the concurrent subagent limit stops Claude from spawning more while too many are running, and the depth limit caps how deeply subagents nest. By default, Claude can spawn at most 200 subagents per session. To raise the limit, set [`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`](</docs/en/env-vars>) to any positive whole number; there is no upper bound, but the limit can’t be turned off. Requires Claude Code v2.1.212 or later. Every subagent Claude spawns with the Agent tool counts toward the limit: nested subagents, forks, and background subagents, including subagents that a [workflow](</docs/en/workflows>)’s agents spawn with the Agent tool. An in-session fork you start yourself with `/subtask` counts too: it spends the same budget, though the limit blocks only subagents Claude spawns with the Agent tool, so your own `/subtask` still starts after Claude reaches the limit. A session you create with `/fork` doesn’t count; it runs as a separate background session with its own budget. Before v2.1.212, the in-session fork was named `/fork`. Agents a workflow script spawns with `agent()` don’t count; workflows have their own per-run limit. A finished subagent still counts. When Claude reaches the limit, the Agent tool fails with `Subagent spawn limit reached`, and the error tells Claude to complete the remaining work directly with its own tools. Run [`/clear`](</docs/en/commands#all-commands>) to reset the count and start a new conversation with the full budget. If work that can still spawn subagents survives the clear, such as a running workflow, the count carries over instead.
+
+###
+
+​
+
+Concurrent subagent limit
+
+By default, when 20 subagents are running in a session, spawning another with the Agent tool fails with `Concurrent subagent limit reached`, and the error tells Claude not to retry. Spawning succeeds again when the running count drops below the limit. To change the limit, set [`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`](</docs/en/env-vars>) to any positive whole number. Sessions with [ultracode](</docs/en/model-config#adjust-effort-level>) active are exempt: the limit isn’t enforced there. Requires Claude Code v2.1.217 or later. The limit blocks only subagents Claude spawns with the Agent tool, but other runs occupy the same slots:
+
+  * An in-session fork you start with `/subtask` takes a slot while it runs and is never blocked by the limit.
+  * Resuming a subagent that already finished takes a fresh slot without checking the limit, so resumes can push the running count past it.
+
+Agents that other features run, such as [workflow](</docs/en/workflows>) agents and [agent team](</docs/en/agent-teams>) teammates, follow their own limits instead. The session subagent limit separately caps the total Claude spawns over the whole session.
 
 ###
 
@@ -891,7 +917,7 @@ A fork inherits everything the main session has at the moment it spawns. A named
 | Fork| Named subagent
 ---|---|---
 Context| Full conversation history| Fresh context with the prompt you pass
-System prompt and tools| Same as main session| From the subagent’s definition file
+System prompt and tools| Same as main session| From the subagent’s definition file, filtered for background runs
 Model| Same as main session| From the subagent’s `model` field
 Permissions| Prompts surface in your terminal| Prompts surface in your main session when running in the background
 Prompt cache| Shared with main session| Separate cache

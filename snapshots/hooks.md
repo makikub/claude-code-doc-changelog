@@ -523,7 +523,7 @@ In addition to settings files and plugins, hooks can be defined directly in [ski
               command: "./scripts/security-check.sh"
     ---
 
-Agents use the same format in their YAML frontmatter.
+Subagents use the same format in their YAML frontmatter. Frontmatter hooks in a project subagent run only after you accept the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>) for the folder the agent file came from; see [which scopes are exempt](</docs/en/sub-agents#hooks-in-subagent-frontmatter>). Before v2.1.218, these hooks could run from folders you hadn’t trusted.
 
 ###
 
