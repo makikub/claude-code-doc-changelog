@@ -14,7 +14,7 @@ Proxy configuration
 
 Environment variables
 
-Claude Code respects standard proxy environment variables:
+Claude Code respects standard proxy environment variables. In Claude Desktop sessions where the app manages the provider connection, Claude Code reads them only from managed settings and `~/.claude/settings.json`; see mTLS authentication for the scope rules.
 
     # HTTPS proxy (recommended)
     export HTTPS_PROXY=https://proxy.example.com:8080
@@ -97,7 +97,7 @@ Claude Code reads the certificate and key files at startup and re-reads them eac
   * `NODE_TLS_REJECT_UNAUTHORIZED`
   * `CLAUDE_CODE_OAUTH_SCOPES`
 
-Claude Code notes each ignored key in the session’s debug log.
+Claude Code notes each ignored key in the session’s debug log. In [Claude Desktop](</docs/en/desktop>) sessions where the app manages the provider connection, such as the Code tab on a [third-party provider](</docs/en/third-party-integrations>) and Cowork sessions, Claude Code reads these variables and the proxy variables `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` only from [managed settings](</docs/en/settings#settings-files>) and `~/.claude/settings.json`: it ignores them in a repository’s own settings files, so a checked-out repository can’t redirect the TLS or proxy path of a session whose credentials come from the app. In a local, SSH, or WSL Code tab session signed in through claude.ai, the app doesn’t manage the connection, and Claude Code reads these variables from every settings scope, like any terminal session; [cloud sessions](</docs/en/claude-code-on-the-web>) follow the cloud-session rules above wherever you start them. Before v2.1.217, Claude Code ignored these variables in every settings file when the app managed the connection.
 
 ##
 

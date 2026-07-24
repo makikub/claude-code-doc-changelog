@@ -73,7 +73,7 @@ Command| What it does
 ---|---
 `/deep-research <question>`| Fans out web searches on a question across several angles, fetches and cross-checks the sources it finds, votes on each claim, and returns a cited report with claims that didn’t survive cross-checking filtered out. Requires the [WebSearch tool](</docs/en/tools-reference#websearch-tool-behavior>) to be available
 
-Workflows you save yourself become commands the same way and appear in `/` autocomplete alongside the bundled ones.
+`/deep-research` runs only when you invoke it. Before v2.1.218, Claude could also start it on its own. Workflows you save yourself become commands the same way and appear in `/` autocomplete alongside the bundled ones.
 
 ###
 
