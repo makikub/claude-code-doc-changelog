@@ -85,7 +85,7 @@ Set the following environment variables to enable Microsoft Foundry:
 
 Pin specific model versions for every deployment. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Microsoft Foundry, which can lag the newest release and may not yet be available in your account. Microsoft Foundry has no startup model check, so requests fail when the default is unavailable. When you create Azure deployments, select a specific model version rather than “auto-update to latest.”
 
-Set the model variables to match the deployment names you created in step 1. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Microsoft Foundry resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
+Set the model variables to match the deployment names you created in step 1. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Microsoft Foundry resolves to Opus 4.6. Set it to the ID of a newer Opus model, such as Opus 4.8:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-5'

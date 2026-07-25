@@ -217,7 +217,9 @@ Get started
     formatting, and mechanical edits where speed wins. *Fable 5* is the most
     capable model for your hardest, longest-running tasks; it is not the
     default, so select it with `/model fable`, and note that cybersecurity and
-    biology content falls back to Opus automatically.
+    biology content falls back to Opus automatically. Opus 5 runs its own
+    checks, so flagged cybersecurity content switches models and flagged
+    biology content is refused.
 
     *Try it now:* type `/model` and pick Sonnet if you haven't already. It is
     the right default for most tasks.
@@ -227,7 +229,7 @@ Get started
 Model| Best for
 ---|---
 Fable 5| The hardest, longest-running tasks. Opt-in only: select it with `/model fable`. Cybersecurity or biology content [falls back to Opus](</docs/en/model-config#automatic-model-fallback>)
-Opus| Large-scale refactors, complex debugging, architecture decisions, high-stakes changes
+Opus| Large-scale refactors, complex debugging, architecture decisions, high-stakes changes. On Opus 5, cybersecurity or biology content triggers [automatic model fallback or a refusal](</docs/en/model-config#automatic-model-fallback>)
 Sonnet| Everyday feature work, bug fixes, tests, documentation, code review. Recommended default.
 Haiku| Quick questions, formatting, mechanical edits, rapid iteration
 

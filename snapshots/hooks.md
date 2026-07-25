@@ -594,11 +594,15 @@ Only `SessionStart` hooks can receive a `model` field, and it is not guaranteed 
       "hook_event_name": "PreToolUse",
       "tool_name": "Bash",
       "tool_input": {
-        "command": "npm test"
-      }
+        "command": "npm test",
+        "description": "Run test suite",
+        "timeout": 120000,
+        "run_in_background": false
+      },
+      "tool_use_id": "toolu_01ABC123..."
     }
 
-The `tool_name` and `tool_input` fields are event-specific. Each hook event section documents the additional fields for that event.
+The `tool_name`, `tool_input`, and `tool_use_id` fields are event-specific. Each hook event section documents the additional fields for that event.
 
 ###
 
@@ -1820,12 +1824,12 @@ In addition to the common input fields, PermissionDenied hooks receive `tool_nam
         "description": "Clean build directory"
       },
       "tool_use_id": "toolu_01ABC123...",
-      "reason": "Auto mode denied: command targets a path outside the project"
+      "reason": "Blocked by classifier"
     }
 
 Field| Description
 ---|---
-`reason`| The classifier’s explanation for why the tool call was denied
+`reason`| The denial reason: the fixed text `Blocked by classifier` in most sessions, or the classifier’s written explanation when the session’s classifier model provides one. See [Review denials](</docs/en/auto-mode-config#review-denials>)
 
 ####
 

@@ -487,7 +487,7 @@ To request deeper reasoning when a skill runs, include `ultrathink` anywhere in 
 
 Run skills in a subagent
 
-Add `context: fork` to your frontmatter when you want a skill to run in isolation. The skill content becomes the prompt that drives the subagent. It won’t have access to your conversation history. The forked subagent runs in the [background](</docs/en/sub-agents#run-subagents-in-foreground-or-background>): you keep working while it runs, and its result arrives in your conversation when it completes. Set `background: false` in the frontmatter to instead wait for the result in the turn that invoked the skill. Before v2.1.218, forked skills always blocked the turn until they finished. Claude Code also waits for the result, even when the skill doesn’t set `background: false`, in these cases:
+Add `context: fork` to your frontmatter when you want a skill to run in isolation. The skill content becomes the prompt that drives the subagent. It won’t have access to your conversation history. The forked subagent runs in the [background](</docs/en/sub-agents#run-subagents-in-foreground-or-background>): you keep working while it runs, and its result arrives in your conversation when it completes. Set `background: false` in the frontmatter to instead wait for the result in the turn that invoked the skill. Before v2.1.218, forked skills always blocked the turn until they finished. Claude Code also waits for the result, even when the skill doesn’t set `background: false`, in cases like these:
 
   * In non-interactive mode, with the `-p` flag or the Agent SDK
   * When you set [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](</docs/en/env-vars>) to `1`, which also turns off all other background task features

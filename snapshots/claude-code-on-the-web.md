@@ -189,7 +189,7 @@ Owners and admins on Team and Enterprise plans can create cloud environments tha
   * Create, edit, and archive shared environments. Each one has the same fields as a personal environment: a name, a network access level, environment variables in `.env` format, and a setup script.
   * Set the default environment for the organization.
 
-Values in a shared environment reach every member’s sessions in that environment. Like personal environments, shared environments have no dedicated secrets store, so don’t include secrets. Organizations in the self-hosted runners program also manage their runner pools from the same page.
+Values in a shared environment reach every member’s sessions in that environment. Like personal environments, shared environments have no dedicated secrets store, so don’t include secrets.
 
 ##
 

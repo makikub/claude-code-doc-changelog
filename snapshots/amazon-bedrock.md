@@ -179,7 +179,7 @@ The active profile is `AWS_PROFILE` if set, otherwise `default`. Set `AWS_SHARED
 
 Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Amazon Bedrock, which can lag the newest release and may not yet be available in your account. Claude Code falls back to an earlier or lower-tier model at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
-Set these environment variables to specific Amazon Bedrock model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Amazon Bedrock resolves to Opus 4.8, and without `ANTHROPIC_DEFAULT_SONNET_MODEL`, the `sonnet` alias resolves to Sonnet 4.5. This example pins each alias to a specific version:
+Set these environment variables to specific Amazon Bedrock model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Amazon Bedrock resolves to Opus 5, and without `ANTHROPIC_DEFAULT_SONNET_MODEL`, the `sonnet` alias resolves to Sonnet 4.5. This example pins each alias to a specific version:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='us.anthropic.claude-sonnet-4-6'
@@ -189,7 +189,7 @@ These variables use cross-region inference profile IDs (with the `us.` prefix). 
 
 Model type| Default value
 ---|---
-Primary model| `us.anthropic.claude-opus-4-8`
+Primary model| `us.anthropic.claude-opus-5`
 Small/fast model| `us.anthropic.claude-sonnet-4-5-20250929-v1:0`
 
 Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Amazon Bedrock, Claude Code uses the default Sonnet model for background tasks because Haiku may not be enabled in every account or region. Two selections change which model carries them:
@@ -199,7 +199,7 @@ Background tasks such as session title generation use the small/fast model, norm
 
 Opus models have a higher per-token price than Sonnet models, so a deployment that doesn’t pin a primary model is billed at the Opus rate once it updates to v2.1.207 or later. To keep Sonnet 4.5 as the primary model, set `ANTHROPIC_MODEL` to its full model ID. A deployment that steers the default with `ANTHROPIC_DEFAULT_SONNET_MODEL` and doesn’t set `ANTHROPIC_DEFAULT_OPUS_MODEL` keeps its steered Sonnet model as the default.
 
-Before v2.1.207, the primary model on Amazon Bedrock defaulted to Sonnet 4.5, the `opus` alias resolved to Opus 4.6, and background tasks always used the primary model. To customize models further, use one of these methods:
+On v2.1.207 through v2.1.218, the primary model on Amazon Bedrock defaulted to Opus 4.8 and the `opus` alias resolved to Opus 4.8. Before v2.1.207, the primary model defaulted to Sonnet 4.5, the `opus` alias resolved to Opus 4.6, and background tasks always used the primary model. To customize models further, use one of these methods:
 
     # Using inference profile ID
     export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6'

@@ -224,7 +224,7 @@ Field| Required| Description
 `description`| Yes| When Claude should delegate to this subagent
 `tools`| No| Tools the subagent can use. Inherits every tool available to subagents if omitted. If no entry in the list resolves to a tool, the subagent usually [fails to launch](</docs/en/errors#agent-would-be-spawned-with-zero-tools>) with an error naming the entries. To preload Skills into context, use the `skills` field rather than listing `Skill` here
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
-`model`| No| Model to use: `sonnet`, `opus`, `haiku`, `fable`, a full model ID (for example, `claude-opus-4-8`), or `inherit`. Defaults to `inherit`
+`model`| No| Model to use: `sonnet`, `opus`, `haiku`, `fable`, a full model ID (for example, `claude-opus-5`), or `inherit`. Defaults to `inherit`
 `permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, or `manual` as an alias for `default`. The `manual` alias requires Claude Code v2.1.200 or later. Ignored for plugin subagents
 `maxTurns`| No| Maximum number of agentic turns before the subagent stops
 `skills`| No| [Skills](</docs/en/skills>) to preload into the subagent’s context at startup. The full skill content is injected, not only the description. Subagents can still invoke unlisted project, user, and plugin skills through the Skill tool
@@ -246,7 +246,7 @@ Choose a model
 The `model` field controls which [AI model](</docs/en/model-config>) the subagent uses:
 
   * **Model alias** : use one of the available aliases: `sonnet`, `opus`, `haiku`, or `fable`
-  * **Full model ID** : use a full model ID such as `claude-opus-4-8` or `claude-sonnet-5`. Accepts the same values as the `--model` flag
+  * **Full model ID** : use a full model ID such as `claude-opus-5` or `claude-sonnet-5`. Accepts the same values as the `--model` flag
   * **inherit** : use the same model as the main conversation
   * **Omitted** : defaults to `inherit` and uses the same model as the main conversation
 

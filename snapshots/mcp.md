@@ -158,6 +158,19 @@ Approvals in an untracked `.claude/settings.local.json` also apply, but only aft
 
 ​
 
+Disable a server without removing it
+
+Toggle a server off in the `/mcp` panel to stop Claude Code from connecting to it without losing its configuration. Claude Code still lists the server in `/mcp`, marked as disabled. When you toggle a server, Claude Code records your choice per project in `~/.claude.json`, in one of two lists that cover disjoint sets of servers:
+
+  * `disabledMcpServers`: an opt-out list for user-configured servers, plugin servers, claude.ai connectors, and built-in servers that default to on. Claude Code doesn’t connect to a server you list here. When you disable a claude.ai connector with the per-project `/mcp` toggle described in Disable claude.ai connectors, Claude Code writes it to this list under its display name, for example `claude.ai Slack`.
+  * `enabledMcpServers`: an opt-in list for built-in servers that default to off, such as `computer-use`. Claude Code connects to a default-off server only when you list it here.
+
+Claude Code consults exactly one of the two lists for each server, so neither list overrides the other. If you add a regular server to `enabledMcpServers`, or a default-off built-in server to `disabledMcpServers`, Claude Code ignores the entry. `disabledMcpServers` and `enabledMcpServers` are unrelated to [`enabledMcpjsonServers` and `disabledMcpjsonServers`](</docs/en/settings#available-settings>), which control approval of servers defined in a project’s `.mcp.json` file.
+
+###
+
+​
+
 Dynamic tool updates
 
 Claude Code supports MCP `list_changed` notifications, allowing MCP servers to dynamically update their available tools, prompts, and resources without requiring you to disconnect and reconnect. When an MCP server sends a `list_changed` notification, Claude Code automatically refreshes the available capabilities from that server. If a refresh request fails, Claude Code keeps the server’s previously discovered tools, prompts, and resources until a later refresh succeeds. Before v2.1.214, a transient error during the refresh replaced the server’s tools, prompts, and resources with an empty list.
@@ -213,12 +226,12 @@ A call waiting on an open elicitation dialog isn’t backgrounded while the dial
 
 Plugin-provided MCP servers
 
-[Plugins](</docs/en/plugins>) can bundle MCP servers, automatically providing tools and integrations when the plugin is enabled. Plugin MCP servers work identically to user-configured servers. **How plugin MCP servers work** :
+[Plugins](</docs/en/plugins>) can bundle MCP servers that provide tools and integrations when you enable the plugin. Plugin MCP servers work identically to user-configured servers. **How plugin MCP servers work** :
 
   * Plugins define MCP servers in `.mcp.json` at the plugin root or inline in `plugin.json`
-  * When a plugin is enabled, its MCP servers start automatically
-  * Plugin MCP tools appear alongside manually configured MCP tools
-  * Plugin servers are managed through plugin installation, not `/mcp` commands
+  * When you enable a plugin, Claude Code starts its MCP servers automatically
+  * Claude Code offers plugin MCP tools alongside manually configured MCP tools
+  * You add and remove plugin servers by installing or uninstalling the plugin, not with `/mcp` commands. You can still toggle an installed plugin server off in `/mcp`, which stops Claude Code from connecting to it without removing the plugin
 
 **Example plugin MCP configuration** : In `.mcp.json` at plugin root:
 
@@ -249,7 +262,7 @@ Or inline in `plugin.json`:
 **Plugin MCP features** :
 
   * **Automatic lifecycle** : servers connect and disconnect at these points:
-    * At session startup, servers for enabled plugins connect automatically
+    * At session startup, Claude Code connects the servers for enabled plugins automatically
     * If you enable or disable a plugin during a session, run `/reload-plugins` to connect or disconnect its MCP servers
     * In [web sessions](</docs/en/claude-code-on-the-web>), an MCP call to a plugin server that isn’t connected yet, such as right after an idle session wakes, starts the server on demand and waits for it to connect. Before v2.1.211, plugin servers in a web session reconnected only when the next message started a turn, so MCP calls after an idle session woke failed until then
   * **Path placeholders** : `${CLAUDE_PLUGIN_ROOT}` resolves to the plugin’s installation directory, `${CLAUDE_PLUGIN_DATA}` to its [persistent state](</docs/en/plugins-reference#persistent-data-directory>) directory, and `${CLAUDE_PROJECT_DIR}` to the stable project root. Substitution applies to:

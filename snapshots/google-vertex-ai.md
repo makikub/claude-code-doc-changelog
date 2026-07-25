@@ -150,7 +150,7 @@ Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See 
 
 Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Google Cloud’s Agent Platform, which can lag the newest release and may not yet be enabled in your project. Claude Code falls back to an earlier or lower-tier model at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
-Set these environment variables to specific Google Cloud’s Agent Platform model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Google Cloud’s Agent Platform resolves to Opus 4.8, and without `ANTHROPIC_DEFAULT_SONNET_MODEL`, the `sonnet` alias resolves to Sonnet 4.5. This example pins each alias to a specific version:
+Set these environment variables to specific Google Cloud’s Agent Platform model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Google Cloud’s Agent Platform resolves to Opus 5, and without `ANTHROPIC_DEFAULT_SONNET_MODEL`, the `sonnet` alias resolves to Sonnet 4.5. This example pins each alias to a specific version:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-5'
@@ -160,7 +160,7 @@ For current and legacy model IDs, see [Models overview](<https://platform.claude
 
 Model type| Default value
 ---|---
-Primary model| `claude-opus-4-8`
+Primary model| `claude-opus-5`
 Small/fast model| `claude-sonnet-4-5@20250929`
 
 Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Google Cloud’s Agent Platform, Claude Code uses the default Sonnet model for background tasks because Haiku may not be enabled in every project or region. Two selections change which model carries them:
@@ -170,7 +170,7 @@ Background tasks such as session title generation use the small/fast model, norm
 
 Opus models have a higher per-token price than Sonnet models, so a deployment that doesn’t pin a primary model is billed at the Opus rate once it updates to v2.1.207 or later. To keep Sonnet 4.5 as the primary model, set `ANTHROPIC_MODEL` to its full model ID. A deployment that steers the default with `ANTHROPIC_DEFAULT_SONNET_MODEL` and doesn’t set `ANTHROPIC_DEFAULT_OPUS_MODEL` keeps its steered Sonnet model as the default.
 
-Before v2.1.207, the primary model on Google Cloud’s Agent Platform defaulted to Sonnet 4.5, the `opus` alias resolved to Opus 4.6, and background tasks always used the primary model. To customize models further:
+On v2.1.207 through v2.1.218, the primary model on Google Cloud’s Agent Platform defaulted to Opus 4.8 and the `opus` alias resolved to Opus 4.8. Before v2.1.207, the primary model defaulted to Sonnet 4.5, the `opus` alias resolved to Opus 4.6, and background tasks always used the primary model. To customize models further:
 
     export ANTHROPIC_MODEL='claude-opus-4-8'
     export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
