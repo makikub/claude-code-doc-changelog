@@ -67,7 +67,9 @@ Message| Section
 `thinking.type.enabled is not supported for this model`| Request errors
 `max_tokens must be greater than thinking.budget_tokens`| Request errors
 `API Error: 400 due to tool use concurrency issues`| Request errors
+`<model> can't help with this. Start a new session to continue`| Request errors
 `Claude Code is unable to respond to this request, which appears to violate our Usage Policy`| Request errors
+`<model>'s safeguards flagged this message`| Request errors
 `<model> has safety measures that flagged this message for a cybersecurity topic`| Request errors
 `Installation was killed before it could finish (exit code 137)`| Installation errors
 `The connection dropped while downloading the update`| Installation errors
@@ -1049,9 +1051,11 @@ Usage Policy refusal
 
 The API declined to respond because content in the conversation triggered a [Usage Policy](<https://www.anthropic.com/legal/aup>) check. The message includes a Request ID you can quote to support if you believe the refusal is incorrect.
 
-    API Error: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Please double press esc to edit your last message or start a new session for Claude Code to assist with a different task.
+    API Error: Opus 4.6 can't help with this. Start a new session to continue.
 
-The check evaluates the full conversation, not only your latest prompt, so sending a new message in the same session usually re-triggers the same refusal. The same applies after exiting and reopening the session with `--continue` or `--resume`, since the transcript on disk still contains the triggering content. On [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), and [Microsoft Foundry](</docs/en/microsoft-foundry>), this message also covers requests the model’s safety measures flagged as a cybersecurity topic. See Safety measures flagged a cybersecurity topic. **What to do:**
+    Send feedback with /feedback or learn more: https://www.anthropic.com/legal/aup
+
+The message names the model that declined, or `Claude` when no model is recorded. In [non-interactive mode](</docs/en/headless>) (`-p`), the final line reads `Learn more:` followed by the link, without the `/feedback` mention. The check evaluates the full conversation, not only your latest prompt, so sending a new message in the same session usually re-triggers the same refusal. The same applies after exiting and reopening the session with `--continue` or `--resume`, since the transcript on disk still contains the triggering content. On [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), and [Microsoft Foundry](</docs/en/microsoft-foundry>), this message also covers requests the model’s safety measures flagged as a cybersecurity topic. See Safety measures flagged a cybersecurity topic. Before v2.1.219, the message read `Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Please double press esc to edit your last message or start a new session for Claude Code to assist with a different task.` **What to do:**
 
   * Press Esc twice or run `/rewind` to step back to a checkpoint before the turn that triggered the refusal, then rephrase or take a different approach. See [Checkpointing](</docs/en/checkpointing>).
   * If you can’t identify which turn caused it, run `/clear` to start a fresh conversation in the same project. Your previous conversation is preserved on disk and remains available in `/resume`.
@@ -1065,16 +1069,14 @@ Safety measures flagged a cybersecurity topic
 
 The model’s safety measures flagged content in the conversation as a cybersecurity topic. The message names the model that flagged the request:
 
-    API Error: Opus 4.8 has safety measures that flagged this message for a cybersecurity topic. To learn about the Cyber Verification Program and apply for access, visit our help center: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude.
+    API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad safeguards allow us to deliver more capabilities faster, but can sometimes flag legitimate cybersecurity work. Apply to the Cyber Verification Program to reduce these interruptions. Send feedback with /feedback or learn more: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude
 
-    If you were not engaging in a cybersecurity topic, please send feedback via /feedback.
-
-The message links to the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>), which grants access for legitimate cybersecurity work. The safeguard itself is server-side and predates v2.1.203; this release changed only the wording of the message and the page it links to. What you see depends on your provider and mode:
+The message links to the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>), which grants access for legitimate cybersecurity work. What you see depends on your provider and mode:
 
   * On [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), and [Microsoft Foundry](</docs/en/microsoft-foundry>), a cybersecurity flag produces the Usage Policy refusal message instead.
-  * [Non-interactive mode](</docs/en/headless>) omits the `/feedback` sentence.
+  * In [non-interactive mode](</docs/en/headless>), the final sentence reads `Learn more:` followed by the link, without the `/feedback` mention.
 
-Before v2.1.203, the message read `<model>'s safeguards flagged this message for a cybersecurity topic. If your work requires this access, you can apply for an exemption:` followed by an exemption form link. **What to do:**
+The safeguard itself is server-side and predates v2.1.203; client releases since then have changed only the message’s wording. From v2.1.203 through v2.1.218, the message read `<model> has safety measures that flagged this message for a cybersecurity topic. To learn about the Cyber Verification Program and apply for access, visit our help center:` followed by the same help-center link, and interactive sessions appended `If you were not engaging in a cybersecurity topic, please send feedback via /feedback.` Before v2.1.203, it read `<model>'s safeguards flagged this message for a cybersecurity topic. If your work requires this access, you can apply for an exemption:` followed by an exemption form link. **What to do:**
 
   * If your work requires this content, apply for access through the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>)
   * If your request wasn’t about a cybersecurity topic, run `/feedback` to report the false positive
@@ -1336,7 +1338,7 @@ Every entry in the subagent’s [`tools` list](</docs/en/sub-agents#supported-fr
 
   * **Unrecognized** : the entry matches no tool name, usually a typo such as `Grpe` for `Grep`.
   * **Not available to subagents** : the entry names a real tool that [subagents can’t use](</docs/en/sub-agents#available-tools>). Background subagents keep a smaller built-in tool set, so an entry that only a foreground subagent can use lands here when the subagent would run in the background, which is the default. If you list `Agent`, the message reports it under the next group instead.
-  * **Matched no tools in this session** : the entry is valid but no tool in the current session matches it right now, such as `mcp__github__*` with no GitHub MCP server connected, or `Agent` while [nested spawning](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>) is off.
+  * **Matched no tools in this session** : the entry is valid but no tool in the current session matches it right now, such as `mcp__github__*` with no GitHub MCP server connected, or `Agent` for a subagent at the [depth limit](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>).
 
 Omitting the `tools` field never triggers this refusal. If you leave the `tools` list empty, or `disallowedTools` removes every entry in it, Claude Code also skips the refusal and launches the subagent without tools. Before v2.1.208, the subagent launched with no tools and could return an empty or confusing result.
 
@@ -1348,7 +1350,7 @@ Omitting the `tools` field never triggers this refusal. If you leave the `tools`
   * Remove entries for tools the session doesn’t have, such as MCP tools from a server that isn’t connected
   * For a tool that [background subagents drop](</docs/en/sub-agents#available-tools>), such as `LSP` or `TaskCreate`, remove the entry or ask Claude to run the subagent in the foreground
   * Delete the `tools` field instead of listing tools to give the subagent every [tool available to subagents](</docs/en/sub-agents#available-tools>)
-  * For a `tools` list that contains only `Agent`, allow [nested spawning](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>) or give the agent at least one other tool: `Agent` isn’t available inside a subagent by default, so a list with nothing else in it resolves to no tools
+  * For a `tools` list that contains only `Agent`, raise the [depth limit](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>) or give the agent at least one other tool: Claude Code withholds `Agent` at that limit, so a list with nothing else in it resolves to no tools
 
 ###
 

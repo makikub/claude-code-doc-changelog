@@ -275,7 +275,7 @@ Available tools
 
 Subagents inherit the [built-in tools](</docs/en/tools-reference>) and MCP tools available in the main conversation, narrowed by two filters: the first removes a short list of tools from every subagent, and the second reduces the built-in tool set for subagents that run in the background, which is the default. Forks skip both filters and receive the main conversation’s exact tool pool. The first filter removes these tools, even when listed in the `tools` field:
 
-  * `Agent`, until you turn on nested spawning; in a fork the tool stays listed but returns an error instead of spawning
+  * `Agent`, when the subagent is at the depth limit; in a fork the tool stays listed but returns an error instead of spawning
   * `AskUserQuestion`
   * `EndConversation`, which can end only the main conversation; see [EndConversation tool behavior](</docs/en/tools-reference#endconversation-tool-behavior>)
   * `EnterPlanMode`
@@ -329,7 +329,7 @@ This is an allowlist: only the `worker` and `researcher` subagents can be spawne
 
     tools: Agent, Read, Bash
 
-If you omit `Agent` from the `tools` list entirely, the agent can’t spawn any subagents with the Agent tool. The `Agent(agent_type)` allowlist syntax applies only to an agent running as the main thread with `claude --agent`. In a subagent definition, listing `Agent` in `tools` lets that subagent spawn subagents of its own once you allow nested spawning, but any type list inside the parentheses is ignored.
+If you omit `Agent` from the `tools` list entirely, the agent can’t spawn any subagents with the Agent tool. The `Agent(agent_type)` allowlist syntax applies only to an agent running as the main thread with `claude --agent`. In a subagent definition, listing `Agent` in `tools` lets that subagent spawn subagents of its own while the depth limit allows it, but any type list inside the parentheses is ignored.
 
 ####
 
@@ -771,7 +771,7 @@ Consider [Skills](</docs/en/skills>) instead when you want reusable prompts or w
 
 Let subagents spawn their own subagents
 
-By default, a subagent can’t spawn subagents of its own, so a subagent you ask to delegate does the work itself and returns one summary. While nesting is off, Claude Code withholds the `Agent` tool from every subagent except a fork, which inherits the parent’s full tool list. `Agent` stays in that list, but returns an error instead of spawning. Nested subagents suit a delegated task that itself splits into parallel subtasks, such as a reviewer subagent that dispatches a verifier per finding, so the intermediate output never reaches your main conversation. Only the top-level subagent’s summary returns to you. To allow nesting, set [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](</docs/en/env-vars>) to the number of subagent layers you want below your main conversation. For example, this entry in [`settings.json`](</docs/en/settings>) allows two layers:
+By default, a subagent can spawn subagents of its own, up to three layers below the main conversation. At the depth limit, Claude Code withholds the `Agent` tool from every subagent except a fork, so a subagent at the limit does its delegated work itself and returns one summary. A fork at the limit keeps `Agent` in its inherited tool list, but the tool returns an error instead of spawning. Nested subagents suit a delegated task that itself splits into parallel subtasks, such as a reviewer subagent that dispatches a verifier per finding, so the intermediate output never reaches your main conversation. Only the top-level subagent’s summary returns to you. To change the limit, set [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](</docs/en/env-vars>) to the number of subagent layers you want below your main conversation. For example, this entry in [`settings.json`](</docs/en/settings>) caps nesting at two layers:
 
     {
       "env": {
@@ -779,9 +779,12 @@ By default, a subagent can’t spawn subagents of its own, so a subagent you ask
       }
     }
 
-With this value, your subagents can delegate to a second layer of their own, and that second layer can’t delegate further. A nested subagent is configured the same way as a top-level one and resolves from the same scopes. To keep one subagent from spawning while nesting is on, such as a reviewer that should stay read-only, omit `Agent` from its `tools` list or add it to `disallowedTools`. The subagent panel below the prompt input shows the full tree: each row displays a `(+N)` count of descendants, and as of v2.1.193, opening a row shows that subagent’s siblings and direct children with a path back to `main`.
+With this value, your subagents can delegate to a second layer of their own, and that second layer can’t delegate further. Set `1` to turn nesting off. A nested subagent is configured the same way as a top-level one and resolves from the same scopes. To keep one subagent from spawning while nesting is on, such as a reviewer that should stay read-only, omit `Agent` from its `tools` list or add it to `disallowedTools`. The subagent panel below the prompt input shows the full tree: each row displays a `(+N)` count of descendants, and as of v2.1.193, opening a row shows that subagent’s siblings and direct children with a path back to `main`.
 
-From Claude Code v2.1.172 through v2.1.216, subagents could nest by default, up to five layers deep, and the limit couldn’t be changed.
+Earlier versions used different defaults:
+
+  * **v2.1.172 through v2.1.216** : subagents could nest by default, up to five layers deep, and the limit couldn’t be changed.
+  * **v2.1.217 through v2.1.218** : the limit defaulted to one, so a subagent couldn’t spawn its own unless you raised it; v2.1.219 raised the default to three.
 
 ###
 
