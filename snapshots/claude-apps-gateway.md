@@ -348,6 +348,14 @@ Four parent-supplied settings are honored even with all five locks set:
 
 ​
 
+Connect Claude Desktop
+
+[Claude Desktop](</docs/en/desktop>) connects to the same gateway through a different MDM key: set `bootstrapUrl` in Claude Desktop’s [managed configuration](<https://claude.com/docs/third-party/claude-desktop/configuration>) to `<listen.public_url>/user/bootstrap`, and opt the user’s policy in with a `desktop` key. [Claude Desktop overlay](</docs/en/claude-apps-gateway-config#claude-desktop-overlay>) covers both halves. Requires Claude Code v2.1.203 or later on the gateway server. Claude Desktop signs the developer in through the gateway’s identity provider with the same browser SSO step, then fetches its configuration from the gateway instead of from Anthropic. Model access and policy follow the same per-group rules as the CLI. A developer who uses both the CLI and Claude Desktop signs in to each separately; the gateway session isn’t shared between them.
+
+###
+
+​
+
 CI pipelines and remote machines
 
 There is no service-token flow for unattended pipelines. Gateway sign-in always runs the browser device flow, so a CI job with no developer to approve the sign-in can’t authenticate; configure those against your provider directly. Once a developer has signed in, every Claude Code invocation on that machine uses the gateway session, including non-interactive `claude -p` runs and sessions started by the Agent SDK, and the [gateway policy applies to all of them](</docs/en/claude-apps-gateway-config#managed>). The device flow separates the polling CLI from the approving browser, so a remote development box with no display still works: the developer runs `/login` over SSH on the remote machine and opens the verification link in the browser on their laptop.
@@ -387,6 +395,7 @@ Feature| Status| Notes
 ---|---|---
 Inference forwarding (Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, Microsoft Foundry, Anthropic)| Available| With per-upstream model translation and failover. The Amazon Bedrock upstream uses the `bedrock-runtime` endpoint and the AWS default credential chain; the Amazon Bedrock [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>) is not a supported upstream. The [Claude Platform on AWS upstream](</docs/en/claude-apps-gateway-config#claude-platform-on-aws>) requires Claude Code v2.1.198 or later on the gateway server.
 Model access and managed settings by IdP group| Available| Model access is enforced server-side; managed settings are delivered per IdP group and applied by the CLI at the [managed settings tier](</docs/en/settings#settings-precedence>)
+Claude Desktop| Available with opt-in| The gateway serves Claude Desktop’s configuration at `/user/bootstrap` once a policy [opts in with a `desktop` key](</docs/en/claude-apps-gateway-config#claude-desktop-overlay>). Requires Claude Code v2.1.203 or later on the gateway server.
 Telemetry fan-out (OTLP/HTTP)| Available| Identity-stamped per export; both protobuf and JSON encodings
 OIDC identity providers| Available| Any OIDC-compliant IdP; the gateway runs standard OIDC discovery and the authorization-code flow. See [Identity provider setup](</docs/en/claude-apps-gateway-deploy#identity-provider-setup>) for per-IdP configuration
 Per-user and per-group spend limits| Available| See [Spend limits](</docs/en/claude-apps-gateway-spend-limits>)
