@@ -547,7 +547,7 @@ Environment variable| Description
 `ANTHROPIC_DEFAULT_OPUS_MODEL`| The model to use for `opus`, or for `opusplan` when Plan Mode is active.
 `ANTHROPIC_DEFAULT_SONNET_MODEL`| The model to use for `sonnet`, or for `opusplan` when Plan Mode is not active.
 `ANTHROPIC_DEFAULT_HAIKU_MODEL`| The model to use for `haiku`, or [background functionality](</docs/en/costs#background-token-usage>)
-`CLAUDE_CODE_SUBAGENT_MODEL`| The model to use for all [subagents](</docs/en/sub-agents#choose-a-model>), [agent teams](</docs/en/agent-teams>), and the agents a [workflow](</docs/en/workflows>) runs. Accepts an alias such as `haiku` or a full model name, and overrides the per-invocation `model` parameter and the subagent definition’s `model` frontmatter. Set to `inherit` to use normal model resolution instead
+`CLAUDE_CODE_SUBAGENT_MODEL`| The model Claude Code uses for all [subagents](</docs/en/sub-agents#choose-a-model>), [agent teams](</docs/en/agent-teams>), and agents in a [workflow](</docs/en/workflows>). Accepts an alias such as `haiku` or a full model name, and overrides the per-invocation `model` parameter and the subagent definition’s `model` frontmatter. Set to `inherit` to use normal model resolution instead
 
 Note: `ANTHROPIC_SMALL_FAST_MODEL` is deprecated in favor of `ANTHROPIC_DEFAULT_HAIKU_MODEL`.
 
@@ -592,7 +592,7 @@ When you pin a model on a third-party provider, the provider-specific ID appears
 Environment variable| Description
 ---|---
 `ANTHROPIC_DEFAULT_OPUS_MODEL_NAME`| Display name for the pinned Opus model in the `/model` picker. Defaults to the model ID when not set
-`ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION`| Display description for the pinned Opus model in the `/model` picker. Defaults to `Custom Opus model` when not set
+`ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION`| Display description for the pinned Opus model in the `/model` picker. When not set, defaults to `Custom Opus model`, or `Custom Opus model (1M context)` if the pinned model ID has the `[1m]` suffix and `CLAUDE_CODE_DISABLE_1M_CONTEXT` isn’t turned on
 `ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES`| Comma-separated list of capabilities the pinned Opus model supports
 
 The same `_NAME`, `_DESCRIPTION`, and `_SUPPORTED_CAPABILITIES` suffixes are available for `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_FABLE_MODEL`, and `ANTHROPIC_CUSTOM_MODEL_OPTION`. Claude Code enables features like effort levels and extended thinking by matching the model ID against known patterns. Provider-specific IDs such as Amazon Bedrock ARNs or custom deployment names often don’t match these patterns, leaving supported features disabled. Set `_SUPPORTED_CAPABILITIES` to tell Claude Code which features the model actually supports:

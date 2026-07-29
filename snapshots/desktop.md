@@ -87,7 +87,7 @@ Earlier versions of the Code tab labeled these modes Ask permissions, Auto accep
 
 Start complex tasks in Plan so Claude maps out an approach before making changes. Once you approve the plan, switch to Accept edits or Manual to execute it. See [explore first, then plan, then code](</docs/en/best-practices#explore-first-then-plan-then-code>) for more on this workflow.
 
-Cloud sessions support Accept edits, Plan, and Auto. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Manual. Bypass permissions is not available because the cloud environment is already sandboxed. Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
+Cloud sessions support Accept edits, Plan, and Auto. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Manual. Bypass permissions is not available because cloud sessions already run in a sandboxed VM. Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
 
 ###
 
@@ -365,7 +365,7 @@ Work in parallel with sessions
 
 Click **\+ New session** in the sidebar, or press **Cmd+N** on macOS or **Ctrl+N** on Windows, to work on multiple tasks in parallel. Press **Ctrl+Tab** and **Ctrl+Shift+Tab** to cycle through sessions in the sidebar. For Git repositories, each session gets its own isolated copy of your project using [Git worktrees](</docs/en/worktrees>), so changes in one session don’t affect other sessions until you commit them. To view two sessions at once, hold **Cmd** on macOS or **Ctrl** on Windows and click a session in the sidebar. The session opens in a second pane alongside the one you already have open. While the split is active, clicking another sidebar session replaces whichever pane has focus. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane and return to a single session. Worktrees are stored in `<project-root>/.claude/worktrees/` by default. You can change this to a custom directory in Settings → Claude Code under “Worktree location”. You can also set a branch prefix that gets prepended to every worktree branch name, which is useful for keeping Claude-created branches organized. To remove a worktree when you’re done, hover over the session in the sidebar and click the archive icon. To have sessions archive themselves when their pull request merges or closes, turn on **Auto-archive after PR merge or close** in Settings → Claude Code. Auto-archive only applies to local sessions that have finished running. To include gitignored files like `.env` in new worktrees, create a [`.worktreeinclude` file](</docs/en/worktrees#copy-gitignored-files-into-worktrees>) in your project root.
 
-Session isolation requires [Git](<https://git-scm.com/downloads>). Most Macs include Git by default. Run `git --version` in Terminal to check. On Windows, Git is required for the Code tab to work: [download Git for Windows](<https://git-scm.com/downloads/win>), install it, and restart the app. If you run into Git errors, ask Claude in the [Cowork tab](<https://claude.com/product/cowork>) to help troubleshoot your setup.
+Session isolation requires [Git](<https://git-scm.com/downloads>). Most Macs include Git by default. Run `git --version` in Terminal to check; if it prints a version number, Git is installed. On Windows, Git is required for the Code tab to work: [download Git for Windows](<https://git-scm.com/downloads/win>), install it, and restart the app. If you run into Git errors, ask Claude in the [Cowork tab](<https://claude.com/product/cowork>) to help troubleshoot your setup.
 
 Use the controls at the top of the sidebar to filter sessions by status, project, or environment, and to group sessions by project. To rename a session, click the session title in the toolbar at the top of the active session. To check context usage, see Check usage. When context fills up, Claude automatically summarizes the conversation and continues working. You can also type `/compact` to trigger summarization earlier and free up context space. See [the context window](</docs/en/how-claude-code-works#the-context-window>) for details on how compaction works. The desktop app sends an OS notification when a Code session finishes a task and you aren’t currently viewing that session.
 
@@ -442,7 +442,7 @@ Use skills
 
 Install plugins
 
-[Plugins](</docs/en/plugins>) are reusable packages that add skills, agents, hooks, MCP servers, and LSP configurations to Claude Code. You can install plugins from the desktop app without using the terminal. For local and SSH sessions, click the **+** button next to the prompt box and select **Plugins** to see your installed plugins and their skills. To add a plugin, select **Add plugin** from the submenu to open the plugin browser, which shows available plugins from your configured [marketplaces](</docs/en/plugin-marketplaces>) including the official Anthropic marketplace. Select **Manage plugins** to enable, disable, or uninstall plugins. Plugins can be scoped to your user account, a specific project, or local-only. If your organization manages plugins centrally, those plugins are available in desktop sessions the same way they are in the CLI. The plugin browser is not available in cloud sessions, and plugins you install from the desktop app aren’t available for cloud sessions; to use a plugin in a cloud session, declare it in the repository’s `.claude/settings.json` under [`enabledPlugins`](</docs/en/settings#enabledplugins>) so it [installs at session start](</docs/en/claude-code-on-the-web#what%E2%80%99s-available-in-cloud-sessions>). Plugins aren’t available in WSL sessions. For the full plugin reference including creating your own plugins, see [plugins](</docs/en/plugins>).
+[Plugins](</docs/en/plugins>) are reusable packages that add skills, agents, hooks, MCP servers, and LSP configurations to Claude Code. You can install plugins from the desktop app without using the terminal. For local and SSH sessions, click the **+** button next to the prompt box and select **Plugins** to see your installed plugins and their skills. To add a plugin, select **Add plugin** from the submenu to open the plugin browser, which shows available plugins from your configured [marketplaces](</docs/en/plugin-marketplaces>) including the official Anthropic marketplace. Select **Manage plugins** to enable, disable, or uninstall plugins. Plugins can be scoped to your user account, a specific project, or local-only. If your organization manages plugins centrally, those plugins are available in desktop sessions the same way they are in the CLI. The plugin browser is not available in cloud sessions, and plugins you install from the desktop app aren’t available for cloud sessions; to use a plugin in a cloud session, declare it in the repository’s `.claude/settings.json` under [`enabledPlugins`](</docs/en/settings#enabledplugins>) so it [installs at session start](</docs/en/cloud-environments#what-carries-over-from-your-setup>). Plugins aren’t available in WSL sessions. For the full plugin reference including creating your own plugins, see [plugins](</docs/en/plugins>).
 
 ###
 
@@ -477,7 +477,14 @@ When `autoVerify` is enabled, Claude automatically verifies code changes after e
     {
       "version": "0.0.1",
       "autoVerify": false,
-      "configurations": [...]
+      "configurations": [
+        {
+          "name": "my-app",
+          "runtimeExecutable": "npm",
+          "runtimeArgs": ["run", "dev"],
+          "port": 3000
+        }
+      ]
     }
 
 When disabled, preview tools are still available and you can ask Claude to verify at any time. Auto-verify makes it automatic after every edit.
@@ -646,7 +653,7 @@ The desktop app does not always inherit your full shell environment. On macOS, w
 
 Cloud sessions
 
-Cloud sessions continue in the background even if you close the app. Usage counts toward your [subscription plan limits](</docs/en/costs>) with no separate compute charges. You can create custom cloud environments with different network access levels and environment variables. Select the environment dropdown when starting a cloud session and choose **Add environment**. See [the cloud environment](</docs/en/claude-code-on-the-web#the-cloud-environment>) for details on configuring network access and environment variables.
+Cloud sessions continue in the background even if you close the app. Usage counts toward your [subscription plan limits](</docs/en/costs>) with no separate compute charges. You can create custom cloud environments with different network access levels and environment variables. Select the environment dropdown when starting a cloud session and choose **Add cloud environment**. See [Configure cloud environments](</docs/en/cloud-environments>) for details on configuring network access and environment variables.
 
 ###
 
@@ -834,7 +841,7 @@ For the domains to allowlist in your firewall, see network access requirements a
 
 Coming from the CLI?
 
-If you already use the Claude Code CLI, Desktop runs the same underlying engine with a graphical interface. You can run both simultaneously on the same machine, even on the same project. Each maintains separate session history, but they share configuration and project memory via CLAUDE.md files. To move a CLI session into Desktop, run `/desktop` in the terminal. Claude saves your session and opens it in the desktop app, then exits the CLI. This command is available on macOS and Windows when you are signed in with a Claude subscription. It is not available with API key authentication or on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry.
+If you already use the Claude Code CLI, Desktop runs the same underlying engine with a graphical interface. You can run both simultaneously on the same machine, even on the same project. Each maintains separate session history, but they share configuration and project memory via CLAUDE.md files. To move a CLI session into Desktop, run `/desktop` in the terminal. Claude saves your session and opens it in the desktop app, then exits the CLI. This command is available on macOS and x64 Windows when you are signed in with a Claude subscription. It is not available with API key authentication or on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry.
 
 When to use Desktop vs CLI: use Desktop when you want to manage parallel sessions in one window, arrange panes side by side, or review changes visually. Use the CLI when you need scripting, automation, or prefer a terminal workflow.
 
@@ -873,7 +880,15 @@ Desktop and CLI read the same configuration files, so your setup carries over:
   * **[Settings](</docs/en/settings>)** in `~/.claude.json` and `~/.claude/settings.json` are shared. Permission rules, allowed tools, and other settings in `settings.json` apply to Desktop sessions.
   * **Models** : the same [models](</docs/en/model-config#available-models>) are available in both. In Desktop, select the model from the dropdown next to the send button. You can change the model mid-session from the same dropdown.
 
-**MCP servers from the Claude Desktop chat app** : the Desktop app loads MCP servers from `claude_desktop_config.json` into Code tab sessions, alongside servers from `~/.claude.json` and `.mcp.json`. A server defined in `claude_desktop_config.json` is available in both the Desktop chat surface and the Code tab.The standalone CLI does not read `claude_desktop_config.json`. On macOS and WSL, run `claude mcp add-from-claude-desktop` to copy those servers into `~/.claude.json`. See [Import MCP servers from Claude Desktop](</docs/en/mcp#import-mcp-servers-from-claude-desktop>) for the import flow and scope options.
+####
+
+​
+
+MCP servers from the Claude Desktop chat app
+
+The Desktop app loads MCP servers from `claude_desktop_config.json` into local Code tab sessions, alongside servers from `~/.claude.json` and `.mcp.json`. A server you define in `claude_desktop_config.json` is available in both the Desktop chat surface and local Code tab sessions. If you define the same server name in `claude_desktop_config.json` and in `~/.claude.json` or `.mcp.json`, the Code tab in local sessions connects once and uses the `claude_desktop_config.json` definition. The app also re-delivers stdio servers from `~/.claude.json` to the embedded CLI in local sessions. When the top level of `~/.claude.json` (user scope) and `.mcp.json` define the same stdio server name, the Code tab uses the `~/.claude.json` definition, departing from the CLI [scope hierarchy](</docs/en/mcp#scope-hierarchy-and-precedence>).
+
+The standalone CLI does not read `claude_desktop_config.json`. On macOS and WSL, run `claude mcp add-from-claude-desktop` to copy those servers into `~/.claude.json`. See [Import MCP servers from Claude Desktop](</docs/en/mcp#import-mcp-servers-from-claude-desktop>) for the import flow and scope options.
 
 ###
 

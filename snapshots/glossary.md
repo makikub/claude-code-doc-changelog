@@ -404,7 +404,7 @@ A specialized AI assistant that runs in its own context window with a custom sys
 
 Surface
 
-Any place you access Claude Code: the CLI, VS Code, JetBrains, Desktop, or claude.ai. All surfaces share the same engine. Sessions on your machine read your local CLAUDE.md, settings, and skills; [cloud sessions](</docs/en/claude-code-on-the-web#what%E2%80%99s-available-in-cloud-sessions>) start from a fresh clone of your repository and don’t read `~/.claude/` on your machine. Slack and the Chrome extension are integrations that connect to a surface rather than surfaces themselves. Learn more: [Platforms and integrations](</docs/en/platforms>)
+Any place you access Claude Code: the CLI, VS Code, JetBrains, Desktop, or claude.ai. All surfaces share the same engine. Sessions on your machine read your local CLAUDE.md, settings, and skills; [cloud sessions](</docs/en/cloud-environments#what-carries-over-from-your-setup>) start from a fresh clone of your repository and don’t read `~/.claude/` on your machine. Slack and the Chrome extension are integrations that connect to a surface rather than surfaces themselves. Learn more: [Platforms and integrations](</docs/en/platforms>)
 
 ##
 

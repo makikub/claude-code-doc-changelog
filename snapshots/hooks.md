@@ -23,7 +23,7 @@ Event| When it fires
 `UserPromptSubmit`| When you submit a prompt, before Claude processes it
 `UserPromptExpansion`| When a user-typed command expands into a prompt, before it reaches Claude. Can block the expansion
 `PreToolUse`| Before a tool call executes. Can block it
-`PermissionRequest`| When a permission dialog appears
+`PermissionRequest`| When a tool call needs a permission decision
 `PermissionDenied`| When a tool call is denied by the auto mode classifier. Return `{retry: true}` to tell the model it may retry the denied tool call
 `PostToolUse`| After a tool call succeeds
 `PostToolUseFailure`| After a tool call fails
@@ -75,7 +75,7 @@ To see how these pieces fit together, consider this `PreToolUse` hook that block
       }
     }
 
-The script reads the JSON input from stdin, extracts the command, and returns a `permissionDecision` of `"deny"` if it contains `rm -rf`:
+The script reads the JSON input from stdin, extracts the command, and returns a `permissionDecision` of `"deny"` if it contains `rm -rf`. Save it to `.claude/hooks/block-rm.sh` in your project:
 
     #!/bin/bash
     # .claude/hooks/block-rm.sh
@@ -93,7 +93,7 @@ The script reads the JSON input from stdin, extracts the command, and returns a 
       exit 0  # no decision; normal permission flow applies
     fi
 
-This script and the Bash examples on this page that parse JSON input use `jq`, so install `jq` and make sure it is on your `PATH` before trying them. Now suppose Claude Code decides to run `Bash "rm -rf /tmp/build"`. Here’s what happens:
+On macOS and Linux, make the script executable with `chmod +x .claude/hooks/block-rm.sh` so Claude Code can run it. On Windows, write the hook in PowerShell instead and register it with `"command": "powershell.exe"`, as shown in the MessageDisplay example. This script and the Bash examples on this page that parse JSON input use `jq`, so install `jq` and make sure it is on your `PATH` before trying them. Now suppose Claude Code decides to run `Bash "rm -rf /tmp/build"`. Here’s what happens:
 
 1
 
@@ -167,7 +167,7 @@ Location| Scope| Shareable
 ---|---|---
 `~/.claude/settings.json`| All your projects| No, local to your machine
 `.claude/settings.json`| Single project| Yes, can be committed to the repo
-`.claude/settings.local.json`| Single project| No, gitignored when Claude Code creates it
+`.claude/settings.local.json`| Single project| No, gitignored when Claude Code saves a setting to it
 Managed policy settings| Organization-wide| Yes, admin-controlled
 [Plugin](</docs/en/plugins>) `hooks/hooks.json`| When plugin is enabled| Yes, bundled with the plugin
 [Skill](</docs/en/skills>) or [agent](</docs/en/sub-agents>) frontmatter| While the component is active| Yes, defined in the component file
@@ -306,7 +306,7 @@ Field| Required| Description
 ---|---|---
 `type`| yes| `"command"`, `"http"`, `"mcp_tool"`, `"prompt"`, or `"agent"`
 `if`| no| Permission rule syntax to filter when this hook runs, such as `"Bash(git *)"` or `"Edit(*.ts)"`. The hook command only runs if the tool call matches the pattern. See the Bash matching table below for how Bash patterns evaluate against subcommands, `$()`, and backticks. Only evaluated on tool events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, and `PermissionDenied`. On other events, a hook with `if` set never runs. Uses the same syntax as [permission rules](</docs/en/permissions>)
-`timeout`| no| Seconds before canceling. Defaults: 600 for `command`, `http`, and `mcp_tool`; 30 for `prompt`; 60 for `agent`. `UserPromptSubmit` lowers the `command`, `http`, and `mcp_tool` default to 30, and `MessageDisplay` lowers it to 10
+`timeout`| no| Seconds before canceling. Defaults: 600 for `command`, `http`, and `mcp_tool`; 30 for `prompt`; 60 for `agent`. `UserPromptSubmit` lowers the `command`, `http`, and `mcp_tool` default to 30, and `MessageDisplay` lowers it to 10. `SessionEnd` hooks share a 1.5-second budget; if your settings set a longer per-hook `timeout`, Claude Code raises the budget to match, up to 60 seconds
 `statusMessage`| no| Custom spinner message displayed while the hook runs
 `once`| no| If `true`, runs once per session then is removed. Only honored for hooks declared in skill frontmatter; ignored in settings files and agent frontmatter
 
@@ -536,12 +536,12 @@ The `/hooks` menu
 
 Type `/hooks` in Claude Code to open a read-only browser for your configured hooks. The menu shows every hook event with a count of configured hooks, lets you drill into matchers, and shows the full details of each hook handler. Use it to verify configuration, check which settings file a hook came from, or inspect a hook’s command, prompt, or URL. The menu displays all five hook types: `command`, `prompt`, `agent`, `http`, and `mcp_tool`. Each hook is labeled with a `[type]` prefix and a source indicating where it was defined:
 
-  * `User`: from `~/.claude/settings.json`
-  * `Project`: from `.claude/settings.json`
-  * `Local`: from `.claude/settings.local.json`
-  * `Plugin`: from a plugin’s `hooks/hooks.json`
-  * `Session`: registered in memory for the current session
-  * `Built-in`: registered internally by Claude Code
+  * `User Settings`: from `~/.claude/settings.json`
+  * `Project Settings`: from `.claude/settings.json`
+  * `Local Settings`: from `.claude/settings.local.json`
+  * `Plugin Hooks`: from a plugin’s `hooks/hooks.json`
+  * `Session Hooks`: registered in memory for the current session
+  * `Built-in Hooks`: registered internally by Claude Code
 
 Selecting a hook opens a detail view showing its event, matcher, type, source file, and the full command, prompt, or URL. The menu is read-only: to add, modify, or remove hooks, edit the settings JSON directly or ask Claude to make the change.
 
@@ -617,7 +617,8 @@ The exit code from your hook command tells Claude Code whether the action should
 
     #!/bin/bash
     # Reads JSON input from stdin, checks the command
-    command=$(jq -r '.tool_input.command' < /dev/stdin)
+    input=$(cat)
+    command=$(jq -r '.tool_input.command' <<<"$input")
 
     if [[ "$command" == rm* ]]; then
       echo "Blocked: rm commands are not allowed" >&2
@@ -982,7 +983,7 @@ Matcher| When it fires
 `init`| `claude --init-only` or `claude -p --init`
 `maintenance`| `claude -p --maintenance`
 
-`--init-only` runs Setup hooks and `SessionStart` hooks with the `startup` matcher, then exits without starting a conversation. `--init` and `--maintenance` fire Setup hooks only when combined with `-p`; in an interactive session those two flags don’t currently fire Setup hooks. On success, `--init-only` prints nothing to the terminal. To confirm the hooks ran, start with `claude --debug-file <path> --init-only`, replacing `<path>` with a log file location, and check the log for the Setup and SessionStart hook entries. Because Setup doesn’t fire on every launch, a plugin that needs a dependency installed can’t rely on Setup alone. The practical pattern is to check for the dependency on first use and install on miss, for example a hook or skill that tests for `${CLAUDE_PLUGIN_DATA}/node_modules` and runs `npm install` if absent. See the [persistent data directory](</docs/en/plugins-reference#persistent-data-directory>) for where to store installed dependencies.
+When you run `claude --init-only`, Claude Code runs Setup hooks and `SessionStart` hooks with the `startup` matcher, then exits without starting a conversation. `--init` and `--maintenance` fire Setup hooks only when you combine them with `-p`. In an interactive session, those two flags don’t currently fire Setup hooks. When you start or continue a conversation with `-p`, you also need to supply a prompt, as an argument or piped on stdin. You can skip the prompt when a `SessionStart` hook supplies `initialUserMessage` or when you resume a session with a deferred tool call. On success, `--init-only` prints nothing to the terminal. To confirm the hooks ran, start with `claude --debug-file <path> --init-only`, replacing `<path>` with a log file location, and check the log for the Setup and SessionStart hook entries. Because Setup doesn’t fire on every launch, a plugin that needs a dependency installed can’t rely on Setup alone. The practical pattern is to check for the dependency on first use and install on miss, for example a hook or skill that tests for `${CLAUDE_PLUGIN_DATA}/node_modules` and runs `npm install` if absent. See the [persistent data directory](</docs/en/plugins-reference#persistent-data-directory>) for where to store installed dependencies.
 
 ####
 
@@ -1515,7 +1516,7 @@ There is no timeout or retry limit. The session remains on disk until you resume
 
 PermissionRequest
 
-Runs when the user is shown a permission dialog. Use PermissionRequest decision control to allow or deny on behalf of the user. Matches on tool name, same values as PreToolUse.
+Runs when Claude Code is about to ask you for permission. In sessions that can’t show a prompt, such as background subagents in [non-interactive mode](</docs/en/headless>), Claude Code still runs these hooks, and if no hook returns a decision, it denies the tool call. Use PermissionRequest decision control to allow or deny on behalf of the user. Matches on tool name, same values as PreToolUse.
 
 ####
 
@@ -1523,7 +1524,7 @@ Runs when the user is shown a permission dialog. Use PermissionRequest decision 
 
 PermissionRequest input
 
-PermissionRequest hooks receive `tool_name` and `tool_input` fields like PreToolUse hooks, but without `tool_use_id`. An optional `permission_suggestions` array contains the “always allow” options the user would normally see in the permission dialog. The difference from PreToolUse is when the hook fires: PermissionRequest hooks run when a permission dialog is about to be shown to the user, while PreToolUse hooks run before tool execution regardless of permission status. Neither event fires for [`EndConversation`](</docs/en/tools-reference#endconversation-tool-behavior>).
+PermissionRequest hooks receive `tool_name` and `tool_input` fields like PreToolUse hooks, but without `tool_use_id`. An optional `permission_suggestions` array contains the “always allow” options the user would normally see in the permission dialog. PreToolUse hooks run before every tool call, whether or not it needs permission. PermissionRequest hooks run only when Claude Code is about to ask you for permission, or when it would otherwise auto-deny a call that can’t prompt. Neither event fires for [`EndConversation`](</docs/en/tools-reference#endconversation-tool-behavior>).
 
     {
       "session_id": "abc123",

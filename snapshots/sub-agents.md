@@ -220,7 +220,7 @@ The following fields can be used in the YAML frontmatter. Only `name` and `descr
 
 Field| Required| Description
 ---|---|---
-`name`| Yes| Unique identifier using lowercase letters and hyphens. [Hooks](</docs/en/hooks#subagentstart>) receive this value as `agent_type`. The filename doesn’t have to match
+`name`| Yes| Unique identifier using lowercase letters and hyphens. [Hooks](</docs/en/hooks#subagentstart>) receive this value as `agent_type`. The filename doesn’t have to match. Names can’t contain `:`, which is reserved for [plugin-scoped identifiers](</docs/en/plugins>) such as `my-plugin:reviewer`. Claude Code doesn’t load a file whose name contains one and logs an error to the debug log. Before v2.1.218, such names were accepted
 `description`| Yes| When Claude should delegate to this subagent
 `tools`| No| Tools the subagent can use. Inherits every tool available to subagents if omitted. If no entry in the list resolves to a tool, the subagent usually [fails to launch](</docs/en/errors#agent-would-be-spawned-with-zero-tools>) with an error naming the entries. To preload Skills into context, use the `skills` field rather than listing `Skill` here
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
@@ -493,7 +493,11 @@ Claude Code [passes hook input as JSON](</docs/en/hooks#pretooluse-input>) via s
 
     exit 0
 
-See [Hook input](</docs/en/hooks#pretooluse-input>) for the complete input schema and [exit codes](</docs/en/hooks#exit-code-output>) for how exit codes affect behavior. On Windows, write hook scripts in PowerShell and add `shell: powershell` to the hook entry as shown in [running hooks in PowerShell](</docs/en/hooks#windows-powershell-tool>).
+On macOS and Linux, make the script executable, or the hook fails instead of blocking anything:
+
+    chmod +x ./scripts/validate-readonly-query.sh
+
+To test the rule, ask the subagent to run an `UPDATE` statement: the script exits with code 2, Claude Code blocks the command, and the subagent sees the `Blocked: Only SELECT queries are allowed` message. See [Hook input](</docs/en/hooks#pretooluse-input>) for the complete input schema and [exit codes](</docs/en/hooks#exit-code-output>) for how exit codes affect behavior. On Windows, write hook scripts in PowerShell and add `shell: powershell` to the hook entry as shown in [running hooks in PowerShell](</docs/en/hooks#windows-powershell-tool>).
 
 ####
 
@@ -538,7 +542,7 @@ Define hooks directly in the subagent’s markdown file. These hooks only run wh
 
 Frontmatter hooks fire when the agent is spawned as a subagent through the Agent tool or an @-mention, and when the agent runs as the main session via `--agent` or the `agent` setting. In the main-session case they run alongside any hooks defined in [`settings.json`](</docs/en/hooks>).
 
-All [hook events](</docs/en/hooks#hook-events>) are supported. The most common events for subagents are:
+To let a project-level subagent’s frontmatter hooks run, accept the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>) for the folder that contains the agent file. Hooks from user-level subagents in `~/.claude/agents/` and from definitions you pass with `--agents` run without this step. If you added a folder with `--add-dir` from outside your trusted workspace’s repository, trust that folder separately: its `.claude/agents/` hooks don’t inherit the workspace’s grant. Until you trust the folder, the subagent still runs, but Claude Code skips its frontmatter hooks and logs an error to the debug log explaining how to trust the folder. The grant is the same workspace trust approval that covers project settings and project-level hooks. Before v2.1.218, frontmatter hooks could run from folders you hadn’t trusted, including in non-interactive sessions. All [hook events](</docs/en/hooks#hook-events>) are supported. The most common events for subagents are:
 
 Event| Matcher input| When it fires
 ---|---|---
@@ -1125,7 +1129,7 @@ On macOS and Linux, make the script executable:
 
     chmod +x ./scripts/validate-readonly-query.sh
 
-On Windows, write the validation script in PowerShell and add `shell: powershell` to the hook entry. See [running hooks in PowerShell](</docs/en/hooks#windows-powershell-tool>). The hook receives JSON via stdin with the Bash command in `tool_input.command`. Exit code 2 blocks the operation and feeds the error message back to Claude. See [Hooks](</docs/en/hooks#exit-code-output>) for details on exit codes and [Hook input](</docs/en/hooks#pretooluse-input>) for the complete input schema.
+On Windows, write the validation script in PowerShell and add `shell: powershell` to the hook entry. See [running hooks in PowerShell](</docs/en/hooks#windows-powershell-tool>). The hook receives JSON via stdin with the Bash command in `tool_input.command`. Exit code 2 blocks the operation and feeds the error message back to Claude. See [Hooks](</docs/en/hooks#exit-code-output>) for details on exit codes and [Hook input](</docs/en/hooks#pretooluse-input>) for the complete input schema. The system prompt tells the subagent to refuse write requests, so the hook is a backstop: if the subagent attempts a write anyway, Claude Code blocks the command and the subagent sees the `Blocked: Write operations not allowed. Use SELECT queries only.` message.
 
 ##
 

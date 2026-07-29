@@ -44,7 +44,7 @@ The gateway is a single Linux binary. It scales horizontally because replicas ar
   * **Multiple gateways** : each gateway is a separate deployment with its own config. The CLI stores its trust fingerprint and credentials per gateway hostname, so different teams can connect to different gateways without conflict. To serve multiple OIDC issuers, run separate instances.
   * **Serverless** : Cloud Run works; set `min-instances: 1` to avoid cold OIDC discovery. Lambda and Cloud Functions don’t, because the gateway is a long-running HTTP server.
 
-Every production topology here puts an L7 proxy, such as an Ingress, Cloud Run’s front end, or an ALB, in front of plain-HTTP replicas. Set [`listen.trusted_proxies`](</docs/en/claude-apps-gateway-config#listen>) to the proxy’s source ranges so the gateway reads client IPs from `X-Forwarded-For`. The gateway honors the header only when the TCP peer is trusted; the [Google Cloud worked example](</docs/en/claude-apps-gateway-on-gcp>) has concrete values per topology. Without trusted proxies, every request appears to come from the proxy’s IP, which collapses per-IP rate limits into one shared bucket and records the proxy’s IP in audit events.
+Every production topology here puts an L7 proxy, such as an Ingress, Cloud Run’s front end, or an ALB, in front of plain-HTTP replicas. Set [`listen.trusted_proxies`](</docs/en/claude-apps-gateway-config#listen>) to the proxy’s source ranges so the gateway reads client IPs from `X-Forwarded-For`. The gateway honors the header only when the TCP peer is trusted; the [Google Cloud](</docs/en/claude-apps-gateway-on-gcp>) and [AWS](</docs/en/claude-apps-gateway-on-aws>) worked examples have concrete values per topology. Without trusted proxies, every request appears to come from the proxy’s IP, which collapses per-IP rate limits into one shared bucket and records the proxy’s IP in audit events.
 
 ###
 
@@ -75,6 +75,8 @@ Run the gateway as a Deployment, like any stateless service:
   * Mount the config from a ConfigMap and secrets from a Secret; reference secrets in the YAML via `${file:/path/to/secret}` or as environment variables
   * Terminate TLS at the Ingress and set `listen.public_url` to the Ingress hostname
   * Point the readiness probe at `GET /readyz` and the liveness probe at `GET /healthz`
+
+For a complete worked example on AWS, covering ECS Fargate or EKS, Amazon RDS, and AWS Secrets Manager, see [Deploy on AWS](</docs/en/claude-apps-gateway-on-aws>).
 
 **Workload identity** Prefer the platform’s workload identity over static keys: IRSA on EKS for Amazon Bedrock and for Claude Platform on AWS, Workload Identity on GKE for Google Cloud’s Agent Platform, and workload identity on AKS for Microsoft Foundry. Set `auth: {}` in the upstream block, or `use_azure_ad: true` for Microsoft Foundry, and the gateway picks up the pod’s identity through that provider’s default credential chain. For a cross-cloud pairing, such as an Amazon Bedrock upstream on GKE, set explicit credentials in the upstream’s `auth` block instead. The [`upstreams` reference](</docs/en/claude-apps-gateway-config#upstreams>) has per-platform setup details.
 

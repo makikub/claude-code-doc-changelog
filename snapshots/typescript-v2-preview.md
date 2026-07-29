@@ -169,7 +169,7 @@ If you have a session ID from a previous interaction, you can resume it later. T
 
 Cleanup
 
-Sessions can be closed manually or automatically using [`await using`](<https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management>), a TypeScript 5.2+ feature for automatic resource cleanup. If you’re using an older TypeScript version or encounter compatibility issues, use manual cleanup instead. **Automatic cleanup (TypeScript 5.2+):**
+Sessions can be closed manually or automatically using [`await using`](<https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management>), a TypeScript 5.2+ feature for automatic resource cleanup. If you’re using an older TypeScript version or encounter compatibility issues, use manual cleanup instead. The examples below show only the cleanup pattern and don’t send any messages, so running them produces no output. **Automatic cleanup (TypeScript 5.2+):**
 
     import { unstable_v2_createSession } from "@anthropic-ai/claude-agent-sdk";
 

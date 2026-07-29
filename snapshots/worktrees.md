@@ -185,9 +185,9 @@ Create worktrees with Git directly when you need to check out a specific existin
 
     git worktree add ../project-feature-a -b feature-a
 
-Create a worktree from an existing branch:
+Create a worktree from an existing branch, replacing `fix-issue-456` with a branch that already exists in your repository:
 
-    git worktree add ../project-bugfix bugfix-123
+    git worktree add ../project-bugfix fix-issue-456
 
 Start Claude in the worktree:
 

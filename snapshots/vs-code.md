@@ -100,8 +100,8 @@ Reference files and folders
 
 Use @-mentions to give Claude context about specific files or folders. When you type `@` followed by a file or folder name, Claude reads that content and can answer questions about it or make changes to it. Claude Code supports fuzzy matching, so you can type partial names to find what you need:
 
-    > Explain the logic in @auth (fuzzy matches auth.js, AuthService.ts, etc.)
-    > What's in @src/components/ (include a trailing slash for folders)
+    Explain the logic in @auth (fuzzy matches auth.js, AuthService.ts, etc.)
+    What's in @src/components/ (include a trailing slash for folders)
 
 For large PDFs, you can ask Claude to read specific pages instead of the whole file: a single page, a range like pages 1-10, or an open-ended range like page 3 onward. When you select text in the editor, Claude can see your highlighted code automatically. The prompt box footer shows how many lines are selected. Press `Option+K` (Mac) / `Alt+K` (Windows/Linux) to insert an @-mention with the file path and line numbers (e.g., `@app.ts#5-10`). Click the selection indicator to toggle whether Claude can see your highlighted text - the eye-slash icon means the selection is hidden from Claude. You can also hold `Shift` while dragging files into the prompt box to add them as attachments. Click the X on any attachment to remove it from context.
 
@@ -435,9 +435,9 @@ Create commits and pull requests
 
 Claude can stage changes, write commit messages, and create pull requests based on your work:
 
-    > commit my changes with a descriptive message
-    > create a pr for this feature
-    > summarize the changes I've made to the auth module
+    commit my changes with a descriptive message
+    create a pr for this feature
+    summarize the changes I've made to the auth module
 
 When creating pull requests, Claude generates descriptions based on the actual code changes and can add context about testing or implementation decisions.
 

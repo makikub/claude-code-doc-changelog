@@ -216,7 +216,7 @@ Pass input to a saved workflow
 
 A saved workflow can accept input through the `args` parameter. The script reads it as a global named `args`. Use this to supply a research question, a list of target paths, or a configuration object at invocation time instead of editing the script for each run. The following prompt runs a saved workflow with a list of issue numbers:
 
-    > Run /triage-issues on issues 1024, 1025, and 1030
+    Run /triage-issues on issues 1024, 1025, and 1030
 
 Claude passes the list as structured data, so the script can call array and object methods on `args` directly without parsing it first. If `args` is omitted, the global is `undefined` inside the script.
 
@@ -236,7 +236,7 @@ Audit many files for the same issue
 
 Fan out one agent per file, then collect and verify the findings.
 
-    > use a workflow to audit every route handler under src/routes/ for missing authentication checks, and adversarially verify each finding before reporting it
+    use a workflow to audit every route handler under src/routes/ for missing authentication checks, and adversarially verify each finding before reporting it
 
 ###
 
@@ -246,7 +246,7 @@ Keep fixing until a check passes
 
 Run a checker, fix what failed, and repeat until it passes or stops making progress.
 
-    > use a workflow to run npx tsc --noEmit and keep fixing the reported errors until the type check passes or two rounds in a row make no progress
+    use a workflow to run npx tsc --noEmit and keep fixing the reported errors until the type check passes or two rounds in a row make no progress
 
 ###
 
@@ -256,7 +256,7 @@ Migrate many files in parallel
 
 Discover the files to migrate, transform each one in an isolated copy so edits don’t conflict, and verify each result.
 
-    > use a workflow to migrate every component under src/components/ from styled-components to Tailwind, working on each file in its own isolated copy
+    use a workflow to migrate every component under src/components/ from styled-components to Tailwind, working on each file in its own isolated copy
 
 ###
 
@@ -266,7 +266,7 @@ Review every changed file and write one summary
 
 Run a reviewer per file, then hand all the findings to one agent that ranks and deduplicates them.
 
-    > use a workflow to review every file changed in this PR for correctness issues, then merge the per-file findings into one ranked summary
+    use a workflow to review every file changed in this PR for correctness issues, then merge the per-file findings into one ranked summary
 
 ###
 
@@ -276,7 +276,7 @@ Research a topic across many sources
 
 Fan out readers across changelogs, issues, and docs, then synthesize. The bundled `/deep-research` workflow does this; you can also describe a narrower version.
 
-    > use a workflow to research how our three competitors handle rate limiting: read their public docs and recent changelog entries in parallel, then compare the approaches
+    use a workflow to research how our three competitors handle rate limiting: read their public docs and recent changelog entries in parallel, then compare the approaches
 
 ###
 
@@ -286,7 +286,7 @@ Find issues until the list stops growing
 
 Keep searching in rounds and stop when new rounds turn up nothing new.
 
-    > use a workflow to find flaky tests in this repo: run the suite repeatedly, record which tests fail intermittently, and stop once two rounds in a row find nothing new
+    use a workflow to find flaky tests in this repo: run the suite repeatedly, record which tests fail intermittently, and stop once two rounds in a row find nothing new
 
 ###
 
@@ -350,7 +350,12 @@ Once a run starts, you manage it from the `/workflows` view, or by expanding its
 
 Resume after a pause
 
-If you stop a run, you can resume it: agents that already completed return their cached results, and the rest run live. An agent that was still running when you stopped isn’t saved and starts over on resume, so a workflow that fans work out across many small agents preserves more progress than one long agent. Resume a paused run from `/workflows` by selecting it and pressing `p`, or ask Claude to relaunch the workflow with the same script. Resume works within the same Claude Code session. If you exit Claude Code while a workflow is running, the next session starts the workflow fresh.
+If you stop a run, you can resume it. Agents that already completed usually return their cached results, and the rest run live. Two rules decide which results survive:
+
+  * An agent that was still running when you stopped isn’t saved, so it starts over on resume.
+  * Replay follows the order agents started. Cached results stop at the first agent that didn’t finish, and every agent that started after that one runs again, even if it completed.
+
+The second rule is what makes stopping mid fan-out expensive. Say a script starts four agents, A, B, C, and D, in that order, and you stop the run while B is still going. On resume, A returns from cache. B runs again because it never finished. C and D run again too, because they started after B, even though both completed before you stopped. A workflow that fans work out across many small agents therefore preserves more progress than one long agent. Resume a paused run from `/workflows` by selecting it and pressing `p`, or ask Claude to relaunch the workflow with the same script. Resume works within the same Claude Code session. If you exit Claude Code while a workflow is running, the next session starts the workflow fresh.
 
 ###
 
@@ -358,7 +363,7 @@ If you stop a run, you can resume it: agents that already completed return their
 
 Cost
 
-A workflow spawns many agents, so a single run can use meaningfully more tokens than working through the same task in conversation. Runs count toward your plan’s usage and rate limits like any other session. To gauge the spend before committing to a large task, run the workflow on a small slice first: one directory instead of the whole repo, or a narrow question instead of a broad one. The `/workflows` view shows each agent’s token usage as the run progresses, and you can stop the run there at any time without losing completed work. The runtime’s agent caps limit how many agents a single run can spawn, which bounds the cost of a runaway script. To keep runs to fewer agents, choose the `small` size guideline. Claude Code also flags a run that grows unusually large. When a workflow schedules more than 25 agents, or its projected token total passes 1.5 million, its progress line in the task panel below the input box shows a `Large workflow` warning. The warning points you to `/workflows`, where you can stop the run. Requires Claude Code v2.1.203 or later. The warning is advisory: it doesn’t pause or limit the run. Two settings change when you see it:
+A workflow spawns many agents, so a single run can use meaningfully more tokens than working through the same task in conversation. Runs count toward your plan’s usage and rate limits like any other session. To gauge the spend before committing to a large task, run the workflow on a small slice first: one directory instead of the whole repo, or a narrow question instead of a broad one. The `/workflows` view shows each agent’s token usage as the run progresses, and you can stop the run there at any time, usually without losing completed work. Resume after a pause covers what a stopped run keeps. The runtime’s agent caps limit how many agents a single run can spawn, which bounds the cost of a runaway script. To keep runs to fewer agents, choose the `small` size guideline. Claude Code also flags a run that grows unusually large. When a workflow schedules more than 25 agents, or its projected token total passes 1.5 million, its progress line in the task panel below the input box shows a `Large workflow` warning. The warning points you to `/workflows`, where you can stop the run. Requires Claude Code v2.1.203 or later. The warning is advisory: it doesn’t pause or limit the run. Two settings change when you see it:
 
   * If you choose a size guideline yourself, its agent count replaces the 25-agent threshold. The built-in default guideline leaves the threshold at 25.
   * Sessions with ultracode on don’t show the warning, because turning ultracode on already opts you in to large runs.

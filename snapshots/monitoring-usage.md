@@ -60,14 +60,16 @@ Claude Code doesn’t pass `OTEL_*` environment variables to the subprocesses it
 
 ​
 
-Managed endpoints govern signal-specific endpoints
+How managed settings lock the OTLP destination
 
-A generic `OTEL_EXPORTER_OTLP_ENDPOINT` set in managed settings governs every signal’s endpoint. If a lower-precedence source, such as user settings or a shell export, sets a signal-specific endpoint like `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`, Claude Code removes that variable at startup and logs a warning, visible with `claude --debug`. Users can’t point one signal’s OTLP traffic at a different endpoint, so you don’t need to set the signal-specific endpoint variables in managed settings to prevent it. This applies only on machines where an administrator deploys managed settings with telemetry configured, and it changes where telemetry is delivered, not what Claude Code collects. A managed `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_EXPORTER_OTLP_CLIENT_KEY`, or `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE` variable also governs the endpoint variables, since those credentials would otherwise accompany telemetry to a collector the managed settings didn’t choose. Two cases keep the normal per-key precedence:
+When you set an `OTEL_EXPORTER_OTLP_*` variable in managed settings, Claude Code removes conflicting developer-set variables at startup and logs a warning you can see with `claude --debug`. What it removes depends on which variable you set:
 
-  * Signal-specific variables set in the managed settings file itself still apply, so you can route one signal to a different collector by setting them there, as the SIEM example does.
-  * The exporter selectors (`OTEL_METRICS_EXPORTER`, `OTEL_LOGS_EXPORTER`, and the beta `OTEL_TRACES_EXPORTER`) and the protocol variables follow per-key precedence, so a lower-precedence source can still change how a signal is exported. To make those authoritative too, set the signal-specific keys in managed settings directly.
+  * **Endpoints** : when you set `OTEL_EXPORTER_OTLP_ENDPOINT`, Claude Code removes every developer-set per-signal endpoint. Developers can’t point one signal at a different collector, so you don’t need to also set the per-signal endpoint variables in managed settings.
+  * **Protocols** : when you set `OTEL_EXPORTER_OTLP_PROTOCOL`, Claude Code removes every developer-set per-signal protocol.
+  * **Credentials** : when you set `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_EXPORTER_OTLP_CLIENT_KEY`, or `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE`, Claude Code removes the developer-set per-signal versions of that variable, plus every developer-set endpoint variable, generic or per-signal, since those credentials would otherwise reach a collector the managed settings didn’t choose.
+  * **Exporter selectors** : `OTEL_METRICS_EXPORTER`, `OTEL_LOGS_EXPORTER`, and the beta `OTEL_TRACES_EXPORTER` follow normal per-key precedence. A developer’s setting can still disable a signal or switch it to the console exporter, so set the selectors in managed settings too if you need them locked.
 
-Before v2.1.217, every variable followed per-key settings precedence independently, so a signal-specific endpoint set in user settings or the shell redirected that signal away from the managed collector.
+Claude Code doesn’t remove per-signal variables that you set in managed settings itself, so you can route one signal to a different collector by setting its variable there, as the SIEM example does. If you set a per-signal credential there, Claude Code removes the developer-set endpoint for that signal. This removal behavior changes where telemetry is delivered, not what Claude Code collects. Before v2.1.217, every variable followed per-key settings precedence independently, so a signal-specific endpoint set in user settings or the shell redirected that signal away from the managed collector.
 
 ##
 
@@ -81,14 +83,14 @@ Configuration details
 
 Common configuration variables
 
-These variables configure exporters, endpoints, and export behavior for all deployments. A signal-specific variable overrides its generic counterpart, except that a generic endpoint or credential variable set in managed settings governs all signals’ endpoints and can’t be overridden from lower-precedence sources.
+These variables configure exporters, endpoints, and export behavior for all deployments. A per-signal variable overrides its generic counterpart. On machines with managed settings, see How managed settings lock the OTLP destination for what Claude Code removes.
 
 Environment Variable| Description| Example Values
 ---|---|---
 `CLAUDE_CODE_ENABLE_TELEMETRY`| Enables telemetry collection (required)| `1`
 `OTEL_METRICS_EXPORTER`| Metrics exporter types, comma-separated. Use `none` to disable| `console`, `otlp`, `prometheus`, `none`
 `OTEL_LOGS_EXPORTER`| Logs/events exporter types, comma-separated. Use `none` to disable| `console`, `otlp`, `none`
-`OTEL_EXPORTER_OTLP_PROTOCOL`| Protocol for OTLP exporter, applies to all signals| `grpc`, `http/json`, `http/protobuf`
+`OTEL_EXPORTER_OTLP_PROTOCOL`| Protocol for OTLP exporter, applies to all signals. Claude Code has no default protocol, so set this or the signal-specific protocol variable for each `otlp` exporter you enable| `grpc`, `http/json`, `http/protobuf`
 `OTEL_EXPORTER_OTLP_ENDPOINT`| OTLP collector endpoint for all signals| `http://localhost:4317`
 `OTEL_EXPORTER_OTLP_METRICS_PROTOCOL`| Protocol for metrics, overrides general setting| `grpc`, `http/json`, `http/protobuf`
 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`| OTLP metrics endpoint, overrides general setting| `http://localhost:4318/v1/metrics`
@@ -121,7 +123,7 @@ Protocol| Client certificate variables| Trust the collector’s CA with
 `http/protobuf`, `http/json`| `CLAUDE_CODE_CLIENT_CERT`, `CLAUDE_CODE_CLIENT_KEY`, and optionally `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`. See [Network configuration](</docs/en/network-config#mtls-authentication>)| `NODE_EXTRA_CA_CERTS`
 `grpc`| `OTEL_EXPORTER_OTLP_CLIENT_KEY` and `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE`, or the per-signal variants such as `OTEL_EXPORTER_OTLP_METRICS_CLIENT_KEY` to use a different certificate per signal| `OTEL_EXPORTER_OTLP_CERTIFICATE`
 
-For `grpc`, the OpenTelemetry SDK reads the standard OTLP variables directly, so existing configurations that set the per-signal metrics variables continue to work.
+For `grpc`, the OpenTelemetry SDK reads the standard OTLP variables directly, so existing configurations that set the per-signal metrics variables continue to work. On machines with managed settings, Claude Code may remove developer-set per-signal credentials and endpoints at startup.
 
 ###
 
@@ -147,7 +149,7 @@ These variables help control the cardinality of metrics, which affects storage r
 
 Traces (beta)
 
-Distributed tracing exports spans that link each user prompt to the API requests and tool executions it triggers, so you can view a full request as a single trace in your tracing backend. Tracing is off by default. To enable it, set both `CLAUDE_CODE_ENABLE_TELEMETRY=1` and `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`, then set `OTEL_TRACES_EXPORTER` to choose where spans are sent. Traces reuse the common OTLP configuration for endpoint, protocol, headers, and mTLS. A generic endpoint or credential variable set in managed settings governs the traces endpoint too, so the `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` override in the table below applies only when managed settings don’t set one.
+Distributed tracing exports spans that link each user prompt to the API requests and tool executions it triggers, so you can view a full request as a single trace in your tracing backend. Tracing is off by default. To enable it, set both `CLAUDE_CODE_ENABLE_TELEMETRY=1` and `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`, then set `OTEL_TRACES_EXPORTER` to choose where spans are sent. Traces reuse the common OTLP configuration for endpoint, protocol, headers, and mTLS. On machines with managed settings, Claude Code may remove developer-set `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` and `OTEL_EXPORTER_OTLP_TRACES_PROTOCOL` variables at startup.
 
 Environment Variable| Description| Example Values
 ---|---|---
@@ -367,7 +369,7 @@ Wrapping values in quotes doesn’t escape spaces. For example, `org.name="My Co
 
 Example configurations
 
-Set these environment variables before running `claude`. Each scenario below shows a complete configuration, and each variable is described under Common configuration variables. For console debugging with a 1-second export interval:
+Set these environment variables before running `claude`. Each scenario below shows a complete configuration, and each variable is described under Common configuration variables. To confirm a configuration took effect, check your backend for the `claude_code.session.count` metric after starting a session; the Quick start covers logs-only verification and what to check when nothing arrives. For console debugging with a 1-second export interval:
 
     export CLAUDE_CODE_ENABLE_TELEMETRY=1
     export OTEL_METRICS_EXPORTER=console
@@ -1264,6 +1266,8 @@ Point `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` at your SIEM’s OTLP receiver, or at a
         "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Bearer your-siem-token"
       }
     }
+
+To confirm events arrive, submit a prompt in a session running under this configuration and check your SIEM for the `claude_code.user_prompt` event. If nothing arrives, run `claude --debug` and check the debug log for OTel export errors.
 
 ##
 

@@ -12,6 +12,8 @@ Python
 
 TypeScript
 
+    from claude_agent_sdk import ClaudeAgentOptions
+
     async def handle_tool_request(tool_name, input_data, context):
         # Prompt user and return allow or deny
         ...
@@ -214,6 +216,8 @@ Beyond allowing or denying, you can modify the tool’s input or provide context
   * **Reject** : block the tool and tell Claude why
   * **Suggest alternative** : block but guide Claude toward what the user wants instead
   * **Redirect entirely** : use [streaming input](</docs/en/agent-sdk/streaming-vs-single-mode>) to send Claude a completely new instruction
+
+The `ask_user` and `askUser` helpers in the following snippets stand in for your application’s own prompt UI.
 
   * Approve
 

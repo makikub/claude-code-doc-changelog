@@ -125,7 +125,7 @@ Once Claude Code starts, try your new skill:
 
     /my-first-plugin:hello
 
-You’ll see Claude respond with a greeting. Run `/help` to see your skill listed under the plugin namespace.
+You’ll see Claude respond with a greeting. Run `/help` and open the **Custom commands** tab to see your skill listed under the plugin namespace.
 
 **Why namespacing?** Plugin skills are always namespaced (like `/my-first-plugin:hello`) to prevent conflicts when multiple plugins have skills with the same name.To change the namespace prefix, update the `name` field in `plugin.json`.
 
@@ -145,7 +145,7 @@ my-first-plugin/skills/hello/SKILL.md
 
     Greet the user named "$ARGUMENTS" warmly and ask how you can help them today. Make the greeting personal and encouraging.
 
-Run `/reload-plugins` to pick up the changes, then try the skill with your name:
+Run `/reload-plugins` to pick up the changes. The skills count in the summary covers only `commands/` directories, so it can report `0 skills` even though the skill you just edited reloaded. Then try the skill with your name:
 
     /my-first-plugin:hello Alex
 
@@ -257,7 +257,7 @@ LSP (Language Server Protocol) plugins give Claude real-time code intelligence. 
       }
     }
 
-Users installing your plugin must have the language server binary installed on their machine. For complete LSP configuration options, see [LSP servers](</docs/en/plugins-reference#lsp-servers>).
+Users installing your plugin must have the language server binary installed on their machine. To confirm the server starts, launch Claude Code with the plugin enabled and check the `/plugin` Errors tab: a language server that fails to start appears there, for example with `Executable not found in $PATH` when the binary isn’t installed. An entry with an invalid configuration is skipped instead; run `claude --debug` to see why. For complete LSP configuration options, see [LSP servers](</docs/en/plugins-reference#lsp-servers>).
 
 ###
 
@@ -321,13 +321,13 @@ When a `--plugin-dir` plugin has the same name as an installed marketplace plugi
 
   * Try your skills with `/plugin-name:skill-name`
   * Check that agents appear in `/context` under Custom Agents, or @-mention one by its scoped name
-  * Verify hooks work as expected
+  * Trigger the event each hook matches, such as asking Claude to edit a file for a `PostToolUse` hook, and confirm its effect. Claude Code records which hooks matched, their exit codes, and their output in the [debug log](</docs/en/hooks#debug-hooks>)
 
 You can load multiple plugins at once by specifying the flag multiple times:
 
     claude --plugin-dir ./plugin-one --plugin-dir ./plugin-two
 
-To test a plugin that is already packaged as a `.zip` archive and hosted at a URL, such as a CI build artifact, use `--plugin-url` instead. Claude Code fetches the archive at startup and loads it for that session only. If the fetch fails or the archive is invalid, Claude Code reports a plugin load error and starts without it. The same [trust considerations](</docs/en/discover-plugins#security>) apply as for any plugin source: only point this flag at archives you control or trust. To load multiple plugins, repeat the flag for each URL:
+To test a plugin that is already packaged as a `.zip` archive and hosted at a URL, such as a CI build artifact, use `--plugin-url` instead. Claude Code fetches the archive at startup and loads it for that session only. If Claude Code can’t fetch the archive, or the archive is invalid, it starts without the plugin and records a plugin load error that you can review in the `/plugin` manager’s **Errors** tab. The same [trust considerations](</docs/en/discover-plugins#security>) apply as for any plugin source: only point this flag at archives you control or trust. To load multiple plugins, repeat the flag for each URL:
 
     claude --plugin-url https://example.com/my-plugin.zip --plugin-url https://example.com/other.zip
 
@@ -378,7 +378,7 @@ To submit your plugin for community-marketplace review, use one of the in-app fo
   * **claude.ai** : [claude.ai/admin-settings/directory/submissions/plugins/new](<https://claude.ai/admin-settings/directory/submissions/plugins/new>)
   * **Console** : [platform.claude.com/plugins/submit](<https://platform.claude.com/plugins/submit>)
 
-The claude.ai form requires a Team or Enterprise organization and directory management access; organization Owners have this access by default. Individual authors who aren’t part of a Team or Enterprise organization can use the Console form instead. Run `claude plugin validate` locally before you submit. The review pipeline runs the same check on every submission, along with automated safety screening. Approved plugins are pinned to a specific commit SHA in the [`anthropics/claude-plugins-community`](<https://github.com/anthropics/claude-plugins-community>) catalog, and CI bumps the pin automatically as you push new commits to your repository. The public catalog syncs nightly from the review pipeline, so there can be a delay between approval and your plugin appearing in `marketplace.json`. To check whether your plugin is installable yet, search for its name in the [community catalog](<https://github.com/anthropics/claude-plugins-community/blob/main/.claude-plugin/marketplace.json>). The official marketplace, `claude-plugins-official`, is curated separately. Anthropic decides which plugins to include at its discretion. There is no application process, and the submission form does not add plugins to the official marketplace. If Anthropic lists your plugin in the official marketplace, your CLI can prompt Claude Code users to install it. See [Recommend your plugin from your CLI](</docs/en/plugin-hints>).
+The claude.ai form requires a Team or Enterprise organization and directory management access; organization Owners have this access by default. Individual authors who aren’t part of a Team or Enterprise organization can use the Console form instead. Run `claude plugin validate ./your-plugin` locally before you submit, replacing `./your-plugin` with the path to your plugin directory. The review pipeline runs the same check on every submission, along with automated safety screening. When validation passes, Claude Code prints `✔ Validation passed`, or `✔ Validation passed with warnings` if there are warnings. Warnings don’t fail validation; add `--strict` to treat them as errors. Approved plugins are pinned to a specific commit SHA in the [`anthropics/claude-plugins-community`](<https://github.com/anthropics/claude-plugins-community>) catalog, and CI bumps the pin automatically as you push new commits to your repository. The public catalog syncs nightly from the review pipeline, so there can be a delay between approval and your plugin appearing in `marketplace.json`. To check whether your plugin is installable yet, search for its name in the [community catalog](<https://github.com/anthropics/claude-plugins-community/blob/main/.claude-plugin/marketplace.json>). The official marketplace, `claude-plugins-official`, is curated separately. Anthropic decides which plugins to include at its discretion. There is no application process, and the submission form does not add plugins to the official marketplace. If Anthropic lists your plugin in the official marketplace, your CLI can prompt Claude Code users to install it. See [Recommend your plugin from your CLI](</docs/en/plugin-hints>).
 
 For complete technical specifications, debugging techniques, and distribution strategies, see [Plugins reference](</docs/en/plugins-reference>).
 
@@ -418,16 +418,15 @@ my-plugin/.claude-plugin/plugin.json
 
 Copy your existing files
 
-Copy your existing configurations to the plugin directory:
+Copy each configuration directory you have to the plugin root. You might not have all three: if a directory doesn’t exist, `cp` prints `No such file or directory` and copies nothing, so skip that command or ignore the error.
 
-    # Copy commands
     cp -r .claude/commands my-plugin/
 
-    # Copy agents (if any)
     cp -r .claude/agents my-plugin/
 
-    # Copy skills (if any)
     cp -r .claude/skills my-plugin/
+
+Your plugin now contains copies of the directories you had under `.claude/`. Run `ls my-plugin` to confirm: you should see each directory you copied.
 
 3
 
@@ -460,7 +459,7 @@ Load your plugin to verify everything works:
 
     claude --plugin-dir ./my-plugin
 
-Test each component: run your commands, check that agents appear in `/context`, and verify hooks trigger correctly.
+Test each component: run your commands, check that agents appear in `/context`, and trigger the event each hook matches to confirm its effect. Claude Code records which hooks matched and how they exited in the [debug log](</docs/en/hooks#debug-hooks>).
 
 ###
 
