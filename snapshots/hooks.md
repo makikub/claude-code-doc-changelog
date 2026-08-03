@@ -40,6 +40,7 @@ Event| When it fires
 `InstructionsLoaded`| When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session
 `ConfigChange`| When a configuration file changes during a session
 `CwdChanged`| When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv
+`DirectoryAdded`| When a working directory is added mid-session via `/add-dir` or the SDK `register_repo_root` control request
 `FileChanged`| When a watched file changes on disk. The `matcher` field specifies which filenames to watch
 `WorktreeCreate`| When a worktree is being created via `--worktree`, `isolation: "worktree"`, or for a background session. Replaces default git behavior
 `WorktreeRemove`| When a worktree is being removed at session exit, when a subagent finishes, or when you delete a background session
@@ -205,6 +206,7 @@ Event| What the matcher filters| Example matcher values
 `SubagentStop`| agent type| same values as `SubagentStart`
 `ConfigChange`| configuration source| `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills`
 `CwdChanged`| no matcher support| always fires on every directory change
+`DirectoryAdded`| how the directory was added| `slash_command`, `register_repo_root`
 `FileChanged`| literal filenames to watch (see FileChanged)| `.envrc|.env`
 `StopFailure`| error type| `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `unknown`
 `InstructionsLoaded`| load reason| `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact`
@@ -660,6 +662,7 @@ Hook event| Can block?| What happens on exit 2
 `Setup`| No| Shows stderr to user only
 `SessionEnd`| No| Shows stderr to user only
 `CwdChanged`| No| Shows stderr to user only
+`DirectoryAdded`| No| Stderr goes to the debug log; the directory is already added
 `FileChanged`| No| Shows stderr to user only
 `PreCompact`| Yes| Blocks compaction
 `PostCompact`| No| Shows stderr to user only
@@ -796,7 +799,7 @@ Elicitation| `hookSpecificOutput`| `action` (accept/decline/cancel), `content` (
 ElicitationResult| `hookSpecificOutput`| `action` (accept/decline/cancel), `content` (form field values override)
 MessageDisplay| `hookSpecificOutput`| `displayContent` replaces the displayed text on screen. Display-only: the transcript and what Claude sees keep the original
 SessionStart, Setup, SubagentStart| Context only| `hookSpecificOutput.additionalContext` adds context for Claude. SessionStart also accepts `initialUserMessage`, `watchPaths`, `sessionTitle`, and `reloadSkills`. No blocking or decision control
-WorktreeRemove, Notification, SessionEnd, PostCompact, InstructionsLoaded, StopFailure, CwdChanged, FileChanged| None| No decision control. Used for side effects like logging or cleanup
+WorktreeRemove, Notification, SessionEnd, PostCompact, InstructionsLoaded, StopFailure, CwdChanged, DirectoryAdded, FileChanged| None| No decision control. Used for side effects like logging or cleanup
 
 A few events can also rewrite content rather than only allow or block it:
 
@@ -2409,6 +2412,46 @@ CwdChanged hooks have no decision control. They can’t block the directory chan
 
 ​
 
+DirectoryAdded
+
+Runs after a working directory is added mid-session, with the `/add-dir` command or the SDK `register_repo_root` control request. Use this to prepare a newly added repository, for example by installing its dependencies. Claude Code doesn’t fire this event for directories you pass with the `--add-dir` startup flag; SessionStart covers those. DirectoryAdded fires after Claude Code has refreshed sandbox and permission state, so sandboxed tools already see the new directory when your hook runs. Hook commands themselves run unsandboxed. The matcher filters on how the directory was added:
+
+Matcher| When it fires
+---|---
+`slash_command`| You add a directory with `/add-dir`
+`register_repo_root`| An SDK client adds a directory with the `register_repo_root` control request
+
+####
+
+​
+
+DirectoryAdded input
+
+In addition to the common input fields, DirectoryAdded hooks receive `directory` and `source`.
+
+Field| Description
+---|---
+`directory`| Absolute path of the directory that was added
+`source`| How the directory was added, `"slash_command"` for `/add-dir` or `"register_repo_root"` for the SDK control request
+
+    {
+      "session_id": "abc123",
+      "transcript_path": "/Users/.../.claude/projects/.../transcript.jsonl",
+      "cwd": "/Users/my-project",
+      "hook_event_name": "DirectoryAdded",
+      "directory": "/Users/my-other-repo",
+      "source": "slash_command"
+    }
+
+DirectoryAdded hooks have no decision control. They can’t block the add, which has already completed when the hook runs. Claude Code surfaces hook output differently per source:
+
+  * `slash_command`: unlike on every other event, where you see the `systemMessage` and Claude doesn’t, Claude Code delivers the hook’s `systemMessage` to Claude as context on the next conversation turn. A count of failed hooks appears in the transcript; full failure output goes to the debug log
+  * `register_repo_root`: Claude Code writes `systemMessage` output and failure output to the debug log only
+
+###
+
+​
+
 FileChanged
 
 Runs when a watched file changes on disk. Useful for reloading environment variables when project configuration files are modified. The `matcher` for this event serves two roles:
@@ -2806,6 +2849,7 @@ Events that support `command`, `http`, and `mcp_tool` hooks but not `prompt` or 
 
   * `ConfigChange`
   * `CwdChanged`
+  * `DirectoryAdded`
   * `Elicitation`
   * `ElicitationResult`
   * `FileChanged`

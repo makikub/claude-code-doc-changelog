@@ -367,8 +367,6 @@ TypeScript
     from typing import Any
     from claude_agent_sdk import tool
 
-    from claude_agent_sdk import tool
-
     @tool(
         "fetch_data",
         "Fetch data from an API",
@@ -481,8 +479,6 @@ TypeScript
 
     import base64
     import httpx
-    from claude_agent_sdk import tool
-
     from claude_agent_sdk import tool
 
     # Define a tool that fetches an image from a URL and returns it to Claude
