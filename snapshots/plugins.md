@@ -233,7 +233,7 @@ Each `SKILL.md` contains YAML frontmatter and instructions. Include a `descripti
     3. Security concerns
     4. Test coverage
 
-After installing the plugin, run `/reload-plugins` to load the Skills. For complete Skill authoring guidance including progressive disclosure and tool restrictions, see [Agent Skills](</docs/en/skills>).
+After you install the plugin, check the install summary: if it reports `Run /reload-plugins to activate.`, run that command to load the Skills. For complete Skill authoring guidance including progressive disclosure and tool restrictions, see [Agent Skills](</docs/en/skills>).
 
 ###
 

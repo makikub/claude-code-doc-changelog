@@ -430,7 +430,7 @@ A `match: {}` catch-all, conventionally listed last, is treated as a base layer.
   * **Deny-lists and hook arrays** : `permissions.deny`, `permissions.ask`, `disabledMcpjsonServers`, `deniedMcpServers`, `blockedMarketplaces`, and every `hooks` event-type array. These take the union of base and policy, so an org-wide deny or audit hook can’t be accidentally dropped by a per-role override.
   * **Record-typed keys** : `env`, `modelOverrides`, and `skillOverrides`. These shallow-merge, so a per-role `env` block overrides keys it sets and inherits the rest from the base.
 
-`availableModels` is also enforced server-side at `/v1/messages`, so a denied model returns `400` regardless of what the client sends.
+`availableModels` is also enforced server-side at `/v1/messages`, so a denied model returns `400` regardless of what the client sends. When a request’s `model` value isn’t a string, the gateway rejects the request with a `400` and the message `model must be a string`, so a malformed value never reaches an upstream. Requires a gateway running Claude Code v2.1.221 or later.
 
 Matcher| Behavior
 ---|---

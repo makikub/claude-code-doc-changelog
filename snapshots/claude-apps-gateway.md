@@ -290,7 +290,11 @@ Call the Agent SDK’s [`resolveSettings()`](</docs/en/agent-sdk/typescript#reso
 
 Restrict parent settings
 
-Once you deploy `parentSettingsBehavior: "merge"`, any host process that launches Claude Code can supply parent settings, not only Claude Desktop but also an Agent SDK application or an IDE extension. Claude Code filters parent settings against an allowlist of restrictive keys, but some allowed keys can grant access rather than restrict it. Unless you set the `allowManaged*Only` locks, permission allow rules and sandbox allowlists supplied by the host still apply. Your policy’s deny and ask rules stay in force either way; [they’re evaluated before any allow rule](</docs/en/permissions#manage-permissions>).
+Once you deploy `parentSettingsBehavior: "merge"`, any host process that launches Claude Code can supply parent settings, not only Claude Desktop but also an Agent SDK application or an IDE extension. Claude Code filters parent settings against an allowlist of restrictive keys, but some allowed keys can grant access rather than restrict it. Unless you set the `allowManaged*Only` locks, permission allow rules and sandbox allowlists supplied by the host still apply. Your policy’s deny and ask rules stay in force either way; [they’re evaluated before any allow rule](</docs/en/permissions#manage-permissions>). Claude Code forwards parent-supplied [`sandbox.credentials`](</docs/en/settings#sandbox-settings>) entries in stripped form:
+
+  * **`deny` entries**: forwarded with only their `path` or `name` and the mode.
+  * **File entries with[`mode: mask`](</docs/en/sandboxing#mask-credential-files>)**: forwarded sentinel-only, as a whole-file mask whose `injectHosts` is the empty list, so the proxy never substitutes the real value for a parent-supplied entry on any platform. The `extract`, `onExtractNoMatch`, and `maskDuplicates` fields are dropped too, so a parent-supplied extract pattern can’t displace a stricter mask another source sets for the same path.
+  * **`envVars` entries with `mode: mask`**: not forwarded. `deny` is the only environment-variable restriction the parent channel can express.
 
 ####
 
