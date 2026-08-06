@@ -34,6 +34,7 @@ Integration| What it does| Use it for
 [GitLab CI/CD](</docs/en/gitlab-ci-cd>)| Same as GitHub Actions for GitLab| CI-driven automation on GitLab
 [Code Review](</docs/en/code-review>)| Reviews every PR automatically| Catching bugs before human review
 [Slack](</docs/en/slack>)| Responds to `@Claude` mentions in your channels| Turning bug reports into pull requests from team chat
+[Claude Tag](</docs/en/claude-tag>)| Runs `@Claude` as your organization’s shared identity with admin-configured access| Shared team access on Team and Enterprise plans, instead of per-user Slack sessions
 
 For integrations not listed here, [MCP servers](</docs/en/mcp>) and [connectors](</docs/en/desktop#connect-external-tools>) let you connect almost anything: Linear, Notion, Google Drive, or your own internal APIs.
 
@@ -86,6 +87,7 @@ Integrations
   * [GitLab CI/CD](</docs/en/gitlab-ci-cd>): the same for GitLab
   * [Code Review](</docs/en/code-review>): automatic review on every pull request
   * [Slack](</docs/en/slack>): send tasks from team chat, get PRs back
+  * [Claude Tag](</docs/en/claude-tag>): run `@Claude` as your organization’s shared identity on Team and Enterprise plans
 
 ###
 

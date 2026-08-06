@@ -432,7 +432,7 @@ Files over 200 lines consume more context and may reduce adherence. Use path-sco
 
 Instructions seem lost after `/compact`
 
-Project-root CLAUDE.md survives compaction: after `/compact`, Claude re-reads it from disk and re-injects it into the session. Nested CLAUDE.md files in subdirectories are not re-injected automatically; they reload the next time Claude reads a file in that subdirectory. If an instruction disappeared after compaction, it was either given only in conversation or lives in a nested CLAUDE.md that hasn’t reloaded yet. Add conversation-only instructions to CLAUDE.md to make them persist. See [What survives compaction](</docs/en/context-window#what-survives-compaction>) for the full breakdown. See Write effective instructions for guidance on size, structure, and specificity.
+Project-root CLAUDE.md survives compaction: after `/compact`, Claude re-reads it from disk and re-injects it into the session. Nested CLAUDE.md files in subdirectories and rules with `paths:` frontmatter are not re-injected automatically; they reload the next time Claude reads a file in that subdirectory or a file matching the rule’s patterns. If an instruction disappeared after compaction, it was given only in conversation, lives in a nested CLAUDE.md that hasn’t reloaded yet, or is a path-scoped rule that hasn’t matched a file since. Add conversation-only instructions to CLAUDE.md to make them persist. See [What survives compaction](</docs/en/context-window#what-survives-compaction>) for the full breakdown. See Write effective instructions for guidance on size, structure, and specificity.
 
 ##
 

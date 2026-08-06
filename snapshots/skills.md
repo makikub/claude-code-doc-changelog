@@ -2,7 +2,7 @@ Skills extend what Claude can do. Create a `SKILL.md` file with instructions, an
 
 For built-in commands like `/help` and `/compact`, and bundled skills like `/debug` and `/code-review`, see the [commands reference](</docs/en/commands>).**Custom commands have been merged into skills.** A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same way. Your existing `.claude/commands/` files keep working. Skills add optional features: a directory for supporting files, frontmatter to control whether you or Claude invokes them, and the ability for Claude to load them automatically when relevant.
 
-Claude Code skills follow the [Agent Skills](<https://agentskills.io>) open standard, which works across multiple AI tools. Claude Code extends the standard with additional features like invocation control, subagent execution, and dynamic context injection.
+Claude Code skills follow the [Agent Skills](<https://agentskills.io>) open standard, which works across multiple AI tools. Claude Code extends the standard with additional features like invocation control, subagent execution, and dynamic context injection. See Using skill frontmatter outside Claude Code for which frontmatter fields are part of the standard and which are Claude Code extensions.
 
 ##
 
@@ -246,6 +246,28 @@ Field| Required| Description
 `hooks`| No| Hooks scoped to this skill’s lifecycle. See [Hooks in skills and agents](</docs/en/hooks#hooks-in-skills-and-agents>) for configuration format.
 `paths`| No| Glob patterns that limit when this skill is activated. Accepts a comma-separated string or a YAML list. When set, Claude loads the skill automatically only when working with files matching the patterns. Uses the same format as [path-specific rules](</docs/en/memory#path-specific-rules>).
 `shell`| No| Shell to use for `!`command`` and ````!` blocks in this skill. Accepts `bash` (default) or `powershell`. Setting `powershell` runs inline shell commands via PowerShell when the [PowerShell tool](</docs/en/tools-reference#powershell-tool>) is enabled: it’s on by default on Windows without Git Bash, and `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` enables it elsewhere.
+`metadata`| No| Free-form YAML map for your own key-value data, such as entitlement or catalog fields, read by your own tooling from `SKILL.md`. Claude Code doesn’t act on its contents, and drops a value that isn’t a map. Don’t reuse frontmatter field names such as `paths` as keys.
+`license`| No| License covering the skill. Part of the [Agent Skills](<https://agentskills.io>) spec; see Using skill frontmatter outside Claude Code. Claude Code accepts the field but doesn’t act on it.
+`compatibility`| No| Environment requirements for the skill, such as intended products or system prerequisites, as defined by the [Agent Skills](<https://agentskills.io>) spec; see Using skill frontmatter outside Claude Code. Accepts a string of up to 500 characters. Claude Code accepts the field but doesn’t act on it.
+
+####
+
+​
+
+Using skill frontmatter outside Claude Code
+
+Claude Code accepts every field in the table above. Outside Claude Code, you can use only the fields in the [Agent Skills](<https://agentskills.io>) spec:
+
+Distribution path| Frontmatter fields you can use
+---|---
+Claude Code skills at any level, including [plugin](</docs/en/plugins>) skills| Every field in the table above
+claude.ai skill uploads, the Skills API, and packaging with `package_skill.py` from [anthropics/skills](<https://github.com/anthropics/skills>)| `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`
+
+When you enable a personal skill for Cowork and cloud sessions, including routines, you upload it to claude.ai, so the same rules apply. If you include any field the spec doesn’t allow, packaging or upload fails with a hard error instead of ignoring the field:
+
+    Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are: allowed-tools, compatibility, description, license, metadata, name
+
+Restricting frontmatter to the spec’s six fields avoids the unexpected-key error above. The [Agent Skills spec](<https://agentskills.io>) and the [Skills API requirements](<https://docs.claude.com/en/api/skills-guide>) define everything else those paths validate. Claude Code-only body features, such as dynamic context injection, don’t function in claude.ai chat or through the API. Claude Code accepts all six fields, so frontmatter that follows the spec loads in Claude Code without changes.
 
 ####
 
@@ -355,7 +377,7 @@ This example creates a deploy skill that only you can trigger. If you set `disab
     3. Push to the deployment target
     4. Verify the deployment succeeded
 
-Here’s how the two fields affect invocation and context loading:
+If Claude tries anyway, Claude Code blocks the call and instructs it not to reproduce the deploy steps another way, so expect Claude to suggest running `/deploy` yourself. Here’s how the two fields affect invocation and context loading:
 
 Frontmatter| You can invoke| Claude can invoke| When loaded into context
 ---|---|---|---

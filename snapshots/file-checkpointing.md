@@ -729,7 +729,7 @@ If `message.uuid` is `undefined` or missing, you’re not receiving checkpoint U
 
 ​
 
-”No file checkpoint found for message” error
+”No file checkpoint found for this message” error
 
 This error occurs when the checkpoint data doesn’t exist for the specified user message UUID. **Common causes** :
 

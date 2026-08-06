@@ -5,7 +5,7 @@ The status line is a customizable bar at the bottom of Claude Code that runs any
   * Work across multiple sessions and need to distinguish them
   * Want git branch and status always visible
 
-The status line renders in its own row above the built-in footer badges and does not replace them. To add clickable link badges to the footer when an ID appears in the conversation, without writing a script, configure [`footerLinksRegexes`](</docs/en/settings#footer-link-badges>) instead. Here’s an example of a multi-line status line that displays git info on the first line and a color-coded context bar on the second.
+The status line renders in its own row above the built-in footer badges and does not replace them. With a custom status line configured, Claude Code still shows contextual hints such as `esc to interrupt`, but stops showing two static hints: the `? for shortcuts` fallback and the `hold space to speak` [voice dictation](</docs/en/voice-dictation>) hint. To add clickable link badges to the footer when an ID appears in the conversation, without writing a script, configure [`footerLinksRegexes`](</docs/en/settings#footer-link-badges>) instead. Here’s an example of a multi-line status line that displays git info on the first line and a color-coded context bar on the second.
 
 This page walks through setting up a basic status line, explains how the data flows from Claude Code to your script, lists all the fields you can display, and provides ready-to-use examples for common patterns like git status, cost tracking, and progress bars.
 
