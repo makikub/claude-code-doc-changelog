@@ -34,7 +34,7 @@ Start a session
 
 Before you send your first message, configure four things in the prompt area:
 
-  * **Environment** : choose where Claude runs. Select **Local** for your machine, **Cloud** for Anthropic-hosted cloud sessions, an **SSH connection** for a remote machine you manage, or on Windows a [**WSL distribution**](</docs/en/desktop-wsl>). See environment configuration.
+  * **Environment** : choose where Claude runs. Select **Local** for your machine, **Cloud** for cloud sessions, an **SSH connection** for a remote machine you manage, or on Windows a [**WSL distribution**](</docs/en/desktop-wsl>). See environment configuration.
   * **Project folder** : select the folder or repository Claude works in. For cloud sessions, you can add multiple repositories.
   * **Model** : pick a [model](</docs/en/model-config#available-models>) from the dropdown next to the send button. You can change this during the session.
   * **Permission mode** : choose how much autonomy Claude has from the mode selector. You can change this during the session.
@@ -88,7 +88,7 @@ Earlier versions of the Code tab labeled these modes Ask permissions, Auto accep
 
 Start complex tasks in Plan so Claude maps out an approach before making changes. Once you approve the plan, switch to Accept edits or Manual to execute it. See [explore first, then plan, then code](</docs/en/best-practices#explore-first-then-plan-then-code>) for more on this workflow.
 
-Cloud sessions support Accept edits, Plan, and Auto. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Manual. Bypass permissions is not available because cloud sessions already run in a sandboxed VM. Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
+Cloud sessions support Accept edits, Plan, and Auto. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Manual. Bypass permissions is not available in cloud sessions. Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
 
 ###
 
@@ -368,7 +368,7 @@ Click **\+ New session** in the sidebar, or press **Cmd+N** on macOS or **Ctrl+N
 
 Session isolation requires [Git](<https://git-scm.com/downloads>). Most Macs include Git by default. Run `git --version` in Terminal to check; if it prints a version number, Git is installed. On Windows, Git is required for the Code tab to work: [download Git for Windows](<https://git-scm.com/downloads/win>), install it, and restart the app. If you run into Git errors, ask Claude in the [Cowork tab](<https://claude.com/product/cowork>) to help troubleshoot your setup.
 
-Use the controls at the top of the sidebar to filter sessions by status, project, or environment, and to group sessions by project. To rename a session, click the session title in the toolbar at the top of the active session. For a session on a local environment, Claude Code applies the rename to the session’s underlying CLI name too, so the new name appears in the `claude agents` listing on that machine; the shared rename requires Claude Code v2.1.221 or later. To check context usage, see Check usage. When context fills up, Claude automatically summarizes the conversation and continues working. You can also type `/compact` to trigger summarization earlier and free up context space. See [the context window](</docs/en/how-claude-code-works#the-context-window>) for details on how compaction works. The desktop app sends an OS notification when a Code session finishes a task and you aren’t currently viewing that session.
+Use the controls at the top of the sidebar to filter sessions by status, project, or environment, and to group sessions by project. To rename a session, click the session title in the toolbar at the top of the active session. To check context usage, see Check usage. When context fills up, Claude automatically summarizes the conversation and continues working. You can also type `/compact` to trigger summarization earlier and free up context space. See [the context window](</docs/en/how-claude-code-works#the-context-window>) for details on how compaction works. The desktop app sends an OS notification when a Code session finishes a task and you aren’t currently viewing that session.
 
 ###
 
@@ -406,7 +406,7 @@ Claude can also suggest new sessions. When it notices something worth fixing tha
 
 Run long-running tasks remotely
 
-For large refactors, test suites, migrations, or other long-running tasks, select **Cloud** instead of **Local** when starting a session. Cloud sessions run on Anthropic’s cloud infrastructure and continue even if you close the app or shut down your computer. Check back anytime to see progress or steer Claude in a different direction. You can also monitor cloud sessions from [claude.ai/code](<https://claude.ai/code>) or the [Claude mobile app](</docs/en/mobile>). Cloud sessions also support multiple repositories. After selecting a cloud environment, click the **+** button next to the repo pill to add additional repositories to the session. Each repo gets its own branch selector. This is useful for tasks that span multiple codebases, such as updating a shared library and its consumers. See [Claude Code on the web](</docs/en/claude-code-on-the-web>) for more on how cloud sessions work.
+For large refactors, test suites, migrations, or other long-running tasks, select **Cloud** instead of **Local** when starting a session. Cloud sessions run on Anthropic-managed infrastructure by default and continue even if you close the app or shut down your computer. Check back anytime to see progress or steer Claude in a different direction. You can also monitor cloud sessions from [claude.ai/code](<https://claude.ai/code>) or the [Claude mobile app](</docs/en/mobile>). Cloud sessions also support multiple repositories. After selecting a cloud environment, click the **+** button next to the repo pill to add additional repositories to the session. Each repo gets its own branch selector. This is useful for tasks that span multiple codebases, such as updating a shared library and its consumers. See [Claude Code on the web](</docs/en/claude-code-on-the-web>) for more on how cloud sessions work.
 
 ###
 
@@ -650,7 +650,7 @@ Environment configuration
 The environment you pick when starting a session determines where Claude executes and how you connect:
 
   * **Local** : runs on your machine with direct access to your files
-  * **Cloud** : runs on Anthropic’s cloud infrastructure. Sessions continue even if you close the app.
+  * **Cloud** : runs on Anthropic-managed infrastructure by default. Sessions continue even if you close the app.
   * **SSH** : runs on a remote machine you connect to over SSH, such as your own servers, cloud VMs, or dev containers
   * **WSL** (Windows): runs inside a [WSL 2 distribution](</docs/en/desktop-wsl>) on your machine, using its Linux toolchain and native paths
 
@@ -766,7 +766,7 @@ Key| Description
 Which managed settings reach a Desktop session depends on where that session runs. Model restrictions such as [`availableModels`](</docs/en/model-config#restrict-model-selection>) are enforced in Desktop’s Claude Code sessions the same way as in the terminal CLI; see [surface coverage](</docs/en/model-config#surface-coverage>).
 
   * **Local sessions on this machine** : a managed settings file deployed to disk applies. Managed settings pushed remotely through the admin console also reach these sessions on Anthropic’s API when the session authenticates with an organization login or a directly configured API key, following the same [settings precedence](</docs/en/settings#settings-precedence>) as the terminal CLI.
-  * **Cloud sessions** : run on Anthropic-managed VMs and receive [server-managed settings](</docs/en/server-managed-settings>) only.
+  * **Cloud sessions** : receive [server-managed settings](</docs/en/server-managed-settings>); device-deployed files don’t reach them, because they run on Anthropic-managed VMs. Sessions routed to a [self-hosted environment](</docs/en/self-hosted-environments>) fall back to the managed settings file in the runner image when server-managed settings deliver no keys, per [settings precedence](</docs/en/server-managed-settings#settings-precedence>).
   * **SSH sessions** : the session reads the managed settings file from the remote host. Desktop itself reads `sshConfigs` and `sshHostAllowlist` from the local machine’s managed settings when creating the connection.
 
 `permissions.disableBypassPermissionsMode` and `disableAutoMode` also work in user and project settings, but placing them in managed settings prevents users from overriding them. Claude Code reads `autoMode` from user settings, the `--settings` flag, and managed settings, but not from `.claude/settings.json` or `.claude/settings.local.json`: both files live in the repo directory, so a cloned repo or build step can’t inject its own classifier rules. Before v2.1.207, Claude Code also read `.claude/settings.local.json`. For the complete list of managed-only settings including `allowManagedPermissionRulesOnly` and `allowManagedHooksOnly`, see [managed-only settings](</docs/en/permissions#managed-only-settings>).
@@ -835,7 +835,7 @@ Enterprise organizations can require SSO for all users. See [authentication](</d
 
 Data handling
 
-Claude Code processes your code locally in local sessions or on Anthropic’s cloud infrastructure in cloud sessions. Conversations and code context are sent to Anthropic’s API for processing. See [data handling](</docs/en/data-usage>) for details on data retention, privacy, and compliance.
+Claude Code processes your code locally in local sessions, or in cloud sessions on Anthropic-managed infrastructure, unless your organization routes them to a [self-hosted environment](</docs/en/self-hosted-environments>). Conversations and code context are sent to Anthropic’s API for processing. See [data handling](</docs/en/data-usage>) for details on data retention, privacy, and compliance.
 
 ###
 

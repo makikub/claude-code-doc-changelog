@@ -298,7 +298,7 @@ If the check run title says issues were found but you don’t see inline review 
 
 Review a diff locally
 
-The [`/code-review` command](</docs/en/commands>) reviews a diff in your terminal without installing the GitHub App. It reports correctness bugs and reuse, simplification, and efficiency cleanups.
+The [`/code-review` command](</docs/en/commands>) reviews a diff in your terminal without installing the GitHub App. It reports correctness bugs and reuse, simplification, and efficiency cleanups. `/review` is an alias of `/code-review`; before v2.1.223, it was a separate command that ran a single-pass, read-only review of a GitHub pull request.
 
 1
 
@@ -346,7 +346,7 @@ The review follows your `CLAUDE.md` like any Claude Code session, but it doesn�
 
 Tune effort and arguments
 
-Pass an [effort level](</docs/en/model-config#adjust-effort-level>) to trade coverage for confidence. At `low` and `medium`, the review reports only the findings it’s most confident in, so you see fewer false positives; `high` through `max` cast a wider net and may include findings the review is less sure about. Without an effort argument, the review uses the session’s current effort. After the effort level and flags, Claude Code reads the rest of the line in one of two ways:
+Pass an [effort level](</docs/en/model-config#adjust-effort-level>) to trade coverage for confidence. At `low` and `medium`, the review reports only the findings it’s most confident in, so you see fewer false positives; `high` through `max` broaden coverage and may include findings the review is less sure about. When you don’t type a level, the review reuses the last one you typed, even in an earlier session, and Claude Code shows a notice such as `Reusing high effort, the level you typed last time`. Type a level, like `/code-review high`, to change what later runs reuse; a level you pass in a non-interactive `-p` run doesn’t update it. If you’ve never typed a level, the review uses the session’s current effort. Before v2.1.223, a `/code-review` without a level always used the session’s current effort. After the effort level and flags, Claude Code reads the rest of the line in one of two ways:
 
   * **Without`ultra`**: everything left is the review target, even when it starts with another command name. `/code-review /fix-issue 123` reviews with `/fix-issue 123` as target text instead of loading `/fix-issue` as a second [stacked skill](</docs/en/skills#pass-arguments-to-skills>). Before v2.1.218, a command stacked after `/code-review` expanded as its own skill.
   * **With`ultra`**: Claude Code reads a single word as a base branch or PR number, and turns longer text that doesn’t name a branch or PR into [a note attached to the review](</docs/en/ultrareview#pass-a-request-in-plain-words>). `/code-review ultra check my auth changes` reviews your current branch, and Claude relates the findings to your note.

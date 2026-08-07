@@ -228,7 +228,7 @@ Field| Type| Description
 ---|---|---
 `displayName`| string| Human-readable name shown in UI surfaces. Falls back to `name` when omitted. May contain spaces and any casing. Not used for namespacing or lookup. Requires Claude Code v2.1.143 or later.
 `description`| string| Brief plugin description
-`version`| string| Plugin version. If set (here or in `plugin.json`), the plugin is pinned to this string and users only receive updates when it changes. Omit to fall back to the git commit SHA. See Version resolution.
+`version`| string| Plugin version. If set (here or in `plugin.json`), the plugin is pinned to this string and users only receive updates when it changes. If set in neither place, the version comes from the next source in Version resolution.
 `author`| object| Plugin author information (`name` required; `email` and `url` optional)
 `homepage`| string| Plugin homepage or documentation URL
 `repository`| string| Source code repository URL
@@ -267,11 +267,12 @@ Relative path| `string` (e.g. `"./my-plugin"`)| none| Local directory within the
 `url`| object| `url`, `ref?`, `sha?`| Git URL source
 `git-subdir`| object| `url`, `path`, `ref?`, `sha?`| Subdirectory within a git repo. Clones sparsely to minimize bandwidth for monorepos
 `npm`| object| `package`, `version?`, `registry?`| Installed via `npm install`
+`archive`| object| `url`, `sha256?`| Zip archive downloaded over HTTPS. Works without git or npm on the user’s machine. Requires Claude Code v2.1.224 or later
 
 **Marketplace sources vs plugin sources** : These are different concepts that control different things.
 
-  * **Marketplace source** : where to fetch the `marketplace.json` catalog itself. Set when users run `/plugin marketplace add` or in `extraKnownMarketplaces` settings. Supports `ref` (branch/tag) but not `sha`.
-  * **Plugin source** : where to fetch an individual plugin listed in the marketplace. Set in the `source` field of each plugin entry inside `marketplace.json`. Supports both `ref` (branch/tag) and `sha` (exact commit).
+  * **Marketplace source** : where to fetch the `marketplace.json` catalog itself. Set when users run `/plugin marketplace add` or in `extraKnownMarketplaces` settings. Git-based marketplace sources support `ref` (branch/tag) but not `sha`.
+  * **Plugin source** : where to fetch an individual plugin listed in the marketplace. Set in the `source` field of each plugin entry inside `marketplace.json`. Git-based plugin sources support both `ref` (branch/tag) and `sha` (exact commit).
 
 For example, a marketplace hosted at `acme-corp/plugin-catalog` (marketplace source) can list a plugin fetched from `acme-corp/code-formatter` (plugin source). The marketplace source and plugin source point to different repositories and are pinned independently.
 
@@ -280,7 +281,7 @@ The git-based source types below are `github`, `url`, and `git-subdir`. When bot
 If you distribute this marketplace through [Organization settings > Plugins](<https://claude.ai/admin-settings/plugins>) on a Team or Enterprise plan, different source rules apply:
 
   * The marketplace repository must be private or internal. Organization sync reads it through the Claude GitHub App or your organization’s GitHub Enterprise App.
-  * Plugin sources of type `github`, `url`, and `git-subdir` are supported. `npm` sources are not.
+  * Plugin sources of type `github`, `url`, and `git-subdir` are supported. `npm` and `archive` sources are not.
   * A plugin source can be private in two cases: a github.com source that shares the marketplace repository’s owner, or a source on your organization’s GitHub Enterprise host with the GHE App installed on the repository. Organization sync fetches every other source without credentials, so github.com repositories under a different owner and repositories on other hosts, such as GitLab or Bitbucket, must be public.
 
 To include private plugins, place the plugin folders inside the marketplace repository and reference them with a relative path. Organization sync packages each plugin during distribution, so users never need access to a separate source repository. See [Manage plugins for your organization](<https://support.claude.com/en/articles/13837433>) for the admin workflow.
@@ -300,7 +301,7 @@ For plugins in the same repository, use a path starting with `./`:
 
 Paths resolve relative to the marketplace root, which is the directory containing `.claude-plugin/`. In the example above, `./plugins/my-plugin` points to `<repo>/plugins/my-plugin`, even though `marketplace.json` lives at `<repo>/.claude-plugin/marketplace.json`. Don’t use `../` to reference paths outside the marketplace root.
 
-Relative paths resolve against a local copy of the marketplace, so they work when users add your marketplace from a git source or a local directory. If users add your marketplace via a direct URL to the `marketplace.json` file, relative paths won’t resolve, because only that file is downloaded. For URL-based distribution, use GitHub, npm, or git URL sources instead. See Troubleshooting for details.
+Claude Code resolves relative paths against a local copy of the marketplace, so they work when users add your marketplace from a git source or a local directory. If users add your marketplace via a direct URL to the `marketplace.json` file, relative paths won’t resolve, because Claude Code downloads only that file. For URL-based distribution, use GitHub, npm, git URL, or archive sources instead. See Troubleshooting for details.
 
 ###
 
@@ -454,6 +455,50 @@ Field| Type| Description
 
 ​
 
+Zip archives
+
+Use `archive` to distribute a plugin as a zip file that Claude Code downloads over HTTPS, so installs work without git or npm on the user’s machine. Host the file on any static file server or artifact repository, such as an S3 bucket, an Artifactory generic repository, or nginx. Requires Claude Code v2.1.224 or later. On versions v2.1.120 through v2.1.223, installing the plugin fails with `This plugin uses a source type your Claude Code version does not support. Update Claude Code and try again.`; on older versions, a marketplace containing an `archive` entry fails to load entirely. This entry installs the plugin from a zip file on an artifact server:
+
+    {
+      "name": "my-plugin",
+      "source": {
+        "source": "archive",
+        "url": "https://artifacts.example.com/claude-plugins/my-plugin-2.1.0.zip"
+      }
+    }
+
+When you build the zip, you can zip the plugin’s contents directly or zip the plugin folder itself. Claude Code looks for `.claude-plugin/` at the top of the archive, then inside a single top-level folder, so both layouts install:
+
+    my-plugin.zip          my-plugin.zip
+    ├── .claude-plugin/    └── my-plugin/
+    │   └── plugin.json        ├── .claude-plugin/
+    └── commands/              │   └── plugin.json
+                               └── commands/
+
+Claude Code doesn’t look deeper than one folder, so a plugin nested further down fails to install. Claude Code refuses archives larger than 256 MiB. To pin the exact file, add a `sha256` field with the archive’s digest:
+
+    {
+      "name": "my-plugin",
+      "source": {
+        "source": "archive",
+        "url": "https://artifacts.example.com/claude-plugins/my-plugin-2.1.0.zip",
+        "sha256": "6bfa50e3d2e00c052b46abe51fff89346ac803e45771f76dcf6df1ab74cca5e1"
+      }
+    }
+
+If the downloaded file doesn’t match the pin, Claude Code refuses the install and reports [`Plugin archive integrity check failed`](</docs/en/errors#plugin-archive-integrity-check-failed>). Archive sources accept these fields:
+
+Field| Type| Description
+---|---|---
+`url`| string| Required. HTTPS URL of the zip archive. Claude Code rejects `http://` URLs, along with loopback, link-local, and cloud-metadata hosts. Every redirect hop must satisfy the same rules, or Claude Code refuses the download
+`sha256`| string| Optional. SHA-256 digest of the archive as 64 hex characters, uppercase or lowercase. Claude Code verifies every download against it and refuses the install on a mismatch
+
+The `sha256` digest also serves as the plugin’s version when neither `plugin.json` nor the marketplace entry declares one. See [Version management](</docs/en/plugins-reference#version-management>). If you declare a `version`, that version string is the update signal, so after changing the zip and its digest, bump the version too, or users keep the cached copy. If you register the marketplace from a URL source with `headers`, such as an [`extraKnownMarketplaces` entry](</docs/en/settings#extraknownmarketplaces>), Claude Code sends those headers with archive downloads whose URL shares the marketplace URL’s origin: the same scheme, host, and port. Claude Code downloads an archive on a different origin without the headers, and drops them when a redirect leaves the origin, so it never sends a marketplace credential to a third-party host.
+
+###
+
+​
+
 Advanced plugin entries
 
 This example shows a plugin entry using many of the optional fields, including custom paths for commands, agents, hooks, and MCP servers:
@@ -506,7 +551,7 @@ This example shows a plugin entry using many of the optional fields, including c
 Key things to notice:
 
   * **`commands` and `agents`**: you can specify multiple directories or individual files. Paths are relative to the plugin root.
-  * **`${CLAUDE_PLUGIN_ROOT}`** : use this variable in hook commands and MCP server configs to reference files within the plugin’s installation directory. This is necessary because plugins are copied to a cache location when installed.
+  * **`${CLAUDE_PLUGIN_ROOT}`** : use this variable in hook commands and MCP server configs to reference files within the plugin’s installation directory.
     * See the [substitution table](</docs/en/plugins-reference#environment-variables>) for which config fields substitute it per server type
     * For dependencies or state that should survive plugin updates, use [`${CLAUDE_PLUGIN_DATA}`](</docs/en/plugins-reference#persistent-data-directory>) instead
   * **`strict: false`** : since this is set to false, the plugin doesn’t need its own `plugin.json`. The marketplace entry defines everything. See Strict mode below.
@@ -612,19 +657,6 @@ Bitbucket| `https://x-token-auth:YOUR_TOKEN@bitbucket.org/acme-corp/plugins`
 The rewrite stores the token in plaintext in your gitconfig, so use a token with read-only access to the marketplace repository.
 
 In CI/CD environments, configure a git credential helper before installing plugins from private repositories. On GitHub Actions, export a token with read access to the marketplace repository as `GH_TOKEN`, then run `gh auth setup-git`. The default workflow token can only access the workflow’s own repository, so a private marketplace in another repository needs a personal access token or app token. A global URL rewrite configured in the pipeline also authenticates the background pull directly.
-
-###
-
-​
-
-Test locally before distribution
-
-Test your marketplace locally before sharing:
-
-    /plugin marketplace add ./my-marketplace
-    /plugin install quality-review-plugin@my-plugins
-
-For the full range of add commands (GitHub, Git URLs, local paths, remote URLs), see [Add marketplaces](</docs/en/discover-plugins#add-marketplaces>).
 
 ###
 
@@ -798,10 +830,11 @@ Plugin versions determine cache paths and update detection: if the resolved vers
   1. `version` in the plugin’s `plugin.json`
   2. `version` in the plugin’s marketplace entry
   3. The git commit SHA of the plugin’s source
+  4. For `archive` sources, the `sha256` pin in the marketplace entry, or the digest of the downloaded file when you set no pin
 
-For the git-based source types `github`, `url`, `git-subdir`, and relative paths inside a git-hosted marketplace, you can omit `version` entirely and every new commit is treated as a new version. This is the simplest setup for internal or actively-developed plugins.
+For the git-based source types `github`, `url`, `git-subdir`, and relative paths inside a git-hosted marketplace, you can omit `version` entirely. This is the simplest setup for internal or actively-developed plugins.
 
-Setting `version` pins the plugin. If `plugin.json` declares `"version": "1.0.0"`, pushing new commits without changing that string does nothing for existing users, because Claude Code sees the same version and keeps the cached copy. Bump the field on every release, or omit it to use the commit SHA.Avoid setting `version` in both `plugin.json` and the marketplace entry. Claude Code always uses the `plugin.json` value without warning, so a stale manifest version can mask a version you set in `marketplace.json`.
+Setting `version` pins the plugin. If you declare `"version": "1.0.0"` in `plugin.json` and push new commits without changing that string, existing users keep the cached copy, because Claude Code sees the same version. Bump the field on every release, or omit it to fall back to the resolved version above.Avoid setting `version` in both `plugin.json` and the marketplace entry. Claude Code always uses the `plugin.json` value without warning, so a stale manifest version can mask a version you set in `marketplace.json`.
 
 ####
 
@@ -1163,7 +1196,7 @@ Plugins with relative paths fail in URL-based marketplaces
 
 **Symptoms** : Added a marketplace via URL (such as `https://example.com/marketplace.json`), but plugins with relative path sources like `"./plugins/my-plugin"` fail to install with “path not found” errors. **Cause** : URL-based marketplaces only download the `marketplace.json` file itself. They don’t download plugin files from the server. Relative paths in the marketplace entry reference files on the remote server that were not downloaded. **Solutions** :
 
-  * **Use external sources** : Change plugin entries to use GitHub, npm, or git URL sources instead of relative paths:
+  * **Use external sources** : change plugin entries to use GitHub, npm, git URL, or archive sources instead of relative paths:
 
         { "name": "my-plugin", "source": { "source": "github", "repo": "owner/repo" } }
 

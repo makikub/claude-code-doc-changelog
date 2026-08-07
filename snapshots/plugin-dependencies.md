@@ -1,4 +1,4 @@
-A plugin can depend on other plugins by listing them in `plugin.json` or in its marketplace entry. By default, a dependency tracks the latest available version, so an upstream release can change the dependency under your plugin without warning. Version constraints let you hold a dependency at a tested version range until you choose to move. When you install a plugin that declares dependencies, Claude Code resolves and installs them automatically and lists which dependencies were added at the end of the install output. If a dependency later goes missing, `/reload-plugins` and the background plugin auto-update reinstall it, provided its marketplace is already in your configured marketplaces. Re-running `claude plugin install` on the dependent plugin, or adding a marketplace with `claude plugin marketplace add`, also resolves any outstanding missing dependencies. Dependencies from a marketplace you have not added are left unresolved. This guide is for plugin authors who declare dependencies in `plugin.json` and for marketplace maintainers who tag releases. To install plugins that have dependencies, see [Discover and install plugins](</docs/en/discover-plugins>). For the full manifest schema, see the [Plugins reference](</docs/en/plugins-reference>).
+A plugin can depend on other plugins by listing them in `plugin.json` or in its marketplace entry. By default, a dependency tracks the latest available version, so an upstream release can change the dependency under your plugin without warning. Version constraints let you hold a dependency at a tested version range until you choose to move. When you install a plugin that declares dependencies, Claude Code resolves and installs them automatically. If a dependency later goes missing, `/reload-plugins` and the background plugin auto-update reinstall it, provided its marketplace is already in your configured marketplaces. Re-running `claude plugin install` on the dependent plugin, or adding a marketplace with `claude plugin marketplace add`, also resolves any outstanding missing dependencies. Dependencies from a marketplace you have not added are left unresolved. This guide is for plugin authors who declare dependencies in `plugin.json` and for marketplace maintainers who tag releases. To install plugins that have dependencies, see [Discover and install plugins](</docs/en/discover-plugins>). For the full manifest schema, see the [Plugins reference](</docs/en/plugins-reference>).
 
 ##
 
@@ -35,7 +35,7 @@ Field| Type| Description
 `version`| string| A [semver range](<https://github.com/npm/node-semver#ranges>) such as `~2.1.0`, `^2.0`, `>=1.4`, or `=2.1.0`. The dependency is fetched at the highest tagged version that satisfies this range.
 `marketplace`| string| A different marketplace to resolve `name` in. Cross-marketplace dependencies are blocked unless the target marketplace is listed in `allowCrossMarketplaceDependenciesOn` in the root marketplace’s `marketplace.json`.
 
-The `version` field accepts any expression supported by Node’s `semver` package, including caret, tilde, hyphen, and comparator ranges. Pre-release versions such as `2.0.0-beta.1` are excluded unless your range opts in with a pre-release suffix like `^2.0.0-0`.
+Pre-release versions such as `2.0.0-beta.1` are excluded unless your range opts in with a pre-release suffix like `^2.0.0-0`.
 
 ##
 
@@ -163,7 +163,7 @@ Copy the chained command from the error to disable the full set in one step.
 
 Remove orphaned auto-installed dependencies
 
-Auto-installed dependencies stay on disk after the plugins that installed them are uninstalled, in case you reinstall a dependent plugin or want to keep using the dependency directly. To clean them up, run `claude plugin prune` to list the auto-installed dependencies that no longer have any installed plugin requiring them and remove them after a confirmation prompt. This requires Claude Code v2.1.121 or later.
+Auto-installed dependencies stay on disk after the plugins that installed them are uninstalled, in case you reinstall a dependent plugin or want to keep using the dependency directly. To clean them up, run `claude plugin prune` to list the auto-installed dependencies that no longer have any installed plugin requiring them and remove them after a confirmation prompt.
 
     claude plugin prune
 
@@ -173,7 +173,7 @@ If nothing qualifies for removal, the command prints `Nothing to prune` with the
   * `--dry-run` lists what would be removed without changing anything.
   * `-y` skips the confirmation prompt. When stdin or stdout isn’t a terminal, prune lists the orphans and exits without removing them unless you pass `-y`.
 
-To prune as part of an uninstall, pass `--prune` to `claude plugin uninstall`. After removing the named plugin, Claude Code scans for and removes any auto-installed dependencies that are now orphaned. Plugins you installed yourself are never pruned, only those installed automatically through another plugin’s `dependencies` array. The same confirmation behavior applies: pass `-y` to skip the prompt. When stdin or stdout isn’t a terminal, the uninstall still completes, but the prune step lists the orphans and removes nothing unless you pass `-y`. For example, to uninstall `deploy-kit` and clean up the dependencies it leaves behind:
+To prune as part of an uninstall, pass `--prune` to `claude plugin uninstall`. After removing the named plugin, Claude Code scans for and removes any auto-installed dependencies that are now orphaned. Plugins you installed yourself are never pruned, only those installed automatically through another plugin’s `dependencies` array. The same confirmation behavior applies. When stdin or stdout isn’t a terminal, the uninstall still completes, but the prune step lists the orphans and removes nothing unless you pass `-y`. For example, to uninstall `deploy-kit` and clean up the dependencies it leaves behind:
 
     claude plugin uninstall deploy-kit --prune
 

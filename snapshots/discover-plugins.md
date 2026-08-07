@@ -20,8 +20,6 @@ Install individual plugins
 
 Browse the catalog and install the plugins you want.
 
-Think of it like adding an app store: adding the store gives you access to browse its collection, but you still choose which apps to download individually.
-
 ##
 
 ​
@@ -180,9 +178,9 @@ Install a plugin
 
 Select a plugin to view its details. The details pane shows what the plugin contains and what it costs:
 
-  * A **Context cost** estimate so you can see how many tokens the plugin will add to your [context window](</docs/en/features-overview#understand-context-costs>) every turn (Claude Code v2.1.143 and later)
-  * The plugin’s **Last updated** date (v2.1.144 and later)
-  * A **Will install** section listing the plugin’s commands, agents, skills, hooks, and MCP and LSP servers, so you can review exactly what it adds before installing (v2.1.145 and later)
+  * A **Context cost** estimate so you can see how many tokens the plugin will add to your [context window](</docs/en/features-overview#understand-context-costs>) every turn
+  * The plugin’s **Last updated** date
+  * A **Will install** section listing the plugin’s commands, agents, skills, hooks, and MCP and LSP servers, so you can review exactly what it adds before installing
 
 Not every plugin provides the data behind these fields. For plugins from local or custom marketplaces, you may not see the **Context cost** and **Last updated** rows, and the **Will install** section may show **Components will be discovered at installation** instead.Choose an installation scope:
 
@@ -205,8 +203,6 @@ Check the install summary: if it reports `Run /reload-plugins to activate.`, run
     /commit-commands:commit
 
 This stages your changes, generates a commit message, and creates the commit.Each plugin works differently. Check the plugin’s details in the **Discover** tab to see the commands and skills it provides, or visit its homepage for usage guidance.
-
-The rest of this guide covers all the ways you can add marketplaces, install plugins, and manage your configuration.
 
 ##
 
@@ -320,12 +316,12 @@ Run `/plugin` and go to the **Installed** tab to view, enable, disable, or unins
   * type to filter by plugin name or description
   * press Enter to open a plugin’s detail view and enable, disable, or uninstall it
 
-Uninstalling a plugin that a project’s `.claude/settings.json` enables asks which scope you mean: disable it for you alone, which writes an override to your `.claude/settings.local.json` and leaves the plugin installed for the project, or uninstall it for everyone, which removes it from the shared `.claude/settings.json`. Requires Claude Code v2.1.203 or later. Before v2.1.203, the dialog offered only the local disable. The detail view shows the components the plugin contributes: commands, skills, agents, hooks, MCP servers, and LSP servers. The same inventory is available from the command line with `claude plugin details`. The **Installed** tab also collects marketplace plugins you installed yourself but haven’t used in at least two weeks, over a span of at least 10 sessions, under a **Not used recently** header. The detail view shows a **Last used** line for each plugin. Use these to find plugins that still add startup and context cost even though you no longer use them, then disable or uninstall them. Requires Claude Code v2.1.187 or later. Two kinds of plugins are never listed as unused:
+When you uninstall a plugin that a project’s `.claude/settings.json` enables, Claude Code asks which scope you mean: disable it for you alone, which writes an override to your `.claude/settings.local.json` and leaves the plugin installed for the project, or uninstall it for everyone, which removes it from the shared `.claude/settings.json`. The detail view shows the components the plugin contributes: commands, skills, agents, hooks, MCP servers, and LSP servers. The same inventory is available from the command line with `claude plugin details`. Claude Code also lists marketplace plugins you installed yourself but haven’t used in at least two weeks, over a span of at least 10 sessions, under a **Not used recently** header in the **Installed** tab. The detail view shows a **Last used** line for each plugin. Use these to find plugins that still add startup and context cost even though you no longer use them, then disable or uninstall them. Two kinds of plugins are never listed as unused:
 
   * plugins that your organization manages or that you load with `--plugin-dir`
   * plugins that contribute a theme, output style, monitor, or workflow, since those deliver value without an invocation to track
 
-The **Not used recently** header and the **Last used** line are both hidden when your organization restricts marketplaces with [`strictKnownMarketplaces`](</docs/en/settings#strictknownmarketplaces>). A plugin’s [language server](</docs/en/plugins#add-lsp-servers-to-your-plugin>) counts as used when it delivers diagnostics or answers a code navigation request, so an LSP plugin whose server is active in your sessions isn’t listed as unused. Before v2.1.203, language server activity couldn’t be counted as use, so plugins that contribute an LSP server were exempt from the group entirely, the same way theme and output style plugins still are. The first session on a version that counts language server activity also resets the usage record of each LSP plugin that hadn’t recorded any use yet, so Claude Code doesn’t judge a plugin you installed earlier as unused based on data recorded before its server activity was tracked. Before v2.1.206, that first session could list an actively used LSP plugin under **Not used recently** and suggest reviewing it. When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands:
+The **Not used recently** header and the **Last used** line are both hidden when your organization restricts marketplaces with [`strictKnownMarketplaces`](</docs/en/settings#strictknownmarketplaces>). A plugin’s [language server](</docs/en/plugins#add-lsp-servers-to-your-plugin>) counts as used when it delivers diagnostics or answers a code navigation request, so an LSP plugin whose server is active in your sessions isn’t listed as unused. Before v2.1.203, language server activity couldn’t be counted as use, so plugins that contribute an LSP server were exempt from the group entirely, the same way theme and output style plugins still are. The first session on a version that counts language server activity also resets the usage record of each LSP plugin that hadn’t recorded any use yet, so Claude Code doesn’t judge a plugin you installed earlier as unused based on data recorded before its server activity was tracked. When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands:
 
   * When you run `/plugin disable`, `/plugin enable`, or `/plugin uninstall`, Claude Code opens the plugin panel to apply the change and leaves it open. Press **Esc** to close the panel before typing another command.
   * For scripting, use the `claude plugin` shell commands instead, which don’t open the panel.
@@ -480,12 +476,7 @@ If you see “unknown command” or the `/plugin` command doesn’t appear:
 
 Common issues
 
-  * **Marketplace not loading** : verify the URL is accessible and that `.claude-plugin/marketplace.json` exists at the path
-  * **Plugin installation failures** : check that plugin source URLs are accessible and that repositories are public, or that you have access to them
-  * **Files not found after installation** : plugins are copied to a cache, so paths referencing files outside the plugin directory won’t work
-  * **Plugin skills not appearing** : clear the cache with `rm -rf ~/.claude/plugins/cache`, restart Claude Code, and reinstall the plugin.
-
-For detailed troubleshooting with solutions, see [Troubleshooting](</docs/en/plugin-marketplaces#troubleshooting>) in the marketplace guide. For debugging tools, see [Debugging and development tools](</docs/en/plugins-reference#debugging-and-development-tools>).
+If plugin skills don’t appear, clear the cache with `rm -rf ~/.claude/plugins/cache`, restart Claude Code, and reinstall the plugin. For detailed troubleshooting with solutions, see [Troubleshooting](</docs/en/plugin-marketplaces#troubleshooting>) in the marketplace guide. For debugging tools, see [Debugging and development tools](</docs/en/plugins-reference#debugging-and-development-tools>).
 
 ###
 

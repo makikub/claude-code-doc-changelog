@@ -158,7 +158,7 @@ Service| Claude API| Google Cloud’s Agent Platform API| Amazon Bedrock API| Mi
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.| Default on.
 `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) to disable.
 
-All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)). As of v2.1.126, when a host platform sets `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`, metrics default to on for Google Cloud’s Agent Platform, Amazon Bedrock, and Microsoft Foundry, and follow the standard `DISABLE_TELEMETRY` opt-out. Error reporting and `/feedback` reports remain off by default on those providers.
+All environment variables can be checked into `settings.json` (see [settings reference](</docs/en/settings>)). When a host platform sets `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`, metrics default to on for Google Cloud’s Agent Platform, Amazon Bedrock, and Microsoft Foundry, and follow the standard `DISABLE_TELEMETRY` opt-out. Error reporting and `/feedback` reports remain off by default on those providers.
 
 ###
 

@@ -2367,7 +2367,7 @@ Field| Type| Description
 `tool_input`| `dict[str, Any]`| Input parameters that were used
 `tool_use_id`| `str`| Unique identifier for this tool use
 `error`| `str`| Error message from the failed execution
-`is_interrupt`| `bool` (optional)| Whether the failure was caused by an interrupt
+`is_interrupt`| `bool` (optional)| True when the failure reached Claude Code as an abort rather than as an error the tool reported. Cancelling a running tool with `interrupt()` does not fire this hook; the tool result carries the interruption message instead
 `agent_id`| `str` (optional)| Subagent identifier, present when the hook fires inside a subagent
 `agent_type`| `str` (optional)| Subagent type, present when the hook fires inside a subagent
 
@@ -2838,10 +2838,11 @@ Bash
 **Output:**
 
     {
-        "output": str,  # Combined stdout and stderr output
-        "exitCode": int,  # Exit code of the command
-        "killed": bool | None,  # Whether command was killed due to timeout
-        "shellId": str | None,  # Shell ID for background processes
+        "stdout": str,  # The command's output; stdout and stderr arrive merged into this one interleaved stream
+        "stderr": str,  # Notices the tool itself adds, not the command's stderr
+        "interrupted": bool,  # Whether the command was interrupted
+        "isImage": bool | None,  # Whether stdout contains image data
+        "backgroundTaskId": str | None,  # ID of the background task if command is running in background
     }
 
 ###
@@ -3216,7 +3217,7 @@ TaskOutput
 
 **Tool name:** `TaskOutput`. The previous name `BashOutput` is still accepted as an alias.
 
-`TaskOutput` is deprecated; prefer `Read` on the task’s output file path. Deprecated since Claude Code v2.1.83. The schemas below remain valid for hooks and permission handlers that encounter the tool.
+`TaskOutput` is deprecated; prefer `Read` on the task’s output file path. The schemas below remain valid for hooks and permission handlers that encounter the tool.
 
 **Input:**
 
