@@ -185,12 +185,19 @@ Set these environment variables to specific Amazon Bedrock model IDs. Without `A
     export ANTHROPIC_DEFAULT_SONNET_MODEL='us.anthropic.claude-sonnet-4-6'
     export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
 
-These variables use cross-region inference profile IDs (with the `us.` prefix). If you use a different region prefix or application inference profiles, adjust accordingly. In AWS GovCloud regions, use the `us-gov.` prefix. For current and legacy model IDs, see [Models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>). See [Model configuration](</docs/en/model-config#pin-models-for-third-party-deployments>) for the full list of environment variables. Claude Code uses these default models when no pinning variables are set:
+These IDs use the `us.` cross-region inference profile prefix. If you use a different region prefix or application inference profiles, adjust accordingly. In AWS GovCloud regions, use the `us-gov.` prefix. To keep the built-in default models and change only their preferred prefix, set `ANTHROPIC_BEDROCK_REGION_PREFIX` instead of pinning. The difference shows in what the `opus` alias resolves to:
 
-Model type| Default value
+You set| The `opus` alias resolves to
 ---|---
-Primary model| `us.anthropic.claude-opus-5`
-Small/fast model| `us.anthropic.claude-sonnet-4-5-20250929-v1:0`
+`ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'`| `us.anthropic.claude-opus-4-8`, the exact ID you pinned
+`ANTHROPIC_BEDROCK_REGION_PREFIX=eu`| `eu.anthropic.claude-opus-5`, the built-in default with your preferred prefix
+
+For current and legacy model IDs, see [Models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>). For the full list of pinning environment variables, see [Model configuration](</docs/en/model-config#pin-models-for-third-party-deployments>). Claude Code uses these default models when no pinning variables are set:
+
+Model type| Default model
+---|---
+Primary model| Opus 5, for example `us.anthropic.claude-opus-5` in a `us-*` region
+Small/fast model| Sonnet 4.5, for example `us.anthropic.claude-sonnet-4-5-20250929-v1:0` in a `us-*` region
 
 Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Amazon Bedrock, Claude Code uses the default Sonnet model for background tasks because Haiku may not be enabled in every account or region. Two selections change which model carries them:
 
@@ -246,6 +253,41 @@ Startup model checks
 When Claude Code starts with Amazon Bedrock configured, it verifies that the models it intends to use are accessible in your account. If you have pinned a model version that is older than the current Claude Code default, and your account can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](</docs/en/settings>) and restarts Claude Code. Declining is remembered until the next default version change. Pins that point to an application inference profile ARN are skipped, since those are managed by your administrator. If you have not pinned a model and the current default is unavailable in your account, Claude Code falls back for the current session and shows a notice. It tries earlier versions of the default model first and, when the default is an Opus model and no Opus version is available, falls back to the default Sonnet model. The fallback is not persisted. Enable the newer model in your Amazon Bedrock account or pin a version to make the choice permanent. When you start the session on a specific Sonnet or Opus version, with `--model`, `ANTHROPIC_MODEL`, or the [`model` setting](</docs/en/settings>), that version acts as the session’s pinned default for the matching `sonnet` or `opus` alias. Claude Code skips the availability check for the built-in default your model replaces and starts on the model you configured, with no fallback notice. Model aliases such as `opus` don’t act as pins, and neither does a model ID Claude Code doesn’t recognize, such as an application inference profile ARN.
 
 Before v2.1.211, Claude Code checked the default model’s availability even when a session model was explicitly configured, and could show a fallback notice for a default the session didn’t use.
+
+##
+
+​
+
+Cross-region inference profile prefixes
+
+On the Amazon Bedrock [Invoke API](<https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html>), Claude Code resolves its built-in default models to [cross-region inference profile](<https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html>) IDs; to route model versions through your own inference profiles instead, see Map each model version to an inference profile. This table shows the prefix Claude Code prefers for each resolved AWS region:
+
+AWS region| Prefix
+---|---
+`us-gov-*` (AWS GovCloud)| `us-gov.`
+`us-*`| `us.`
+`eu-*`| `eu.`
+`ap-*`| `apac.`
+All other regions| `global.`
+
+Set `ANTHROPIC_BEDROCK_REGION_PREFIX` to choose the prefix Claude Code tries first; when Claude Code can check profile availability and finds no matching profile for a model, it falls back as described in the resolution order below. Valid values are `us`, `eu`, `apac`, `jp`, `au`, and `global`. For example, set it to `global` when your account has `global.` profiles enabled but Claude Code would derive a geography-specific one from your AWS region. Requires Claude Code v2.1.224 or later. This example routes the default models through `global.` profiles:
+
+    export ANTHROPIC_BEDROCK_REGION_PREFIX=global
+    # In a us-* region, the primary model now resolves to
+    # global.anthropic.claude-opus-5 instead of us.anthropic.claude-opus-5
+
+The preferred prefix is a preference, not a guarantee, whether it comes from your region or from the variable. How Claude Code applies it depends on whether it can check profile availability in your account:
+
+  * When Claude Code can list the inference profiles in your account, it resolves each model in this order:
+    1. The profile with your preferred prefix.
+    2. Any matching profile, for a model that has no profile with that prefix.
+    3. The built-in model ID with your preferred prefix, for a model that has no matching profile at all. Claude Code applies this ID without checking availability at this step; the startup model checks still cover the session’s default models.
+  * When profile discovery is unavailable, Claude Code applies the prefix without checking availability. If your account doesn’t have inference profiles with that prefix enabled, requests fail with a 400 error.
+
+Claude Code doesn’t rewrite Amazon Bedrock inference profile IDs or ARNs you configure yourself, or `modelOverrides` values; Anthropic-format model IDs resolve through the same mapping as the `/model` picker. Claude Code also ignores the variable in two cases:
+
+  * In AWS GovCloud regions, Claude Code always uses `us-gov.`, the only prefix that routes within the GovCloud partition.
+  * When you set a value that isn’t one of the valid values, Claude Code falls back to the region-derived preferred prefix.
 
 ##
 

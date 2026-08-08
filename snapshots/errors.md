@@ -54,6 +54,7 @@ Message| Section
 `SSL certificate verification failed`| Network
 `SSL certificate error (...)` during login or startup| Network
 `403` with `x-deny-reason: host_not_allowed` in a cloud or routine session| Network
+`403` with `This GraphQL query is not enabled for this session` in a cloud session| [GitHub proxy](</docs/en/cloud-environments#github-proxy>)
 `Couldn't reconnect to your Remote Control session`| Network
 `Prompt is too long`| Request errors
 `Context exceeds the ...-token limit by ... tokens` in `/context` output| Request errors
@@ -105,6 +106,7 @@ Message| Section
 `CLAUDE_CODE_PROCESS_WRAPPER: launcher ...`| Background session errors
 `EUNKNOWN: unknown error, uv_spawn`| Background session errors
 `Claude Code process exited with code N`| Wrapper and IDE errors
+`Could not locate the Claude CLI on PATH`| Wrapper and IDE errors
 `Restored the code, but skipped N files`| Rewind warnings
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
 `... is not matched by file permission checks`| Configuration warnings
@@ -1197,7 +1199,7 @@ The connection to the download server closed while `claude install`, `claude upd
 
     The connection dropped while downloading the update (attempt 3/3: aborted). Check your network — proxies sometimes cut off large downloads.
 
-The text in parentheses names which attempt failed and the underlying network error. `claude update` precedes the message with `Error: Failed to install native update` on stderr. A download that stays connected but doesn’t finish within 10 minutes fails with `Download timed out: exceeded the total deadline` instead. Claude Code doesn’t retry a timed-out download, because a connection too slow to finish inside the deadline won’t finish on an immediate retry either. The steps below apply to both messages. Before v2.1.205, the same 10-minute deadline was reported as the HTTP client’s generic `timeout of 600000ms exceeded`. The usual cause is a proxy or gateway that closes a long transfer before it finishes. The Claude Code binary is a large download, so a proxy connection limit that never affects normal API traffic can still interrupt it. **What to do:**
+The text in parentheses names which attempt failed and the underlying network error. `claude update` precedes the message with `Error: Failed to install native update` on stderr. A download that stays connected but doesn’t finish within 10 minutes fails with `Download timed out: exceeded the total deadline` instead. Claude Code doesn’t retry a timed-out download, because a connection too slow to finish inside the deadline won’t finish on an immediate retry either. The steps below apply to both messages. The usual cause is a proxy or gateway that closes a long transfer before it finishes. The Claude Code binary is a large download, so a proxy connection limit that never affects normal API traffic can still interrupt it. **What to do:**
 
   * Run `claude update` again. On an otherwise healthy network, the download usually succeeds on the next run. For the timed-out message, run it again from a faster or less throttled network.
   * If your network requires a proxy, set `HTTPS_PROXY` before running the installer or `claude update`. See [Check network connectivity](</docs/en/troubleshoot-install#check-network-connectivity>).
@@ -1662,6 +1664,22 @@ The underlying `claude` process exited with a non-zero code. The exit code alone
   * In VS Code, follow the **View output logs** link shown with the error to see the underlying failure
   * Run `claude` in a terminal in the same project. The failure usually reproduces there with its real error message, which you can then look up on this page.
   * Run `claude doctor` in a terminal to check the installation and configuration
+
+###
+
+​
+
+Could not locate the Claude CLI on PATH
+
+The [VS Code extension](</docs/en/vs-code>) shows this error on Windows when you open Claude Code in the integrated terminal, the terminal’s shell is PowerShell, and the extension can’t find the installed `claude` executable on PATH. The extension refuses to launch Claude Code until it finds the installed `claude` on PATH.
+
+    Failed to run Claude Code: Error: Could not locate the Claude CLI on PATH. Launching by name in a PowerShell terminal would run a 'claude' from the open folder instead of the installed CLI, so the launch was blocked. Make sure the Claude CLI's install directory is on your system PATH (not only your PowerShell profile), then restart VS Code and try again. VS Code reads PATH when it starts, so PATH changes take effect only after a restart.
+
+**What to do:**
+
+  * Open a new PowerShell window outside VS Code and run `where.exe claude`. If it doesn’t print a path, the CLI isn’t on your PATH: add its install directory by following [Verify your PATH](</docs/en/troubleshoot-install#verify-your-path>). If it prints a path, the entry comes from your PowerShell profile or from a PATH change VS Code hasn’t picked up yet; the next two steps cover those cases.
+  * Set the PATH entry as a user or system environment variable, not in your PowerShell profile. The extension doesn’t run your profile, so a PATH edit that lives only there never reaches it.
+  * Restart VS Code after changing PATH. The extension checks the PATH that VS Code captured at startup, so a PATH change takes effect only after a restart.
 
 ##
 

@@ -68,7 +68,7 @@ my-marketplace/plugins/quality-review-plugin/.claude-plugin/plugin.json
       }
     }
 
-Setting `version` means users only receive updates when you change this field, so bump it on every release. If you omit `version` and host this marketplace in git, every commit automatically counts as a new version. See Version resolution to choose the right approach.
+Setting `version` means users only receive updates when you change this field, so bump it on every release. If you omit `version`, the version comes from the next source in [version management](</docs/en/plugins-reference#version-management>).
 
 4
 
@@ -228,7 +228,7 @@ Field| Type| Description
 ---|---|---
 `displayName`| string| Human-readable name shown in UI surfaces. Falls back to `name` when omitted. May contain spaces and any casing. Not used for namespacing or lookup. Requires Claude Code v2.1.143 or later.
 `description`| string| Brief plugin description
-`version`| string| Plugin version. If set (here or in `plugin.json`), the plugin is pinned to this string and users only receive updates when it changes. If set in neither place, the version comes from the next source in Version resolution.
+`version`| string| Plugin version. If set (here or in `plugin.json`), the plugin is pinned to this string and users only receive updates when it changes. If set in neither place, the version comes from the next source in [version management](</docs/en/plugins-reference#version-management>).
 `author`| object| Plugin author information (`name` required; `email` and `url` optional)
 `homepage`| string| Plugin homepage or documentation URL
 `repository`| string| Source code repository URL

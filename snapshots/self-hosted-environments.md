@@ -123,7 +123,7 @@ Model inference uses the Anthropic API. The control plane delivers the API endpo
 
 What stays on your infrastructure
 
-Repository checkouts, build artifacts, secrets, and any files a session creates or modifies stay on the machines you provision. The conversation itself, including prompts, responses, and tool results, goes to `api.anthropic.com` for model inference, and the session transcript is stored by Anthropic so a session can be picked up from any surface. Session orchestration, queueing, and the claude.ai interface remain Anthropic-hosted: a self-hosted environment moves session execution into your network, not the control plane.
+Repository checkouts, build artifacts, secrets, and any files a session creates or modifies stay on the machines you provision. The conversation itself, including prompts, responses, and tool results, goes to `api.anthropic.com` for model inference, and Anthropic stores the session transcript so you can resume the session from another supported surface. Session orchestration, queueing, and the claude.ai interface remain Anthropic-hosted: a self-hosted environment moves session execution into your network, not the control plane.
 
 ##
 

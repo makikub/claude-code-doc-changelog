@@ -45,8 +45,6 @@ Run `/goal` followed by the condition you want satisfied. If a goal is already a
 
 Setting a goal starts a turn immediately, with the condition itself as the directive. You don’t need to send a separate prompt. While the goal is active, a `◎ /goal active` indicator shows how long the goal has been running. A goal doesn’t change permissions. In the default permission mode, Claude still asks before tool calls that your settings don’t already allow, such as the test command above. To let goal turns run unattended, pair `/goal` with [auto mode](</docs/en/auto-mode-config>). After each turn, the evaluator returns a short reason explaining why the condition is or isn’t met. The most recent reason appears in the status view and in the transcript so you can see what Claude is working toward next.
 
-A goal keeps running until the condition is met or you run `/goal clear`. Run `/goal` with no argument to see turns and tokens spent so far.
-
 ###
 
 ​
