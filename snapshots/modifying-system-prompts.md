@@ -1,9 +1,4 @@
-System prompts define Claude’s behavior, capabilities, and response style. Start from the `claude_code` preset for CLI or IDE-like coding tools where a human watches and steers the work. Write your own prompt for agents with a different surface, identity, or permission model. This page covers:
-
-  * How system prompts work, with a decision table for choosing between the preset, the preset with `append`, and a custom prompt
-  * Customize agent behavior with CLAUDE.md files, output styles, `append`, or a custom string
-  * Compare the four approaches by persistence, scope, and what they preserve
-  * Combine approaches to layer customization methods together
+System prompts define Claude’s behavior, capabilities, and response style. Start from the `claude_code` preset for CLI or IDE-like coding tools where a human watches and steers the work. Write your own prompt for agents with a different surface, identity, or permission model.
 
 ##
 
@@ -367,7 +362,7 @@ Use cases and best practices
 
 When to use CLAUDE.md
 
-Use CLAUDE.md for instructions that should apply to every session in a project, regardless of which system prompt the session uses: coding standards, common commands, architecture context, and team conventions. CLAUDE.md is committed to your repository, so it stays in sync with the code it describes. See [When to add to CLAUDE.md](</docs/en/memory#when-to-add-to-claude-md>) for full guidance. CLAUDE.md files load when the `project` setting source is enabled, which it is for default `query()` options. If you set `settingSources` in TypeScript or `setting_sources` in Python explicitly, include `'project'` to keep loading project-level CLAUDE.md.
+Use CLAUDE.md for instructions that should apply to every session in a project, regardless of which system prompt the session uses: coding standards, common commands, architecture context, and team conventions. CLAUDE.md is committed to your repository, so it stays in sync with the code it describes. See [When to add to CLAUDE.md](</docs/en/memory#when-to-add-to-claude-md>) for full guidance.
 
 ###
 
