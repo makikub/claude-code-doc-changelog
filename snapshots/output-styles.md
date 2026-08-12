@@ -18,7 +18,10 @@ Claude Code’s **Default** output style is the existing system prompt, designed
 
 Change your output style
 
-Run `/config` and select **Output style** to pick a style from a menu. Your selection is saved to `.claude/settings.local.json` at the [local project level](</docs/en/settings>).
+Pick a style in one of these ways:
+
+  * **Terminal** : run `/config` and select **Output style** to pick a style from a menu. Claude Code saves your selection to `.claude/settings.local.json` at the [local project level](</docs/en/settings>).
+  * **Desktop app** : set the `outputStyle` field in a settings file, for example `.claude/settings.local.json`, the file the terminal menu writes. When you run `/config` there, Claude Code [opens **Settings > Claude Code**](</docs/en/desktop#what%E2%80%99s-not-available-in-desktop>) rather than a menu.
 
 The standalone `/output-style` command was deprecated in v2.1.73 and removed in v2.1.91. Use `/config` or edit the `outputStyle` setting directly.
 
@@ -48,7 +51,7 @@ Save it at one of three levels. The file name becomes the style name unless you 
   * Project: `.claude/output-styles`
   * Managed policy: `.claude/output-styles` inside the [managed settings directory](</docs/en/settings#settings-files>)
 
-Project output styles load from every `.claude/output-styles/` between the working directory and the repository root. As of v2.1.178, when more than one of these nested directories defines a style with the same name, Claude Code uses the one closest to the working directory.
+Project output styles load from every `.claude/output-styles/` between the working directory and the repository root. When more than one of these nested directories defines a style with the same name, Claude Code uses the one closest to the working directory.
 
 2
 
@@ -72,7 +75,7 @@ Decide whether to keep Claude Code’s software engineering instructions. Set `k
 
 Switch to your style
 
-Run `/config` and select your style under **Output style**. It takes effect after `/clear` or the next time you start a session.
+Run `/config` in the terminal and select your style under **Output style** , or set `outputStyle` in a settings file to the style’s name. It takes effect after `/clear` or the next time you start a session.
 
 [Plugins](</docs/en/plugins-reference>) can also ship output styles in an `output-styles/` directory.
 

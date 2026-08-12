@@ -86,19 +86,7 @@ If `claude-code-sdk` is listed in your `requirements.txt` or `pyproject.toml`, r
     # After
     from claude_agent_sdk import query, ClaudeAgentOptions
 
-**4\. Update type names:** Change `ClaudeCodeOptions` to `ClaudeAgentOptions`:
-
-    # Before
-    from claude_code_sdk import query, ClaudeCodeOptions
-
-    options = ClaudeCodeOptions(model="claude-opus-4-7")
-
-    # After
-    from claude_agent_sdk import query, ClaudeAgentOptions
-
-    options = ClaudeAgentOptions(model="claude-opus-4-7")
-
-**5\. Reviewbreaking changes** Make any code changes needed to complete the migration.
+**4\. Reviewbreaking changes** Make any code changes needed to complete the migration.
 
 ##
 
@@ -106,7 +94,7 @@ If `claude-code-sdk` is listed in your `requirements.txt` or `pyproject.toml`, r
 
 Breaking changes
 
-To improve isolation and explicit configuration, Claude Agent SDK v0.1.0 introduces breaking changes for users migrating from Claude Code SDK. Review this section carefully before migrating.
+To improve isolation and explicit configuration, Claude Agent SDK v0.1.0 introduces breaking changes for users migrating from Claude Code SDK.
 
 ###
 

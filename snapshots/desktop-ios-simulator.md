@@ -1,4 +1,4 @@
-The iOS Simulator pane is in public beta in Claude Code Desktop on macOS. It’s available on Pro, Max, Team, and Enterprise plans.
+The iOS Simulator pane is in public beta in Claude Code Desktop on macOS. It’s available on Pro, Max, Team, and Enterprise plans, except in Enterprise organizations that have a HIPAA configuration or [Zero Data Retention (ZDR)](</docs/en/zero-data-retention>) enabled.
 
 The iOS Simulator pane shows your app running in Apple’s iOS Simulator next to your conversation in Claude Code Desktop. When Claude builds, installs, launches, or checks your app in a simulator, the pane opens automatically and streams the device screen live. Use it to watch Claude run and test your app, or to tap through the app yourself while Claude keeps working. The simulator pane drives the simulator directly, so it doesn’t need [computer use](</docs/en/desktop#let-claude-use-your-computer>) and never takes over your screen or hides your other windows. From the CLI, Claude reaches the iOS Simulator through [computer use](</docs/en/computer-use#test-a-simulator-flow>) instead, which controls the simulator on your screen the same way you would with a mouse.
 
@@ -139,6 +139,7 @@ Claude may not have recognized that you wanted to run or test the app, or the si
   * State the goal explicitly, for example “run the app in the iOS Simulator and tap through the signup flow”.
   * Confirm Xcode and the iOS simulators are installed and that your Xcode version meets the requirements.
   * If your organization manages Claude Code, the simulator tools may be disabled by policy.
+  * If you’re in an Enterprise organization that has a HIPAA configuration or ZDR enabled, the simulator pane isn’t available to you.
   * The simulator pane requires Claude Desktop v1.24012.0 or later. Open **Claude → Check for Updates** , then restart the app.
 
 ###

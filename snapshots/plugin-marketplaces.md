@@ -258,7 +258,7 @@ Field| Type| Description
 
 Plugin sources
 
-Plugin sources tell Claude Code where to fetch each individual plugin listed in your marketplace. These are set in the `source` field of each plugin entry in `marketplace.json`. After Claude Code clones or downloads a plugin to the local machine, it copies the plugin into the local versioned plugin cache at `~/.claude/plugins/cache`.
+Plugin sources tell Claude Code where to fetch each individual plugin listed in your marketplace. These are set in the `source` field of each plugin entry in `marketplace.json`. After Claude Code clones or downloads a plugin to the local machine, it copies the plugin into the local versioned plugin cache at `~/.claude/plugins/cache`. Claude Code also [installs the plugin’s eligible Node.js package dependencies](</docs/en/plugins-reference#node-js-package-dependencies>) into the cached copy.
 
 Source| Type| Fields| Notes
 ---|---|---|---
@@ -728,7 +728,7 @@ Value| Behavior
 ---|---
 Undefined (default)| No restrictions. Users can add any marketplace
 Empty array `[]`| Complete lockdown. Blocks every marketplace source, including the official Anthropic marketplace
-List of sources| Users can only add marketplaces that match the allowlist exactly
+List of sources| Allowlist enforced. Users can add only marketplaces that match an entry
 
 ####
 
@@ -742,7 +742,7 @@ Disable all marketplace additions, including the official Anthropic marketplace:
       "strictKnownMarketplaces": []
     }
 
-Allow only the official Anthropic marketplace. Matching is exact, so this entry doesn’t cover `ref` or `path` variants of the same repository:
+Allow only the official Anthropic marketplace. Matching for a single-repository entry is exact, so this entry doesn’t cover `ref` or `path` variants of the same repository:
 
     {
       "strictKnownMarketplaces": [
@@ -774,6 +774,17 @@ On these machines, add the marketplace to [`extraKnownMarketplaces`](</docs/en/s
         {
           "source": "url",
           "url": "https://plugins.example.com/marketplace.json"
+        }
+      ]
+    }
+
+Allow every marketplace repository under a GitHub organization with an [owner-wildcard](</docs/en/settings#owner-wildcards>) entry. Owner wildcards require Claude Code v2.1.223 or later.
+
+    {
+      "strictKnownMarketplaces": [
+        {
+          "source": "github",
+          "repo": "acme-corp/*"
         }
       ]
     }
@@ -810,9 +821,9 @@ Use `".*"` as the `pathPattern` to allow any filesystem path while still control
 
 How restrictions work
 
-Restrictions are checked before any network or filesystem operation. The check runs on marketplace add and on plugin install, update, refresh, and auto-update. If a marketplace was added before the policy was configured and its source no longer matches the allowlist, Claude Code refuses to install or update plugins from it. The same enforcement applies to `blockedMarketplaces`. The allowlist uses exact matching for most source types. For a marketplace to be allowed, all specified fields must match exactly:
+Restrictions are checked before any network or filesystem operation. The check runs on marketplace add and on plugin install, update, refresh, and auto-update. If a marketplace was added before the policy was configured and its source no longer matches the allowlist, Claude Code refuses to install or update plugins from it. The same enforcement applies to `blockedMarketplaces`. To block every marketplace repository under a GitHub owner, use the owner-wildcard form in a `blockedMarketplaces` entry: `{ "source": "github", "repo": "untrusted-org/*" }`. Requires Claude Code v2.1.223 or later. For the matching rules, which differ between the blocklist and the allowlist, see [Owner wildcards](</docs/en/settings#owner-wildcards>). The allowlist uses exact matching for most source types, apart from owner-wildcard `github` entries. For a marketplace to be allowed, all specified fields must match:
 
-  * For GitHub sources: `repo` is required, and `ref` and `path` must each match exactly or be absent from both the marketplace source and the allowlist entry
+  * For GitHub sources: `repo` is required, either naming one repository or using the owner-wildcard form `owner/*` to cover every repository under that owner. For how wildcard entries match, including the case rules, see [Owner wildcards](</docs/en/settings#owner-wildcards>). For single-repository entries, `ref` must match exactly or be absent from both the marketplace source and the allowlist entry, and the same rule applies to `path`
   * For URL sources: the full URL must match exactly
   * For `hostPattern` sources: the marketplace host is matched against the regex pattern
   * For `pathPattern` sources: the marketplace’s filesystem path is matched against the regex pattern

@@ -1,6 +1,6 @@
 Agent view, opened with `claude agents`, is one screen for all your background sessions: what’s running, what needs your input, and what’s done. Dispatch new sessions, watch their state at a glance instead of scrolling through transcripts, and step in only when one needs you. Each background session is a full Claude Code conversation that keeps running without a terminal attached, so you can open it, reply, and leave whenever you want. Use agent view when you have several independent tasks Claude can work on without you watching every step. Dispatch a bug fix, a pull request review, and a flaky-test investigation as three rows, keep working in another window, and check back when a row shows it needs you or has a result. When you want to work more directly in any agent’s session, attach to the row to enter the full conversation. To compare agent view with subagents, agent teams, and worktrees, see [Run agents in parallel](</docs/en/agents>).
 
-Agent view is in research preview and requires Claude Code v2.1.139 or later. Check your version with `claude --version`. The interface and keyboard shortcuts may change as the feature evolves.
+Agent view is in research preview. The interface and keyboard shortcuts may change as the feature evolves.
 
 ##
 
@@ -18,7 +18,7 @@ From your shell, run:
 
     claude agents
 
-Agent view opens with an input at the bottom and a table that fills in as sessions start. Press `Esc` at any time to return to your shell; if you opened agent view by backgrounding a session with `←`, `Esc` returns to that conversation instead. Your sessions keep running while you’re away and reappear the next time you open agent view.
+If you haven’t yet accepted the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>) for the directory, Claude Code shows it before agent view opens, the same dialog `claude` shows. Accept to save trust for the workspace and continue. If you decline, Claude Code exits without opening agent view.Agent view opens with an input at the bottom and a table that fills in as sessions start. Press `Esc` at any time to return to your shell; if you opened agent view by backgrounding a session with `←`, `Esc` returns to that conversation instead. Your sessions keep running while you’re away and reappear the next time you open agent view.
 
 2
 
@@ -287,7 +287,7 @@ A new session runs in the directory you opened agent view from. To target a diff
 A directory whose name contains a space isn’t listed.
   * From the shell, `cd` into the directory and run `claude --bg "<prompt>"`.
 
-When agent view is grouped by directory, the highlighted row’s directory becomes the dispatch target, so you can scroll to a group and dispatch into it without retyping the path.
+When agent view is grouped by directory, dispatching sends the prompt to the selected row’s directory, so you can select a group and dispatch into it without retyping the path.
 
 ###
 
@@ -381,7 +381,7 @@ From agent view, dispatch the same kind of job by typing `!` as the first charac
 
 How file edits are isolated
 
-Every background session, whether started from agent view, `/bg`, or `claude --bg`, starts in your working directory. Before editing files, Claude moves the session into an isolated [git worktree](</docs/en/worktrees>) under `.claude/worktrees/`, so parallel sessions can read the same checkout but each writes to its own. Once the session is in its worktree, Claude Code [blocks file edits and commands that reach the main checkout](</docs/en/worktrees#how-claude-code-enforces-isolation>), for the session and for any subagents it spawns. Claude skips the worktree when:
+Every background session, whether started from agent view, `/bg`, or `claude --bg`, starts in your working directory. Before editing files, Claude moves the session into an isolated [git worktree](</docs/en/worktrees>) under `.claude/worktrees/`, so parallel sessions can read the same checkout but each writes to its own. Once the session is in its worktree, Claude Code [enforces worktree isolation](</docs/en/worktrees#how-claude-code-enforces-isolation>) for the session and for any subagents it spawns. Claude skips the worktree when:
 
   * The session is already inside a linked git worktree, whether Claude created it under `.claude/worktrees/` or you created it with `git worktree add` somewhere else
   * The working directory isn’t a git repository and no [`WorktreeCreate` hook](</docs/en/hooks#worktreecreate>) is configured
@@ -734,6 +734,9 @@ Agent view has evolved quickly during research preview. If you are on an older C
 
 Version| Change
 ---|---
+v2.1.225| `claude agents` in a directory you haven’t trusted shows the same [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>) that `claude` shows on startup, before agent view opens. Accepting saves trust for that workspace; declining exits without opening agent view. Before this release, `claude agents` opened without asking, so sessions you dispatched from it ran in a directory you’d never been asked to trust.
+
+With the list grouped by directory, hovering the mouse over a row highlights it without changing the dispatch target; selecting a row with the arrow keys or a click still changes the target. Before this release, moving the mouse over a session in another project silently changed the directory the next dispatched session started in.
 v2.1.221| `/status` shows a `Session kind` row: `background job · attached` or `background job · unattended` in a background session, depending on whether a terminal is attached, and `interactive` in any other session. Before this release, `/status` didn’t report the session kind.
 
 `/fork`: Claude Code instructs the copy to isolate its work from the original session’s: the copy creates a worktree of its own before making code changes, stays out of the original session’s worktree, and bases a new branch on the original’s branch when its task builds on that work. See the linked section for the exact conditions. Before this release, the copy received no isolation instruction and could end up editing the worktree or checkout the original session was still working in.

@@ -130,12 +130,6 @@ Set the following environment variables:
     # Optional: Override the Agent Platform endpoint URL for custom endpoints or gateways
     # export ANTHROPIC_VERTEX_BASE_URL=https://aiplatform.googleapis.com
 
-    # Optional: Disable prompt caching if needed
-    # export DISABLE_PROMPT_CACHING=1
-
-    # Optional: Request 1-hour prompt cache TTL instead of the 5-minute default
-    # export ENABLE_PROMPT_CACHING_1H=1
-
     # When CLOUD_ML_REGION=global, override region for models that don't support global endpoints
     export VERTEX_REGION_CLAUDE_HAIKU_4_5=us-east5
     export VERTEX_REGION_CLAUDE_4_6_SONNET=europe-west1
@@ -196,15 +190,13 @@ Startup model checks
 
 When Claude Code starts with Google Cloud’s Agent Platform configured, it verifies that the models it intends to use are accessible in your project. If you have pinned a model version that is older than the current Claude Code default, and your project can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](</docs/en/settings>) and restarts Claude Code. Declining is remembered until the next default version change. If you have not pinned a model and the current default is unavailable in your project, Claude Code falls back for the current session and shows a notice. It tries earlier versions of the default model first and, when the default is an Opus model and no Opus version is available, falls back to the default Sonnet model. The fallback is not persisted. Enable the newer model in [Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>) or pin a version to make the choice permanent. When you start the session on a specific Sonnet or Opus version, with `--model`, `ANTHROPIC_MODEL`, or the [`model` setting](</docs/en/settings>), that version acts as the session’s pinned default for the matching `sonnet` or `opus` alias. Claude Code skips the availability check for the built-in default your model replaces and starts on the model you configured, with no fallback notice. Model aliases such as `opus` don’t act as pins, and neither does a model ID Claude Code doesn’t recognize.
 
-Before v2.1.211, Claude Code checked the default model’s availability even when a session model was explicitly configured, and could show a fallback notice for a default the session didn’t use.
-
 ##
 
 ​
 
 IAM configuration
 
-Assign the required IAM permissions: The `roles/aiplatform.user` role includes the required permissions:
+Assign the `roles/aiplatform.user` role, which includes the required permissions:
 
   * `aiplatform.endpoints.predict` \- Required for model invocation and token counting
 

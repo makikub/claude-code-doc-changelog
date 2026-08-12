@@ -63,7 +63,7 @@ Claude finds a message’s target on its own, so you don’t need to run anythin
 
   * **Subagents** : agents running inside the current session. [Agent team](</docs/en/agent-teams>) teammates aren’t listed; Claude messages them through the team’s own roster.
   * **Your other local sessions** : Claude Code sessions running on the same machine, including [background sessions](</docs/en/agent-view>). A session appears only when it binds an inbox socket.
-  * **Your cloud sessions** : your [Claude Code on the web](</docs/en/claude-code-on-the-web>) sessions. These appear when this session has cloud access: a claude.ai login on the first-party Anthropic API and an organization policy that allows cloud sessions.
+  * **Your cloud sessions** : your [Claude Code on the web](</docs/en/claude-code-on-the-web>) sessions, shown while this session is connected to [Remote Control](</docs/en/remote-control>).
   * **Your Remote Control sessions on other machines** : shown while this session is connected to [Remote Control](</docs/en/remote-control>), and labeled `Remote Control`.
 
 Claude addresses a session beyond this machine by name, the same as a local session. See Message sessions on other machines for how those messages travel. A session answers to the name you set with the [`/rename`](</docs/en/commands>) command or the [`--name`](</docs/en/cli-reference#cli-flags>) flag. When you don’t set one, Claude Code names the session itself. An interactive session gets a name derived from its working directory’s folder name, such as `myapp-3f`. Two sessions can end up with the same name. The `/list-agents` output shows each local session’s working directory, which tells same-named sessions apart when they run in different directories. Claude’s own listing adds a short identifier to each row and uses it in the address when names collide.
@@ -130,7 +130,7 @@ When the default holds a message, Claude Code opens an approval dialog in the re
 
   * **Approve** delivers that one message to Claude.
   * **Deny** , or dismissing the dialog, drops it.
-  * Left unanswered past the [`dialogExpiry`](</docs/en/settings#available-settings>) deadline, the dialog closes and Claude Code drops the message. The deadline defaults to five minutes.
+  * When the dialog stays unanswered past the [`dialogExpiry`](</docs/en/settings#available-settings>) deadline, Claude Code closes it and drops the message. The deadline defaults to five minutes. While no terminal is attached to a [background session](</docs/en/agent-view>), Claude Code leaves the dialog open past the deadline. After you attach, Claude Code closes the dialog and drops the message only if it stays unanswered for a full deadline period.
   * If this session’s permission-mode class changes while messages are held, Claude Code re-applies the inbound rules, delivers the messages they now accept, and shows a notice.
   * If a change makes `refuse` apply while messages are held, Claude Code drops every held message and reports a denial to each sender it can reach.
 
@@ -142,7 +142,12 @@ When the sender runs on the same machine, Claude Code tells the sending session 
 
 Non-interactive sessions
 
-Claude Code binds an inbox socket for a [`claude -p`](</docs/en/headless>) session like an interactive one, so a long-running `-p` worker can receive messages and appears in the listing. When you start a session in [bare mode](</docs/en/headless#start-faster-with-bare-mode>), Claude Code doesn’t bind the socket, so that session can’t receive messages and doesn’t appear in the agent list. A `-p` session can’t show the approval dialog. When the inbound default holds a message there, Claude Code delivers it if a later mode or settings change allows it, and otherwise drops it when the [`dialogExpiry`](</docs/en/settings#available-settings>) deadline passes and reports the expiry to the sender. Before v2.1.225, a held message stayed held in a `-p` session, with no sender notice and no expiry. To let a `-p` worker take messages unattended, start it with `crossSessionInbound` set to `accept` in its `--settings` value. An `accept` in your user settings also works but applies to every session you run.
+Claude Code binds an inbox socket for a [`claude -p`](</docs/en/headless>) session like an interactive one, so a long-running `-p` worker can receive messages and appears in the listing. When you start a session in [bare mode](</docs/en/headless#start-faster-with-bare-mode>), Claude Code doesn’t bind the socket, so that session can’t receive messages and doesn’t appear in the agent list. A `-p` session can’t show the approval dialog. When the inbound default holds a message there, Claude Code keeps it for the same [`dialogExpiry`](</docs/en/settings#available-settings>) deadline the dialog uses, five minutes by default:
+
+  * **Before the deadline** : if a mode or settings change allows the message, Claude Code delivers it.
+  * **Past the deadline** : Claude Code drops the message and reports it as expired to a sender it can reach.
+
+Set `dialogExpiry` to `"never"` to keep default-held messages until the session ends. A message held by an explicit `hold` setting doesn’t expire; Claude Code delivers it only when an `accept` later applies. When the session ends with messages still held, Claude Code reports them as expired to each sender it can reach. Before v2.1.225, no deadline applied in a `-p` session: a held message stayed held unless a permission-mode change during the run delivered it, and a session that ended with held messages reported nothing to their senders. To let a `-p` worker take messages unattended, start it with `crossSessionInbound` set to `accept` in its `--settings` value. An `accept` in your user settings also works but applies to every session you run.
 
 ###
 
@@ -180,7 +185,7 @@ Set [`isolatePeerMachines`](</docs/en/settings#available-settings>) to `true` to
       "isolatePeerMachines": true
     }
 
-With this set, Claude Code asks for your approval before Claude’s message to a session beyond this machine leaves, even in `bypassPermissions` mode, which skips ordinary permission prompts. A `true` from any settings scope applies, so a checked-in project file can turn the requirement on but not off. Messages between sessions on the same machine don’t prompt.
+With this set, Claude Code asks for your approval before Claude’s message to a session beyond this machine leaves, even in `bypassPermissions` mode, which skips ordinary permission prompts. A `true` from any settings scope applies, so a checked-in project file can turn the requirement on but not off. Claude Code doesn’t prompt for messages between sessions on the same machine.
 
 ###
 
@@ -222,7 +227,7 @@ To check a session, type `/list-agents`, also available as `/peers`. The result 
   * **`/list-agents` works but a send didn’t arrive**: messaging is on, and something narrower applies:
     * **Deny rules** : a permission deny rule removes the `SendMessage` and `ListAgents` tools.
     * **Inbound controls** : the receiving session’s inbound controls can hold or drop what you send it.
-    * **Cloud session missing** : a cloud session appears only when this session has cloud access.
+    * **Cloud session missing** : a cloud session appears only while this session is connected to [Remote Control](</docs/en/remote-control>).
     * **Other-machine session missing** : a session on another of your machines appears only when it runs with [Remote Control](</docs/en/remote-control>) and this session is connected as well.
     * **Starting a conversation** : Message sessions on other machines covers starting a conversation with a session beyond this machine.
 
