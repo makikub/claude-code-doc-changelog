@@ -156,13 +156,7 @@ LSP servers
 
 Looking to use LSP plugins? Install them from the official marketplace: search for “lsp” in the `/plugin` Discover tab. This section documents how to create LSP plugins for languages not covered by the official marketplace.
 
-Plugins can provide [Language Server Protocol](<https://microsoft.github.io/language-server-protocol/>) (LSP) servers to give Claude real-time code intelligence while working on your codebase. LSP integration provides:
-
-  * **Instant diagnostics** : Claude sees errors and warnings immediately after each edit
-  * **Code navigation** : go to definition, find references, and hover information
-  * **Language awareness** : type information and documentation for code symbols
-
-**Location** : `.lsp.json` in plugin root, or inline in `plugin.json` **Format** : JSON configuration mapping language server names to their configurations **`.lsp.json` file format**:
+Plugins can provide [Language Server Protocol](<https://microsoft.github.io/language-server-protocol/>) (LSP) servers to give Claude [real-time code intelligence](</docs/en/discover-plugins#code-intelligence>) while working on your codebase. **Location** : `.lsp.json` in plugin root, or inline in `plugin.json` **Format** : JSON configuration mapping language server names to their configurations **`.lsp.json` file format**:
 
     {
       "go": {
@@ -262,7 +256,7 @@ Field| Description
 ---|---
 `when`| Controls when the monitor starts. `"always"` starts it at session start and on plugin reload, and is the default. `"on-skill-invoke:<skill-name>"` starts it the first time the named skill in this plugin is dispatched
 
-The `command` value supports the path substitutions `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`, and `${CLAUDE_PROJECT_DIR}`, plus any `${ENV_VAR}` from the environment. Prefix the command with `cd "${CLAUDE_PLUGIN_ROOT}" && ` if the script needs to run from the plugin’s own directory. A monitor `command` can’t reference `${user_config.*}` values. The command runs through a shell, so Claude Code rejects the monitor with an [error](</docs/en/errors#plugin-command-references-user-config>) instead of substituting the value. Monitor processes don’t receive `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables, so have the monitor script read the value from a config file it owns. Before v2.1.207, monitor commands substituted `${user_config.*}` values. If you disable a plugin mid-session, Claude Code doesn’t stop monitors that are already running; they stop when the session ends.
+The `command` value supports the path substitutions `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`, and `${CLAUDE_PROJECT_DIR}`, plus any `${ENV_VAR}` from the environment. Prefix the command with `cd "${CLAUDE_PLUGIN_ROOT}" && ` if the script needs to run from the plugin’s own directory. A monitor `command` can’t reference `${user_config.*}` values. The command runs through a shell, so Claude Code rejects the monitor with an [error](</docs/en/errors#plugin-command-references-user-config>) instead of substituting the value. Monitor processes don’t receive `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables, so have the monitor script read the value from a config file it owns. If you disable a plugin mid-session, Claude Code doesn’t stop monitors that are already running; they stop when the session ends.
 
 ###
 
@@ -358,7 +352,7 @@ Changes you make to a skill’s `SKILL.md` take effect immediately in the curren
 
 Plugin manifest schema
 
-The `.claude-plugin/plugin.json` file defines your plugin’s metadata and configuration. This section documents all supported fields and options. The manifest is optional. If omitted, Claude Code auto-discovers components in default locations and derives the plugin name from the directory name. Use a manifest when you need to provide metadata or custom component paths.
+The `.claude-plugin/plugin.json` file defines your plugin’s metadata and configuration. The manifest is optional. If omitted, Claude Code auto-discovers components in default locations and derives the plugin name from the directory name. Use a manifest when you need to provide metadata or custom component paths.
 
 ###
 
@@ -586,7 +580,7 @@ Whether a custom path replaces or extends the plugin’s default directory depen
   * **Adds to the default** : `skills`. The default `skills/` directory is always scanned, and directories listed in `skills` are loaded alongside it. Exception: for a [marketplace entry whose `source` resolves to the marketplace root](</docs/en/plugin-marketplaces#advanced-plugin-entries>), declaring specific subdirectories replaces the default `skills/` scan
   * **Own merge rules** : hooks, MCP servers, and LSP servers. See each section for how multiple sources combine
 
-When a plugin has both a default folder and the matching manifest key, Claude Code v2.1.140 and later warns about the ignored folder in `claude plugin list` and the `/plugin` detail view. The plugin still loads using the manifest paths. Claude Code doesn’t warn when the manifest key points into the default folder, for example `"commands": ["./commands/deploy.md"]`, because that path names the folder explicitly. For all path fields:
+When a plugin has both a default folder and the matching manifest key, Claude Code warns about the ignored folder in `claude plugin list` and the `/plugin` detail view. The plugin still loads using the manifest paths. Claude Code doesn’t warn when the manifest key points into the default folder, for example `"commands": ["./commands/deploy.md"]`, because that path names the folder explicitly. For all path fields:
 
   * All paths must be relative to the plugin root and start with `./`, except that the `skills` field also accepts `"."`
     * Both `"."` and `"./"` denote the plugin root itself
@@ -705,7 +699,7 @@ Plugins are specified in one of two ways:
   * Through `claude --plugin-dir` or `claude --plugin-url`, for the duration of a session.
   * Through a marketplace, installed for future sessions.
 
-For security and verification purposes, Claude Code copies _marketplace_ plugins to the user’s local **plugin cache** (`~/.claude/plugins/cache`) rather than using them in-place. Each installed version is a separate directory in the cache, grouped by marketplace and plugin and named for the resolved version, with its own copy of the plugin’s files and Node.js package dependencies. A dependency resolved from a [release tag](</docs/en/plugin-dependencies#tag-plugin-releases-for-version-resolution>) gets a directory name with a commit-SHA suffix. When you update or uninstall a plugin, Claude Code marks the previous version directory as orphaned and removes it in a background sweep roughly 14 days later. The grace period lets concurrent Claude Code sessions that already loaded the old version keep running without errors. Claude Code runs the sweep only while at least one plugin is installed; after you uninstall your last plugin, orphaned directories stay on disk until you install a plugin again. Claude’s Glob and Grep tools skip orphaned version directories during searches, so file results don’t include outdated plugin code.
+For security and verification purposes, Claude Code copies _marketplace_ plugins to the user’s local **plugin cache** (`~/.claude/plugins/cache`) rather than using them in-place. Each installed version is a separate directory in the cache, grouped by marketplace and plugin and named for the resolved version, with its own copy of the plugin’s files and Node.js package dependencies. A dependency resolved from a [release tag](</docs/en/plugin-dependencies#tag-plugin-releases-for-version-resolution>) gets a directory name with a commit-SHA suffix. When you update or uninstall a plugin, Claude Code marks the previous version directory as orphaned and removes it in a background sweep roughly 14 days later. The grace period lets concurrent Claude Code sessions that already loaded the old version keep running without errors. Claude Code runs the sweep only while at least one plugin is installed; after you uninstall your last plugin, orphaned directories stay on disk until you install a plugin again. Claude Code removes a plugin or marketplace folder from the cache only when it no longer contains any directory or symlink. If you symlink a development checkout into the cache as a plugin’s version entry, Claude Code never marks the link as orphaned and never removes it or the folders that hold it. Claude Code also never writes its version-tracking files inside the linked checkout. Claude’s Glob and Grep tools skip orphaned version directories during searches, so file results don’t include outdated plugin code.
 
 ###
 

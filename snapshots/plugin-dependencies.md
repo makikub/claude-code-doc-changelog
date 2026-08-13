@@ -14,7 +14,7 @@ Consider an internal marketplace where two teams publish plugins. The platform t
 
 Declare a dependency with a version constraint
 
-List dependencies in the `dependencies` array of your plugin’s `.claude-plugin/plugin.json`. Each entry is either a plugin name or an object with a version constraint. The following manifest declares one unversioned dependency and one constrained dependency:
+List dependencies in the `dependencies` array of your plugin’s `.claude-plugin/plugin.json`. The following manifest declares one unversioned dependency and one constrained dependency:
 
 .claude-plugin/plugin.json
 

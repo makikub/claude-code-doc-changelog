@@ -707,8 +707,6 @@ The `SessionEnd` event supports matchers on the reason the session ended. This h
       }
     }
 
-For full matcher syntax, see the [Hooks reference](</docs/en/hooks#configuration>).
-
 ####
 
 ​

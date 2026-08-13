@@ -175,7 +175,7 @@ The orchestrator keeps no state between polls, so you can run two or more replic
 
 The spawn-runner hook
 
-The orchestrator runs `${hooks-dir}/spawn-runner` once per spawn request. The hook must submit work asynchronously and return within `--hook-timeout`, 60 seconds by default. It must not wait for the runner to boot. The hook receives:
+The orchestrator runs `${hooks-dir}/spawn-runner` once per spawn request. The hook must submit work asynchronously, without waiting for the runner to boot, and return within `--hook-timeout`, 60 seconds by default. The hook receives:
 
 Variable| Description
 ---|---
@@ -220,7 +220,7 @@ To make [MCP servers](</docs/en/mcp>) available in every session, add them at im
     RUN claude mcp add --scope user sidecar -- /usr/local/bin/mcp-sidecar
     RUN claude mcp add --scope user --transport http internal http://mcp-gateway.svc.cluster.local:8080
 
-The runner snapshots the host’s config once at startup. The snapshot captures the `mcpServers` key from the host’s `.claude.json`, which lives next to rather than inside `~/.claude/`, and the runner seeds only that key into each session’s isolated config; account state and project history are dropped. To confirm the servers reached sessions, start a session on the environment and ask Claude to list its MCP tools; the runner also logs a startup warning for any captured entry whose `type` it doesn’t recognize and drops the entry, so the drop is visible instead of the server silently failing to load. When `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` is set, the runner reads `.claude.json` from that directory instead, so pointing the variable at an empty directory disables MCP seeding too. Two other sources work as well:
+The runner snapshots the host’s config once at startup. The snapshot captures the `mcpServers` key from the host’s `.claude.json`, which lives next to rather than inside `~/.claude/`, and the runner seeds only that key into each session’s isolated config; account state and project history are dropped. To confirm the servers reached sessions, start a session on the environment and ask Claude to list its MCP tools; the runner also logs a startup warning for any captured entry whose `type` it doesn’t recognize and drops the entry, so you can see why that server is missing from sessions. When `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` is set, the runner reads `.claude.json` from that directory instead, so pointing the variable at an empty directory disables MCP seeding too. Two other sources work as well:
 
   * The enterprise-scope [managed MCP file](</docs/en/managed-mcp>) at its standard system path: `/etc/claude-code/managed-mcp.json` on Linux runner hosts, `/Library/Application Support/ClaudeCode/managed-mcp.json` on macOS hosts. Use it for locked-down fleets where only administrator-listed servers may load; see [exclusive control with managed-mcp.json](</docs/en/managed-mcp#exclusive-control-with-managed-mcp-json>) for the precedence rules.
   * `<repo>/.mcp.json`: project scope. Commit the file to the repository; its servers are auto-approved in cloud sessions.

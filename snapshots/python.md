@@ -928,7 +928,7 @@ Property| Type| Default| Description
 `max_thinking_tokens`| `int | None`| `None`|  _Deprecated_ \- Maximum tokens for thinking blocks. Use `thinking` instead
 `thinking`| `ThinkingConfig` ` | None`| `None`| Controls extended thinking behavior. Takes precedence over `max_thinking_tokens`
 `effort`| `EffortLevel` ` | None`| `None`| Effort level for thinking depth. See [adjust the effort level](</docs/en/model-config#adjust-effort-level>)
-`session_store`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>) ` | None`| `None`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
+`session_store`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>) ` | None`| `None`| Mirror session transcripts to an external backend so another host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
 `session_store_flush`| `Literal["batched", "eager"]`| `"batched"`| When to flush mirrored transcript entries to `session_store`. `"batched"` flushes once per turn or when the buffer fills; `"eager"` triggers a background flush after every frame. Ignored when `session_store` is `None`
 `load_timeout_ms`| `int`| `60000`| Per-call timeout for `session_store.load()` and `list_subkeys()` during resume materialization, in milliseconds
 `task_budget`| `TaskBudget | None`| `None`| API-side token budget. Sent as `output_config.task_budget` with the `task-budgets-2026-03-13` beta header. Pass `{"total": <int>}`.
@@ -994,7 +994,7 @@ Field| Required| Description
 `type`| Yes| Must be `"preset"` to use a preset system prompt
 `preset`| Yes| Must be `"claude_code"` to use Claude Code’s system prompt
 `append`| No| Additional instructions to append to the preset system prompt
-`exclude_dynamic_sections`| No| Move per-session context such as working directory, the git-repo flag, and auto-memory paths from the system prompt into the first user message. Improves prompt-cache reuse across users and machines. See [Modify system prompts](</docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines>)
+`exclude_dynamic_sections`| No| Move per-session context such as working directory, the git-repo flag, and auto memory paths from the system prompt into the first user message. Improves prompt-cache reuse across users and machines. See [Modify system prompts](</docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines>)
 
 ###
 
@@ -2625,6 +2625,7 @@ Launches a new agent to handle complex, multi-step tasks autonomously. **Output 
             "inference_geo": str | None,
             "speed": str | None,
             "iterations": Any | None,
+            "output_tokens_details": {"thinking_tokens": int | None} | None,
         },
         "toolStats": {  # Aggregate tool activity for the run
             "readCount": int,
@@ -2637,8 +2638,8 @@ Launches a new agent to handle complex, multi-step tasks autonomously. **Output 
             "frameCount": int | None,
         } | None,
         "prompt": str,  # The prompt the agent ran
-        "worktreePath": str | None,  # Present for worktree-isolated runs
-        "worktreeBranch": str | None,  # Present for worktree-isolated runs
+        "worktreePath": str | None,  # Present when Claude Code kept the subagent's worktree
+        "worktreeBranch": str | None,  # Present when Claude Code created that worktree with git
     }
 
 **Output (status:`"async_launched"`):**
@@ -2666,7 +2667,7 @@ Launches a new agent to handle complex, multi-step tasks autonomously. **Output 
         "outputFile": str,  # File path where the agent's output is written
     }
 
-Returns the result from the subagent. The output is discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a remote cloud session, where `sessionUrl` links to that session and `taskId` identifies it. Worktree-isolated runs include `worktreePath` and `worktreeBranch` on the `completed` variant. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On the `async_launched` variant, `resolvedModel` names the model in use when the agent moved to the background, so a swap that happened before backgrounding is reflected there. The `modelsUsed` field on both variants lists the models used in order, with consecutive repeats collapsed; it’s set only when the model was swapped mid-run. `modelsUsed` and the backgrounding-time `resolvedModel` behavior require Claude Code v2.1.212 or later.
+Returns the result from the subagent. The output is discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a remote cloud session, where `sessionUrl` links to that session and `taskId` identifies it. If Claude Code [kept the subagent’s isolated worktree](</docs/en/worktrees#isolate-subagents-with-worktrees>), `worktreePath` on the `completed` variant is where to find it, and `worktreeBranch` is its branch when Claude Code created the worktree with git. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On the `async_launched` variant, `resolvedModel` names the model in use when the agent moved to the background, so a swap that happened before backgrounding is reflected there. The `modelsUsed` field on both variants lists the models used in order, with consecutive repeats collapsed; it’s set only when the model was swapped mid-run. `modelsUsed` and the backgrounding-time `resolvedModel` behavior require Claude Code v2.1.212 or later. Claude Code fills `usage` and `totalTokens` from the subagent’s final API request, not from the whole run. When present, `thinking_tokens` under `output_tokens_details` in `usage` is the number of that request’s output tokens that were thinking tokens. The `output_tokens_details` key requires Python SDK v0.2.136 or later, which bundles Claude Code v2.1.228.
 
 ###
 
@@ -3652,7 +3653,7 @@ Property| Type| Default| Description
 ---|---|---|---
 `allowedDomains`| `list[str]`| `[]`| Domain names that sandboxed processes can access
 `deniedDomains`| `list[str]`| `[]`| Domain names that sandboxed processes cannot access. Takes precedence over `allowedDomains`
-`allowManagedDomainsOnly`| `bool`| `False`| Managed-settings only: when set in managed settings, ignore `allowedDomains` from non-managed settings sources. Has no effect when set via SDK options
+`allowManagedDomainsOnly`| `bool`| `False`| Managed-settings only: when set in managed settings, ignore `allowedDomains` and `WebFetch(domain:...)` allow rules from non-managed settings sources. Has no effect when set via SDK options
 `allowUnixSockets`| `list[str]`| `[]`| Unix socket paths that processes can access (e.g., Docker socket)
 `allowAllUnixSockets`| `bool`| `False`| Allow access to all Unix sockets
 `allowLocalBinding`| `bool`| `False`| Allow processes to bind to local ports (e.g., for dev servers)

@@ -734,6 +734,7 @@ Agent view has evolved quickly during research preview. If you are on an older C
 
 Version| Change
 ---|---
+v2.1.227| Deleting a session keeps the session and its worktree while another live Claude Code session is running inside that worktree directory. Agent view shows `not deleted` on the row and the reason in the footer, and `claude rm` prints `kept <id>` with the reason, which names the other session’s process ID. Before this release, deleting the session removed the worktree while the other session was still working in it.
 v2.1.225| `claude agents` in a directory you haven’t trusted shows the same [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>) that `claude` shows on startup, before agent view opens. Accepting saves trust for that workspace; declining exits without opening agent view. Before this release, `claude agents` opened without asking, so sessions you dispatched from it ran in a directory you’d never been asked to trust.
 
 With the list grouped by directory, hovering the mouse over a row highlights it without changing the dispatch target; selecting a row with the arrow keys or a click still changes the target. Before this release, moving the mouse over a session in another project silently changed the directory the next dispatched session started in.

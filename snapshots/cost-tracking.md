@@ -110,6 +110,8 @@ Python
 
     asyncio.run(main())
 
+To bound how much subagents can add to `total_cost_usd`, set the [depth, concurrency, and spend limits](</docs/en/agent-sdk/subagents#cap-subagent-depth-concurrency-and-spend>) on the query.
+
 ##
 
 ​

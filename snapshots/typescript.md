@@ -536,7 +536,7 @@ Property| Type| Default| Description
 `resumeSessionAt`| `string`| `undefined`| Resume session at a specific message UUID
 `sandbox`| `SandboxSettings`| `undefined`| Configure sandbox behavior programmatically. See Sandbox settings for details
 `sessionId`| `string`| Auto-generated| Use a specific UUID for the session instead of auto-generating one
-`sessionStore`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>)| `undefined`| Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
+`sessionStore`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>)| `undefined`| Mirror session transcripts to an external backend so another host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
 `sessionStoreFlush`| `'batched' | 'eager'`| `'batched'`| _Alpha._ Flush mode for `sessionStore`. Ignored when `sessionStore` is not set
 `settings`| `string | Settings`| `undefined`| Inline [settings](</docs/en/settings>) object or path to a settings file. Populates the flag-settings layer in the [precedence order](</docs/en/settings#settings-precedence>). Change at runtime with `applyFlagSettings()`
 `settingSources`| `SettingSource``[]`| CLI defaults (all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. [Endpoint-managed policy](</docs/en/settings#settings-files>) loads regardless; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
@@ -2959,7 +2959,7 @@ ScheduleWakeup
       stop?: boolean;
     };
 
-Schedules a one-shot wake-up that fires the given prompt after a delay. This tool backs the self-paced `/loop` command. The runtime clamps `delaySeconds` to between 60 and 3600 seconds. The `delaySeconds`, `reason`, and `prompt` fields are required unless `stop` is true. Setting `stop: true` cancels the pending wakeup and ends the self-paced `/loop`. The `stop` field requires Claude Code v2.1.202 or later. See the [ScheduleWakeup row in the tools reference](</docs/en/tools-reference>) for provider availability; it isn’t available on Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, or Microsoft Foundry.
+Schedules a one-shot wake-up that fires the given prompt after a delay. This tool backs the self-paced `/loop` command. The runtime clamps `delaySeconds` to between 60 and 3600 seconds. The `delaySeconds`, `reason`, and `prompt` fields are required unless `stop` is true. Setting `stop: true` cancels the pending wakeup and ends the self-paced `/loop`. The `stop` field requires Claude Code v2.1.202 or later. See the [ScheduleWakeup row in the tools reference](</docs/en/tools-reference>) for availability; it isn’t available on Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, or Microsoft Foundry, nor when you turn off [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>).
 
 ###
 
@@ -2987,7 +2987,7 @@ RemoteTrigger
       };
     };
 
-Manages [Routines](</docs/en/routines>), the scheduled and triggered Claude Code runs hosted in the cloud. This tool backs the `/schedule` command. `trigger_id` is required for the `get`, `update`, `run`, and `list_runs` actions. `body` is required for `create`, `update`, and `create_webhook_trigger`, and optional for `run`. `create_webhook_trigger` attaches an event source to an existing routine, such as a [GitHub event](</docs/en/routines#add-a-github-trigger>) that fires it. The `body` names the source, the events, and the routine to fire. Requires Claude Code v2.1.225 or later. `list_runs` lists a routine’s recent runs, and `get_run_log` reads one run’s log. `session_id` names the run to read, from a `list_runs` result, and `cursor` pages through either action’s results. Both actions require Claude Code v2.1.227 or later. This tool is available only when the session is authenticated with a claude.ai account on a plan with Routines enabled, and is absent when your organization’s policy disables [Claude Code on the web](</docs/en/claude-code-on-the-web>). On Claude Code v2.1.227 or later, the tool is also absent when an Owner has [turned off routines for the organization](</docs/en/routines#routines-are-disabled-by-your-organizations-policy>). Before v2.1.227, a session with only the routines toggle turned off still showed the tool, and the server denied its calls.
+Manages [Routines](</docs/en/routines>), the scheduled and triggered Claude Code runs hosted in the cloud. This tool backs the `/schedule` command. `trigger_id` is required for the `get`, `update`, `run`, and `list_runs` actions. `body` is required for `create`, `update`, and `create_webhook_trigger`, and optional for `run`. `create_webhook_trigger` attaches an event source to an existing routine, such as a [GitHub event](</docs/en/routines#add-a-github-trigger>) that fires it. The `body` names the source, the events, and the routine to fire. Requires Claude Code v2.1.225 or later. `list_runs` lists a routine’s recent runs, and `get_run_log` reads one run’s log. `session_id` names the run to read, from a `list_runs` result, and `cursor` pages through either action’s results. Both actions require Claude Code v2.1.227 or later. This tool is available only when the session is authenticated with a claude.ai account on a plan with Routines enabled, and is absent when your organization’s policy disables [Claude Code on the web](</docs/en/claude-code-on-the-web>) or when you turn off [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>). On Claude Code v2.1.227 or later, the tool is also absent when an Owner has [turned off routines for the organization](</docs/en/routines#routines-are-disabled-by-your-organizations-policy>). Before v2.1.227, a session with only the routines toggle turned off still showed the tool, and the server denied its calls.
 
 ###
 
@@ -3253,6 +3253,9 @@ Agent
             inference_geo?: string | null;
             speed?: string | null;
             iterations?: unknown;
+            output_tokens_details?: {
+              thinking_tokens?: number | null;
+            } | null;
           };
           toolStats?: {
             readCount: number;
@@ -3288,7 +3291,7 @@ Agent
           outputFile: string;
         };
 
-Returns the result from the subagent. Discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a remote cloud session, where `sessionUrl` links to that session and `taskId` identifies it. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On `async_launched`, it names the model in use when the task moved to the background. `modelsUsed` lists the models the subagent used, in order. The field is present only when a mid-run swap happened, and a model appears again when the run swapped back to it. On `async_launched`, the list covers the models used before backgrounding. Both `modelsUsed` and the backgrounding behavior of `resolvedModel` require Claude Code v2.1.212 or later. On the `completed` variant, `worktreePath` is set when the subagent ran in an isolated git worktree, and `worktreeBranch` names that worktree’s branch when Claude Code created it. `usage.service_tier` carries the service tier string the API reported for the subagent’s requests. Before v2.1.207, the published type was narrower. It omitted `worktreePath`, `worktreeBranch`, `citations`, `toolStats.frameCount`, and the `inference_geo`, `speed`, and `iterations` usage fields, and it typed `service_tier` as `"standard" | "priority" | "batch"`. Fields the type marks optional can be absent on results recorded by earlier versions.
+Returns the result from the subagent. Discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a remote cloud session, where `sessionUrl` links to that session and `taskId` identifies it. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On `async_launched`, it names the model in use when the task moved to the background. `modelsUsed` lists the models the subagent used, in order. The field is present only when a mid-run swap happened, and a model appears again when the run swapped back to it. On `async_launched`, the list covers the models used before backgrounding. Both `modelsUsed` and the backgrounding behavior of `resolvedModel` require Claude Code v2.1.212 or later. If Claude Code [kept the subagent’s isolated worktree](</docs/en/worktrees#isolate-subagents-with-worktrees>), `worktreePath` on the `completed` result is where to find it. `worktreeBranch` is its branch, present when Claude Code created the worktree with git. Claude Code fills `usage` and `totalTokens` from the subagent’s final API request, not from the whole run, so `usage.service_tier` is the service tier string the API reported on that request. When present, `usage.output_tokens_details.thinking_tokens` is the number of that request’s output tokens that were thinking tokens. The `output_tokens_details` field requires TypeScript SDK v0.3.228 or later, which bundles Claude Code v2.1.228. Before v2.1.207, the published type was narrower. It omitted `worktreePath`, `worktreeBranch`, `citations`, `toolStats.frameCount`, and the `inference_geo`, `speed`, and `iterations` usage fields, and it typed `service_tier` as `"standard" | "priority" | "batch"`. Fields the type marks optional can be absent on results recorded by earlier versions.
 
 ###
 
@@ -4978,7 +4981,7 @@ When `errorCode` is `"credits_required"`, the rejection is from a claude.ai subs
 
 `SDKLocalCommandOutputMessage`
 
-Output from a local slash command (for example, `/voice` or `/usage`). Displayed as assistant-style text in the transcript.
+Output from a local command such as `/voice` or `/usage`. Displayed as assistant-style text in the transcript.
 
     type SDKLocalCommandOutputMessage = {
       type: "system";
@@ -5143,8 +5146,8 @@ Property| Type| Default| Description
 ---|---|---|---
 `allowedDomains`| `string[]`| `[]`| Domain names that sandboxed processes can access
 `deniedDomains`| `string[]`| `[]`| Domain names that sandboxed processes cannot access. Takes precedence over `allowedDomains`
-`strictAllowlist`| `boolean`| `false`| Deny sandboxed commands access to hosts not in `allowedDomains` instead of prompting. Enforced for sandboxed commands only; in-process tools such as WebFetch aren’t gated by it. Only honored from user, managed, or CLI `--settings` settings; project settings are ignored. Requires Claude Code v2.1.219 or later
-`allowManagedDomainsOnly`| `boolean`| `false`| Managed-settings only. When set in [managed settings](</docs/en/permissions#managed-settings>), only `allowedDomains` entries from managed settings are honored and entries from user, project, or local settings are ignored. Has no effect when set via SDK options
+`strictAllowlist`| `boolean`| `false`| Deny sandboxed commands access to hosts outside the [network allowlist](</docs/en/sandboxing#network-isolation>) instead of prompting. Enforced for sandboxed commands only; in-process tools such as WebFetch aren’t gated by it. Only honored from user, managed, or CLI `--settings` settings; project settings are ignored. Requires Claude Code v2.1.219 or later
+`allowManagedDomainsOnly`| `boolean`| `false`| Managed-settings only. When set in [managed settings](</docs/en/permissions#managed-settings>), only `allowedDomains` entries and `WebFetch(domain:...)` allow rules from managed settings are honored, and allow entries from user, project, or local settings are ignored. Has no effect when set via SDK options
 `allowLocalBinding`| `boolean`| `false`| Allow processes to bind to local ports (e.g., for dev servers)
 `allowUnixSockets`| `string[]`| `[]`| Unix socket paths that processes can access (e.g., Docker socket)
 `allowAllUnixSockets`| `boolean`| `false`| Allow access to all Unix sockets
