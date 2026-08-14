@@ -109,7 +109,14 @@ Without an identity, `git commit` fails with `Please tell me who you are` and se
   * A `credential.helper` that returns a minimally-scoped token
   * `GIT_SSH_COMMAND` pointing at a narrowly-scoped key
 
-If checkout directories are owned by a different uid than the runner process, git refuses to operate on them; add `safe.directory`:
+Whichever mechanism you configure must work without a prompt, because the runner’s built-in clone and fetch disable the prompts that git, SSH, and Git Credential Manager would otherwise show:
+
+  * The runner sets `GIT_TERMINAL_PROMPT=0`, so git doesn’t ask for a username or password.
+  * The runner runs SSH with `BatchMode=yes`, appended to your `GIT_SSH_COMMAND` if you set one, so SSH doesn’t ask for a passphrase or host confirmation.
+  * The runner sets `GCM_INTERACTIVE=never`, so Git Credential Manager doesn’t open a sign-in dialog.
+  * The runner clears `core.askPass`, so if you use an askpass helper, set it through the `GIT_ASKPASS` environment variable instead.
+
+If your git host rejects the credential, or you didn’t configure one, the runner retries a few times and then fails repository preparation. The runner doesn’t pass these settings into the session’s environment. If checkout directories are owned by a different uid than the runner process, git refuses to operate on them; add `safe.directory`:
 
     RUN git config --system --add safe.directory '*'
 
@@ -281,7 +288,7 @@ On the first `SIGTERM`, and again on a forced exit, the runner logs how many `po
 
 Keep the base directory and capacity identical across runners
 
-If a runner dies mid-session, the server requeues the session and another runner in the environment picks it up. That runner derives the checkout path from its own `--base-dir` and `--capacity`: `--capacity 1` checks out directly under `--base-dir`, and a `--capacity` above `1` uses per-session worktrees instead. When runners in the same environment use different values for either flag, the resumed session’s working directory changes, and absolute paths the agent recorded earlier, in edits, tool calls, or its own notes, point at a location that no longer exists. Use the same `--base-dir` and `--capacity` on every runner in an environment, and don’t use a per-host value such as an instance ID or hostname. The base directory defaults to `/workspace`. The runner needs write access to it. At startup, before registering, the runner creates the directory and confirms it can write to it, and exits with `cannot create or write to base directory` when it can’t. A runner started as root creates the default `/workspace` itself. For a non-root runner, create the directory and give the runner’s user ownership before starting the runner, or point `--base-dir` at a directory that user already owns.
+If a runner dies mid-session, the server requeues the session and another runner in the environment picks it up. That runner derives the checkout path from its own `--base-dir` and `--capacity`: `--capacity 1` checks out directly under `--base-dir`, and a `--capacity` above `1` uses per-session worktrees instead. When runners in the same environment use different values for either flag, the resumed session’s working directory changes, and absolute paths the agent recorded earlier, in edits, tool calls, or its own notes, point at a location that no longer exists. Use the same `--base-dir` and `--capacity` on every runner in an environment, and don’t use a per-host value such as an instance ID or hostname. The base directory defaults to `/workspace`, with the exception the [`--base-dir` reference row](</docs/en/self-hosted-environments-reference#runner-cli-flags>) records. The runner needs write access to it. At startup, before registering, the runner creates the directory and confirms it can write to it, and exits with `cannot create or write to base directory` when it can’t. A runner started as root creates the default `/workspace` itself. For a non-root runner, create the directory and give the runner’s user ownership before starting the runner, or point `--base-dir` at a directory that user already owns.
 
 ##
 

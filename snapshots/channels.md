@@ -35,7 +35,7 @@ In Claude Code, run:
 If the install fails, match the message Claude Code reports:
 
   * `Marketplace "claude-plugins-official" not found`: add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`, then retry the install.
-  * The plugin is not found in the marketplace: check the plugin name. Claude Code [refreshes a stale marketplace catalog and retries](</docs/en/discover-plugins#install-plugins>) before reporting this, so if you turned off [marketplace auto-update](</docs/en/discover-plugins#configure-auto-updates>), refresh manually with `/plugin marketplace update claude-plugins-official` and retry the install.
+  * The plugin is [not found in the marketplace](</docs/en/discover-plugins#install-plugins>): check the plugin name.
 
 When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. Check the install summary: if it reports `Run /reload-plugins to activate.`, run that command to activate the plugin’s configure command.
 
@@ -113,7 +113,7 @@ In Claude Code, run:
 If the install fails, match the message Claude Code reports:
 
   * `Marketplace "claude-plugins-official" not found`: add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`, then retry the install.
-  * The plugin is not found in the marketplace: check the plugin name. Claude Code [refreshes a stale marketplace catalog and retries](</docs/en/discover-plugins#install-plugins>) before reporting this, so if you turned off [marketplace auto-update](</docs/en/discover-plugins#configure-auto-updates>), refresh manually with `/plugin marketplace update claude-plugins-official` and retry the install.
+  * The plugin is [not found in the marketplace](</docs/en/discover-plugins#install-plugins>): check the plugin name.
 
 When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. Check the install summary: if it reports `Run /reload-plugins to activate.`, run that command to activate the plugin’s configure command.
 
@@ -170,7 +170,7 @@ In Claude Code, run:
 If the install fails, match the message Claude Code reports:
 
   * `Marketplace "claude-plugins-official" not found`: add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`, then retry the install.
-  * The plugin is not found in the marketplace: check the plugin name. Claude Code [refreshes a stale marketplace catalog and retries](</docs/en/discover-plugins#install-plugins>) before reporting this, so if you turned off [marketplace auto-update](</docs/en/discover-plugins#configure-auto-updates>), refresh manually with `/plugin marketplace update claude-plugins-official` and retry the install.
+  * The plugin is [not found in the marketplace](</docs/en/discover-plugins#install-plugins>): check the plugin name.
 
 When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. If the install summary reports `Run /reload-plugins to activate.`, you can skip that here, because restarting in the next step picks up the plugin.
 
@@ -200,8 +200,6 @@ By default, only your own messages pass through. To let another contact reach Cl
 
 Handles are phone numbers in `+country` format or Apple ID emails like `user@example.com`.
 
-You can also [build your own channel](</docs/en/channels-reference>) for systems that don’t have a plugin yet.
-
 ##
 
 ​
@@ -225,7 +223,7 @@ Start a Claude Code session and run the install command:
 If the install fails, match the message Claude Code reports:
 
   * `Marketplace "claude-plugins-official" not found`: add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`, then retry the install.
-  * The plugin is not found in the marketplace: check the plugin name. Claude Code [refreshes a stale marketplace catalog and retries](</docs/en/discover-plugins#install-plugins>) before reporting this, so if you turned off [marketplace auto-update](</docs/en/discover-plugins#configure-auto-updates>), refresh manually with `/plugin marketplace update claude-plugins-official` and retry the install.
+  * The plugin is [not found in the marketplace](</docs/en/discover-plugins#install-plugins>): check the plugin name.
 
 When the install asks for an installation scope, choose the user scope option so the plugin is available across all your projects. If the install summary reports `Run /reload-plugins to activate.`, you can skip that here, because restarting in the next step picks up the plugin.
 
@@ -291,8 +289,8 @@ In all cases, no channel runs until a user opts it in for the session with `--ch
 
 Setting| Purpose| When not configured
 ---|---|---
-`channelsEnabled`| Master switch. Must be `true` for any channel to deliver messages. Set via the [claude.ai Admin console](<https://claude.ai/admin-settings/claude-code>) toggle or directly in managed settings. Blocks all channels including the development flag when off.| claude.ai Team and Enterprise: channels blocked. Console: channels allowed unless your organization deploys managed settings, in which case channels are blocked until this key is set
-`allowedChannelPlugins`| Which plugins can register once channels are enabled. Replaces the Anthropic-maintained list when set. Only applies when `channelsEnabled` is `true`.| Anthropic default list applies
+`channelsEnabled`| Master switch. Must be `true` for any channel to deliver messages. Blocks all channels including the development flag when off. See Enable channels for your organization.| claude.ai Team and Enterprise: channels blocked. Console: channels allowed unless your organization deploys managed settings, in which case channels are blocked until this key is set
+`allowedChannelPlugins`| Which plugins can register once channels are enabled. Replaces the Anthropic-maintained list when set.| Anthropic default list applies
 
 Pro and Max users without an organization skip these checks entirely: channels are available and users opt in per session with `--channels`.
 
@@ -321,7 +319,7 @@ By default, any plugin on the Anthropic-maintained allowlist can register as a c
       ]
     }
 
-When `allowedChannelPlugins` is set, it replaces the Anthropic allowlist entirely: only the listed plugins can register. Leave it unset to fall back to the default Anthropic allowlist. If you set an empty array, you block all channel plugins from the allowlist, but `--dangerously-load-development-channels` can still bypass that block for local testing. To block channels entirely including the development flag, leave `channelsEnabled` unset instead. This setting requires `channelsEnabled: true`. If a user passes a plugin to `--channels` that isn’t on your list, Claude Code starts normally but the channel doesn’t register, and the startup notice explains that the plugin isn’t on the organization’s approved list.
+If you set an empty array, you block all channel plugins from the allowlist, but `--dangerously-load-development-channels` can still bypass that block for local testing. To block channels entirely including the development flag, leave `channelsEnabled` unset instead. This setting requires `channelsEnabled: true`. If a user passes a plugin to `--channels` that isn’t on your list, Claude Code starts normally but the channel doesn’t register, and the startup notice explains that the plugin isn’t on the organization’s approved list.
 
 ##
 

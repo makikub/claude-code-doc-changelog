@@ -604,6 +604,10 @@ Interface returned by the `query()` function.
       supportedAgents(): Promise<AgentInfo[]>;
       mcpServerStatus(): Promise<McpServerStatus[]>;
       getContextUsage(): Promise<SDKControlGetContextUsageResponse>;
+      readFile(
+        path: string,
+        options?: { maxBytes?: number; encoding?: 'utf-8' | 'base64' }
+      ): Promise<SDKControlReadFileResponse | null>;
       accountInfo(): Promise<AccountInfo>;
       reconnectMcpServer(serverName: string): Promise<void>;
       toggleMcpServer(serverName: string, enabled: boolean): Promise<void>;
@@ -634,6 +638,7 @@ Method| Description
 `supportedAgents()`| Returns available subagents as `AgentInfo``[]`
 `mcpServerStatus()`| Returns status of connected MCP servers
 `getContextUsage()`| Returns an `SDKControlGetContextUsageResponse` breaking down the session’s context window usage by category, skill, and tool. The same data `/context` shows in an interactive session
+`readFile(path, options?)`| Reads a file from the session’s filesystem. Claude Code resolves the path against `cwd` and applies the same read-permission rules as the Read tool. Pass `{ maxBytes }` to change the read cap (default 1 MB, ceiling 10 MB) and `{ encoding: 'base64' }` for binary files such as images. Resolves with an `SDKControlReadFileResponse`, or `null` on permission denial, a missing file, or a transport error. Requires TypeScript SDK v0.2.121 or later
 `accountInfo()`| Returns account information
 `reconnectMcpServer(serverName)`| Reconnect an MCP server by name
 `toggleMcpServer(serverName, enabled)`| Enable or disable an MCP server by name
@@ -844,6 +849,23 @@ Read token attribution from the collection fields:
   * `skills.skillFrontmatter` attributes the skill listing’s tokens to each included skill. The per-skill counts measure each skill’s listing entry as Claude Code actually sends it, which can be shorter than the skill’s full frontmatter. Compare `skills.totalSkills` with `skills.includedSkills` to see whether every discovered skill made it into the listing.
 
 `totalTokens` is the session’s current context usage, and `maxTokens` is the window that usage is measured against. That window is the model’s context window, or the lower auto-compaction window when one applies. Claude Code leaves the optional `deferredBuiltinTools`, `systemTools`, and `systemPromptSections` diagnostics unset, so expect them to be absent even though the type declares them.
+
+###
+
+​
+
+`SDKControlReadFileResponse`
+
+Return type of `readFile()`.
+
+    type SDKControlReadFileResponse = {
+      contents: string;
+      absPath: string;
+      truncated?: boolean;
+      encoding?: 'base64';
+    };
+
+`contents` holds the file text, or base64 data when you requested `encoding: 'base64'`; the response’s `encoding` field is set to `'base64'` in that case. `absPath` is the resolved absolute path. `truncated` is set when the file was longer than the `maxBytes` cap and the contents were cut at that limit.
 
 ###
 
@@ -1409,6 +1431,7 @@ System initialization message.
       model: string;
       permissionMode: PermissionMode;
       slash_commands: string[];
+      terminal_slash_commands?: string[];
       output_style: string;
       skills: string[];
       plugins: { name: string; path: string }[];
@@ -1417,7 +1440,7 @@ System initialization message.
       capabilities?: string[];
     };
 
-`fast_mode_state` reports the session’s [fast mode](</docs/en/fast-mode>) state. When something blocks fast mode, `fast_mode_disabled_reason` names the check that blocked it; the field requires Claude Code v2.1.219 or later. For the reason codes and their meanings, see `fast_mode_disabled_reason` on the result message. The `capabilities` array names the protocol behaviors this CLI implements, so you can feature-detect instead of comparing `claude_code_version` strings. It is an open set: ignore values you don’t recognize, and check for the specific capability whose behavior you rely on. The field requires Claude Code v2.1.205 or later and is absent on earlier CLIs.
+`fast_mode_state` reports the session’s [fast mode](</docs/en/fast-mode>) state. When something blocks fast mode, `fast_mode_disabled_reason` names the check that blocked it; the field requires Claude Code v2.1.219 or later. For the reason codes and their meanings, see `fast_mode_disabled_reason` on the result message. `terminal_slash_commands` names the entries in `slash_commands` whose interface is bound to the local terminal, such as `exit`. You can send them like any other entry in `slash_commands`; the field exists so a remote or mobile client can hide them from its command menus. The field is present only when non-empty, and requires Agent SDK v0.3.229 or later. The `capabilities` array names the protocol behaviors this CLI implements, so you can feature-detect instead of comparing `claude_code_version` strings. It is an open set: ignore values you don’t recognize, and check for the specific capability whose behavior you rely on. The field requires Claude Code v2.1.205 or later and is absent on earlier CLIs.
 
 Capability| Meaning
 ---|---

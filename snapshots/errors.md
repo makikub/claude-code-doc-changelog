@@ -74,9 +74,11 @@ Message| Section
 `Couldn't reconnect to your Remote Control session`| Network
 `Couldn't share the transcript.`| Network
 `Prompt is too long` / `Input is too long for requested model`| Request errors
+`Prompt is too long · automatic compaction failed:`| Request errors
 `Context exceeds the ...-token limit by ... tokens` in `/context` output| Request errors
 `Error during compaction: Conversation too long`| Request errors
 `Request too large`| Request errors
+`Request too large for the API's 32MB request limit`| Request errors
 `Image was too large`| Request errors
 `Unable to resize image`| Request errors
 `PDF too large` / `PDF is password protected`| Request errors
@@ -107,6 +109,8 @@ Message| Section
 `Shell command permission check failed for pattern "..."`, from a skill that injects dynamic context| Command-line errors
 `Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`| Command-line errors
 `Input must be provided either through stdin or as a prompt argument when using --print`| Command-line errors
+`Error: Input contained only whitespace`| Command-line errors
+`Blank prompt — the message was only whitespace, so nothing was sent to the model.`| Command-line errors
 `Diff is too large for ultrareview` / `PR #<N> is too large for ultrareview`| Command-line errors
 `Could not find merge-base with <branch>`| Command-line errors
 `Your checkout has no branches (detached HEAD only)`| Command-line errors
@@ -286,9 +290,9 @@ Auto mode cannot determine the safety of an action
 
 The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) uses to classify actions couldn’t produce a decision, so auto mode didn’t approve the action automatically. The message you see depends on how the classifier failed. Reads, searches, and edits inside your working directory skip the classifier, so they keep working in all of these cases. When the classifier model is unavailable:
 
-    <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait briefly and then try this action again.
+    <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait a moment and then try this action again.
 
-More than one failure produces this same message, so the message alone doesn’t tell you the cause. When the classifier model is overloaded or rate-limited, the failure is transient and retrying works. On [Amazon Bedrock](</docs/en/amazon-bedrock>), including the [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>), the same message also appears when your AWS account can’t invoke the model named in the message, and that failure repeats on every retry until the model is granted. **What to do:**
+When Claude Code can determine the failure category, it names the category in parentheses after `temporarily unavailable`, for example `<model> is temporarily unavailable (rate-limited), so auto mode cannot determine the safety of <tool> right now`. The categories are `(rate-limited)`, `(overloaded)`, `(server error)`, `(timed out)`, and `(connection failed)`. Rate-limited, overloaded, and server errors are transient, and retrying works. If `(timed out)` or `(connection failed)` repeats, check your connection; see Unable to connect to API. Before v2.1.229, the message never named a category and read `Wait briefly and then try this action again`. When no category fits, the message appears with no category in parentheses; more than one failure produces that form. On [Amazon Bedrock](</docs/en/amazon-bedrock>), including the [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>), it also appears when your AWS account can’t invoke the model named in the message, and that failure repeats on every retry until your account is granted access to the model. **What to do:**
 
   * Retry after a few seconds; Claude sees the same message and usually retries on its own. A transient failure is unrelated to [auto mode eligibility](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>); you don’t need to change settings
   * If retries keep failing, continue with read-only tasks and come back to the blocked action later
@@ -391,7 +395,7 @@ The selected model uses the 1M-token extended context window, and your plan only
 
     API Error: Usage credits required for 1M context · run /usage-credits to turn them on, or /model to switch to standard context
 
-This is an entitlement check, not a quota exhaustion. It fires even when your session and weekly allowances have capacity remaining. See [Extended context](</docs/en/model-config#extended-context>) for which plans include 1M context directly and which require usage credits. When this error appears mid-conversation because the context grew past 200K tokens, Claude Code automatically compacts the conversation back under the standard context limit and keeps the session at that limit afterward, so no action is needed. On versions before v2.1.172, the error repeated on every subsequent request including `/compact`; run `/clear` on those versions to recover. The steps below apply when you explicitly selected a `[1m]` model. **What to do:**
+This is an entitlement check, not a quota exhaustion. It fires even when your session and weekly allowances have capacity remaining. See [Extended context](</docs/en/model-config#extended-context>) for which plans include 1M context directly and which require usage credits. Claude Code runs this check when you pick the model with `/model`, and only on a direct connection to the Anthropic API; if you point `ANTHROPIC_BASE_URL` at an [LLM gateway](</docs/en/llm-gateway>), `/model` allows the `[1m]` selection and the gateway decides whether the request succeeds. When this error appears mid-conversation because the context grew past 200K tokens, Claude Code automatically compacts the conversation back under the standard context limit and keeps the session at that limit afterward, so no action is needed. On versions before v2.1.172, the error repeated on every subsequent request including `/compact`; run `/clear` on those versions to recover. The steps below apply when you explicitly selected a `[1m]` model. **What to do:**
 
   * Run `/model` and select the variant without the `[1m]` suffix to fall back to the standard context window
   * Run `/usage-credits` to turn on metered billing for the 1M variant on Pro and Max, or to request it from your admin on Team and Enterprise
@@ -1050,7 +1054,11 @@ The conversation plus attached files exceeds the model’s context window.
 
     Prompt is too long
 
-Amazon Bedrock reports this condition as `Input is too long for requested model.`, which Claude Code handles the same way. Before v2.1.217, Claude Code didn’t recognize the Bedrock wording, so auto-compact never triggered on it and `/compact` failed with the same error. **What to do:**
+Amazon Bedrock reports this condition as `Input is too long for requested model.`, which Claude Code handles the same way. Before v2.1.217, Claude Code didn’t recognize the Bedrock wording, so auto-compact never triggered on it and `/compact` failed with the same error. When automatic compaction ran on this turn and failed on an underlying error, such as an unavailable model or an authentication failure, the message names that error after a separator:
+
+    Prompt is too long · automatic compaction failed: <the underlying error>
+
+Resolve the named error first; `/compact` fails on the same error until you do. Before v2.1.229, a failed automatic compaction surfaced the bare `Prompt is too long` without the cause. **What to do:**
 
   * Run `/compact` to summarize earlier turns and free space, or `/clear` to start fresh
   * Run `/context` to see a breakdown of what is consuming the window: system prompt, tools, memory files, and messages
@@ -1105,14 +1113,19 @@ This message and other `/compact` failures display in error styling. Before v2.1
 
 Request too large
 
-The raw request body exceeded the API’s 32MB limit before tokenization, usually because of a large pasted file or attachment.
+The raw request body exceeded the API’s 32MB limit before tokenization, usually because of large pasted content, tool results, or attachments. This limit is separate from the context window.
 
     Request too large (max 32MB). Accumulated images and attachments in the conversation pushed the request over the limit. Run /compact, or double press esc to go back and remove attachments.
 
-This is a size limit on the HTTP request, separate from the context window limit. When Claude Code sends requests directly to the Claude API, it keeps the total size of images and attachments in each request below this limit by dropping the oldest ones, so conversations that accumulate many images don’t hit it. Before v2.1.212, that cap was higher than the request limit, so a conversation with enough accumulated images failed on every turn with `Request too large (max 32MB). Double press esc to go back and try with a smaller file.` **What to do:**
+When the request went straight to the Claude API and the API itself rejected it, Claude Code measures the conversation and words the message by whether recovery can work. Through a proxy, gateway, or cloud provider you get the general message. The measured forms:
 
-  * Run `/compact` to summarize the conversation, which drops accumulated images and attachments
-  * Press Esc twice and step back past the turn that added the oversized content
+  * `Request too large (max 32MB; 20.1MB of about 33.4MB is images or documents).`: images or documents pushed the request over the limit. Claude Code retries with them stripped.
+  * `Request too large for the API's 32MB request limit`: the messages alone are over the limit, so the message says `compacting cannot make it fit` and Claude Code doesn’t retry. In [non-interactive mode](</docs/en/headless>), the message tells you to reduce the input or start a new session instead.
+
+Before v2.1.212, conversations with enough accumulated images failed on every turn with `Request too large (max 32MB). Double press esc to go back and try with a smaller file.` Before v2.1.229, Claude Code showed the attachment advice for every rejection, even when compacting couldn’t help. **What to do:**
+
+  * If the message says `compacting cannot make it fit`, press Esc twice to step back past the turn that added the large content, or run `/clear` to start fresh
+  * Otherwise, run `/compact`, which drops accumulated images and attachments
   * Reference large files by path instead of pasting their contents, so Claude can read them in chunks
   * For images, see Image was too large below
 
@@ -1219,7 +1232,7 @@ The trailing hint names the closest matching alias or model ID. When nothing is 
   * Run `/model` with no argument to open the picker and choose from the models available to your account, then pass the alias or ID shown there
   * If you used an alias that a newer Claude Code version supports, run `claude update`. A full ID that starts with `claude-` passes this check even when the model is newer than your Claude Code version, so upgrading isn’t needed for those.
   * A model saved before v2.1.200 isn’t repaired by this check. If a stale value keeps coming back, remove it from the locations listed under There’s an issue with the selected model.
-  * The check runs only on the Anthropic API. On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), and behind an [LLM gateway](</docs/en/llm-gateway>) or a custom `ANTHROPIC_BASE_URL`, your provider or gateway defines the model names, so Claude Code accepts any string and passes it through.
+  * The check runs only on the Anthropic API. On any other provider or gateway, including a custom `ANTHROPIC_BASE_URL`, the provider defines the model names, so Claude Code accepts any string and passes it through.
 
 ###
 
@@ -1563,6 +1576,21 @@ Bare `claude` needs stdout to be a terminal to start the interactive UI. When st
 
 ​
 
+Input contained only whitespace
+
+In [non-interactive mode](</docs/en/headless>), Claude Code refuses a prompt made up entirely of spaces, tabs, or newlines instead of sending it, because the API rejects messages with no visible text. Which message you see depends on where the blank prompt came from:
+
+  * **Prompt argument or piped stdin for`claude -p`**: `claude` exits with `Error: Input contained only whitespace. Provide a prompt with text through stdin or as a prompt argument when using --print`
+  * **Message submitted to a running`--input-format stream-json` or [Agent SDK](</docs/en/agent-sdk/overview>) session**: Claude Code ends the turn without calling the model and the session stays usable. The refusal arrives as an informational message and as the turn’s result text: `Blank prompt — the message was only whitespace, so nothing was sent to the model.`
+
+Before v2.1.229, Claude Code sent the whitespace-only message to the API, which rejected the request with a 400 error. **What to do:**
+
+  * Include visible text in the prompt. If a script builds the prompt from a variable or file, check that the source isn’t empty before calling Claude Code.
+
+###
+
+​
+
 Diff is too large for ultrareview
 
 The diff between your branch and the base branch, including uncommitted and staged changes, exceeds the size limits for an [ultrareview](</docs/en/ultrareview>), so `/code-review ultra` and the `claude ultrareview` subcommand refuse the review before the cloud session starts. A refused review doesn’t use a free run and doesn’t bill usage credits. The message names the limits in effect, the size of your diff, and the files that contribute the most changed lines. Before v2.1.216, the message showed only the raw diff statistics.
@@ -1743,7 +1771,7 @@ Omitting the `tools` field never triggers this refusal. If you leave the `tools`
 
   * Correct each entry the error names against the [tools available to subagents](</docs/en/sub-agents#available-tools>)
   * Remove entries for tools the session doesn’t have, such as MCP tools from a server that isn’t connected
-  * For a tool that [background subagents drop](</docs/en/sub-agents#available-tools>), such as `LSP` or `TaskCreate`, remove the entry or ask Claude to run the subagent in the foreground
+  * For a tool that [background subagents drop](</docs/en/sub-agents#available-tools>), such as `LSP` or `TaskCreate`, remove the entry. To keep the tool, [turn fork mode off](</docs/en/sub-agents#turn-fork-mode-on-or-off>) and ask Claude to run the subagent in the foreground
   * Delete the `tools` field instead of listing tools to give the subagent every [tool available to subagents](</docs/en/sub-agents#available-tools>)
   * For a `tools` list that contains only `Agent`, raise the [depth limit](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>) or give the agent at least one other tool: Claude Code withholds `Agent` at that limit, so a list with nothing else in it resolves to no tools
 

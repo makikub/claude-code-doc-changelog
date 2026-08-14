@@ -18,7 +18,7 @@ Claude Code supports a range of restriction levels. Each pattern uses one or bot
 
 Pattern| What it does| Configure
 ---|---|---
-**Disable MCP**|  No servers load anywhere| `managed-mcp.json` with an empty server map
+**Disable MCP**|  No servers load, apart from the VS Code extension’s own in-process server| `managed-mcp.json` with an empty server map
 **Fixed deployment**|  Every user gets the same servers and can’t add others| `managed-mcp.json` with the servers you want
 **Approved catalog**|  Publish a list of approved servers; users add the ones they want, anything else is blocked| `allowedMcpServers` \+ `allowManagedMcpServersOnly: true`
 **Plugin servers only**|  Servers can only come from plugins; users can’t add their own| [`strictPluginOnlyCustomization`](</docs/en/settings#strictpluginonlycustomization>) with `mcp` in the list
@@ -34,7 +34,12 @@ Claude Code doesn’t have a built-in MCP server registry that users can browse 
 
 Exclusive control with managed-mcp.json
 
-If you deploy a `managed-mcp.json` file, Claude Code loads only the servers that file defines. Users cannot add, modify, or use any other MCP servers, including plugin-provided servers. The file also suppresses claude.ai connectors unless you allow them alongside the managed set. Two other settings can further filter the managed set:
+If you deploy a `managed-mcp.json` file, Claude Code loads only the servers that file defines, plus the VS Code extension’s own in-process server in sessions the extension starts. Users cannot add, modify, or use any other MCP servers, including plugin-provided servers and servers passed with the [`--mcp-config` CLI flag](</docs/en/cli-reference#cli-flags>). The file also suppresses claude.ai connectors unless you allow them alongside the managed set. What a user sees when a session does receive `--mcp-config` servers depends on where the session runs:
+
+  * On a workstation, Claude Code exits at startup with `You cannot dynamically configure MCP servers when an enterprise MCP config is present`.
+  * In [cloud sessions](</docs/en/claude-code-on-the-web>), which receive claude.ai connectors and other server-delivered servers through `--mcp-config`, Claude Code starts with the managed servers only. Nothing in the session tells the user which servers were left out. Claude Code names them in a warning on its stderr, which a [self-hosted runner](</docs/en/self-hosted-environments-configuration#mcp-servers>) records at the `debug` log level. Before v2.1.229, these sessions exited with the same error a workstation shows.
+
+If a user passes `--strict-mcp-config`, Claude Code exits at startup on a workstation and in a cloud session alike, because that flag asks to replace the managed set. Two other settings can further filter the managed set:
 
   * `allowedMcpServers` and `deniedMcpServers` apply to managed servers too, so a managed server that doesn’t pass them won’t load.
   * A user’s own `deniedMcpServers` merges in from their settings, so users can block a managed server for themselves.
@@ -99,13 +104,13 @@ To confirm the file is in effect, run two checks on a managed machine:
 
 Disable MCP entirely
 
-Deploy a `managed-mcp.json` containing an empty server map to block every MCP server:
+Deploy a `managed-mcp.json` containing an empty server map to block every MCP server apart from the VS Code extension’s own in-process server:
 
     {
       "mcpServers": {}
     }
 
-Users see no MCP servers in `/mcp`, and `claude mcp add` fails with the enterprise-policy error above. Servers users had previously configured stop loading the next time they start a session, with no warning that policy is the reason.
+`claude mcp add` fails with the enterprise-policy error above. Servers users had previously configured stop loading the next time they start a session, with no warning that policy is the reason.
 
 ###
 
@@ -113,7 +118,7 @@ Users see no MCP servers in `/mcp`, and `claude mcp add` fails with the enterpri
 
 Allow claude.ai connectors alongside the managed set
 
-Deploying `managed-mcp.json` suppresses [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>) by default, including connectors an administrator configured for the organization in the claude.ai admin console. To load those connectors alongside the servers in `managed-mcp.json`, set `"allowAllClaudeAiMcps": true` in a [managed settings source](</docs/en/admin-setup#decide-how-settings-reach-devices>). Requires Claude Code v2.1.149 or later. With the setting enabled, Claude Code loads the same claude.ai connectors it would load if `managed-mcp.json` were not deployed. Allowlists and denylists still apply to those connectors, so you can block specific ones with `deniedMcpServers`. The setting affects only claude.ai connectors; plugin-provided servers stay suppressed. Claude Code reads this setting only from admin-controlled policy tiers: server-managed settings, an MDM-deployed plist or HKLM registry key, or a system `managed-settings.json` file. Placing it in user or project settings has no effect, so users cannot re-enable connectors that exclusive control suppressed.
+Deploying `managed-mcp.json` suppresses [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>) by default, including connectors an administrator configured for the organization in the claude.ai admin console. To load those connectors alongside the servers in `managed-mcp.json`, set `"allowAllClaudeAiMcps": true` in a [managed settings source](</docs/en/admin-setup#decide-how-settings-reach-devices>). Requires Claude Code v2.1.149 or later. With the setting enabled, Claude Code loads the same claude.ai connectors it would load if `managed-mcp.json` weren’t deployed. Allowlists and denylists still apply to those connectors, so you can block specific ones with `deniedMcpServers`. The setting affects only claude.ai connectors; plugin-provided servers stay suppressed. The setting also affects only the connectors Claude Code fetches itself. [Cloud sessions](</docs/en/claude-code-on-the-web>) receive connectors as server-delivered `--mcp-config` entries, and Claude Code suppresses those whenever `managed-mcp.json` is deployed, whether or not you set `allowAllClaudeAiMcps`. Claude Code reads this setting only from admin-controlled policy tiers: server-managed settings, an MDM-deployed plist or HKLM registry key, or a system `managed-settings.json` file. Placing it in user or project settings has no effect, so users cannot re-enable connectors that exclusive control suppressed.
 
 ##
 
@@ -201,7 +206,7 @@ Entry list| Expands from| Expansion that would change a URL entry’s scheme, ho
 `allowedMcpServers`| The environment Claude Code started with, plus `env` values from managed settings| Claude Code ignores the entry
 `deniedMcpServers`| The same, and a variable with no startup value and no `:-default` fills from settings files outside the repository, such as user or managed settings, which only ever widens what the entry matches| The entry still matches
 
-Before v2.1.219, both sides expanded from the same live process environment, which included variables set by settings files.
+Requires Claude Code v2.1.219 or later.
 
 ###
 
@@ -337,7 +342,7 @@ When `allowManagedMcpServersOnly` is `true`, allowlists from user, project, and 
 
 How restrictions appear to users
 
-When a restriction blocks a server, the user either sees an error from `claude mcp add` or the server silently stops loading. Use this table to recognize those reports and to tell users what to expect before you roll out a change:
+For what users see at startup when `managed-mcp.json` is deployed and the session also has `--mcp-config` servers, see Exclusive control with managed-mcp.json. Use this table to recognize the other reports and to tell users what to expect before you roll out a change:
 
 Restriction| What the user sees
 ---|---
@@ -370,7 +375,7 @@ Surface| What it controls| Where it lives| How to deliver
 `allowedMcpServers`| Allowlist of permitted servers| Any [settings file](</docs/en/settings#settings-files>); entries from every source merge unless `allowManagedMcpServersOnly` is set| For enforcement, a [managed settings source](</docs/en/admin-setup#decide-how-settings-reach-devices>): server-managed settings, `managed-settings.json`, MDM profile, or registry
 `deniedMcpServers`| Denylist of blocked servers| Any settings file; entries from every source merge| Same as `allowedMcpServers`
 `allowManagedMcpServersOnly`| Locks the allowlist to managed sources only| Managed settings sources only; the setting has no effect elsewhere| Same as `allowedMcpServers`
-`allowAllClaudeAiMcps`| Loads claude.ai connectors alongside `managed-mcp.json` instead of suppressing them| Managed settings sources only; the setting has no effect elsewhere| Same as `allowedMcpServers`
+`allowAllClaudeAiMcps`| Loads the claude.ai connectors Claude Code fetches itself alongside `managed-mcp.json`. Connectors delivered to cloud sessions stay suppressed| Managed settings sources only; the setting has no effect elsewhere| Same as `allowedMcpServers`
 
 ##
 

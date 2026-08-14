@@ -761,7 +761,7 @@ Managed policy settings| Organization-wide| Yes, admin-controlled
 [Plugin](</docs/en/plugins>) `hooks/hooks.json`| When plugin is enabled| Yes, bundled with the plugin
 [Skill](</docs/en/skills>) or [agent](</docs/en/sub-agents>) frontmatter| While the skill or agent is active| Yes, defined in the component file
 
-Run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Hooks configured in managed settings still run unless `disableAllHooks` is also set there. If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.
+Run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Claude Code reads the value left after [settings precedence](</docs/en/hooks#disable-or-remove-hooks>) applies, so a project’s settings file can override yours. Hooks configured in managed settings still run unless `disableAllHooks` is also set there. If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.
 
 ##
 
@@ -899,8 +899,7 @@ The hook is configured but never executes.
 
   * Run `/hooks` and confirm the hook appears under the correct event
   * Check that the matcher pattern matches the tool name exactly. Matchers are case-sensitive
-  * Verify you’re triggering the right event type: `PreToolUse` fires before tool execution, `PostToolUse` fires after
-  * In non-interactive mode with the `-p` flag, `PermissionRequest` hooks fire only when the Agent SDK’s `canUseTool` callback supplies the prompt, or for tool calls inside background subagents. In plain `-p` runs or with `--permission-prompt-tool`, use `PreToolUse` hooks instead
+  * Verify you’re triggering the right event type: `PreToolUse` fires before tool execution, `PostToolUse` fires after. A `PermissionRequest` hook fires when Claude Code is about to ask you for permission; see the limitations for the non-interactive cases
 
 ###
 

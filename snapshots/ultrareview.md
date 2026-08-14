@@ -122,7 +122,7 @@ A review typically takes 5 to 10 minutes. The review runs as a background task, 
 
 Run ultrareview non-interactively
 
-Use the `claude ultrareview` subcommand to start an ultrareview from CI or a script without an interactive session. The subcommand launches the same review as `/code-review ultra`, blocks until the remote review finishes, prints the findings to stdout, and exits with code 0 on success or 1 on failure.
+Use the `claude ultrareview` subcommand to start an ultrareview from CI or a script without an interactive session. The subcommand launches the same review as `/code-review ultra`, blocks until the remote review finishes, and prints the findings to stdout.
 
     claude ultrareview
     claude ultrareview 1234
