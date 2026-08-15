@@ -33,7 +33,7 @@ Subagents only report results back to the main agent and never talk to each othe
 ---|---|---
 **Context**|  Own context window; results return to the caller| Own context window; fully independent
 **Communication**|  Report results back to the main agent only| Teammates message each other directly
-**Coordination**|  Main agent manages all work| Shared task list with self-coordination
+**Coordination**|  Main agent manages all work| Self-coordination through messages, plus a shared task list for [agents that have the Task tools](</docs/en/tools-reference#task-tool-availability>)
 **Best for**|  Focused tasks where only the result matters| Complex work requiring discussion and collaboration
 **Token cost**|  Lower: results summarized back to main context| Higher: each teammate is a separate Claude instance
 
@@ -54,6 +54,8 @@ settings.json
         "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
       }
     }
+
+Enabling agent teams also changes ordinary delegation. Claude may [name a subagent](</docs/en/sub-agents#subagent-names>) on its own, and while agent teams are enabled, a subagent that Claude names launches as a teammate, so teams can form even when you didn’t ask for one. For more, see How Claude starts agent teams; to turn the behavior off, see Claude spawns teammates instead of subagents. Spawning teammates also requires an interactive session. In [non-interactive mode](</docs/en/headless>) with the `-p` flag, including Agent SDK sessions, Claude doesn’t spawn teammates, and a subagent that Claude names runs as an ordinary [subagent](</docs/en/sub-agents>) even with agent teams enabled.
 
 ##
 
@@ -161,7 +163,7 @@ While you’re viewing an in-process teammate, plain text and [skills](</docs/en
 
 Assign and claim tasks
 
-The shared task list coordinates work across the team. The lead creates tasks and teammates work through them. Tasks have three states: pending, in progress, and completed. Tasks can also depend on other tasks: a pending task with unresolved dependencies cannot be claimed until those dependencies are completed. The lead can assign tasks explicitly, or teammates can self-claim:
+The shared task list coordinates work across the team. The lead creates tasks and teammates work through them. Tasks have three states: pending, in progress, and completed. Tasks can also depend on other tasks: a pending task with unresolved dependencies cannot be claimed until those dependencies are completed. Agents [without the Task tools](</docs/en/tools-reference#task-tool-availability>) coordinate through messages instead of the shared task list. The lead can assign tasks explicitly, or teammates can self-claim:
 
   * **Lead assigns** : tell the lead which task to give to which teammate
   * **Self-claim** : after finishing a task, a teammate picks up the next unassigned, unblocked task on its own
@@ -206,12 +208,7 @@ This section covers the architecture and mechanics behind agent teams. If you wa
 
 How Claude starts agent teams
 
-An agent team forms when the first teammate is spawned, with the main session acting as the lead. There are two ways teammates get spawned:
-
-  * **You request teammates** : give Claude a task that benefits from parallel work and explicitly ask for teammates. Claude spawns them based on your instructions.
-  * **Claude proposes teammates** : if Claude determines your task would benefit from parallel work, it may suggest spawning teammates. You confirm before it proceeds.
-
-In both cases, you stay in control. Claude won’t spawn teammates without your approval.
+To start a team, ask Claude for teammates. Claude launches a teammate when it calls the [Agent tool](</docs/en/tools-reference>) with a [`name`](</docs/en/sub-agents#subagent-names>) while agent teams are enabled, and Claude Code doesn’t ask you to confirm. Claude also names ordinary subagents on its own so it can message them later, and while agent teams are enabled, a named subagent launches as a teammate, so teams can form even when you didn’t ask for one. If you want subagents instead, turn agent teams off.
 
 ###
 
@@ -245,7 +242,7 @@ When spawning a teammate, you can reference a [subagent](</docs/en/sub-agents>) 
 
     Spawn a teammate using the security-reviewer agent type to audit the auth module.
 
-The teammate honors that definition’s `tools` allowlist and `model`, and the definition’s body is appended to the teammate’s system prompt as additional instructions rather than replacing it. Team coordination tools such as `SendMessage` and the task management tools are always available to a teammate even when `tools` restricts other tools.
+The teammate honors that definition’s `tools` allowlist and `model`, and the definition’s body is appended to the teammate’s system prompt as additional instructions rather than replacing it. For an in-process teammate, Claude Code adds `SendMessage` to that allowlist. In a [session that has the Task tools](</docs/en/tools-reference#task-tool-availability>), Claude Code adds `TaskCreate`, `TaskGet`, `TaskList`, and `TaskUpdate` to it too.
 
 The `skills` and `mcpServers` frontmatter fields in a subagent definition are not applied when that definition runs as a teammate. Teammates load skills and MCP servers from your project and user settings, the same as a regular session.
 
@@ -277,7 +274,7 @@ Context and communication
 Each teammate has its own context window. When spawned, a teammate loads the same project context as a regular session: CLAUDE.md, MCP servers, and skills. It also receives the spawn prompt from the lead. The lead’s conversation history does not carry over. **How teammates share information:**
 
   * **Automatic message delivery** : when teammates send messages, they’re delivered automatically to recipients. The lead doesn’t need to poll for updates.
-  * **Idle notifications** : when a teammate finishes and stops, it automatically notifies the lead. As of v2.1.198, a teammate whose turn ends on an API error notifies the lead that it failed and includes the error text, instead of appearing to finish normally.
+  * **Idle notifications** : when a teammate finishes and stops, it automatically notifies the lead. The notification doesn’t carry the teammate’s output; a teammate shares results by messaging the lead or updating the shared task list. As of v2.1.198, a teammate whose turn ends on an API error notifies the lead that it failed and includes the error text, instead of appearing to finish normally.
   * **Shared task list** : all agents can see task status and claim available work.
   * **Teammate messaging** : send a message to one specific teammate by name. To reach everyone, send one message per recipient.
 
@@ -431,6 +428,34 @@ If teammates aren’t appearing after you ask Claude to spawn them:
         which tmux
 
   * For iTerm2, verify the `it2` CLI is installed and the Python API is enabled in iTerm2 preferences.
+
+###
+
+​
+
+Claude spawns teammates instead of subagents
+
+While agent teams are enabled, a subagent that Claude names in the lead’s session launches as a teammate. Claude can name subagents on its own, so this can happen during delegation you never framed as team work. Subagents and teammates report back differently:
+
+  * **Subagents** : Claude receives the subagent’s result when it completes.
+  * **Teammates** : the idle notification reports that the teammate stopped, without its output.
+
+An orchestration flow that waits on subagent results can stall. To make named subagents launch as subagents again, turn agent teams off by setting `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` to `0`:
+
+settings.json
+
+    {
+      "env": {
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "0"
+      }
+    }
+
+You don’t need to start a new session: Claude Code reapplies settings-file `env` values to the running session when you save, and rereads the variable each time Claude spawns a subagent, so the next subagent Claude names launches as a subagent. Setting the variable to `0` in your user `settings.json` overrides a shell export. Other settings sources can still enable agent teams:
+
+  * **Higher-precedence settings files** : project settings, local settings, and a `--settings` payload apply after user settings, so an `env` entry that sets the variable to `1` in any of them wins. See [Settings precedence](</docs/en/settings#settings-precedence>).
+  * **Managed settings** : [managed settings](</docs/en/server-managed-settings>) apply after every other source. If your organization enables agent teams there, ask your administrator to change the managed value.
+
+After the change, Claude may still name subagents, and the name keeps working as a [`SendMessage` address](</docs/en/sub-agents#resume-subagents>). Claude receives each subagent’s result when it completes.
 
 ###
 

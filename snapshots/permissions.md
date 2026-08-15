@@ -258,7 +258,7 @@ Use with extreme caution. Claude has full system access in this mode. Only use i
 
 Plan mode (`plan`)
 
-Claude explores the codebase and produces a plan without editing your source files. Read-only tools run as in default mode. File edits are never auto-approved in plan mode, even when an allow rule matches. They prompt through your `canUseTool` callback instead. On Claude Code v2.1.212 or later, shell commands that modify files, such as `touch` and `rm`, reach your `canUseTool` callback the same way. Claude may use `AskUserQuestion` to clarify requirements before finalizing the plan. See [Handle approvals and user input](</docs/en/agent-sdk/user-input#handle-clarifying-questions>) for handling these prompts. **Use when:** you want Claude to propose changes without executing them, such as during code review or when you need to approve changes before they’re made.
+Claude explores the codebase and produces a plan without editing your source files. Read-only tools run as they do in the `default` permission mode. File edits are never auto-approved in plan mode, even when an allow rule matches. They prompt through your `canUseTool` callback instead. On Claude Code v2.1.212 or later, shell commands that modify files, such as `touch` and `rm`, reach your `canUseTool` callback the same way. Claude may use `AskUserQuestion` to clarify requirements before finalizing the plan. See [Handle approvals and user input](</docs/en/agent-sdk/user-input#handle-clarifying-questions>) for handling these prompts. **Use when:** you want Claude to propose changes without executing them, such as during code review or when you need to approve changes before they’re made.
 
 ##
 

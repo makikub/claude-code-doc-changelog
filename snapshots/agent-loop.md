@@ -143,7 +143,7 @@ Category| Tools| What they do
 **Discovery**| `ToolSearch`| Dynamically find and load tools on-demand instead of preloading all of them
 **Orchestration**| `Agent`, `Skill`, `AskUserQuestion`, `TaskCreate`, `TaskUpdate`| Spawn subagents, invoke skills, ask the user, track tasks
 
-Beyond built-in tools, you can:
+On the [models that don’t get the task-tracking tools](</docs/en/agent-sdk/todo-tracking#model-availability>), Claude Code provides `TaskCreate` and `TaskUpdate` only when you opt in. Beyond built-in tools, you can:
 
   * **Connect external services** with [MCP servers](</docs/en/agent-sdk/mcp>) (databases, browsers, APIs)
   * **Define custom tools** with [custom tool handlers](</docs/en/agent-sdk/custom-tools>)

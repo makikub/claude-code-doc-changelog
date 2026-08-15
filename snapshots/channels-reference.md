@@ -704,7 +704,7 @@ Test the verdict path in three terminals. The first is your Claude Code session,
 
     claude --dangerously-load-development-channels server:webhook
 
-In the second, stream the outbound side so you can see Claude’s replies and any permission prompts as they fire:
+This walkthrough tests the permission dialog itself, so once the session is open, press `Shift+Tab` until the status bar shows `⏸ manual mode on`. In auto mode the classifier would decide the `reply` call instead of you, and no dialog would open for the remote side to answer. In the second, stream the outbound side so you can see Claude’s replies and any permission prompts as they fire:
 
     curl -N localhost:8788/events
 
