@@ -325,7 +325,7 @@ Key| Description| Example
 `spinnerVerbs`| Customize the action verbs shown while a turn is in progress. Set `mode` to `"replace"` to use only your verbs, or `"append"` to add them to the defaults| `{"mode": "append", "verbs": ["Pondering", "Crafting"]}`
 `sshConfigs`| SSH connections to show in the [Desktop](</docs/en/desktop#pre-configure-ssh-connections-for-your-team>) environment dropdown. Each entry requires `id`, `name`, and `sshHost`; `sshPort`, `sshIdentityFile`, and `startDirectory` are optional. When set in managed settings, connections are read-only for users. Read from managed and user settings only| `[{"id": "dev-vm", "name": "Dev VM", "sshHost": "user@dev.example.com"}]`
 `statusLine`| Configure a custom status line to display context. The object’s optional `padding`, `refreshInterval`, and `hideVimModeIndicator` fields control spacing, periodic re-runs, and whether the built-in vim mode indicator below the prompt is hidden. See [`statusLine` documentation](</docs/en/statusline#manually-configure-a-status-line>)| `{"type": "command", "command": "~/.claude/statusline.sh"}`
-`strictKnownMarketplaces`| (Managed settings only) Allowlist of plugin marketplace sources. Undefined = no restrictions, empty array = lockdown. Enforced on marketplace add and on plugin install, update, refresh, and auto-update, so a marketplace added before the policy was set cannot be used to fetch plugins. See [Managed marketplace restrictions](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)| `[{ "source": "github", "repo": "acme-corp/plugins" }]`
+`strictKnownMarketplaces`| (Managed settings only) Allowlist of plugin marketplace sources. Undefined = no restrictions, empty array = lockdown. Enforced on marketplace add and on plugin install, update, refresh, and auto-update, so a marketplace added before the policy was set cannot be used to fetch plugins. The `allowedMarketplaces` alias requires Claude Code v2.1.232 or later. See [Managed marketplace restrictions](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)| `[{ "source": "github", "repo": "acme-corp/plugins" }]`
 `strictPluginOnlyCustomization`| (Managed settings only) Block skills, agents, hooks, and MCP servers from user and project sources, so they can only come from plugins or managed settings. `true` locks all four surfaces; an array locks only the named ones. See `strictPluginOnlyCustomization`| `["skills", "hooks"]`
 `subagentStatusLine`| Configure a custom command that rewrites rows in the subagent task display. See [Subagent status lines](</docs/en/statusline#subagent-status-lines>)| `{"type": "command", "command": "~/.claude/subagent-statusline.sh"}`
 `switchModelsOnFlag`| **Default** : `true`. When a [safety classifier flags a request](</docs/en/model-config#automatic-model-fallback>), switch to the fallback model automatically and continue the session. Set to `false` to pause instead and choose between switching and editing the prompt. See [Ask before switching](</docs/en/model-config#ask-before-switching>). Appears in `/config` as **Switch models when a message is flagged**. Requires Claude Code v2.1.170 or later| `false`
@@ -943,13 +943,22 @@ The `git` source type works with any git hosting service, including self-hosted 
       }
     }
 
+##### Marketplace key aliases
+
+On Claude Code v2.1.232 or later, you can also write `extraKnownMarketplaces` as `additionalMarketplaces` and `strictKnownMarketplaces` as `allowedMarketplaces`, and Claude Code treats each alias as follows.
+
+  * Earlier versions ignore the alias, so keep the canonical spelling in a file that older versions also read. A managed settings file for a fleet with mixed Claude Code versions is one such file.
+  * In any settings file that accepts the canonical key, Claude Code reads the alias exactly as it reads the canonical key.
+  * Claude Code may rewrite `additionalMarketplaces` to `extraKnownMarketplaces` when it updates the file.
+  * If you set both spellings to values in one file, Claude Code uses the canonical value and ignores the alias.
+
 ####
 
 ​
 
 `strictKnownMarketplaces`
 
-**Managed settings only** : Controls which plugin marketplaces users are allowed to add and install plugins from. This setting can only be configured in [managed settings](</docs/en/settings#settings-files>) and provides administrators with strict control over marketplace sources. **Managed settings file locations** :
+**Managed settings only** : Controls which plugin marketplaces users are allowed to add and install plugins from. This setting can only be configured in [managed settings](</docs/en/settings#settings-files>) and provides administrators with strict control over marketplace sources. You can also write this key as `allowedMarketplaces`. Marketplace key aliases describes how Claude Code treats the alias and which version accepts it. **Managed settings file locations** :
 
   * **macOS** : `/Library/Application Support/ClaudeCode/managed-settings.json`
   * **Linux and WSL** : `/etc/claude-code/managed-settings.json`

@@ -1,4 +1,4 @@
-Server-managed settings let organization Owners centrally configure Claude Code from [**Admin Settings > Claude Code > Managed settings**](<https://claude.ai/admin-settings/claude-code>) in the claude.ai console. Claude Code clients fetch these settings automatically when users authenticate with an organization OAuth login or a directly configured API key, on platforms where server-managed delivery is supported. See Platform availability. This approach is designed for organizations that don’t have device management infrastructure in place, or that need to manage settings for users on unmanaged devices.
+Server-managed settings let organization Owners centrally configure Claude Code from [**Admin Settings > Claude Code > Managed settings**](<https://claude.ai/admin-settings/claude-code>) in the claude.ai console. Claude Code clients fetch these settings automatically when users authenticate with an organization OAuth login or a directly configured API key, on platforms where server-managed delivery is supported. See Platform availability.
 
 Server-managed settings are available for [Claude for Teams](<https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_teams#team-&-enterprise>) and [Claude for Enterprise](<https://anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=server_settings_enterprise>) customers.
 
@@ -75,19 +75,7 @@ Hooks use the same format as in `settings.json`.This example runs an audit scrip
       }
     }
 
-To configure the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier so it knows which repos, buckets, and domains your organization trusts:
-
-    {
-      "autoMode": {
-        "environment": [
-          "Source control: github.example.com/acme-corp and all repos under it",
-          "Trusted cloud buckets: s3://acme-build-artifacts, gs://acme-ml-datasets",
-          "Trusted internal domains: *.corp.example.com"
-        ]
-      }
-    }
-
-Because hooks execute shell commands, users see a security approval dialog before they’re applied. See [Configure auto mode](</docs/en/auto-mode-config>) for how the `autoMode` entries affect what the classifier blocks and important warnings about the `environment`, `allow`, `soft_deny`, and `hard_deny` fields.
+Because hooks execute shell commands, users see a security approval dialog before they’re applied.To configure the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier so it knows which repos, buckets, and domains your organization trusts, deliver an `autoMode` block the same way; see [Configure auto mode](</docs/en/auto-mode-config>) for how the `autoMode` entries affect what the classifier blocks and important warnings about the `environment`, `allow`, `soft_deny`, and `hard_deny` fields.
 
 3
 
