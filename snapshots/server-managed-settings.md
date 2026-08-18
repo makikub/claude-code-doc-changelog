@@ -216,6 +216,7 @@ Security approval dialogs
 Certain settings that could pose security risks require explicit user approval before Claude Code applies them:
 
   * **Shell command settings** : settings that execute shell commands
+  * **Sandbox binary settings** : `sandbox.bwrapPath`, `sandbox.socatPath`, and `sandbox.ripgrep`. Each of these settings points at an executable, and Claude Code runs that executable
   * **Custom environment variables** : delivered `env` variables that require the user’s approval, such as proxy and base-URL variables; see Environment variables and the approval dialog
   * **Hook configurations** : any hook definition
   * **Managed CLAUDE.md content** : a `claudeMd` value delivered through managed settings

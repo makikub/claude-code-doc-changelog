@@ -141,7 +141,7 @@ Auto-update fetches a constrained dependency at the highest git tag that satisfi
 
 Enable or disable a plugin with dependencies
 
-Enabling a plugin also enables the plugins it depends on, and disabling a plugin is blocked if another enabled plugin still needs it. Both behaviors require Claude Code v2.1.143 or later. Earlier versions enable or disable only the named plugin and surface a `dependency-unsatisfied` error on the next load. When you enable a plugin, Claude Code also enables its dependencies at the same scope. If a dependency has its own dependencies, Claude Code enables those too. The success message lists what else was enabled along with the plugin you named. If a dependency can’t be enabled, the command refuses and tells you what’s blocking and how to fix it:
+Enabling a plugin also enables the plugins it depends on, and disabling a plugin is blocked if another enabled plugin still needs it. When you enable a plugin, Claude Code also enables its dependencies at the same scope. If a dependency has its own dependencies, Claude Code enables those too. The success message lists what else was enabled along with the plugin you named. If a dependency can’t be enabled, the command refuses and tells you what’s blocking and how to fix it:
 
 Condition| Result
 ---|---

@@ -24,7 +24,7 @@ If you haven’t yet accepted the [workspace trust dialog](</docs/en/permissions
 
 Dispatch a session
 
-Type a prompt describing a task and press `Enter`. A new background session starts on that task and appears as a row showing whether it’s working, waiting on you, or done. The new session uses the model shown in the agent view header and the same permission mode you’d get running `claude` in that directory.Every prompt you enter here starts its own new session. Typing another prompt and pressing `Enter` launches a second session alongside the first rather than sending a follow-up to it. You can run several in parallel this way.Each session uses your subscription quota independently, so see Limitations before dispatching many at once.
+Type a prompt describing a task and press `Enter`. A new background session starts on that task and appears as a row showing whether it’s working, waiting on you, or done. The new session uses the model shown in the agent view header. Which permission mode it starts in depends on how you opened agent view.Every prompt you enter here starts its own new session. Typing another prompt and pressing `Enter` launches a second session alongside the first rather than sending a follow-up to it. You can run several in parallel this way.Each session uses your subscription quota independently, so see Limitations before dispatching many at once.
 
 3
 
@@ -455,11 +455,47 @@ Each background session can run on a different model. To override it for one ses
 
 Permission mode, model, and effort
 
-A background session reads its [settings](</docs/en/settings>) from the directory it runs in, the same as if you had started `claude` there. This includes [`env` values](</docs/en/settings#available-settings>) in project settings, so an `ANTHROPIC_MODEL` or provider variable set there applies to background sessions in that directory. Cloud provider selection, such as `CLAUDE_CODE_USE_BEDROCK` or `CLAUDE_CODE_USE_VERTEX`, and `ANTHROPIC_DEFAULT_*_MODEL` aliases follow the shell that dispatched the session. If you export a [`CLAUDE_CODE_EXTRA_BODY`](</docs/en/env-vars>) request-body override in that shell, it reaches the session the same way. A gateway `ANTHROPIC_BASE_URL` exported in that shell can reach the session too; see the supervisor process for the conditions and for how background sessions source provider settings and credentials. The [permission mode](</docs/en/permissions>) depends on how you started the session. Backgrounding an existing session with `/bg` or `←` keeps the current permission mode, so a session you switched to `acceptEdits` or `auto` stays in that mode after detaching. Dispatching from the agent view input or running `claude --bg` from your shell uses the `defaultMode` from that directory’s settings, or the `permissionMode` from the dispatched [subagent’s frontmatter](</docs/en/sub-agents#supported-frontmatter-fields>). The permission mode, model, and effort you chose for a background session, along with the configuration flags it carries, all persist when the supervisor later stops and restarts its process. A session you launched with `claude --bg --dangerously-skip-permissions` or `claude --bg --permission-mode bypassPermissions` stays in `bypassPermissions` after that restart instead of falling back to the directory’s `defaultMode`, and a model or effort you changed mid-session with `/model` or `/effort` is kept. An effort the session took from the [`effortLevel` setting](</docs/en/settings#available-settings>) rather than from `--effort` or `/effort` isn’t fixed at dispatch: each process started for the session reads the setting again, so editing `effortLevel` in `settings.json` reaches sessions you background with `←` or `/bg` and their later restarts. A name you set with [`/rename`](</docs/en/commands>) or `Ctrl+R` also persists across that restart, so [`claude --resume <name>`](</docs/en/sessions#name-your-sessions>) still resolves the session. To set defaults for every session you dispatch from agent view, pass any of `--permission-mode`, `--model`, `--effort`, or `--agent` when opening it:
+A background session takes its settings, provider, permission mode, model, and effort from where and how you dispatched it. The subsections below cover each source, and what persists when the supervisor restarts the session.
+
+####
+
+​
+
+Settings and provider
+
+A background session reads its [settings](</docs/en/settings>) from the directory it runs in, the same as if you had started `claude` there. This includes [`env` values](</docs/en/settings#available-settings>) in project settings, so an `ANTHROPIC_MODEL` or provider variable set there applies to background sessions in that directory. Cloud provider selection, such as `CLAUDE_CODE_USE_BEDROCK` or `CLAUDE_CODE_USE_VERTEX`, and `ANTHROPIC_DEFAULT_*_MODEL` aliases follow the shell that dispatched the session. If you export a [`CLAUDE_CODE_EXTRA_BODY`](</docs/en/env-vars>) request-body override in that shell, it reaches the session the same way. A gateway `ANTHROPIC_BASE_URL` exported in that shell can reach the session too; see the supervisor process for the conditions and for how background sessions source provider settings and credentials.
+
+####
+
+​
+
+Permission mode
+
+The [permission mode](</docs/en/permissions>) depends on how you started the session:
+
+  * **Backgrounded with`/bg` or `←`**: Claude Code keeps the permission mode the session was in, so one you switched to `acceptEdits` or `auto` stays there after detaching
+  * **Dispatched from an agent view you opened with`←`**: the new session starts in the permission mode of the session you came from
+  * **Dispatched from`claude agents` started in a shell, or with `claude --bg`**: the new session starts the way a new `claude` session in that directory would, unless you dispatched it from an agent view you opened with dispatch defaults. [Which permission mode a session starts in](</docs/en/permission-modes#which-mode-a-session-starts-in>) lists the order
+
+####
+
+​
+
+Dispatch defaults
+
+To set defaults for every session you dispatch from agent view, pass any of `--permission-mode`, `--model`, `--effort`, or `--agent` when opening it:
 
     claude agents --permission-mode plan --model opus --effort high
 
 `--effort` here accepts the same values as the [top-level `--effort` flag](</docs/en/cli-reference#cli-flags>), including `ultracode`. `--agent` sets the [subagent](</docs/en/sub-agents>) used when a dispatch prompt doesn’t name one, either with `@name` or as the first word. It defaults to the [`agent` setting](</docs/en/settings#available-settings>) if one is set, otherwise the built-in catch-all `claude` agent. Naming a subagent in the dispatch input overrides both. `claude agents` also accepts `--dangerously-skip-permissions` as shorthand for `--permission-mode bypassPermissions`, and `--allow-dangerously-skip-permissions` to make `bypassPermissions` available in each dispatched session’s `Shift+Tab` cycle without starting in that mode. Both match the [top-level CLI flags](</docs/en/cli-reference>). The active defaults appear in the footer below the dispatch input. Claude Code refuses `claude --bg --permission-mode bypassPermissions` until you’ve accepted the bypass disclaimer by running `claude --dangerously-skip-permissions` once interactively, since that mode lets a session you aren’t watching act without approval. Passing `--dangerously-skip-permissions` or `--permission-mode bypassPermissions` to `claude agents` shows the same disclaimer when you haven’t accepted it before, and accepting applies `bypassPermissions` to the sessions you launch from the view. Passing `--allow-dangerously-skip-permissions` shows the same disclaimer too, and accepting makes `bypassPermissions` available in the `Shift+Tab` cycle of those sessions without starting them in it.
+
+####
+
+​
+
+What persists across restarts
+
+The permission mode, model, and effort you chose for a background session, along with the configuration flags it carries, all persist when the supervisor later stops and restarts its process. A session you launched with `claude --bg --dangerously-skip-permissions` or `claude --bg --permission-mode bypassPermissions` stays in `bypassPermissions` after that restart. A model or effort you changed mid-session with `/model` or `/effort` is kept too. If the session took its effort from the [`effortLevel` setting](</docs/en/settings#available-settings>) rather than from `--effort` or `/effort`, Claude Code reads the setting again each time it starts a process for the session. So when you edit `effortLevel` in `settings.json`, the change reaches sessions you background with `←` or `/bg`, and their later restarts. Claude Code also keeps a name you set with [`/rename`](</docs/en/commands>) or `Ctrl+R` across that restart, so you can still run [`claude --resume <name>`](</docs/en/sessions#name-your-sessions>) to reach the session.
 
 ###
 

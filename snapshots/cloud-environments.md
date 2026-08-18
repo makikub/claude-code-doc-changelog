@@ -87,8 +87,6 @@ Owners and admins on Team and Enterprise plans can create cloud environments tha
   * Set a shared environment as the organization’s default environment at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>).
   * [Pin one to a channel](<https://claude.com/docs/claude-tag/admins/troubleshooting#channel-sessions-use-the-wrong-environment-or-can%E2%80%99t-find-one>) in the Claude Tag admin settings.
 
-Shared environments add to members’ selectors rather than replacing them.
-
 ##
 
 ​
@@ -128,7 +126,7 @@ To allow domains that aren’t in the Trusted list, select **Custom** in the env
     *.internal.example.com
     registry.example.com
 
-Sessions in this environment can now reach `api.example.com`, any subdomain of `internal.example.com`, and `registry.example.com`, and no other domains through the session’s network; GitHub traffic and MCP connector traffic don’t go through this allowlist. A leading `*.` matches every subdomain. To keep the Trusted domains too, check **Also include default list of common package managers** ; leave it unchecked to allow only what you list. Each environment has its own allowed-domains list; there’s no organization-level allowlist that admins can push to every member’s environments. [Server-managed settings](</docs/en/server-managed-settings>) still apply inside cloud sessions, but none of them adds domains to the environment’s network allowlist.
+Sessions in this environment can now reach `api.example.com`, any subdomain of `internal.example.com`, and `registry.example.com`, and no other domains through the session’s network; GitHub traffic and MCP connector traffic don’t go through this allowlist. A leading `*.` matches every subdomain. To keep the Trusted domains too, check **Also include default list of common package managers** ; leave it unchecked to allow only what you list. If sessions in the environment work with [artifacts](</docs/en/artifacts>), include `*.frame.claudeusercontent.com` in your list. Claude Code fetches artifact content from that host. If you leave it out, Claude can’t read artifacts in sessions that run in the environment. Each environment has its own allowed-domains list; there’s no organization-level allowlist that admins can push to every member’s environments. [Server-managed settings](</docs/en/server-managed-settings>) still apply inside cloud sessions, but none of them adds domains to the environment’s network allowlist.
 
 ###
 
@@ -408,7 +406,7 @@ SessionStart hooks behave the same in the cloud as locally, with these caveats:
   * **Proxy compatibility** : in Anthropic-hosted environments, all outbound traffic passes through a security proxy, and some package managers don’t work correctly with it; Bun is a known example. In a [self-hosted environment](</docs/en/self-hosted-environments-deploy#default-deny-egress>), outbound traffic goes through your own network boundary instead.
   * **Adds startup latency** : hooks run each time a session starts or resumes, unlike setup scripts which benefit from environment caching. Keep install scripts fast by checking whether dependencies are already present before reinstalling.
 
-To persist environment variables for subsequent Bash commands, write to the file at `$CLAUDE_ENV_FILE`. See [SessionStart hooks](</docs/en/hooks#sessionstart>) for details. To customize the base image, use a setup script to install what you need on top of the provided image, or run your own image as a container alongside Claude with `docker compose`. Replacing the base image entirely isn’t supported yet.
+To customize the base image, use a setup script to install what you need on top of the provided image, or run your own image as a container alongside Claude with `docker compose`. Replacing the base image entirely isn’t supported yet.
 
 ##
 

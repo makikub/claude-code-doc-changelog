@@ -60,7 +60,7 @@ Notes Claude writes for itself based on your corrections and preferences, stored
 
 Auto mode
 
-A permission mode where a separate classifier model reviews actions in the background, so most run without approval prompts; explicit ask rules still prompt. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection. It never sees tool results, so injected instructions cannot influence its decisions. Learn more: [Eliminate prompts with auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)
+A permission mode where a separate classifier model reviews actions instead of you, so Claude Code runs most of them without asking you. Claude Code still asks you before actions your explicit ask rules match. On Pro, Max, and Team plans, auto mode is the [built-in starting permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) for interactive terminal and VS Code sessions. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection. It never sees tool results, so injected instructions can’t influence its decisions. Learn more: [Eliminate prompts with auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)
 
 ##
 
