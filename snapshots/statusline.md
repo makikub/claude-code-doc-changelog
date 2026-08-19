@@ -1038,7 +1038,7 @@ Troubleshooting
 
   * Verify your terminal supports OSC 8 hyperlinks (iTerm2, Kitty, WezTerm)
   * Terminal.app does not support clickable links
-  * If link text appears but isn’t clickable, Claude Code may not have detected hyperlink support in your terminal. This commonly affects Windows Terminal and other emulators not in the auto-detection list. Set the `FORCE_HYPERLINK` environment variable to override detection before launching Claude Code:
+  * If link text appears but isn’t clickable, Claude Code may not have detected hyperlink support in your terminal. Set the `FORCE_HYPERLINK` environment variable to override detection before launching Claude Code:
 
         FORCE_HYPERLINK=1 claude
 

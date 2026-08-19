@@ -49,7 +49,7 @@ Once you type at least one letter after the `@`, Claude Code suggests your other
 
 Message delivery
 
-The receiving Claude reads the message between tool calls during an active turn, so a running tool is never interrupted. When the receiving session is idle, Claude Code starts a new turn with the message. Between two ordinary interactive sessions with default settings, Claude Code delivers the message. Delivery isn’t guaranteed in every configuration, though. The receiving session checks each arriving message against its own inbound controls, and the check ends in one of three outcomes:
+The receiving Claude reads the message between tool calls during an active turn, so a running tool is never interrupted. When the receiving session is idle, Claude Code starts a new turn with the message. Between two ordinary interactive sessions with default settings, Claude Code delivers the message. Delivery isn’t guaranteed in every configuration, though. Claude Code refuses a message over the size cap in the sending session, before it leaves. The receiving session checks each arriving message against its own inbound controls, and the check ends in one of three outcomes:
 
   * **Delivered** : Claude Code passes the message to the receiving Claude.
   * **Held** : Claude Code sets the message aside undelivered. A held message reaches Claude only when you approve it or a later mode or settings change allows it.
@@ -255,6 +255,7 @@ Limitations
 The limits here are properties of the messaging channel itself and apply wherever the feature runs. For platform and provider gaps, see Availability instead.
 
   * **Plain text only** : Claude sends only plain text across sessions. Structured [agent team](</docs/en/agent-teams>) protocol messages stay within a team.
+  * **Same-machine message size is capped** : Claude Code refuses a message to a session on this machine once its serialized form passes about a million characters. The refusal [names the exact sizes](</docs/en/errors#message-too-large-for-cross-session-delivery>). Nothing reaches the receiving session.
   * **Message loops are throttled** : Claude Code rate-limits repeated messages per sender, drops identical repeats arriving within a short window, and caps accepted messages waiting for Claude to read them at 50 per session. A message loop between two sessions therefore stops on its own.
 
 ##

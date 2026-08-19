@@ -76,8 +76,12 @@ Message| Section
 `Couldn't reconnect to your Remote Control session`| Network
 `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.`| Network
 `Couldn't share the transcript.`| Network
+`Couldn't show context usage: the remote sent a reply this version can't display`| Network
+`The remote session sent a reply this version can't display`| Network
 `Prompt is too long` / `Input is too long for requested model`| Request errors
 `Prompt is too long · automatic compaction failed:`| Request errors
+`Context limit reached · /compact or /clear to continue`| Request errors
+`Context limit reached · /clear to continue`| Request errors
 `Context exceeds the ...-token limit by ... tokens` in `/context` output| Request errors
 `Error during compaction: Conversation too long`| Request errors
 `Request too large`| Request errors
@@ -128,10 +132,12 @@ Message| Section
 `Plugin archive integrity check failed`| Plugin errors
 `would be spawned with zero tools — refusing`| Tool errors
 `File is covered by a Read deny rule in your permission settings`| Tool errors
+`subagent_type is required: the general-purpose agent is not available in this session`| Tool errors
 `Error: this write left the memory index at MEMORY.md at ..., over its ... read limit`| Tool errors
 `pkill: refusing to run`| Tool errors
 `Failed to write to <name>'s inbox — nothing was sent`| Tool errors
 `Failed to write the plan approval request to the lead's inbox — plan not submitted`| Tool errors
+`Message too large for cross-session delivery`| Tool errors
 `Can't open MCP settings while no terminal is attached to this background session`| Background session errors
 `Can't open MCP settings in a background session`| Background session errors
 `blocked because the path is spelled in a form that cannot be safely resolved`| Background session errors
@@ -1058,6 +1064,23 @@ Claude Code shows this message in the terminal running [`claude remote-control`]
 
 ​
 
+The remote sent a reply this version can’t display
+
+`/context` shows this line in a terminal [attached to a cloud session](</docs/en/claude-code-on-the-web#send-follow-ups-from-the-cli>):
+
+    Couldn't show context usage: the remote sent a reply this version can't display
+
+While your terminal is attached, `/context` and `/btw` ask the cloud session for their answer. Sometimes the answer arrives in a form your terminal’s Claude Code can’t render. The usual cause is a version difference between the two. `/context` then shows the line above instead of the usage breakdown. `/btw` shows `The remote session sent a reply this version can't display` instead of its answer. The cloud session keeps running, and other commands still work. **What to do:**
+
+  * Update Claude Code with `claude update`, reattach, and rerun the command
+  * If the line still appears, run `/feedback` and name the command
+
+Before v2.1.235, this case showed a raw JavaScript error instead, such as `undefined is not an object`.
+
+###
+
+​
+
 Couldn’t share the transcript
 
 After you agree to share your session transcript from a survey prompt, such as the [session quality survey](</docs/en/data-usage#session-quality-surveys>), Claude Code uploads it to Anthropic, or saves a local archive instead on third-party providers, on [Claude apps gateway](</docs/en/claude-apps-gateway>) sessions, and when no Anthropic credentials are available. This message means the share didn’t complete.
@@ -1087,18 +1110,26 @@ The conversation plus attached files exceeds the model’s context window.
 
     Prompt is too long
 
-Amazon Bedrock reports this condition as `Input is too long for requested model.`, which Claude Code handles the same way. Before v2.1.217, Claude Code didn’t recognize the Bedrock wording, so auto-compact never triggered on it and `/compact` failed with the same error. When automatic compaction ran on this turn and failed on an underlying error, such as an unavailable model or an authentication failure, the message names that error after a separator:
+In an interactive session, Claude Code shows this error as:
+
+    Context limit reached · /compact or /clear to continue
+
+The line names only `/clear` when [`DISABLE_COMPACT`](</docs/en/env-vars>) is set. Longer forms of the error, such as the compaction-failed form below, keep the `Prompt is too long ·` wording. In `-p` output and the transcript, the text stays `Prompt is too long`. When you turned auto-compact off in your [user settings](</docs/en/settings#available-settings>), the line also says so:
+
+    Context limit reached · /compact or /clear to continue · auto-compact is off · /config to turn it on
+
+The **Auto-compact** toggle in `/config` writes `autoCompactEnabled` to user settings. The hint appears only when a `/config` change would take effect. For example, it doesn’t appear when [`DISABLE_AUTO_COMPACT`](</docs/en/env-vars>) or [`DISABLE_COMPACT`](</docs/en/env-vars>) turned auto-compact off. It also doesn’t appear when a higher-precedence scope, such as project or managed settings, set `autoCompactEnabled` to `false`. Nor does it appear in a terminal attached to a cloud session, where the cloud session owns auto-compact. Before v2.1.235, the line carried no auto-compact hint. Amazon Bedrock reports this condition as `Input is too long for requested model.`, which Claude Code handles the same way. Before v2.1.217, Claude Code didn’t recognize the Bedrock wording, so auto-compact never triggered on it and `/compact` failed with the same error. When automatic compaction ran on this turn and failed on an underlying error, such as an unavailable model or an authentication failure, the message names that error after a separator:
 
     Prompt is too long · automatic compaction failed: <the underlying error>
 
-Resolve the named error first; `/compact` fails on the same error until you do. Before v2.1.229, a failed automatic compaction surfaced the bare `Prompt is too long` without the cause. **What to do:**
+Resolve the named error first; `/compact` fails on the same error until you do. Before v2.1.229, a failed automatic compaction surfaced `Prompt is too long` without the cause. **What to do:**
 
   * Run `/compact` to summarize earlier turns and free space, or `/clear` to start fresh
   * Run `/context` to see a breakdown of what is consuming the window: system prompt, tools, memory files, and messages
   * Disable MCP servers you are not using with `/mcp disable <name>` to remove their tool definitions from context
   * Trim large `CLAUDE.md` memory files, or move instructions into [path-scoped rules](</docs/en/memory#path-specific-rules>) that load only when relevant
   * Subagents inherit every MCP tool definition from the parent session, which can fill their context window before the first turn. Disable MCP servers you are not using before spawning subagents.
-  * Auto-compact is on by default and normally prevents this error. If you have set [`DISABLE_AUTO_COMPACT`](</docs/en/env-vars>), re-enable it or run `/compact` manually before the window fills.
+  * Auto-compact is on by default and normally prevents this error. If you turned it off in `/config` or with [`DISABLE_AUTO_COMPACT`](</docs/en/env-vars>), turn it back on. If you keep it off, run `/compact` yourself before the window fills.
 
 See [Explore the context window](</docs/en/context-window>) for an interactive view of how context fills up.
 
@@ -1108,7 +1139,7 @@ See [Explore the context window](</docs/en/context-window>) for an interactive v
 
 Context exceeds the token limit
 
-`/context` shows this warning at the top of its output when the conversation has grown past the model’s context window. Requests fail with `Prompt is too long` until you free space.
+`/context` shows this warning at the top of its output when the conversation has grown past the model’s context window. Requests fail with `Prompt is too long` until you free space. An interactive session shows that error as the `Context limit reached` line.
 
     Context exceeds the 200k-token limit by 94k tokens — run /compact or /clear to continue.
 
@@ -1133,7 +1164,7 @@ Error during compaction: Conversation too long
 
     Error during compaction: Conversation too long. Press esc twice to go up a few messages and try again.
 
-This can happen when the window is already full at the moment auto-compact triggers, or when you run `/compact` after seeing `Prompt is too long`. **What to do:**
+This can happen when the window is already full at the moment auto-compact triggers, or when you run `/compact` after seeing `Prompt is too long`. In an interactive session, that error is the `Context limit reached` line. **What to do:**
 
   * Press Esc twice to open the message list and step back several turns. This drops the most recent messages from context. Then run `/compact` again.
   * If stepping back doesn’t free enough space, run `/clear` to start a fresh session. Your previous conversation is preserved and can be reopened with `/resume`.
@@ -1853,6 +1884,26 @@ When Claude Code refuses the Write tool, the message ends `and cannot be written
 
 ​
 
+subagent_type is required
+
+    subagent_type is required: the general-purpose agent is not available in this session. Available agents: ...
+
+Claude called the [Agent tool](</docs/en/tools-reference#agent-tool-behavior>) without a `subagent_type`, and this session has no [general-purpose subagent](</docs/en/sub-agents#built-in-subagents>) to fall back on. That is the case in two setups:
+
+  * [`CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`](</docs/en/env-vars>) is set in non-interactive mode, which removes every built-in subagent
+  * The session’s main-thread agent has a [`tools: Agent(...)` allowlist](</docs/en/sub-agents#restrict-which-subagents-can-be-spawned>) that leaves out `general-purpose`
+
+**What to do:**
+
+  * Usually nothing: the message lists the subagents the session does have, so Claude can retry with one of them
+  * If Claude keeps failing, add `general-purpose` to the `tools: Agent(...)` allowlist, or unset `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS`
+
+Before v2.1.235, the same call failed with `Agent type 'general-purpose' not found`.
+
+###
+
+​
+
 Memory index is over its read limit
 
 Claude wrote to the [auto memory](</docs/en/memory#auto-memory>) index `MEMORY.md` and left it over one of its read limits: 200 lines or 25KB. The write succeeded, but only the first 200 lines or 25KB, whichever comes first, load at the start of a session, so everything past the limit is dropped each time the index is read. Before v2.1.210, an over-limit index was silently truncated on the next load with no write-time signal.
@@ -1899,6 +1950,23 @@ When you message a teammate yourself, typing `@name` followed by the message in 
 
   * Ask the sender to resend the message; contention for the inbox lock is transient and clears on retry
   * Check free disk space, and check that `~/.claude/teams` and the files under it are writable by your user
+
+###
+
+​
+
+Message too large for cross-session delivery
+
+Claude’s [cross-session message](</docs/en/cross-session-messaging>) to another of your sessions on this machine was too long to send. Claude Code refused it, and the receiving session got nothing. The refusal appears in the sending session’s tool result, not as a banner in your terminal. It names both sizes and how to make the message fit:
+
+    Failed to send to api-worker: Message too large for cross-session delivery: the serialized message is 1,203,844 characters and the limit is 1,048,576. Shorten the message text — put bulk content in a file the recipient can read rather than in the message — or split it into smaller messages.
+
+Resending the same text fails the same way. **What to do:**
+
+  * Ask Claude to summarize the message, or to put the bulk content in a file and send the file’s path
+  * Ask Claude to split the content across several shorter messages
+
+Before v2.1.235, Claude Code reported an oversized message as sent. The receiving session dropped it unread.
 
 ##
 
