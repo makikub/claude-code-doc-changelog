@@ -356,7 +356,7 @@ Feature| CLAUDE.md| Output Styles| `systemPrompt` with append| Custom `systemPro
 
 Combine approaches
 
-These methods compose. A persistent output style or CLAUDE.md sets the long-lived behavior, and `append` layers session-specific instructions on top without touching the saved configuration.
+The approaches compose. A persistent output style or CLAUDE.md sets the long-lived behavior, and `append` layers session-specific instructions on top without touching the saved configuration.
 
 ###
 
