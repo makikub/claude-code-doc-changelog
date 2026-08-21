@@ -489,7 +489,7 @@ Configuration object for the `query()` function.
 Property| Type| Default| Description
 ---|---|---|---
 `abortController`| `AbortController`| `new AbortController()`| Controller for cancelling operations
-`additionalDirectories`| `string[]`| `[]`| Additional directories Claude can access
+`additionalDirectories`| `string[]`| `[]`| Additional directories Claude can access. The SDK passes each entry to Claude Code as `--add-dir`, so with the `project` setting source Claude Code also [loads the directory’s skills, commands, and subagents](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>)
 `agent`| `string`| `undefined`| Agent name for the main thread. The agent must be defined in the `agents` option or in settings
 `agents`| `Record<string, [`AgentDefinition`](#agentdefinition)>`| `undefined`| Programmatically define subagents
 `agentProgressSummaries`| `boolean`| `false`| When `true`, generate one-line progress summaries for subagents and forward them on `task_progress` events via the `summary` field. Applies to foreground and background subagents
@@ -515,7 +515,7 @@ Property| Type| Default| Description
 `includeHookEvents`| `boolean`| `false`| Include hook lifecycle events in the message stream as `SDKHookStartedMessage`, `SDKHookProgressMessage`, and `SDKHookResponseMessage`. Lifecycle events for `SessionStart` and `Setup` hooks are always included and don’t need this option. Some hook events, such as `Notification`, `SessionEnd`, `PreCompact`, and `PostCompact`, never produce an `SDKHookStartedMessage`, even with this option. For those events, Claude Code still emits an `SDKHookProgressMessage` while a command hook that runs for more than a second produces output, and emits an `SDKHookResponseMessage` only when a hook [that runs in the background](</docs/en/hooks#run-hooks-in-the-background>) finishes
 `includePartialMessages`| `boolean`| `false`| Include partial message events
 `loadTimeoutMs`| `number`| `60000`|  _Alpha._ Timeout in milliseconds for each `sessionStore.load()` and `sessionStore.listSubkeys()` call during resume materialization. If the adapter doesn’t settle within this window, the query fails instead of hanging. Ignored when `sessionStore` is not set
-`managedSettings`| `Settings`| `undefined`| Policy-tier settings your host process supplies to the spawned session. On machines with admin-deployed managed settings, Claude Code ignores these unless the admin’s highest-priority managed source sets `parentSettingsBehavior: 'merge'`, and never merges them while a [`policyHelper`](</docs/en/settings#compute-managed-settings-with-a-policy-helper>) is configured. Merged values pass through a restrictive-only filter; [Restrict parent settings](</docs/en/claude-apps-gateway#restrict-parent-settings>) covers what the filter admits and the `allowManaged*Only` locks
+`managedSettings`| `Settings`| `undefined`| Policy-tier settings your host process supplies to the spawned session. On machines with admin-deployed managed settings, Claude Code ignores these unless the admin’s highest-priority managed source sets `parentSettingsBehavior: 'merge'`, and never merges them when an MDM or file-based source wins and configures a [`policyHelper`](</docs/en/settings#compute-managed-settings-with-a-policy-helper>). Merged values pass through a restrictive-only filter; [Restrict parent settings](</docs/en/claude-apps-gateway#restrict-parent-settings>) covers what the filter admits and the `allowManaged*Only` locks
 `maxBudgetUsd`| `number`| `undefined`| Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for accuracy caveats
 `maxThinkingTokens`| `number`| `undefined`|  _Deprecated:_ Use `thinking` instead. Maximum tokens for thinking process
 `maxTurns`| `number`| `undefined`| Maximum agentic turns (tool-use round trips)
@@ -530,7 +530,7 @@ Property| Type| Default| Description
 `persistSession`| `boolean`| `true`| When `false`, disables session persistence to disk. Sessions cannot be resumed later
 `planModeInstructions`| `string`| `undefined`| Custom workflow instructions for plan mode. When `permissionMode` is `'plan'`, this string replaces the default plan-mode workflow body. The CLI still wraps it with the read-only enforcement preamble and the ExitPlanMode protocol footer
 `plugins`| `SdkPluginConfig``[]`| `[]`| Load custom plugins from local paths. See [Plugins](</docs/en/agent-sdk/plugins>) for details
-`promptSuggestions`| `boolean`| `false`| Enable prompt suggestions. Emits a `prompt_suggestion` message after each turn with a predicted next user prompt
+`promptSuggestions`| `boolean`| `false`| Enable prompt suggestions. After a turn, Claude Code emits a `prompt_suggestion` message carrying a predicted next user prompt. Claude Code generates no suggestion for some turns, such as while your account is close to or at its usage limit. See [When Claude Code skips suggestions](</docs/en/interactive-mode#when-claude-code-skips-suggestions>)
 `resume`| `string`| `undefined`| Session ID to resume
 `resumeDropsTurn`| `string`| `undefined`| With `resumeSessionAt`: the prompt UUID of the turn the truncating resume intends to discard. Claude Code refuses the resume when the discarded range contains anything not attributable to that turn, such as absorbed queued messages or task notifications, and names the `--resume-drops-turn` flag in the rejection message. Only the Agent SDK and print-mode resumes read the pair. Requires Claude Code v2.1.223 or later
 `resumeSessionAt`| `string`| `undefined`| Resume session at a specific message UUID
@@ -716,9 +716,15 @@ Return type of `initializationResult()`. Contains session initialization data.
       account: AccountInfo;
       fast_mode_state?: "off" | "cooldown" | "on";
       fast_mode_disabled_reason?: FastModeDisabledReason;
+      hooks_applied?: boolean;
     };
 
-The response always reports `fast_mode_state`, and when something blocks [fast mode](</docs/en/fast-mode>), `fast_mode_disabled_reason` carries the reason code alongside it, so you can explain the blocked state instead of re-deriving availability. Both behaviors require Claude Code v2.1.219 or later. Before v2.1.219, the response omitted `fast_mode_state` when fast mode wasn’t available and never carried a reason. For the reason codes and their meanings, see `fast_mode_disabled_reason` on the result message. When a client sends `initialize` to a session that is already running, the control-response wrapper also carries an optional `pending_permission_requests` array. The field is on the response wrapper itself, not in the `SDKControlInitializeResponse` payload above. Each entry is a complete `control_request` message with the same `{ type: "control_request", request_id, request }` shape the session streams for permission requests while running. These are requests that were issued before the client connected and are still awaiting a reply. The SDK reads the array for you and dispatches each entry to your `canUseTool` callback, the same redelivery that `reinitialize()` triggers after a transport gap. Handle repeated request IDs idempotently, because an entry can repeat a request the callback already received before the connection dropped.
+`hooks_applied` reports whether Claude Code registered the `hooks` that the `initialize` request carried. The SDK sends that request once when the session starts and again on each `reinitialize()` call. The field requires Agent SDK v0.3.238 or later. Claude Code omits the field when the request carried no hooks. When the request carried hooks, the value depends on whether the request is the session’s first initialize and, for a repeated one, on how it reached the session:
+
+  * `true`: Claude Code registered the hooks. A session’s first initialize returns this value. So does a repeated initialize sent over the CLI’s stdin. In that case the hooks in the new request replace the hooks registered earlier.
+  * `false`: Claude Code ignored the hooks. A repeated initialize sent to a remote session returns this value, so a second client that joins a session can’t replace the hooks the first client registered.
+
+Before Agent SDK v0.3.238, the response never carried the field, and Claude Code ignored `hooks` on every repeated initialize. The response always reports `fast_mode_state`, and when something blocks [fast mode](</docs/en/fast-mode>), `fast_mode_disabled_reason` carries the reason code alongside it, so you can explain the blocked state instead of re-deriving availability. Both behaviors require Claude Code v2.1.219 or later. Before v2.1.219, the response omitted `fast_mode_state` when fast mode wasn’t available and never carried a reason. For the reason codes and their meanings, see `fast_mode_disabled_reason` on the result message. When a client sends `initialize` to a session that is already running, the control-response wrapper also carries an optional `pending_permission_requests` array. The field is on the response wrapper itself, not in the `SDKControlInitializeResponse` payload above. Each entry is a complete `control_request` message with the same `{ type: "control_request", request_id, request }` shape the session streams for permission requests while running. These are requests that were issued before the client connected and are still awaiting a reply. The SDK reads the array for you and dispatches each entry to your `canUseTool` callback, the same redelivery that `reinitialize()` triggers after a transport gap. Handle repeated request IDs idempotently, because an entry can repeat a request the callback already received before the connection dropped.
 
 ###
 
@@ -2431,6 +2437,13 @@ Hook return value.
         | {
             hookEventName: "PostToolUse";
             additionalContext?: string;
+            /**
+             * Short note about this tool call's result for the auto mode
+             * permission classifier. Capped at 2000 characters, shared across
+             * all hooks that respond to the same call; honored on synchronous
+             * hook responses only. Don't copy untrusted tool output into it.
+             */
+            classifierContext?: string;
             updatedToolOutput?: unknown;
             /** @deprecated Use `updatedToolOutput`, which works for all tools. */
             updatedMCPToolOutput?: unknown;
@@ -2875,7 +2888,7 @@ On TypeScript Agent SDK 0.3.233 and later, the following tools aren’t availabl
   * `TaskUpdate`
   * `TaskList`
 
-On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.See [Model availability](</docs/en/agent-sdk/todo-tracking#model-availability>) to opt in and [Migrate to Task tools](</docs/en/agent-sdk/todo-tracking#migrate-to-task-tools>) to update your monitoring code.
+On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.See [Model availability](</docs/en/agent-sdk/todo-tracking#model-availability>) to opt in.
 
 ###
 
@@ -3855,7 +3868,7 @@ On TypeScript Agent SDK 0.3.233 and later, the following tools aren’t availabl
   * `TaskUpdate`
   * `TaskList`
 
-On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.See [Model availability](</docs/en/agent-sdk/todo-tracking#model-availability>) to opt in and [Migrate to Task tools](</docs/en/agent-sdk/todo-tracking#migrate-to-task-tools>) to update your monitoring code.
+On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.See [Model availability](</docs/en/agent-sdk/todo-tracking#model-availability>) to opt in.
 
 ###
 
@@ -4999,7 +5012,7 @@ Emitted during authentication flows.
 
 `SDKTaskStartedMessage`
 
-Emitted when a background task begins. The `task_type` field is `"local_bash"` for background Bash commands and Monitor watches, `"local_agent"` for subagents, or `"remote_agent"`.
+Emitted when a task begins. The `task_type` field is `"local_bash"` for Bash commands and Monitor watches, `"local_agent"` for subagents, or `"remote_agent"`.
 
     type SDKTaskStartedMessage = {
       type: "system";
@@ -5008,9 +5021,18 @@ Emitted when a background task begins. The `task_type` field is `"local_bash"` f
       tool_use_id?: string;
       description: string;
       task_type?: string;
+      is_backgrounded?: boolean;
+      spawn_depth?: number;
       uuid: UUID;
       session_id: string;
     };
+
+`is_backgrounded` and `spawn_depth` describe how Claude Code started the task. Both fields require Agent SDK v0.3.238 or later.
+
+  * `is_backgrounded`: Claude Code sets it on `"local_agent"` and `"local_bash"` tasks. `true` means the task runs in the background. `false` means the task runs in the foreground, and the tool call that started it stays blocked until the task finishes or moves to the background.
+  * `spawn_depth`: Claude Code sets it on `"local_agent"` tasks only. A subagent that the main thread spawned has depth `1`. A subagent that a depth `1` subagent spawned has depth `2`, and so on.
+
+A [resumed subagent](</docs/en/agent-sdk/subagents#resume-subagents>) always reports `is_backgrounded: true`, because Claude Code runs every resumed subagent in the background. When a foreground task moves to the background later, Claude Code reports the new `is_backgrounded` value in a `task_updated` message rather than sending a second `task_started`.
 
 ###
 
@@ -5179,7 +5201,7 @@ Emitted when the set of available commands changes mid-session, such as when Cla
 
 `SDKPromptSuggestionMessage`
 
-Emitted after each turn when `promptSuggestions` is enabled. Contains a predicted next user prompt.
+Emitted after a turn when `promptSuggestions` is enabled and Claude Code generated a suggestion for that turn. Contains the predicted next user prompt. For the turns that get none, see [When Claude Code skips suggestions](</docs/en/interactive-mode#when-claude-code-skips-suggestions>).
 
     type SDKPromptSuggestionMessage = {
       type: "prompt_suggestion";

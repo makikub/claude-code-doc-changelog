@@ -113,9 +113,9 @@ Actions available in the `Chat` context:
 Action| Default| Description
 ---|---|---
 `chat:cancel`| Escape| Cancel current input
-`chat:clearInput`| Ctrl+L| Force a full screen redraw, preserving input. In [fullscreen rendering](</docs/en/fullscreen#clear-the-conversation>), press twice within two seconds to run `/clear`
-`chat:clearScreen`| Cmd+K| In [fullscreen rendering](</docs/en/fullscreen#clear-the-conversation>), press twice within two seconds to run `/clear`
-`chat:killAgents`| Ctrl+X Ctrl+K| Stop all running [background subagents](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) in this session
+`chat:clearInput`| Ctrl+L| Force a full screen redraw, preserving input and conversation
+`chat:clearScreen`| Cmd+K| Force a full screen redraw, preserving input and conversation. See [Clear the conversation](</docs/en/fullscreen#clear-the-conversation>) for how Cmd+K behaves on iTerm2 and Terminal.app
+`chat:killAgents`| Ctrl+X Ctrl+K| Stop all running [background subagents](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) in this session and turn off [artifact auto-replies](</docs/en/artifacts#let-claude-reply-to-comments-on-its-own>) for the rest of it
 `chat:cycleMode`| Shift+Tab*| Cycle permission modes
 `chat:modelPicker`| Meta+P| Open model picker
 `chat:fastMode`| Meta+O| Toggle fast mode
@@ -161,8 +161,10 @@ Action| Default| Description
 `confirm:nextField`| Tab| Next field
 `confirm:previousField`| (unbound)| Previous field
 `confirm:toggle`| Space| Toggle selection
-`confirm:cycleMode`| Shift+Tab| Cycle permission modes
+`confirm:cycleMode`| Shift+Tab*| Cycle permission modes. On a file permission prompt, closes an open [comment field](</docs/en/permissions#add-a-comment-when-you-answer-a-permission-prompt>); with no field open, selects the option that allows the action for the rest of the session, when the prompt offers that option
 `confirm:toggleExplanation`| Ctrl+E| Toggle a model-generated [explanation of the command](</docs/en/permissions#permission-system>) on Bash and PowerShell permission prompts
+
+*On Windows without VT mode (Node <24.2.0/<22.17.0, Bun <1.2.23), defaults to Meta+M.
 
 ###
 

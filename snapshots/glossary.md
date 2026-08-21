@@ -60,7 +60,7 @@ Notes Claude writes for itself based on your corrections and preferences, stored
 
 Auto mode
 
-A permission mode where a separate classifier model reviews actions instead of you, so Claude Code runs most of them without asking you. Claude Code still asks you before actions your explicit ask rules match. On Pro, Max, and Team plans, auto mode is the [built-in starting permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) for interactive terminal and VS Code sessions. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection. It never sees tool results, so injected instructions can’t influence its decisions. Learn more: [Eliminate prompts with auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)
+A permission mode where a separate classifier model reviews actions instead of you, so Claude Code runs most of them without asking you. Claude Code still asks you before actions your explicit ask rules match. On Pro, Max, and Team plans, auto mode is the [built-in starting permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) for interactive terminal and VS Code sessions. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection. Tool results are stripped from what it sees, so hostile content in a file or web page can’t manipulate it directly. Learn more: [Eliminate prompts with auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)
 
 ##
 
@@ -74,7 +74,7 @@ B
 
 Bare mode
 
-With `--bare`, Claude Code starts without loading hooks, skills, plugins, MCP servers, auto memory, or CLAUDE.md. Recommended for CI and scripted calls where you need the same result on every machine. Learn more: [Start faster with bare mode](</docs/en/headless#start-faster-with-bare-mode>)
+With `--bare`, Claude Code starts without loading hooks, skills, custom commands, subagents, plugins, MCP servers, auto memory, or CLAUDE.md, apart from skills in a directory you pass with `--add-dir`. Recommended for CI and scripted calls where you need the same result on every machine. Learn more: [Start faster with bare mode](</docs/en/headless#start-faster-with-bare-mode>)
 
 ###
 
@@ -274,7 +274,7 @@ O
 
 Output style
 
-A configuration that modifies Claude’s system prompt to change response behavior, tone, or format. Output styles turn off the software-engineering-specific parts of the default system prompt, unlike CLAUDE.md which is delivered as a user message following the system prompt. Built-in styles include Default, Proactive, Explanatory, and Learning. Learn more: [Output styles](</docs/en/output-styles>)
+A configuration that modifies Claude’s system prompt to change response behavior, tone, or format. Unlike CLAUDE.md, which Claude Code delivers as a user message after the system prompt, an output style changes the system prompt itself. Custom styles leave out Claude Code’s built-in software engineering instructions unless you set `keep-coding-instructions` to `true`, and the built-in Default, Proactive, Concise, Explanatory, and Learning styles keep them. Learn more: [Output styles](</docs/en/output-styles>)
 
 ##
 
@@ -328,7 +328,7 @@ A dialog accepting a directory before Claude Code loads its configuration. Accep
 
 Prompt injection
 
-Hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you never asked for. Claude Code’s defenses include the permission system, command injection detection, and trust verification. Auto mode adds a server-side probe that scans tool results for suspicious content and a classifier that never sees tool results, so injected text cannot influence its approval decisions. Learn more: [Protect against prompt injection](</docs/en/security#protect-against-prompt-injection>)
+Hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you never asked for. Claude Code’s defenses include the permission system, command injection detection, and trust verification. Auto mode adds a server-side probe that scans tool results for suspicious content and a classifier that reviews actions with tool results stripped, so injected text can’t manipulate it directly. Learn more: [Protect against prompt injection](</docs/en/security#protect-against-prompt-injection>)
 
 ##
 

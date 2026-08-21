@@ -912,7 +912,7 @@ Property| Type| Default| Description
 `cwd`| `str | Path | None`| `None`| Current working directory
 `cli_path`| `str | Path | None`| `None`| Custom path to the Claude Code CLI executable
 `settings`| `str | None`| `None`| Path to settings file
-`add_dirs`| `list[str | Path]`| `[]`| Additional directories Claude can access
+`add_dirs`| `list[str | Path]`| `[]`| Additional directories Claude can access. The SDK passes each entry to Claude Code as `--add-dir`, so with the `project` setting source Claude Code also [loads the directory’s skills, commands, and subagents](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>)
 `env`| `dict[str, str]`| `{}`| Environment variables merged on top of the inherited process environment. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads, and Handle slow or stalled API responses for timeout-related variables
 `extra_args`| `dict[str, str | None]`| `{}`| Additional CLI arguments to pass directly to the CLI
 `max_buffer_size`| `int | None`| `None`| Maximum bytes when buffering CLI stdout
@@ -3031,7 +3031,7 @@ On Python Agent SDK 0.2.139 and later, the following tools aren’t available on
   * `TaskUpdate`
   * `TaskList`
 
-On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.See [Model availability](</docs/en/agent-sdk/todo-tracking#model-availability>) to opt in and [Migrate to Task tools](</docs/en/agent-sdk/todo-tracking#migrate-to-task-tools>) to update your monitoring code.
+On other models, Claude Code provides the Task tools by default and `TodoWrite` only when you set `CLAUDE_CODE_ENABLE_TASKS=0`.See [Model availability](</docs/en/agent-sdk/todo-tracking#model-availability>) to opt in.
 
 **Input:**
 

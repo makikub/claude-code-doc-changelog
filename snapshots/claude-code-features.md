@@ -61,8 +61,8 @@ When this runs, the assistant’s response prints to stdout, followed by a final
 
 Source| What it loads| Location
 ---|---|---
-`"project"`| Project CLAUDE.md, `.claude/rules/*.md`, project skills, project hooks, project `settings.json`| `<cwd>/.claude/` for `settings.json` and hooks; `<cwd>` and every parent directory for CLAUDE.md and rules; `<cwd>` and every parent directory up to the repository root for skills
-`"user"`| User CLAUDE.md, `~/.claude/rules/*.md`, user skills, user settings| `~/.claude/`
+`"project"`| Project `settings.json` and hooks; project CLAUDE.md and `.claude/rules/*.md`; project skills, commands, and subagents| `<cwd>/.claude/` for `settings.json` and hooks; `<cwd>` and every parent directory for CLAUDE.md and rules; `<cwd>` and every parent directory up to the repository root for skills, commands, and subagents, plus the `.claude/skills/`, `.claude/commands/`, and `.claude/agents/` folders of each directory you pass through the `additionalDirectories` or `add_dirs` option, which the SDK passes to Claude Code as [`--add-dir`](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>)
+`"user"`| User `settings.json`; user CLAUDE.md and `~/.claude/rules/*.md`; user skills, commands, and subagents| `~/.claude/` for `settings.json`, CLAUDE.md, and rules; `~/.claude/skills/`, `~/.claude/commands/`, and `~/.claude/agents/` for skills, commands, and subagents
 `"local"`| CLAUDE.local.md, `.claude/settings.local.json`| `<cwd>/.claude/` for `settings.local.json`; `<cwd>` and every parent directory for CLAUDE.local.md
 
 Omitting `settingSources` is equivalent to `["user", "project", "local"]`. The `cwd` option determines where the SDK looks for project-level inputs. Project `settings.json` and hooks load only from `<cwd>/.claude/` with no parent-directory fallback.

@@ -20,9 +20,7 @@ The `claude-cli://` prefix is a custom URL scheme that Claude Code registers wit
   3. A new terminal window opens with Claude Code running in the directory the link specified, and the link’s prompt text already in the input box.
   4. You read the prompt, edit it if you want, and press Enter to send it.
 
-The link itself can be hosted anywhere, but the session always opens locally on the computer where you clicked. See Registration and supported platforms for which terminal emulator opens on each operating system.
-
-The platform that displays the link must allow custom URL schemes. GitHub-rendered Markdown allows `http` and `https` but strips schemes like `claude-cli://` in READMEs, issues, pull requests, and wikis. Only the link text shows, with no link behind it and the URL hidden. See Troubleshooting for a workaround.
+The link itself can be hosted anywhere, but the session always opens locally on the computer where you clicked. See Registration and supported platforms for which terminal emulator opens on each operating system. The platform that displays the link must allow custom URL schemes. For what GitHub does with them and the workaround, see The link renders as plain text instead of being clickable.
 
 ###
 

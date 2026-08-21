@@ -4,6 +4,7 @@ Claude Code works in any terminal without configuration. This page is for when s
   * Option-key shortcuts do nothing on macOS
   * No sound or alert when Claude finishes
   * You run Claude Code inside tmux
+  * Backspace deletes a whole word on Windows
   * Display flickers or scrollback jumps
   * You want Vim keys in the prompt
 
@@ -112,6 +113,14 @@ When Claude Code runs inside tmux, two things break by default: Shift+Enter subm
     set -as terminal-features 'xterm*:extkeys'
 
 The `allow-passthrough` line lets notifications and progress updates reach the outer terminal instead of being swallowed by tmux. The `extended-keys` lines let tmux distinguish Shift+Enter from plain Enter so the newline shortcut works.
+
+##
+
+​
+
+Fix Backspace deleting a whole word on Windows
+
+On Windows, Claude Code reads a Backspace that arrives as `^H` as Ctrl+Backspace, which [deletes the previous word](</docs/en/interactive-mode#text-editing>), except when `TERM_PROGRAM` is `mintty` or `TERM` is `cygwin`. On macOS and Linux, Claude Code reads it as plain Backspace. If each press of Backspace deletes a whole word, your terminal sends `^H` for plain Backspace. Set [`CLAUDE_CODE_BS_AS_CTRL_BACKSPACE=0`](</docs/en/env-vars>). Backspace and Ctrl+H then erase one character each. If Ctrl+Backspace erases only one character on macOS or Linux because your terminal sends `^H` for it, set the variable to `1` instead.
 
 ##
 
@@ -291,7 +300,7 @@ Each [subagent](</docs/en/sub-agents>) and parallel task is shown in one of eigh
 
 Switch to fullscreen rendering
 
-In [screen reader mode](</docs/en/accessibility>), this section doesn’t apply. Claude Code always renders as plain scrolling text except in attached [background sessions](</docs/en/agent-view>), and if you run `/tui fullscreen` in any other session, Claude Code prints an explanation instead of switching. If the display flickers or the scroll position jumps while Claude is working, switch to [fullscreen rendering mode](</docs/en/fullscreen>). In this mode you scroll with the mouse or PageUp inside Claude Code rather than with your terminal’s native scrollback; see the [fullscreen page](</docs/en/fullscreen#search-and-review-the-conversation>) for how to search and copy. If flicker is the only problem and your terminal supports synchronized output but isn’t auto-detected, such as Emacs `eat`, set [`CLAUDE_CODE_FORCE_SYNC_OUTPUT=1`](</docs/en/env-vars>) to stop the flicker without changing renderers. Run `/tui fullscreen` to switch and save the preference. Your conversation relaunches intact and future sessions start in fullscreen. You can also set the `CLAUDE_CODE_NO_FLICKER` environment variable before starting Claude Code:
+In [screen reader mode](</docs/en/accessibility>), this section doesn’t apply. Claude Code always renders as plain scrolling text except in attached [background sessions](</docs/en/agent-view>), and if you run `/tui fullscreen` in any other session, Claude Code prints an explanation instead of switching. If the display flickers or the scroll position jumps while Claude is working, switch to [fullscreen rendering mode](</docs/en/fullscreen>). In this mode you scroll with the mouse or PageUp inside Claude Code rather than with your terminal’s native scrollback; see the [fullscreen page](</docs/en/fullscreen#search-and-review-the-conversation>) for how to search and copy. If flicker is the only problem and your terminal supports synchronized output but isn’t auto-detected, such as Emacs `eat`, set [`CLAUDE_CODE_FORCE_SYNC_OUTPUT=1`](</docs/en/env-vars>) to stop the flicker without changing renderers. Run `/tui fullscreen` to switch and save the preference. Your conversation relaunches intact and future sessions start in fullscreen unless a [fullscreen start fails](</docs/en/fullscreen#fullscreen-renderer-didnt-finish-starting>). You can also set the `CLAUDE_CODE_NO_FLICKER` environment variable before starting Claude Code:
 
 Bash and Zsh
 
