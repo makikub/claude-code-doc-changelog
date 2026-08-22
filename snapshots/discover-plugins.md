@@ -30,7 +30,7 @@ Claude Code adds the official Anthropic marketplace (`claude-plugins-official`) 
 
     /plugin install github@claude-plugins-official
 
-`/plugin` opens an interactive panel in the terminal CLI. If Claude replies that `/plugin` isn’t available in this environment, use the [plugin browser](</docs/en/desktop#install-plugins>) in the Claude desktop app, or declare the plugin under [`enabledPlugins`](</docs/en/settings#enabledplugins>) in `.claude/settings.json` for cloud sessions. If the install fails, match the message Claude Code reports:
+`/plugin` opens an interactive panel in the terminal CLI. If Claude replies that `/plugin` isn’t available in this environment, use the [plugin browser](</docs/en/desktop#install-plugins>) in the Claude desktop app, or declare the plugin under [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>) in `.claude/settings.json` for cloud sessions. If the install fails, match the message Claude Code reports:
 
   * `Marketplace "claude-plugins-official" not found`: add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`, then retry the install.
   * The plugin is not found in the marketplace: check the plugin name.
@@ -170,7 +170,7 @@ Run `/plugin` to open the plugin manager. This opens a tabbed interface with fou
   * **Marketplaces** : add, remove, or update your added marketplaces
   * **Errors** : view any plugin loading errors
 
-Go to the **Discover** tab to see plugins from the marketplace you just added. When your administrator has allowlisted the marketplace via the [`pluginSuggestionMarketplaces`](</docs/en/settings#available-settings>) managed setting, plugins marked as relevant to your current working directory are pinned at the top with a **suggested for this directory** label.
+Go to the **Discover** tab to see plugins from the marketplace you just added. When your administrator has allowlisted the marketplace via the [`pluginSuggestionMarketplaces`](</docs/en/settings-reference#pluginsuggestionmarketplaces>) managed setting, plugins marked as relevant to your current working directory are pinned at the top with a **suggested for this directory** label.
 
 3
 
@@ -192,7 +192,7 @@ For example, select **commit-commands** , a plugin that adds git workflow skills
 
     /plugin install commit-commands@claude-code-plugins
 
-See [Configuration scopes](</docs/en/settings#configuration-scopes>) to learn more about scopes.
+See [Settings files](</docs/en/settings#where-settings-live>) to learn more about scopes.
 
 4
 
@@ -239,7 +239,7 @@ Add a git marketplace repository by providing its full URL. For an `https://` UR
 
   * **`github.com` and `gitlab.com`**: Claude Code recognizes a repository URL with or without the `.git` suffix and clones it. Adding a `gitlab.com` URL without the suffix requires Claude Code v2.1.232 or later. Before v2.1.232, Claude Code treated it as a direct link to a hosted `marketplace.json` file.
   * **Azure DevOps** : omit the suffix. Claude Code clones any URL whose path contains `/_git/`. If you append `.git` to a `/_git/` path, the clone fails.
-  * **Every other host, including self-managed GitLab servers** : include the `.git` suffix so Claude Code clones the repository rather than treating the URL as a direct link to a hosted `marketplace.json` file. For a host whose clone URLs don’t carry the suffix, such as AWS CodeCommit, add the marketplace as a git entry in [`extraKnownMarketplaces`](</docs/en/settings#extraknownmarketplaces>) instead. Claude Code clones a git entry whether or not its URL ends in `.git`.
+  * **Every other host, including self-managed GitLab servers** : include the `.git` suffix so Claude Code clones the repository rather than treating the URL as a direct link to a hosted `marketplace.json` file. For a host whose clone URLs don’t carry the suffix, such as AWS CodeCommit, add the marketplace as a git entry in [`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>) instead. Claude Code clones a git entry whether or not its URL ends in `.git`.
 
 Claude Code also clones a `gitlab.com` URL with nested subgroups, such as `https://gitlab.com/group/subgroup/project`. Include the `https://` prefix. Claude Code v2.1.196 and later reject a host typed without it, such as `gitlab.com/company/plugins.git`, as an invalid GitHub `owner/repo` shorthand, and the error tells you to add the prefix. Earlier versions misread it as a GitHub repository path and fail at clone time. Using HTTPS:
 
@@ -289,13 +289,13 @@ Once you’ve added marketplaces, you can install a plugin by name:
 
     /plugin install plugin-name@marketplace-name
 
-The command opens that plugin’s details, where you choose an [installation scope](</docs/en/settings#configuration-scopes>). You see the same choices when you run `/plugin`, go to the **Discover** tab, and press **Enter** on a plugin:
+The command opens that plugin’s details, where you choose an [installation scope](</docs/en/settings#where-settings-live>). You see the same choices when you run `/plugin`, go to the **Discover** tab, and press **Enter** on a plugin:
 
   * **User scope** : install for yourself across all projects
   * **Project scope** : install for all collaborators on this repository, which adds the plugin to `.claude/settings.json`
   * **Local scope** : install for yourself in this repository only, not shared with collaborators
 
-To install without an interactive step, use the [`claude plugin install`](</docs/en/plugins-reference#plugin-install>) shell command, which installs to user scope unless you pass `--scope`. For a plugin with a [`command` source](</docs/en/plugin-marketplaces#how-users-accept-the-command>), pass `--yes` to accept the command it displays. You may also see plugins with **managed** scope. These are installed by administrators via [managed settings](</docs/en/settings#settings-files>) and can’t be modified. Claude Code looks the plugin up in its local copy of the marketplace catalog. How you name the plugin controls whether Claude Code refreshes that copy first:
+To install without an interactive step, use the [`claude plugin install`](</docs/en/plugins-reference#plugin-install>) shell command, which installs to user scope unless you pass `--scope`. For a plugin with a [`command` source](</docs/en/plugin-marketplaces#how-users-accept-the-command>), pass `--yes` to accept the command it displays. You may also see plugins with **managed** scope. These are installed by administrators via [managed settings](</docs/en/managed-settings>) and can’t be modified. Claude Code looks the plugin up in its local copy of the marketplace catalog. How you name the plugin controls whether Claude Code refreshes that copy first:
 
   * **With a marketplace name** : when you install `plugin-name@marketplace-name`, in a session or with `claude plugin install`, Claude Code refreshes that marketplace before the lookup. Claude Code runs the refresh even if you turned off auto-update for the marketplace or set `DISABLE_AUTOUPDATER`. Before v2.1.232, Claude Code didn’t refresh the marketplace before the lookup. Claude Code skips this refresh when:
     * The marketplace wasn’t added from GitHub, another Git host, or a remote URL.
@@ -332,7 +332,7 @@ When you uninstall a plugin that a project’s `.claude/settings.json` enables, 
   * plugins that your organization manages or that you load with `--plugin-dir`
   * plugins that contribute a theme, output style, monitor, or workflow, since those deliver value without an invocation to track
 
-The **Not used recently** header and the **Last used** line are both hidden when your organization restricts marketplaces with [`strictKnownMarketplaces`](</docs/en/settings#strictknownmarketplaces>). A plugin’s [language server](</docs/en/plugins#add-lsp-servers-to-your-plugin>) counts as used when it delivers diagnostics or answers a code navigation request, so an LSP plugin whose server is active in your sessions isn’t listed as unused. Before v2.1.203, language server activity couldn’t be counted as use, so plugins that contribute an LSP server were exempt from the group entirely, the same way theme and output style plugins still are. The first session on a version that counts language server activity also resets the usage record of each LSP plugin that hadn’t recorded any use yet, so Claude Code doesn’t judge a plugin you installed earlier as unused based on data recorded before its server activity was tracked. When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands:
+The **Not used recently** header and the **Last used** line are both hidden when your organization restricts marketplaces with [`strictKnownMarketplaces`](</docs/en/settings-reference#strictknownmarketplaces>). A plugin’s [language server](</docs/en/plugins#add-lsp-servers-to-your-plugin>) counts as used when it delivers diagnostics or answers a code navigation request, so an LSP plugin whose server is active in your sessions isn’t listed as unused. Before v2.1.203, language server activity couldn’t be counted as use, so plugins that contribute an LSP server were exempt from the group entirely, the same way theme and output style plugins still are. The first session on a version that counts language server activity also resets the usage record of each LSP plugin that hadn’t recorded any use yet, so Claude Code doesn’t judge a plugin you installed earlier as unused based on data recorded before its server activity was tracked. When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands:
 
   * When you run `/plugin disable`, `/plugin enable`, or `/plugin uninstall`, Claude Code opens the plugin panel to apply the change and leaves it open. Press **Esc** to close the panel before typing another command.
   * For scripting, use the `claude plugin` shell commands instead, which don’t open the panel.
@@ -424,7 +424,7 @@ Claude Code can automatically update marketplaces and their installed plugins in
   3. Choose a marketplace from the list
   4. Select **Enable auto-update** or **Disable auto-update**
 
-Official Anthropic marketplaces have auto-update enabled by default. Third-party and local development marketplaces have auto-update disabled by default. Administrators can also set `"autoUpdate": true` on each [`extraKnownMarketplaces`](</docs/en/settings#extraknownmarketplaces>) entry in managed settings to enable auto-update for an organization marketplace without requiring each user to toggle it. To disable automatic updates for Claude Code and for plugins fetched from marketplaces, set the `DISABLE_AUTOUPDATER` environment variable. Plugins with a [`command` source](</docs/en/plugin-marketplaces#command-sources>) follow their own once-per-session re-resolve. See [Auto updates](</docs/en/setup#auto-updates>) for details. To keep plugin auto-updates enabled while disabling Claude Code auto-updates, set `FORCE_AUTOUPDATE_PLUGINS=1` along with `DISABLE_AUTOUPDATER`:
+`claude-plugins-official` and most other official Anthropic marketplaces have auto-update enabled by default. Third-party and local development marketplaces have auto-update disabled by default. Administrators can also set `"autoUpdate": true` on each [`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>) entry in managed settings to enable auto-update for an organization marketplace without requiring each user to toggle it. To disable automatic updates for Claude Code and for plugins fetched from marketplaces, set the `DISABLE_AUTOUPDATER` environment variable. Plugins with a [`command` source](</docs/en/plugin-marketplaces#command-sources>) follow their own once-per-session re-resolve. See [Auto updates](</docs/en/setup#auto-updates>) for details. To keep plugin auto-updates enabled while disabling Claude Code auto-updates, set `FORCE_AUTOUPDATE_PLUGINS=1` along with `DISABLE_AUTOUPDATER`:
 
     export DISABLE_AUTOUPDATER=1
     export FORCE_AUTOUPDATE_PLUGINS=1
@@ -448,7 +448,7 @@ Team admins can set up automatic marketplace installation for projects by adding
       }
     }
 
-For full configuration options including `extraKnownMarketplaces` and `enabledPlugins`, see [Plugin settings](</docs/en/settings#plugin-settings>).
+For full configuration options including `extraKnownMarketplaces` and `enabledPlugins`, see [Plugin settings](</docs/en/settings-reference#plugin-settings>).
 
 ##
 

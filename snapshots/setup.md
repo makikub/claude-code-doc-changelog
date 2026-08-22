@@ -100,7 +100,7 @@ WSL 1| WSL 1 enabled| Not supported| If WSL 2 is unavailable
           }
         }
 
-When Git for Windows is installed, the PowerShell tool is rolling out progressively as an additional option alongside Bash. Set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` to opt in or `0` to opt out. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>) for setup and limitations. **Option 2: WSL** Open your WSL distribution and run the Linux installer from the install instructions above. You install and launch `claude` inside the WSL terminal, not from PowerShell or CMD.
+When Git for Windows is installed, the PowerShell tool is available alongside Bash: on by default for claude.ai and Console accounts, and enabled with `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` in Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry sessions. Set it to `0` to turn the tool off. See [PowerShell tool](</docs/en/tools-reference#powershell-tool>) for setup and limitations. **Option 2: WSL** Open your WSL distribution and run the Linux installer from the install instructions above. You install and launch `claude` inside the WSL terminal, not from PowerShell or CMD.
 
 ###
 
@@ -116,7 +116,7 @@ On Alpine, `ripgrep` is in the community repository. If `apk` reports that the p
 
     echo "https://dl-cdn.alpinelinux.org/alpine/v3.22/community" >> /etc/apk/repositories
 
-Run `apk update` to refresh the package index, and retry the `apk add` command. Then set `USE_BUILTIN_RIPGREP` to `0` in your [`settings.json`](</docs/en/settings#available-settings>) file:
+Run `apk update` to refresh the package index, and retry the `apk add` command. Then set `USE_BUILTIN_RIPGREP` to `0` in your [`settings.json`](</docs/en/settings-reference#all-settings>) file:
 
     {
       "env": {
@@ -183,7 +183,7 @@ Configure this via `/config` → **Auto-update channel** , or add it to your [se
       "autoUpdatesChannel": "stable"
     }
 
-For enterprise deployments, you can enforce a consistent release channel across your organization using [managed settings](</docs/en/permissions#managed-settings>). Homebrew installations choose a channel by cask name instead of this setting: `claude-code` tracks stable and `claude-code@latest` tracks latest.
+For enterprise deployments, you can enforce a consistent release channel across your organization using [managed settings](</docs/en/managed-settings>). Homebrew installations choose a channel by cask name instead of this setting: `claude-code` tracks stable and `claude-code@latest` tracks latest.
 
 ###
 
@@ -198,7 +198,7 @@ The `minimumVersion` setting establishes a floor. Background auto-updates and `c
       "minimumVersion": "2.1.100"
     }
 
-In [managed settings](</docs/en/permissions#managed-settings>), this enforces an organization-wide minimum that user and project settings cannot override. The `minimumVersion` pin only constrains updates. To make Claude Code refuse to start outside a version range, use the managed settings `requiredMinimumVersion` and `requiredMaximumVersion` instead. Updates also respect the `requiredMaximumVersion` ceiling. See [available settings](</docs/en/settings#available-settings>).
+In [managed settings](</docs/en/managed-settings>), this enforces an organization-wide minimum that user and project settings cannot override. The `minimumVersion` pin only constrains updates. To make Claude Code refuse to start outside a version range, use the managed settings `requiredMinimumVersion` and `requiredMaximumVersion` instead. Updates also respect the `requiredMaximumVersion` ceiling. See [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>) and [`requiredMaximumVersion`](</docs/en/settings-reference#requiredmaximumversion>).
 
 ###
 
@@ -206,7 +206,7 @@ In [managed settings](</docs/en/permissions#managed-settings>), this enforces an
 
 Disable auto-updates
 
-Set `DISABLE_AUTOUPDATER` to `"1"` in the `env` key of your [`settings.json`](</docs/en/settings#available-settings>) file:
+Set `DISABLE_AUTOUPDATER` to `"1"` in the `env` key of your [`settings.json`](</docs/en/settings-reference#all-settings>) file:
 
     {
       "env": {

@@ -18,7 +18,7 @@ The explorer covers files you author and edit. A few related files live elsewher
 
 File| Location| Purpose
 ---|---|---
-`managed-settings.json`| System-level, varies by OS| Enterprise-enforced settings that you can’t override, apart from [narrow exceptions](</docs/en/settings#exceptions-to-managed-settings-precedence>). See [server-managed settings](</docs/en/server-managed-settings>).
+`managed-settings.json`| System-level, varies by OS| Enterprise-enforced settings that you can’t override, apart from [narrow exceptions](</docs/en/settings#security-keys-where-the-stricter-value-applies>). See [where to save the file](</docs/en/managed-settings#deploy-a-managed-settings-file>) and [which managed source Claude Code uses](</docs/en/managed-settings#precedence-within-the-managed-tier>).
 `CLAUDE.local.md`| Project root| Your private preferences for this project, loaded alongside CLAUDE.md. Create it manually and add it to `.gitignore`.
 Installed plugins| `~/.claude/plugins`| Cloned marketplaces, installed plugin versions, and per-plugin data, managed by `claude plugin` commands. For a plugin installed from a marketplace [`command` source](</docs/en/plugin-marketplaces#command-sources>) in link mode, Claude Code stores links here instead of a copy, and the plugin’s files stay in the directory the command prints. See [plugin caching](</docs/en/plugins-reference#plugin-caching-and-file-resolution>) for how orphaned versions are cleaned up.
 
@@ -37,8 +37,8 @@ You want to| Edit| Scope| Reference
 Give Claude project context and conventions| `CLAUDE.md`| project or global| [Memory](</docs/en/memory>)
 Allow or block specific tool calls| `settings.json` `permissions` or `hooks`| project or global| [Permissions](</docs/en/permissions>), [Hooks](</docs/en/hooks>)
 Run a script before or after tool calls| `settings.json` `hooks`| project or global| [Hooks](</docs/en/hooks>)
-Set environment variables for the session| `settings.json` `env`| project or global| [Settings](</docs/en/settings#available-settings>)
-Keep personal overrides out of git| `settings.local.json`| project only| [Settings scopes](</docs/en/settings#settings-files>)
+Set environment variables for the session| `settings.json` `env`| project or global| [Settings](</docs/en/settings-reference#all-settings>)
+Keep personal overrides out of git| `settings.local.json`| project only| [Settings scopes](</docs/en/settings#where-settings-live>)
 Add a prompt or capability you invoke with `/name`| `skills/<name>/SKILL.md`| project or global| [Skills](</docs/en/skills>)
 Define a specialized subagent with its own tools| `agents/*.md`| project or global| [Subagents](</docs/en/sub-agents>)
 Orchestrate many subagents from a script| `workflows/*.js`| project or global| [Dynamic workflows](</docs/en/workflows>)
@@ -68,7 +68,7 @@ File| Scope| Commit| What it does| Reference
 `CLAUDE.md`| Project and global| ✓| Instructions loaded every session| [Memory](</docs/en/memory>)
 `rules/*.md`| Project and global| ✓| Topic-scoped instructions, optionally path-gated| [Rules](</docs/en/memory#organize-rules-with-claude/rules/>)
 `settings.json`| Project and global| ✓| Permissions, hooks, env vars, model defaults| [Settings](</docs/en/settings>)
-`settings.local.json`| Project only| | Your personal overrides, gitignored when Claude Code saves a setting to it| [Settings scopes](</docs/en/settings#settings-files>)
+`settings.local.json`| Project only| | Your personal overrides, gitignored when Claude Code saves a setting to it| [Settings scopes](</docs/en/settings#where-settings-live>)
 `.mcp.json`| Project only| ✓| Team-shared MCP servers| [MCP scopes](</docs/en/mcp#mcp-installation-scopes>)
 `.worktreeinclude`| Project only| ✓| Gitignored files to copy into new worktrees| [Worktrees](</docs/en/worktrees#copy-gitignored-files-into-worktrees>)
 `skills/<name>/SKILL.md`| Project and global| ✓| Reusable prompts invoked with `/name` or auto-invoked| [Skills](</docs/en/skills>)
@@ -77,7 +77,7 @@ File| Scope| Commit| What it does| Reference
 `agents/*.md`| Project and global| ✓| Subagent definitions with their own prompt and tools| [Subagents](</docs/en/sub-agents>)
 `workflows/*.js`| Project and global| ✓| Dynamic workflow scripts written by Claude and saved from `/workflows`; each file becomes a `/<name>` command| [Dynamic workflows](</docs/en/workflows>)
 `agent-memory/<name>/`| Project and global| ✓| Persistent memory for subagents| [Persistent memory](</docs/en/sub-agents#enable-persistent-memory>)
-`~/.claude.json`| Global only| | App state, OAuth, UI toggles, personal MCP servers| [Global config](</docs/en/settings#global-config-settings>)
+`~/.claude.json`| Global only| | App state, OAuth, UI toggles, personal MCP servers| [Global config](</docs/en/settings-reference#global-config-settings>)
 `projects/<project>/memory/`| Global only| | Auto memory: Claude’s notes to itself across sessions| [Auto memory](</docs/en/memory#auto-memory>)
 `keybindings.json`| Global only| | Custom keyboard shortcuts| [Keybindings](</docs/en/keybindings>)
 `themes/*.json`| Global only| | Custom color themes| [Custom themes](</docs/en/terminal-config#create-a-custom-theme>)
@@ -104,7 +104,7 @@ Beyond the config you author, `~/.claude` holds data Claude Code writes during s
 
 Cleaned up automatically
 
-Claude Code deletes the files in the paths below once they’re older than [`cleanupPeriodDays`](</docs/en/settings#available-settings>), as long as it can safely determine the retention period. The default is 30 days and the minimum is 1; setting `0` fails with a validation error. The same age cutoff applies to automatic removal of [orphaned worktrees](</docs/en/worktrees#clean-up-subagent-and-background-session-worktrees>).
+Claude Code deletes the files in the paths below once they’re older than [`cleanupPeriodDays`](</docs/en/settings-reference#cleanupperioddays>), as long as it can safely determine the retention period. The default is 30 days and the minimum is 1; setting `0` fails with a validation error. The same age cutoff applies to automatic removal of [orphaned worktrees](</docs/en/worktrees#clean-up-subagent-and-background-session-worktrees>).
 
 Path under `~/.claude/`| Contents
 ---|---
@@ -114,11 +114,13 @@ Path under `~/.claude/`| Contents
 `file-history/<session>/`| Pre-edit snapshots of files Claude changed, used for [checkpoint restore](</docs/en/checkpointing>). Holds snapshots for the 100 most recent checkpoints; snapshot files that no retained checkpoint references are deleted, except each file’s first snapshot
 `plans/`| Plan files written during [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>)
 `debug/`| Per-session debug logs, written only when you start with `--debug` or run `/debug`
-`paste-cache/`, `image-cache/`| Contents of large pastes and attached images
+`paste-cache/`| Contents of large pastes
+`image-cache/<session>/`| Attached images. On each sweep, Claude Code removes the directories of all other sessions, whatever their age.
+`uploads/<session>/`| Files you attach from the web or mobile app, and photos you attach from the mobile app, when messaging a [Remote Control](</docs/en/remote-control>) session. An attachment to a [cloud session](</docs/en/claude-code-on-the-web>) is saved in that session’s own cloud environment instead, not on your machine.
 `session-env/`| Per-session environment metadata
 `tasks/`| Per-session task lists written by the task tools
 `shell-snapshots/`| Aliases, functions, and shell options captured at startup and applied by the [Bash tool](</docs/en/tools-reference#bash-tool-behavior>) to each command. Removed on clean exit. The sweep clears any left after a crash.
-`backups/`| Timestamped copies of `~/.claude.json` taken before config migrations
+`backups/`| Earlier versions of `~/.claude.json`, copied when Claude Code rewrites the file. Claude Code keeps the five newest, plus a copy of any version it couldn’t parse.
 `feedback-bundles/`| Redacted transcript archives written by `/feedback` on third-party providers or when no Anthropic credentials are configured, for sending to your Anthropic account team
 `usage-data/`| `report.html` and timestamped report copies written by [`/insights`](</docs/en/costs#analyze-your-usage-patterns>), plus cached per-session analysis data used to build them
 `todos/`, `statsig/`, `logs/`| Legacy directories from older versions. No longer written. The sweep removes their contents and then the empty directory.
@@ -136,15 +138,15 @@ Claude Code makes four exceptions to this sweep:
 
 Kept until you delete them
 
-The following paths are not covered by automatic cleanup and persist indefinitely.
+The retention cleanup sweep doesn’t cover the following paths. Claude Code keeps them until you delete them, apart from the two caches whose rows say that logging out deletes them.
 
 Path under `~/.claude/`| Contents
 ---|---
 `history.jsonl`| Every prompt you’ve typed, with timestamp and project path. Used for up-arrow recall.
 `stats-cache.json`| Aggregated token and cost counts shown by `/usage`
-`remote-settings.json`| Cached copy of [server-managed settings](</docs/en/server-managed-settings>) for your organization. Only present when your organization has configured them. Refreshed on each launch.
+`remote-settings.json`| Cached copy of [server-managed settings](</docs/en/server-managed-settings>) for your organization, or `{}` when your organization has configured none. Only present when the session [fetches them](</docs/en/server-managed-settings#platform-availability>). Claude Code checks for updates at startup and hourly during a session. Claude Code deletes it when you log out.
 `cache/changelog.md`| Cached copy of the Claude Code changelog, used to show release notes after an update. Refreshed in the background.
-`policy-limits.json`| Cached feature policy settings for your organization. Only present for some account types. Refreshed automatically.
+`policy-limits.json`| Cached feature policy settings for your organization. Only present for some account types. Refreshed automatically. Claude Code deletes it when you log out.
 
 Other small cache and lock files appear depending on which features you use and are safe to delete.
 
@@ -207,6 +209,7 @@ Delete| You lose
 `~/.claude/projects/`| Resume, continue, and rewind for past sessions, and auto memory for every project
 `~/.claude/history.jsonl`| Up-arrow prompt recall
 `~/.claude/paste-cache/`| Pasted text in recalled prompts; see [paste large content](</docs/en/terminal-config#paste-large-content>)
+`~/.claude/uploads/`| Attachments that past [Remote Control](</docs/en/remote-control>) sessions refer to by path
 `~/.claude/file-history/`| Checkpoint restore for past sessions
 `~/.claude/stats-cache.json`| Historical totals shown by `/usage`
 `~/.claude/usage-data/`| Past [`/insights`](</docs/en/costs#analyze-your-usage-patterns>) reports and the cached analysis data used to build them

@@ -55,7 +55,7 @@ When you run `claude` in a directory, Claude Code gains access to:
   * **Your terminal.** Any command you could run: build tools, git, package managers, system utilities, scripts. If you can do it from the command line, Claude can too.
   * **Your git state.** Current branch, uncommitted changes, and recent commit history.
   * **Your[CLAUDE.md](</docs/en/memory>).** A markdown file where you store project-specific instructions, conventions, and context that Claude should know every session.
-  * **[Auto memory](</docs/en/memory#auto-memory>).** Learnings Claude saves automatically as you work, like project patterns and your preferences. The first 200 lines or 25KB of MEMORY.md, whichever comes first, load at the start of each session.
+  * **[Auto memory](</docs/en/memory#auto-memory>).** Learnings Claude saves automatically as you work, like your preferences. The first 200 lines or 25KB of MEMORY.md, whichever comes first, load at the start of each session.
   * **Extensions you configure.** [MCP servers](</docs/en/mcp>) for external services, [skills](</docs/en/skills>) for workflows, [subagents](</docs/en/sub-agents>) for delegated work, and [Claude in Chrome](</docs/en/chrome>) for browser interaction.
 
 Because Claude sees your whole project, it can work across it. When you ask Claude to “fix the authentication bug,” it searches for relevant files, reads multiple files to understand context, makes coordinated edits across them, runs tests to verify the fix, and commits the changes if you ask. This is different from inline code assistants that only see the current file.
@@ -128,7 +128,7 @@ Claude’s context window holds your conversation history, file contents, comman
 
 When context fills up
 
-Claude Code manages context automatically as you approach the limit. It clears older tool outputs first, then summarizes the conversation if needed. Your requests and key code snippets are preserved; detailed instructions from early in the conversation may be lost. Put persistent rules in CLAUDE.md rather than relying on conversation history. To control what’s preserved during compaction, add a “Compact Instructions” section to CLAUDE.md or run `/compact` with a focus (like `/compact focus on the API changes`). If a single file or tool output is so large that context refills immediately after each summary, Claude Code stops auto-compacting after a few attempts and shows an error instead of looping. See [Auto-compaction stops with a thrashing error](</docs/en/troubleshooting#auto-compaction-stops-with-a-thrashing-error>) for recovery steps. Run `/context` to see what’s using space. MCP tool definitions are deferred by default and loaded on demand via [tool search](</docs/en/mcp#scale-with-mcp-tool-search>), so only tool names consume context until Claude uses a specific tool. Run `/mcp` to check per-server costs.
+Claude Code manages context automatically as you approach the limit. It clears older tool outputs first, then summarizes the conversation if needed. Your requests and key code snippets are preserved; detailed instructions from early in the conversation may be lost. Put persistent rules in CLAUDE.md rather than relying on conversation history. To control what’s preserved during compaction, add a “Compact Instructions” section to CLAUDE.md or run `/compact` with a focus (like `/compact focus on the API changes`). If a single file or tool output is so large that context refills immediately after each summary, Claude Code stops auto-compacting after a few attempts and shows an error instead of looping. See [Auto-compaction stops with a thrashing error](</docs/en/troubleshooting#auto-compaction-stops-with-a-thrashing-error>) for recovery steps. Run `/context` to see what’s using space. MCP tool definitions are deferred by default and loaded on demand via [tool search](</docs/en/mcp#scale-with-mcp-tool-search>), so only tool names and server instructions consume context until Claude uses a specific tool.
 
 ####
 
@@ -278,7 +278,7 @@ What’s next
 
 ## Extend with features
 
-Add Skills, MCP connections, and custom commands
+Add skills and MCP connections
 
 ## Common workflows
 

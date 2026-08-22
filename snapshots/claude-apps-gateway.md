@@ -1,6 +1,6 @@
 The Claude apps gateway is designed for organizations that must, or prefer to, route inference through their own cloud provider, for example to meet [data residency](</docs/en/claude-apps-gateway-deploy#compliance-posture>) requirements. If you don’t have this requirement, and want access to other features such as SCIM provisioning or Claude Code on web and mobile, Claude Enterprise may be a better fit. See the [feature availability](</docs/en/feature-availability>) page for a full comparison of all deployment methods.
 
-Claude apps gateway is a self-hosted service that sits between your developers’ Claude Code clients and your model provider. Developers sign in with your corporate identity provider (IdP) instead of holding API keys or cloud credentials. The gateway holds the upstream credential, enforces model access and [managed settings](</docs/en/permissions#managed-settings>) by IdP group, and relays usage telemetry to your own observability stack. It is included in the `claude` binary, so the same executable that runs Claude Code on a laptop runs the gateway server with `claude gateway --config gateway.yaml`. This page covers:
+Claude apps gateway is a self-hosted service that sits between your developers’ Claude Code clients and your model provider. Developers sign in with your corporate identity provider (IdP) instead of holding API keys or cloud credentials. The gateway holds the upstream credential, enforces model access and [managed settings](</docs/en/managed-settings>) by IdP group, and relays usage telemetry to your own observability stack. It is included in the `claude` binary, so the same executable that runs Claude Code on a laptop runs the gateway server with `claude gateway --config gateway.yaml`. This page covers:
 
   * Why Claude apps gateway, what it adds over running your own, and when something else fits better
   * A quickstart with prerequisites that takes a gateway from zero to a signed-in developer
@@ -18,7 +18,7 @@ Why Claude apps gateway
 The [gateway overview](</docs/en/gateways>) covers what a gateway does and why you’d run one. Claude apps gateway is Anthropic’s own gateway, built into the `claude` binary and tested alongside each Claude Code release, so it forwards the headers and request fields Claude Code sends without operators maintaining a separate allowlist. Once deployed it gives you:
 
   * **Credentials** : the upstream API key or cloud credential lives only in your infrastructure. Developers authenticate with corporate SSO and receive short-lived bearer tokens, so offboarding happens in your IdP. Deprovision a user and their gateway access expires within the session lifetime, one hour by default.
-  * **Access control** : your IdP groups map to model allowlists and [managed settings](</docs/en/permissions#managed-settings>) policies. The gateway enforces model access server-side, rejecting requests for non-granted models, and selects each group’s managed settings policy, which the CLI applies at the [managed settings tier](</docs/en/settings#settings-precedence>). Different teams get different models, tools, and permissions, and a developer can’t override what their policy locks.
+  * **Access control** : your IdP groups map to model allowlists and [managed settings](</docs/en/managed-settings>) policies. The gateway enforces model access server-side, rejecting requests for non-granted models, and selects each group’s managed settings policy, which the CLI applies at the [managed settings tier](</docs/en/settings#settings-precedence>). Different teams get different models, tools, and permissions, and a developer can’t override what their policy locks.
   * **Settings delivery** : the gateway delivers managed settings to signed-in clients itself, taking the place of [server-managed settings](</docs/en/server-managed-settings>) from the claude.ai admin console.
   * **Telemetry** : each configured destination, such as Datadog, Splunk, or ClickHouse, receives [OpenTelemetry Protocol (OTLP) metrics](</docs/en/monitoring-usage>) with token counts, model, user identity, and latency by default, with logs and traces as per-destination opt-ins.
   * **Upstream routing** : clients speak the Anthropic Messages API to the gateway, and the gateway translates for each upstream, whether Amazon Bedrock, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), Google Cloud’s Agent Platform, Microsoft Foundry, or the Anthropic API, with failover between them. You can change regions, providers, or failover order without developers noticing or reconfiguring.
@@ -217,7 +217,7 @@ Third, test the browser leg by opening `verification_uri_complete` in a browser 
 
 Log a developer in
 
-This last step happens on a developer machine, not the server. Set `forceLoginMethod` to `"gateway"` and `forceLoginGatewayUrl` to your gateway’s `public_url` in that machine’s [managed settings file](</docs/en/settings#settings-files>), then run `/login`, press Enter on the **Cloud gateway** screen, and complete the browser sign-in. Set the gateway URL below covers distributing both keys at scale.
+This last step happens on a developer machine, not the server. Set `forceLoginMethod` to `"gateway"` and `forceLoginGatewayUrl` to your gateway’s `public_url` in that machine’s [managed settings file](</docs/en/managed-settings#delivery-mechanisms>), then run `/login`, press Enter on the **Cloud gateway** screen, and complete the browser sign-in. Set the gateway URL below covers distributing both keys at scale.
 
 ##
 
@@ -233,7 +233,7 @@ Developers connect from their own laptops with one browser sign-in, using their 
 
 Set the gateway URL
 
-Three keys go in the per-OS [managed settings file](</docs/en/settings#settings-files>) you deploy via MDM or directly on disk. `forceLoginMethod` and `forceLoginGatewayUrl` open `/login` directly on the **Cloud gateway** screen with the URL filled in, and `parentSettingsBehavior: "merge"` lets Claude Desktop deliver the gateway’s egress allowlist to the Claude Code sessions it launches, explained in Deliver policy to Claude Desktop sessions:
+Three keys go in the per-OS [managed settings file](</docs/en/managed-settings#delivery-mechanisms>) you deploy via MDM or directly on disk. `forceLoginMethod` and `forceLoginGatewayUrl` open `/login` directly on the **Cloud gateway** screen with the URL filled in, and `parentSettingsBehavior: "merge"` lets Claude Desktop deliver the gateway’s egress allowlist to the Claude Code sessions it launches, explained in Deliver policy to Claude Desktop sessions:
 
     {
       "forceLoginMethod": "gateway",
@@ -257,7 +257,7 @@ Claude Desktop runs embedded Claude Code sessions and passes policy to each one 
 
 Which machines need the opt-in
 
-Machines that only run Claude Desktop need it. Claude Desktop applies the model list and the disabled-tools list to embedded sessions itself, but the egress allowlist reaches them only as parent settings, in the form of `WebFetch` domain rules and sandbox network rules. Without the opt-in, those sessions run without the egress restriction, and nothing warns you. The gateway still rejects inference requests for models the policy doesn’t grant. Machines where developers sign in through `/login` don’t need it; every Claude Code invocation fetches its policy from the gateway directly. Machines where an MDM or file-based source wins and configures a [`policyHelper`](</docs/en/settings#compute-managed-settings-with-a-policy-helper>) can’t use it, because Claude Code never merges parent settings into the helper’s output.
+Machines that only run Claude Desktop need it. Claude Desktop applies the model list and the disabled-tools list to embedded sessions itself, but the egress allowlist reaches them only as parent settings, in the form of `WebFetch` domain rules and sandbox network rules. Without the opt-in, those sessions run without the egress restriction, and nothing warns you. The gateway still rejects inference requests for models the policy doesn’t grant. Machines where developers sign in through `/login` don’t need it; every Claude Code invocation fetches its policy from the gateway directly. Fleets whose [`policyHelper`](</docs/en/settings-reference#policyhelper>) supplies managed settings can’t use it: parent settings are never merged then, because the helper’s output replaces the other managed sources.
 
 ####
 
@@ -283,7 +283,7 @@ Only the highest-priority admin source’s value counts. A managed-preferences p
 
 Check which source won
 
-Call the Agent SDK’s [`resolveSettings()`](</docs/en/agent-sdk/typescript#resolvesettings>). Its result includes a `sources` list; the managed policy entry there carries a `policyOrigin` field naming the active source. `resolveSettings()` doesn’t execute a configured `policyHelper`, so on helper fleets its answer doesn’t reflect the live session.
+Call the Agent SDK’s [`resolveSettings()`](</docs/en/agent-sdk/typescript#resolvesettings>). Its result includes a `sources` list; the managed policy entry there carries a `policyOrigin` field naming the active source. `resolveSettings()` doesn’t execute a configured `policyHelper`, so its result doesn’t reflect the live session on machines where a helper supplies the managed settings.
 
 ###
 
@@ -291,7 +291,7 @@ Call the Agent SDK’s [`resolveSettings()`](</docs/en/agent-sdk/typescript#reso
 
 Restrict parent settings
 
-Once you deploy `parentSettingsBehavior: "merge"`, any host process that launches Claude Code can supply parent settings, not only Claude Desktop but also an Agent SDK application or an IDE extension. Claude Code filters parent settings against an allowlist of restrictive keys, but some allowed keys can grant access rather than restrict it. Unless you set the `allowManaged*Only` locks, permission allow rules and sandbox allowlists supplied by the host still apply. Your policy’s deny and ask rules stay in force either way; [they’re evaluated before any allow rule](</docs/en/permissions#manage-permissions>). Claude Code forwards parent-supplied [`sandbox.credentials`](</docs/en/settings#sandbox-settings>) entries in stripped form:
+Once you deploy `parentSettingsBehavior: "merge"`, any host process that launches Claude Code can supply parent settings, not only Claude Desktop but also an Agent SDK application or an IDE extension. Claude Code filters parent settings against an allowlist of restrictive keys, but some allowed keys can grant access rather than restrict it. Unless you set the `allowManaged*Only` locks, permission allow rules and sandbox allowlists supplied by the host still apply. Your policy’s deny and ask rules stay in force either way; [they’re evaluated before any allow rule](</docs/en/permissions#manage-permissions>). Claude Code forwards parent-supplied [`sandbox.credentials`](</docs/en/settings-reference#sandbox-credentials>) entries in stripped form:
 
   * **`deny` entries**: forwarded with only their `path` or `name` and the mode.
   * **File entries with[`mode: mask`](</docs/en/sandboxing#mask-credential-files>)**: forwarded sentinel-only, as a whole-file mask whose `injectHosts` is the empty list, so the proxy never substitutes the real value for a parent-supplied entry on any platform. All structured-masking fields are dropped too, so a parent-supplied extract pattern can’t displace a stricter mask another source sets for the same path.
@@ -335,7 +335,7 @@ An OS policy, such as an HKLM registry policy or a managed-preferences plist, ou
 
 Lock behavior across sources
 
-Setting one lock doesn’t restrict the others; each key is documented in the [settings reference](</docs/en/settings#available-settings>). From an admin source below the winner, the two sandbox locks still apply, and `allowManagedPermissionRulesOnly` still blocks parent-supplied allow rules and `additionalDirectories`. The hooks and MCP server locks, and `allowManagedPermissionRulesOnly`’s effect on the developer’s own rules, need the winning source. When an MDM or file-based source wins and configures a [`policyHelper`](</docs/en/settings#compute-managed-settings-with-a-policy-helper>), Claude Code reads the locks from the helper’s output alone. Each lock makes Claude Code ignore the developer’s own entries for that setting, so include your organization’s allowlists next to the locks. Locking network domains with an empty managed domain list blocks all sandboxed outbound traffic, and locking MCP servers with no managed or parent-supplied `allowedMcpServers` loads every server that `deniedMcpServers` doesn’t block. `allowRead` entries only re-allow paths inside `denyRead` regions, so pair them with a managed `denyRead`.
+Setting one lock doesn’t restrict the others; each key is documented in the [settings reference](</docs/en/settings-reference#all-settings>). From an admin source below the winner, the two sandbox locks still apply, and `allowManagedPermissionRulesOnly` still blocks parent-supplied allow rules and `additionalDirectories`. The hooks and MCP server locks, and `allowManagedPermissionRulesOnly`’s effect on the developer’s own rules, need the winning source. On [`policyHelper`](</docs/en/settings-reference#policyhelper>) fleets, the locks are read from the helper’s output alone. Each lock makes Claude Code ignore the developer’s own entries for that setting, so include your organization’s allowlists next to the locks. Locking network domains with an empty managed domain list blocks all sandboxed outbound traffic, and locking MCP servers with no managed or parent-supplied `allowedMcpServers` loads every server that `deniedMcpServers` doesn’t block. `allowRead` entries only re-allow paths inside `denyRead` regions, so pair them with a managed `denyRead`.
 
 ####
 
@@ -406,7 +406,8 @@ Telemetry fan-out (OTLP/HTTP)| Available| Identity-stamped per export; both prot
 OIDC identity providers| Available| Any OIDC-compliant IdP; the gateway runs standard OIDC discovery and the authorization-code flow. See [Identity provider setup](</docs/en/claude-apps-gateway-deploy#identity-provider-setup>) for per-IdP configuration
 Per-user and per-group spend limits| Available| See [Spend limits](</docs/en/claude-apps-gateway-spend-limits>)
 Server-side web search| Not available| The CLI can’t see which upstream provider the gateway routes to, so it can’t verify web search support and disables WebSearch on gateway sessions
-Standard prompt caching| Available| `cache_control` breakpoints are forwarded to every upstream
+[Remote Control](</docs/en/remote-control>)| Not available| The CLI shows [an error naming the gateway](</docs/en/errors#remote-control-requires-the-anthropic-api>)
+Standard prompt caching| Available| The gateway forwards `cache_control` breakpoints to every upstream. On gateway sessions, the CLI doesn’t mark the [system context it appends mid-conversation](</docs/en/prompt-caching#where-the-cache-lives>) for caching, so that block shows up as uncached input.
 1-hour cache TTL| Not available| The CLI omits the extended-cache-ttl beta on gateway sessions, because not every upstream the gateway can route to supports the 1-hour TTL, so prompt caching through the gateway uses the 5-minute TTL; see the beta-header note above
 Auto mode| Available| Follows the [third-party provider rules](</docs/en/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry>): only the models eligible on third-party providers can use it. Before v2.1.207, auto mode on gateway sessions required setting `CLAUDE_CODE_ENABLE_AUTO_MODE=1`, deliverable through the managed policy `env` block
 First-party-only optimizations such as global cache scope and token-efficient tools| Not available| The CLI doesn’t enable them on gateway sessions; see the beta-header note above

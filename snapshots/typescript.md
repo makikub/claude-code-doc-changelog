@@ -436,8 +436,8 @@ Parameters
 Parameter| Type| Default| Description
 ---|---|---|---
 `options.cwd`| `string`| `process.cwd()`| Directory to resolve project and local settings relative to
-`options.settingSources`| `SettingSource``[]`| All sources| Which filesystem sources to load. Pass `[]` to skip user, project, and local settings. [Endpoint-managed policy](</docs/en/settings#settings-files>) loads in all cases. Server-managed settings are taken from `serverManagedSettings` when the host passes it, or read from the CLI’s on-disk cache otherwise; the snapshot does not fetch them from the network
-`options.managedSettings`| `Settings`| `undefined`| Policy-tier settings supplied by the embedding host. Follows the same rules as `managedSettings` in `Options`, except that `resolveSettings()` doesn’t execute a configured [`policyHelper`](</docs/en/settings#compute-managed-settings-with-a-policy-helper>), so the snapshot can include settings that a live session drops
+`options.settingSources`| `SettingSource``[]`| All sources| Which filesystem sources to load. Pass `[]` to skip user, project, and local settings. [Endpoint-managed policy](</docs/en/managed-settings#delivery-mechanisms>) loads in all cases. Server-managed settings are taken from `serverManagedSettings` when the host passes it, or read from the CLI’s on-disk cache otherwise; the snapshot does not fetch them from the network
+`options.managedSettings`| `Settings`| `undefined`| Policy-tier settings supplied by the embedding host. Follows the same rules as `managedSettings` in `Options`, except that `resolveSettings()` doesn’t execute a configured [`policyHelper`](</docs/en/settings-reference#policyhelper>), so the snapshot can include settings that a live session drops
 `options.serverManagedSettings`| `Settings`| `undefined`| Server-managed settings payload from `/api/claude_code/settings`. Non-restrictive keys pass through unfiltered
 
 ####
@@ -515,7 +515,7 @@ Property| Type| Default| Description
 `includeHookEvents`| `boolean`| `false`| Include hook lifecycle events in the message stream as `SDKHookStartedMessage`, `SDKHookProgressMessage`, and `SDKHookResponseMessage`. Lifecycle events for `SessionStart` and `Setup` hooks are always included and don’t need this option. Some hook events, such as `Notification`, `SessionEnd`, `PreCompact`, and `PostCompact`, never produce an `SDKHookStartedMessage`, even with this option. For those events, Claude Code still emits an `SDKHookProgressMessage` while a command hook that runs for more than a second produces output, and emits an `SDKHookResponseMessage` only when a hook [that runs in the background](</docs/en/hooks#run-hooks-in-the-background>) finishes
 `includePartialMessages`| `boolean`| `false`| Include partial message events
 `loadTimeoutMs`| `number`| `60000`|  _Alpha._ Timeout in milliseconds for each `sessionStore.load()` and `sessionStore.listSubkeys()` call during resume materialization. If the adapter doesn’t settle within this window, the query fails instead of hanging. Ignored when `sessionStore` is not set
-`managedSettings`| `Settings`| `undefined`| Policy-tier settings your host process supplies to the spawned session. On machines with admin-deployed managed settings, Claude Code ignores these unless the admin’s highest-priority managed source sets `parentSettingsBehavior: 'merge'`, and never merges them when an MDM or file-based source wins and configures a [`policyHelper`](</docs/en/settings#compute-managed-settings-with-a-policy-helper>). Merged values pass through a restrictive-only filter; [Restrict parent settings](</docs/en/claude-apps-gateway#restrict-parent-settings>) covers what the filter admits and the `allowManaged*Only` locks
+`managedSettings`| `Settings`| `undefined`| Policy-tier settings your host process supplies to the spawned session. On machines with admin-deployed managed settings, Claude Code ignores these unless the admin’s highest-priority managed source sets `parentSettingsBehavior: 'merge'`, and never merges them while a [`policyHelper`](</docs/en/settings-reference#policyhelper>) supplies managed settings. Merged values pass through a restrictive-only filter; [Restrict parent settings](</docs/en/claude-apps-gateway#restrict-parent-settings>) covers what the filter admits and the `allowManaged*Only` locks
 `maxBudgetUsd`| `number`| `undefined`| Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for accuracy caveats
 `maxThinkingTokens`| `number`| `undefined`|  _Deprecated:_ Use `thinking` instead. Maximum tokens for thinking process
 `maxTurns`| `number`| `undefined`| Maximum agentic turns (tool-use round trips)
@@ -539,7 +539,7 @@ Property| Type| Default| Description
 `sessionStore`| [`SessionStore`](</docs/en/agent-sdk/session-storage#the-sessionstore-interface>)| `undefined`| Mirror session transcripts to an external backend so another host can resume them. See [Persist sessions to external storage](</docs/en/agent-sdk/session-storage>)
 `sessionStoreFlush`| `'batched' | 'eager'`| `'batched'`| _Alpha._ Flush mode for `sessionStore`. Ignored when `sessionStore` is not set
 `settings`| `string | Settings`| `undefined`| Inline [settings](</docs/en/settings>) object or path to a settings file. Populates the flag-settings layer in the [precedence order](</docs/en/settings#settings-precedence>). Change at runtime with `applyFlagSettings()`
-`settingSources`| `SettingSource``[]`| CLI defaults (all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. [Endpoint-managed policy](</docs/en/settings#settings-files>) loads regardless; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
+`settingSources`| `SettingSource``[]`| CLI defaults (all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. [Endpoint-managed policy](</docs/en/managed-settings#delivery-mechanisms>) loads regardless; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
 `skills`| `string[] | 'all'`| `undefined`| Skills available to the session. Pass `'all'` to enable every discovered skill, or a list of skill names. Pass exact names only. The SDK rejects malformed and wildcard-form names with an error before starting the Claude Code process. When set, the SDK adds the Skill tool to `allowedTools` automatically. If you also pass `tools`, include `'Skill'` in that list. See [Skills](</docs/en/agent-sdk/skills>)
 `spawnClaudeCodeProcess`| `(options: SpawnOptions) => SpawnedProcess`| `undefined`| Custom function to spawn the Claude Code process. Use to run Claude Code in VMs, containers, or remote environments
 `stderr`| `(data: string) => void`| `undefined`| Callback for stderr output
@@ -575,7 +575,7 @@ The CLI subprocess reads several environment variables that control API timeouts
     });
 
   * `API_TIMEOUT_MS`: per-request timeout on the Anthropic client, in milliseconds. Default `600000`. Applies to the main loop and all subagents.
-  * `CLAUDE_CODE_MAX_RETRIES`: maximum API retries. Default `10`, capped at `15`. Each retry gets its own `API_TIMEOUT_MS` window, so worst-case wall time is roughly `API_TIMEOUT_MS × (CLAUDE_CODE_MAX_RETRIES + 1)` plus backoff. For unattended runs that need to wait through longer outages, set `CLAUDE_CODE_RETRY_WATCHDOG=1`: it retries capacity errors indefinitely, and as of Claude Code v2.1.199 raises the default for other transient errors to `300` and removes the cap on this variable.
+  * `CLAUDE_CODE_MAX_RETRIES`: maximum API retries. Default `10`, capped at `15`. Each retry gets its own `API_TIMEOUT_MS` window, so worst-case wall time is roughly `API_TIMEOUT_MS × (CLAUDE_CODE_MAX_RETRIES + 1)` plus backoff. For unattended runs that need to wait through longer outages, set [`CLAUDE_CODE_RETRY_WATCHDOG=1`](</docs/en/errors#tune-retry-behavior>): it retries transient capacity errors indefinitely and, on Claude Code v2.1.199 or later, raises the default for other transient errors to `300` and removes the cap on this variable.
   * `CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS`: stall watchdog for subagents launched with `run_in_background`. Default `600000`. Resets on each stream event; on stall it aborts the subagent, marks the task failed, and surfaces the error to the parent with any partial result. Does not apply to synchronous subagents.
   * `CLAUDE_ENABLE_STREAM_WATCHDOG` with `CLAUDE_STREAM_IDLE_TIMEOUT_MS`: aborts the request when headers have arrived but the response body stops streaming. The watchdog is on by default for all providers; set `CLAUDE_ENABLE_STREAM_WATCHDOG=0` to disable it. `CLAUDE_STREAM_IDLE_TIMEOUT_MS` defaults to `300000` and is clamped to that minimum. After the abort, [Automatic retries](</docs/en/errors#automatic-retries>) covers what Claude Code does, based on how far the response had progressed.
 
@@ -3218,7 +3218,7 @@ Artifact
       contract?: "latest" | string;
     };
 
-Publishes a local `.html` or `.md` file as a hosted artifact page, or lists the user’s published artifacts. Omit `action` or pass `"publish"` to publish `file_path`, which is required for the publish action along with `favicon`, one or two emoji for the browser tab. `title` names the published page in the browser tab and gallery when the HTML file has no `<title>` tag. `url` targets an existing artifact to update in place instead of minting a new one, and `force` is a last-resort overwrite that discards another session’s published version; on a 409 conflict the normal fix is to re-read, merge, and publish again rather than pass `force`. Pass `"list"` to enumerate the user’s published artifacts; only `limit` and `scope` may accompany it. `scope` defaults to `"mine"`, which lists artifacts the user owns; `"shared"` lists artifacts other people shared with the user, and `"all"` lists both.
+Publishes a local `.html` or `.md` file as a hosted artifact page, or lists the user’s published artifacts. Omit `action` or pass `"publish"` to publish `file_path`, which is required for the publish action along with `favicon`, one or two emoji for the browser tab. `title` names the published page in the browser tab and gallery when the HTML file has no `<title>` tag. `url` targets an existing artifact to update in place instead of minting a new one. `force` is a last-resort overwrite that discards a newer version another session published. On a conflict, the failed publish returns the newer content; Claude merges its changes onto that content, or re-reads the artifact, and publishes again. Pass `force` only when the user explicitly asks to discard that version. Pass `"list"` to enumerate the user’s published artifacts; only `limit` and `scope` may accompany it. `scope` defaults to `"mine"`, which lists artifacts the user owns; `"shared"` lists artifacts other people shared with the user, and `"all"` lists both.
 
   * `capabilities`: the runtime capabilities the published page uses, keyed by capability name, such as the [connectors the page may call](</docs/en/artifacts#pull-live-data-with-mcp-connectors>). The artifact service validates the declaration and rejects a publish that names a capability the account can’t use or gives one an invalid config. Pass `{}` to clear a stored declaration, and omit the field on a redeploy to keep it. Requires Agent SDK v0.3.235 or later.
   * `contract`: the runtime version the published page runs against. Omit it to keep the artifact’s current version, pass `"latest"` to upgrade, or pass a specific version to pin or roll back. Requires Agent SDK v0.3.235 or later.
@@ -3771,10 +3771,11 @@ WebFetch
       artifactRead?: {
         slug: string;
         ver?: string;
+        seeded?: false;
       };
     };
 
-Returns the fetched content with HTTP status and metadata.
+Returns the fetched content with HTTP status and metadata. `artifactRead` is present only when Claude fetched an artifact the session can publish to, and it always carries that artifact’s `slug`. `seeded` is `false` on a read that didn’t deliver the page’s full source, and that entry carries no `ver`. The field requires Agent SDK v0.3.239 or later.
 
 ###
 
@@ -4500,7 +4501,7 @@ Claude Code reports one of four values:
 Value| Key in use
 ---|---
 `ANTHROPIC_API_KEY`| The key in the `ANTHROPIC_API_KEY` environment variable
-`apiKeyHelper`| The key returned by your [`apiKeyHelper`](</docs/en/settings#available-settings>) command
+`apiKeyHelper`| The key returned by your [`apiKeyHelper`](</docs/en/settings-reference#apikeyhelper>) command
 `/login managed key`| The key Claude Code stored when you logged in with a [Claude Console account](</docs/en/authentication#claude-console-authentication>)
 `none`| No API key. The session authenticates another way, such as a claude.ai login, a bearer token, or a cloud provider
 
@@ -5090,7 +5091,7 @@ Emitted when a background task’s state changes, such as when it transitions fr
 
 `SDKBackgroundTasksChangedMessage`
 
-Emitted whenever the set of live background tasks changes: a task starts, completes, is killed, or a foreground agent is backgrounded. The `tasks` array is the full live set. Replace any cached set with each payload instead of pairing `task_started` and `task_notification` events, so the next membership change corrects any event you missed. Ordering relative to those per-task events is unspecified, so don’t correlate the two streams. Nothing is emitted at startup. Reset to an empty set whenever the session’s CLI process starts or restarts and let the next membership change repopulate it. Requires Claude Code v2.1.203 or later.
+Emitted whenever the set of live background tasks changes: a task starts, completes, is killed, or a foreground agent is backgrounded. The `tasks` array is the full live set. Replace any cached set with each payload instead of pairing `task_started` and `task_notification` events, so the next membership change corrects any event you missed. Ordering relative to those per-task events is unspecified, so don’t correlate the two streams. Nothing is emitted at startup. Reset to an empty set whenever the session’s CLI process starts or restarts and let the next membership change repopulate it. When you send a repeated `initialize` control request to a running session, such as with `reinitialize()` after a transport gap, Claude Code follows the response with a snapshot of the current live set, even when it is empty. A reconnecting host therefore learns what is running without waiting for the next membership change. Before Agent SDK v0.3.239, Claude Code sent no snapshot after a repeated `initialize`. Requires Claude Code v2.1.203 or later.
 
     type SDKBackgroundTasksChangedMessage = {
       type: "system";
@@ -5273,7 +5274,7 @@ Property| Type| Default| Description
 `allowUnsandboxedCommands`| `boolean`| `true`| Allow the model to request running commands outside the sandbox. When `true`, the model can set `dangerouslyDisableSandbox` in tool input, which falls back to the permissions system
 `network`| `SandboxNetworkConfig`| `undefined`| Network-specific sandbox configuration
 `filesystem`| `SandboxFilesystemConfig`| `undefined`| Filesystem-specific sandbox configuration for read/write restrictions
-`ignoreViolations`| `Record<string, string[]>`| `undefined`| Map of violation categories to patterns to ignore (e.g., `{ file: ['/tmp/*'], network: ['localhost'] }`)
+`ignoreViolations`| `Record<string, string[]>`| `undefined`| Map of command substrings, or `*` for every command, to substrings of the violation text to ignore, such as `{ "*": ['/etc/hosts'] }`; see [`sandbox.ignoreViolations`](</docs/en/settings-reference#sandbox-ignoreviolations>)
 `enableWeakerNestedSandbox`| `boolean`| `false`| Enable a weaker nested sandbox for compatibility
 `ripgrep`| `{ command: string; args?: string[] }`| `undefined`| Custom ripgrep binary configuration for sandbox environments
 
@@ -5335,7 +5336,7 @@ Property| Type| Default| Description
 `allowedDomains`| `string[]`| `[]`| Domain names that sandboxed processes can access
 `deniedDomains`| `string[]`| `[]`| Domain names that sandboxed processes cannot access. Takes precedence over `allowedDomains`
 `strictAllowlist`| `boolean`| `false`| Deny sandboxed commands access to hosts outside the [network allowlist](</docs/en/sandboxing#network-isolation>) instead of prompting. Enforced for sandboxed commands only; in-process tools such as WebFetch aren’t gated by it. Only honored from user, managed, or CLI `--settings` settings; project settings are ignored. Requires Claude Code v2.1.219 or later
-`allowManagedDomainsOnly`| `boolean`| `false`| Managed-settings only. When set in [managed settings](</docs/en/permissions#managed-settings>), only `allowedDomains` entries and `WebFetch(domain:...)` allow rules from managed settings are honored, and allow entries from user, project, or local settings are ignored. Has no effect when set via SDK options
+`allowManagedDomainsOnly`| `boolean`| `false`| Managed-settings only. When set in [managed settings](</docs/en/managed-settings>), only `allowedDomains` entries and `WebFetch(domain:...)` allow rules from managed settings are honored, and allow entries from user, project, or local settings are ignored. Has no effect when set via SDK options
 `allowLocalBinding`| `boolean`| `false`| Allow processes to bind to local ports (e.g., for dev servers)
 `allowUnixSockets`| `string[]`| `[]`| Unix socket paths that processes can access (e.g., Docker socket)
 `allowAllUnixSockets`| `boolean`| `false`| Allow access to all Unix sockets

@@ -29,7 +29,7 @@ CLAUDE.md and permissions solve different problems. CLAUDE.md tells Claude how y
 
 Check resolved settings
 
-Settings merge across managed, user, project, and local scopes. Managed settings apply first when present. Among the rest, the closer scope overrides the broader one in the order local, then project, then user. Some settings can also be set by command-line flags or [environment variables](</docs/en/env-vars>), which act as another override layer. When a setting doesn’t seem to apply, the value you set is usually being overridden by another scope or an environment variable. Run [`/doctor`](</docs/en/commands#all-commands>) to find invalid settings files. From the terminal, `claude doctor` prints read-only installation and settings diagnostics without starting a session. Run `/status` to see which settings sources are active, including whether managed settings are in effect. To understand which scope wins for a given key, see [How scopes interact](</docs/en/settings#how-scopes-interact>).
+Settings merge across managed, user, project, and local scopes. Managed settings apply first when present. Among the rest, the closer scope overrides the broader one in the order local, then project, then user. Some settings can also be set by command-line flags or [environment variables](</docs/en/env-vars>), which act as another override layer. When a setting doesn’t seem to apply, the value you set is usually being overridden by another scope or an environment variable. Run [`/doctor`](</docs/en/commands#all-commands>) to find invalid settings files. From the terminal, `claude doctor` prints read-only installation and settings diagnostics without starting a session. Run `/status` to see which settings sources are active, including whether managed settings are in effect. To understand which scope Claude Code uses for a given key, see [Settings precedence](</docs/en/settings#settings-precedence>).
 
 ##
 
@@ -55,7 +55,7 @@ Run `/hooks` to list every hook registered for the current session, grouped by e
 
   * The `matcher` field is a single string that uses `|` to match multiple tool names, for example `"Edit|Write"`. A `,` separator is equivalent, so `"Edit,Write"` matches the same tools. Before v2.1.191, a comma fell through to regex evaluation and the matcher never matched, so use `|` if you aren’t on v2.1.191 yet.
   * A misspelled tool name produces a matcher that matches nothing, so the hook fails silently.
-  * An array value is a schema error: Claude Code shows a settings error notice and rejects the whole user, project, or local settings file, `claude doctor` reports the validation failure, and no hook from that file appears in `/hooks`. In [managed settings](</docs/en/settings#settings-files>), only the invalid entry is stripped and the file’s other hooks still apply.
+  * An array value is a schema error: Claude Code shows a settings error notice and rejects the whole user, project, or local settings file, `claude doctor` reports the validation failure, and no hook from that file appears in `/hooks`. In [managed settings](</docs/en/managed-settings>), Claude Code drops the whole `hooks` key from the file that contains the array, so none of that file’s hooks apply. The file’s other settings still apply, and `claude doctor` lists the dropped key.
 
 Edits to `settings.json` take effect in the running session after a brief file-stability delay. You don’t need to restart. If `/hooks` still shows the old definition a few seconds after saving, run `/hooks` again to refresh the view. If `/hooks` shows the hook but it still does not fire, the next step is to watch hook evaluation live. Start a session with `claude --debug` and trigger the tool call. The debug log records each event, which matchers were checked, and the hook’s exit code and output. See [Debug hooks](</docs/en/hooks#debug-hooks>) for the log format and [hooks troubleshooting](</docs/en/hooks-guide#limitations-and-troubleshooting>) for common failure patterns.
 
@@ -92,7 +92,7 @@ Hook never fires| `matcher` uses `,` as a separator on a version before v2.1.191
 Hook never fires| `matcher` value is lowercase, for example `"bash"`| Matching is case-sensitive. Tool names are capitalized: `Bash`, `Edit`, `Write`, `Read`.
 Hook never fires| Hooks are defined in a standalone file instead of `settings.json`| There is no standalone hooks file for project or user config. Define hooks under the `"hooks"` key in `settings.json`. Only [plugins](</docs/en/plugins-reference#hooks>) load a separate `hooks/hooks.json`. See [hook configuration](</docs/en/hooks>).
 Permissions, hooks, or env set globally are ignored| Configuration was added to `~/.claude.json`| `~/.claude.json` holds app state and UI toggles. `permissions`, `hooks`, and `env` belong in `~/.claude/settings.json`. These are two different files.
-A `settings.json` value seems ignored| The same key is set in `settings.local.json`| `settings.local.json` overrides `settings.json`, and both override `~/.claude/settings.json`. See [settings precedence](</docs/en/settings#how-scopes-interact>).
+A `settings.json` value seems ignored| The same key is set in `settings.local.json`| `settings.local.json` overrides `settings.json`, and both override `~/.claude/settings.json`. See [settings precedence](</docs/en/settings#settings-precedence>).
 Skill doesn’t appear in `/skills`| Skill file is at `.claude/skills/name.md` instead of in a folder| Use a folder with `SKILL.md` inside: `.claude/skills/name/SKILL.md`.
 Skill appears in `/skills` but Claude never invokes it| Skill has `disable-model-invocation: true` in its frontmatter, or its description doesn’t match how you phrase the request| Check the badge in `/skills`: a “user-only” label means Claude won’t trigger it on its own. See [skill invocation](</docs/en/skills>).
 Subdirectory `CLAUDE.md` instructions seem ignored| Subdirectory files load on demand, not at session start| They load when Claude reads a file in that directory with the Read tool, not at launch and not when writing or creating files there. See [how CLAUDE.md files load](</docs/en/memory#how-claude-md-files-load>).
@@ -114,7 +114,7 @@ Related resources
 For full reference on each configuration surface, see the dedicated page:
 
   * **[`.claude` directory reference](</docs/en/claude-directory>)**: every config file location and what reads it
-  * **[Settings](</docs/en/settings>)** : precedence order and the full key list
+  * **[Settings](</docs/en/settings>)** : which file to use and which value Claude Code uses; the [settings reference](</docs/en/settings-reference>) has the full key list
   * **[Hooks reference](</docs/en/hooks>)** : event names, payloads, and `--debug` output format
   * **[MCP](</docs/en/mcp>)** : server configuration, approval, and `/mcp` output
   * **[Troubleshoot installation and login](</docs/en/troubleshoot-install>)** : `command not found`, PATH, and authentication problems

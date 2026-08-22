@@ -1,4 +1,4 @@
-Fullscreen rendering is a research preview. If you first used Claude Code on or after May 6, 2026, Claude Code renders fullscreen by default; run `/tui default` to switch back. If you started earlier, you keep the classic renderer; run `/tui fullscreen` to switch in your current conversation. Behavior may change based on feedback.
+Fullscreen rendering is a research preview. Whether you start in fullscreen or in the classic renderer depends on your setup. Run `/tui fullscreen` or `/tui default` to switch in your current conversation. Behavior may change based on feedback.
 
 Fullscreen rendering is an alternative rendering path for the Claude Code CLI that eliminates flicker, keeps memory usage flat in long conversations, and adds mouse support. It draws the interface on the terminal’s alternate screen buffer, like `vim` or `htop`, and only renders messages that are currently visible. This reduces the amount of data sent to your terminal on each update. The difference is most noticeable in terminal emulators where rendering throughput is the bottleneck, such as the VS Code integrated terminal, tmux, and iTerm2. If your terminal scroll position jumps to the top while Claude is working, or the screen flashes as tool output streams in, this mode addresses those.
 
@@ -10,7 +10,7 @@ The term fullscreen describes how Claude Code takes over the terminal’s drawin
 
 Enable fullscreen rendering
 
-Run `/tui fullscreen` inside any Claude Code conversation. The CLI saves the [`tui` setting](</docs/en/settings#available-settings>) and relaunches into fullscreen with your conversation intact, so you can switch mid-session without losing context. Run `/tui default` to switch back to the classic renderer, or `/tui` with no argument to print which renderer is active. In [screen reader mode](</docs/en/accessibility>), Claude Code always uses the classic renderer except in attached [background sessions](</docs/en/agent-view>), which still render fullscreen. If you run `/tui fullscreen` in any other session, Claude Code prints an explanation instead of switching and doesn’t change the saved `tui` setting. Claude Code carries these into the relaunched session:
+Run `/tui fullscreen` inside any Claude Code conversation. The CLI saves the [`tui` setting](</docs/en/settings-reference#tui>) and relaunches into fullscreen with your conversation intact, so you can switch mid-session without losing context. Run `/tui default` to switch back to the classic renderer, or `/tui` with no argument to print which renderer is active. In [screen reader mode](</docs/en/accessibility>), Claude Code always uses the classic renderer except in attached [background sessions](</docs/en/agent-view>), which still render fullscreen. If you run `/tui fullscreen` in any other session, Claude Code prints an explanation instead of switching and doesn’t change the saved `tui` setting. Claude Code carries these into the relaunched session:
 
   * The conversation as it appears on screen. After a [`/rewind`](</docs/en/checkpointing#rewind-and-summarize>), that means:
     * If you rewound earlier in the session, Claude Code relaunches from the rewound point, not from the longer transcript saved on disk. For example, if you rewound past your last three messages, the relaunched session opens without them
@@ -24,15 +24,37 @@ Claude Code declines to relaunch if the session has a restriction it can’t pas
   * Launch flags such as a [`--system-prompt`](</docs/en/cli-reference#cli-flags>) replacement, a [`--tools`](</docs/en/cli-reference#cli-flags>) allowlist, or [`--setting-sources`](</docs/en/cli-reference#cli-flags>)
   * Deny or ask rules that a [hook or SDK permission update](</docs/en/hooks#permission-update-entries>) added for this session only
 
-In that case Claude Code prints [`Cannot switch renderers in this session`](</docs/en/errors#cannot-switch-renderers-in-this-session>) with the reasons. It doesn’t switch or save anything.
-
-If you first used Claude Code before May 6, 2026 and haven’t saved a `tui` setting, Claude Code may open a dialog at startup offering the switch. If you accept, Claude Code relaunches the same way `/tui fullscreen` does, carrying the same session state, and saves the setting once the relaunched session has started successfully.
-
-You can also set the `CLAUDE_CODE_NO_FLICKER` environment variable before starting Claude Code:
+In that case Claude Code prints [`Cannot switch renderers in this session`](</docs/en/errors#cannot-switch-renderers-in-this-session>) with the reasons. It doesn’t switch or save anything. You can also set the `CLAUDE_CODE_NO_FLICKER` environment variable before starting Claude Code:
 
     CLAUDE_CODE_NO_FLICKER=1 claude
 
-Either one turns fullscreen rendering on. After a failed fullscreen start, Claude Code still honors the variable but not the setting. The `/tui` command clears `CLAUDE_CODE_NO_FLICKER` from the relaunched process so the setting it writes takes effect.
+For how the [`tui`](</docs/en/settings-reference#tui>) setting and the variable combine when both are set, see the setting’s entry. After a failed fullscreen start, Claude Code still honors the variable but not the setting. The `/tui` command clears `CLAUDE_CODE_NO_FLICKER` from the relaunched process so the setting it writes takes effect.
+
+###
+
+​
+
+Fullscreen by default
+
+Attached [background sessions](</docs/en/agent-view>) render fullscreen, and other sessions in [screen reader mode](</docs/en/accessibility>) use the classic renderer. Otherwise, Claude Code starts you in the renderer from the first row of this table that matches your setup:
+
+Your situation| Renderer you start in
+---|---
+You set [`CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1`](</docs/en/env-vars>) or `CLAUDE_CODE_NO_FLICKER=0`| Classic
+You set `CLAUDE_CODE_NO_FLICKER=1`| Fullscreen
+Claude Code turned fullscreen off after a failed fullscreen start on this machine| Classic
+You’re in iTerm2’s `tmux -CC` integration mode, or you’re connected over SSH to Claude Code running on Windows| Classic
+You saved a [`tui` setting](</docs/en/settings-reference#tui>)| The renderer the setting names
+Your session doesn’t [fetch feature flags from Anthropic](</docs/en/env-vars#features-that-need-feature-flag-fetching>), and Claude Code has stopped offering the startup dialog on this machine| Classic
+Your session doesn’t fetch feature flags from Anthropic, and this machine’s first Claude Code launch ran v2.1.239 or later| Fullscreen
+Your session fetches feature flags from Anthropic, and you first used Claude Code on or after May 6, 2026| Fullscreen
+Anything else| Classic
+
+Sessions that don’t fetch feature flags include those through [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>), and those with telemetry turned off. If you start in the classic renderer and haven’t saved a `tui` setting, Claude Code may open a dialog at startup offering the switch:
+
+  * If you accept, Claude Code relaunches the same way `/tui fullscreen` does, carrying the same session state, and saves the setting once the relaunched session has started successfully.
+  * If you choose **Not now** , Claude Code doesn’t offer again on this machine.
+  * Claude Code stops offering after it has shown the dialog on three launches, answered or not.
 
 ##
 
@@ -120,7 +142,7 @@ Mouse wheel scrolling requires your terminal to forward mouse events to Claude C
 
     export CLAUDE_CODE_SCROLL_SPEED=3
 
-A value of `3` matches the default in `vim` and similar applications. The setting accepts any positive value up to 20, including fractional values below 1 such as `0.25` to slow accelerated trackpad and wheel scrolling in terminals that already amplify wheel events. To adjust scroll speed interactively, run `/scroll-speed`. The dialog shows a ruler you can scroll while it is open so you can feel the change immediately. Press `←` and `→` to adjust the speed, `r` to reset to the auto-detected default, and `Enter` to save. The dialog steps in whole numbers up to 10, and on terminals that support finer control it also offers quarter steps down to 0.25. Quarter steps require Claude Code v2.1.172 or later. The command writes the same value the `CLAUDE_CODE_SCROLL_SPEED` environment variable sets, persisted to `~/.claude/settings.json`. The dialog’s maximum is 10: if you set a higher value through the environment variable, the dialog shows 10, and saving from the dialog persists 10. The command isn’t available in the JetBrains IDE terminal. Separately from the base speed, Claude Code accelerates the scroll rate when you spin the wheel quickly, so a fast spin covers more distance than the same number of slow notches. To turn acceleration off and keep a constant rate per notch, set `wheelScrollAccelerationEnabled` to `false` in [`settings.json`](</docs/en/settings#available-settings>). This setting requires Claude Code v2.1.174 or later.
+A value of `3` matches the default in `vim` and similar applications. The setting accepts any positive value up to 20, including fractional values below 1 such as `0.25` to slow accelerated trackpad and wheel scrolling in terminals that already amplify wheel events. To adjust scroll speed interactively, run `/scroll-speed`. The dialog shows a ruler you can scroll while it is open so you can feel the change immediately. Press `←` and `→` to adjust the speed, `r` to reset to the auto-detected default, and `Enter` to save. The dialog steps in whole numbers up to 10, and on terminals that support finer control it also offers quarter steps down to 0.25. Quarter steps require Claude Code v2.1.172 or later. The command writes the same value the `CLAUDE_CODE_SCROLL_SPEED` environment variable sets, persisted to `~/.claude/settings.json`. The dialog’s maximum is 10: if you set a higher value through the environment variable, the dialog shows 10, and saving from the dialog persists 10. The command isn’t available in the JetBrains IDE terminal. Separately from the base speed, Claude Code accelerates the scroll rate when you spin the wheel quickly, so a fast spin covers more distance than the same number of slow notches. To turn acceleration off and keep a constant rate per notch, set `wheelScrollAccelerationEnabled` to `false` in [`settings.json`](</docs/en/settings-reference#all-settings>). This setting requires Claude Code v2.1.174 or later.
 
 ###
 
@@ -241,7 +263,7 @@ To confirm that a failed start is why you’re in the classic renderer, run `/tu
 
 How Claude Code counts failed starts
 
-  * Sessions that count: only sessions that started in fullscreen rendering because your `tui` setting says so, because you accepted the startup dialog, or because your account renders fullscreen by default
+  * Sessions that count: only sessions that started in fullscreen rendering because your `tui` setting says so, because you accepted the startup dialog, or because Claude Code starts you in fullscreen by default
   * `CLAUDE_CODE_NO_FLICKER=1`: if you set it, Claude Code renders that session fullscreen even after a failed start, and doesn’t count it
   * Count reset: Claude Code counts failed starts per Claude Code version, and a successful fullscreen start resets the count
   * Startup dialog: if you accepted the dialog and the relaunched session crashed, Claude Code prints neither line and doesn’t show the dialog again on this Claude Code version

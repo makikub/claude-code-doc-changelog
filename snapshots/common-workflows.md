@@ -237,7 +237,7 @@ Review and refine
 
     enhance the PR description with more context about the security improvements
 
-When you create a PR using `gh pr create`, the session is automatically linked to that PR. To find it later, run `claude --from-pr 1234` with your own PR number, which opens the session picker filtered to sessions linked to that PR, or paste the PR URL into the [`/resume` picker](</docs/en/sessions#use-the-session-picker>) search.
+To find the session later, run `claude --from-pr 1234` with your own PR number, which opens the session picker filtered to sessions linked to that PR, or paste the PR URL into the [`/resume` picker](</docs/en/sessions#use-the-session-picker>) search. Claude Code links the session to the PR when Claude creates it with `gh pr create` or `glab mr create`, and when Claude [works on an existing PR](</docs/en/agent-view#pull-request-status>).
 
 Review Claude’s generated PR before submitting and ask Claude to highlight potential risks or considerations.
 
@@ -306,7 +306,7 @@ Add an image to the conversation
 You can use any of these methods:
 
   1. Drag and drop an image into the Claude Code window
-  2. Copy an image and paste it into the CLI with Ctrl+V. On macOS, Cmd+V also works in iTerm2.
+  2. Copy an image and paste it into the CLI with `Ctrl+V`, or with [`Alt+V` on Windows and WSL](</docs/en/interactive-mode#general-controls>)
   3. Provide an image path to Claude. E.g., “Analyze this image: /path/to/your/image.png”
 
 2
@@ -366,8 +366,6 @@ This includes the full content of the file in the conversation.
 Reference a directory
 
     What's the structure of @src/components?
-
-This provides a directory listing with file information.
 
 3
 

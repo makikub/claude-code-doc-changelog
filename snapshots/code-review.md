@@ -374,7 +374,7 @@ Claude can start `/code-review` on its own. Ask it to review your changes in pla
   * **Claude apps gateway** : sessions that connect through the [Claude apps gateway](</docs/en/claude-apps-gateway>)
   * **Privacy environment variables** : sessions that opt out of telemetry or feature-flag fetching with [`DISABLE_TELEMETRY`, `DO_NOT_TRACK`, `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`, or `DISABLE_GROWTHBOOK`](</docs/en/env-vars#variables>)
 
-A scheduled task never launches the cloud review, so schedule `/code-review` without the `ultra` argument. To stop both Claude and scheduled tasks from starting the review while keeping `/code-review` available for you to type, add a [`skillOverrides`](</docs/en/skills#override-skill-visibility-from-settings>) entry to a [settings file](</docs/en/settings#settings-files>) such as `~/.claude/settings.json`:
+A scheduled task never launches the cloud review, so schedule `/code-review` without the `ultra` argument. To stop both Claude and scheduled tasks from starting the review while keeping `/code-review` available for you to type, add a [`skillOverrides`](</docs/en/skills#override-skill-visibility-from-settings>) entry to a [settings file](</docs/en/settings#where-settings-live>) such as `~/.claude/settings.json`:
 
     {
       "skillOverrides": {

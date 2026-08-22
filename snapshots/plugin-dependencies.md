@@ -64,7 +64,7 @@ Installing `backend-standard` resolves and installs all four dependencies. To ad
   * Enable auto-update for the marketplace in `/plugin`. The next auto-update moves the bundle to the new version and installs any dependencies it adds.
   * Run `claude plugin update backend-standard`, then `/reload-plugins` to install the newly added dependencies.
 
-To roll bundles out across an organization, add the bundle plugin to `enabledPlugins` in [managed settings](</docs/en/settings#enabledplugins>).
+To roll bundles out across an organization, add the bundle plugin to `enabledPlugins` in [managed settings](</docs/en/settings-reference#enabledplugins>).
 
 ##
 

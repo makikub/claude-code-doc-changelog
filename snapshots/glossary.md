@@ -222,7 +222,7 @@ M
 
 Managed settings
 
-Settings enforced org-wide by IT or DevOps, delivered from Anthropic’s servers through the admin console or deployed to devices at an OS-level path outside `~/.claude`. User and project settings cannot override managed settings. Server-managed delivery applies on [eligible configurations](</docs/en/server-managed-settings#platform-availability>); see [Security considerations](</docs/en/server-managed-settings#security-considerations>). Use this for security policies, compliance requirements, or standardized tooling across a fleet. Learn more: [Server-managed settings](</docs/en/server-managed-settings>) · [Settings files](</docs/en/settings#settings-files>)
+Settings enforced org-wide by IT or DevOps, delivered from Anthropic’s servers through the admin console or deployed to devices at an OS-level path outside `~/.claude`. User and project settings cannot override managed settings. Server-managed delivery applies on [eligible configurations](</docs/en/server-managed-settings#platform-availability>); see [Security considerations](</docs/en/server-managed-settings#security-considerations>). Use this for security policies, compliance requirements, or standardized tooling across a fleet. Learn more: [Server-managed settings](</docs/en/server-managed-settings>) · [Settings files](</docs/en/settings#where-settings-live>)
 
 ###
 
@@ -246,7 +246,7 @@ A program that gives Claude tools, prompts, or resources over MCP. You add serve
 
 MCP Tool Search
 
-A context-saving mechanism that defers MCP tool schemas until needed. Only tool names load at startup; Claude fetches the full schema on demand when it decides to use a specific tool. This keeps idle MCP servers from consuming much context. Learn more: [Scale with MCP Tool Search](</docs/en/mcp#scale-with-mcp-tool-search>)
+A context-saving mechanism that defers MCP tool schemas until needed. Only tool names and server instructions load at startup; Claude fetches the full schema on demand when it decides to use a specific tool. This keeps idle MCP servers from consuming much context. Learn more: [Scale with MCP Tool Search](</docs/en/mcp#scale-with-mcp-tool-search>)
 
 ##
 
@@ -380,7 +380,7 @@ A conversation tied to your current directory, with its own independent context 
 
 Settings layers
 
-The hierarchy Claude Code reads configuration from, in precedence order from highest to lowest: managed policy, command-line arguments, local settings at `.claude/settings.local.json`, project settings at `.claude/settings.json`, then user settings at `~/.claude/settings.json`. Arrays merge across layers; scalars at a higher layer override lower ones. See [Settings precedence](</docs/en/settings#settings-precedence>). Learn more: [Settings files](</docs/en/settings#settings-files>)
+The hierarchy Claude Code reads configuration from, in precedence order from highest to lowest: managed policy, command-line arguments, local settings at `.claude/settings.local.json`, project settings at `.claude/settings.json`, then user settings at `~/.claude/settings.json`. Arrays merge across layers; scalars at a higher layer override lower ones. See [Settings precedence](</docs/en/settings#settings-precedence>). Learn more: [Settings files](</docs/en/settings#where-settings-live>)
 
 ###
 

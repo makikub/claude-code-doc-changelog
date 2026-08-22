@@ -9,7 +9,6 @@ Requirements
 Voice dictation streams your recorded audio to Anthropic’s servers for transcription. Audio is not processed locally. It needs all of the following:
 
   * **A Claude.ai account** : the speech-to-text service is only available when you authenticate with one, and is not available when Claude Code is configured to use an Anthropic API key directly, Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry.
-  * **An organization without HIPAA compliance enabled** : `/voice` shows `Voice mode is disabled by your organization's policy` when this restriction applies.
   * **A local microphone** : voice dictation does not work in remote environments such as [Claude Code on the web](</docs/en/claude-code-on-the-web>) or SSH sessions.
   * **WSLg, if you run Claude Code in WSL** : WSLg is included with WSL2 when installed from the Microsoft Store on Windows 10 or 11. If WSLg is not available, for example on WSL1, run Claude Code in native Windows instead.
 
@@ -78,7 +77,7 @@ Tap mode toggles recording with a single keypress: tap once to start, speak, the
 
 Change the dictation language
 
-Voice dictation uses the same [`language` setting](</docs/en/settings>) that controls Claude’s response language. If that setting is empty, dictation defaults to English. In the VS Code extension, if `language` is empty, dictation uses VS Code’s `accessibility.voice.speechLanguage` setting before defaulting to English.
+Voice dictation uses the same [`language` setting](</docs/en/settings-reference#language>) that controls Claude’s response language. If that setting is empty, dictation defaults to English. In the VS Code extension, if `language` is empty, dictation uses VS Code’s `accessibility.voice.speechLanguage` setting before defaulting to English.
 
 Supported dictation languages
 
@@ -144,7 +143,7 @@ Troubleshooting
 Common issues when voice dictation does not activate or record:
 
   * **`Voice mode requires a Claude.ai account`** : you are authenticated with an API key or a third-party provider. Run `/login` to sign in with a Claude.ai account.
-  * **`Voice mode is disabled by your organization's policy`** : your organization’s compliance configuration disables voice dictation, as described in Requirements. Contact your organization administrator to confirm whether voice dictation is available for your organization.
+  * **`Voice mode is disabled by your organization's policy`** : an administrator policy for your organization turns off voice dictation. Contact your organization administrator to confirm whether voice dictation is available for your organization.
   * **`Microphone access is denied`** : grant microphone permission to your terminal in system settings. On macOS, go to System Settings → Privacy & Security → Microphone and enable your terminal app, then run `/voice` again. On Windows, go to Settings → Privacy & security → Microphone and turn on microphone access for desktop apps, then run `/voice` again. If your terminal isn’t listed in the macOS settings, see Terminal not listed in macOS Microphone settings.
   * **`No audio recording tool found` on Linux**: the native audio module could not load and no fallback is installed. Install SoX with the command shown in the error message, for example `sudo apt-get install sox`.
   * **`Voice mode requires a microphone, but SoX could not open an audio capture device`** : SoX is installed, but the host has no audio capture device, for example a headless server or a container. Run Claude Code on a machine with a microphone. As of v2.1.195, Claude Code on Linux reports this message in that situation; earlier versions asked you to install SoX even when it was already installed.
@@ -193,6 +192,6 @@ Start Claude Code and run `/voice`. macOS prompts for microphone access; allow i
 See also
 
   * [Customize keyboard shortcuts](</docs/en/keybindings>): rebind `voice:pushToTalk` and other CLI keyboard actions
-  * [Configure settings](</docs/en/settings>): full reference for `voice`, `language`, and other settings keys
+  * [Settings reference](</docs/en/settings-reference#voice>): the `voice`, `language`, and other settings keys
   * [Interactive mode](</docs/en/interactive-mode>): keyboard shortcuts, input modes, and session controls
   * [Commands](</docs/en/commands>): reference for `/voice`, `/config`, and all other commands

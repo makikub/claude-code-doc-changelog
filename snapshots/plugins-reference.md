@@ -293,9 +293,9 @@ Scope| Settings file| Use case
 `user`| `~/.claude/settings.json`| Personal plugins available across all projects (default)
 `project`| `.claude/settings.json`| Team plugins shared via version control
 `local`| `.claude/settings.local.json`| Project-specific plugins, gitignored when Claude Code saves a setting to it
-`managed`| [Managed settings](</docs/en/settings#settings-files>)| Managed plugins (read-only, update only)
+`managed`| [Managed settings](</docs/en/managed-settings>)| Managed plugins (read-only, update only)
 
-Plugins use the same scope system as other Claude Code configurations. For installation instructions and scope flags, see [Install plugins](</docs/en/discover-plugins#install-plugins>). For a complete explanation of scopes, see [Configuration scopes](</docs/en/settings#configuration-scopes>).
+Plugins use the same scope system as other Claude Code configurations. For installation instructions and scope flags, see [Install plugins](</docs/en/discover-plugins#install-plugins>). For a complete explanation of scopes, see [Configuration scopes](</docs/en/settings#where-settings-live>).
 
 * * *
 
@@ -529,13 +529,13 @@ Shell-form hook commands| Use [exec form](</docs/en/hooks#exec-form-and-shell-fo
 Monitor commands| Read the value from a config file in the script
 MCP [`headersHelper`](</docs/en/mcp#use-dynamic-headers-for-custom-authentication>)| Read the value from a config file in the script
 
-Before v2.1.207, these fields substituted `${user_config.KEY}` values; update plugins that relied on this. Non-sensitive values are stored under the [`pluginConfigs`](</docs/en/settings#pluginconfigs>) key in your user `settings.json` as `pluginConfigs[<plugin-id>].options`. Sensitive values go to the macOS Keychain, or to `~/.claude/.credentials.json` on platforms where no supported keychain is available. Keychain storage is shared with OAuth tokens and has an approximately 2 KB total limit, so keep sensitive values small. Claude Code reads all `pluginConfigs` values from only three settings sources:
+Before v2.1.207, these fields substituted `${user_config.KEY}` values; update plugins that relied on this. Non-sensitive values are stored under the [`pluginConfigs`](</docs/en/settings-reference#pluginconfigs>) key in your user `settings.json` as `pluginConfigs[<plugin-id>].options`. Sensitive values go to the macOS Keychain, or to `~/.claude/.credentials.json` on platforms where no supported keychain is available. Keychain storage is shared with OAuth tokens and has an approximately 2 KB total limit, so keep sensitive values small. Claude Code reads all `pluginConfigs` values from only three settings sources:
 
   * **User settings** : `~/.claude/settings.json`, the file the enable-time prompt writes to
   * **`--settings`** : the CLI flag or SDK inline settings
   * **Managed settings** : [organization-controlled policy](</docs/en/permissions#managed-settings>)
 
-When more than one source sets the same key, managed settings take precedence, then `--settings`, then user settings. The [`--setting-sources`](</docs/en/cli-reference#cli-flags>) flag narrows the list further. Entries in a project’s `.claude/settings.json` or `.claude/settings.local.json` are ignored. Both files live in the workspace, so a cloned repository could supply values there, and those values would flow into plugin hook commands, MCP server configs, LSP commands, and monitor commands. Before v2.1.207, these entries were read. The restriction is specific to `pluginConfigs`: [`enabledPlugins`](</docs/en/settings#enabledplugins>) still honors project and local settings.
+When more than one source sets the same key, managed settings take precedence, then `--settings`, then user settings. The [`--setting-sources`](</docs/en/cli-reference#cli-flags>) flag narrows the list further. Entries in a project’s `.claude/settings.json` or `.claude/settings.local.json` are ignored. Both files live in the workspace, so a cloned repository could supply values there, and those values would flow into plugin hook commands, MCP server configs, LSP commands, and monitor commands. Before v2.1.207, these entries were read. The restriction is specific to `pluginConfigs`: [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>) still honors project and local settings.
 
 ###
 
