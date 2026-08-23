@@ -2,6 +2,26 @@ The weekly dev digest highlights the features most likely to change how you work
 
 ​
 
+Week 34
+
+v2.1.234–v2.1.239
+
+August 17–21, 2026
+
+**`/design`** : a research preview that brings Claude Design’s artboard workflow into the CLI and Claude Code Desktop, built on artifacts, so Claude drafts editable artboards for your UI and implements the one you pick.Also this week: the built-in **Concise output style** makes Claude lead with the result and skip preamble; any machine running `claude remote-control` shows up as a **device card** on your phone so you can start a session on it from the Code tab; and **`ANTHROPIC_DEFAULT_MODEL`** sets the model new sessions start on.[Read the Week 34 digest →](</docs/en/whats-new/2026-w34>)
+
+​
+
+Week 33
+
+v2.1.225–v2.1.233
+
+August 10–14, 2026
+
+**Auto-continue after a usage limit on Desktop** : when you hit your session limit in Claude Code Desktop, check **Auto-continue when limits reset** on the limit card and the app retries the interrupted turn once the limit resets.Also this week: **fork mode** is on by default in interactive sessions, so Claude can hand a side task to a subagent that inherits the full conversation; **GitLab** merge request URLs work with `--worktree` and the `claude agents` view, and marketplaces clone bare `gitlab.com` URLs; and typing **`@`** in the prompt mentions another Claude session by name.[Read the Week 33 digest →](</docs/en/whats-new/2026-w33>)
+
+​
+
 Week 32
 
 v2.1.220–v2.1.224
