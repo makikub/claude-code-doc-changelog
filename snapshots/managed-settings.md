@@ -108,6 +108,7 @@ If several teams own parts of one policy, put each part in its own file in `mana
   * **Nested blocks** , such as `env` or `sandbox`: the two blocks merge key by key, and each key inside follows these same rules
   * **`fallbackModel`** : the later chain replaces the earlier one whole
   * **[`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>)** : a later entry with the same name replaces the earlier one whole
+  * **[`modelPicker`](</docs/en/settings-reference#modelpicker>)** : the later lineup replaces the earlier one whole
 
 ##
 
@@ -263,7 +264,7 @@ Setting| Description
 [`allowManagedPermissionRulesOnly`](</docs/en/settings-reference#allowmanagedpermissionrulesonly>)| Only managed permission rules apply; the entry lists every source it ignores
 [`blockedMarketplaces`](</docs/en/settings-reference#blockedmarketplaces>)| Blocklist of marketplace sources. Blocked sources are checked before downloading, so they never touch the filesystem. See [managed marketplace restrictions](</docs/en/plugin-marketplaces#managed-marketplace-restrictions>)
 [`channelsEnabled`](</docs/en/settings-reference#channelsenabled>)| Allow [channels](</docs/en/channels>) for the organization. See [enterprise controls](</docs/en/channels#enterprise-controls>) for the default on each plan
-[`disableCommandPluginSources`](</docs/en/settings-reference#disablecommandpluginsources>)| When `true`, blocks [`command` plugin sources](</docs/en/plugin-marketplaces#command-sources>) entirely, so the marketplace-declared command never runs. When unset, follows `allowManagedHooksOnly`. Requires Claude Code v2.1.229 or later
+[`disableCommandPluginSources`](</docs/en/settings-reference#disablecommandpluginsources>)| When `true`, blocks [`command` plugin sources](</docs/en/plugin-marketplaces#command-sources>) entirely, so the marketplace-declared command never runs. Also blocks marketplace [`headersHelper` commands](</docs/en/plugin-marketplaces#authenticate-archive-downloads>), except for a marketplace that managed settings themselves declare. When unset, follows `allowManagedHooksOnly`. Requires Claude Code v2.1.229 or later, and the `headersHelper` block requires v2.1.238 or later
 [`disableSideloadFlags`](</docs/en/settings-reference#disablesideloadflags>)| Reject the `--plugin-dir`, `--plugin-url`, `--agents`, and `--mcp-config` flags at startup. In cloud sessions, Claude Code drops the MCP servers the server delivered through `--mcp-config`, other than in-process `type: "sdk"` entries, and starts the session. Requires Claude Code v2.1.193 or later
 [`forceRemoteSettingsRefresh`](</docs/en/settings-reference#forceremotesettingsrefresh>)| When `true`, blocks CLI startup until remote managed settings are freshly fetched and exits if the fetch fails. See [fail-closed enforcement](</docs/en/server-managed-settings#enforce-fail-closed-startup>)
 [`parentSettingsBehavior`](</docs/en/settings-reference#parentsettingsbehavior>)| Whether host-supplied parent settings merge under the managed policy

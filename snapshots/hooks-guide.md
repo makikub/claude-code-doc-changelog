@@ -170,8 +170,11 @@ Matcher| Fires when
 `elicitation_response`| An MCP elicitation response is sent back to the server
 `agent_needs_input`| A background session starts waiting on your input. Fires only while [agent view](</docs/en/agent-view>) is open
 `agent_completed`| A background session finishes or fails. Fires only while [agent view](</docs/en/agent-view>) is open
+`quota_auto_resume_fired`| Claude Code continues your task after a claude.ai usage limit paused it: at the reset, or sooner when something you do in Claude Code during the wait, such as adding usage credits, upgrading your plan, or switching models, makes usage available again, with the [model-setting exception](</docs/en/interactive-mode#wait-for-a-usage-limit-to-reset>)
+`quota_auto_resume_stale`| A claude.ai usage limit reset while your computer slept for more than about 30 minutes. Claude Code waits for you to press `Enter` instead of continuing. After a shorter sleep it continues and fires `quota_auto_resume_fired` instead
+`quota_auto_resume_disabled`| Claude Code ends its wait for a claude.ai usage limit without continuing your task: [`autoContinueAtUsageLimit`](</docs/en/settings-reference#autocontinueatusagelimit>) turned off or the reset moved more than 24 hours away during a wait Claude Code started on its own, the continued task kept hitting the limit, or the continuation was blocked before it reached the model. Doesn’t fire when you press `Esc` or `Ctrl+C`, or pick **Don’t continue automatically**
 
-Claude Code times `permission_prompt` differently in a terminal and in Claude Desktop, the VS Code extension, and other hosts that answer permission requests through the Agent SDK. See [when each notification type fires](</docs/en/hooks#notification>) for both timings. The `agent_needs_input` and `agent_completed` matchers require Claude Code v2.1.198 or later. Type `/hooks` and select `Notification` to confirm the hook is registered. For the full event schema, see the [Notification reference](</docs/en/hooks#notification>).
+Claude Code times `permission_prompt` differently in a terminal and in Claude Desktop, the VS Code extension, and other hosts that answer permission requests through the Agent SDK. See [when each notification type fires](</docs/en/hooks#notification>) for both timings. The `agent_needs_input` and `agent_completed` matchers require Claude Code v2.1.198 or later. The `quota_auto_resume_fired`, `quota_auto_resume_stale`, and `quota_auto_resume_disabled` matchers require Claude Code v2.1.234 or later. Type `/hooks` and select `Notification` to confirm the hook is registered. For the full event schema, see the [Notification reference](</docs/en/hooks#notification>).
 
 ###
 
@@ -631,7 +634,7 @@ Event| What the matcher filters| Example matcher values
 `SessionStart`| how the session started| `startup`, `resume`, `clear`, `compact`, `fork`
 `Setup`| which CLI flag triggered setup| `init`, `maintenance`
 `SessionEnd`| why the session ended| `clear`, `resume`, `logout`, `prompt_input_exit`, `other`
-`Notification`| notification type| `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed`
+`Notification`| notification type| `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed`, `quota_auto_resume_fired`, `quota_auto_resume_stale`, `quota_auto_resume_disabled`
 `SubagentStart`| agent type| `general-purpose`, `Explore`, `Plan`, or custom agent names
 `PreCompact`, `PostCompact`| what triggered compaction| `manual`, `auto`
 `SubagentStop`| agent type| same values as `SubagentStart`
@@ -762,7 +765,7 @@ Managed policy settings| Organization-wide| Yes, admin-controlled
 [Skill](</docs/en/skills>) frontmatter| The rest of the session once the skill is invoked. See [Hooks in skills and agents](</docs/en/hooks#hooks-in-skills-and-agents>)| Yes, defined in the skill file
 [Subagent](</docs/en/sub-agents>) frontmatter| While that subagent is running| Yes, defined in the subagent file
 
-Run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Claude Code reads the value left after [settings precedence](</docs/en/hooks#disable-or-remove-hooks>) applies, so a project’s settings file can override yours. Hooks configured in managed settings still run unless `disableAllHooks` is also set there. If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.
+Run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Claude Code reads the value left after [settings precedence](</docs/en/hooks#disable-or-remove-hooks>) applies, so a project’s settings file can override yours. Hooks configured in managed settings still run unless `disableAllHooks` is also set there. For the full reach of each level, see [`disableAllHooks`](</docs/en/settings-reference#disableallhooks>). If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.
 
 ##
 

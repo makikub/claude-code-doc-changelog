@@ -95,6 +95,8 @@ Background tasks such as session title generation use the small/fast model, norm
 
     export ENABLE_PROMPT_CACHING_1H=1
 
+To set different TTLs for your main conversation and for the requests Claude Code makes outside it, [choose the TTL yourself](</docs/en/prompt-caching#choose-the-ttl-yourself>).
+
 ###
 
 ​

@@ -163,13 +163,7 @@ The JetBrains plugin runs Claude Code in the IDE terminal, so switching permissi
   * **Auto** : appears when your account meets the auto mode requirements
   * **Bypass permissions** : requires the **Allow bypass permissions mode** toggle in Desktop settings on Pro and Max plans; on Team and Enterprise plans, organization policy controls it instead
 
-The Cowork tab doesn’t use these modes. Cowork has its own permission modes, enabled separately, and the Cowork tab shows no mode selector at all until a mode beyond its default is enabled for your account. See the [Cowork docs](<https://claude.com/docs/cowork/overview>).For desktop-specific details, see [Choose a permission mode](</docs/en/desktop#choose-a-permission-mode>) in the Desktop guide.**As a default** : set `defaultMode` in [settings](</docs/en/settings#where-settings-live>). The desktop app reads the same settings files as the CLI and applies the permission mode to new local sessions.A mode you pick in the mode selector is remembered per folder and takes precedence over `defaultMode` for that folder. Plan is the exception: picking it applies to the current session only.This example sets Plan mode as the default for new local sessions:
-
-    {
-      "permissions": {
-        "defaultMode": "plan"
-      }
-    }
+The Cowork tab doesn’t use these modes. Cowork has its own permission modes, enabled separately, and the Cowork tab shows no mode selector at all until a mode beyond its default is enabled for your account. See the [Cowork docs](<https://claude.com/docs/cowork/overview>).For desktop-specific details, see [Choose a permission mode](</docs/en/desktop#choose-a-permission-mode>) in the Desktop guide.**As a default** : set `defaultMode` in [settings](</docs/en/settings#where-settings-live>). The desktop app reads the same settings files as the CLI and applies the permission mode to new local sessions.A mode you pick in the mode selector is remembered per folder and takes precedence over `defaultMode` for that folder. Plan is the exception: picking it applies to the current session only.For where `defaultMode` goes in a settings file, see the example under Start in a different permission mode.
 
 Use the mode dropdown next to the prompt box on [claude.ai/code](<https://claude.ai/code>) or in the mobile app. Permission prompts appear in claude.ai for approval. Which modes appear depends on where the session runs:
 
@@ -225,13 +219,7 @@ Approving a plan exits plan mode and switches the session to the permission mode
 
 Set plan mode as the default
 
-To make plan mode the default for a project’s terminal sessions, set `defaultMode` in `.claude/settings.json`. Conversations the [VS Code extension](</docs/en/vs-code>) starts don’t read project settings for the starting permission mode. There, set `claudeCode.initialPermissionMode` to `plan` in your VS Code user settings instead. This example sets the project default:
-
-    {
-      "permissions": {
-        "defaultMode": "plan"
-      }
-    }
+To make plan mode the default for a project’s terminal sessions, set `defaultMode` to `plan` in `.claude/settings.json`, placed as the example under Start in a different permission mode shows. Conversations the [VS Code extension](</docs/en/vs-code>) starts don’t read project settings for the starting permission mode. There, set `claudeCode.initialPermissionMode` to `plan` in your VS Code user settings instead.
 
 ##
 
@@ -250,7 +238,7 @@ Auto mode is available only when your account meets all of these requirements:
   * **Model** : on the Anthropic API and [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), Claude Opus 4.6 or later, Sonnet 4.6 or later, or [Fable 5](</docs/en/model-config#work-with-fable-5>). On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and signed-in [Claude apps gateway](</docs/en/claude-apps-gateway>) sessions, only Claude Sonnet 5, Opus 4.7 or later, and Fable 5. Older models, including Sonnet 4.5, Opus 4.5, Haiku, and claude-3 models, are not supported on any provider.
   * **Provider** : available by default on the Anthropic API, Claude Platform on AWS, Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and signed-in Claude apps gateway sessions.
 
-If Claude Code reports auto mode as unavailable, one of these requirements is unmet; this is not a transient outage. A separate message that names a model and says auto mode “cannot determine the safety” of an action means a classifier request failed; that failure is usually transient, but on Amazon Bedrock it can repeat until your account can invoke the named model. See the [error reference](</docs/en/errors#auto-mode-cannot-determine-the-safety-of-an-action>) for the causes and what to do. If you set `defaultMode: "auto"` in [settings](</docs/en/settings-reference#all-settings>) and a terminal session starts in Manual mode with no error, the setting is likely in `.claude/settings.json` or `.claude/settings.local.json`. In Claude Code v2.1.142 and later, `auto` doesn’t take effect from those files. Move it to `~/.claude/settings.json`. For a conversation the VS Code extension started, check the extension’s own list in Switch permission modes instead.
+If Claude Code reports auto mode as unavailable, one of these requirements is unmet; this is not a transient outage. A separate message that names a model and says auto mode “cannot determine the safety” of an action means a classifier request failed; that failure is usually transient, but on Amazon Bedrock it can repeat until your account can invoke the named model. See the [error reference](</docs/en/errors#auto-mode-cannot-determine-the-safety-of-an-action>) for the causes and what to do. If you set `defaultMode: "auto"` in [settings](</docs/en/settings-reference#all-settings>) and a terminal session starts in Manual mode with no error, the setting is likely in `.claude/settings.json` or `.claude/settings.local.json`. `auto` doesn’t take effect from those files. Move it to `~/.claude/settings.json`. For a conversation the VS Code extension started, check the extension’s own list in Switch permission modes instead.
 
 ###
 
