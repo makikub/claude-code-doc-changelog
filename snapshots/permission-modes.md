@@ -69,13 +69,14 @@ Conversations the VS Code extension starts follow the extension’s own list in 
 How you run Claude Code| Built-in starting permission mode
 ---|---
 Any settings file sets `disableAutoMode` to `"disable"`| `default`
-[Feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) is off, or this is your [first session after you install Claude Code or upgrade to a version that adds this default](</docs/en/env-vars#first-session-after-an-install-or-upgrade>)| `default`
+[Feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) is off| `default`
+Your [first session after you install Claude Code or upgrade](</docs/en/env-vars#first-session-after-an-install-or-upgrade>) to a version that adds this default, unless a non-interactive session picks the flags up in time| `default`
 `claude -p` or the [Agent SDK](</docs/en/agent-sdk/permissions>)| `default`
 Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), or a signed-in [Claude apps gateway](</docs/en/claude-apps-gateway>) session| `default`
 A Pro, Max, or Team plan, in a terminal or through the [VS Code extension](</docs/en/vs-code>)| `auto`
 An Enterprise plan or a Claude Console API key| `default`
 
-In those same two cases, feature-flag fetching off or the first session after an install or upgrade, the VS Code extension ignores every settings file when choosing the starting permission mode and uses `default`. When the flag, a settings file, or the built-in default selects `auto` but auto mode isn’t available to the session, Claude Code starts the session in Manual instead. Auto mode is unavailable when a settings file turns it off or the model doesn’t support it. The first time the built-in default starts one of your sessions in auto mode, Claude Code shows a notice that links to this page:
+When feature-flag fetching is off, or in a [first session after an install or upgrade](</docs/en/env-vars#first-session-after-an-install-or-upgrade>) where the flags haven’t arrived yet, the VS Code extension ignores every settings file when choosing the starting permission mode. When the flag, a settings file, or the built-in default selects `auto` but auto mode isn’t available to the session, Claude Code starts the session in Manual instead. Auto mode is unavailable when a settings file turns it off or the model doesn’t support it. The first time the built-in default starts one of your sessions in auto mode, Claude Code shows a notice that links to this page:
 
   * In a terminal, once, at the top of the session
   * In the VS Code extension, as a card on the new-conversation screen that stays until you dismiss it

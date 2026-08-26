@@ -2,7 +2,7 @@ Fast mode is in research preview. The feature, pricing, and availability may cha
 
 Fast mode is a high-speed configuration for Claude Opus, making the model up to 2.5x faster at a higher cost per token. Toggle it on with `/fast` when you need speed for interactive work like rapid iteration or live debugging, and toggle it off when cost matters more than latency. Fast mode is not a different model. It uses Claude Opus with a different API configuration that prioritizes speed over cost efficiency. You get identical quality and capabilities with faster responses. Fast mode is supported on Opus 5 and Opus 4.8. It is not available on Sonnet, Haiku, or other models. Claude Code treats Opus 4.7 like any other model without fast mode support: switching to it turns fast mode off. Fast mode for Opus 4.7 was deprecated on June 25, 2026, and removed on July 24, 2026. What to know:
 
-  * Use `/fast` to toggle on fast mode in the Claude Code CLI. Fast mode is not supported in the VS Code extension.
+  * Use `/fast` to toggle on fast mode in the Claude Code CLI. The VS Code extension follows your `fastMode` setting and offers a **Toggle fast mode** command when the selected model supports fast mode.
   * Fast mode pricing per MTok input/output is $10/$50 on Opus 5 and Opus 4.8.
   * Available to Claude Code users on subscription plans (Pro/Max/Team/Enterprise) and on Claude Console. Team and Enterprise organizations need an Owner to enable it first, and Console organizations need access provisioned first, both described under Requirements.
   * For Claude Code users on subscription plans (Pro/Max/Team/Enterprise), fast mode is available via usage credits only and not included in the subscription rate limits.
@@ -13,7 +13,7 @@ Fast mode is a high-speed configuration for Claude Opus, making the model up to 
 
 Toggle fast mode
 
-Toggle fast mode in either of these ways:
+In the CLI, toggle fast mode in either of these ways:
 
   * Type `/fast` and press Tab to toggle on or off
   * Set `"fastMode": true` in your [user settings file](</docs/en/settings>)
@@ -179,7 +179,7 @@ Fast mode has separate rate limits from standard Opus. All supported Opus models
 To disable fast mode manually instead of waiting for cooldown, run `/fast` again. If you run out of usage credits mid-session, Claude Code retries each rejected fast mode request at standard speed and pricing, so you keep working, and there is no cooldown. How you see the rejection depends on the session type:
 
   * In an interactive session, Claude Code shows a “Fast mode disabled · usage credits exhausted” notification and turns fast mode off for the rest of the session. Your saved fast mode preference doesn’t change; run `/fast` to turn fast mode back on.
-  * In [non-interactive mode](</docs/en/headless>) with `--output-format stream-json`, and through the Agent SDK, Claude Code emits the same text on the message stream as a `system` message with subtype `notification`, once per turn while you’re out of usage credits. Fast mode stays on.
+  * In [non-interactive mode](</docs/en/headless>) with `--output-format stream-json`, and through the Agent SDK, Claude Code emits the same text on the message stream as a `system` message with subtype `notification`, once per turn while you’re out of usage credits. Fast mode stays on. Requires Claude Code v2.1.221 or later.
 
 ##
 
