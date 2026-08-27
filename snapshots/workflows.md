@@ -252,7 +252,7 @@ Migrate many files in parallel
 
 Discover the files to migrate, transform each one in an isolated copy so edits don’t conflict, and verify each result.
 
-    use a workflow to migrate every component under src/components/ from styled-components to Tailwind, working on each file in its own isolated copy
+    use a workflow to migrate every component under src/components/ from JavaScript to TypeScript, working on each file in its own isolated copy
 
 ###
 

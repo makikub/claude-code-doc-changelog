@@ -503,7 +503,7 @@ Have Claude write the list of files that need migrating to a file, so the loop i
 Write a script to loop through the list
 
     for file in $(cat files.txt); do
-      claude -p "Migrate $file from React to Vue. Return OK or FAIL." \
+      claude -p "Migrate $file from Python 2 to Python 3. Return OK or FAIL." \
         --allowedTools "Edit,Bash(git commit *)"
     done
 

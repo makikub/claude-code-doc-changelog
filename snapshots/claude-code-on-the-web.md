@@ -20,7 +20,7 @@ This page covers the web product itself:
 
 Cloud environments
 
-Every cloud session runs in a [cloud environment](</docs/en/cloud-environments>), the saved configuration that controls network access, environment variables, and setup scripts. If you don’t have an environment yet when you onboard, Claude Code sets up a **Default** environment with [**Trusted** network access](</docs/en/cloud-environments#access-levels>). See [The Default environment](</docs/en/cloud-environments#the-default-environment>) for how it’s created and how sessions choose an environment when you have more than one. The same environments apply wherever you start a cloud session: the web, the terminal, [Claude Tag](<https://claude.com/docs/claude-tag/overview>), [routines](</docs/en/routines>), and the mobile and Desktop apps. Claude Tag channel sessions use [organization-shared environments](</docs/en/cloud-environments#organization-shared-environments>) only. See [Configure cloud environments](</docs/en/cloud-environments>) to change what an environment allows, set variables, or add a setup script, and [Installed tools](</docs/en/cloud-environments#installed-tools>) for what sessions include without any configuration.
+Every cloud session runs in a [cloud environment](</docs/en/cloud-environments>), the saved configuration that controls network access, environment variables, and setup scripts. If you don’t have an environment yet, onboarding sets up a **Default** environment with [**Trusted** network access](</docs/en/cloud-environments#access-levels>), either by creating it for you or by asking you to create it. See [The Default environment](</docs/en/cloud-environments#the-default-environment>) for which of those happens on your plan and how sessions choose an environment when you have more than one. The same environments apply wherever you start a cloud session: the web, the terminal, [Claude Tag](<https://claude.com/docs/claude-tag/overview>), [routines](</docs/en/routines>), and the mobile and Desktop apps. Claude Tag channel sessions use [organization-shared environments](</docs/en/cloud-environments#organization-shared-environments>) only. See [Configure cloud environments](</docs/en/cloud-environments>) to change what an environment allows, set variables, or add a setup script, and [Installed tools](</docs/en/cloud-environments#installed-tools>) for what sessions include without any configuration.
 
 ##
 
@@ -37,7 +37,7 @@ Method| How it works| Best for
 
 With either method, a cloud session can access any repository the connecting GitHub account can see, not just the repositories the Claude GitHub App is installed on. App installation enables PR webhooks for Auto-fix; it is not a session-level access control. To restrict which repositories your team can reach from cloud sessions, restrict access on GitHub itself, for example by limiting team or repository membership for the connected GitHub accounts.
 
-Either method works. [`/schedule`](</docs/en/routines>) checks for either form of access and prompts you to run `/web-setup` if neither is configured. See [Connect from your terminal](</docs/en/web-quickstart#connect-from-your-terminal>) for the `/web-setup` walkthrough. Team and Enterprise Owners can disable `/web-setup` with the Quick web setup toggle at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>).
+Either method works. [`/schedule`](</docs/en/routines>) checks for either form of access and prompts you to run `/web-setup` if neither is configured. See [Connect from your terminal](</docs/en/web-quickstart#connect-from-your-terminal>) for the `/web-setup` walkthrough. Quick web setup is an organization setting that lets members connect GitHub with `/web-setup`, skips the Claude GitHub App install prompt during browser onboarding, and has browser onboarding create the [**Default** environment](</docs/en/cloud-environments#the-default-environment>) for them instead of showing the environment form. On Team and Enterprise plans it’s off by default, which hides `/web-setup`. An [Owner](</docs/en/server-managed-settings#access-control>) turns it on with the **Quick web setup** toggle at [**Admin settings > Claude Code**](<https://claude.ai/admin-settings/claude-code>).
 
 Organizations with [Zero Data Retention](</docs/en/zero-data-retention>) enabled can’t use `/web-setup` or other cloud session features.
 
@@ -271,7 +271,7 @@ Auto-fix pull requests
 
 Claude can watch a pull request and automatically respond to CI failures and review comments. Claude subscribes to GitHub activity on the PR, and when a check fails or a reviewer leaves a comment, Claude investigates and pushes a fix if one is clear.
 
-Auto-fix requires the Claude GitHub App to be installed on your repository. If you haven’t already, install it from the [GitHub App page](<https://github.com/apps/claude>) or when prompted during [setup](</docs/en/web-quickstart#connect-github>).
+Auto-fix requires the Claude GitHub App to be installed on your repository. If you haven’t already, install it from the [GitHub App page](<https://github.com/apps/claude>).
 
 There are a few ways to turn on auto-fix depending on where the PR came from and what device you’re using:
 

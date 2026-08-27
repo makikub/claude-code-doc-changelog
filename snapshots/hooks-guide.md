@@ -161,7 +161,7 @@ The empty `matcher` fires on all notification types. To fire only on specific ev
 
 Matcher| Fires when
 ---|---
-`permission_prompt`| Claude needs you to approve a tool use and the prompt has waited about six seconds
+`permission_prompt`| Claude needs you to approve a tool use or a sandboxed command’s [network request](</docs/en/sandboxing#network-isolation>), and the prompt has waited about six seconds
 `idle_prompt`| Claude finished responding about 60 seconds ago and you haven’t typed since
 `auth_success`| Authentication completes
 `elicitation_dialog`| An MCP server opens an elicitation form and you haven’t typed for about six seconds
@@ -174,7 +174,7 @@ Matcher| Fires when
 `quota_auto_resume_stale`| A claude.ai usage limit reset while your computer slept for more than about 30 minutes. Claude Code waits for you to press `Enter` instead of continuing. After a shorter sleep it continues and fires `quota_auto_resume_fired` instead
 `quota_auto_resume_disabled`| Claude Code ends its wait for a claude.ai usage limit without continuing your task: [`autoContinueAtUsageLimit`](</docs/en/settings-reference#autocontinueatusagelimit>) turned off or the reset moved more than 24 hours away during a wait Claude Code started on its own, the continued task kept hitting the limit, or the continuation was blocked before it reached the model. Doesn’t fire when you press `Esc` or `Ctrl+C`, or pick **Don’t continue automatically**
 
-Claude Code times `permission_prompt` differently in a terminal and in Claude Desktop, the VS Code extension, and other hosts that answer permission requests through the Agent SDK. See [when each notification type fires](</docs/en/hooks#notification>) for both timings. The `agent_needs_input` and `agent_completed` matchers require Claude Code v2.1.198 or later. The `quota_auto_resume_fired`, `quota_auto_resume_stale`, and `quota_auto_resume_disabled` matchers require Claude Code v2.1.234 or later. Type `/hooks` and select `Notification` to confirm the hook is registered. For the full event schema, see the [Notification reference](</docs/en/hooks#notification>).
+Claude Code times `permission_prompt` differently in a terminal and in Claude Desktop, the VS Code extension, and other hosts that answer permission requests through the Agent SDK. See [when each notification type fires](</docs/en/hooks#notification>) for both timings. The `agent_needs_input` and `agent_completed` matchers require Claude Code v2.1.198 or later. The `quota_auto_resume_fired`, `quota_auto_resume_stale`, and `quota_auto_resume_disabled` matchers require Claude Code v2.1.234 or later. In terminal sessions, `permission_prompt` for a sandboxed command’s network request requires Claude Code v2.1.246 or later. Type `/hooks` and select `Notification` to confirm the hook is registered. For the full event schema, see the [Notification reference](</docs/en/hooks#notification>).
 
 ###
 
@@ -421,7 +421,7 @@ To switch the session to `acceptEdits`, your hook writes this JSON to stdout:
       }
     }
 
-Keep the matcher as narrow as possible. Matching on `.*` or leaving the matcher empty would auto-approve every permission prompt, including file writes and shell commands. See the [PermissionRequest reference](</docs/en/hooks#permissionrequest-decision-control>) for the full set of decision fields.
+Keep the matcher as narrow as possible. Matching on `.*` or leaving the matcher empty would auto-approve every tool permission prompt, including file writes and shell commands. See the [PermissionRequest reference](</docs/en/hooks#permissionrequest-decision-control>) for the full set of decision fields.
 
 ##
 
