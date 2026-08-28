@@ -166,7 +166,7 @@ Matcher| Fires when
 `auth_success`| Authentication completes
 `elicitation_dialog`| An MCP server opens an elicitation form and you haven’t typed for about six seconds
 `elicitation_url_dialog`| An MCP server asks you to open a browser URL and you haven’t typed for about six seconds
-`elicitation_complete`| An MCP elicitation form is submitted or dismissed
+`elicitation_complete`| An MCP server reports that a [URL-mode elicitation](</docs/en/hooks#elicitation-input>) is complete
 `elicitation_response`| An MCP elicitation response is sent back to the server
 `agent_needs_input`| A background session starts waiting on your input. Fires only while [agent view](</docs/en/agent-view>) is open
 `agent_completed`| A background session finishes or fails. Fires only while [agent view](</docs/en/agent-view>) is open
@@ -405,7 +405,7 @@ Skip the approval dialog for tool calls you always allow. This example auto-appr
 
 When the hook approves, Claude Code exits plan mode and restores whatever permission mode was active before you entered plan mode. The transcript shows “Allowed by PermissionRequest hook” where the dialog would have appeared. The hook path always keeps the current conversation: it can’t clear context and start a fresh implementation session the way the dialog can. To set a specific permission mode instead, your hook’s output can include an `updatedPermissions` array with a `setMode` entry. The `mode` value is any permission mode like `default`, `acceptEdits`, or `bypassPermissions`, and `destination: "session"` applies it for the current session only.
 
-`bypassPermissions` only applies if the session was launched with bypass mode already available: `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`, `--allow-dangerously-skip-permissions`, or `permissions.defaultMode: "bypassPermissions"` in settings, and not disabled by [`permissions.disableBypassPermissionsMode`](</docs/en/permissions#managed-settings>). It is never persisted as `defaultMode`.
+`bypassPermissions` only applies if the session was launched with bypass mode already available: `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`, `--allow-dangerously-skip-permissions`, or `permissions.defaultMode: "bypassPermissions"` in settings, and not disabled by [`permissions.disableBypassPermissionsMode`](</docs/en/permissions#managed-settings>) or by starting the session in [restricted mode](</docs/en/cli-reference#cli-flags>). It is never persisted as `defaultMode`.
 
 To switch the session to `acceptEdits`, your hook writes this JSON to stdout:
 
@@ -558,7 +558,7 @@ Your script tells Claude Code what to do next by writing to stdout or stderr and
 The exit code determines what happens next:
 
   * **Exit 0** : the hook reports no objection through its exit code. For a `PreToolUse` hook this doesn’t approve the tool call: the normal [permission flow](</docs/en/permissions>) still applies. For `UserPromptSubmit`, `UserPromptExpansion`, and `SessionStart` hooks, Claude Code adds stdout it [treats as plain text](</docs/en/hooks#exit-code-0>) to Claude’s context.
-  * **Exit 2** : Claude Code blocks the action. Write a reason to stderr. Where it lands depends on the event: some events feed it to Claude as feedback so it can adjust, others show it to the user, and a few, such as `ConfigChange` and `Elicitation`, surface no message. Some events can’t be blocked: for `SessionStart`, `Setup`, and others, exit 2 shows stderr to the user and execution continues. See [exit code 2 behavior per event](</docs/en/hooks#exit-code-2-behavior-per-event>) for the full list.
+  * **Exit 2** : Claude Code blocks the action. Write a reason to stderr. Where it lands depends on the event: some events feed it to Claude as feedback so it can adjust, others show it to the user, and a few, such as `ConfigChange` and `Elicitation`, surface no message. Some events can’t be blocked: for `SessionStart` and others, exit 2 shows stderr to the user and execution continues. See [exit code 2 behavior per event](</docs/en/hooks#exit-code-2-behavior-per-event>) for the full list.
   * **Any other exit code** : for most events, the outcome depends on what your hook printed to stdout:
     * A parsed object that passes schema validation: Claude Code ignores the exit code, the JSON alone decides the outcome, and the hook isn’t reported as an error. The per-event exceptions, like `WorktreeCreate` failing on any nonzero exit, are listed in the reference’s [Exit code output](</docs/en/hooks#exit-code-output>) section.
     * A parsed object that fails schema validation: a non-blocking error; the notice carries the validation message.
@@ -586,7 +586,7 @@ For example, a `PreToolUse` hook can deny a tool call and tell Claude why, or es
 
 With `"deny"`, Claude Code cancels the tool call and feeds `permissionDecisionReason` back to Claude. These `permissionDecision` values are specific to `PreToolUse`:
 
-  * `"allow"`: skip the interactive permission prompt. Deny and ask rules, including enterprise managed deny lists, still apply, as do prompts for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) and MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>)
+  * `"allow"`: skip the interactive permission prompt. Deny and ask rules, including enterprise managed deny lists, still apply, as do prompts for MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) and for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) in sessions where that setting reaches Claude Code
   * `"deny"`: cancel the tool call and send the reason to Claude
   * `"ask"`: show the permission prompt to the user as normal
 
@@ -891,7 +891,7 @@ Keep these constraints in mind when designing hooks:
 
 Hooks and permission modes
 
-`PreToolUse` hooks fire before any permission-mode check, in every [permission mode](</docs/en/permission-modes>), including `dontAsk`. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings, and it can’t suppress the prompt for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) or MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>). Hooks can tighten restrictions but not loosen them past what permission rules allow.
+`PreToolUse` hooks fire before any permission-mode check, in every [permission mode](</docs/en/permission-modes>), including `dontAsk`. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings, and it can’t suppress the prompt for MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) or for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) in sessions where that setting reaches Claude Code. Hooks can tighten restrictions but not loosen them past what permission rules allow.
 
 ###
 

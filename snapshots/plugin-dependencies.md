@@ -97,6 +97,21 @@ If the field is missing or does not include the target marketplace, install fail
 
 ​
 
+Test a plugin and its dependency locally
+
+If you’re developing a plugin and the plugin it depends on at the same time, load both with `--plugin-dir`:
+
+    claude --plugin-dir ./my-dependency --plugin-dir ./my-plugin
+
+The local copy of the dependency satisfies your plugin’s dependency entry, even when the entry names a marketplace, so you don’t need to install the dependency from its marketplace. Claude Code doesn’t check a version constraint against a local copy, so the local `plugin.json` doesn’t need a `version`. Before v2.1.242, a dependency entry that named a marketplace never matched the local copy, and Claude Code disabled your plugin at load. If you haven’t installed the dependency from its marketplace, your plugin stops loading when the local copy goes away:
+
+  * **You disabled the local copy** : Claude Code disables your plugin at the next plugin load. For a dependency entry that names a marketplace, Claude Code reports `Dependency "<name>@inline" is disabled — enable it or remove the dependency`; for a bare-name entry, it reports the dependency by its bare name. `<name>@inline` is how Claude Code identifies every `--plugin-dir` and `--plugin-url` plugin.
+  * **You started a session without the dependency’s`--plugin-dir` flag**: Claude Code reports the dependency as not installed. Pass the flag again, or install the dependency from its marketplace.
+
+##
+
+​
+
 Tag plugin releases for version resolution
 
 Claude Code resolves version constraints against git tags on the repository that hosts the dependency: the plugin’s own repository for `github`, `url`, and `git-subdir` [plugin sources](</docs/en/plugin-marketplaces#plugin-sources>), or the marketplace repository for a plugin the marketplace references by a relative path. For Claude Code to find a dependency’s available versions, the upstream plugin’s releases must be tagged using a specific naming convention. Tag each release as `{plugin-name}--v{version}`, where `{version}` matches the `version` field in that commit’s `plugin.json`. From the plugin directory, run:
@@ -141,7 +156,7 @@ Auto-update fetches a constrained dependency at the highest git tag that satisfi
 
 Enable or disable a plugin with dependencies
 
-Enabling a plugin also enables the plugins it depends on, and disabling a plugin is blocked if another enabled plugin still needs it. When you enable a plugin, Claude Code also enables its dependencies at the same scope. If a dependency has its own dependencies, Claude Code enables those too. The success message lists what else was enabled along with the plugin you named. If a dependency can’t be enabled, the command refuses and tells you what’s blocking and how to fix it:
+This section covers plugins installed from a marketplace. For a copy you loaded with `--plugin-dir`, see Test a plugin and its dependency locally. Enabling a plugin also enables the plugins it depends on, and disabling a plugin is blocked if another enabled plugin still needs it. When you enable a plugin, Claude Code also enables its dependencies at the same scope. If a dependency has its own dependencies, Claude Code enables those too. The success message lists what else was enabled along with the plugin you named. If a dependency can’t be enabled, the command refuses and tells you what’s blocking and how to fix it:
 
 Condition| Result
 ---|---

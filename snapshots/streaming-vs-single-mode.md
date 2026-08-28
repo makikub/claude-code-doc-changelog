@@ -21,12 +21,6 @@ Streaming input mode is the **preferred** way to use the Claude Agent SDK. It pr
 
 ​
 
-How It Works
-
-###
-
-​
-
 Benefits
 
 In streaming input mode, you work in a persistent session with these capabilities:

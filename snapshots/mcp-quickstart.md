@@ -296,6 +296,7 @@ Claude Code didn’t find any servers for the current directory. The most common
 
   * You ran `claude mcp add` from a different project. Local-scoped servers are tied to the project where you added them: the repository root, or the exact directory if you weren’t in a git repository. Re-add the server from the project you’re in now, or add it with `--scope user` so it isn’t tied to a project.
   * You edited a configuration file at the wrong path. The correct files are `~/.claude.json` and `<project>/.mcp.json`. Claude Code doesn’t read paths such as `~/.claude/.mcp.json`, `~/.claude/config/mcp.json`, `~/.claude/mcp.json`, or `%APPDATA%\Claude\mcp.json`. For user-scoped servers, run `claude mcp add --scope user`, which writes to the `mcpServers` key in `~/.claude.json`; for project-scoped servers, edit `.mcp.json` at the project root.
+  * You wrote a malformed entry in `.mcp.json`. Claude Code skips that entry and still loads the others. Run `claude mcp list` from your shell and look for the parse warning, which names the offending field.
 
 Status shows Failed to connect or Connection error
 
@@ -347,7 +348,7 @@ Run `/mcp` inside a session and select the server to see its tool list. If the l
 
 Changes to .mcp.json don't take effect
 
-Claude Code reads `.mcp.json` at session start. Exit and restart the session after editing the file.If your servers still don’t appear, run `/mcp` and look for a parse warning. Claude Code skips malformed entries and shows the offending field there.If you previously rejected the server when prompted, reset project approvals:
+Claude Code reads `.mcp.json` at session start. Exit and restart the session after editing the file.If your servers still don’t appear, run `claude mcp list` and look for a parse warning. Claude Code skips malformed entries and shows the offending field there.If you previously rejected the server when prompted, reset project approvals:
 
     claude mcp reset-project-choices
 

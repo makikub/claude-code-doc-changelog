@@ -188,27 +188,7 @@ Response| Python| TypeScript
 **Allow**| `PermissionResultAllow(updated_input=...)`| `{ behavior: "allow", updatedInput }`
 **Deny**| `PermissionResultDeny(message=...)`| `{ behavior: "deny", message }`
 
-When allowing, the tool runs with the input Claude requested unless you return a modified input, `updatedInput` in TypeScript or `updated_input` in Python. Before v2.1.207, Claude Code rejected an allow result that omitted `updatedInput` and denied the tool call with a validation error. When denying, provide a message explaining why. Claude sees this message and may adjust its approach.
-
-Python
-
-TypeScript
-
-    from claude_agent_sdk.types import PermissionResultAllow, PermissionResultDeny
-
-    # Allow the tool to execute
-    return PermissionResultAllow(updated_input=input_data)
-
-    # Block the tool
-    return PermissionResultDeny(message="User rejected this action")
-
-    // Allow the tool to execute
-    return { behavior: "allow", updatedInput: input };
-
-    // Block the tool
-    return { behavior: "deny", message: "User rejected this action" };
-
-Beyond allowing or denying, you can modify the tool’s input or provide context that helps Claude adjust its approach:
+When allowing, the tool runs with the input Claude requested unless you return a modified input, `updatedInput` in TypeScript or `updated_input` in Python. Before v2.1.207, Claude Code rejected an allow result that omitted `updatedInput` and denied the tool call with a validation error. When denying, provide a message explaining why. Claude sees this message and may adjust its approach. Beyond allowing or denying, you can modify the tool’s input or provide context that helps Claude adjust its approach:
 
   * **Approve** : let the tool execute as Claude requested
   * **Approve with changes** : modify the input before execution (e.g., sanitize paths, add constraints)

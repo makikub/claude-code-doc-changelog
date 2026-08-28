@@ -65,9 +65,9 @@ When you omit the interval, Claude chooses one dynamically instead of running on
 
     /loop check whether CI passed and address any review comments
 
-When you ask for a dynamic `/loop` schedule, Claude may use the [Monitor tool](</docs/en/tools-reference#monitor-tool>) directly. Monitor runs a background script and streams each output line back, which avoids polling altogether and is often more token-efficient and responsive than re-running a prompt on an interval. A dynamically scheduled loop appears in your scheduled task list like any other task, so you can list or cancel it the same way. The jitter rules don’t apply to it, but the seven-day expiry does.
+In a session where the [Monitor tool is available](</docs/en/tools-reference#monitor-tool>), Claude may use it directly when you ask for a dynamic `/loop` schedule. Monitor runs a background script and streams each output line back, which avoids polling altogether and is often more token-efficient and responsive than re-running a prompt on an interval. A dynamically scheduled loop appears in your scheduled task list like any other task, so you can list or cancel it the same way. The jitter rules don’t apply to it, but the seven-day expiry does.
 
-On Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry, `/loop` behaves differently in two ways: a prompt with no interval runs on a fixed 10-minute schedule instead of a schedule Claude chooses, and `/loop` with no prompt prints the usage message instead of running the maintenance prompt or reading `loop.md`. The same happens when you turn off [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>).
+Dynamically chosen intervals and the built-in maintenance prompt work on every provider, and with [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) turned off. On Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry, or with fetching turned off, both require Claude Code v2.1.248 or later. In those cases, on earlier versions, a prompt with no interval runs on a fixed 10-minute schedule, and a `/loop` with no prompt prints the usage message.
 
 ###
 
@@ -93,7 +93,7 @@ A bare `/loop` runs this prompt at a dynamically chosen interval. Add an interva
 
 Customize the default prompt with loop.md
 
-Where the built-in maintenance prompt is available, a `loop.md` file replaces it with your own instructions. It defines a single default prompt for bare `/loop`, not a list of separate scheduled tasks, and is ignored whenever you supply a prompt on the command line. To schedule additional prompts alongside it, use `/loop <prompt>` or ask Claude directly. Claude looks for the file in two locations and uses the first one it finds.
+Create a `loop.md` file to replace the built-in maintenance prompt with your own instructions. It defines a single default prompt for bare `/loop`, not a list of separate scheduled tasks, and Claude Code ignores it whenever you supply a prompt on the command line. To schedule additional prompts alongside it, use `/loop <prompt>` or ask Claude directly. Claude looks for the file in two locations and uses the first one it finds.
 
 Path| Scope
 ---|---
@@ -117,7 +117,7 @@ Edits to `loop.md` take effect on the next iteration, so you can refine the inst
 
 Stop a loop
 
-To stop a `/loop` while it is waiting for the next iteration, press `Esc`. This clears the pending wakeup so the loop does not fire again. Tasks you scheduled by asking Claude directly are not affected by `Esc` and stay in place until you delete them. In self-paced mode, Claude can also end the loop on its own once the task is complete. Claude calls the [`ScheduleWakeup` tool](</docs/en/tools-reference>) with `stop: true`, which cancels the pending wakeup immediately. If an iteration ends without either rescheduling or stopping, Claude Code schedules one fallback wakeup about 20 minutes later and ends the loop when that iteration doesn’t reschedule either. Loops on a fixed interval keep running until you stop them or seven days elapse.
+To stop a self-paced `/loop` while it is waiting for the next iteration, press `Esc`. This clears the pending wakeup so the loop does not fire again. Tasks you scheduled by asking Claude directly are not affected by `Esc` and stay in place until you delete them. In self-paced mode, Claude can also end the loop on its own once the task is complete. Claude calls the [`ScheduleWakeup` tool](</docs/en/tools-reference>) with `stop: true`, which cancels the pending wakeup immediately. If an iteration ends without either rescheduling or stopping, Claude Code schedules one fallback wakeup about 20 minutes later and ends the loop when that iteration doesn’t reschedule either. Loops on a fixed interval keep running until you cancel them like any other scheduled task or seven days elapse.
 
 ##
 
@@ -222,7 +222,7 @@ Session-scoped scheduling has inherent constraints:
   * Tasks only fire while Claude Code is running and idle. Closing the terminal or letting the session exit stops them firing. [Backgrounding the session](</docs/en/agent-view#from-inside-a-session>) carries `/loop` tasks over to a background session, which keeps running without a terminal.
   * No catch-up for missed fires. If a task’s scheduled time passes while Claude is busy on a long-running request, it fires once when Claude becomes idle, not once per missed interval.
   * Starting a fresh conversation clears all session-scoped tasks. Resuming with `claude --resume` or `claude --continue` restores recurring tasks that have not expired and one-shot tasks whose scheduled time has not yet passed. Background Bash and monitor tasks are never restored on resume.
-  * Claude Code stores the scheduled task list in the project’s `.claude` directory, and scheduling a task fails with an error when that directory, or the task file inside it, is a symlink.
+  * With [feature-flag fetching off](</docs/en/env-vars#features-that-need-feature-flag-fetching>), Claude Code stores a task you asked to keep across sessions in the project’s `.claude` directory. When that directory or the task file in it is a symlink, Claude Code returns an error instead of scheduling the task.
 
 For cron-driven automation that needs to run unattended:
 

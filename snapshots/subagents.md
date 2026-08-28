@@ -156,7 +156,7 @@ Field| Type| Required| Description
 `memory`| `'user' | 'project' | 'local'`| No| Memory source for this agent
 `mcpServers`| `(string | object)[]`| No| MCP servers available to this agent, by name or inline config
 `initialPrompt`| `string`| No| Auto-submitted as the first user turn when this agent runs as the main thread agent. Ignored when the agent is invoked as a subagent
-`maxTurns`| `number`| No| Maximum number of agentic turns before the agent stops
+`maxTurns`| `number`| No| Maximum number of agentic turns before the agent stops. When the agent reaches the limit, Claude Code returns its output marked as partial, and you can resume the agent to continue. The partial marking requires Claude Code v2.1.246 or later
 `background`| `boolean`| No| Run this agent as a non-blocking background task when invoked
 `effort`| `'low' | 'medium' | 'high' | 'xhigh' | 'max' | number`| No| Reasoning effort level for this agent
 `permissionMode`| `PermissionMode`| No| Permission mode for tool execution within this agent
@@ -396,7 +396,7 @@ TypeScript
 
 Resume subagents
 
-You can resume a subagent to continue where it left off rather than starting fresh. A resumed subagent retains its full conversation history, including all previous tool calls, results, and reasoning. When a subagent completes, the Agent tool result includes a text block containing `agentId: <id>`. The built-in [`Explore` and `Plan` agents](</docs/en/sub-agents#built-in-subagents>) are one-shot and don’t return an `agentId`, so use a custom agent or `general-purpose` when you need to resume. To resume a subagent programmatically:
+You can resume a subagent to continue where it left off rather than starting fresh. A resumed subagent retains its full conversation history, including all previous tool calls, results, and reasoning. When a subagent stops at its `maxTurns` limit, Claude Code marks the output in the Agent tool result as partial, so Claude knows the run is unfinished. When a subagent completes, the Agent tool result includes a text block containing `agentId: <id>`. The built-in [`Explore` and `Plan` agents](</docs/en/sub-agents#built-in-subagents>) are one-shot and don’t return an `agentId`, so use a custom agent or `general-purpose` when you need to resume. To resume a subagent programmatically:
 
   1. **Capture the session ID** : extract `session_id` from messages during the first query
   2. **Extract the agent ID** : parse `agentId` from the Agent tool result text

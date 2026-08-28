@@ -34,7 +34,7 @@ Some Claude Code features require a claude.ai account. [Claude Code on the web](
 
 Decide how settings reach devices
 
-Managed settings define organization policy. Claude Code checks the four sources in the table below in priority order and applies the first one that delivers at least one policy key. [Which managed source Claude Code uses](</docs/en/managed-settings#precedence-within-the-managed-tier>) covers what still applies from the other sources and what a policy helper changes; the table is the decision map.
+Managed settings define organization policy. Claude Code checks the four sources in the table below in priority order. [How Claude Code combines managed sources](</docs/en/managed-settings#precedence-within-the-managed-tier>) says which of them apply, what a policy helper changes, and how to compose every source. The table is the decision map.
 
 Mechanism| Delivery| Priority| Platforms
 ---|---|---|---

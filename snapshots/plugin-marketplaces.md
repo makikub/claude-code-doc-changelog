@@ -162,7 +162,7 @@ Required fields
 
 Field| Type| Description| Example
 ---|---|---|---
-`name`| string| Marketplace identifier (kebab-case, no spaces). This is public-facing: users see it when installing plugins (for example, `/plugin install my-tool@your-marketplace`). Each user can register only one marketplace per name: adding a second marketplace with the same name replaces the first. To publish multiple plugins under one marketplace name, list them all in a single `marketplace.json`.| `"acme-tools"`
+`name`| string| Marketplace identifier in kebab-case, with no spaces, control characters, or bidirectional-formatting characters. This is public-facing: users see it when installing plugins (for example, `/plugin install my-tool@your-marketplace`). Each user can register only one marketplace per name: when they add a second marketplace with the same name, Claude Code replaces the first. To publish multiple plugins under one marketplace name, list them all in a single `marketplace.json`.| `"acme-tools"`
 `owner`| object| Marketplace maintainer information (see fields below)|
 `plugins`| array| List of available plugins| See below
 
@@ -213,7 +213,7 @@ Required fields
 
 Field| Type| Description
 ---|---|---
-`name`| string| Plugin identifier (kebab-case, no spaces). This is public-facing: users see it when installing (for example, `/plugin install my-plugin@marketplace`).
+`name`| string| Plugin identifier in kebab-case, with no spaces, control characters, or bidirectional-formatting characters. This is public-facing: users see it when installing (for example, `/plugin install my-plugin@marketplace`).
 `source`| string|object| Where to fetch the plugin from (see Plugin sources below)
 
 ###
@@ -238,8 +238,8 @@ Field| Type| Description
 `category`| string| Plugin category for organization
 `tags`| array| Tags for searchability
 `strict`| boolean| Controls whether `plugin.json` is the authority for component definitions (default: true). See Strict mode below.
-`relevance`| object| Signals that tell Claude Code when to suggest this plugin to users. Takes effect only for marketplaces an administrator allowlists in managed settings. See [Recommend plugins for your org](</docs/en/plugin-relevance>). Requires Claude Code v2.1.152 or later.
-`defaultEnabled`| boolean| Whether the plugin is enabled after install (default: true). Set to `false` to install the plugin disabled until the user opts in. Takes precedence over the same field in the plugin’s `plugin.json`. See [Default enablement](</docs/en/plugins-reference#default-enablement>). Requires Claude Code v2.1.154 or later.
+`relevance`| object| Signals that tell Claude Code when to suggest this plugin to users. Takes effect only for marketplaces an administrator allowlists in managed settings. See [Recommend plugins for your org](</docs/en/plugin-relevance>).
+`defaultEnabled`| boolean| Whether the plugin is enabled after install (default: true). Set to `false` to install the plugin disabled until the user opts in. Takes precedence over the same field in the plugin’s `plugin.json`. See [Default enablement](</docs/en/plugins-reference#default-enablement>).
 
 **Component configuration fields:**
 
@@ -1022,7 +1022,7 @@ Restrictions are checked before any network or filesystem operation. The check r
   * For `hostPattern` sources: the marketplace host is matched against the regex pattern
   * For `pathPattern` sources: the marketplace’s filesystem path is matched against the regex pattern
 
-The allowlist’s exact matching doesn’t normalize URLs: a trailing slash, `.git` suffix, or `ssh://` versus `https://` form are treated as different values. If your organization’s marketplace can be cloned by more than one URL form, prefer a `hostPattern` entry over a literal URL so all forms match. Because `strictKnownMarketplaces` is set in [managed settings](</docs/en/managed-settings>), individual users and project configurations can’t override these restrictions. For complete configuration details including all supported source types and comparison with `extraKnownMarketplaces`, see the [strictKnownMarketplaces reference](</docs/en/settings-reference#strictknownmarketplaces>).
+The allowlist’s exact matching treats URLs that differ only by a trailing slash, a `.git` suffix, or the `ssh://` and `https://` scheme as different values. If your organization’s marketplace can be cloned by more than one URL form, prefer a `hostPattern` entry over a literal URL so the `https://`, `ssh://`, and `user@host:path` forms all match. Because `strictKnownMarketplaces` is set in [managed settings](</docs/en/managed-settings>), individual users and project configurations can’t override these restrictions. For complete configuration details including all supported source types and comparison with `extraKnownMarketplaces`, see the [strictKnownMarketplaces reference](</docs/en/settings-reference#strictknownmarketplaces>).
 
 ###
 
@@ -1042,7 +1042,7 @@ Set up release channels
 
 To support “stable” and “latest” release channels for your plugins, you can set up two marketplaces that point to different refs or SHAs of the same repo. You can then give each user group its own marketplace through managed settings in one of two ways:
 
-  * Deploy separate [endpoint-managed settings](</docs/en/managed-settings#delivery-mechanisms>), such as a managed settings file or an MDM profile, to each group’s devices. On each device, Claude Code applies only the [highest-ranked managed source](</docs/en/managed-settings#precedence-within-the-managed-tier>) that delivers any keys, so this route works only when the per-group file or profile is that source on the group’s devices.
+  * Deploy separate [endpoint-managed settings](</docs/en/managed-settings#delivery-mechanisms>), such as a managed settings file or an MDM profile, to each group’s devices. [How Claude Code combines managed sources](</docs/en/managed-settings#precedence-within-the-managed-tier>) says whether the per-group file or profile applies on a device that also has an organization-wide source.
   * Define one [Claude apps gateway policy](</docs/en/claude-apps-gateway-config#managed>) per group. The gateway applies the first policy whose match rule fits a user, so order the policies so that each user reaches their group’s policy. A group policy’s `extraKnownMarketplaces` replaces the catch-all policy’s map rather than merging with it, so list every marketplace the group needs in the group’s policy, not only its channel marketplace.
 
 Server-managed settings from the admin console [apply to every user in your organization](</docs/en/server-managed-settings#current-limitations>), so they can’t carry a per-group assignment.
@@ -1323,12 +1323,14 @@ Error| Cause| Solution
 `Invalid JSON syntax: Unexpected token...`| JSON syntax error in marketplace.json| Check for missing commas, extra commas, or unquoted strings
 `Duplicate plugin name "x" found in marketplace`| Two plugins share the same name| Give each plugin a unique `name` value
 `plugins[0].source: Path contains ".."`| Source path contains `..`| Use paths relative to the marketplace root without `..`. See Relative paths
+`Marketplace name cannot contain control or bidirectional-formatting characters`| The marketplace `name` contains a Unicode bidirectional-formatting character or a control character, such as an escape or a newline| Remove the character from the name. Before v2.1.247, these characters produced the `Marketplace name impersonates an official Anthropic/Claude marketplace` error
+`Plugin name cannot contain control or bidirectional-formatting characters`| A plugin `name` contains a Unicode bidirectional-formatting character or a control character, such as an escape or a newline| Remove the character from the name. Before v2.1.247, Claude Code didn’t run this check
 
 **Warnings** (non-blocking):
 
   * `Marketplace has no plugins defined`: add at least one plugin to the `plugins` array
   * `No marketplace description provided`: add a top-level `description` to help users understand your marketplace
-  * `Plugin name "x" is not kebab-case`: the plugin name contains uppercase letters, spaces, or special characters. Rename to lowercase letters, digits, and hyphens only (for example, `my-plugin`). Claude Code accepts other forms, but the claude.ai marketplace sync rejects them.
+  * `Plugin name "x" is not kebab-case`: rename to lowercase letters, digits, and hyphens only (for example, `my-plugin`). Claude Code accepts other forms, but the claude.ai marketplace sync rejects them.
   * `Marketplace name "x" is reserved in Claude Desktop`: the marketplace is named `org`, `org-provisioned`, or `unknown`, in any casing. Claude Code accepts these names, but Claude Desktop’s managed marketplace sync rejects the whole marketplace. Rename the marketplace. Before v2.1.221, `claude plugin validate` didn’t run this check.
   * `Marketplace name "x" is not accepted by Claude Desktop` or `Plugin name "x" is not accepted by Claude Desktop`: Claude Desktop accepts names of up to 128 characters made of letters, digits, `.`, `_`, and `-`, starting with a letter or digit. Claude Code accepts other forms, but Claude Desktop’s managed marketplace sync rejects a marketplace whose name fails the check and silently drops a plugin entry whose name does. Rename the marketplace or plugin. Before v2.1.221, `claude plugin validate` didn’t run these checks.
 

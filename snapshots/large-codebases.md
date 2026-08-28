@@ -65,7 +65,7 @@ Start from| File access| CLAUDE.md loaded at launch| Use when
 Repository root| Every file| Root only; subdirectory files load on demand when Claude reads there| Tasks span multiple packages or subsystems
 A subdirectory| That subtree only, until you grant more| That directory’s plus every ancestor’s| Work is scoped to one package or subsystem
 
-Project settings in `.claude/settings.json` load only from your starting directory and are not inherited from parent directories the way CLAUDE.md files are: a `.claude/settings.json` at the repository root applies only when you start from the root. Each section below states whether its settings file belongs at the repository root or in the subdirectory you start from, and whether it is committed or kept local.
+Project settings in `.claude/settings.json` aren’t inherited from parent directories the way CLAUDE.md files are. For which directory’s `.claude/settings.json` a session reads, see [where Claude Code looks for each file](</docs/en/settings#where-claude-code-looks-for-each-file>). Each section below states whether its settings file belongs at the repository root or in the subdirectory you start from, and whether it is committed or kept local.
 
 ##
 
@@ -157,8 +157,8 @@ Block reads of generated and vendored code
 
 Claude’s content searches respect `.gitignore` by default, so paths already listed there, such as `node_modules/`, `dist/`, and `build/`, stay out of search results without additional configuration. For paths that are checked in, such as a vendored SDK or committed generated code, add `Read` deny rules in `permissions.deny` to block Claude from opening those files. The deny rules can cover everyone working in the repository, only you, or every session on the machine, depending on which settings file you put them in:
 
-  * **Everyone working in the repository** : commit the rules to `.claude/settings.json`. Like other project settings on this page, that file loads only from your starting directory, so place it at the repository root if you start Claude there, or in each package’s `.claude/` if you start from subdirectories.
-  * **Yourself only** : use `.claude/settings.local.json` at the repository root, which loads in every CLI session inside the repository regardless of starting directory, except in the cases where Claude Code [keeps the local file in the starting directory](</docs/en/settings#where-claude-code-looks-for-each-file>), such as on Windows. Relative patterns like the example’s `Read(./vendor/**)` still [anchor at the directory you start Claude Code from](</docs/en/permissions#read-and-edit>), so if you start sessions from subdirectories, write the rules in this file as `//`-absolute paths, such as `Read(//absolute/path/to/repo/vendor/**)`. Before v2.1.211, `.claude/settings.local.json` also loaded only from the starting directory.
+  * **Everyone working in the repository** : commit the rules to `.claude/settings.json`, at the repository root if you start Claude there, or in each package’s `.claude/` if you start from subdirectories. Like other project settings on this page, that file isn’t inherited from parent directories.
+  * **Yourself only** : use `.claude/settings.local.json` at the repository root, which loads in every CLI session inside the repository regardless of starting directory, except in the cases where Claude Code [doesn’t use the repository root](</docs/en/settings#where-claude-code-looks-for-each-file>), such as on Windows. Relative patterns like the example’s `Read(./vendor/**)` still [anchor at the session’s current working directory](</docs/en/permissions#read-and-edit>) rather than the repository root, so if you start sessions from subdirectories, write the rules in this file as `//`-absolute paths, such as `Read(//absolute/path/to/repo/vendor/**)`. Before v2.1.211, `.claude/settings.local.json` also loaded only from the starting directory.
   * **Everyone, enforced in every session** : set the rules in [managed settings](</docs/en/managed-settings>), which user and project settings cannot override.
 
 The example below blocks build artifacts and a vendored SDK:
@@ -367,7 +367,7 @@ Once conventions live in plugins, a teammate starting Claude in an unfamiliar pa
 
 Put it together
 
-The combined configuration below uses the monorepo layout. The same files work for any subdirectory in a large single tree. Project settings load only from the directory you start Claude in, so each subdirectory’s `.claude/settings.json` must be self-contained rather than layered on a root file. The example commits `worktree`, `additionalDirectories`, and the `Read` deny rules in `.claude/settings.json` so every developer in `packages/api/` gets the same sibling access, sparse paths, and exclusions. The file below is the committed per-area settings for `packages/api/`:
+The combined configuration below uses the monorepo layout. The same files work for any subdirectory in a large single tree. Each subdirectory’s `.claude/settings.json` must be self-contained rather than layered on a root file. The example commits `worktree`, `additionalDirectories`, and the `Read` deny rules in `.claude/settings.json` so every developer in `packages/api/` gets the same sibling access, sparse paths, and exclusions. The file below is the committed per-area settings for `packages/api/`:
 
 packages/api/.claude/settings.json
 

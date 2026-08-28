@@ -73,7 +73,7 @@ webhook.ts
       {
         // this key is what makes it a channel — Claude Code registers a listener for it
         capabilities: { experimental: { 'claude/channel': {} } },
-        // added to Claude's system prompt so it knows how to handle these events
+        // Claude Code delivers this to Claude as context when the server connects, so it knows how to handle these events
         instructions: 'Events from the webhook channel arrive as <channel source="webhook" ...>. They are one-way: read them and act, no reply expected.',
       },
     )
@@ -102,7 +102,7 @@ webhook.ts
 
 The file does three things in order:
 
-  * **Server configuration** : creates the MCP server with `claude/channel` in its capabilities, which is what tells Claude Code this is a channel. The `instructions` string goes into Claude’s system prompt: tell Claude what events to expect, whether to reply, and how to route replies if it should.
+  * **Server configuration** : creates the MCP server with `claude/channel` in its capabilities, which is what tells Claude Code this is a channel. Claude Code delivers the `instructions` string to Claude as context when the server connects: tell Claude what events to expect, whether to reply, and how to route replies if it should.
   * **Stdio connection** : connects to Claude Code over stdin/stdout. This is standard for any [MCP server](<https://modelcontextprotocol.io/docs/concepts/transports#standard-io>).
   * **HTTP listener** : starts a local web server on port 8788. Every POST body gets forwarded to Claude as a channel event via `mcp.notification()`. The `content` becomes the event body, and each `meta` entry becomes an attribute on the `<channel>` tag. The listener needs access to the `mcp` instance, so it runs in the same process. You could split it into separate modules for a larger project.
 
@@ -140,7 +140,7 @@ The payload arrives in Claude’s context as a `<channel>` tag:
 
 Your terminal renders the event as a one-line summary, `← webhook: build failed on main: https://ci.example.com/run/1234`, rather than the raw tag. You’ll then see Claude start responding: reading files, running commands, or whatever the message calls for. This is a one-way channel, so Claude acts in your session but doesn’t send anything back through the webhook. To add replies, see Expose a reply tool.If the event doesn’t arrive, the diagnosis depends on what `curl` returned:
 
-  * **`curl` succeeds but nothing reaches Claude**: run `/mcp` in your session to check the server’s status. “Failed to connect” usually means a dependency or import error in your server file; check the debug log at `~/.claude/debug/<session-id>.txt` for the stderr trace.
+  * **`curl` succeeds but nothing reaches Claude**: run `/mcp` in your session to check the server’s status. A `failed` status usually means a dependency or import error in your server file; check the debug log at `~/.claude/debug/<session-id>.txt` for the stderr trace.
   * **`curl` fails with “connection refused”**: the port is either not bound yet or a stale process from an earlier run is holding it. `lsof -i :<port>` shows what’s listening; `kill` the stale process before restarting your session.
 
 The [fakechat server](<https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/fakechat>) extends this pattern with a web UI, file attachments, and a reply tool for two-way chat.
@@ -176,7 +176,7 @@ Field| Type| Description
 `capabilities.experimental['claude/channel']`| `object`| Required. Always `{}`. Presence registers the notification listener.
 `capabilities.experimental['claude/channel/permission']`| `object` or `false`| Optional. Set it to `{}` to declare that this channel can receive permission relay requests. When declared, Claude Code forwards tool approval prompts to your channel so you can approve or deny them remotely. To opt out, omit the key or set it to `false`. Before v2.1.234, Claude Code treated `false` as declared. See Relay permission prompts.
 `capabilities.tools`| `object`| Two-way only. Always `{}`. Standard MCP tool capability. See Expose a reply tool.
-`instructions`| `string`| Recommended. Added to Claude’s system prompt. Tell Claude what events to expect, what the `<channel>` tag attributes mean, whether to reply, and if so which tool to use and which attribute to pass back (like `chat_id`).
+`instructions`| `string`| Recommended. Claude Code delivers it to Claude as context when the server connects. Tell Claude what events to expect, what the `<channel>` tag attributes mean, whether to reply, and if so which tool to use and which attribute to pass back (like `chat_id`).
 
 To create a one-way channel, omit `capabilities.tools`. This example shows a two-way setup with the channel capability, tools, and instructions set:
 
@@ -189,7 +189,7 @@ To create a one-way channel, omit `capabilities.tools`. This example shows a two
           experimental: { 'claude/channel': {} },  // registers the channel listener
           tools: {},  // omit for one-way channels
         },
-        // added to Claude's system prompt so it knows how to handle your events
+        // Claude Code delivers this to Claude as context when the server connects, so it knows how to handle your events
         instructions: 'Messages arrive as <channel source="your-channel" ...>. Reply with the reply tool.',
       },
     )
