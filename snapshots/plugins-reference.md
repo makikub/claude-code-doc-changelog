@@ -753,7 +753,7 @@ Fetching an npm-source plugin itself runs `npm install` with lifecycle scripts e
 
 Path traversal limitations
 
-Copied plugins cannot reference files outside their directory. Paths that traverse outside the plugin root (such as `../shared-utils`) will not work after installation because those external files are not copied to the cache.
+Claude Code doesn’t let a plugin reference files outside its own directory. It rejects a component path that resolves outside the plugin root, such as `../shared-utils`, whether the path is declared in `plugin.json` or in a [marketplace entry](</docs/en/plugin-marketplaces#plugin-entries>). Claude Code reports a [`path escapes plugin directory`](</docs/en/errors#path-escapes-plugin-directory>) error and loads the plugin without that component. Claude Code also doesn’t copy files outside the plugin directory into the cache when it installs the plugin, so when a script inside a copied plugin reads a path above the plugin root, it doesn’t find those files either.
 
 ###
 

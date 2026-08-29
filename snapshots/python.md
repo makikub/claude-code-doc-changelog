@@ -173,7 +173,7 @@ Example
 
 `ToolAnnotations`
 
-Re-exported from `mcp.types` (also available as `from claude_agent_sdk import ToolAnnotations`). All fields are optional hints; clients should not rely on them for security decisions.
+Behavioral hints for a tool, passed as the `annotations` argument of `tool()`. `ToolAnnotations` extends the MCP SDK’s `mcp.types.ToolAnnotations` with a `maxResultSizeChars` field, and you can write each hint in camelCase or snake_case: `ToolAnnotations(readOnlyHint=True)` and `ToolAnnotations(read_only_hint=True)` are equivalent. You can also pass a plain `mcp.types.ToolAnnotations` wherever the SDK accepts annotations. The snake_case names and the typed `maxResultSizeChars` field require Python Agent SDK 0.2.140 or later. Versions 0.1.31 through 0.2.139 re-export `mcp.types.ToolAnnotations` unchanged. On versions 0.1.55 through 0.2.139 you can still pass `maxResultSizeChars` as a keyword argument: the MCP class accepts extra fields, and the SDK forwards the value to Claude Code. All fields are optional. Clients shouldn’t rely on the hints for security decisions.
 
 Field| Type| Default| Description
 ---|---|---|---
@@ -182,6 +182,7 @@ Field| Type| Default| Description
 `destructiveHint`| `bool | None`| `True`| If `True`, the tool may perform destructive updates (only meaningful when `readOnlyHint` is `False`)
 `idempotentHint`| `bool | None`| `False`| If `True`, repeated calls with the same arguments have no additional effect (only meaningful when `readOnlyHint` is `False`)
 `openWorldHint`| `bool | None`| `True`| If `True`, the tool interacts with external entities (for example, web search). If `False`, the tool’s domain is closed (for example, a memory tool)
+`maxResultSizeChars`| `int | None`| `None`| Number of characters up to which Claude Code keeps this tool’s text result inline in the conversation instead of saving it to a file, up to 500,000. Results that contain images aren’t affected. A Claude Code setting rather than an MCP hint: the SDK sends it in the tool’s `_meta` as `anthropic/maxResultSizeChars`. See [Raise the limit for a specific tool](</docs/en/mcp#raise-the-limit-for-a-specific-tool>)
 
     from claude_agent_sdk import tool, ToolAnnotations
     from typing import Any
@@ -784,7 +785,7 @@ Property| Type| Description
 `description`| `str`| Human-readable description
 `input_schema`| `type[T] | dict[str, Any]`| Schema for input validation
 `handler`| `Callable[[T], Awaitable[dict[str, Any]]]`| Async function that handles tool execution
-`annotations`| `ToolAnnotations | None`| Optional MCP tool annotations (e.g., `readOnlyHint`, `destructiveHint`, `openWorldHint`). From `mcp.types`
+`annotations`| `ToolAnnotations`` | None`| Optional tool annotations (for example `readOnlyHint`, `destructiveHint`, `openWorldHint`, `maxResultSizeChars`)
 
 ###
 
@@ -3471,7 +3472,7 @@ Example usage
 
     asyncio.run(main())
 
-**Unix socket security** : The `allowUnixSockets` option can grant access to powerful system services. For example, allowing `/var/run/docker.sock` effectively grants full host system access through the Docker API, bypassing sandbox isolation. Only allow Unix sockets that are strictly necessary and understand the security implications of each.
+**Unix socket security** : The `allowUnixSockets` option can grant access to system services that reach outside the sandbox. For example, allowing `/var/run/docker.sock` effectively grants full host system access through the Docker API, bypassing sandbox isolation. Only allow Unix sockets that are strictly necessary and understand the security implications of each.
 
 ###
 

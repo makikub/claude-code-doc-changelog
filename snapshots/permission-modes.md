@@ -447,7 +447,7 @@ Mode| Protected-path writes
 `dontAsk`| Denied
 `bypassPermissions`| Allowed
 
-[`permissions.allow`](</docs/en/permissions#manage-permissions>) rules in settings files do not pre-approve protected-path writes. The safety check runs before Claude Code evaluates allow rules from settings, so an entry such as `Edit(.claude/**)` in `~/.claude/settings.json` or `.claude/settings.json` does not change the per-mode outcome in the table above. In modes that prompt, the prompt for a `.claude/` write offers **Yes, and allow Claude to edit its own settings for this session** , which approves later `.claude/` writes in that session without prompting again. Protected directories:
+In a session started with [`--restricted`](</docs/en/cli-reference#cli-flags>), which requires Claude Code v2.1.248 or later, the classifier can’t approve protected-path writes. [`permissions.allow`](</docs/en/permissions#manage-permissions>) rules in settings files do not pre-approve protected-path writes. The safety check runs before Claude Code evaluates allow rules from settings, so an entry such as `Edit(.claude/**)` in `~/.claude/settings.json` or `.claude/settings.json` does not change the per-mode outcome in the table above. In modes that prompt, the prompt for a `.claude/` write offers **Yes, and allow Claude to edit its own settings for this session** , which approves later `.claude/` writes in that session without prompting again. Protected directories:
 
   * `.git`
   * `.config/git`

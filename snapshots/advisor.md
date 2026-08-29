@@ -188,7 +188,7 @@ Approach| When the stronger model runs| How it starts
 Advisor tool| At decision points mid-task| Claude calls it when it needs guidance
 [`opusplan`](</docs/en/model-config#opusplan-model-setting>)| During plan mode when [allowed by `availableModels`](</docs/en/model-config#restrict-model-selection>), then switches to Sonnet for execution| You enter plan mode
 [Subagents](</docs/en/sub-agents#choose-a-model>) with `model` set| For the entire delegated subtask| Claude delegates, or you invoke the subagent
-[`/model`](</docs/en/model-config#setting-your-model>)| For all subsequent turns| You switch models
+[`/model`](</docs/en/model-config#setting-your-model>)| From the next request onward| You switch models
 
 ##
 

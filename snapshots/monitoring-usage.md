@@ -29,7 +29,7 @@ Configure OpenTelemetry using environment variables:
     # 6. Run Claude Code
     claude
 
-To verify a setup that exports metrics, check your backend for the `claude_code.session.count` metric, which Claude Code emits when a session starts. To verify a logs-only setup, submit a prompt and check for the `claude_code.user_prompt` event. If nothing arrives, run `claude --debug` and check the debug log for OTel export errors. For full configuration options, see the [OpenTelemetry specification](<https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md#configuration-options>).
+To verify a setup that exports metrics, check your backend for the `claude_code.session.count` metric, which Claude Code emits when a session starts. To verify a logs-only setup, submit a prompt and check for the `claude_code.user_prompt` event. If nothing arrives, run `claude --debug` and check the debug log. Claude Code reports failures from the exporters you configure as `[3P telemetry]` errors, where 3P means third-party. Lines prefixed `[Anthropic telemetry]` describe [Anthropic’s separate operational telemetry](</docs/en/data-usage#telemetry-services>) and don’t indicate a problem with your setup. For full configuration options, see the [OpenTelemetry specification](<https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md#configuration-options>).
 
 ##
 
@@ -1228,7 +1228,7 @@ Claude Code retries failed API requests internally and emits a single `claude_co
 
 Event analysis
 
-The event data provides detailed insights into Claude Code interactions: **Tool usage patterns** : analyze tool result events to identify:
+The event data describes each Claude Code interaction in detail: **Tool usage patterns** : analyze tool result events to identify:
 
   * Most frequently used tools
   * Tool success rates
@@ -1314,7 +1314,7 @@ Point `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` at your SIEM’s OTLP receiver, or at a
       }
     }
 
-To confirm events arrive, submit a prompt in a session running under this configuration and check your SIEM for the `claude_code.user_prompt` event. If nothing arrives, run `claude --debug` and check the debug log for OTel export errors.
+To confirm events arrive, submit a prompt in a session running under this configuration and check your SIEM for the `claude_code.user_prompt` event. If nothing arrives, run `claude --debug` and check the debug log for `[3P telemetry]` export errors.
 
 ##
 

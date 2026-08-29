@@ -27,7 +27,7 @@ Activity| Time per week| Guidance
 Posting wins and prompts| About 15 minutes| Capture these in the moment with a screenshot and one or two sentences; avoid turning them into formal write-ups.
 Answering questions in a shared channel| About 20 minutes| Answer publicly once, then link back to that answer when the question recurs.
 Hosting a weekly show-and-tell thread| About 5 minutes| You post the opening prompt; the team supplies the content.
-Optional pairing or walkthroughs| 0 to 30 minutes| Reserve this for colleagues who are genuinely blocked, and offer the [Quickstart](</docs/en/quickstart>) link before scheduling time.
+Optional pairing or walkthroughs| 0 to 30 minutes| Reserve this for colleagues who are blocked, and offer the [Quickstart](</docs/en/quickstart>) link before scheduling time.
 
 ##
 
@@ -91,7 +91,7 @@ A screenshot accompanied by a single line of context, or a brief before-and-afte
 
 Be the person people ask
 
-Once you have shared a few examples, questions will follow. This is where the champion role has the greatest leverage, because a good answer to one person frequently unblocks several others who are watching the same channel.
+Once you have shared a few examples, questions will follow. This is where a champion helps the most, because a good answer to one person frequently unblocks several others who are watching the same channel.
 
 ###
 
@@ -137,7 +137,7 @@ Question| Suggested response| Follow-up resource
 
 Grow the circle
 
-The objective is not to build a program or to own a rollout. It is to establish a small number of lightweight habits that allow momentum to continue after you have stopped actively driving it. When questions in the channel are being answered by people other than you, the role has done its job.
+The objective is to establish a small number of lightweight habits that allow momentum to continue after you have stopped actively driving it. You don’t need to build a program or own a rollout. When questions in the channel are being answered by people other than you, the role has done its job.
 
 ###
 
@@ -192,7 +192,7 @@ Identify a second champion and share a brief summary of what is working and what
 
 When someone wants to go deeper
 
-You are the warm introduction rather than the onboarding program. When a colleague moves past “should I try this” into “how do I become effective with it,” point them to the [Quickstart](</docs/en/quickstart>) and [Common workflows](</docs/en/common-workflows>) pages. They contain short sections covering the features that are genuinely useful but difficult to discover on your own.
+You are the warm introduction rather than the onboarding program. When a colleague moves past “should I try this” into “how do I become effective with it,” point them to the [Quickstart](</docs/en/quickstart>) and [Common workflows](</docs/en/common-workflows>) pages. They contain short sections covering the features that are useful but difficult to discover on your own.
 
 ##
 
@@ -204,7 +204,7 @@ Healthy skepticism is expected; engineers should be cautious about tools that to
 
 Concern| Suggested response| Evidence to offer
 ---|---|---
-”I am faster without it.”| That is likely true for code the person writes routinely. Suggest trying it on the work they tend to avoid: legacy files, unfamiliar services, or test scaffolding, where the leverage is highest.| Time one tedious task both ways and compare.
+”I am faster without it.”| That is likely true for code the person writes routinely. Suggest trying it on the work they tend to avoid: legacy files, unfamiliar services, or test scaffolding, where it helps the most.| Time one tedious task both ways and compare.
 ”I do not trust AI to touch production code.”| Agree that no change should land unread. Plan mode combined with normal diff review means nothing is applied that the engineer has not inspected, the same standard as any pull request.| Demonstrate plan mode on a real file.
 ”It will make junior engineers weaker.”| Used well, it is an effective explainer. Encourage junior engineers to ask Claude to explain a file and its call sites before asking it to change anything.| Run “Explain @file and where it is called from” together.
 ”I tried it once and it hallucinated.”| This is usually a context problem rather than a model problem. @-mentioning the relevant files, running `/init`, and providing the actual error output typically resolves it.| Re-run their original prompt with proper `@`-context.

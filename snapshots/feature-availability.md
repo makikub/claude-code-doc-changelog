@@ -34,7 +34,10 @@ Three of these have provider-specific differences:
 
   * **MCP servers** : [connectors from claude.ai](</docs/en/mcp#use-mcp-servers-from-claude-ai>) load only when your claude.ai subscription is the active authentication method. [Tool search](</docs/en/mcp#configure-tool-search>) is off by default when `ANTHROPIC_BASE_URL` points to a non-first-party host, and isn’t supported on Google Cloud’s Agent Platform models earlier than the Claude 4.5 generation or on Microsoft Foundry [deployments hosted on Azure](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>)
   * **Subagents** : the built-in [Explore subagent](</docs/en/sub-agents#built-in-subagents>) caps its inherited model at Opus on the Claude API, and inherits the main conversation’s model directly on any other provider, including Claude Platform on AWS
-  * **[Commands](</docs/en/commands#all-commands>)** : `/design-sync`, `/import` with its `claude import` subcommand form, and `/radio` are unavailable on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and Claude Platform on AWS, `/voice` requires a claude.ai account, and `/list-agents` and its alias `/peers` are available only in sessions where [cross-session messaging is enabled](</docs/en/cross-session-messaging#availability>)
+  * **[Commands](</docs/en/commands#all-commands>)** :
+    * `/design-sync` and `/import` with its `claude import` subcommand form are unavailable on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and Claude Platform on AWS
+    * `/voice` requires a claude.ai account
+    * `/list-agents` and its alias `/peers` are available only in sessions where [cross-session messaging is enabled](</docs/en/cross-session-messaging#availability>)
 
 ###
 
@@ -91,7 +94,7 @@ Organization-level controls and usage visibility. Feature| Claude subscription| 
 4 Dashboard and API only. [Contribution metrics](</docs/en/analytics#enable-contribution-metrics>) requires a claude.ai Team or Enterprise organization.
 5 Requires Claude Code v2.1.224 or later on macOS and Linux, including Linux inside WSL 2. On native Windows, requires Claude Code v2.1.234 or later. With API key authentication, messaging is same-machine only. On Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry, messaging is same-machine only and requires Claude Code v2.1.248 or later. Claude can find your [Claude Code on the web](</docs/en/claude-code-on-the-web>) sessions and your sessions on other machines only from a session that is connected to [Remote Control](</docs/en/remote-control>). To connect, you need a claude.ai sign-in and the other [Remote Control requirements](</docs/en/remote-control#requirements>). See [Message sessions on other machines](</docs/en/cross-session-messaging#message-sessions-on-other-machines>).
 
-If you authenticate through an [LLM gateway](</docs/en/llm-gateway>), feature availability matches the underlying provider the gateway forwards to. Some Anthropic-only features such as the [Advisor](</docs/en/advisor>) work only if the gateway forwards requests intact to the Anthropic API.
+If you authenticate through an [LLM gateway](</docs/en/llm-gateway>), feature availability matches the underlying provider the gateway forwards to, except for the features Claude Code itself turns off. Whenever `ANTHROPIC_BASE_URL` points at a host other than `api.anthropic.com`, Claude Code turns off features such as [Remote Control](</docs/en/remote-control#requirements>) and [server-managed settings](</docs/en/server-managed-settings#platform-availability>), whatever the gateway forwards. Some Anthropic-only features such as the [Advisor](</docs/en/advisor>) work only if the gateway forwards requests intact to the Anthropic API.
 
 ###
 
@@ -111,7 +114,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
   * Anthropic Console
 
-**Not available:** all features that require a Claude subscription, plus [web search](</docs/en/tools-reference#websearch-tool-behavior>), [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync`, `/import`, and `/radio` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [web search](</docs/en/tools-reference#websearch-tool-behavior>), [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): only via [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Auto mode](</docs/en/auto-mode-config>): Sonnet 5, Opus 4.7 or later, and Fable 5 only
@@ -120,13 +123,13 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>) or [GitLab CI/CD](</docs/en/gitlab-ci-cd>). For web lookups, use the [WebFetch tool](</docs/en/tools-reference#webfetch-tool-behavior>) with a specific URL.
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync`, `/import`, and `/radio` commands](</docs/en/commands#all-commands>).**Available where Amazon Bedrock is not:** [web search](</docs/en/tools-reference#websearch-tool-behavior>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available where Amazon Bedrock is not:** [web search](</docs/en/tools-reference#websearch-tool-behavior>).**Partial support:**
 
   * [Cross-session messaging](</docs/en/cross-session-messaging>): between your sessions on this machine only 5
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitLab CI/CD](</docs/en/gitlab-ci-cd>).
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync`, `/import`, and `/radio` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): via [managed settings](<https://claude.com/docs/third-party/claude-desktop/configuration>) or [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Web search](</docs/en/tools-reference#websearch-tool-behavior>): Claude 4 models and later
@@ -136,7 +139,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>) or [GitLab CI/CD](</docs/en/gitlab-ci-cd>).
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitLab CI/CD](</docs/en/gitlab-ci-cd>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync`, `/import`, and `/radio` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitLab CI/CD](</docs/en/gitlab-ci-cd>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): only via [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Web search](</docs/en/tools-reference#websearch-tool-behavior>): [deployments hosted on Anthropic](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>) only
