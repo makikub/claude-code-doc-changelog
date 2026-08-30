@@ -196,8 +196,8 @@ Invalid entries in delivered settings
 
 Delivered payloads parse tolerantly with the same rules as the other managed sources. When part of a payload fails schema validation, Claude Code surfaces a validation error and applies every remaining valid setting; [Invalid entries in managed settings](</docs/en/managed-settings#invalid-entries-in-managed-settings>) says what it drops and which keys fall back to a stricter value. Requires Claude Code v2.1.169 or later. Server-managed delivery adds these behaviors:
 
-  * The cache at `~/.claude/remote-settings.json` stores the salvaged payload with invalid entries removed. The raw invalid payload is never persisted.
-  * When no field in the payload can be salvaged, Claude Code rejects the payload, keeps the last-accepted cached settings, and writes `Remote settings: Settings validation failed - no fields could be salvaged` to the debug log. With `forceRemoteSettingsRefresh` set, the CLI exits instead.
+  * The cache at `~/.claude/remote-settings.json` stores the salvaged payload with invalid entries removed, apart from invalid `cleanupPeriodDays` and `desktopSessionCleanupPeriodDays` values, which stay in the cached copy and are never applied.
+  * When no field in the payload can be salvaged and the payload isn’t only those retention keys, Claude Code rejects the payload, keeps the last-accepted cached settings, and writes `Remote settings: Settings validation failed - no fields could be salvaged` to the debug log. With `forceRemoteSettingsRefresh` set, the CLI exits instead.
   * The security approval dialog evaluates the salvaged payload, so a stripped invalid entry is never presented for approval and never executes.
 
 To debug delivery issues, run `claude --debug-file <path>` and search the log for `Remote settings`. Validate a payload change with `claude doctor` on a test machine before rolling it out to the organization.
