@@ -90,7 +90,7 @@ Equivalent to shell access| Terminal, iTerm, VS Code, Warp, and other terminals 
 Can read or write any file| Finder
 Can change system settings| System Settings
 
-These apps aren’t blocked. The warning lets you decide whether the task warrants that level of access. Claude’s level of control also varies by app category: browsers and trading platforms are view-only, terminals and IDEs are click-only, and everything else gets full control. See [app permissions in Desktop](</docs/en/desktop#app-permissions>) for the complete tier breakdown.
+These apps aren’t blocked. The warning lets you decide whether the task warrants that level of access. Approve Finder to let Claude click the desktop, the Dock, or a Finder window. Claude’s level of control also varies by app category: browsers and trading platforms are view-only, terminals and IDEs are click-only, and everything else gets full control. See [app permissions in Desktop](</docs/en/desktop#app-permissions>) for the complete tier breakdown.
 
 ##
 

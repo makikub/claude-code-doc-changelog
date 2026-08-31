@@ -46,7 +46,7 @@ When you’re in plan mode and Claude needs to understand your codebase, it dele
 
 A capable agent for complex, multi-step tasks that require both exploration and action.
 
-  * **Model** : inherits from the main conversation
+  * **Model** : the `CLAUDE_CODE_SUBAGENT_MODEL` model if you set one and nothing assigns a model another way, otherwise the main conversation’s model; Choose a model states the full order
   * **Tools** : every tool available to subagents
   * **Purpose** : complex research, multi-step operations, code modifications
 
@@ -56,7 +56,7 @@ Claude Code includes additional helper agents for specific tasks. These are typi
 
 Agent| Model| When Claude uses it
 ---|---|---
-claude| Inherits| When a task doesn’t fit a more specialized agent. A catch-all with every tool available to subagents. Also the default agent for a dispatched [background session](</docs/en/agent-view>); [which permission mode it starts in](</docs/en/agent-view#permission-mode-model-and-effort>) depends on how the session was started
+claude| None of its own; follows the model order when Claude spawns it as a subagent| When a task doesn’t fit a more specialized agent. A catch-all with every tool available to subagents. Also the default agent for a dispatched [background session](</docs/en/agent-view>); [which permission mode it starts in](</docs/en/agent-view#permission-mode-model-and-effort>) depends on how the session was started
 statusline-setup| Sonnet| When you run `/statusline` to configure your status line
 claude-code-guide| Haiku| When you ask questions about Claude Code features
 
@@ -233,7 +233,7 @@ Field| Required| Description
 `description`| Yes| When Claude should delegate to this subagent
 `tools`| No| Tools the subagent can use. Inherits every tool available to subagents if omitted. If no entry in the list resolves to a tool, the subagent usually [fails to launch](</docs/en/errors#agent-would-be-spawned-with-zero-tools>) with an error naming the entries. To preload Skills into context, use the `skills` field rather than listing `Skill` here
 `disallowedTools`| No| Tools to deny, removed from inherited or specified list
-`model`| No| Model to use: `sonnet`, `opus`, `haiku`, `fable`, a full model ID (for example, `claude-opus-5`), or `inherit`. Defaults to `inherit`
+`model`| No| Model to use: `sonnet`, `opus`, `haiku`, `fable`, a full model ID such as `claude-opus-5`, or `inherit`. When you omit it, Claude Code picks the model in the subagent model order
 `permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, or `manual` as an alias for `default`. The `manual` alias requires Claude Code v2.1.200 or later. Ignored for plugin subagents
 `maxTurns`| No| Maximum number of agentic turns before the subagent stops. When the subagent reaches the limit, Claude Code returns its output marked as partial, and Claude can resume it to continue. The partial marking requires Claude Code v2.1.246 or later
 `skills`| No| [Skills](</docs/en/skills>) to preload into the subagent’s context at startup. The full skill content is injected, not only the description. Subagents can still invoke unlisted project, user, and plugin skills through the Skill tool
@@ -282,24 +282,23 @@ To find files in an `agents` directory whose frontmatter doesn’t parse, run `c
 
 Choose a model
 
-The `model` field controls which [AI model](</docs/en/model-config>) the subagent uses:
+The `model` field controls which model the subagent uses:
 
   * **Model alias** : use one of the available aliases: `sonnet`, `opus`, `haiku`, or `fable`
   * **Full model ID** : use a full model ID such as `claude-opus-5` or `claude-sonnet-5`. Accepts the same values as the `--model` flag
   * **inherit** : use the same model as the main conversation
-  * **Omitted** : defaults to `inherit` and uses the same model as the main conversation
 
 When Claude invokes a subagent, it can also pass a `model` parameter for that specific invocation. Claude Code resolves the subagent’s model in this order:
 
-  1. The [`CLAUDE_CODE_SUBAGENT_MODEL`](</docs/en/model-config#environment-variables>) environment variable, when set to a model alias or model ID
-  2. The per-invocation `model` parameter
-  3. The subagent definition’s `model` frontmatter
+  1. The per-invocation `model` parameter
+  2. The subagent definition’s `model` frontmatter, where `inherit` selects the main conversation’s model
+  3. The [`CLAUDE_CODE_SUBAGENT_MODEL`](</docs/en/model-config#environment-variables>) environment variable, when you set it to a model alias or model ID
   4. The main conversation’s model
 
-As of v2.1.196, setting `CLAUDE_CODE_SUBAGENT_MODEL` to `inherit` is the same as leaving it unset: resolution continues with the per-invocation `model` parameter, then the frontmatter. In earlier versions, `inherit` forced subagents onto the main conversation’s model and ignored both of those sources. Claude Code checks the environment variable, per-invocation parameter, and frontmatter values against your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist. For a blocked value, it substitutes another model:
+Setting `CLAUDE_CODE_SUBAGENT_MODEL` by itself doesn’t change the model the built-in Explore and Plan subagents run on. Before v2.1.251, `CLAUDE_CODE_SUBAGENT_MODEL` came first in this order and overrode both the per-invocation parameter and the frontmatter, including `model: inherit`. Setting the variable to `inherit` is the same as leaving it unset. Before v2.1.196, that value forced subagents onto the main conversation’s model and ignored the other sources. Claude Code checks the per-invocation parameter, frontmatter, and environment variable values against your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist. For a blocked value, it substitutes another model:
 
   * When the blocked value is a family alias such as `opus`, Claude Code runs the subagent on the newest version of that family the allowlist permits, following the same [substitution rules and provider scope](</docs/en/model-config#restrict-model-selection>) as `/model`. Before v2.1.222, Claude Code ran the subagent on the inherited model for a blocked family alias as well.
-  * For any other blocked value, on providers where that substitution doesn’t operate, or when the allowlist permits no version of the family, Claude Code runs the subagent on the inherited model instead.
+  * For any other blocked value, on providers where that substitution doesn’t operate, or when the allowlist permits no version of the family, Claude Code runs the subagent on the inherited model instead. If you set `CLAUDE_CODE_SUBAGENT_MODEL`, Claude Code tries that model first, under these same rules.
 
 In interactive sessions, Claude Code shows a warning naming the requested model and the model the subagent runs on, for either substitution. A per-invocation `model` parameter also applies when the subagent is resumed or sent a follow-up message, so the subagent stays on that model. Before v2.1.211, resuming dropped the per-invocation value and the subagent reverted to its definition’s `model` field or, without one, the main conversation’s model. As of v2.1.198, subagents also inherit the main conversation’s [extended thinking](</docs/en/model-config#extended-thinking>) configuration: if thinking is on in your session, it’s on for the subagent, and if it’s off, it stays off. There is no per-subagent thinking setting. Before v2.1.198, subagents ran with extended thinking disabled regardless of the main conversation’s setting.
 

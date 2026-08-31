@@ -1158,7 +1158,7 @@ Field| Required| Description
 `prompt`| Yes| The agent’s system prompt
 `tools`| No| Array of allowed tool names. If omitted, inherits every [tool available to subagents](</docs/en/sub-agents#available-tools>)
 `disallowedTools`| No| Array of tool names to remove from the agent’s tool set. MCP server-level patterns are also accepted: `mcp__server` or `mcp__server__*` removes every tool from that server, and `mcp__*` removes every MCP tool from any server
-`model`| No| Model override for this agent. Accepts an alias such as `"sonnet"`, `"opus"`, `"haiku"`, or `"inherit"`, or a full model ID. If omitted, uses the main model
+`model`| No| Model override for this agent. Accepts an alias such as `"sonnet"`, `"opus"`, `"haiku"`, or `"inherit"`, or a full model ID. When you omit it, Claude Code picks the model in the [subagent model order](</docs/en/sub-agents#choose-a-model>)
 `skills`| No| List of skill names to preload into the agent’s context at startup. Unlisted skills remain invocable through the Skill tool
 `memory`| No| Memory source for this agent: `"user"`, `"project"`, or `"local"`
 `mcpServers`| No| MCP servers available to this agent. Each entry is a server name or an inline `{name: config}` dict

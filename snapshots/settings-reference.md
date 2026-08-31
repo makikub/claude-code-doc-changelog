@@ -73,7 +73,7 @@ Key| Description| Topic| Scope
 `disableSkillShellExecution`| Stop [skills](</docs/en/skills>) and custom commands from running inline shell| Plugins and skills| Any file
 `disableWorkflows`| Turn [dynamic workflows](</docs/en/workflows>) off for everyone; use `enableWorkflows` for yourself| Hooks and automation| Any file
 `editorMode`| Use [vim key bindings](</docs/en/interactive-mode#vim-editor-mode>) in the input prompt| Interface and terminal| Any file
-`effortLevel`| Save the [`/effort` level](</docs/en/model-config#adjust-effort-level>) so future sessions reason more or less deeply| Model and responses| Any file
+`effortLevel`| Set a default [effort level](</docs/en/model-config#adjust-effort-level>) for models without a saved level of their own| Model and responses| Any file
 `emojiCompletionEnabled`| Turn off [`:shortcode:` emoji suggestions and replacement](</docs/en/interactive-mode#emoji-shortcodes>) in the prompt input| Interface and terminal| Any file
 `enableAllProjectMcpServers`| Approve every server in project [`.mcp.json`](</docs/en/mcp#project-server-approvals-and-workspace-trust>) files without a prompt| MCP| Any file
 `enableArtifact`| Turn the [Artifact tool](</docs/en/artifacts>) off with a `false` in any file; no file can turn it back on| Remote, desktop, and notifications| Any file
@@ -111,6 +111,7 @@ Key| Description| Topic| Scope
 `modelOverrides`| [Map model IDs](</docs/en/model-config#override-model-ids-per-version>) to your provider’s IDs, such as Bedrock ARNs| Model and responses| Any file
 `modelPicker`| Choose which models the [`/model` picker](</docs/en/model-config#available-models>) lists, in your own order and with your own labels| Model and responses| User or managed
 `modelPricing`| Report spend at your organization’s contracted rates instead of list price| Model and responses| Managed
+`modelSettings`| Keep a saved [effort level](</docs/en/model-config#adjust-effort-level>) per model, which Claude Code writes when you run `/effort`| Model and responses| Any file
 `otelHeadersHelper`| Generate rotating [OpenTelemetry](</docs/en/monitoring-usage#dynamic-headers>) headers with your own command| Authentication and providers| Any file
 `outputStyle`| Change Claude’s role, tone, and output format with an [output style](</docs/en/output-styles>)| Model and responses| Any file
 `parentSettingsBehavior`| Apply or drop restrictions an [SDK or IDE host](</docs/en/managed-settings#let-an-embedding-host-add-policy>) passes when you deploy [managed settings](</docs/en/managed-settings>)| Enterprise and managed settings| Managed
@@ -207,7 +208,7 @@ Key| Description| Topic| Scope
 `switchModelsOnFlag`| Switch models automatically or pause when a [safety classifier](</docs/en/model-config#ask-before-switching>) flags a request| Model and responses| Any file
 `syncClaudeAiSkills`| Stop downloading the [skills enabled on your claude.ai account](</docs/en/skills#how-synced-skills-behave>) and hide the ones already synced| Plugins and skills| User, local, or managed
 `syntaxHighlightingDisabled`| Turn off syntax highlighting in diffs and code blocks| Interface and terminal| Any file
-`teammateDefaultModel`| Removed in v2.1.234; [teammates](</docs/en/agent-teams#specify-teammates-and-models>) follow the lead’s model| Global config settings| Global config
+`teammateDefaultModel`| Removed in v2.1.234; see [Specify teammates and models](</docs/en/agent-teams#specify-teammates-and-models>) for how Claude Code picks a teammate’s model| Global config settings| Global config
 `teammateMode`| Choose how [agent team teammates display](</docs/en/agent-teams#choose-a-display-mode>)| Agents, sessions, and worktrees| Any file
 `terminalProgressBarEnabled`| Hide the terminal progress bar in terminals that support it| Interface and terminal| Any file
 `terminalTitleFromRename`| Stop [`/rename`](</docs/en/sessions#name-your-sessions>) and `--name` from changing the terminal tab title| Interface and terminal| Any file
@@ -308,7 +309,7 @@ See [Restrict model selection](</docs/en/model-config#restrict-model-selection>)
 
 `effortLevel`
 
-Keep an [effort level](</docs/en/model-config#adjust-effort-level>) across sessions. Lower levels are faster and cheaper on straightforward tasks, and higher levels reason more deeply on complex problems. Claude Code writes this key to your user settings when you run `/effort low`, `medium`, `high`, or `xhigh` in an interactive session on your machine. In a `-p` run, the Agent SDK, or a session attached to a remote worker, `/effort` applies to that session only. The message `/effort` prints says which happened.
+Set a default [effort level](</docs/en/model-config#adjust-effort-level>) for models you haven’t saved a level for. Lower levels are faster and cheaper on straightforward tasks, and higher levels reason more deeply on complex problems. When you run `/effort low`, `medium`, `high`, or `xhigh` in an interactive session on your machine, Claude Code saves the level for the active model under `modelSettings` rather than writing this key. Within the same settings file, Claude Code uses a model’s saved level rather than this key; `modelSettings` states the cross-file precedence. In a `-p` run, the Agent SDK, or a session attached to a remote worker, `/effort` applies to that session only. The message that `/effort` prints says which happened. Before v2.1.251, `/effort` wrote this key.
 
   * **Scope** : `Any file`
   * **Type** : string, one of:
@@ -325,7 +326,7 @@ settings.json
       "effortLevel": "xhigh"
     }
 
-On Opus 4.7, Opus 4.8, and Fable 5, Claude Code holds that model’s default effort until you change effort once with `/effort`, `--effort`, or the `/model` picker. After that, it reads this key. See [Adjust effort level](</docs/en/model-config#adjust-effort-level>).
+On Opus 4.7, Opus 4.8, and Fable 5, Claude Code holds that model’s default effort, organization-set or built-in, until you change effort once, for example with an interactive `/effort`, the `/model` picker’s effort slider, or `--effort` at launch. After that, Claude Code resolves effort by the precedence stated at `modelSettings`. See [Adjust effort level](</docs/en/model-config#adjust-effort-level>).
 
 ###
 
@@ -592,6 +593,32 @@ Claude Code decides which models a row applies to from the row’s key:
 
 ​
 
+`modelSettings`
+
+Requires Claude Code v2.1.251 or later. Save an [effort level](</docs/en/model-config#adjust-effort-level>) for each model you use. In an interactive session on your machine, when you run `/effort low`, `medium`, `high`, or `xhigh` or move the `/model` picker’s effort slider, Claude Code saves that level here under the model you’re using, so you rarely edit this key yourself. The `effortLevel` entry lists the sessions in which `/effort` applies to that session only. Edit the key by hand to change or remove a level you saved. A model’s entry here takes precedence over `effortLevel` in the same settings file. Across files, Claude Code resolves each model separately: the highest-precedence [settings file](</docs/en/settings#settings-precedence>) that sets either that model’s entry or `effortLevel` decides, so an `effortLevel` in managed settings outranks a level you saved in user settings. [Adjust effort level](</docs/en/model-config#adjust-effort-level>) lists what else can override a saved level, such as `--effort` at launch.
+
+  * **Scope** : `Any file`
+  * **Type** : object mapping a model name to an object with an `effortLevel` field, one of `"low"`, `"medium"`, `"high"`, or `"xhigh"`
+  * **Default** : unset
+
+Claude Code writes each entry under the model’s canonical name, such as `claude-opus-5`, and matches that model’s alias, date-suffixed, `[1m]`, and recognized provider-specific IDs to the same entry. This example keeps Opus 5 at `medium` while other models use their own saved or default levels:
+
+settings.json
+
+    {
+      "modelSettings": {
+        "claude-opus-5": {
+          "effortLevel": "medium"
+        }
+      }
+    }
+
+Run `/effort auto` to clear your saved level for the model you’re using. Claude Code leaves the other entries and any top-level `effortLevel` in place.
+
+###
+
+​
+
 `outputStyle`
 
 Select an [output style](</docs/en/output-styles>) by name. An output style is a saved set of instructions that Claude Code adds to the system prompt to change Claude’s role, tone, and output format, such as the built-in Explanatory and Learning styles or one you wrote yourself. Claude Code builds the style into the system prompt once per conversation. An edit to this key takes effect after you run `/clear` or start a new session.
@@ -724,7 +751,7 @@ settings.json
       "ultracode": true
     }
 
-Ultracode runs the session at `xhigh` effort and takes precedence over `effortLevel`. An Agent SDK `apply_flag_settings` control request also accepts the key.
+Ultracode runs the session at `xhigh` effort and takes precedence over `effortLevel` and `modelSettings` entries. An Agent SDK `apply_flag_settings` control request also accepts the key.
 
 ##
 
@@ -1117,7 +1144,7 @@ settings.json
       }
     }
 
-Claude Code takes a Boolean key’s value from the highest-precedence settings file that sets it, so a managed `enabled` or `failIfUnavailable` overrides anything a developer sets. It merges array keys across every settings file the session loads, so a developer can append entries; see [Keep developers from widening the policy](</docs/en/sandboxing#keep-developers-from-widening-the-policy>) for the managed-only locks. To require the sandbox for an organization, see [Enforce sandboxing with managed settings](</docs/en/sandboxing#enforce-sandboxing-with-managed-settings>).
+Claude Code takes a Boolean key’s value from the highest-precedence settings scope that sets it, so a managed `enabled` or `failIfUnavailable` overrides anything a developer sets. It merges array keys across every settings scope the session loads, so a developer can append entries; see [Keep developers from widening the policy](</docs/en/sandboxing#keep-developers-from-widening-the-policy>) for the managed-only locks. To require the sandbox for an organization, see [Enforce sandboxing with managed settings](</docs/en/sandboxing#enforce-sandboxing-with-managed-settings>).
 
 ###
 
@@ -1217,7 +1244,7 @@ settings.json
       }
     }
 
-Excluded commands still go through the regular permission flow. Exclusion is a convenience, not a security boundary: prefer `filesystem.allowWrite` when a tool only needs to write somewhere specific. Claude Code merges entries across every settings file the session loads, and there is no managed-only lock for this list, so keep a managed list narrow.
+Excluded commands still go through the regular permission flow. Exclusion is a convenience, not a security boundary: prefer `filesystem.allowWrite` when a tool only needs to write somewhere specific. Claude Code merges entries across every settings scope the session loads, and there is no managed-only lock for this list, so keep a managed list narrow.
 
 ###
 
@@ -1252,7 +1279,7 @@ An unsandboxed retry goes through the regular permission flow: a prompt in Manua
 
 `sandbox.filesystem`
 
-Control which paths sandboxed commands can read and write. By default they can write to the working directory, any directories you add with `--add-dir`, and the session temp directory, and can read the rest of the filesystem, including credential files. Widen or narrow that with the four path lists, or switch the filesystem layer off with `disabled`. See [Filesystem isolation](</docs/en/sandboxing#filesystem-isolation>) for the default boundaries.
+Control which paths sandboxed commands can read and write. By default they can write to the working directory, the session temp directory, and directories you add with `--add-dir`, `/add-dir`, or `permissions.additionalDirectories`, and can read the rest of the filesystem, including credential files. Widen or narrow that with the four path lists, or switch the filesystem layer off with `disabled`. See [Filesystem isolation](</docs/en/sandboxing#filesystem-isolation>) for the default boundaries.
 
   * **Scope** : `Any file`
   * **Type** : object with `allowWrite`, `denyWrite`, `denyRead`, and `allowRead` arrays, plus the `allowManagedReadPathsOnly` and `disabled` Booleans
@@ -1298,11 +1325,11 @@ The `//path` prefix for absolute paths also works. If you use single-slash `/pat
 
 `sandbox.filesystem.allowWrite`
 
-Add paths where sandboxed commands can write, beyond the working directory, the directories you’ve added with `--add-dir` or `/add-dir`, and the session temp directory. Use it when a subprocess such as `kubectl` or a build tool needs to write outside the project.
+Add paths where sandboxed commands can write, beyond the working directory, the session temp directory, and the directories you’ve added with `--add-dir`, `/add-dir`, or `permissions.additionalDirectories`. Use it when a subprocess such as `kubectl` or a build tool needs to write outside the project.
 
   * **Scope** : `Any file`
   * **Type** : array of path strings, using the sandbox path prefixes
-  * **Default** : unset, so sandboxed commands can write only to the working directory, any directories you’ve added with `--add-dir` or `/add-dir`, and the session temp directory
+  * **Default** : unset, so sandboxed commands can write to the working directory, the session temp directory, directories you’ve added with `--add-dir` or `/add-dir`, and directories in `permissions.additionalDirectories`
 
 This lets a build write under `/tmp/build` and lets `kubectl` update your kubeconfig:
 
@@ -1316,7 +1343,7 @@ settings.json
       }
     }
 
-Claude Code merges entries across every settings file the session loads: user, project, local, and managed paths combine rather than replace each other, and Claude Code adds the paths from your `Edit(...)` allow permission rules. An `allowWrite` entry can’t lift a [protected path](</docs/en/sandboxing#protected-paths>).
+Claude Code merges entries across every settings scope the session loads: user, project, local, and managed paths combine rather than replace each other, and Claude Code adds the paths from your `Edit(...)` allow permission rules. An `allowWrite` entry can’t lift a [protected path](</docs/en/sandboxing#protected-paths>).
 
 ###
 
@@ -1342,7 +1369,7 @@ settings.json
       }
     }
 
-Claude Code merges entries across every settings file the session loads, and adds the paths from your `Edit(...)` deny permission rules.
+Claude Code merges entries across every settings scope the session loads, and adds the paths from your `Edit(...)` deny permission rules.
 
 ###
 
@@ -1366,7 +1393,7 @@ settings.json
       }
     }
 
-Claude Code merges entries across every settings file the session loads, and adds the paths from your `Read(...)` deny permission rules. When `filesystem.disabled` is `true`, Claude Code doesn’t enforce these entries.
+Claude Code merges entries across every settings scope the session loads, and adds the paths from your `Read(...)` deny permission rules. When `filesystem.disabled` is `true`, Claude Code doesn’t enforce these entries.
 
 ###
 
@@ -1401,12 +1428,12 @@ Place a `.` entry in project settings: it resolves to the project root there and
 
 `sandbox.filesystem.allowManagedReadPathsOnly`
 
-Honor only the `allowRead` entries that come from managed settings, so developers can’t re-open read access to paths your organization blocked. Claude Code still merges `denyRead` entries from every settings file the session loads.
+Honor only the `allowRead` entries that come from managed settings, so developers can’t re-open read access to paths your organization blocked. Claude Code still merges `denyRead` entries from every settings scope the session loads.
 
   * **Scope** : `Managed`
   * **Type** : Boolean
     * `true`: Claude Code honors only the `allowRead` entries from managed settings
-    * `false`: `allowRead` entries merge from every settings file the session loads
+    * `false`: `allowRead` entries merge from every settings scope the session loads
   * **Default** : `false`
 
 This blocks reads of the home directory, re-opens `~/work`, and stops developers from re-opening anything else:
@@ -2368,7 +2395,7 @@ When Claude Code applies `env` values
 
   * From user settings, `--settings`, and managed settings: at startup, and again in the running session when a saved change alters the merged `env`.
   * From project and local settings: after you trust the workspace, or at startup in `-p` mode, which never shows the trust dialog, and again when a saved change alters the merged `env`.
-  * Variables Claude Code classifies as safe, such as model selection, timeouts and limits, feature toggles, and telemetry settings: at startup from every settings file.
+  * Variables Claude Code classifies as safe, such as model selection, timeouts and limits, feature toggles, and telemetry settings: at startup from every settings file, apart from the variables project and local settings can’t set.
   * After you [move the session with `/cd`](</docs/en/permissions#move-the-session-to-another-directory>) on v2.1.246 or later: the new directory’s project and local `env` values, on top of the previous directory’s.
 
 ####
@@ -2377,7 +2404,11 @@ When Claude Code applies `env` values
 
 Variables Claude Code ignores in `env`
 
-  * Project and local settings can’t set a few variables, such as `CLAUDE_CODE_PROCESS_WRAPPER`, `CLAUDE_CODE_SYNC_SKILLS`, `CLAUDE_CODE_SYNC_PLUGINS`, `CLAUDE_CODE_PLUGIN_CACHE_DIR`, and `CLAUDE_CODE_PLUGIN_SEED_DIR`; set those in user or managed settings.
+  * Project and local settings can’t set variables that a checked-out repository shouldn’t control; set those in your shell, user settings, or managed settings instead. Claude Code drops each one and logs a warning you can see with `claude --debug`. They include:
+    * Variables that choose where Claude Code stores or writes its own files: `CLAUDE_CONFIG_DIR`, `CLAUDE_CODE_TMPDIR`, and the operating-system directory variables such as `HOME`, `TMPDIR`, `TMP`, `TEMP`, and the `XDG_*` family.
+    * Variables that export session content: [`OTEL_LOG_RAW_API_BODIES`](</docs/en/env-vars#variables>) and the detailed beta tracing pair `ENABLE_BETA_TRACING_DETAILED` and `BETA_TRACING_ENDPOINT`.
+    * Variables that change how Claude Code starts or syncs, such as `CLAUDE_CODE_PROCESS_WRAPPER`, `CLAUDE_CODE_SYNC_SKILLS`, `CLAUDE_CODE_SYNC_PLUGINS`, `CLAUDE_CODE_PLUGIN_CACHE_DIR`, and `CLAUDE_CODE_PLUGIN_SEED_DIR`.
+Before v2.1.251, project and local settings could set every variable this list names except `HOME`, `XDG_CONFIG_HOME`, and the variables that change how Claude Code starts or syncs.
   * Identity variables that Claude Code’s hosting environments own, such as `CLAUDE_CODE_REMOTE` and `CLAUDE_CODE_ACCOUNT_UUID`, are ignored from every file.
   * [`CLAUDE_CODE_MESSAGING_SOCKET` and `CLAUDE_CODE_MESSAGING_TOKEN`](</docs/en/env-vars#variables>), which Claude Code exports itself, are ignored from every file. Ignoring the socket variable requires Claude Code v2.1.224 or later, and ignoring the token requires v2.1.228 or later.
   * [`CLAUDE_CODE_PROJECT_DIR_NAME`](</docs/en/sessions#name-the-project-directory-yourself>), which Claude Code reads from the launch environment only, is ignored from every file; requires v2.1.234 or later.
@@ -3534,8 +3565,8 @@ Restrict hook execution to hooks your organization deploys.
   * **Scope** : `Managed`
   * **Type** : Boolean
     * `true`: only managed hooks run, plus Agent SDK hooks and hooks from plugins your managed settings force-enable. See What runs under `allowManagedHooksOnly`
-    * `false`: hooks from every settings file and plugin run
-  * **Default** : unset, so hooks from every settings file and plugin run
+    * `false`: hooks from every settings scope and plugin run
+  * **Default** : unset, so hooks from every settings scope and plugin run
 
 managed-settings.json
 
@@ -4366,7 +4397,7 @@ On Claude Code v2.1.232 or later, you can write `extraKnownMarketplaces` as `add
 
 `pluginConfigs`
 
-Store the non-sensitive answers you give a plugin’s [`userConfig`](</docs/en/plugins-reference#user-configuration>) configuration dialog, keyed by plugin ID. Claude Code writes this key to your user settings when you fill in the dialog, so you don’t need to edit it by hand. Sensitive options go to the macOS Keychain instead, or to `~/.claude/.credentials.json` on platforms without a supported keychain.
+Store the non-sensitive answers you give a plugin’s [`userConfig`](</docs/en/plugins-reference#user-configuration>) configuration dialog, keyed by plugin ID. Claude Code writes this key to your user settings when you fill in the dialog, so you don’t need to edit it by hand. Claude Code stores sensitive options in the macOS Keychain instead, falling back to `~/.claude/.credentials.json` when the Keychain rejects the write; on platforms without a supported keychain, it stores them in `~/.claude/.credentials.json`.
 
   * **Scope** : `User or managed`
   * **Type** : object mapping a plugin ID to an object with an `options` field, mapping each option name to a string, number, Boolean, or array of strings, and an optional `mcpServers` field holding per-server user configuration values in the same shape
@@ -4448,13 +4479,13 @@ A `deniedMcpServers` entry takes precedence, so a server on both lists is blocke
 
 `allowManagedMcpServersOnly`
 
-Make the managed allowlist the only one that applies. Claude Code then reads `allowedMcpServers` from managed settings alone and ignores allowlists in user, project, and local settings; `deniedMcpServers` still merges from every file, so users can still block servers for themselves. Administrators set it so a user’s own settings can’t broaden what the managed allowlist permits.
+Make the managed allowlist the only one that applies. Claude Code then reads `allowedMcpServers` from managed settings alone and ignores allowlists in user, project, and local settings; `deniedMcpServers` still merges from every settings scope, so users can still block servers for themselves. Administrators set it so a user’s own settings can’t broaden what the managed allowlist permits.
 
   * **Scope** : `Managed`
   * **Type** : Boolean
     * `true`: Claude Code reads `allowedMcpServers` from managed settings alone and ignores allowlists in user, project, and local settings
-    * `false`: allowlists from every settings file merge
-  * **Default** : `false`, so allowlists from every settings file merge
+    * `false`: allowlists from every settings scope merge
+  * **Default** : `false`, so allowlists from every settings scope merge
 
 This example locks the allowlist to managed settings and allows only the server named `github`:
 
@@ -5165,7 +5196,13 @@ settings.json
       "apiKeyHelper": "/bin/generate_temp_api_key.sh"
     }
 
-Claude Code caches the value and reruns the command after the interval you set with [`CLAUDE_CODE_API_KEY_HELPER_TTL_MS`](</docs/en/env-vars>). In interactive sessions, when the command comes from project or local settings, Claude Code doesn’t run it until you accept the workspace trust prompt. See [Credential management](</docs/en/authentication#credential-management>).
+Claude Code caches the value and reruns the command in these cases:
+
+  * After the cache lifetime, five minutes by default or the interval you set with [`CLAUDE_CODE_API_KEY_HELPER_TTL_MS`](</docs/en/env-vars>).
+  * When a request to the Anthropic API, directly or through an [LLM gateway](</docs/en/llm-gateway>), fails with `401` or `403`.
+  * Before sending a request to the Anthropic API, directly or through an LLM gateway, when the cached output is a JWT that expired after the helper produced it. Requires Claude Code v2.1.246 or later.
+
+The last two cases apply only when the helper’s output is the credential Claude Code sends and `ANTHROPIC_AUTH_TOKEN` isn’t set. In interactive sessions, when the command comes from project or local settings, Claude Code doesn’t run it until you accept the workspace trust prompt. See [Credential management](</docs/en/authentication#credential-management>).
 
 ###
 
@@ -5213,7 +5250,7 @@ Unlike `awsAuthRefresh`, Claude Code always runs this command when it’s set, w
 
 `forceLoginMethod`
 
-Restrict which kind of account people can log in with. Set `"claudeai"` to allow only claude.ai accounts, `"console"` to allow only Claude Console accounts, or `"gateway"` to send people to a [cloud gateway](</docs/en/claude-apps-gateway>) instead of a first-party login. Administrators set it in managed settings and pair it with `forceLoginOrgUUID` to keep developers’ claude.ai logins inside one organization.
+Restrict which kind of account people can log in with. Set `"claudeai"` to allow only claude.ai accounts, `"console"` to allow only Claude Console accounts, or `"gateway"` to send people to a [cloud gateway](</docs/en/claude-apps-gateway>) instead of a first-party login. Administrators set it in managed settings and pair it with `forceLoginOrgUUID` to keep developers’ claude.ai logins inside one organization. If you set it to `"claudeai"` or `"console"` in any settings file, Claude Code also stops offering the [keyless Console sign-in](</docs/en/authentication#sign-in-without-an-api-key>) in the sessions that file applies to.
 
   * **Scope** : `Any file`. Claude Code honors `"gateway"` only from a managed source on the machine: `managed-settings.json`, the macOS plist or Windows HKLM registry, or a policy helper. It treats `"gateway"` as unset in user, project, local, HKCU, and server-managed settings, the same rule as `forceLoginGatewayUrl`.
   * **Type** : string, one of:
@@ -5256,7 +5293,7 @@ A value that isn’t a valid URL is dropped on its own; the rest of the managed 
 
 `forceLoginOrgUUID`
 
-From a managed source, require claude.ai account logins to belong to one Anthropic organization, a single UUID, or to any of several, an array. From any settings file, a single UUID also pre-selects that organization during a claude.ai or Claude Console login; an array pre-selects nothing.
+From a managed source, require claude.ai account logins to belong to one Anthropic organization, given as a single UUID, or to any of several organizations, given as an array. From any settings file, Claude Code also uses a single UUID to pre-select that organization during a claude.ai or Claude Console login, and pre-selects nothing for an array. If you set the key in any settings file, Claude Code also stops offering the [keyless Console sign-in](</docs/en/authentication#sign-in-without-an-api-key>) in the sessions that file applies to and creates an API key instead.
 
   * **Scope** : `Any file`. Only a managed source enforces the restriction; a single UUID in any other settings file pre-selects the organization during login without restricting it.
   * **Type** : string, one UUID, or array of strings, several UUIDs
@@ -5732,7 +5769,7 @@ managed-settings.json
 
 Write the helper output
 
-Claude Code runs the helper with no arguments, sets `CLAUDE_CODE_VERSION` in its environment, and reads a JSON envelope from stdout, capped at 1 MB. Put the settings under a `managedSettings` key. A bare settings object with no `managedSettings` key parses with `managedSettings` undefined and applies nothing, and Claude Code reports no error:
+Claude Code runs the helper with no arguments, sets `CLAUDE_CODE_VERSION` in its environment, and reads a JSON envelope from stdout, capped at 1 MiB. Put the settings under a `managedSettings` key. A bare settings object with no `managedSettings` key parses with `managedSettings` undefined and applies nothing, and Claude Code reports no error:
 
     {
       "managedSettings": {
@@ -5740,7 +5777,23 @@ Claude Code runs the helper with no arguments, sets `CLAUDE_CODE_VERSION` in its
       }
     }
 
-When the helper emits `managedSettings`, that object becomes the only managed settings source for the run: Claude Code ignores the MDM, file, and HKCU sources, reads the [cross-source keys](</docs/en/managed-settings#keys-read-from-every-admin-source>) from the helper’s output alone, and never merges [parent settings](</docs/en/managed-settings#parent-settings-from-embedding-hosts>). The startup `forceRemoteSettingsRefresh` check runs before the helper and reads any admin source. A helper that exits 0 without emitting `managedSettings` contributes no managed settings, and the other sources apply as usual. When the helper exits non-zero at startup, Claude Code prints the error and refuses to start, so a helper that needs outage resilience should serve from its own cache and exit `0`.
+When the helper emits `managedSettings`, that object becomes the only managed settings source for the run: Claude Code ignores the MDM, file, and HKCU sources, reads the [cross-source keys](</docs/en/managed-settings#keys-read-from-every-admin-source>) from the helper’s output alone, and never merges [parent settings](</docs/en/managed-settings#parent-settings-from-embedding-hosts>). The startup `forceRemoteSettingsRefresh` check runs before the helper and reads any admin source. A helper that exits 0 with an envelope that omits `managedSettings` contributes no managed settings, and the other sources apply as usual.
+
+####
+
+​
+
+Helper failures
+
+A helper run fails when:
+
+  * `path` breaks the rules in `policyHelper.path`.
+  * No regular file is at `path`. Claude Code checks for the file before starting the helper, within the same `timeoutMs` budget, so an unresponsive network mount can cause the run to fail.
+  * The helper exits non-zero, is still running when `timeoutMs` elapses, or doesn’t start at all, for example because it isn’t executable.
+  * The helper writes more than 1 MiB to stdout or to stderr.
+  * stdout isn’t a single JSON object, or its `managedSettings` has a [schema violation Claude Code can’t repair](</docs/en/managed-settings#find-entries-claude-code-dropped>).
+
+When the startup run fails, Claude Code prints the reason and refuses to start. After a non-zero exit or a timeout, the message includes the helper’s stderr. The refusal covers interactive sessions, `claude -p`, Agent SDK sessions, [background sessions](</docs/en/agent-view>), and most subcommands. The refusal is deliberate, so a helper that needs outage resilience should serve from its own cache and exit `0`. When a background refresh fails, Claude Code keeps the last successful policy in effect. Claude Code runs each refresh under the same `timeoutMs` and failure rules as the startup run. With `--debug`, Claude Code writes the helper’s stderr from every run to the [debug log](</docs/en/debug-your-config>). Claude Code reports an invalid `policyHelper` value as a [dropped entry](</docs/en/managed-settings#find-entries-claude-code-dropped>) and starts the session on the remaining managed settings without running a helper. Invalid values include a bare path string and a `timeoutMs` below its minimum. To turn a helper off, remove the key from the source that sets it.
 
 ###
 
@@ -5748,10 +5801,10 @@ When the helper emits `managedSettings`, that object becomes the only managed se
 
 `policyHelper.path`
 
-Name the helper executable Claude Code runs. Claude Code refuses to start when the path isn’t absolute, or on Windows when it doesn’t end in `.exe`.
+Name the helper executable Claude Code runs. For what happens when the path breaks the rules below, see Helper failures.
 
   * **Scope** : `Managed`. Read from the macOS plist, the Windows HKLM registry, or the managed settings file, wherever `policyHelper` is read.
-  * **Type** : string, an absolute path in normalized form, without `.` or `..` segments
+  * **Type** : string, an absolute path in normalized form, without `.` or `..` segments; on Windows, a drive-letter or UNC path that ends in `.exe`
   * **Default** : none; required when `policyHelper` is set
 
 managed-settings.json

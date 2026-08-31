@@ -244,7 +244,7 @@ The LSP tool is inactive until you install a [code intelligence plugin](</docs/e
 
 **When:** On demand, when you or Claude spawns one for a task.**What loads:** Fresh, isolated context containing:
 
-  * The agent’s own system prompt, not the full Claude Code system prompt
+  * The agent’s own system prompt, not the Claude Code system prompt
   * Full content of skills listed in the agent’s `skills:` field
   * CLAUDE.md and git status, except the built-in Explore and Plan agents [omit both](</docs/en/sub-agents#what-loads-at-startup>)
   * Whatever context the lead agent passes in the prompt

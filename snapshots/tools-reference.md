@@ -174,7 +174,7 @@ For long-running processes such as dev servers or watch builds, Claude can set `
 
   * A command that starts with `sleep`.
   * A command that runs `git` anywhere in it.
-  * A compound command Claude Code can’t fully parse into simple commands.
+  * A compound command Claude Code can’t fully parse into simple commands. Claude Code treats a parameter expansion such as `${VAR}` as unparseable, so it stops a command that ends in `; exit "${PIPESTATUS[0]}"` at the timeout even when the rest of that command parses.
 
 The result of a command moved to the background states what happened:
 
