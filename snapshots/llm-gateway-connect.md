@@ -311,6 +311,8 @@ You can also set `ANTHROPIC_CUSTOM_HEADERS` in the `env` block of a settings fil
       }
     }
 
+Routing and tenant header names like these count as [headers that need approval](</docs/en/server-managed-settings#environment-variables-and-the-approval-dialog>). When the headers come from a project settings file, Claude Code applies them under the [rules for when it applies `env` values](</docs/en/settings-reference#when-claude-code-applies-env-values>).
+
 ###
 
 ​

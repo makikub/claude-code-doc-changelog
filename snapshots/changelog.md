@@ -2,6 +2,17 @@ This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/ant
 
 ​
 
+2.1.252
+
+August 31, 2026
+
+  * Fixed Bash commands failing with “task output swap refused (tasks dir moved or linked)” on some Macs
+  * Fixed “always allow” not saving in a project that has no .claude/settings.local.json yet
+  * Fixed Remote Control sessions hosted by Claude Desktop or VS Code stalling for minutes after a tool finished when the connection to claude.ai was degraded
+  * Fixed background task notifications with very large failure output (for example git errors on a full disk) making the conversation exceed the API request size limit
+
+​
+
 2.1.251
 
 August 28, 2026

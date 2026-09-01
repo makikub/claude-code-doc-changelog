@@ -60,6 +60,8 @@ Message| Section
 `API Error: 401 Invalid authentication credentials`| Authentication
 `Login expired · Please run /login`| Authentication
 `Failed to authenticate: OAuth session expired and could not be refreshed`| Authentication
+`Your account is on hold and can't use Claude Code. View details or appeal: https://claude.ai/restricted`| Authentication
+`Your account is on hold and can't sign in to Claude Code. View details or appeal: https://claude.ai/restricted`| Authentication
 `Anthropic profile login expired · Re-authenticate your Anthropic profile`| Authentication
 `Anthropic profile login expired · Run /login to use your claude.ai account instead, or re-authenticate the profile`| Authentication
 `does not meet scope requirement user:profile`| Authentication
@@ -506,7 +508,7 @@ The selected model uses the 1M-token extended context window, and your plan only
 This is an entitlement check, not a quota exhaustion. It fires even when your session and weekly allowances have capacity remaining. See [Extended context](</docs/en/model-config#extended-context>) for which plans include 1M context directly and which require usage credits. Claude Code runs this check when you pick the model with `/model`, and only on a direct connection to the Anthropic API; if you point `ANTHROPIC_BASE_URL` at an [LLM gateway](</docs/en/llm-gateway>), `/model` allows the `[1m]` selection and the gateway decides whether the request succeeds. When this error appears mid-conversation because the context grew past 200K tokens, Claude Code automatically compacts the conversation back under the standard context limit and keeps the session at that limit afterward, so no action is needed. On versions before v2.1.172, the error repeated on every subsequent request including `/compact`; run `/clear` on those versions to recover. The steps below apply when you explicitly selected a `[1m]` model. **What to do:**
 
   * Run `/model` and select the variant without the `[1m]` suffix to fall back to the standard context window
-  * Run `/usage-credits` to turn on metered billing for the 1M variant on Pro and Max, or to request it from your admin on Team and Enterprise
+  * Where the message names `/usage-credits`, run it to turn on metered billing for the 1M variant on Pro and Max, or to request usage credits from your admin on Team and Enterprise
   * If the error persists after `/model`, a 1M model ID may be set elsewhere. See [Setting your model](</docs/en/model-config#setting-your-model>) for the configuration locations to check in priority order.
   * To remove 1M variants from the model picker entirely, set [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](</docs/en/env-vars>)
 
@@ -923,7 +925,7 @@ The API recognized the format of your credential but rejected the account or org
 
 Login expired
 
-Claude Code tried to renew your saved claude.ai or Claude Console login and the OAuth service rejected the stored refresh token, so Claude Code cleared the saved credentials. After that, each request stops locally before it reaches the API, because only `/login` can create new credentials. Before v2.1.206, Claude Code sent the request anyway with whatever credential remained in the environment, and every model then failed with There’s an issue with the selected model or a 401 instead of a prompt to sign in.
+Claude Code tried to renew your saved claude.ai or Claude Console login and the OAuth service rejected the stored refresh token, so Claude Code cleared the saved credentials. After that, each model request stops locally with this message before it reaches the API, because only `/login` can create new credentials. Before v2.1.206, Claude Code sent the model request anyway with whatever credential remained in the environment, and every model then failed with There’s an issue with the selected model or a 401 instead of a prompt to sign in.
 
     Login expired · Please run /login
 
@@ -931,11 +933,27 @@ In [non-interactive mode](</docs/en/headless>) (`-p`) and the [Agent SDK](</docs
 
     Failed to authenticate: OAuth session expired and could not be refreshed
 
-This is not the same state as OAuth token revoked or expired. Those messages report a 401 the API returned. Claude Code itself produces `Login expired` for a login it already failed to renew, so it sends no request. Sessions authenticated with an API key, [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), or a third-party provider don’t use the saved login and never see this message. You can check for this state before a request fails: [`/status`](</docs/en/commands>) shows a `Login` row reading `Expired — log in again`, plus the organization and email it has saved for the expired login. The row appears only when the saved login is your active credential and can no longer be refreshed. Sessions authenticated another way don’t show the row, even if an expired login remains saved. Before v2.1.210, `/status` gave no indication in this state that a login had ever existed, because the cleared credential left it nothing to report. **What to do:**
+This is not the same state as OAuth token revoked or expired. Those messages report a 401 the API returned. Claude Code itself produces `Login expired` for a login it already failed to renew, so it sends no request. When the renewal fails because the account itself is suspended rather than the login being stale, Claude Code shows Your account is on hold instead. Sessions authenticated with an API key, [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), or a third-party provider don’t use the saved login and never see this message. You can check for this state before a request fails: [`/status`](</docs/en/commands>) shows a `Login` row reading `Expired — log in again`, plus the organization and email it has saved for the expired login. The row appears only when the saved login is your active credential and can no longer be refreshed. Sessions authenticated another way don’t show the row, even if an expired login remains saved. Before v2.1.210, `/status` gave no indication in this state that a login had ever existed, because the cleared credential left it nothing to report. **What to do:**
 
   * Run `/login` to sign in again. Retrying without signing in shows the same message on every request.
   * In non-interactive mode, run `claude` in the same environment, complete `/login`, then rerun your command. For automation that can’t sign in interactively, authenticate with `ANTHROPIC_API_KEY` or [generate a long-lived token with `claude setup-token`](</docs/en/authentication#generate-a-long-lived-token>).
   * If signing in keeps failing, see [Login and authentication](</docs/en/troubleshoot-install#login-and-authentication>)
+
+###
+
+​
+
+Your account is on hold
+
+The Claude account behind your login has been suspended. Claude Code shows the first message when it tries to renew your saved login and learns of the hold, and the second when a sign-in you complete in the browser reports it:
+
+    Your account is on hold and can't use Claude Code. View details or appeal: https://claude.ai/restricted
+    Your account is on hold and can't sign in to Claude Code. View details or appeal: https://claude.ai/restricted
+
+Signing in again with the same account doesn’t clear the message, because the hold is on the account rather than the login. In [non-interactive mode](</docs/en/headless>) (`-p`) and the [Agent SDK](</docs/en/agent-sdk/overview>), the structured error code is `account_on_hold`. Before v2.1.235, Claude Code reported a held account as Login expired · Please run /login, whose recovery steps can’t clear a hold. **What to do:**
+
+  * Open the link in the message to view the hold’s details or appeal it
+  * If you have another Claude account or an API key that isn’t affected by the hold, you can keep working while the hold is resolved: run `/login` with that account, or set the key with `ANTHROPIC_API_KEY`
 
 ###
 
@@ -3066,11 +3084,11 @@ Claude Code found a `Write`, `NotebookEdit`, `MultiEdit`, or `Glob` [permission 
 
   * Replace `Write(path)`, `NotebookEdit(path)`, and legacy `MultiEdit(path)` rules with `Edit(path)`. `Edit` rules cover all file-editing tools.
   * Except in `--allowedTools`, where Claude Code accepts a `Glob` rule without warning, replace `Glob(path)` rules with `Read(path)`.
-  * Fix the rule at the source the warning names in parentheses: a settings file path, or the flag itself for `--allowed-tools` and `--disallowed-tools`. A `claude-settings-<hash>.json` path that doesn’t exist on disk stands for an inline `--settings` value; fix the JSON you pass to that flag.
+  * Fix the rule at the source the warning names in parentheses: a settings file path, or the flag itself for `--allowed-tools` and `--disallowed-tools`. A `claude-settings-<hash>.json` path that doesn’t exist on disk stands for an inline `--settings` value. Fix the JSON you pass to that flag.
   * Leave bare tool-name rules such as `Write` or `Glob` alone. Claude Code matches them at the [tool level](</docs/en/permissions#match-all-uses-of-a-tool>) and doesn’t warn about them.
-  * If the source reads `managed policy settings`, forward the warning to whoever maintains your managed settings; you can’t clear it yourself.
+  * If the source reads `managed policy settings`, forward the warning to whoever maintains your managed settings, since you can’t clear it yourself.
 
-In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr, so machine-read output stays clean; run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.210, Claude Code accepted these rules without a warning.
+In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr, so machine-read output stays clean. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.210, Claude Code accepted these rules without a warning.
 
 ###
 

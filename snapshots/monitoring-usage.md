@@ -182,7 +182,7 @@ Each user prompt starts a `claude_code.interaction` root span. API calls, tool c
         ├── claude_code.tool.execution
         └── (Agent tool) subagent claude_code.llm_request / claude_code.tool spans
 
-In Agent SDK and `claude -p` sessions, `claude_code.interaction` itself becomes a child of the caller’s span when `TRACEPARENT` is set in the environment.
+In Agent SDK and `claude -p` sessions, `claude_code.interaction` itself becomes a child of the caller’s span when `TRACEPARENT` is set in the environment. When a `PreToolUse` hook [defers a tool call](</docs/en/hooks#defer-a-tool-call-for-later>), Claude Code saves the trace context of the turn that deferred it. When you resume the session and the tool re-runs, the tool’s spans join that earlier turn’s trace as children of the turn’s `claude_code.interaction` span.
 
 ####
 
