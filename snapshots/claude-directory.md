@@ -109,6 +109,7 @@ Claude Code deletes the files in the paths below once they’re older than [`cle
 Path under `~/.claude/`| Contents
 ---|---
 `projects/<project>/<session>.jsonl`| Full conversation transcript: every message, tool call, and tool result
+`projects/<project>/<session>.orphaned-<timestamp>-<suffix>.jsonl`, `projects/<project>/<session>.jsonl.superseded-<timestamp>`| A previous transcript for the session that Claude Code set aside instead of overwriting or deleting it. It doesn’t appear in the session picker
 `projects/<project>/<session>/subagents/`| [Subagent](</docs/en/sub-agents>) conversation transcripts, removed with the parent session transcript when it ages out
 `projects/<project>/<session>/tool-results/`| Large tool outputs spilled to separate files
 `file-history/<session>/`| Pre-edit snapshots of files Claude changed, used for [checkpoint restore](</docs/en/checkpointing>). Holds snapshots for the 100 most recent checkpoints; snapshot files that no retained checkpoint references are deleted, except each file’s first snapshot

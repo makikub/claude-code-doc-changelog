@@ -19,7 +19,7 @@ Key| Description| Topic| Scope
 `allowedMcpServers`| Allowlist which [MCP servers](</docs/en/mcp>) people can use| MCP| Any file
 `allowManagedHooksOnly`| Run only the [hooks](</docs/en/hooks>) your organization deploys| Hooks and automation| Managed
 `allowManagedMcpServersOnly`| Make the managed [MCP](</docs/en/mcp>) allowlist the only one that applies| MCP| Managed
-`allowManagedPermissionRulesOnly`| Make [managed settings](</docs/en/managed-settings>) the only source of [permission rules](</docs/en/permissions#managed-settings>)| Permission settings| Managed
+`allowManagedPermissionRulesOnly`| Make [managed settings](</docs/en/managed-settings>) the only settings source of [permission rules](</docs/en/permissions#managed-settings>)| Permission settings| Managed
 `alwaysThinkingEnabled`| Turn [extended thinking](</docs/en/model-config#extended-thinking>) off for every session| Model and responses| Any file
 `apiKeyHelper`| Generate the [API credential](</docs/en/authentication#credential-management>) with your own command| Authentication and providers| Any file
 `askUserQuestionTimeout`| Let an unanswered question [auto-continue](</docs/en/tools-reference#question-auto-continue-timeout>) after idle time| Interface and terminal| User or managed
@@ -115,7 +115,7 @@ Key| Description| Topic| Scope
 `otelHeadersHelper`| Generate rotating [OpenTelemetry](</docs/en/monitoring-usage#dynamic-headers>) headers with your own command| Authentication and providers| Any file
 `outputStyle`| Change Claude’s role, tone, and output format with an [output style](</docs/en/output-styles>)| Model and responses| Any file
 `parentSettingsBehavior`| Apply or drop restrictions an [SDK or IDE host](</docs/en/managed-settings#let-an-embedding-host-add-policy>) passes when you deploy [managed settings](</docs/en/managed-settings>)| Enterprise and managed settings| Managed
-`permissionExplainerEnabled`| Turn off the Ctrl+E command explanation on shell [permission prompts](</docs/en/permissions#permission-system>)| Global config settings| Global config
+`permissionExplainerEnabled`| Removed in v2.1.257, together with the `Ctrl+E` command explanation on shell permission prompts| Global config settings| Global config
 `permissions`| Set allow, ask, and deny rules and the starting [permission mode](</docs/en/permission-modes>)| Permission settings| Any file
 `permissions.additionalDirectories`| Give Claude file access to [directories outside the current one](</docs/en/permissions#working-directories>)| Permission settings| Any file
 `permissions.allow`| Approve listed [tool uses](</docs/en/permissions#permission-rule-syntax>) without a prompt| Permission settings| Any file
@@ -213,6 +213,8 @@ Key| Description| Topic| Scope
 `terminalProgressBarEnabled`| Hide the terminal progress bar in terminals that support it| Interface and terminal| Any file
 `terminalTitleFromRename`| Stop [`/rename`](</docs/en/sessions#name-your-sessions>) and `--name` from changing the terminal tab title| Interface and terminal| Any file
 `theme`| Pick the interface [color theme](</docs/en/terminal-config#match-the-color-theme>), built-in or custom| Interface and terminal| Any file
+`timeFormat`| Show the times in the interface on a 12-hour or 24-hour clock, in UTC, or with a strftime pattern| Interface and terminal| Any file
+`timeZone`| Show the times in the interface in a time zone other than your system’s| Interface and terminal| Any file
 `tui`| Choose the [fullscreen](</docs/en/fullscreen>) or classic terminal renderer| Interface and terminal| Any file
 `ultracode`| Have Claude plan a [workflow](</docs/en/workflows#let-claude-decide-with-ultracode>) for each substantive task without being asked| Model and responses| Any file
 `useAutoModeDuringPlan`| Let the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) classifier review shell commands in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>); set `false` to get prompts instead| Permission settings| User, local, or managed
@@ -245,7 +247,7 @@ Choose which models Claude Code uses and how it responds. For how these settings
 
 `advisorModel`
 
-Pick which model answers when Claude calls the server-side [advisor tool](</docs/en/advisor>). Unset it to turn the advisor off. The advisor must be at least as capable as your main model; when it isn’t, Claude Code sends requests without the advisor. See [Choose an advisor model](</docs/en/advisor#choose-an-advisor-model>). You don’t usually edit this key by hand. Run `/advisor` to open a picker that shows the current choice, the models that can advise, and **No advisor**. Claude Code saves your pick to this key in `~/.claude/settings.json`. In a session attached to a remote worker, the pick applies to that session only. To pick Fable, first accept the [usage-credits consent](</docs/en/advisor#fable-advisor-and-usage-credits>) by running `/model fable`. Until you do, picking Fable in `/advisor` saves nothing and Claude Code tells you to run `/model fable` first.
+Pick which model answers when Claude calls the server-side [advisor tool](</docs/en/advisor>). Unset it to turn the advisor off. The advisor must be at least as capable as your main model; when it isn’t, Claude Code sends requests without the advisor. See [Choose an advisor model](</docs/en/advisor#choose-an-advisor-model>). You don’t usually edit this key by hand. Run `/advisor` to open a picker that shows the current choice, the models that can advise, and **No advisor**. Claude Code saves your pick to this key in `~/.claude/settings.json`. In a session attached to a remote worker, the pick applies to that session only. If your account requires the [usage-credits consent](</docs/en/advisor#fable-advisor-and-usage-credits>), accept it first by running `/model fable`. Until you do, picking Fable in `/advisor` saves nothing and Claude Code tells you to run `/model fable` first.
 
   * **Scope** : `Any file`
   * **Type** : string, one of the aliases `"fable"`, `"opus"`, or `"sonnet"`, which resolve to Claude Code’s current default version of that model family, or a full model ID such as `"claude-opus-5"`
@@ -258,7 +260,7 @@ settings.json
       "advisorModel": "opus"
     }
 
-The key has no effect on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. `"fable"` requires [Fable 5 access](</docs/en/advisor#choose-an-advisor-model>).
+The key has no effect on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. `"fable"` requires [Fable access](</docs/en/advisor#choose-an-advisor-model>).
 
 ###
 
@@ -266,7 +268,7 @@ The key has no effect on Amazon Bedrock, Google Cloud’s Agent Platform, or Mic
 
 `alwaysThinkingEnabled`
 
-Turn [extended thinking](</docs/en/model-config#extended-thinking>) off for every session by setting this to `false`. Thinking is on by default, so `true` changes nothing. Most people set this through `/config` rather than by editing the file. On models that always think, such as Fable 5, `false` has no effect. On [third-party providers](</docs/en/third-party-integrations>) Claude Code omits the `thinking` parameter instead of turning thinking off, so adaptive-reasoning models may still think. With thinking turned off on the Anthropic API, Claude Code sends effort `high` instead of a higher level to models it knows [don’t accept that combination](</docs/en/errors#effort-isnt-available-with-thinking-turned-off>), such as Opus 5.
+Turn [extended thinking](</docs/en/model-config#extended-thinking>) off for every session by setting this to `false`. Thinking is on by default, so `true` changes nothing. Most people set this through `/config` rather than by editing the file. On models that always think, such as the Fable models, `false` has no effect. On [third-party providers](</docs/en/third-party-integrations>) Claude Code omits the `thinking` parameter instead of turning thinking off, so adaptive-reasoning models may still think. With thinking turned off on the Anthropic API, Claude Code sends effort `high` instead of a higher level to models it knows [don’t accept that combination](</docs/en/errors#effort-isnt-available-with-thinking-turned-off>), such as Opus 5.
 
   * **Scope** : `Any file`
   * **Type** : Boolean
@@ -767,11 +769,11 @@ Decide what Claude can do without asking, which permission mode a session starts
 
 `allowManagedPermissionRulesOnly`
 
-Make managed settings the only source of `allow`, `ask`, and `deny` permission rules. Claude Code then ignores rules in user, project, local, and `--settings` files, ignores `--allowedTools`, hides the always-allow choices in permission prompts, and stops saving new rules. When [parent settings from an embedding host](</docs/en/managed-settings#let-an-embedding-host-add-policy>) apply, Claude Code treats them as part of the managed tier: it keeps their `deny` and `ask` rules and drops their `allow` rules and `additionalDirectories`.
+Make managed settings the only settings source of permission rules. Claude Code then ignores `allow`, `ask`, and `deny` rules in user, project, local, and `--settings` files, ignores `--allowedTools`, hides the always-allow choices in permission prompts, and stops saving new rules. When [parent settings from an embedding host](</docs/en/managed-settings#let-an-embedding-host-add-policy>) apply, Claude Code treats them as part of the managed tier: it keeps their `deny` and `ask` rules and drops their `allow` rules and `additionalDirectories`. `--disallowedTools` rules and the current session’s `deny` and `ask` rules still apply, including after Claude Code reloads settings mid-session. They only restrict, so they can’t widen what the managed rules grant. Before v2.1.257, Claude Code dropped those command-line and session rules at the first settings reload.
 
   * **Scope** : `Managed`
   * **Type** : Boolean
-    * `true`: managed settings are the only source of `allow`, `ask`, and `deny` rules; Claude Code ignores rules from other files and `--allowedTools`, drops the `allow` rules and `additionalDirectories` of any host-supplied parent settings that apply while keeping their `deny` and `ask` rules, hides always-allow choices, and stops saving new rules
+    * `true`: managed settings become the only settings source of permission rules
     * `false`: Claude Code applies permission rules from user, project, local, and `--settings` files in addition to the managed ones
   * **Default** : unset, so Claude Code applies permission rules from user, project, and local settings and from `--settings`, in addition to the managed ones
 
@@ -1020,7 +1022,7 @@ Like `allow` rules, entries in a project’s `.claude/settings.json` take effect
 
 Set the [permission mode](</docs/en/permission-modes>) new sessions start in. When you leave it unset, sessions start in the [built-in default](</docs/en/permission-modes#which-mode-a-session-starts-in>) for your plan and surface.
 
-  * **Scope** : `Any file`. `auto` doesn’t take effect from project or local settings, so set it in `~/.claude/settings.json` instead. Conversations the VS Code extension starts read only user, managed, and `--settings` values.
+  * **Scope** : `Any file`. `auto` and `bypassPermissions` don’t take effect from project or local settings, so set them in `~/.claude/settings.json` instead. Before v2.1.257, `bypassPermissions` took effect from any file. For conversations the VS Code extension starts, Claude Code reads only user, managed, and `--settings` values.
   * **Type** : string, one of:
     * `"default"`: Claude Code runs only reads without asking
     * `"acceptEdits"`: Claude Code also runs file edits and common filesystem commands such as `mkdir` and `mv` without asking
@@ -2639,7 +2641,7 @@ If the shell you name isn’t available, Claude Code uses the other one: `"power
 
 `dialogExpiry`
 
-Set the deadline for dialogs Claude Code [forwards to a remote client](</docs/en/remote-control#limitations>), such as a Remote Control or SDK host, for the approval dialog for a [held cross-session message](</docs/en/cross-session-messaging#control-inbound-messages>), and for the mid-session [Fable 5 usage-credits consent prompt](</docs/en/model-config#fable-5-and-usage-credits>) in a session that may have nobody at the terminal. When no answer arrives before the deadline, Claude Code cancels the dialog and continues with its no-action default. Requires Claude Code v2.1.224 or later.
+Set the deadline for dialogs Claude Code [forwards to a remote client](</docs/en/remote-control#limitations>), such as a Remote Control or SDK host, for the approval dialog for a [held cross-session message](</docs/en/cross-session-messaging#control-inbound-messages>), and for the mid-session [Fable usage-credits consent prompt](</docs/en/model-config#fable-and-usage-credits>) in a session that may have nobody at the terminal. When no answer arrives before the deadline, Claude Code cancels the dialog and continues with its no-action default. Requires Claude Code v2.1.224 or later.
 
   * **Scope** : `User or managed`
   * **Type** : string, one of `"60s"`, `"5m"`, `"10m"`, or `"never"`, which disables the deadline
@@ -3197,6 +3199,65 @@ settings.json
     }
 
 See [Create a custom theme](</docs/en/terminal-config#create-a-custom-theme>).
+
+###
+
+​
+
+`timeFormat`
+
+Choose how Claude Code writes the times it shows in the interface, such as the `done 6:05 PM` at the end of each turn duration message and the timestamps in the [transcript viewer](</docs/en/interactive-mode#transcript-viewer>). To pick a preset, run `/config` and set **Time format**. Requires Claude Code v2.1.257 or later.
+
+  * **Scope** : `Any file`
+  * **Type** : string, one of:
+    * `"auto"`: the same as unset; each time keeps its built-in format, which follows your locale on the turn duration message
+    * `"12-hour"`: a 12-hour clock
+    * `"24-hour"`: a 24-hour clock
+    * `"24-hour-utc"`: a 24-hour clock in UTC with `Z` after the minutes, such as `18:05Z`; Claude Code ignores `timeZone` for this preset
+    * A strftime pattern such as `"%H:%M"`: Claude Code writes each time with the pattern. Any value that contains a `%` is a pattern, and any other value outside the presets counts as `"auto"`
+  * **Default** : `"auto"`
+
+settings.json
+
+    {
+      "timeFormat": "24-hour"
+    }
+
+`/config` offers only the presets, so to use a strftime pattern, add the key to a settings file. This example shows each time as a two-digit 24-hour clock:
+
+settings.json
+
+    {
+      "timeFormat": "%H:%M"
+    }
+
+The turn duration message and the transcript viewer then show times such as `18:05`. In the transcript viewer, the pattern is the whole timestamp, so add date directives when you want the date there. This example puts the date in front of the clock:
+
+settings.json
+
+    {
+      "timeFormat": "%Y-%m-%d %H:%M"
+    }
+
+The same surfaces then show times such as `2026-09-01 18:05`.
+
+###
+
+​
+
+`timeZone`
+
+Show the times in the interface in a time zone other than your system’s. Set it to an [IANA time zone name](<https://www.iana.org/time-zones>), such as `"UTC"` or `"Europe/Dublin"`. The times that `timeFormat` controls then show in this zone. If `timeFormat` is `"24-hour-utc"`, times stay in UTC and Claude Code ignores this key. `/config` has no row for this key, so set it in a settings file. Requires Claude Code v2.1.257 or later.
+
+  * **Scope** : `Any file`
+  * **Type** : string, an IANA time zone name. When Claude Code doesn’t recognize the name, it uses your system time zone
+  * **Default** : unset, so times show in your system time zone
+
+settings.json
+
+    {
+      "timeZone": "Europe/Dublin"
+    }
 
 ###
 
@@ -5995,21 +6056,13 @@ Claude Code keeps the last 50 lines of the response and marks the cut with `# �
 
 `permissionExplainerEnabled`
 
-When Claude asks permission to run a Bash or PowerShell command, you can press `Ctrl+E` on the prompt to get a model-generated [explanation of the command](</docs/en/permissions#permission-system>): what it does, why Claude is running it, and what could go wrong, labeled **Low risk** , **Med risk** , or **High risk**. Claude Code asks the model for the explanation only when you press the shortcut, and showing it doesn’t run the command. Set this key to `false` to turn the shortcut off.
+Removed in v2.1.257, together with the `Ctrl+E` command explanation on Bash and PowerShell permission prompts. Setting it has no effect on current versions.
 
-  * **Scope** : `Global config`
+Through v2.1.256, you could press `Ctrl+E` on a Bash or PowerShell permission prompt to see a model-generated explanation of the command, and set this key to `false` to turn that shortcut off.
+
+  * **Scope** : `Global config`. On v2.1.256 and earlier.
   * **Type** : Boolean
-    * `true`: you can press `Ctrl+E` on a Bash or PowerShell permission prompt to get a model-generated explanation of the command
-    * `false`: Claude Code turns the `Ctrl+E` shortcut off
   * **Default** : `true`
-
-~/.claude.json
-
-    {
-      "permissionExplainerEnabled": false
-    }
-
-Claude Code ignores this key in `settings.json`.
 
 ###
 
