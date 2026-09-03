@@ -30,7 +30,7 @@ Claude Code includes built-in subagents that Claude automatically uses when appr
 
 A fast, read-only agent optimized for searching and analyzing codebases.
 
-  * **Model** : inherits from the main conversation, capped at Opus on the Claude API, so Explore never runs on a more expensive model than the one you already chose for the session, unless you force `CLAUDE_CODE_SUBAGENT_MODEL` onto it
+  * **Model** : inherits from the main conversation, capped at Opus on the Claude API, so Explore never runs on a more expensive model than the one you already chose for the session, unless you set `CLAUDE_CODE_SUBAGENT_MODEL` and force it onto every subagent
   * **Tools** : read-only tools; Write and Edit are denied
   * **Purpose** : file discovery, code search, codebase exploration
 
@@ -38,7 +38,7 @@ As of v2.1.198, Explore inherits the main conversation’s model instead of alwa
 
 A research agent used during [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) to gather context before presenting a plan.
 
-  * **Model** : inherits from the main conversation, unless you force `CLAUDE_CODE_SUBAGENT_MODEL` onto it
+  * **Model** : inherits from the main conversation, unless you set `CLAUDE_CODE_SUBAGENT_MODEL` and force it onto every subagent
   * **Tools** : read-only tools; Write and Edit are denied
   * **Purpose** : codebase research for planning
 
@@ -46,7 +46,7 @@ When you’re in plan mode and Claude needs to understand your codebase, it dele
 
 A capable agent for complex, multi-step tasks that require both exploration and action.
 
-  * **Model** : the `CLAUDE_CODE_SUBAGENT_MODEL` model if you set one and nothing assigns a model another way, otherwise the main conversation’s model; Choose a model states the full order and how to force the variable onto subagents
+  * **Model** : the `CLAUDE_CODE_SUBAGENT_MODEL` model if you set one and nothing assigns a model another way, otherwise the main conversation’s model; Choose a model states the full order, and Run every subagent on one model shows how to make the variable override those sources
   * **Tools** : every tool available to subagents
   * **Purpose** : complex research, multi-step operations, code modifications
 
@@ -295,12 +295,39 @@ When Claude invokes a subagent, it can also pass a `model` parameter for that sp
   3. The [`CLAUDE_CODE_SUBAGENT_MODEL`](</docs/en/model-config#environment-variables>) environment variable, when you set it to a model alias or model ID
   4. The main conversation’s model
 
-Setting `CLAUDE_CODE_SUBAGENT_MODEL` by itself doesn’t change the model the built-in Explore and Plan subagents run on. Before v2.1.251, `CLAUDE_CODE_SUBAGENT_MODEL` came first in this order and overrode both the per-invocation parameter and the frontmatter, including `model: inherit`. Setting the variable to `inherit` is the same as leaving it unset. Before v2.1.196, that value forced subagents onto the main conversation’s model and ignored the other sources. Set [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1`](</docs/en/env-vars>) to run subagents, [teammates](</docs/en/agent-teams#specify-teammates-and-models>), and [workflow agents](</docs/en/workflows>) on `CLAUDE_CODE_SUBAGENT_MODEL` whatever model their definition or invocation names, the built-in Explore and Plan definitions included. A fork, and a [skill that runs in a subagent](</docs/en/skills#run-skills-in-a-subagent>) with `model: inherit`, still run on the main conversation’s model. When you haven’t set `CLAUDE_CODE_SUBAGENT_MODEL`, subagents, teammates, and workflow agents run on the main conversation’s model, and the built-in Explore subagent keeps its model cap. Requires Claude Code v2.1.257 or later. Claude Code checks the per-invocation parameter, frontmatter, and environment variable values against your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist. For a blocked value, it substitutes another model:
+Setting `CLAUDE_CODE_SUBAGENT_MODEL` by itself doesn’t change the model the built-in Explore and Plan subagents run on. To change it, see Run every subagent on one model. Before v2.1.251, `CLAUDE_CODE_SUBAGENT_MODEL` came first in this order and overrode both the per-invocation parameter and the frontmatter, including `model: inherit`. Setting the variable to `inherit` is the same as leaving it unset. Before v2.1.196, that value forced subagents onto the main conversation’s model and ignored the other sources. Claude Code checks the per-invocation parameter, frontmatter, and environment variable values against your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist. For a blocked value, it substitutes another model:
 
   * When the blocked value is a family alias such as `opus`, Claude Code runs the subagent on the newest version of that family the allowlist permits, following the same [substitution rules and provider scope](</docs/en/model-config#restrict-model-selection>) as `/model`. Before v2.1.222, Claude Code ran the subagent on the inherited model for a blocked family alias as well.
   * For any other blocked value, on providers where that substitution doesn’t operate, or when the allowlist permits no version of the family, Claude Code runs the subagent on the inherited model instead. If you set `CLAUDE_CODE_SUBAGENT_MODEL`, Claude Code tries that model first, under these same rules.
 
 In interactive sessions, Claude Code shows a warning naming the requested model and the model the subagent runs on, for either substitution. To check which model a subagent is running on, run [`/tasks`](</docs/en/commands>). Claude Code names the model on the subagent’s row, and adds the [effort level](</docs/en/model-config#adjust-effort-level>) when the subagent’s definition, or the skill it forked from, sets `effort`. Requires Claude Code v2.1.242 or later. A per-invocation `model` parameter also applies when the subagent is resumed or sent a follow-up message, so the subagent stays on that model. Before v2.1.211, resuming dropped the per-invocation value and the subagent reverted to its definition’s `model` field or, without one, the main conversation’s model. As of v2.1.198, subagents also inherit the main conversation’s [extended thinking](</docs/en/model-config#extended-thinking>) configuration: if thinking is on in your session, it’s on for the subagent, and if it’s off, it stays off. There is no per-subagent thinking setting. Before v2.1.198, subagents ran with extended thinking disabled regardless of the main conversation’s setting.
+
+####
+
+​
+
+Run every subagent on one model
+
+`CLAUDE_CODE_SUBAGENT_MODEL` is a default, so a subagent’s definition or a model Claude passes still takes precedence over it. To apply one model to every subagent, [teammate](</docs/en/agent-teams#specify-teammates-and-models>), and [workflow agent](</docs/en/workflows>), also set `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` to `1`. Requires Claude Code v2.1.257 or later.
+
+  * If you set both variables, subagents run on the model in `CLAUDE_CODE_SUBAGENT_MODEL`.
+  * If you set only `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, subagents run on the main conversation’s model.
+
+For example, to run every subagent on Haiku, set both variables in the `env` block of a [settings file](</docs/en/settings>):
+
+    {
+      "env": {
+        "CLAUDE_CODE_SUBAGENT_MODEL": "haiku",
+        "CLAUDE_CODE_SUBAGENT_MODEL_FORCE": "1"
+      }
+    }
+
+To check that the setting took effect, run [`/tasks`](</docs/en/commands>) while a subagent is running. The subagent’s row shows the model it runs on. While `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is [on](</docs/en/env-vars>), Claude Code ignores the `model` field of every subagent definition, including the built-in Explore and Plan subagents, and Claude can’t pass a model when it starts a subagent. Two kinds of subagent still run on the main conversation’s model:
+
+  * A fork
+  * A [skill that runs in a subagent](</docs/en/skills#run-skills-in-a-subagent>) with `model: inherit`
+
+When you set only `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, the built-in Explore subagent keeps its model cap.
 
 ###
 

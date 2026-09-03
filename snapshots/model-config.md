@@ -672,7 +672,7 @@ Environment variable| Description
 `ANTHROPIC_DEFAULT_OPUS_MODEL`| The model to use for `opus`, or for `opusplan` when Plan Mode is active.
 `ANTHROPIC_DEFAULT_SONNET_MODEL`| The model to use for `sonnet`, or for `opusplan` when Plan Mode is not active.
 `ANTHROPIC_DEFAULT_HAIKU_MODEL`| The model to use for `haiku`, or [background functionality](</docs/en/costs#background-token-usage>)
-`CLAUDE_CODE_SUBAGENT_MODEL`| The default model for [subagents](</docs/en/sub-agents#choose-a-model>), [agent team](</docs/en/agent-teams#specify-teammates-and-models>) teammates, and [workflow](</docs/en/workflows>) agents that aren’t assigned a model another way. Accepts an alias such as `haiku` or a full model name. A per-invocation model or a definition’s `model` field, including `inherit`, takes precedence. To change that, set [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE`](</docs/en/sub-agents#choose-a-model>)
+`CLAUDE_CODE_SUBAGENT_MODEL`| The default model for [subagents](</docs/en/sub-agents#choose-a-model>), [agent team](</docs/en/agent-teams#specify-teammates-and-models>) teammates, and [workflow](</docs/en/workflows>) agents that aren’t assigned a model another way. Accepts an alias such as `haiku` or a full model name. A per-invocation model or a definition’s `model` field, including `inherit`, takes precedence. To change that, set [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE`](</docs/en/sub-agents#run-every-subagent-on-one-model>)
 
 Note: `ANTHROPIC_SMALL_FAST_MODEL` is deprecated in favor of `ANTHROPIC_DEFAULT_HAIKU_MODEL`.
 
