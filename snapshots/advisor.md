@@ -149,7 +149,7 @@ When Claude calls the advisor, the advisor model reads the conversation, so each
 
 Impact on prompt caching
 
-Enabling or disabling the advisor mid-session does not invalidate your main model’s [prompt cache](</docs/en/prompt-caching>). Unlike [changing model or effort level](</docs/en/prompt-caching#actions-that-invalidate-the-cache>), toggling `/advisor` keeps the cached prefix intact, and the advisor’s returned guidance is cached as part of the transcript on later turns. The advisor model’s own read of the conversation is not cached. Each advisor call processes the full transcript anew, with no reuse between calls.
+Enabling or disabling the advisor mid-session does not invalidate your main model’s [prompt cache](</docs/en/prompt-caching>). Unlike [switching models](</docs/en/prompt-caching#switching-models>), toggling `/advisor` keeps the cached prefix intact, and the advisor’s returned guidance is cached as part of the transcript on later turns. The advisor model’s own read of the conversation is not cached. Each advisor call processes the full transcript anew, with no reuse between calls.
 
 ##
 

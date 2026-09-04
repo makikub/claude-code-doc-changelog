@@ -120,6 +120,7 @@ Key| Description| Topic| Scope
 `permissions.additionalDirectories`| Give Claude file access to [directories outside the current one](</docs/en/permissions#working-directories>)| Permission settings| Any file
 `permissions.allow`| Approve listed [tool uses](</docs/en/permissions#permission-rule-syntax>) without a prompt| Permission settings| Any file
 `permissions.ask`| Always prompt before listed [tool uses](</docs/en/permissions#permission-rule-syntax>)| Permission settings| Any file
+`permissions.blockReadsOutsideWorkingDirectories`| Make the file tools refuse reads outside the [working directories](</docs/en/permissions#working-directories>) in every permission mode| Permission settings| Any file
 `permissions.defaultMode`| Set the [permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) new sessions start in| Permission settings| Any file
 `permissions.deny`| Block listed [tool uses](</docs/en/permissions#permission-rule-syntax>), including reads of files that hold secrets| Permission settings| Any file
 `permissions.disableBypassPermissionsMode`| Prevent anyone from entering [bypassPermissions mode](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>)| Permission settings| Any file
@@ -860,7 +861,7 @@ settings.json
 Control which tools Claude can use without asking, which ones always prompt, and which ones are blocked, and set the [permission mode](</docs/en/permission-modes>) a session starts in. Every `permissions.*` key below nests under this object.
 
   * **Scope** : `Any file`
-  * **Type** : object with `allow`, `ask`, `deny`, `additionalDirectories`, `defaultMode`, `disableBypassPermissionsMode`, and `disableAutoMode`
+  * **Type** : object with `allow`, `ask`, `deny`, `additionalDirectories`, `blockReadsOutsideWorkingDirectories`, `defaultMode`, `disableBypassPermissionsMode`, and `disableAutoMode`
   * **Default** : unset
 
 This example approves `npm run` commands without asking, prompts before `git push`, blocks reads of `.env`, and starts sessions in `acceptEdits`:
@@ -1013,6 +1014,30 @@ settings.json
     }
 
 Like `allow` rules, entries in a project’s `.claude/settings.json` take effect only after you accept the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>) for that folder.
+
+###
+
+​
+
+`permissions.blockReadsOutsideWorkingDirectories`
+
+Stop Claude from reading paths outside the session’s [working directories](</docs/en/permissions#working-directories>) with the Read, Grep, Glob, and LSP tools, in every permission mode including `bypassPermissions`. A Bash command that reads a matching path through a file command Claude Code recognizes, such as `cat`, prompts you even in auto mode and `bypassPermissions` mode. Requires Claude Code v2.1.257 or later. Claude Code also writes `true` here when you choose to block such reads on [auto mode’s prompt before the first read outside the working directories](</docs/en/permission-modes#first-read-outside-the-working-directories>).
+
+  * **Scope** : `Any file`. If any settings source sets `true`, the block applies, so a repository’s checked-in file can turn the block on for a project but can’t lift a block you set.
+  * **Type** : Boolean
+    * `true`: file reads outside the working directories are blocked
+    * `false`: the same as unset; a `true` in any other settings file still blocks
+  * **Default** : unset, so reads outside the working directories follow your permission mode and rules
+
+settings.json
+
+    {
+      "permissions": {
+        "blockReadsOutsideWorkingDirectories": true
+      }
+    }
+
+If only a repository’s checked-in settings file adds a directory, the block still applies to reads there. Files Claude Code itself needs stay readable, such as your skills, plugins, rules, agents, commands, and the `CLAUDE.md` memory file under `~/.claude/`. When the [sandbox](</docs/en/sandboxing>) is on, the block also denies sandboxed commands read access to home directories and mounted-volume roots outside the working directories. A retry that needs approval to [run outside the sandbox](</docs/en/sandboxing#the-unsandboxed-retry-escape-hatch>) prompts you even in `bypassPermissions` mode. Files a tool reads from your home directory, such as `~/.gitconfig`, are denied with the rest; re-open a specific path with `sandbox.filesystem.allowRead` when a tool needs it. When the session’s working directory is a linked [git worktree](</docs/en/worktrees>), including one Claude Code entered mid-session, the repository’s common `.git` directory stays readable and writable to sandboxed commands, so git keeps working there.
 
 ###
 
@@ -1273,7 +1298,7 @@ managed-settings.json
       }
     }
 
-An unsandboxed retry goes through the regular permission flow: a prompt in Manual mode, the classifier in auto mode. See [The unsandboxed retry escape hatch](</docs/en/sandboxing#the-unsandboxed-retry-escape-hatch>).
+An unsandboxed retry goes through the regular permission flow, with a prompt in Manual mode. See [The unsandboxed retry escape hatch](</docs/en/sandboxing#the-unsandboxed-retry-escape-hatch>).
 
 ###
 

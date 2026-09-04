@@ -211,6 +211,8 @@ Message| Section
 `Agent descriptions are over the 15.0k-token limit`| Configuration warnings
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
 `Remote managed settings failed to load (<cause>)`| Configuration warnings
+`Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.`| Configuration warnings
+`Managed settings drop-in directory could not be read`| Configuration warnings
 `"crossSessionInbound" must be one of "accept", "hold", "refuse"`| Configuration warnings
 `headersHelper not run — this workspace has no persisted trust`| Configuration warnings
 `... is not matched by file permission checks`| Configuration warnings
@@ -258,7 +260,7 @@ What you see while Claude Code retries or waits
 While retrying, the spinner shows a `Retrying in Ns · attempt x/y` countdown after an error label. The label names the specific reason from the first attempt for failures you can act on right away: the network is down, a TLS handshake failed, or you hit a rate limit. For other errors it reads `API error` at first. As of v2.1.198 it switches to the specific reason from the third attempt, or on the final attempt when `CLAUDE_CODE_MAX_RETRIES` allows fewer than three; earlier versions switch only on the final attempt. As of v2.1.198, the usual spinner tip is suppressed during retries. Once the error reason is revealed, if the failure is a 529 overload the line below the countdown also names where to check service status: `status.claude.com` on the Anthropic API, or the provider or gateway host named in the message on other configurations. If no data arrives on the response stream for 20 seconds while a request is still pending, the spinner shows `Waiting for API response · will retry in … · check your network` before any retry has started. The request hasn’t failed yet: the countdown runs to the point where Claude Code aborts the stalled connection. After the abort, what you see depends on how far the response had got:
 
   * Before Claude has completed a block of text or a tool call, or started one after finishing its thinking, Claude Code retries the request or ends the turn with an error. Automatic retries says which stalls it retries and how many times.
-  * After Claude has completed a block of text or a tool call, or started one after finishing its thinking, but before Claude has finished the response, Claude Code keeps what Claude completed, continues the turn from any tool calls Claude finished, and shows The response above may be incomplete. In a non-interactive session, Claude Code may first prompt Claude to continue the response; that entry says when it does and when you still see the notice there.
+  * After Claude has completed a block of text or a tool call, or started one after finishing its thinking, but before Claude has finished the response, Claude Code keeps what Claude completed, continues the turn from any tool calls Claude finished, and shows The response above may be incomplete. In a non-interactive session, and for a subagent’s response in any session, Claude Code may first prompt Claude to continue the response; that entry says when it does and when you still see the notice there.
   * After Claude finished the response, Claude Code ends the turn normally.
 
 The banner clears on its own once data resumes or a retry succeeds. If it reappears on every attempt, treat it as a network issue. Before v2.1.185, the banner appeared after 10 seconds with different wording. While Claude is consulting the [advisor](</docs/en/advisor>), the banner appears after 90 seconds without data instead of 20, because a long advisor review can send nothing for well over 20 seconds. Before v2.1.214, the 20-second threshold applied during advisor calls too, so the banner appeared during advisor reviews even when nothing was wrong.
@@ -377,11 +379,12 @@ A streaming request failed while the response was still in progress, after Claud
   * `Your computer went to sleep mid-response`: Claude Code detected that your computer went to sleep while the response was streaming. Once your computer wakes, Claude Code treats the connection as broken and stops reading from it.
   * `The response stopped arriving`: the connection stayed open but stopped delivering data, so the streaming idle watchdog aborted it. Before v2.1.222, Claude Code could also report this failure on [gateway](</docs/en/gateways>) connections reached through `ANTHROPIC_BASE_URL` or `ANTHROPIC_AWS_BASE_URL` while the server’s keep-alive pings were still arriving, because it counted only parsed response events there; upgrading stops those spurious timeouts on those routes. Gateways reached through a provider base URL such as `ANTHROPIC_BEDROCK_BASE_URL` aren’t wrapped by the byte watchdog; see [Streaming idle watchdogs](</docs/en/network-config#streaming-idle-watchdogs>).
 
-Before v2.1.227, `Connection lost mid-response` read `Connection closed mid-response` and `The response stopped arriving` read `Response stalled mid-stream`. In three cases, Claude Code handles the failure without showing this notice right away:
+Before v2.1.227, `Connection lost mid-response` read `Connection closed mid-response` and `The response stopped arriving` read `Response stalled mid-stream`. In four cases, Claude Code handles the failure without showing this notice right away:
 
   * Earlier in the response, Claude Code either retries the failure or ends the turn with a different error. See Automatic retries.
   * When one of these failures arrives after Claude has finished the response, Claude Code keeps the complete response and ends the turn normally, without this notice. Before v2.1.222, Claude Code showed this notice when the connection dropped or stalled after the response finished, and reported the turn as an error even though the response was complete.
   * In a [non-interactive session](</docs/en/headless>), such as a `-p` run, an [Agent SDK](</docs/en/agent-sdk/overview>) run, or a [cloud session](</docs/en/claude-code-on-the-web>), you don’t have to send `continue` yourself when the cut-off response is in the main conversation and contains text but no tool calls: Claude Code keeps the partial output and prompts Claude to continue from where it stopped, up to three times in a row. You see this notice for such a response only once Claude Code has used up those continuations. Before v2.1.246, Claude Code ended a non-interactive turn with this notice on the first cut-off.
+  * In a [subagent](</docs/en/sub-agents#api-errors-in-subagents>), whether the session is interactive or not: when its cut-off response contains text but no tool calls, Claude Code prompts the subagent to continue. The notice becomes the subagent’s last message only once those continuations are used up. Before v2.1.257, a subagent showed this notice on the first cut-off.
 
 **What to do:**
 
@@ -3069,6 +3072,27 @@ Your session is eligible for [server-managed settings](</docs/en/server-managed-
   * Run `/status` or `claude doctor` for the full diagnostic
 
 Before v2.1.248, Claude Code reported a failed settings fetch only in the debug log.
+
+###
+
+​
+
+Managed settings document could not be parsed
+
+Your organization deploys [managed settings](</docs/en/managed-settings>), and one of the deployed documents is present but can’t be parsed as a JSON object, so Claude Code exits with code 1 at startup instead of running without the policy the document carries. The line names the failed source before the message:
+
+    /Library/Application Support/ClaudeCode/managed-settings.json: Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.
+
+The source is one of:
+
+  * The path of the `managed-settings.json` file or a drop-in file under `managed-settings.d`
+  * The macOS managed preferences profile, `per-user managed preferences` or `device-level managed preferences`
+  * The Windows registry value, `Registry: HKLM\SOFTWARE\Policies\ClaudeCode\Settings`
+
+[Find entries Claude Code dropped](</docs/en/managed-settings#find-entries-claude-code-dropped>) lists what makes each source unparseable. Claude Code refuses to start even when another admin source delivers a valid policy. You see this error in interactive sessions, `claude -p`, Agent SDK sessions, [background sessions](</docs/en/agent-view>), and most subcommands, `claude doctor` included. The refusal fails closed on purpose: settings in a document Claude Code can’t parse can’t be enforced, and starting anyway would run sessions without the organization’s controls. A schema problem in a parseable document doesn’t produce this error. [Find entries Claude Code dropped](</docs/en/managed-settings#find-entries-claude-code-dropped>) covers what Claude Code does with one. When a `managed-settings.d/` directory exists but can’t be listed, Claude Code reports `Managed settings drop-in directory could not be read:` followed by the underlying error instead. [Find entries Claude Code dropped](</docs/en/managed-settings#find-entries-claude-code-dropped>) covers when a read failure exits at startup. **What to do:**
+
+  * If you administer the machine, fix the named document so it parses as a JSON object, or remove the file, profile, or registry value. An empty `managed-settings.json` counts as `{}` and doesn’t block launch.
+  * If you don’t, ask your administrator to fix the deployed document. Nothing in your own settings files causes or clears this error.
 
 ###
 

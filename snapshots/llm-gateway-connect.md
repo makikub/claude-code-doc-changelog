@@ -1,7 +1,7 @@
 An [LLM gateway](</docs/en/llm-gateway>) is a proxy your organization runs between Claude Code and the model provider. When your organization uses one, Claude Code authenticates to the gateway with a credential your organization issues instead of your personal claude.ai login. This page is for developers running Claude Code through a gateway their organization operates. It covers two paths: checking whether your administrator already configured it for you, and configuring it yourself when they haven’t.
 
   * To deploy a gateway for your organization, see [Roll out an LLM gateway](</docs/en/llm-gateway-rollout>)
-  * For what Claude Code sends to a gateway, see the [gateway protocol reference](</docs/en/llm-gateway-protocol>)
+  * For what Claude Code sends to a gateway, see the [gateway compatibility guide](</docs/en/llm-gateway-protocol>)
 
 ##
 
@@ -521,6 +521,6 @@ Related resources
 
   * [LLM gateways overview](</docs/en/llm-gateway>): what a gateway is and how it interacts with claude.ai subscriptions
   * [Roll out an LLM gateway for your organization](</docs/en/llm-gateway-rollout>): the admin-facing checklist for deploying and distributing gateway configuration
-  * [Gateway protocol reference](</docs/en/llm-gateway-protocol>): what Claude Code sends to a gateway, including the headers and fields the gateway must forward
+  * [Gateway compatibility guide](</docs/en/llm-gateway-protocol>): what Claude Code sends to a gateway, including the headers and fields the gateway must forward
   * [Settings](</docs/en/settings>): where settings files live and how the `env` block is read
   * [Authentication](</docs/en/authentication>): how credential variables, `apiKeyHelper`, and OAuth login interact
