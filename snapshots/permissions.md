@@ -42,7 +42,7 @@ Check `allow` rules (from `allowed_tools` and settings.json). If a rule matches,
 
 canUseTool callback
 
-If not resolved by any of the above, call your [`canUseTool` callback](</docs/en/agent-sdk/user-input>) for a decision. In `dontAsk` mode, this step is skipped and the tool is denied.
+If not resolved by any of the above, call your [`canUseTool` callback](</docs/en/agent-sdk/user-input>) for a decision. In `dontAsk` mode, this step is skipped and the tool is denied.In the TypeScript SDK, if you set [`permissionPrompts: 'none'`](</docs/en/agent-sdk/typescript#options>), your callback isn’t called at this step. A [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) still gets a chance to decide, and if it doesn’t, Claude Code denies the call. The option requires Claude Code v2.1.259 or later.
 
 If you pass a `canUseTool` callback in a configuration where the TypeScript SDK expects the evaluation order to auto-approve calls before the callback is consulted, the SDK emits a Node.js process warning once when the query is constructed. The warning’s code is `CLAUDE_SDK_CAN_USE_TOOL_SHADOWED`. Two configurations trigger it:
 

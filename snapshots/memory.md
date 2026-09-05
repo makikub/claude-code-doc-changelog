@@ -364,7 +364,7 @@ The value must be an absolute path or start with `~/`. When you set it in a proj
     ├── feedback_testing.md # One memory
     └── ...                 # Any other topic files Claude creates
 
-`MEMORY.md` acts as an index of the memory directory. Claude reads and writes files in this directory throughout your session, using `MEMORY.md` to keep track of what’s stored where. Auto memory is machine-local. All worktrees and subdirectories within the same git repository share one auto memory directory. Files are not shared across machines or cloud environments. Claude Code deletes old session transcripts after the [`cleanupPeriodDays`](</docs/en/settings-reference#cleanupperioddays>) retention period, but excludes the files in the memory directory from that [retention sweep](</docs/en/claude-directory#cleaned-up-automatically>). `MEMORY.md` and topic files stay until you or Claude edits or deletes them.
+`MEMORY.md` acts as an index of the memory directory. Claude reads and writes files in this directory throughout your session, using `MEMORY.md` to keep track of what’s stored where. Auto memory is machine-local. All worktrees and subdirectories within the same git repository share one auto memory directory. Files are not shared across machines or cloud environments. Claude Code deletes old session transcripts after the [`cleanupPeriodDays`](</docs/en/settings-reference#cleanupperioddays>) retention period, but excludes the memory files in the memory directory from that [retention sweep](</docs/en/claude-directory#cleaned-up-automatically>). `MEMORY.md` and topic files stay until you or Claude edits or deletes them.
 
 ###
 

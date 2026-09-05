@@ -50,7 +50,7 @@ A plugin| `--plugin-dir <path>`, `--plugin-url <url>`
 
 Background tasks at exit
 
-If Claude starts a [background Bash task](</docs/en/tools-reference#bash-tool-behavior>) during a `claude -p` run, for example a dev server or a watch build, that shell is terminated about five seconds after Claude has returned its final result and stdin has closed. The grace period lets a task that finishes right after the result still deliver its output. Before v2.1.163, a never-exiting background process would hold the `claude -p` invocation open indefinitely. Background [subagents](</docs/en/sub-agents>) and workflows are exempt from the five-second grace because their result is part of the final output, so `claude -p` waits for them to complete. From v2.1.182, that wait is capped at ten minutes of continuous idle waiting by default, so a stuck background agent can’t hold the process open indefinitely. Adjust the cap with [`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`](</docs/en/env-vars>), or set it to `0` to wait without a limit.
+If Claude starts a [background Bash task](</docs/en/tools-reference#bash-tool-behavior>) during a `claude -p` run, for example a dev server or a watch build, that shell is terminated about five seconds after Claude has returned its final result and stdin has closed. The grace period lets a task that finishes right after the result still deliver its output. If Claude starts a background [subagent](</docs/en/sub-agents>) or workflow, `claude -p` instead stays open until that work completes, because its result is part of the final output. By default the wait ends after 10 minutes of continuous idle waiting, so a stuck subagent or workflow can’t hold the process open indefinitely. At that point Claude Code stops whatever is still running and drops its partial result. To change the limit, set [`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`](</docs/en/env-vars>), or set it to `0` to wait without one. If Claude starts a [Monitor](</docs/en/tools-reference#monitor-tool>) watch during a `claude -p` run, Claude Code waits for the watch until it times out or the ten-minute cap ends the wait, whichever comes first. While it waits, Claude keeps responding to what the watch reports. By default, a watch times out five minutes after Claude starts it.
 
 ###
 
@@ -181,6 +181,7 @@ Field| Type| Description
 `max_retries`| integer| total retries permitted
 `retry_delay_ms`| integer| milliseconds until the next attempt
 `error_status`| integer or null| HTTP status code, or `null` for connection errors with no HTTP response
+`no_response`| object, optional| present only when the failed attempt got [no response headers in time](</docs/en/errors#no-response-from-api>). `waited_ms` is how long that attempt waited and `retry_wait_ms` is how long the retry will wait. In these events, `max_retries` reflects the one retry this cause normally gets, not the session-wide budget. Requires Claude Code v2.1.261 or later
 `error`| string| error category: `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `rate_limit`, `overloaded`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, or `unknown`
 `uuid`| string| unique event identifier
 `session_id`| string| session the event belongs to
