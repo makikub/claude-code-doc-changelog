@@ -2,6 +2,14 @@ This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/ant
 
 ​
 
+2.1.263
+
+September 6, 2026
+
+  * Bug fixes and reliability improvements
+
+​
+
 2.1.261
 
 September 4, 2026
