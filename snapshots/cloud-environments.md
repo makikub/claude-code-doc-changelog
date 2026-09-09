@@ -433,10 +433,7 @@ The setup script runs the first time you start a session in an environment. Afte
 
 Setup scripts vs. SessionStart hooks
 
-Use a setup script to provision the VM itself: toolchains and CLI tools that aren’t pre-installed. Use a [SessionStart hook](</docs/en/hooks#sessionstart>) for project setup that should run everywhere, cloud and local, like `npm install`. Setup scripts and SessionStart hooks run in a fixed order when a cloud session starts:
-
-  1. The setup script runs first, before Claude Code launches, and only when no cached environment exists.
-  2. Claude Code launches and runs your SessionStart hooks, as it does at the start of every session, local or cloud.
+Use a setup script to provision the VM itself: toolchains and CLI tools that aren’t pre-installed. Use a [SessionStart hook](</docs/en/hooks#sessionstart>) for project setup that should run everywhere, cloud and local, like `npm install`. Setup scripts and SessionStart hooks run in a fixed order when a cloud session starts. The table compares where you configure them, when they run, and where they run.
 
 | Setup scripts| SessionStart hooks
 ---|---|---

@@ -1,6 +1,10 @@
-This page covers Claude Code running on your machine: the terminal, the [VS Code](</docs/en/vs-code>) and [JetBrains](</docs/en/jetbrains>) extensions, and the [desktop app](</docs/en/desktop>), which all read the same settings files. A cloud session on [Claude Code on the web](</docs/en/claude-code-on-the-web>) runs on a different machine and reads only some of them; see Settings in cloud sessions.
+Settings are the JSON keys that change how Claude Code behaves: which model it starts with, what it can run without asking, which files it can’t read, how it looks in your terminal, and what your organization enforces.
 
-Settings are the JSON keys that change how Claude Code behaves: which model it starts with, what it can run without asking, which files it can’t read, how it looks in your terminal, and what your organization enforces. Claude Code reads settings from JSON settings files such as `~/.claude/settings.json`. It looks for them in a few locations, and the file it reads a setting from decides who the setting applies to. Use this page to pick the settings file that reaches the people you want a setting to apply to, change a setting and confirm it applied, and see which value Claude Code uses when the same key is set in more than one file. The [settings reference](</docs/en/settings-reference>) lists every key you can set, with the file you set it in, its type, and its default. [Configure permissions](</docs/en/permissions>) covers what Claude Code can run without asking and how to write `allow`, `ask`, and `deny` rules.
+To look up a specific key, go to [All settings](</docs/en/settings-reference>), which lists every key with the file you set it in, its default, and an example.
+
+Claude Code reads settings from JSON settings files such as `~/.claude/settings.json`. It looks for them in a few locations, and the file it reads a setting from decides who the setting applies to. This page covers those files: which one to put a setting in, how to change a setting and confirm it applied, and which value Claude Code uses when the same key is set in more than one file. [Configure permissions](</docs/en/permissions>) covers what Claude Code can run without asking and how to write `allow`, `ask`, and `deny` rules.
+
+This page covers Claude Code running on your machine: the terminal, the [VS Code](</docs/en/vs-code>) and [JetBrains](</docs/en/jetbrains>) extensions, and the [desktop app](</docs/en/desktop>), which all read the same settings files. A cloud session on [Claude Code on the web](</docs/en/claude-code-on-the-web>) runs on a different machine and reads only some of them; see Settings in cloud sessions.
 
 ##
 
@@ -171,7 +175,6 @@ Claude Code watches your settings files and reloads them when they change, so it
 
   * [`model`](</docs/en/settings-reference#model>): use [`/model`](</docs/en/model-config#setting-your-model>) to switch mid-session. Each model has its own prompt cache, so the first request after a switch re-reads the whole conversation uncached; see [Switching models](</docs/en/prompt-caching#switching-models>)
   * [`effortLevel`](</docs/en/settings-reference#effortlevel>) and [`modelSettings`](</docs/en/settings-reference#modelsettings>): use [`/effort`](</docs/en/model-config#adjust-effort-level>) to change effort mid-session
-  * [`outputStyle`](</docs/en/settings-reference#outputstyle>): part of the system prompt, so Claude Code applies the edit after `/clear` or a restart
 
 ###
 
@@ -310,7 +313,7 @@ A committed key doesn’t reach teammates
 
 Two things keep a key in `.claude/settings.json` from applying for everyone who clones it:
 
-  * **Claude Code ignores the key in a repository file.** Look for `User, local, or managed`, `User or managed`, `Managed`, or `Global config` in the Scope column of the [All settings](</docs/en/settings-reference#all-settings>) index; those keys never apply from the shared file, apart from [`autoContinueAtUsageLimit`](</docs/en/settings-reference#autocontinueatusagelimit>), which a repository file can still switch off: while the file sets the key and no user, `--settings`, or managed value does, Claude Code reads the setting as off. `Global config` keys apply only from `~/.claude.json`.
+  * **Claude Code ignores the key in a repository file.** Look for `User, local, or managed`, `User or managed`, `Managed`, or `Global config` in the Scope column of the [settings index](</docs/en/settings-reference#settings-index>); those keys never apply from the shared file, apart from [`autoContinueAtUsageLimit`](</docs/en/settings-reference#autocontinueatusagelimit>), which a repository file can still switch off: while the file sets the key and no user, `--settings`, or managed value does, Claude Code reads the setting as off. `Global config` keys apply only from `~/.claude.json`.
   * **The key waits for trust.** `permissions.allow` rules, `permissions.additionalDirectories`, `extraKnownMarketplaces`, and most [`env`](</docs/en/settings-reference#env>) values apply only after each teammate [trusts the folder](</docs/en/permissions#project-allow-rules-and-workspace-trust>). Until then they still see prompts and don’t get plugins from a marketplace the file declares. `deny` and `ask` rules apply right away.
 
 ####
@@ -363,7 +366,7 @@ A cloud session, on [Claude Code on the web](</docs/en/claude-code-on-the-web>) 
 
 What’s next
 
-  * [Settings reference](</docs/en/settings-reference>): every key, with where you set it and an example
+  * [All settings](</docs/en/settings-reference>): every key, with where you set it and an example
   * [Example settings files](</docs/en/settings-example>): a personal file, a team file, and an organization’s managed file
   * [Configure permissions](</docs/en/permissions>): allow, ask, and deny rules, and what Claude Code runs without asking
   * [Environment variables](</docs/en/env-vars>): the variables Claude Code reads and the `env` block

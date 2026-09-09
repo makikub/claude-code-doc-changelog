@@ -118,17 +118,10 @@ You’ve made your first edit. For the full reference on everything Desktop can 
 
 ​
 
-Coming from the CLI?
-
-Desktop runs the same engine as the CLI with a graphical interface. You can run both simultaneously on the same project, and they share configuration (CLAUDE.md files, MCP servers, hooks, skills, and settings). For a full comparison of features, flag equivalents, and what’s not available in Desktop, see [CLI comparison](</docs/en/desktop#coming-from-the-cli>).
-
-##
-
-​
-
 What’s next
 
   * [Use Claude Code Desktop](</docs/en/desktop>): permission modes, parallel sessions, diff view, connectors, and enterprise configuration
+  * [Coming from the CLI?](</docs/en/desktop#coming-from-the-cli>): run Desktop and the CLI on the same project, and compare features, flag equivalents, and what’s not available in Desktop
   * [Troubleshooting](</docs/en/desktop#troubleshooting>): solutions to common errors and setup issues
   * [Best practices](</docs/en/best-practices>): tips for writing effective prompts and getting the most out of Claude Code
   * [Common workflows](</docs/en/common-workflows>): tutorials for debugging, refactoring, testing, and more

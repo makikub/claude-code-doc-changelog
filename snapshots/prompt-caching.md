@@ -10,11 +10,11 @@ Each time you send a message in Claude Code, it makes a new API request. The mod
 
 Layer| Content| Changes when
 ---|---|---
-System prompt| Core instructions, tool definitions, output style| The set of loaded tool definitions changes, or Claude Code is upgraded
+System prompt| Core instructions, tool definitions, output style| The set of loaded tool definitions changes, you switch output style, or Claude Code is upgraded
 Project context| CLAUDE.md, auto memory, unscoped rules| Session starts, or after `/clear` or `/compact`
 Conversation| Your messages, Claude’s responses, tool results| Every turn
 
-A change to the conversation layer leaves the system prompt and project context cached. A change to the system prompt invalidates everything, because all later content now sits behind a different prefix. The third column gives common triggers rather than an exhaustive list, and the sections below cover the full set, including content such as output style that is fixed at session start. The prefix-match rule explains most of the behaviors on this page. [Plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) and [skill loading](</docs/en/skills>), for example, append their instructions as conversation messages, so the cached prefix stays intact. Two settings don’t appear in the layer table but still affect what stays cached:
+A change to the conversation layer leaves the system prompt and project context cached. A change to the system prompt invalidates everything, because all later content now sits behind a different prefix. The third column gives common triggers rather than an exhaustive list, and the sections below cover the full set. The prefix-match rule explains most of the behaviors on this page. [Plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) and [skill loading](</docs/en/skills>), for example, append their instructions as conversation messages, so the cached prefix stays intact. Two settings don’t appear in the layer table but still affect what stays cached:
 
   * **Model** : each model has its own cache. Switching models recomputes the entire request even when the content is identical. See Switching models below.
   * **Effort level** : on most models, each effort level has its own cache, so changing effort mid-session recomputes the entire request. On Fable 5.1 with an API key or a Claude subscription, the cache stays intact by default. See Changing effort level below.
@@ -56,6 +56,7 @@ These actions cause the next request to miss part or all of the cache. You see a
   * Connecting or disconnecting an MCP server
   * Enabling or disabling a plugin
   * Denying an entire tool
+  * Changing output style
   * Compacting the conversation
   * Accumulating many images
   * Upgrading Claude Code
@@ -166,6 +167,14 @@ Adding a bare tool name like `Bash` or `WebFetch` as a [deny rule](</docs/en/per
 
 ​
 
+Changing output style
+
+[Output style](</docs/en/output-styles>) is part of the system prompt. When you switch styles mid-session with `/config` or the `outputStyle` setting, Claude uses the new style starting with your next message, and that request reads the entire conversation history with no cache hits. To keep that cost small, switch styles before your first message in a session or right after `/clear` or `/compact`, when there is little or no conversation history to re-read. Before v2.1.251, a mid-session style switch kept the cache but didn’t apply until you ran `/clear` or started a new session.
+
+###
+
+​
+
 Compacting the conversation
 
 [Compaction](</docs/en/context-window#what-survives-compaction>) replaces your message history with a summary. By design, this invalidates the conversation layer, since the next request has a new, shorter history that doesn’t share a prefix with the old one. Claude Code reuses the system prompt layer and reloads project context from disk, which cache-hits only if CLAUDE.md and memory are unchanged since the session started. To produce the summary, Claude Code sends a separate request with the same system prompt, tools, and history as your conversation, plus a summarization instruction appended as a final user message. While the cache is warm, that request reads your prefix from the cache, so a mid-session `/compact` costs a fraction of what the context size suggests and spends most of its time generating the summary. After a break longer than the cache lifetime, there is no cache left to read, so the summarization request reprocesses the full history as uncached input. This is why `/compact` costs the most when you [resume an old session](</docs/en/sessions#resume-from-a-summary>). In both the warm and cold cases, the turn after compaction rebuilds the conversation cache for only the much shorter summary, so that turn is not the slow part.
@@ -196,11 +205,10 @@ A new Claude Code version typically updates the system prompt or tool definition
 
 Actions that keep the cache
 
-These actions either append to the end of the conversation or don’t touch the request at all. Some of them, such as editing CLAUDE.md or changing output style, are also why a setting change waits for a restart to apply.
+These actions either append to the end of the conversation or don’t touch the request at all. Some of them, such as editing CLAUDE.md, keep the cache for the same reason the change doesn’t reach the running session until `/clear`, `/compact`, or a restart.
 
   * Editing files in your repository
   * Editing CLAUDE.md mid-session
-  * Changing output style
   * Changing permission mode
   * Invoking skills and commands
   * Running `/recap`
@@ -222,14 +230,6 @@ File contents enter context only when Claude reads them, and reads append to the
 Editing CLAUDE.md mid-session
 
 Your project-root and user-level CLAUDE.md files are read once at session start and held in memory. Editing them mid-session does not invalidate the cache, but the edit also doesn’t apply. Claude keeps working with the version that was loaded at session start. The new content loads on the next `/clear`, `/compact`, or restart. [Nested CLAUDE.md files in subdirectories](</docs/en/memory>) and [rules with `paths:` frontmatter](</docs/en/memory#path-specific-rules>) load later, when Claude first reads a matching file. Editing one before it loads does take effect. After it loads, the content is part of the conversation history, so a mid-session edit doesn’t retroactively change it.
-
-###
-
-​
-
-Changing output style
-
-[Output style](</docs/en/output-styles>) is part of the system prompt, which Claude Code reads once at session start. Changing it via `/config` or the `outputStyle` setting mid-session does not invalidate the cache, but the change also doesn’t apply. Claude keeps using the style that was loaded at session start. The new style loads on the next `/clear` or restart.
 
 ###
 

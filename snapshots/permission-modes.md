@@ -321,7 +321,11 @@ Claude Code v2.1.257 and later also block these by default:
   * Reading credentials that belong to the host rather than to your task, such as node certificates or the node’s container-registry auth
   * Connecting to or scanning sibling containers, pods, or VMs that Claude didn’t start, or the node beneath the container
 
-If Claude Code runs somewhere that is meant to allow one of these, describe that setup in a [Host containment entry](</docs/en/auto-mode-config#define-trusted-infrastructure>) in `autoMode.environment`. **Allowed by default** :
+If Claude Code runs somewhere that is meant to allow one of these, describe that setup in a [Host containment entry](</docs/en/auto-mode-config#define-trusted-infrastructure>) in `autoMode.environment`. Claude Code v2.1.261 and later also block these by default:
+
+  * Posting or writing a link to a public paste, diagram, or data-sharing service in a message, PR or issue text, a document, or anywhere else the link will be opened or fetched, when the URL itself carries the content being shared, unless you named that service
+
+**Allowed by default** :
 
   * Local file operations in your working directory
   * Installing dependencies declared in your lock files or manifests
@@ -344,7 +348,7 @@ Sandbox network access requests are routed through the classifier rather than al
   * A deny that the classifier reached by evaluating the request lasts for the turn in the interactive CLI. In [non-interactive mode](</docs/en/headless>) and Agent SDK sessions, Claude Code reuses that deny for the rest of the run, because those sessions have no turn boundary
   * Changing your permission mode or rules drops all cached verdicts
 
-Run `claude auto-mode defaults` to print the full rule lists as JSON. If routine actions get blocked, an administrator can add trusted repos, buckets, and services via the `autoMode.environment` setting: see [Configure auto mode](</docs/en/auto-mode-config>). Pushing to any branch of the repository you’re working in and creating a pull request that matches your request run without a prompt, unless the change would send secrets or sensitive data outside the repository or the pull request targets a different repository or organization, the cases the blocked list covers. To require a human checkpoint before these actions while staying in auto mode, add `permissions.ask` rules: see [Common boundaries](</docs/en/auto-mode-config#common-boundaries>).
+Run `claude auto-mode defaults` to print the full rule lists as JSON. If routine actions get blocked, an administrator can add trusted repos, buckets, and services via the `autoMode.environment` setting: see [Configure auto mode](</docs/en/auto-mode-config>). Pushing to any branch of the repository you’re working in and creating a pull request that matches your request run without a prompt, unless the push or pull request falls under the blocked list, such as secrets or sensitive data leaving the repository, or a pull request that targets a different repository or organization. To require a human checkpoint before these actions while staying in auto mode, add `permissions.ask` rules: see [Common boundaries](</docs/en/auto-mode-config#common-boundaries>).
 
 ###
 
