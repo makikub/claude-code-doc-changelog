@@ -328,7 +328,7 @@ Option| Layer| Effect
 `tools: ["Read", "Grep"]`| Availability| Only the listed built-ins are in Claude’s context. Unlisted built-ins are removed. MCP tools are unaffected.
 `tools: []`| Availability| All built-ins are removed. Claude can only use your MCP tools.
 allowed tools| Permission| Listed tools run without a permission prompt. Other unlisted tools remain available; calls go through the [permission flow](</docs/en/agent-sdk/permissions>).
-disallowed tools| Both| A bare tool name such as `"Bash"` removes the tool from Claude’s context, the same as omitting it from `tools`. A scoped rule such as `"Bash(rm *)"` leaves the tool in context and denies only matching calls.
+disallowed tools| Both| A bare tool name such as `"Bash"` removes the tool from Claude’s context, the same as omitting it from `tools`. A scoped rule such as `"Bash(rm *)"` leaves the tool in context and denies only calls that match [as written](</docs/en/permissions#bash-rule-limits>).
 
 To remove a built-in entirely, omit it from `tools` or list its bare name in `disallowedTools` (Python: `disallowed_tools`); both keep the tool out of context so Claude never attempts it. A scoped `disallowedTools` rule blocks matching calls but leaves the tool visible, so Claude may waste a turn trying it. See [Configure permissions](</docs/en/agent-sdk/permissions>) for the full evaluation order.
 

@@ -102,7 +102,7 @@ Amazon Bedrock API keys provide a simpler authentication method without needing 
 
 Credential caching and resolution timeout
 
-Claude Code resolves the AWS default credential provider chain once and keeps the resolved credentials in memory. It reuses them until five minutes before they expire, or for one hour when they carry no expiration, so an SSO-backed profile requests credentials from IAM Identity Center about once per credential lifetime. A credential error from the API clears the cache, and the retry resolves fresh credentials. Requires Claude Code v2.1.207 or later. The cache covers every credential option above except an Amazon Bedrock API key, which doesn’t use the provider chain. To resolve the chain on every request instead, set [`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1`](</docs/en/env-vars>). Each resolve of the chain times out after 60 seconds. If a step in the chain stalls, for example a `credential_process` helper that waits for input it can’t receive, the request fails with [`AWS default-chain credential resolve timed out`](</docs/en/errors#aws-default-chain-credential-resolve-timed-out>). If your chain runs an interactive sign-in that legitimately needs longer, such as browser-based SSO with MFA through a wrapper like `aws-vault`, raise the limit in milliseconds with [`CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS`](</docs/en/env-vars>). Before v2.1.207, a stalled credential resolution left the request waiting indefinitely.
+Claude Code resolves the AWS default credential provider chain once and keeps the resolved credentials in memory. It reuses them until five minutes before they expire, or for one hour when they carry no expiration, so an SSO-backed profile requests credentials from IAM Identity Center about once per credential lifetime. A credential error from the API clears the cache, and the retry resolves fresh credentials. Requires Claude Code v2.1.207 or later. The cache covers every credential option above except an Amazon Bedrock API key, which doesn’t use the provider chain. To resolve the chain on every request instead, set [`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1`](</docs/en/env-vars>). Each resolve of the chain times out after 60 seconds. If a step in the chain stalls, for example a `credential_process` helper that waits for input it can’t receive, the request fails with [`AWS default-chain credential resolve timed out`](</docs/en/errors#aws-default-chain-credential-resolve-timed-out>). If your chain runs an interactive sign-in that legitimately needs longer, such as browser-based SSO with MFA through a wrapper like `aws-vault`, raise the limit in milliseconds with [`CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS`](</docs/en/env-vars>). Before v2.1.207, a stalled credential resolution left the request waiting indefinitely. Except when you authenticate with an Amazon Bedrock API key, the setup wizard applies the same limit to each AWS call it makes while verifying your credentials, and to the credential lookup before each model check. During credential verification, a check that exceeds it fails with [`Timed out after 60s waiting for AWS`](</docs/en/errors#bedrock-setup-verification-timed-out-waiting-for-aws>).
 
 ####
 
@@ -462,6 +462,21 @@ Troubleshooting
 Authentication loop with SSO and corporate proxies
 
 If browser tabs spawn repeatedly when using AWS SSO, remove the `awsAuthRefresh` setting from your [settings file](</docs/en/settings>). This can occur when corporate VPNs or TLS inspection proxies interrupt the SSO browser flow. Claude Code treats the interrupted connection as an authentication failure, re-runs `awsAuthRefresh`, and loops indefinitely. If your network environment interferes with automatic browser-based SSO flows, use `aws sso login` manually before starting Claude Code instead of relying on `awsAuthRefresh`.
+
+###
+
+​
+
+Certificate errors behind a TLS-inspecting proxy
+
+Claude Code applies your [CA certificate store](</docs/en/network-config#ca-certificate-store>) configuration to its requests to AWS, including:
+
+  * Model discovery
+  * Token counting
+  * The STS and SSO role-credential calls that resolve your AWS credentials
+  * The setup wizard’s credential verification and model checks
+
+For these requests, a corporate root certificate in your OS trust store or `NODE_EXTRA_CA_CERTS` bundle needs no Amazon Bedrock-specific setup. Before v2.1.260, Claude Code applied your CA configuration to these requests only when they went through a configured proxy, and on a direct connection they trusted only the runtime’s default certificate store. Before v2.1.261, the credential lookup behind the setup wizard’s model checks with the **Use credentials already in my environment** option still trusted only the runtime’s default certificate store. Behind a TLS-inspecting proxy whose root certificate is only in the OS store, the affected requests failed with `unable to get local issuer certificate`, or the wizard showed models as `unreachable`, while inference requests succeeded. Update to v2.1.261 or later.
 
 ###
 

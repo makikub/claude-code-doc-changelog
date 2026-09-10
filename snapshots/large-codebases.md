@@ -158,20 +158,20 @@ Block reads of generated and vendored code
 Claude’s content searches respect `.gitignore` by default, so paths already listed there, such as `node_modules/`, `dist/`, and `build/`, stay out of search results without additional configuration. For paths that are checked in, such as a vendored SDK or committed generated code, add `Read` deny rules in `permissions.deny` to block Claude from opening those files. The deny rules can cover everyone working in the repository, only you, or every session on the machine, depending on which settings file you put them in:
 
   * **Everyone working in the repository** : commit the rules to `.claude/settings.json`, at the repository root if you start Claude there, or in each package’s `.claude/` if you start from subdirectories. Like other project settings on this page, that file isn’t inherited from parent directories.
-  * **Yourself only** : use `.claude/settings.local.json` at the repository root, which loads in every CLI session inside the repository regardless of starting directory, except in the cases where Claude Code [doesn’t use the repository root](</docs/en/settings#where-claude-code-looks-for-each-file>), such as on Windows. Relative patterns like the example’s `Read(./vendor/**)` still [anchor at the session’s current working directory](</docs/en/permissions#read-and-edit>) rather than the repository root, so if you start sessions from subdirectories, write the rules in this file as `//`-absolute paths, such as `Read(//absolute/path/to/repo/vendor/**)`. Before v2.1.211, `.claude/settings.local.json` also loaded only from the starting directory.
+  * **Yourself only** : use `.claude/settings.local.json` at the repository root, which loads in every CLI session inside the repository regardless of starting directory, except in the cases where Claude Code [doesn’t use the repository root](</docs/en/settings#where-claude-code-looks-for-each-file>), such as on Windows. Relative patterns like the example’s `Read(./**/vendor/**/*)` still [anchor at the session’s current working directory](</docs/en/permissions#read-and-edit>) rather than the repository root, so if you start sessions from subdirectories, write the rules in this file as `//`-absolute paths, such as `Read(//absolute/path/to/repo/**/vendor/**/*)`. Before v2.1.211, `.claude/settings.local.json` also loaded only from the starting directory.
   * **Everyone, enforced in every session** : set the rules in [managed settings](</docs/en/managed-settings>), which user and project settings cannot override.
 
-The example below blocks build artifacts and a vendored SDK:
+The example below blocks build artifacts and a vendored SDK. Its directory patterns end with `/**/*` rather than `/**` so that each rule covers everything inside the directory but not the directory itself. Claude can then still list those directories or change into them, for example with `ls dist` or `cd build`.
 
 .claude/settings.json
 
     {
       "permissions": {
         "deny": [
-          "Read(./**/dist/**)",
-          "Read(./**/build/**)",
+          "Read(./**/dist/**/*)",
+          "Read(./**/build/**/*)",
           "Read(./**/*.generated.*)",
-          "Read(./vendor/**)"
+          "Read(./**/vendor/**/*)"
         ]
       }
     }
@@ -387,8 +387,8 @@ packages/api/.claude/settings.json
           "../shared"
         ],
         "deny": [
-          "Read(./**/dist/**)",
-          "Read(./**/build/**)"
+          "Read(./**/dist/**/*)",
+          "Read(./**/build/**/*)"
         ]
       }
     }
@@ -400,8 +400,8 @@ Because this session starts from `packages/api/`, sibling packages’ CLAUDE.md 
     {
       "permissions": {
         "deny": [
-          "Read(./**/dist/**)",
-          "Read(./**/build/**)"
+          "Read(./**/dist/**/*)",
+          "Read(./**/build/**/*)"
         ]
       }
     }

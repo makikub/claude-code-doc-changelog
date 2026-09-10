@@ -130,7 +130,8 @@ The Bash tool runs each command in a separate process.
 
 What persists between commands
 
-  * When Claude runs `cd` in the main session, the new working directory carries over to later Bash commands as long as it stays inside the project directory or an [additional working directory](</docs/en/permissions#working-directories>) you added with `--add-dir`, `/add-dir`, or `additionalDirectories` in settings. Subagent sessions never carry over working directory changes.
+  * When Claude runs `cd` in the main session, the new working directory carries over to later Bash commands as long as it stays inside the project directory or an [additional working directory](</docs/en/permissions#working-directories>) you added with `--add-dir`, `/add-dir`, or `additionalDirectories` in settings. This includes commands Claude runs in response to your later messages.
+    * Subagent sessions never carry over working directory changes.
     * If `cd` lands outside those directories, Claude Code resets to the project directory and appends `Shell cwd was reset to <dir>` to the tool result.
     * To disable this carry-over so every Bash command starts in the project directory, set `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`.
   * Environment variables don’t persist. An `export` in one command won’t be available in the next.
@@ -261,7 +262,7 @@ The Glob tool finds files by name pattern. It supports standard glob syntax incl
   * `src/**/*.ts` matches all `.ts` files under `src/`
   * `*.{json,yaml}` matches `.json` and `.yaml` files in the current directory
 
-Results are sorted by modification time and capped at 100 files. If the cap is hit, Claude sees a truncation flag in the result and can narrow the pattern. Glob doesn’t respect `.gitignore` by default, so it finds gitignored files alongside tracked ones. This differs from Grep, which skips gitignored files. To make Glob respect `.gitignore`, set `CLAUDE_CODE_GLOB_NO_IGNORE=false` before launching Claude Code. A `pattern` or `path` value that contains a null byte returns an error asking Claude to remove it.
+Results are sorted by modification time and capped at 100 files. If the cap is hit, Claude sees a truncation flag in the result and can narrow the pattern. Glob doesn’t respect `.gitignore` by default, so it finds gitignored files alongside tracked ones. This differs from Grep, which skips gitignored files. To make Glob respect `.gitignore`, set `CLAUDE_CODE_GLOB_NO_IGNORE=false` before launching Claude Code. Claude Code decides permission for a Glob call before it checks whether the search directory exists. It still runs the read-permission check for a missing `path` outside the [working directories](</docs/en/permissions#working-directories>), so a permission prompt for a path doesn’t mean the path exists. A `pattern` or `path` value that contains a null byte returns an error asking Claude to remove it.
 
 ##
 
@@ -275,7 +276,7 @@ The Grep tool searches file contents for patterns. Where Glob finds files by nam
   * `content`: matching lines with file and line number. When the tool’s `offset` parameter points past the last match for a pattern that has matches, Grep returns `No entries at this offset`, so Claude widens or resets the offset instead of concluding the pattern doesn’t match.
   * `count`: match count per file, followed by a total across all matching files. The total covers every match even when the tool’s `head_limit` or `offset` parameters truncate the listed per-file entries. Before v2.1.208, the total only summed the listed entries.
 
-Claude can scope results by file with the `glob` parameter, such as `**/*.tsx`, or by language with the `type` parameter, such as `py` or `rust`. By default, patterns match within a single line. Claude can set `multiline: true` to match across line boundaries. Grep respects `.gitignore`, so gitignored files are skipped. To search a gitignored file, Claude passes its path directly.
+Claude can scope results by file with the `glob` parameter, such as `**/*.tsx`, or by language with the `type` parameter, such as `py` or `rust`. By default, patterns match within a single line. Claude can set `multiline: true` to match across line boundaries. Grep respects `.gitignore`, so gitignored files are skipped. To search a gitignored file, Claude passes its path directly. Claude Code decides permission for a Grep call before it checks whether the search `path` exists. It still runs the read-permission check for a missing `path` outside the [working directories](</docs/en/permissions#working-directories>), so a permission prompt for a path doesn’t mean the path exists.
 
 ##
 

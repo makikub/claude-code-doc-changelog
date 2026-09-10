@@ -320,8 +320,10 @@ From the session where you’re working, run the command:
 It reviews your branch’s commits ahead of its upstream plus any uncommitted changes, so it needs work on the branch or in the working tree to have something to report. To review something else, pass a target: a file path, a PR number, a branch name, or a ref range such as `main...my-feature`.You can also add flags:
 
   * `--fix`: applies the findings to your working tree after the review
-  * `--comment`: posts the findings as inline PR comments
+  * `--comment`: posts the findings on a GitHub pull request as inline comments, or on a GitLab merge request as a single note
   * `--post`: on an `ultra` cloud review of a `github.com` pull request, preselects posting the finished findings to the PR in the launch dialog; see [Post findings to the pull request](</docs/en/ultrareview#post-findings-to-the-pull-request>). Requires Claude Code v2.1.227 or later
+
+When you pass `--comment` for a GitLab merge request, Claude Code posts the findings through GitLab’s `glab` CLI. Requires Claude Code v2.1.257 or later. When `glab` isn’t installed, Claude prints the findings in the terminal instead.Pass the merge request as its URL or a `!123` reference. Claude Code treats a bare number or branch name as a merge request only when the checkout’s origin is on `gitlab.com`. On a self-managed GitLab instance, pass the URL or `!123` form.
 
 2
 

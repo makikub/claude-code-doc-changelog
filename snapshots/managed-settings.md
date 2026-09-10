@@ -65,7 +65,7 @@ MDM or OS-level policy| As a macOS configuration profile or a Windows `HKLM` reg
 File-based| As `managed-settings.json` in a system directory on each machine; see where each mechanism stores the policy| Read at startup and reloaded when a file changes| Machines without MDM, Linux hosts, or images you build yourself
 HKCU registry, Windows and WSL| As a Windows `HKCU` registry value; see where each mechanism stores the policy| Read at startup and checked for changes every 30 minutes; Claude Code uses it only when no other managed source delivers a policy key and no host-supplied parent settings supply a restrictive key| You can’t write the machine-level `HKLM` key
 
-Starter templates for Jamf, Iru, Intune, and Group Policy are in the [MDM examples repository](<https://github.com/anthropics/claude-code/tree/main/examples/mdm>). For managed MCP servers, which you deploy alongside any of these through `managed-mcp.json`, see [Managed MCP configuration](</docs/en/managed-mcp>).
+Starter templates for Jamf, Iru, Intune, and Group Policy are in the [MDM examples repository](<https://github.com/anthropics/claude-code/tree/main/examples/mdm>). For managed MCP servers, which you deploy alongside any of these through `managed-mcp.json` or provide through the [`managedMcpServers`](</docs/en/settings-reference#managedmcpservers>) key, see [Managed MCP configuration](</docs/en/managed-mcp>).
 
 ###
 
@@ -82,7 +82,9 @@ A deployed policy reaches the developer’s sessions as follows:
     * **In a full VM sandbox** : when your Claude Desktop managed configuration sets [`requireCoworkFullVmSandbox`](<https://claude.com/docs/third-party/claude-desktop/configuration#requirecoworkfullvmsandbox>), Claude Code runs inside a virtual machine where the device’s MDM policy and managed settings file aren’t present.
     * **Remote Cowork sessions** : these run on Anthropic-managed VMs, where Claude Code has no device policy to read.
 The [surface coverage](</docs/en/model-config#surface-coverage>) table compares Cowork with the other surfaces.
-  * **Running sessions** : a session picks up most changes on the schedule in the table without a restart. Claude Code reads [`forceRemoteSettingsRefresh`](</docs/en/settings-reference#forceremotesettingsrefresh>) and [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>) only at session start, arms a new or changed [`policyHelper`](</docs/en/settings-reference#policyhelper>) entry at the next launch, and reads [some user-editable keys once at session start](</docs/en/settings#when-edits-take-effect>).
+  * **Running sessions** : most changes reach a running session on the schedule in the delivery mechanism table, without a restart.
+    * Changes to [`forceRemoteSettingsRefresh`](</docs/en/settings-reference#forceremotesettingsrefresh>), [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>), and [some user-editable keys](</docs/en/settings#when-edits-take-effect>) take effect at the next session start.
+    * A new or changed [`policyHelper`](</docs/en/settings-reference#policyhelper>) entry takes effect at the next launch. If server-managed settings shadow the helper at that launch, the helper runs as soon as a fetch reports those settings removed.
   * **Changes that need approval** : apart from the [updates that wait for the next launch](</docs/en/server-managed-settings#fetch-and-caching-behavior>), a server-managed change to a setting that [needs approval](</docs/en/server-managed-settings#security-approval-dialogs>), such as a hook or an `env` variable, waits for the developer to accept the dialog in an interactive session, and applies for the current run in a session an IDE extension or the Agent SDK hosts. Other server-managed changes apply on the next poll.
   * **Long-lived sessions** : a session left open for weeks can still lag a rollout. [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>) blocks an outdated binary from starting and doesn’t end a session that’s already running.
 
@@ -112,7 +114,7 @@ If several teams own parts of one policy, put each part in its own file in `mana
   * **Lists** , such as `permissions.deny` or `sandbox.network.allowedDomains`: the two lists combine, with duplicates removed
   * **Nested blocks** , such as `env` or `sandbox`: the two blocks merge key by key, and each key inside follows these same rules
   * **`fallbackModel`** : the later chain replaces the earlier one whole
-  * **[`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>)** : a later entry with the same name replaces the earlier one whole
+  * **[`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>) and [`managedMcpServers`](</docs/en/settings-reference#managedmcpservers>)**: a later entry with the same name replaces the earlier one whole
   * **[`modelPicker`](</docs/en/settings-reference#modelpicker>)** : the later lineup replaces the earlier one whole
 
 ##
@@ -155,6 +157,7 @@ Under the default `"first-wins"` setting, Claude Code reads most keys only from 
   * `sandbox.filesystem.disabled` and `sandbox.network.strictAllowlist`
   * [`useAutoModeDuringPlan`](</docs/en/settings-reference#useautomodeduringplan>) and [`syncClaudeAiSkills`](</docs/en/settings-reference#syncclaudeaiskills>), where a `false` from any admin source turns the behavior off. A `false` in the developer’s user or local settings turns it off too; each key can only deny
   * [`enableArtifact`](</docs/en/settings-reference#enableartifact>), where a `false` from any admin source turns the [Artifact tool](</docs/en/artifacts>) off. A `false` in the developer’s user, project, or local settings turns it off too, and no source turns it back on; see [which lower-level values still count](</docs/en/settings#exceptions-to-managed-settings-precedence>). Requires Claude Code v2.1.242 or later
+  * [`maxEffortLevel`](</docs/en/settings-reference#maxeffortlevel>), where the lowest cap in any admin source applies. If a developer sets a lower cap in their own settings or with `--settings`, Claude Code applies that one; no source can raise the cap. Requires Claude Code v2.1.267 or later
   * A commit-trailer opt-out in `attribution`, or in the deprecated `includeCoAuthoredBy`, from any tier
   * [`forceRemoteSettingsRefresh`](</docs/en/server-managed-settings>)
   * `env`, merged per variable across the admin sources: each variable comes from the highest-priority source that defines it, so lower sources fill in variables the higher ones leave unset. A few variables follow their own rules; [Per-key exceptions across managed sources](</docs/en/server-managed-settings#per-key-exceptions-across-managed-sources>) names each one. Requires Claude Code v2.1.223 or later. Before v2.1.223, Claude Code applied the selected source’s whole `env` block only
@@ -165,13 +168,15 @@ Under the default `"first-wins"` setting, Claude Code reads most keys only from 
 
 Compose every managed source
 
-To have Claude Code apply every admin source your organization delivers, set [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>) to `"merge"` in the highest-ranked source you deploy. Claude Code reads the key only from the highest-ranked source that carries either the key or a policy key, so a lower source can’t opt itself into merging with the source above it, and a machine that never receives server-managed settings needs the key in its MDM profile too. The user-writable HKCU registry never merges with another source. Requires Claude Code v2.1.242 or later. Under `"merge"`, Claude Code adds a lower source’s list entries, such as `permissions.allow` rules and hooks, to the policy, so turn it on only when every source ranked below your highest one is under an administrator’s control. This table shows how Claude Code combines each kind of key under `"merge"`; the [`managedSourcesBehavior` entry](</docs/en/settings-reference#managedsourcesbehavior>) names every key in the restriction allowlist and highest-source-only rows.
+To have Claude Code apply every admin source your organization delivers, set [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>) to `"merge"` in the highest-ranked source you deploy. Claude Code reads the key only from the highest-ranked source that carries either the key or a policy key, so a lower source can’t opt itself into merging with the source above it, and a machine that never receives server-managed settings needs the key in its MDM profile too. The user-writable HKCU registry never merges with another source. Requires Claude Code v2.1.242 or later. Under `"merge"`, Claude Code adds a lower source’s list entries, such as `permissions.allow` rules and hooks, to the policy, so turn it on only when every source ranked below your highest one is under an administrator’s control. This table shows how Claude Code combines each kind of key under `"merge"`. The [`managedSourcesBehavior` entry](</docs/en/settings-reference#managedsourcesbehavior>) names every key in three of the rows: restriction allowlists, values taken whole, and keys read from the highest-ranked source only.
 
 Kind of key| How Claude Code combines it| Examples
 ---|---|---
 Lists| Combines the entries from every source| `permissions.allow`, `hooks`, `sandbox.network.allowedDomains`, `deniedMcpServers`
 Locks| Applies the strictest value any source sets; a looser value applies only from the highest-ranked source| `allowManagedHooksOnly`, `permissions.disableBypassPermissionsMode`, `crossSessionInbound`
 Restriction allowlists| Takes the list whole from the highest-ranked source that sets it, without adding entries from lower sources| `availableModels`, `allowedMcpServers`, `strictKnownMarketplaces`, `allowedChannelPlugins`, and the `fallbackModel` chain
+Values taken whole| Takes the value whole from the highest-ranked source that sets it, without combining entries or fields from lower sources| `sandbox.credentials.awsPairs`, `sandbox.ripgrep`
+Provided MCP servers| Combines the server names from every source; when two sources set the same name, applies the higher-ranked source’s whole entry| `managedMcpServers`
 Keys read from the highest-ranked source only| Ignores the key in every lower source, even when the highest-ranked source leaves it unset| Credential helpers such as `apiKeyHelper`, login pins such as `forceLoginOrgUUID`, `modelPicker`, `permissions.defaultMode`
 `env`| Merges per variable across admin sources under either setting, as Keys read from every admin source describes|
 Every other key| Takes the value from the highest-ranked source that sets it| `model`, `cleanupPeriodDays`
@@ -186,9 +191,9 @@ Compute the policy with a helper program
 
 A [`policyHelper`](</docs/en/settings-reference#policyhelper>) is an executable your MDM policy or managed settings file names, and Claude Code runs it to compute managed settings at startup. When the selected source configures one and the helper emits a `managedSettings` object, that output changes what Claude Code reads:
 
-  * **The emitted`managedSettings` object is the only managed settings for the session**, including for the keys it otherwise reads from every admin source, apart from `forceRemoteSettingsRefresh`, which Claude Code checks in every admin source at startup before the helper runs. For which helper runs fail, and what Claude Code does when one does, see [Helper failures](</docs/en/settings-reference#helper-failures>)
+  * **The emitted`managedSettings` object is the only managed settings for the session**, including for the keys it otherwise reads from every admin source, apart from [`forceRemoteSettingsRefresh`, which has its own startup rule](</docs/en/settings-reference#forceremotesettingsrefresh>)
 
-Claude Code selects the source at startup, and that selection decides whether a helper runs. The [`policyHelper`](</docs/en/settings-reference#policyhelper>) entry says which sources can configure a helper.
+For which helper runs fail, and what Claude Code does when one does, see [Helper failures](</docs/en/settings-reference#helper-failures>).
 
 ###
 
@@ -299,7 +304,10 @@ A few enforcement keys aren’t dropped when invalid. Claude Code enforces a str
 
 Field| Behavior when present but invalid
 ---|---
-`allowedMcpServers`| Enforced as an empty allowlist, so no MCP servers are admitted until the value is fixed. An individual invalid entry is stripped and the valid subset is enforced.
+`allowedMcpServers`| Enforced as an empty allowlist until the value is fixed, so no MCP servers that users add are admitted. Servers your organization delivers through [`managedMcpServers`](</docs/en/settings-reference#managedmcpservers>) still load, and `managed-mcp.json` servers load per [How a server is evaluated](</docs/en/managed-mcp#how-a-server-is-evaluated>). An individual invalid entry is stripped and the valid subset is enforced.
+`allowedHttpHookUrls`| Claude Code enforces an empty [allowlist](</docs/en/settings-reference#allowedhttphookurls>) until you fix the value. If only an individual entry is invalid, it strips that entry and enforces the rest.
+`httpHookAllowedEnvVars`| Claude Code enforces an empty [allowlist](</docs/en/settings-reference#httphookallowedenvvars>) until you fix the value. If only an individual entry is invalid, it strips that entry and enforces the rest.
+`allowedChannelPlugins`| Claude Code enforces an empty allowlist until you fix the value, so no channel plugin passed to `--channels` is admitted. If only an individual entry is invalid, it strips that entry and enforces the rest.
 `allowManagedHooksOnly`| Treated as `true` until fixed: the [hook restrictions](</docs/en/settings-reference#allowmanagedhooksonly>) apply and, unless `disableCommandPluginSources` is explicitly `false`, command-sourced plugins are disabled.
 `allowManagedMcpServersOnly`| Treated as `true`.
 `disableCommandPluginSources`| Treated as `true`, so command-sourced plugins stay disabled until the value is fixed.
@@ -310,7 +318,7 @@ Field| Behavior when present but invalid
 `deniedMcpServers`| An individual invalid entry is stripped and the valid subset is enforced. A wholly invalid value is dropped with a warning, since denying every server would block servers the policy never named.
 `sandbox.credentials`| A recoverable invalid entry is degraded to `mode: "deny"` with a warning; an unrecoverable one is stripped; valid entries stay enforced. See [invalid credential entries](</docs/en/settings-reference#invalid-credential-entries-in-managed-settings>)
 
-`requiredMinimumVersion` and `requiredMaximumVersion` fail open by design: an invalid value is dropped rather than enforced. This tolerance applies only to managed settings. User, project, and local settings files remain strict: a file whose JSON or top-level shape fails validation is rejected as a whole and reported, and an individual entry that fails, such as a malformed permission rule, is skipped with a warning while the rest of the file applies.
+Before v2.1.267, Claude Code dropped `allowedHttpHookUrls`, `httpHookAllowedEnvVars`, or `allowedChannelPlugins` whole when the value or any one entry was invalid, and behaved as if the key weren’t set. `requiredMinimumVersion` and `requiredMaximumVersion` fail open by design: an invalid value is dropped rather than enforced. This tolerance applies only to managed settings. User, project, and local settings files remain strict: a file whose JSON or top-level shape fails validation is rejected as a whole and reported, and an individual entry that fails, such as a malformed permission rule, is skipped with a warning while the rest of the file applies.
 
 ##
 
@@ -332,6 +340,7 @@ Setting| Description
 [`disableCommandPluginSources`](</docs/en/settings-reference#disablecommandpluginsources>)| When `true`, blocks [`command` plugin sources](</docs/en/plugin-marketplaces#command-sources>) entirely, so the marketplace-declared command never runs. Also blocks marketplace [`headersHelper` commands](</docs/en/plugin-marketplaces#authenticate-archive-downloads>), except for a marketplace that managed settings themselves declare. When unset, follows `allowManagedHooksOnly`. Requires Claude Code v2.1.229 or later, and the `headersHelper` block requires v2.1.238 or later
 [`disableSideloadFlags`](</docs/en/settings-reference#disablesideloadflags>)| Reject the `--plugin-dir`, `--plugin-url`, `--agents`, and `--mcp-config` flags at startup. In cloud sessions, Claude Code drops the MCP servers the server delivered through `--mcp-config`, other than in-process `type: "sdk"` entries, and starts the session. Requires Claude Code v2.1.193 or later
 [`forceRemoteSettingsRefresh`](</docs/en/settings-reference#forceremotesettingsrefresh>)| When `true`, blocks CLI startup until remote managed settings are freshly fetched and exits if the fetch fails. See [fail-closed enforcement](</docs/en/server-managed-settings#enforce-fail-closed-startup>)
+[`managedMcpServers`](</docs/en/settings-reference#managedmcpservers>)| Remote MCP servers provided to every user alongside their own. It provides servers rather than locking anything down. See [Provide servers through managed settings](</docs/en/managed-mcp#provide-servers-through-managed-settings>). Requires Claude Code v2.1.259 or later
 [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>)| Whether Claude Code applies only the highest-priority managed source or composes every one of them
 [`parentSettingsBehavior`](</docs/en/settings-reference#parentsettingsbehavior>)| Whether host-supplied parent settings merge under the managed policy
 [`pluginSuggestionMarketplaces`](</docs/en/settings-reference#pluginsuggestionmarketplaces>)| Marketplaces whose plugins Claude Code may suggest to users

@@ -9,7 +9,7 @@ The loop at a glance
 Every agent session follows the same cycle:
 
   1. **Receive prompt.** Claude receives your prompt, along with the system prompt, tool definitions, and conversation history. The SDK yields a `SystemMessage` with subtype `"init"` containing session metadata.
-  2. **Evaluate and respond.** Claude evaluates the current state and determines how to proceed. It may respond with text, request one or more tool calls, or both. The SDK yields an `AssistantMessage` containing the text and any tool call requests.
+  2. **Evaluate and respond.** Claude evaluates the current state and determines how to proceed. It may respond with text, request one or more tool calls, or both. The SDK yields one or more `AssistantMessage` objects, one for each content block, such as a text block or a tool call request.
   3. **Execute tools.** The SDK runs each requested tool and collects the results. Each set of tool results feeds back to Claude for the next decision. You can use [hooks](</docs/en/agent-sdk/hooks>) to intercept, modify, or block tool calls before they run.
   4. **Repeat.** Steps 2 and 3 repeat as a cycle. Each full cycle is one turn. Claude continues calling tools and processing results until it produces a response with no tool calls.
   5. **Return result.** The SDK yields a final `AssistantMessage` with the text response (no tool calls), followed by a `ResultMessage` with the final text, token usage, cost, and session ID.
@@ -25,8 +25,8 @@ Turns and messages
 A turn is one round trip inside the loop: Claude produces output that includes tool calls, the SDK executes those tools, and the results feed back to Claude automatically. This happens without yielding control back to your code. Turns continue until Claude produces output with no tool calls, at which point the loop ends and the final result is delivered. Consider what a full session might look like for the prompt “Fix the failing tests in auth.ts”. First, the SDK sends your prompt to Claude and yields a `SystemMessage` with the session metadata. Then the loop begins:
 
   1. **Turn 1:** Claude calls `Bash` to run `npm test`. The SDK yields an `AssistantMessage` with the tool call, executes the command, then yields a `UserMessage` with the output (three failures).
-  2. **Turn 2:** Claude calls `Read` on `auth.ts` and `auth.test.ts`. The SDK returns the file contents and yields an `AssistantMessage`.
-  3. **Turn 3:** Claude calls `Edit` to fix `auth.ts`, then calls `Bash` to re-run `npm test`. All three tests pass. The SDK yields an `AssistantMessage`.
+  2. **Turn 2:** Claude calls `Read` on `auth.ts` and `auth.test.ts`. The SDK yields an `AssistantMessage` for each call and returns the file contents.
+  3. **Turn 3:** Claude calls `Edit` to fix `auth.ts`, then calls `Bash` to re-run `npm test`. All three tests pass. The SDK yields an `AssistantMessage` for each call.
   4. **Final turn:** Claude produces a text-only response with no tool calls: “Fixed the auth bug, all three tests pass now.” The SDK yields a final `AssistantMessage` with this text, then a `ResultMessage` with the same text plus cost and usage.
 
 That was four turns: three with tool calls, one final text-only response. You can cap the loop with `max_turns` / `maxTurns`, which counts tool-use turns only. For example, `max_turns=2` in the loop above would have stopped before the edit step. You can also use `max_budget_usd` / `maxBudgetUsd` to cap turns based on a spend threshold. Without limits, the loop runs until Claude finishes on its own, which is fine for well-scoped tasks but can run long on open-ended prompts (“improve this codebase”). Setting a budget is a good default for production agents. See Turns and budget below for the option reference.
@@ -45,7 +45,7 @@ As the loop runs, the SDK yields a stream of messages. Each message carries a ty
     * `"informational"`: plain-text status banners from the loop
     * `"worker_shutting_down"`: the loop will end after the current turn because the host is exiting or Remote Control disconnected
 In TypeScript, each subtype other than `"init"` is its own type in the [`SDKMessage` union](</docs/en/agent-sdk/typescript#sdkmessage>) rather than a subtype of `SDKSystemMessage`.
-  * **`AssistantMessage`:** emitted after each Claude response, including the final text-only one. Contains text content blocks and tool call blocks from that turn.
+  * **`AssistantMessage`:** emitted for each content block in Claude’s responses, including the final text-only one. Each carries a single content block, such as text or a tool call, and the messages from one response share a message ID.
   * **`UserMessage`:** emitted after each tool execution with the tool result content sent back to Claude. Also emitted for any user inputs you stream mid-loop.
   * **`StreamEvent`:** only emitted when partial messages are enabled. Contains raw API streaming events (text deltas, tool input chunks). See [Stream responses](</docs/en/agent-sdk/streaming-output>).
   * **`ResultMessage`:** marks the end of the agent loop. Contains the final text result, token usage, cost, and session ID. Check the `subtype` field to determine whether the task succeeded or hit a limit. A small number of trailing system events, such as `prompt_suggestion`, can arrive after it, so iterate the stream to completion rather than breaking on the result. See Handle the result.
@@ -76,13 +76,18 @@ Python
 TypeScript
 
     import asyncio
-    from claude_agent_sdk import query, AssistantMessage, ResultMessage
+    from claude_agent_sdk import query, AssistantMessage, ResultMessage, TextBlock, ToolUseBlock
 
     async def main():
         try:
             async for message in query(prompt="Summarize this project"):
                 if isinstance(message, AssistantMessage):
-                    print(f"Turn completed: {len(message.content)} content blocks")
+                    # Each AssistantMessage carries one content block
+                    for block in message.content:
+                        if isinstance(block, TextBlock):
+                            print(f"Claude: {block.text}")
+                        elif isinstance(block, ToolUseBlock):
+                            print(f"Tool call: {block.name}")
                 if isinstance(message, ResultMessage):
                     if message.subtype == "success":
                         print(message.result)
@@ -101,7 +106,14 @@ TypeScript
     try {
       for await (const message of query({ prompt: "Summarize this project" })) {
         if (message.type === "assistant") {
-          console.log(`Turn completed: ${message.message.content.length} content blocks`);
+          // Each assistant message carries one content block
+          for (const block of message.message.content) {
+            if (block.type === "text") {
+              console.log(`Claude: ${block.text}`);
+            } else if (block.type === "tool_use") {
+              console.log(`Tool call: ${block.name}`);
+            }
+          }
         }
         if (message.type === "result") {
           if (message.subtype === "success") {

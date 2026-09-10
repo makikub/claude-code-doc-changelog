@@ -30,7 +30,12 @@ Check `ask` rules from [settings.json](</docs/en/settings-reference#permission-s
 
 Permission mode
 
-Apply the active permission mode. `bypassPermissions` approves everything that reaches this step except `rm` and `rmdir` removals targeting a [critical path](</docs/en/permission-modes#critical-paths>), which fall through instead. `acceptEdits` approves the file operations listed under Accept edits mode. `plan` routes file-edit and shell-write tools to your `canUseTool` callback regardless of allow rules, so write operations cannot be auto-approved while planning. Other modes fall through.
+Apply the active permission mode:
+
+  * In `bypassPermissions` mode, Claude Code approves everything that reaches this step except `rm` and `rmdir` removals targeting a [critical path](</docs/en/permission-modes#critical-paths>), which fall through instead.
+  * In `acceptEdits` mode, Claude Code approves the file operations listed under Accept edits mode.
+  * In `plan` mode, Claude Code sends file-edit and shell-write tools to your `canUseTool` callback regardless of allow rules, so write operations can’t be auto-approved while planning.
+  * In other modes, the request falls through.
 
 5
 
@@ -66,7 +71,7 @@ Option| Effect
 ---|---
 `allowed_tools=["Read", "Grep"]`| `Read` and `Grep` are auto-approved. Other tools not listed here still exist and fall through to the permission mode and `canUseTool`.
 `disallowed_tools=["Bash"]`| The `Bash` tool definition is removed from the request. Claude does not see the tool and cannot attempt it.
-`disallowed_tools=["Bash(rm *)"]`| `Bash` stays available. Calls matching `rm *` are denied in every permission mode, including `bypassPermissions`. Other `Bash` calls fall through to the permission mode.
+`disallowed_tools=["Bash(rm *)"]`| `Bash` stays available. Calls matching `rm *` [as written](</docs/en/permissions#bash-rule-limits>) are denied in every permission mode, including `bypassPermissions`. Other `Bash` calls, including `/bin/rm`, fall through to the permission mode.
 `disallowed_tools=["*"]`| Every tool definition is removed from the request. Tool-name globs are supported in deny rules: `"*"` matches every tool and `"mcp__*"` matches every MCP tool across all servers.
 
 Allow rules accept tool-name globs only after a literal `mcp__<server>__` prefix. The server segment must be glob-free so the rule names a specific server you configured: `mcp__puppeteer__*` matches every tool from the `puppeteer` server, and `mcp__github__get_*` matches its `get_` tools. An unanchored entry like `allowed_tools=["*"]` or `allowed_tools=["mcp__*"]` is ignored with a startup warning and does not auto-approve anything. Scoped rules for `Read` and `Edit` take a path pattern. `Edit(path)` rules govern all built-in tools that write files, including `Write` and `NotebookEdit`; a `Write(path)` rule is never matched by the file permission checks. Use `//path` for an absolute filesystem path: a deny rule of `Edit(//secrets/**)` blocks writes anywhere under `/secrets` on disk. With a single leading slash, `Edit(/secrets/**)` anchors at the rule’s source instead. For rules passed through `allowed_tools` or `disallowed_tools`, that means the session’s working directory, so the rule doesn’t block `/secrets` on disk. See [Read and Edit rules](</docs/en/permissions#read-and-edit>) for the four anchor forms and how rules from settings files resolve.
@@ -109,7 +114,7 @@ Mode| Description| Tool behavior
 `plan`| Planning mode| Claude explores and plans without editing your source files; file edits are never auto-approved and prompt through your `canUseTool` callback
 `auto`| Model-classified approvals| A model classifier approves or denies permission prompts. See [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) for availability
 
-**Subagent inheritance:** Subagents inherit the parent session’s permission mode. An [`AgentDefinition`’s `permissionMode`](</docs/en/agent-sdk/typescript#agentdefinition>) can override it, except when the parent uses `bypassPermissions`, `acceptEdits`, or `auto`: those modes apply to every subagent and can’t be overridden per subagent. Claude Code also ignores a definition’s `permissionMode: "bypassPermissions"` when bypass mode is disabled by [`permissions.disableBypassPermissionsMode`](</docs/en/permissions#managed-settings>), so that subagent runs with the parent session’s mode.Subagents may have different system prompts and less constrained behavior than your main agent, so inheriting `bypassPermissions` grants them full, autonomous system access. The [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>) still apply.
+**Subagent inheritance:** A subagent runs in the parent session’s permission mode unless you set `permissionMode` on its [`AgentDefinition`](</docs/en/agent-sdk/typescript#agentdefinition>) and the parent session is in `default`, `dontAsk`, or `plan` mode. Even then, Claude Code never applies a `"bypassPermissions"` value. A subagent runs in `bypassPermissions` mode only when the parent session itself does. The `bypassPermissions` exception requires Claude Code v2.1.267 or later.Subagents may have different system prompts and less constrained behavior than your main agent, so inheriting `bypassPermissions` grants them full, autonomous system access. The [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>) still apply.
 
 ###
 
@@ -228,7 +233,13 @@ Auto-approves file operations so Claude can edit code without prompting. Other t
   * File edits (Edit, Write tools)
   * Filesystem commands: `mkdir`, `touch`, `rm`, `rmdir`, `mv`, `cp`, `sed`
 
-Both apply only to paths inside the working directory or `additionalDirectories`. Paths outside that scope, writes to protected paths, and `rm` and `rmdir` removals targeting a [critical path](</docs/en/permission-modes#critical-paths>) still prompt. **Use when:** you trust Claude’s edits and want faster iteration, such as during prototyping or when working in an isolated directory.
+Both apply only to paths inside the working directory or `additionalDirectories`. In `acceptEdits` mode, Claude Code doesn’t auto-approve the request when Claude:
+
+  * Works on a path outside that scope
+  * Writes to a protected path
+  * Removes a [critical path](</docs/en/permission-modes#critical-paths>) with `rm` or `rmdir`
+
+**Use when:** you trust Claude’s edits and want faster iteration, such as during prototyping or when working in an isolated directory.
 
 ####
 

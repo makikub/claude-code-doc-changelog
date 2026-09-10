@@ -73,7 +73,7 @@ File| Scope| Commit| What it does| Reference
 `.worktreeinclude`| Project only| ✓| Gitignored files to copy into new worktrees| [Worktrees](</docs/en/worktrees#copy-gitignored-files-into-worktrees>)
 `skills/<name>/SKILL.md`| Project and global| ✓| Reusable prompts invoked with `/name` or auto-invoked| [Skills](</docs/en/skills>)
 `commands/*.md`| Project and global| ✓| Single-file prompts; same mechanism as skills| [Skills](</docs/en/skills>)
-`output-styles/*.md`| Project and global| ✓| Custom system-prompt sections| [Output styles](</docs/en/output-styles>)
+`output-styles/*.md`| Project and global| ✓| Custom instruction sets that adjust how Claude works| [Output styles](</docs/en/output-styles>)
 `agents/*.md`| Project and global| ✓| Subagent definitions with their own prompt and tools| [Subagents](</docs/en/sub-agents>)
 `workflows/*.js`| Project and global| ✓| Dynamic workflow scripts written by Claude and saved from `/workflows`; each file becomes a `/<name>` command| [Dynamic workflows](</docs/en/workflows>)
 `agent-memory/<name>/`| Project and global| ✓| Persistent memory for subagents| [Persistent memory](</docs/en/sub-agents#enable-persistent-memory>)

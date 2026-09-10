@@ -24,7 +24,7 @@ For either path, you need admin access to the repository.
 
 Quick setup
 
-Before you start, install the [GitHub CLI](<https://cli.github.com>) and authenticate it with `gh auth login`. Claude Code checks for it and warns you if it’s missing. Open `claude` in the repository you want to connect, run `/install-github-app`, and follow the prompts. Claude Code installs the Claude GitHub App, then sets up an authentication secret for the workflows:
+`/install-github-app` works only with github.com repositories. If your repository’s git remote is on gitlab.com or bitbucket.org, the command prints a notice and exits instead of starting setup. To run Claude Code from GitLab pipelines, see [Claude Code GitLab CI/CD](</docs/en/gitlab-ci-cd>). Before you start, install the [GitHub CLI](<https://cli.github.com>) and authenticate it with `gh auth login`. Claude Code checks for it and warns you if it’s missing. Open `claude` in the repository you want to connect, run `/install-github-app`, and follow the prompts. Claude Code installs the Claude GitHub App, then sets up an authentication secret for the workflows:
 
   * If Claude Code already has an API key, it reuses that key, and offers to keep the repository’s existing `ANTHROPIC_API_KEY` secret if one is already set
   * Otherwise, choose between creating a long-lived token with your Claude subscription and pasting in an API key

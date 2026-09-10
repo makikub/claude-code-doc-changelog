@@ -509,7 +509,7 @@ Property| Type| Default| Description
 `cwd`| `string`| `process.cwd()`| Current working directory
 `debug`| `boolean`| `false`| Enable debug mode for the Claude Code process
 `debugFile`| `string`| `undefined`| Write debug logs to a specific file path. Implicitly enables debug mode
-`disallowedTools`| `string[]`| `[]`| Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
+`disallowedTools`| `string[]`| `[]`| Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`, for the command [as written](</docs/en/permissions#bash-rule-limits>). See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `effort`| `'low' | 'medium' | 'high' | 'xhigh' | 'max'`| Model default| Controls how much effort Claude puts into its response. Works with adaptive thinking to guide thinking depth. See [adjust the effort level](</docs/en/model-config#adjust-effort-level>)
 `enableFileCheckpointing`| `boolean`| `false`| Enable file change tracking for rewinding. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
 `env`| `Record<string, string | undefined>`| `process.env`| Environment variables. When set, this replaces the subprocess environment instead of merging with `process.env`, so pass `{ ...process.env, YOUR_VAR: 'value' }` to keep inherited variables like `PATH`. See Handle slow or stalled API responses for an example of this pattern, and [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header
@@ -518,7 +518,7 @@ Property| Type| Default| Description
 `extraArgs`| `Record<string, string | null>`| `{}`| Additional arguments
 `fallbackModel`| `string`| `undefined`| Model to use if primary fails
 `forkSession`| `boolean`| `false`| When resuming with `resume`, fork to a new session ID instead of continuing the original session
-`forwardSubagentText`| `boolean`| `false`| Forward subagent text and thinking blocks as assistant and user messages with `parent_tool_use_id` set, so consumers can render a nested transcript. By default only `tool_use` and `tool_result` blocks from subagents are emitted. Messages from subagents at every nesting depth are forwarded on Claude Code v2.1.219 and later; before v2.1.219, only messages from depth-1 subagents appeared
+`forwardSubagentText`| `boolean`| `false`| Forward subagent text and thinking blocks as assistant and user messages with `parent_tool_use_id` set, so consumers can render a nested transcript. Without this option, Claude Code emits subagent `tool_use` and `tool_result` blocks but not text or thinking. Messages from subagents at every nesting depth are forwarded on Claude Code v2.1.219 and later; before v2.1.219, only messages from depth-1 subagents appeared
 `hooks`| `Partial<Record<``HookEvent``, ``HookCallbackMatcher``[]>>`| `{}`| Hook callbacks for events
 `includeHookEvents`| `boolean`| `false`| Include hook lifecycle events in the message stream as `SDKHookStartedMessage`, `SDKHookProgressMessage`, and `SDKHookResponseMessage`. Lifecycle events for `SessionStart` and `Setup` hooks are always included and don’t need this option. Some hook events, such as `Notification`, `SessionEnd`, `PreCompact`, and `PostCompact`, never produce an `SDKHookStartedMessage`, even with this option. For those events, Claude Code still emits an `SDKHookProgressMessage` while a command hook that runs for more than a second produces output, and emits an `SDKHookResponseMessage` only when a hook [that runs in the background](</docs/en/hooks#run-hooks-in-the-background>) finishes
 `includePartialMessages`| `boolean`| `false`| Include partial message events
@@ -553,7 +553,7 @@ Property| Type| Default| Description
 `spawnClaudeCodeProcess`| `(options: SpawnOptions) => SpawnedProcess`| `undefined`| Custom function to spawn the Claude Code process. Use to run Claude Code in VMs, containers, or remote environments
 `stderr`| `(data: string) => void`| `undefined`| Callback for stderr output
 `strictMcpConfig`| `boolean`| `false`| Use only the servers passed in `mcpServers` and ignore project `.mcp.json`, user settings, plugin-provided MCP servers, and [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>)
-`systemPrompt`| `string | string[] | { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean }`| `undefined` (minimal prompt)| System prompt configuration. Pass a string for a custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. Pass an array of strings with the exported `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` constant between the static and per-request parts to [cache the static part of a custom prompt](</docs/en/agent-sdk/modifying-system-prompts#cache-the-static-part-of-a-custom-prompt>). When using the preset object form, add `append` to extend it with additional instructions, and set `excludeDynamicSections: true` to move per-session context into the first user message for [better prompt-cache reuse across machines](</docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines>)
+`systemPrompt`| `string | string[] | { type: 'custom'; prompt: string | string[]; snapshot?: boolean } | { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean; snapshot?: boolean }`| `undefined` (minimal prompt)| System prompt configuration. Pass a string for a custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. Pass an array of strings with the exported `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` constant between the static and per-request parts to [cache the static part of a custom prompt](</docs/en/agent-sdk/modifying-system-prompts#cache-the-static-part-of-a-custom-prompt>). When using the preset object form, add `append` to extend it with additional instructions, and set `excludeDynamicSections: true` to move per-session context into the first user message for [better prompt-cache reuse across machines](</docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines>). Set `snapshot: false` to rebuild the prompt on every request instead of [reusing the prompt the session recorded on its first request](</docs/en/agent-sdk/modifying-system-prompts#change-the-prompt-of-an-existing-session>). To set `snapshot` on a custom prompt, pass the `{ type: 'custom', prompt }` form. The `{ type: 'custom' }` form and the `snapshot` field require TypeScript Agent SDK v0.3.257 or later
 `taskBudget`| `{ total: number }`| `undefined`|  _Alpha._ API-side task budget in tokens. When set, the model is told its remaining token budget so it can pace tool use and wrap up before the limit
 `thinking`| `ThinkingConfig`| `{ type: 'adaptive' }` for supported models| Controls Claude’s thinking/reasoning behavior. See `ThinkingConfig` for options
 `title`| `string`| `undefined`| Display title for the session. When resuming via `resume` or `continue`, the resumed session’s persisted title takes precedence; use `renameSession()` to retitle an existing session
@@ -677,7 +677,7 @@ Method| Description
 
 Changes [settings](</docs/en/settings>) on a running session without restarting the query. Use it when a setting that has no dedicated setter needs to change mid-session, such as tightening `permissions` after the agent reads untrusted input. `setModel()` and `setPermissionMode()` are dedicated setters for those two keys; `applyFlagSettings()` is the general form that accepts any subset of the settings keys, and passing `model` here behaves the same as `setModel()`. Only some keys take effect mid-session:
 
-  * **Applied on the next turn** : `effortLevel`, `ultracode`, `permissions`, `hooks`, `skillOverrides`, `fastMode`, `agent`. Switching `agent` also applies that agent’s model override, hooks, and system prompt on the next turn.
+  * **Applied on the next turn** : `effortLevel`, `ultracode`, `permissions`, `hooks`, `skillOverrides`, `fastMode`, `agent`. Switching `agent` also applies that agent’s model override and hooks on the next turn. Its system prompt applies on the next turn, or, in a session that [reuses a recorded system prompt](</docs/en/agent-sdk/modifying-system-prompts#change-the-prompt-of-an-existing-session>), once the session is compacted.
   * **Applied during the current turn** : `model`. If you switch `model` while Claude is working on a turn, the response Claude is already generating finishes on the old model, and the rest of the turn, starting with the next call Claude Code makes to the model, uses the new one. Subagents keep their own model. Before v2.1.212, a mid-turn switch waited for the next turn.
   * **No effect mid-session** : the system prompt options. These are resolved once at startup, so the running session keeps the original value even though the call succeeds. To change them, start a new session.
 
@@ -948,7 +948,7 @@ Field| Required| Description
 `background`| No| Run this agent as a non-blocking background task when invoked
 `memory`| No| Memory source for this agent: `'user'`, `'project'`, or `'local'`
 `effort`| No| Reasoning effort level for this agent. Accepts a named level or an integer
-`permissionMode`| No| Permission mode for tool execution within this agent. See `PermissionMode`
+`permissionMode`| No| Permission mode for tool execution within this agent. The [subagent inheritance rules](</docs/en/agent-sdk/permissions#available-modes>) decide when it applies. See `PermissionMode`
 `criticalSystemReminder_EXPERIMENTAL`| No| Experimental: Critical reminder added to the system prompt
 
 ###
@@ -1298,7 +1298,14 @@ Assistant response message.
       user_message_uuids?: string[];
     };
 
-The `message` field is a [`BetaMessage`](<https://platform.claude.com/docs/en/api/messages/create>) from the Anthropic SDK. It includes fields like `id`, `content`, `model`, `stop_reason`, and `usage`. `SDKAssistantMessageError` is one of: `'authentication_failed'`, `'oauth_org_not_allowed'`, `'account_on_hold'`, `'billing_error'`, `'rate_limit'`, `'overloaded'`, `'invalid_request'`, `'model_not_found'`, `'server_error'`, `'max_output_tokens'`, or `'unknown'`. `'model_not_found'` means the selected model doesn’t exist or isn’t available to your account or deployment. `'overloaded'` means the API returned a 529 because the server is at capacity, as opposed to `'rate_limit'`, which is a 429 against your quota. `'account_on_hold'` means [your account is on hold](</docs/en/errors#your-account-is-on-hold>). `aborted` is `true` when an interrupt or abort truncated the assistant message before the stream completed: the message has no `stop_reason` and the content may end mid-word. The field is absent on normally completed messages. It requires Agent SDK v0.3.214 or later. Claude Code sets `user_message_uuid` and `user_message_uuids` on the turn’s first assistant message, under the conditions in `user_message_uuid`. `timestamp` is the ISO 8601 time when the message’s content finished generating on the process that produced it. The value comes from that machine’s clock, so use it for display only and don’t order messages by it. One API turn can produce several assistant messages that share a `message.id`, each with its own `timestamp`. When the field is absent, fall back to the time you received the message. `context_usage` is a structured copy of the `/context` report, typed as `SDKContextUsage`, and requires Agent SDK v0.3.232 or later. When you send `/context` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the markdown table, and attaches `context_usage` to that same message. Claude Code doesn’t set the field on any other assistant message, and earlier versions deliver the `/context` table without it, so read the breakdown from the field when it’s present and fall back to the markdown text when it isn’t.
+The `message` field is a [`BetaMessage`](<https://platform.claude.com/docs/en/api/messages/create>) from the Anthropic SDK. It includes fields like `id`, `content`, `model`, `stop_reason`, and `usage`. `SDKAssistantMessageError` is one of: `'authentication_failed'`, `'oauth_org_not_allowed'`, `'account_on_hold'`, `'billing_error'`, `'rate_limit'`, `'overloaded'`, `'invalid_request'`, `'model_not_found'`, `'server_error'`, `'max_output_tokens'`, `'cloud_credential_error'`, or `'unknown'`. Four of these values mean more than their names say:
+
+  * `'model_not_found'`: the selected model doesn’t exist or isn’t available to your account or deployment
+  * `'overloaded'`: the API returned a 529 because the server is at capacity, as opposed to `'rate_limit'`, which is a 429 against your quota
+  * `'account_on_hold'`: [your account is on hold](</docs/en/errors#your-account-is-on-hold>)
+  * `'cloud_credential_error'`: Claude Code couldn’t obtain usable AWS or Google Cloud credentials on the machine it runs on, so no request reached the cloud provider. The usual cause is a cloud sign-in that expired or was never completed on that machine, though a briefly unreachable credential service reports the same value. See [Could not load AWS or Google Cloud credentials](</docs/en/errors#could-not-load-aws-or-google-cloud-credentials>). Requires TypeScript Agent SDK v0.3.267 or later, which bundles Claude Code v2.1.267
+
+`aborted` is `true` when an interrupt or abort truncated the assistant message before the stream completed: the message has no `stop_reason` and the content may end mid-word. The field is absent on normally completed messages. It requires Agent SDK v0.3.214 or later. Claude Code sets `user_message_uuid` and `user_message_uuids` on the turn’s first assistant message, under the conditions in `user_message_uuid`. `timestamp` is the ISO 8601 time when the message’s content finished generating on the process that produced it. The value comes from that machine’s clock, so use it for display only and don’t order messages by it. One API turn can produce several assistant messages that share a `message.id`, each with its own `timestamp`. When the field is absent, fall back to the time you received the message. `context_usage` is a structured copy of the `/context` report, typed as `SDKContextUsage`, and requires Agent SDK v0.3.232 or later. When you send `/context` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the markdown table, and attaches `context_usage` to that same message. Claude Code doesn’t set the field on any other assistant message, and earlier versions deliver the `/context` table without it, so read the breakdown from the field when it’s present and fall back to the markdown text when it isn’t.
 
 ###
 
@@ -1419,9 +1426,9 @@ Several fields on the result carry diagnostic detail beyond `subtype`:
   * `api_error_status`: the HTTP status code of the API error that terminated the conversation. Absent or `null` when the turn ended without an API error.
   * `ttft_ms`: time to first token in milliseconds, measured when the first complete assistant message arrives. Present on the success arm only.
   * `ttft_stream_ms`: time in milliseconds until the first `message_start` stream event, when the response stream opens. Lower than `ttft_ms`; the gap between the two is time spent streaming the first message. Present on the success arm only.
-  * `user_message_uuid`: the `uuid` of the message you sent that started this turn. See `user_message_uuid` for which results carry it.
+  * `user_message_uuid`: the `uuid` of the message you sent that this turn answered. See `user_message_uuid` for which results carry it.
   * `user_message_uuids`: the `uuid`s of every message you sent that Claude Code answered in this turn. See `user_message_uuids`.
-  * `request_sent_wall_ms`: epoch milliseconds at which Claude Code dispatched the API request, for joins against server-side timestamps. Present on the success arm only, together with `user_message_uuid`, when `is_error` is false.
+  * `request_sent_wall_ms`: epoch milliseconds at which Claude Code dispatched the API request, for joins against server-side timestamps. Present only together with `user_message_uuid`, on a success result with `is_error` false whose turn sent an API request.
   * `first_content_frame_ms`: time in milliseconds until the first `content_block_start` or `content_block_delta` stream event, counting thinking blocks as content. Present on the success arm only, when `is_error` is false. Requires Agent SDK v0.3.260 or later.
   * `first_stream_post_ms`, `first_stream_post_ack_ms`, `first_stream_post_wall_ms`: timings for uploading the turn’s first stream event. Claude Code records them only in sessions it streams to claude.ai, such as [cloud sessions](</docs/en/claude-code-on-the-web>), and the results `query()` yields don’t carry them. Requires Agent SDK v0.3.260 or later.
   * `usage`: main agent loop only. Excludes subagent and auxiliary model calls, and is per-turn in streaming-input sessions. Prefer `modelUsage` for token/cost accounting.
@@ -1455,17 +1462,23 @@ The same pair of fields appears on `SDKSystemMessage` and on the `SDKControlInit
 
 `user_message_uuid`
 
-The `uuid` of the `SDKUserMessage` that started the turn, echoed so you can match Claude Code’s reply to the message you sent. Claude Code echoes it only if you set `uuid` on that message. The field is optional on `SDKUserMessage`, and a string prompt passed to `query()` carries none. When you send several messages close together, Claude Code can merge them into one turn. The field then carries only the last message’s `uuid`. To match the reply to any of the merged messages, use `user_message_uuids`. When you set `uuid`, Claude Code echoes it on three kinds of frame:
+The `uuid` of the `SDKUserMessage` the turn is answering, echoed so you can match Claude Code’s reply to the message you sent. Claude Code echoes a `uuid` only if you set one on the message. The field is optional on `SDKUserMessage`, and a string prompt passed to `query()` carries none. Which of your messages a turn answers depends on how the turn started:
 
-  * **The result** : on the success arm with `is_error` false, together with `request_sent_wall_ms`, which requires Agent SDK v0.3.216 or later. Claude Code also echoes it on an error result that answers a message you sent, which requires Agent SDK v0.3.246 or later.
-  * **The turn’s first reply** : the first assistant message, or with `includePartialMessages` the first stream event whose `event.type` isn’t `ping`, so you can bind the reply before the result arrives. When a turn streams nothing, Claude Code sets it on the first assistant message instead. One reply frame per turn carries it. Requires Agent SDK v0.3.246 or later.
+  * **A regular message you sent** , meaning one without `isSynthetic: true`: the turn answers that message for its whole run. When you send several messages close together, Claude Code can merge them into one turn, and the field then carries only the last message’s `uuid`. To match the reply to any of the merged messages, use `user_message_uuids`.
+  * **A message you sent with`isSynthetic: true`**: the turn answers that message at first. If Claude Code picks up a regular message of yours between tool calls, the turn answers the picked-up message from then on. Echoing a synthetic message’s `uuid` requires Agent SDK v0.3.265 or later; earlier versions echo nothing on synthetic turns.
+  * **A prompt Claude Code generated itself** , such as the turn that continues interrupted work after a session restarts: the turn answers no message of yours at first and its frames carry no echo. If Claude Code picks up a regular message of yours between tool calls, the turn answers that message from then on. The pickup echo requires Agent SDK v0.3.265 or later; earlier versions echo nothing on these turns.
+
+Claude Code echoes the answered message’s `uuid` on three kinds of frame:
+
+  * **The result** : every result of a turn that answered a message you sent. Every such result carries it on Agent SDK v0.3.265 or later. Before v0.3.265, the success result of a turn that a regular message started lacked it when the turn sent no API request or ended with a deferred tool call. Before v0.3.246, error results lacked it too, and before v0.3.216 every result did.
+  * **The turn’s first reply** : the first assistant message, or with `includePartialMessages` the first stream event whose `event.type` isn’t `ping`, so you can bind the reply before the result arrives. When a turn streams nothing, Claude Code sets it on the first assistant message instead. The first-reply echo requires Agent SDK v0.3.246 or later. When the message the turn is answering changes mid-turn, the first reply after the change carries the field too, on Agent SDK v0.3.265 or later; earlier versions set it on one reply frame per turn.
   * **Every`thinking_tokens` frame of the turn**: so you can attribute thinking progress to the message you sent without waiting for the turn’s first reply. Requires Agent SDK v0.3.260 or later.
 
 Claude Code omits the field in these cases:
 
-  * Later assistant messages and stream events of the same turn
+  * Reply frames other than those first replies
   * Subagent frames
-  * Synthetic turns, such as scheduled ones
+  * Turns that answer no message with a `uuid`: the turn answered a message you sent without one, or Claude Code started the turn itself and picked up no regular message that has one
   * Results that answer no message you sent, such as the zeroed result after a crashed worker process
 
 ####
@@ -1474,7 +1487,7 @@ Claude Code omits the field in these cases:
 
 `user_message_uuids`
 
-The `uuid`s of every message you sent that Claude Code answered in this turn. When you send several messages close together, Claude Code can merge them into one turn, and `user_message_uuid` then names only the last of them. To match the reply to any of the merged messages, look for that message’s `uuid` anywhere in this list. Requires Agent SDK v0.3.259 or later. Claude Code sets the list together with `user_message_uuid` on the turn’s first reply and on the result. For the full set of frames that carry `user_message_uuid`, and the version each requires, see `user_message_uuid`. The list always contains `user_message_uuid` and holds at most 64 entries. A message you send while the turn is running that Claude Code picks up between tool calls appears only in the result’s list. When a first reply or result carries `user_message_uuid` without the list, it came from an earlier Claude Code version, so fall back to the single field.
+The `uuid`s of every message you sent that Claude Code answered in this turn. When you send several messages close together, Claude Code can merge them into one turn, and `user_message_uuid` then names only the last of them. To match the reply to any of the merged messages, look for that message’s `uuid` anywhere in this list. Requires Agent SDK v0.3.259 or later. Claude Code sets the list together with `user_message_uuid` on each reply frame that carries that field and on the result. For the full set of frames that carry `user_message_uuid`, and the version each requires, see `user_message_uuid`. The list always contains `user_message_uuid` and holds at most 64 entries. When Claude Code picks up a regular message you sent while a turn was running, it adds that message’s `uuid` to the result’s list. When a first reply or result carries `user_message_uuid` without the list, it came from an earlier Claude Code version, so fall back to the single field.
 
 ####
 
@@ -1549,11 +1562,11 @@ Streaming partial message (only when `includePartialMessages` is true). The `par
       uuid: UUID;
       session_id: string;
       ttft_ms?: number; // Time to first token in ms, present only on message_start events
-      user_message_uuid?: string; // Present on at most one stream event per turn
+      user_message_uuid?: string;
       user_message_uuids?: string[];
     };
 
-Claude Code sets `user_message_uuid` and `user_message_uuids` on one stream event per turn, under the conditions in `user_message_uuid`.
+Claude Code sets `user_message_uuid` and `user_message_uuids` on the turn’s first non-ping stream event, and again when the message the turn is answering changes, under the conditions in `user_message_uuid`.
 
 ###
 
@@ -2723,7 +2736,7 @@ Agent
 
 **Tool name:** `Agent`. The previous name `Task` is still accepted as an alias, and the `tools` array in the `SDKSystemMessage` init message currently lists this tool as `Task` for backward compatibility.
 
-The `mode` field is deprecated and ignored on Claude Code v2.1.212 or later: subagents [inherit the parent session’s permission mode](</docs/en/agent-sdk/permissions#available-modes>), and a subagent definition’s `permissionMode` can override it, except when the parent uses `bypassPermissions`, `acceptEdits`, or `auto`. On v2.1.223 or later, Claude Code ignores a definition’s `permissionMode: "bypassPermissions"` when bypass mode is disabled by [`permissions.disableBypassPermissionsMode`](</docs/en/permissions#managed-settings>).
+The `mode` field is deprecated and ignored on Claude Code v2.1.212 or later. A subagent runs in either the parent session’s permission mode or its definition’s `permissionMode`, and the [subagent inheritance rules](</docs/en/agent-sdk/permissions#available-modes>) decide which.
 
     type AgentInput = {
       description: string;
@@ -2733,7 +2746,7 @@ The `mode` field is deprecated and ignored on Claude Code v2.1.212 or later: sub
       run_in_background?: boolean;
       name?: string;
       team_name?: string; // Deprecated; ignored
-      mode?: "acceptEdits" | "auto" | "bypassPermissions" | "default" | "dontAsk" | "plan"; // Deprecated; ignored. Subagents inherit the parent session's permission mode; agent-definition frontmatter may override it
+      mode?: "acceptEdits" | "auto" | "bypassPermissions" | "default" | "dontAsk" | "plan"; // Deprecated; ignored. The subagent inheritance rules decide a subagent's permission mode
       isolation?: "worktree" | "remote";
     };
 
@@ -2777,7 +2790,7 @@ Bash
       dangerouslyDisableSandbox?: boolean;
     };
 
-Executes Bash commands with optional timeout and background execution. The working directory persists between commands; shell state such as exported environment variables doesn’t.
+Executes Bash commands with optional timeout and background execution. The working directory persists between commands, including commands run in later turns of a multi-turn session; shell state such as exported environment variables doesn’t. For the limits on which directory changes carry over, see [What persists between commands](</docs/en/tools-reference#what-persists-between-commands>).
 
 ###
 
@@ -5191,7 +5204,7 @@ While a tool call runs in the main conversation, Claude Code emits a `tool_progr
 
   * Track the indicator by `parent_tool_use_id`, which is unique per subagent. `tool_use_id` is shared by parallel subagents from one assistant turn, so tracking by it would let one subagent’s update clear another’s indicator.
   * Clear the indicator when a later `tool_progress` for the same `parent_tool_use_id` arrives with neither `subagent_retry` nor `heartbeat: true`, or when the tool’s result message arrives. Frames with `heartbeat: true` report liveness only, so keep the indicator when one arrives. `attempt` can exceed `max_retries` under persistent retry, so don’t derive clearing from the counters.
-  * Treat `error_category` as a closed set of tokens for choosing your own message text, not as display text: `rate_limit`, `overloaded`, `authentication_failed`, `server_error`, or `unknown`.
+  * Treat `error_category` as a token for choosing your own message text, not as display text. The values are `rate_limit`, `overloaded`, `authentication_failed`, `server_error`, `cloud_credential_error`, and `unknown`. Handle a value you don’t recognize the way you handle `unknown`, because later releases can add values.
 
 ###
 
