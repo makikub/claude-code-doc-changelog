@@ -31,9 +31,7 @@ The terminal install prompts for a scope. Choose user scope to write the plugin 
   * `Marketplace "claude-plugins-official" not found`: add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`, then retry the install.
   * The plugin is [not found in the marketplace](</docs/en/discover-plugins#install-plugins>): check the plugin name.
 
-Check the install summary. If it reports `Run /reload-plugins to activate.`, apply the pending change without a restart:
-
-    /reload-plugins
+Check the install summary. If it reports `Run /reload-plugins to activate.`, see [Apply plugin changes without restarting](</docs/en/discover-plugins#apply-plugin-changes-without-restarting>) to activate the plugin in your current session.
 
 ###
 

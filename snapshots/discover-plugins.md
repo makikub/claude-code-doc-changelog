@@ -199,7 +199,7 @@ See [Settings files](</docs/en/settings#where-settings-live>) to learn more abou
 
 Use your new plugin
 
-Check the install summary: if it reports `Run /reload-plugins to activate.`, run `/reload-plugins`, and if that warns that the reload will re-read the conversation, rerun it as `/reload-plugins --force`.Plugin skills are namespaced by the plugin name, so **commit-commands** provides skills like `/commit-commands:commit`.Try it out by making a change to a file and running:
+If the install summary reports `Run /reload-plugins to activate.`, Claude Code then runs that reload for you. If the reload warns that your next message would re-read the conversation, run `/reload-plugins --force` to activate the plugin.Plugin skills are namespaced by the plugin name, so **commit-commands** provides skills like `/commit-commands:commit`.Try it out by making a change to a file and running:
 
     /commit-commands:commit
 
@@ -309,7 +309,7 @@ To install without an interactive step, use the [`claude plugin install`](</docs
 If the refresh before a named install fails, for example because you’re offline, Claude Code looks the plugin up in the cached catalog anyway. `claude plugin install` reports `marketplace not refreshed` in its success message, and `/plugin install` shows the failure above the plugin’s details or in its not-found message. When you install from the `/plugin` interface, the install summary tells you whether the plugin is active in your current session:
 
   * `Plugin is now active.`: Claude Code activated the plugin as part of the install.
-  * `Run /reload-plugins to activate.`: the plugin isn’t active yet, because activating it would [invalidate the prompt cache](</docs/en/prompt-caching#enabling-or-disabling-a-plugin>) or because the activation attempt failed. Run the command to activate the plugin.
+  * `Run /reload-plugins to activate.`: the plugin isn’t active yet, because activating it would [invalidate the prompt cache](</docs/en/prompt-caching#enabling-or-disabling-a-plugin>) or because the activation attempt failed. Claude Code then runs `/reload-plugins` for you. If that reload warns about the prompt cache, run `/reload-plugins --force` to activate the plugin anyway.
   * If the plugin fails to load, the summary reports the failure and the `/plugin` **Errors** tab shows the detail.
 
 Before v2.1.221, no install took effect in the current session until you ran `/reload-plugins` or restarted. The `claude plugin install` shell command doesn’t run in a session, so Claude Code loads the plugins it installs the next time you start Claude Code, or when you run `/reload-plugins` in a session that’s already open.
@@ -335,7 +335,7 @@ When you uninstall a plugin that a project’s `.claude/settings.json` enables, 
 
 The **Not used recently** header and the **Last used** line are both hidden when your organization restricts marketplaces with [`strictKnownMarketplaces`](</docs/en/settings-reference#strictknownmarketplaces>). A plugin’s [language server](</docs/en/plugins#add-lsp-servers-to-your-plugin>) counts as used when it delivers diagnostics or answers a code navigation request, so an LSP plugin whose server is active in your sessions isn’t listed as unused. Before v2.1.203, language server activity couldn’t be counted as use, so plugins that contribute an LSP server were exempt from the group entirely, the same way theme and output style plugins still are. The first session on a version that counts language server activity also resets the usage record of each LSP plugin that hadn’t recorded any use yet, so Claude Code doesn’t judge a plugin you installed earlier as unused based on data recorded before its server activity was tracked. When you install a plugin that declares dependencies, the install output lists which dependencies were auto-installed alongside it. You can also manage plugins with direct commands:
 
-  * When you run `/plugin disable`, `/plugin enable`, or `/plugin uninstall`, Claude Code opens the plugin panel to apply the change and leaves it open. Press **Esc** to close the panel before typing another command.
+  * When you run `/plugin disable`, `/plugin enable`, or `/plugin uninstall`, Claude Code opens the plugin panel to make the change and leaves it open. Press **Esc** to close the panel before typing another command. Apply plugin changes without restarting describes when the change takes effect in your session.
   * For scripting, use the `claude plugin` shell commands instead, which don’t open the panel.
 
 List installed plugins without opening the menu:
@@ -365,11 +365,14 @@ The `--scope` option lets you target a specific scope with CLI commands:
 
 Apply plugin changes without restarting
 
-When the install summary reports `Plugin is now active.`, Claude Code already activated the plugin, and you can skip this step. For everything else, plugins you enabled or disabled during the session and installs whose summary reports `Run /reload-plugins to activate.`, apply all changes without restarting:
+When you close the `/plugin` menu, Claude Code runs `/reload-plugins` for you to apply the changes you made in it, such as installing, enabling, disabling, and uninstalling plugins. If the reload would [invalidate the prompt cache](</docs/en/prompt-caching#enabling-or-disabling-a-plugin>), it warns and leaves the changes pending instead; run `/reload-plugins --force` to apply them anyway. If Claude is still responding when you close the menu, the reload runs after the response finishes. For plugin changes that happen outside the menu, run `/reload-plugins` yourself. These changes include:
 
-    /reload-plugins
+  * A `claude plugin` command you ran in another terminal
+  * Edits to a plugin you loaded with [`--plugin-dir`](</docs/en/plugins#test-your-plugins-locally>) while you develop it
+  * A plugin auto-update whose notification asks you to reload
+  * A change in a [`--plugin-dir` folder](</docs/en/plugins#test-your-plugins-locally>) that Claude Code held because applying it would invalidate the prompt cache
 
-When the reload would invalidate the prompt cache, the command warns and skips until you rerun it with `--force`. `/reload-plugins` also runs in sessions without an interactive terminal, such as the desktop app, the Agent SDK, and [non-interactive mode](</docs/en/headless>) with `-p`. Requires Claude Code v2.1.260 or later. Two limits apply in those sessions:
+Before v2.1.268, plugins you enabled, disabled, or uninstalled in the menu, and installs that didn’t activate during the install, stayed pending until you ran `/reload-plugins`. `/reload-plugins` also runs in sessions without an interactive terminal, such as the desktop app, the Agent SDK, and [non-interactive mode](</docs/en/headless>) with `-p`. Requires Claude Code v2.1.260 or later. Two limits apply in those sessions:
 
   * The command runs only when you type it directly into the session, such as in the `-p` prompt or the desktop app’s prompt box. When you send it over a remote connection instead, such as [Remote Control](</docs/en/remote-control>) or a relayed chat message, the command declines without reloading anything.
   * The reload doesn’t connect or disconnect plugin MCP servers. Those changes take effect in your next session.

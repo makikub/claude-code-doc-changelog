@@ -68,7 +68,7 @@ If you connect to the Anthropic API directly and your user settings hold `claude
   * **Skip the verification reminders** : it verifies its own work with less prompting, so reminders to test or check are usually unnecessary.
   * **Size up larger tasks** : give it work you would normally break into pieces. It holds long sessions without losing the thread.
 
-Fable 5.1 requires Claude Code v2.1.257 or later. If a request for it from an older version fails, see [Claude Code does not support this model](</docs/en/errors#claude-code-does-not-support-this-model>). Fable 5 requires v2.1.170 or later. Run `claude update` to upgrade. For availability under zero data retention, see [Model availability under ZDR](</docs/en/zero-data-retention#model-availability-under-zdr>).
+Fable 5.1 requires Claude Code v2.1.257 or later. If a request for it from an older version fails, see [Claude Code does not support this model](</docs/en/errors#claude-code-does-not-support-this-model>). Run `claude update` to upgrade. For availability under zero data retention, see [Model availability under ZDR](</docs/en/zero-data-retention#model-availability-under-zdr>).
 
 On the Anthropic API, the `/model` picker lists a Fable model only after the server reports it available for your organization. When you type `/model fable` or a Fable model ID, Claude Code checks availability with the server directly, so a typed selection can succeed even when the picker doesn’t list the entry.
 
@@ -487,7 +487,13 @@ When you set a level with `/effort` in a [`-p` run](</docs/en/headless>), Claude
   * **`ultracode` setting**: set [`"ultracode": true`](</docs/en/settings-reference#ultracode>) in a settings file, with `--settings`, or in an Agent SDK control request. An [`applyFlagSettings()`](</docs/en/agent-sdk/typescript#applyflagsettings>) request also accepts `effortLevel: "ultracode"`
   * **`/model` picker**: move the effort slider to `ultracode` with the arrow keys while you choose a model. Claude Code turns it on for the current session, even when you save that model as your default
 
-Passing `ultracode` to the `--effort` flag or the Agent SDK `effortLevel` value requires Claude Code v2.1.203 or later. Before v2.1.203, `--effort ultracode` printed `Unknown --effort value 'ultracode'` and the session started at the default effort. The persisted `effortLevel` setting and the `CLAUDE_CODE_EFFORT_LEVEL` environment variable don’t accept `ultracode`. When `CLAUDE_CODE_EFFORT_LEVEL` is set to a level other than `xhigh`, requests run at that level and ultracode’s workflow orchestration stays inactive. Selecting ultracode then shows a warning that the environment variable overrides effort for the session. When ultracode isn’t available, for example when [workflows are turned off](</docs/en/workflows#turn-workflows-off>), `--effort ultracode` sets `xhigh` effort only.
+Passing `ultracode` to the `--effort` flag or the Agent SDK `effortLevel` value requires Claude Code v2.1.203 or later. Before v2.1.203, `--effort ultracode` printed `Unknown --effort value 'ultracode'` and the session started at the default effort. The persisted `effortLevel` setting and the `CLAUDE_CODE_EFFORT_LEVEL` environment variable don’t accept `ultracode`. When `CLAUDE_CODE_EFFORT_LEVEL` is set to a level other than `xhigh`, requests run at that level and ultracode’s workflow orchestration stays inactive. Selecting ultracode then shows a warning that the environment variable overrides effort for the session. Ultracode is unavailable when:
+
+  * [Workflows are turned off](</docs/en/workflows#turn-workflows-off>)
+  * The model doesn’t support `xhigh` effort
+  * An effort cap below `xhigh` applies to the model
+
+In those cases `--effort ultracode` starts the session with ultracode off, at the highest effort level the model and any cap allow, up to `xhigh`.
 
 ####
 
@@ -532,7 +538,7 @@ You can change effort through any of the following:
   * **From a connected device** : in a [Remote Control](</docs/en/remote-control#what-connected-devices-see>) session, pick a level from the effort control on your phone or in your browser. The level applies to the current session only, though it also ends the hold on the model’s default effort. Requires Claude Code v2.1.234 or later
   * **Skill and subagent frontmatter** : set `effort` in a [skill](</docs/en/skills#frontmatter-reference>) or [subagent](</docs/en/sub-agents#supported-frontmatter-fields>) markdown file to override the effort level when that skill or subagent runs
 
-Frontmatter effort applies when that skill or subagent is active, overriding the session level but not the environment variable. If you set `effortLevel` in [managed settings](</docs/en/managed-settings>), Claude Code applies it at the settings step of the effort resolution order, and users can still change the level with `/effort` or `--effort`. To keep users at or below a level, set [`maxEffortLevel`](</docs/en/settings-reference#maxeffortlevel>). The effort slider appears in `/model` when a supported model is selected. The current effort level is also shown in the session header next to the model name, for example “with low effort”, so you can confirm which setting is active without opening `/model`. The footer also briefly shows the effort level at startup and when it changes.
+Frontmatter effort applies when that skill or subagent is active, overriding the session level but not the environment variable. A [`maxEffortLevel`](</docs/en/settings-reference#maxeffortlevel>) or organization effort cap still limits the level the skill or subagent runs at. On Fable 5, Opus 4.8, and Opus 4.7, frontmatter effort also applies while the hold on the model’s default effort is in effect. Before v2.1.267, the hold took precedence and Claude Code ignored the frontmatter level while the hold was active. If you set `effortLevel` in [managed settings](</docs/en/managed-settings>), Claude Code applies it at the settings step of the effort resolution order, and users can still change the level with `/effort` or `--effort`. To keep users at or below a level, set [`maxEffortLevel`](</docs/en/settings-reference#maxeffortlevel>). The effort slider appears in `/model` when a supported model is selected. The current effort level is also shown in the session header next to the model name, for example “with low effort”, so you can confirm which setting is active without opening `/model`. The footer also briefly shows the effort level at startup and when it changes.
 
 ####
 

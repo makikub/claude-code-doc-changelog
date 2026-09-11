@@ -42,7 +42,7 @@ Open the Claude Code panel
 
 Throughout VS Code, the Spark icon indicates Claude Code: The quickest way to open Claude is to click the Spark icon in the **Editor Toolbar** (top-right corner of the editor). The icon only appears when you have a file open.Other ways to open Claude Code:
 
-  * **Activity Bar** : click the Spark icon in the left sidebar to open the sessions list. Click any session to open it as a full editor tab, or start a new one. This icon is always visible in the Activity Bar.
+  * **Activity Bar** : click the Spark icon in the left sidebar to open the sessions list. Click any session to open it in your preferred location, or start a new one. This icon is always visible in the Activity Bar.
   * **Command Palette** : `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux), type “Claude Code”, and select an option like “Open in New Tab”
   * **Status Bar** : if you’ve set `preferredLocation` to `sidebar`, or opened Claude with **Claude Code: Open in Side Bar** , click **✱ Claude Code** in the bottom-right corner of the window. This works even when no file is open.
 
@@ -90,7 +90,7 @@ The prompt box supports several features:
     * **Manual** : Claude asks permission before file edits and most shell commands.
     * **Plan** : Claude describes what it will do and waits for approval before making changes. VS Code automatically opens the plan as a full Markdown document where you can add inline comments to give feedback before Claude begins.
     * **Edit automatically** : Claude makes edits without asking.
-  * **Model** : select **Switch model…** from the command menu to change the model mid-session. You can also click the model name at the bottom of the prompt box to open the same picker. When the current model supports [effort levels](</docs/en/model-config#adjust-effort-level>), the picker also shows an **Effort** row. The model name button and the **Effort** row require Claude Code v2.1.257 or later.
+  * **Model** : select **Switch model…** from the command menu to change the model mid-session. You can also click the model name at the bottom of the prompt box to open the same picker. When the current model supports [effort levels](</docs/en/model-config#adjust-effort-level>), the picker also shows an **Effort** row and the model name button shows the selected level. The model name button and the **Effort** row require Claude Code v2.1.257 or later.
   * **Command menu** : click `/` or type `/` to open the command menu. Options include attaching files, switching models, and toggling extended thinking. The Customize section provides access to MCP servers, slash commands, output styles, hooks, memory, permissions, and plugins. Items with a terminal icon open in the integrated terminal.
     * To browse commands such as `/usage` or [`/remote-control`](</docs/en/remote-control>), select **Slash commands** in the Customize section. A dialog lists them with a filter box. Pick one to run it. Typing `/` in the prompt box still suggests commands inline. Requires Claude Code v2.1.257 or later.
     * Select **Output styles** in the Customize section to pick an [output style](</docs/en/output-styles>), including your custom styles. Requires Claude Code v2.1.257 or later. To create a custom style instead, select **Build a custom style** from the **Output styles** menu. Claude Code writes the [style file](</docs/en/output-styles#create-a-custom-output-style>) for you at the project or user level. Requires Claude Code v2.1.261 or later.
@@ -113,7 +113,7 @@ Use @-mentions to give Claude context about specific files or folders. When you 
     Explain the logic in @auth (fuzzy matches auth.js, AuthService.ts, etc.)
     What's in @src/components/ (include a trailing slash for folders)
 
-For large PDFs, you can ask Claude to read specific pages instead of the whole file: a single page, a range like pages 1-10, or an open-ended range like page 3 onward. When you select text in the editor, Claude can see your highlighted code automatically. The prompt box footer shows how many lines are selected. Press `Option+K` (Mac) / `Alt+K` (Windows/Linux) to insert an @-mention with the file path and line numbers (e.g., `@app.ts#5-10`). Click the selection indicator to toggle whether Claude can see your highlighted text - the eye-slash icon means the selection is hidden from Claude. You can also hold `Shift` while dragging files into the prompt box to add them as attachments. Click the X on any attachment to remove it from context.
+For large PDFs, you can ask Claude to read specific pages instead of the whole file: a single page, a range like pages 1-10, or an open-ended range like page 3 onward. When you select text in the editor, Claude can see your highlighted code automatically. The prompt box footer shows how many lines are selected. Press `Option+K` (Mac) / `Alt+K` (Windows/Linux) to insert an @-mention with the file path and line numbers (e.g., `@app.ts#5-10`). Click the selection indicator to toggle whether Claude can see your highlighted text - the eye-slash icon means the selection is hidden from Claude. To attach an image, paste it from your clipboard into the prompt box. You can also hold `Shift` while dragging files into the prompt box to add them as attachments. Click the X on any attachment to remove it from context.
 
 ###
 
@@ -121,7 +121,7 @@ For large PDFs, you can ask Claude to read specific pages instead of the whole f
 
 Resume past conversations
 
-Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time. Click any conversation to resume it with the full message history. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
+Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time. Click any conversation to resume it with the full message history. If the conversation is already open in another tab of the current window, clicking it switches to that tab. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
 
   * **Session titles** : new sessions receive AI-generated titles based on your first message.
   * **Rename and archive** : hover over a session to reveal these actions. Rename to give it a descriptive title, or archive to move it to the **Archived sessions** group at the bottom of the list.
@@ -264,7 +264,7 @@ Switch to the **Marketplaces** tab to add or remove plugin sources:
   * Click the refresh icon to update a marketplace’s plugin list
   * Click the trash icon to remove a marketplace
 
-After you make changes, a banner prompts you to restart Claude Code to apply them.
+Plugin changes you make in the dialog apply right away to the Claude Code sessions open in that VS Code window. If the session you opened the dialog from can’t reload its plugins, the dialog offers to try again or to restart Claude in that session.
 
 Plugin management in VS Code uses the same CLI commands under the hood. Plugins and marketplaces you configure in the extension are also available in the CLI, and vice versa.
 

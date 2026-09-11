@@ -34,7 +34,7 @@ Configure an environment when the default isn’t enough: when Claude needs to r
 
 Configure your environment
 
-Create, edit, and archive environments from the environment selector at [claude.ai/code](<https://claude.ai/code>), which you reach after [web onboarding](</docs/en/web-quickstart>). Environments you create are personal to your account; shared environments created by an Owner appear in the same selector. See Installed tools for what’s available without any configuration.
+Create, edit, and archive environments from the environment selector, which you reach at [claude.ai/code](<https://claude.ai/code>) after [web onboarding](</docs/en/web-quickstart>), or from the prompt box in the [Desktop app](</docs/en/desktop#cloud-sessions>). Environments you create are personal to your account; shared environments created by an Owner appear in the same selector. See Installed tools for what’s available without any configuration.
 
 1
 
@@ -126,7 +126,7 @@ To confirm the credential works, start a session in the environment and ask Clau
 
 Which requests get the credential
 
-The agent proxy attaches a credential to a request when the request’s host matches one you listed on that credential. Sessions can reach those hosts even when the environment’s network access level wouldn’t otherwise allow them, except the hosts the agent proxy skips. The credential applies in every session that runs in the environment, whoever started it, until you delete it.
+The agent proxy attaches a credential to a request when the request’s host matches one you listed on that credential. Sessions can reach those hosts even when the environment’s network access level wouldn’t otherwise allow them, except the hosts that never get the credential. The credential applies in every session that runs in the environment, whoever started it, until you delete it.
 
 ####
 
@@ -137,7 +137,7 @@ Requests that never get the credential
 The agent proxy never attaches a credential you add to these requests:
 
   * **GitHub** : the GitHub proxy authenticates requests to GitHub instead, so you don’t need an API credential for it
-  * **The Anthropic API and public package registries** : requests to `api.anthropic.com`, `registry.npmjs.org`, `jsr.io`, `npm.jsr.io`, `pypi.org`, `files.pythonhosted.org`, `index.crates.io`, and `proxy.golang.org` don’t go through the agent proxy
+  * **The Anthropic API and public package registries** : `api.anthropic.com`, `registry.npmjs.org`, `jsr.io`, `npm.jsr.io`, `pypi.org`, `files.pythonhosted.org`, `index.crates.io`, and `proxy.golang.org`
   * **Setup script requests** : Claude Code connects to the agent proxy when it launches, after the setup script has run
 
 ###
@@ -146,7 +146,7 @@ The agent proxy never attaches a credential you add to these requests:
 
 Select an environment from the CLI
 
-Run `/remote-env` in your terminal to choose the default environment for cloud sessions you create from the CLI, such as [`claude --cloud`](</docs/en/claude-code-on-the-web#from-terminal-to-web>). The command opens a picker of your existing environments and saves your choice to the `remote.defaultEnvironmentId` key in your [user settings](</docs/en/settings#where-settings-live>), so it applies in every project on your machine until you change it, unless the same key is set at a higher-precedence [settings layer](</docs/en/settings#settings-precedence>), such as a repo’s project settings. A [self-hosted environment](</docs/en/self-hosted-environments>) ID, which has the form `ccpool_...`, follows a stricter source rule. See [`remote.defaultEnvironmentId`](</docs/en/settings-reference#remote-defaultenvironmentid>) for the settings layers Claude Code honors it from. `/remote-env` only sets the default: it doesn’t start a session, and it can’t add or edit environments. Manage them at [claude.ai/code](<https://claude.ai/code>).
+Run `/remote-env` in your terminal to choose the default environment for cloud sessions you create from the CLI, such as [`claude --cloud`](</docs/en/claude-code-on-the-web#from-terminal-to-web>). The command opens a picker of your existing environments and saves your choice to the `remote.defaultEnvironmentId` key in your [user settings](</docs/en/settings#where-settings-live>), so it applies in every project on your machine until you change it, unless the same key is set at a higher-precedence [settings layer](</docs/en/settings#settings-precedence>), such as a repo’s project settings. A [self-hosted environment](</docs/en/self-hosted-environments>) ID, which has the form `ccpool_...`, follows a stricter source rule. See [`remote.defaultEnvironmentId`](</docs/en/settings-reference#remote-defaultenvironmentid>) for the settings layers Claude Code honors it from. `/remote-env` only sets the default: it doesn’t start a session, and it can’t add or edit environments. Manage them from the environment selector.
 
 ###
 
@@ -209,7 +209,7 @@ Whichever level you pick, sessions can still reach these, because each one takes
 
   * GitHub, through its separate proxy
   * MCP connectors you enable, whose traffic travels through Anthropic’s servers
-  * The hosts you listed on the environment’s API credentials, except the hosts the agent proxy skips
+  * The hosts you listed on the environment’s API credentials, except the hosts that never get the credential
   * The Anthropic API, for Claude Code’s own requests, even at **None** , as noted under [Security and isolation](</docs/en/claude-code-on-the-web#security-and-isolation>)
 
 ###
@@ -224,7 +224,7 @@ To allow domains that aren’t in the Trusted list, select **Custom** in the env
     *.internal.example.com
     registry.example.com
 
-Sessions in this environment can now reach `api.example.com`, any subdomain of `internal.example.com`, and `registry.example.com`, and no other domains through the session’s network. GitHub traffic, MCP connector traffic, and requests to the hosts of the environment’s API credentials, other than the hosts the agent proxy skips, don’t go through this allowlist. A leading `*.` matches every subdomain. To keep the Trusted domains too, check **Also include default list of common package managers** ; leave it unchecked to allow only what you list. If your organization uses [artifacts](</docs/en/artifacts#availability>), you don’t need `*.frame.claudeusercontent.com` in the list for sessions to read them. When the list leaves that host out, Claude Code reads artifact content through the session’s connection to Anthropic instead. Keep the host in an allowlist in two situations:
+Sessions in this environment can now reach `api.example.com`, any subdomain of `internal.example.com`, and `registry.example.com`, and no other domains through the session’s network. GitHub traffic, MCP connector traffic, and requests to the hosts of the environment’s API credentials, other than the hosts that never get the credential, don’t go through this allowlist. A leading `*.` matches every subdomain. To keep the Trusted domains too, check **Also include default list of common package managers** ; leave it unchecked to allow only what you list. If your organization uses [artifacts](</docs/en/artifacts#availability>), you don’t need `*.frame.claudeusercontent.com` in the list for sessions to read them. When the list leaves that host out, Claude Code reads artifact content through the session’s connection to Anthropic instead. Keep the host in an allowlist in two situations:
 
   * **Sessions in this environment open another organization’s public artifacts** : Claude Code fetches those from the host directly, so add it to this list.
   * **You’re configuring the local CLI or a self-hosted runner** : keep the host in that allowlist. See [network access requirements](</docs/en/network-config#network-access-requirements>) and the self-hosted [network requirements](</docs/en/self-hosted-environments-deploy#network-requirements>).

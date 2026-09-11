@@ -933,9 +933,16 @@ Option| Description| Default
 `-s, --scope <scope>`| Installation scope: `user`, `project`, or `local`| `user`
 `--config <key=value>`| Set a `userConfig` option declared in the plugin’s manifest. Repeat the flag to set multiple options|
 `-y, --yes`| Accept a command the plugin’s marketplace declares, without the confirmation prompt: the command that produces a plugin with a [`command` source](</docs/en/plugin-marketplaces#command-sources>), or the [`headersHelper`](</docs/en/plugin-marketplaces#authenticate-archive-downloads>) that authenticates an archive download. Accepting a `headersHelper` requires Claude Code v2.1.238 or later. Claude Code still prints the command first. Required when stdin or stdout isn’t a TTY. Has no effect inside a Claude Code session, so run the command from your own terminal|
+`--json`| Print the result as one JSON object on the last line of stdout instead of the human-readable message, for use in scripts. See JSON result format. Requires Claude Code v2.1.268 or later|
 `-h, --help`| Display help for command|
 
-Scope determines which settings file the installed plugin is added to. For example, `--scope project` writes to `enabledPlugins` in .claude/settings.json, making the plugin available to everyone who clones the project repository. **Examples:**
+Scope determines which settings file the installed plugin is added to. For example, `--scope project` writes to `enabledPlugins` in .claude/settings.json, making the plugin available to everyone who clones the project repository. With `--json`, the last line of stdout is one JSON object. Parse only that line, because Claude Code prints any command the marketplace declares ahead of it. Three fields are always present:
+
+  * `command`: the subcommand that ran, such as `install`
+  * `outcome`: `ok` or `failed`
+  * `message`: a human-readable description of the result
+
+Other fields, such as `pluginId`, `scope`, and `failureCode`, appear only when they apply. The `--json` option on `plugin uninstall`, `plugin update`, `plugin enable`, and `plugin disable` prints the same object with that subcommand’s own fields. A usage error, such as an invalid `--scope`, prints no result line and exits 1 with the reason on stderr. **Examples:**
 
     # Install to user scope (default)
     claude plugin install formatter@my-marketplace
@@ -968,6 +975,7 @@ Option| Description| Default
 `--keep-data`| Preserve the plugin’s persistent data directory|
 `--prune`| Also remove auto-installed dependencies that no other plugin requires. See plugin prune|
 `-y, --yes`| Skip the `--prune` confirmation prompt. Required when stdin or stdout is not a TTY|
+`--json`| Print the result as one JSON object on the last line of stdout, in the same format as `plugin install --json`. Can’t be combined with `--prune`. Requires Claude Code v2.1.268 or later|
 `-h, --help`| Display help for command|
 
 **Aliases:** `remove`, `rm` By default, uninstalling from the last remaining scope also deletes the plugin’s `${CLAUDE_PLUGIN_DATA}` directory. Use `--keep-data` to preserve it, for example when reinstalling after testing a new version.
@@ -1014,6 +1022,7 @@ Enable a disabled plugin. When the target is installed from a marketplace and de
 Option| Description| Default
 ---|---|---
 `-s, --scope <scope>`| Scope to enable: `user`, `project`, or `local`. When omitted, Claude Code detects the scope where the plugin is installed| Auto-detect
+`--json`| Print the result as one JSON object on the last line of stdout, in the same format as `plugin install --json`. Requires Claude Code v2.1.268 or later|
 `-h, --help`| Display help for command|
 
 ###
@@ -1036,6 +1045,7 @@ Option| Description| Default
 ---|---|---
 `-a, --all`| Disable all enabled plugins. Can’t be combined with `--scope`|
 `-s, --scope <scope>`| Scope to disable: `user`, `project`, or `local`. When omitted, Claude Code detects the scope where the plugin is installed| Auto-detect
+`--json`| Print the result as one JSON object on the last line of stdout, in the same format as `plugin install --json`. Requires Claude Code v2.1.268 or later|
 `-h, --help`| Display help for command|
 
 ###
@@ -1058,6 +1068,7 @@ Option| Description| Default
 ---|---|---
 `-s, --scope <scope>`| Scope to update: `user`, `project`, `local`, or `managed`| `user`
 `-y, --yes`| Accept a command the plugin’s marketplace declares, without the confirmation prompt: the command that produces a plugin with a [`command` source](</docs/en/plugin-marketplaces#command-sources>), or the [`headersHelper`](</docs/en/plugin-marketplaces#authenticate-archive-downloads>) that authenticates an archive download. Accepting a `headersHelper` requires Claude Code v2.1.238 or later. Claude Code still prints the command first. Required when stdin or stdout isn’t a TTY. Has no effect inside a Claude Code session, so run the command from your own terminal|
+`--json`| Print the result as one JSON object on the last line of stdout, in the same format as `plugin install --json`. Requires Claude Code v2.1.268 or later|
 `-h, --help`| Display help for command|
 
 Claude Code resolves a bare plugin name against your installed plugins. When installed plugins from different marketplaces share the name, Claude Code refuses the update and lists the qualified `plugin-name@marketplace-name` commands to run instead. Before v2.1.246, Claude Code accepted only the qualified form and rejected a bare name as not found.
@@ -1078,7 +1089,7 @@ List installed plugins with their version, source marketplace, and enable status
 
 Option| Description| Default
 ---|---|---
-`--json`| Output as JSON|
+`--json`| Output as JSON. A plugin row with load problems or authoring warnings carries `errors` or `notes` string arrays. On Claude Code v2.1.268 or later, parallel `errorDetails` and `noteDetails` arrays give each entry’s diagnostic `type` and the names it refers to, such as the plugin, marketplace, server, or file|
 `--available`| Include available plugins from marketplaces. Requires `--json`|
 `-h, --help`| Display help for command|
 

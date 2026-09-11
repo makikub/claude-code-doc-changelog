@@ -149,14 +149,6 @@ When contribution metrics are enabled, Claude Code analyzes merged pull requests
 
 ​
 
-Tagging criteria
-
-PRs are tagged as “with Claude Code” if they contain at least one line of code written during a Claude Code session. The system uses conservative matching: only code where there is high confidence in Claude Code’s involvement is counted as assisted.
-
-####
-
-​
-
 Attribution process
 
 When a pull request is merged:

@@ -96,7 +96,7 @@ my-marketplace/.claude-plugin/marketplace.json
 
 Add and install
 
-From the directory that contains `my-marketplace`, start Claude Code and run the following commands. The install command opens a plugin details view where you select an installation scope to confirm the install. Check the install summary: if it reports `Run /reload-plugins to activate.`, run that command.
+From the directory that contains `my-marketplace`, start Claude Code and run the following commands. The install command opens a plugin details view where you select an installation scope to confirm the install. Check the install summary: if it reports `Run /reload-plugins to activate.`, see [Apply plugin changes without restarting](</docs/en/discover-plugins#apply-plugin-changes-without-restarting>).
 
     /plugin marketplace add ./my-marketplace
     /plugin install quality-review-plugin@my-plugins
@@ -304,7 +304,7 @@ For plugins in the same repository, use a path starting with `./`:
       "source": "./plugins/my-plugin"
     }
 
-Paths resolve relative to the marketplace root, which is the directory containing `.claude-plugin/`. In the example above, `./plugins/my-plugin` points to `<repo>/plugins/my-plugin`, even though `marketplace.json` lives at `<repo>/.claude-plugin/marketplace.json`. Don’t use `../` to reference paths outside the marketplace root. A bare name is a single directory name with no `/`, such as `"formatter"`. To write bare names instead of `./` paths, set `metadata.pluginRoot` to the directory they resolve under. With `"pluginRoot": "./plugins"`, Claude Code resolves `"source": "formatter"` to `./plugins/formatter`. Requires Claude Code v2.1.239 or later. `metadata.pluginRoot` must itself be a relative path inside the marketplace. Claude Code ignores it for a source that already starts with `./`. A source that contains a `/`, such as `team-a/formatter`, isn’t a bare name and still needs the `./` prefix, even when `metadata.pluginRoot` is set.
+Paths resolve relative to the marketplace root, which is the directory containing `.claude-plugin/`. In the example above, `./plugins/my-plugin` points to `<repo>/plugins/my-plugin`, even though `marketplace.json` lives at `<repo>/.claude-plugin/marketplace.json`. Don’t use `../` to reference paths outside the marketplace root. On macOS and Linux, Claude Code refuses an entry path with a backslash anywhere past the leading `./`, so write the separators as `/` on every platform. A bare name is a single directory name with no `/`, such as `"formatter"`. To write bare names instead of `./` paths, set `metadata.pluginRoot` to the directory they resolve under. With `"pluginRoot": "./plugins"`, Claude Code resolves `"source": "formatter"` to `./plugins/formatter`. Requires Claude Code v2.1.239 or later. `metadata.pluginRoot` must itself be a relative path inside the marketplace. Claude Code ignores it for a source that already starts with `./`. A source that contains a `/`, such as `team-a/formatter`, isn’t a bare name and still needs the `./` prefix, even when `metadata.pluginRoot` is set.
 
 Claude Code resolves relative paths against a local copy of the marketplace, so they work when users add your marketplace from a git source or a local directory. If users add your marketplace via a direct URL to the `marketplace.json` file, relative paths won’t resolve, because Claude Code downloads only that file. For URL-based distribution, use any other plugin source instead. See Troubleshooting for details.
 
