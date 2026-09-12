@@ -144,6 +144,7 @@ Environment Variable| Description| Default Value| Example to Disable
 `OTEL_METRICS_INCLUDE_ACCOUNT_UUID`| Include user.account_uuid and user.account_id attributes in metrics| `true`| `false`
 `OTEL_METRICS_INCLUDE_ENTRYPOINT`| Include app.entrypoint attribute in metrics| `false`| `true`
 `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES`| Include keys from `OTEL_RESOURCE_ATTRIBUTES` as attributes on metric datapoints| `true`| `false`
+`OTEL_METRICS_INCLUDE_REPOSITORY`| Include `vcs.*` repository identity attributes on metrics and events. Requires Claude Code v2.1.269 or later| `false`| `true`
 
 Lower cardinality generally means better performance and lower storage costs but less granular data for analysis.
 
@@ -197,6 +198,7 @@ Attribute| Description| Gated by
 `user_prompt`| Prompt text. Value is `<REDACTED>` unless the gate is set| `OTEL_LOG_USER_PROMPTS`
 `user_prompt_length`| Prompt length in characters|
 `interaction.sequence`| 1-based counter of interactions in this session|
+`parent.source`| How the span got its trace parent: `env` when it parented under an inbound `TRACEPARENT`, `none` when it started its own trace. Requires Claude Code v2.1.268 or later|
 `interaction.duration_ms`| Wall-clock duration of the turn|
 
 **`claude_code.llm_request`**
@@ -206,7 +208,8 @@ Attribute| Description| Gated by
 `model`| Model identifier|
 `gen_ai.system`| Always `anthropic`. OpenTelemetry GenAI semantic convention|
 `gen_ai.request.model`| Same value as `model`. OpenTelemetry GenAI semantic convention|
-`query_source`| Subsystem that issued the request, such as `repl_main_thread` or a subagent name|
+`query_source`| Subsystem that issued the request, such as `repl_main_thread` or a subagent name| `ENABLE_BETA_TRACING_DETAILED`
+`query_source_safe`| Bounded form of `query_source`, emitted whether or not detailed beta tracing is active, with values such as `repl_main_thread` or `agent.builtin.general-purpose`. `:` becomes `.` and user-named agents appear as `agent.custom`. Requires Claude Code v2.1.268 or later|
 `agent_id`| Identifier of the subagent or teammate that issued the request. Absent on the main session|
 `parent_agent_id`| Identifier of the agent that spawned this one. Absent for the main session and for agents spawned directly from it|
 `workflow.run_id`| Run identifier of the [Workflow](</docs/en/workflows>) tool run that spawned this agent, prefixed `wf_`. Absent for agents not spawned by a workflow|
@@ -215,6 +218,7 @@ Attribute| Description| Gated by
 `llm_request.context`| `interaction`, `tool`, or `standalone` depending on the parent span|
 `duration_ms`| Wall-clock duration including retries|
 `ttft_ms`| Time to first token in milliseconds|
+`first_content_ms`| Time from request start to the first content block of the successful attempt, in milliseconds. Absent on requests that fell back to the non-streaming path. Requires Claude Code v2.1.268 or later|
 `input_tokens`| Input token count from the API usage block|
 `output_tokens`| Output token count|
 `cache_read_tokens`| Tokens read from prompt cache|
@@ -226,6 +230,7 @@ Attribute| Description| Gated by
 `success`| `true` or `false`|
 `status_code`| HTTP status code when the request failed|
 `error`| Error message when the request failed|
+`error_class`| Short error class token when the request failed, such as `api_timeout` or `server_overload`. Requires Claude Code v2.1.268 or later|
 `response.has_tool_call`| `true` when the response contained tool-use blocks|
 `stop_reason`| API response `stop_reason`, such as `end_turn`, `tool_use`, `max_tokens`, `stop_sequence`, `pause_turn`, or `refusal`|
 `gen_ai.response.finish_reasons`| Same value as `stop_reason`, wrapped in a string array. OpenTelemetry GenAI semantic convention|
@@ -235,6 +240,9 @@ Each retry attempt is also recorded as a `gen_ai.request.attempt` span event wit
 Attribute| Description| Gated by
 ---|---|---
 `tool_name`| Tool name|
+`tool_name_safe`| Form of `tool_name` that carries no user-chosen names. Built-in tool names pass verbatim. MCP tool names appear as `mcp_other`, except tool names matching a few fixed shapes, such as `playwright` tools named `browser_*`, which pass verbatim. Requires Claude Code v2.1.268 or later|
+`bash_command_class`| For the Bash tool: category of the command’s first program from a fixed list, such as `vcs` or `package_manager`. `other` for a program outside the list, `unparsed` when the line can’t be parsed. Requires Claude Code v2.1.268 or later|
+`bash_argv0`| For the Bash tool: the command’s first program when it’s on the same fixed list, such as `git` or `npm`. `other` for any program outside the list. Requires Claude Code v2.1.268 or later|
 `duration_ms`| Wall-clock duration including permission wait and execution|
 `result_tokens`| Approximate token size of the tool result|
 `agent_id`| Identifier of the subagent or teammate that ran the tool. Absent on the main session|
@@ -265,6 +273,7 @@ Attribute| Description| Gated by
 `gen_ai.tool.call.id`| Same value as `tool_use_id`. OpenTelemetry GenAI semantic convention|
 `success`| `true` or `false`|
 `error`| Error category string when execution failed, such as `Error:ENOENT` or `ShellError`. Contains the full error message instead when the gate is set| `OTEL_LOG_TOOL_DETAILS`
+`error_class`| The error category in identifier form, with characters outside letters, digits, and underscores replaced by `_`, such as `Error_ENOENT` or `ShellError`. Carries the category even when `error` carries the full message. Requires Claude Code v2.1.268 or later|
 
 **`claude_code.hook`** This span appears only when detailed beta tracing is active, which requires `ENABLE_BETA_TRACING_DETAILED=1` and `BETA_TRACING_ENDPOINT`, a pair that also [changes where your logs and traces go](</docs/en/env-vars#variables>). Set the pair in your shell, user settings, or managed settings; both variables are ignored in [project and local settings](</docs/en/settings-reference#variables-claude-code-ignores-in-env>). `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` alone doesn’t produce it. In interactive CLI sessions, detailed beta tracing also requires your organization to be allowlisted for the feature. Agent SDK and non-interactive `-p` sessions don’t require allowlisting.
 
@@ -348,7 +357,7 @@ These custom attributes are included in all metrics and events, allowing you to:
   * Create team-specific dashboards
   * Set up alerts for specific teams
 
-Claude Code attaches these values as attributes on every metric datapoint and event record, in addition to sending them in the OTLP resource block. Because most metrics backends expose datapoint attributes as queryable labels, you can group and filter metrics by your custom keys directly. Custom keys never override the standard attributes such as `user.id` or `session.id`: when a key collides, Claude Code keeps the built-in value. Each custom key becomes a label on every metric series, so high-cardinality values increase storage cost in your metrics backend. To send custom attributes in the resource block only and omit them from datapoint labels, set `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES=false`. See Metrics cardinality control.
+Claude Code attaches these values as attributes on every metric datapoint and event record, in addition to sending them in the OTLP resource block. Because most metrics backends expose datapoint attributes as queryable labels, you can group and filter metrics by your custom keys directly. Except for the `vcs.*` repository attributes, custom keys never override the standard attributes such as `user.id` or `session.id`: when a key collides, Claude Code keeps the built-in value. Each custom key becomes a label on every metric series, so high-cardinality values increase storage cost in your metrics backend. To send custom attributes in the resource block only and omit them from datapoint labels, set `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES=false`. See Metrics cardinality control.
 
 The `OTEL_RESOURCE_ATTRIBUTES` environment variable uses comma-separated key=value pairs with strict formatting requirements:
 
@@ -448,6 +457,7 @@ Attribute| Description| Controlled By
 `user.email`| User email address, from your sign-in or, in a [cloud session](</docs/en/claude-code-on-the-web>), from the session’s own credentials| Always included when available
 `terminal.type`| Terminal type, such as `iTerm.app`, `vscode`, `cursor`, or `tmux`| Always included when detected
 Keys from `OTEL_RESOURCE_ATTRIBUTES`| Custom attributes you set, such as `department` or `team.id`. See Multi-team organization support| `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES` (default: true)
+`vcs.repository.url.full`, `vcs.owner.name`, `vcs.repository.name`, `vcs.provider.name`| The session repository’s identity, derived from its `origin` remote. See Repository attributes| `OTEL_METRICS_INCLUDE_REPOSITORY` (default: false). Requires Claude Code v2.1.269 or later
 
 When Claude Code is signed in to a [Claude apps gateway](</docs/en/claude-apps-gateway>), the CLI stamps exports with the authenticated identity from the gateway session: `user.id` is the IdP subject rather than an anonymous installation identifier, `user.email` is the signed-in email, and `user.groups` carries IdP group membership as a comma-separated string. Each export also carries `identity.source: gateway-oidc`. The gateway identity is applied last, so `user.*` and `identity.*` keys set through `OTEL_RESOURCE_ATTRIBUTES` are ignored on gateway sessions. Events additionally include the following attributes. These are never attached to metrics because they would cause unbounded cardinality:
 
@@ -455,6 +465,23 @@ When Claude Code is signed in to a [Claude apps gateway](</docs/en/claude-apps-g
   * `workspace.host_paths`: host workspace directories selected in the desktop app, as a string array
   * `workflow.run_id`: run identifier, prefixed `wf_`, on the API and tool events emitted by agents that belong to a [Workflow](</docs/en/workflows>) tool run. Filtering events by one `workflow.run_id` reconstructs that run’s API requests and tool results. The identifier covers the agents the workflow script spawns and any agents those spawn in turn, such as skill invocations. It matches the run identifier reported in the Workflow tool result. Absent on all other events. Requires Claude Code v2.1.202 or later
   * `workflow.name`: name of the workflow, its script’s `meta.name`, emitted alongside `workflow.run_id`. Built-in workflow names appear verbatim when the run executes the unmodified built-in script. User-authored names, including edited copies of built-in scripts, are replaced with `custom` unless `OTEL_LOG_TOOL_DETAILS=1` is set. Requires Claude Code v2.1.202 or later
+
+####
+
+​
+
+Repository attributes
+
+Set `OTEL_METRICS_INCLUDE_REPOSITORY=true` to tag metrics and events with the identity of the session’s repository, so a shared collector can attribute usage per repository. Requires Claude Code v2.1.269 or later. Claude Code derives these attributes once per session from the repository’s `origin` remote. The HTTPS and SSH remotes of one repository produce identical values:
+
+Attribute| Value
+---|---
+`vcs.repository.url.full`| The repository’s browser URL without `.git`, such as `https://github.com/example-org/example-repo`
+`vcs.owner.name`| The owner or group path, such as `example-org`; omitted when the remote path has a single segment
+`vcs.repository.name`| The bare repository name, such as `example-repo`
+`vcs.provider.name`| `github`, `gitlab`, `bitbucket`, or `gitea` when Claude Code recognizes the remote’s host or URL shape as one of those providers; omitted otherwise
+
+Values are lowercased, and credentials, query strings, and fragments from the remote URL never appear in them. The attributes are omitted when the session has no `origin` remote, when the remote isn’t URL-shaped, or when the only enclosing repository is your home directory. A `vcs.*` key you declare in `OTEL_RESOURCE_ATTRIBUTES` replaces the derived value for that key. If you declare `vcs.repository.url.full`, Claude Code never reads the remote and reports only the keys you declare. The attributes flow only to your own exporters; Anthropic’s telemetry drops every `vcs.*` key.
 
 ###
 
@@ -677,8 +704,10 @@ Logged when a tool completes execution. Not emitted if the tool call was rejecte
   * `tool_input_size_bytes`: Size of the JSON-serialized tool input in bytes
   * `tool_result_size_bytes`: Size of the tool result in bytes
   * `mcp_server_scope`: MCP server scope identifier (for MCP tools)
+  * `vcs.ref.head.revision`, `vcs.ref.head.name`, `vcs.ref.head.type` (when `OTEL_LOG_TOOL_DETAILS=1`): the commit identity of a successful `git commit` run by the Bash or PowerShell tool. `vcs.ref.head.revision` is the commit SHA, `vcs.ref.head.name` is the branch it was committed on, and `vcs.ref.head.type` is `branch`. The name and type are omitted when the commit was made on a detached HEAD. Requires Claude Code v2.1.269 or later
   * `tool_parameters` (when `OTEL_LOG_TOOL_DETAILS=1`): JSON string containing tool-specific parameters. For Claude Desktop’s built-in servers, in sessions Claude Desktop owns, the `mcp_server_name`/`mcp_tool_name` pair is included even with the flag off, the same host-authored exception as the Tool decision event, requiring Claude Code v2.1.214 or later. The parameters vary by tool:
-    * For Bash tool: includes `bash_command`, `full_command`, `timeout`, `description`, `dangerouslyDisableSandbox`, and `git_commit_id` (the commit SHA, when a `git commit` command succeeds). The desktop app’s workspace bash tool also reports `tool_name` as `Bash`, but includes only `bash_command`, `full_command`, and `timeout`
+    * For Bash tool: includes `bash_command`, `full_command`, `timeout`, `description`, and `dangerouslyDisableSandbox`, plus `git_commit_id` and `git_branch` when a `git commit` command succeeds. `git_commit_id` is the full commit SHA when the commit is the HEAD of the session’s working directory, and git’s abbreviated SHA otherwise. `git_branch` is the branch it was committed on, omitted on a detached HEAD
+    * For the desktop app’s workspace Bash tool, which also reports `tool_name` as `Bash`: includes only `bash_command`, `full_command`, and `timeout`
     * For MCP tools: includes `mcp_server_name`, `mcp_tool_name`
     * For Skill tool: includes `skill_name`
     * For Agent tool or legacy Task tool: includes `subagent_type`

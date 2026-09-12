@@ -659,7 +659,7 @@ Method| Description
 `supportedAgents()`| Returns available subagents as `AgentInfo``[]`
 `mcpServerStatus()`| Returns status of connected MCP servers
 `getContextUsage(opts?)`| Returns an `SDKControlGetContextUsageResponse` breaking down the session’s context window usage by category, skill, and tool. With the default `detail`, it is the same data `/context` shows in an interactive session. The `detail` option requires Agent SDK v0.3.257 or later
-`readFile(path, options?)`| Reads a file from the session’s filesystem. Claude Code resolves the path against `cwd` and applies the same read-permission rules as the Read tool. Pass `{ maxBytes }` to change the read cap (default 1 MB, ceiling 10 MB) and `{ encoding: 'base64' }` for binary files such as images. Resolves with an `SDKControlReadFileResponse`, or `null` on permission denial, a missing file, or a transport error. Requires TypeScript SDK v0.2.121 or later
+`readFile(path, options?)`| Reads a file from the session’s filesystem. Claude Code resolves the path against `cwd`; What `readFile()` can read lists the files it serves. Pass `{ maxBytes }` to change the read cap (default 1 MB, ceiling 10 MB) and `{ encoding: 'base64' }` for binary files such as images. Resolves with an `SDKControlReadFileResponse`, or `null` on permission denial, a missing file, or a transport error. Requires TypeScript SDK v0.2.121 or later
 `reloadSkills()`| Reloads skills from disk, so skills you add or edit mid-session become available to the running session. Resolves with an `SDKControlReloadSkillsResponse` listing the skills available after the reload. Requires Agent SDK v0.3.163 or later
 `accountInfo()`| Returns account information
 `reconnectMcpServer(serverName)`| Reconnect an MCP server by name. If the name also matches an entry in a settings file such as `.mcp.json` or `~/.claude.json`, Claude Code reconnects the server you configured through `mcpServers` or `setMcpServers()`, not the settings-file entry. That resolution order requires Claude Code v2.1.257 or later
@@ -743,7 +743,7 @@ Return type of `initializationResult()`. Contains session initialization data.
 
 `hooks_applied` reports whether Claude Code registered the `hooks` that the `initialize` request carried. The SDK sends that request once when the session starts and again on each `reinitialize()` call. The field requires Agent SDK v0.3.238 or later. Claude Code omits the field when the request carried no hooks. When the request carried hooks, the value depends on whether the request is the session’s first initialize and, for a repeated one, on how it reached the session:
 
-  * `true`: Claude Code registered the hooks. A session’s first initialize returns this value. So does a repeated initialize sent over the CLI’s stdin. In that case the hooks in the new request replace the hooks registered earlier.
+  * `true`: Claude Code registered the hooks. A session’s first initialize returns this value. A repeated initialize sent over the CLI’s stdin also returns `true`. In that case the hooks in the new request replace the hooks registered earlier.
   * `false`: Claude Code ignored the hooks. A repeated initialize sent to a remote session returns this value, so a second client that joins a session can’t replace the hooks the first client registered.
 
 Before Agent SDK v0.3.238, the response never carried the field, and Claude Code ignored `hooks` on every repeated initialize. The response always reports `fast_mode_state`, and when something blocks [fast mode](</docs/en/fast-mode>), `fast_mode_disabled_reason` carries the reason code alongside it, so you can explain the blocked state instead of re-deriving availability. Both behaviors require Claude Code v2.1.219 or later. Before v2.1.219, the response omitted `fast_mode_state` when fast mode wasn’t available and never carried a reason. For the reason codes and their meanings, see `fast_mode_disabled_reason` on the result message. The control-response wrapper for a successful `initialize` also carries a `pending_permission_requests` array. The field is on the response wrapper itself, not in the `SDKControlInitializeResponse` payload above. Each entry is a complete `control_request` message with the same `{ type: "control_request", request_id, request }` shape the session streams for permission requests while running. The array lists the permission requests that this Claude Code process has issued and not yet resolved. The SDK reads the array for you and dispatches each entry to your `canUseTool` callback, the same redelivery that `reinitialize()` triggers after a transport gap. Handle repeated request IDs idempotently, because an entry can repeat a request the callback already received before the connection dropped. The array is always present on a successful `initialize` response and is empty when this process has no unresolved permission request. Requires Claude Code v2.1.268 or later. Earlier versions could omit the field, so if you parse the wire protocol yourself, treat a missing field as an older CLI rather than as proof that nothing is pending.
@@ -894,6 +894,19 @@ Return type of `readFile()`.
     };
 
 `contents` holds the file text, or base64 data when you requested `encoding: 'base64'`; the response’s `encoding` field is set to `'base64'` in that case. `absPath` is the resolved absolute path. `truncated` is set when the file was longer than the `maxBytes` cap and the contents were cut at that limit.
+
+####
+
+​
+
+What `readFile()` can read
+
+`readFile()` serves a narrower set of files than the Read tool:
+
+  * A regular file inside one of the session’s working directories, such as `cwd` and `additionalDirectories`
+  * A few of Claude Code’s own files for the session, such as tool results
+
+`Read` deny and ask rules still block a matching path, and a broad `Read` allow rule doesn’t open the rest of the filesystem to `readFile()`. For anything else the call resolves with `null`.
 
 ###
 
@@ -3943,7 +3956,7 @@ WebFetch
       };
     };
 
-Returns the fetched content with HTTP status and metadata. `artifactRead` is present only when Claude fetched an artifact the session can publish to, and it always carries that artifact’s `slug`. `seeded` is `false` on a read that didn’t deliver the page’s full source, and that entry carries no `ver`. The field requires Agent SDK v0.3.239 or later.
+Returns the fetched content with HTTP status and metadata. `artifactRead` is Claude Code’s own record of an artifact read, present only when Claude fetched an artifact the session can publish to. Claude Code reads it back when a session resumes so a later publish builds on the right version; your code doesn’t need to act on it. `slug` names the artifact, `ver` is the version the read put on record and is absent when it recorded none, and `seeded: false` marks a read whose full source didn’t reach Claude. The `seeded` field requires Agent SDK v0.3.239 or later.
 
 ###
 
@@ -5389,7 +5402,7 @@ When `errorCode` is `"credits_required"`, the rejection is from a claude.ai subs
 
 `SDKLocalCommandOutputMessage`
 
-Output from a local command such as `/voice` or `/usage`. Displayed as assistant-style text in the transcript.
+Claude Code doesn’t emit this message type. When you send a command such as `/context` or `/usage` as a prompt, its output arrives as an `SDKAssistantMessage`.
 
     type SDKLocalCommandOutputMessage = {
       type: "system";

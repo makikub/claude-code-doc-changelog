@@ -51,6 +51,7 @@ Key| Description| Topic| Scope
 `claudeMdExcludes`| Skip specific [CLAUDE.md](</docs/en/memory#exclude-specific-claude-md-files>) files when memory loads| Memory and context| Any file
 `cleanupPeriodDays`| Choose how many days Claude Code keeps [transcripts](</docs/en/data-usage#data-retention>) before deleting them| Privacy and telemetry| Any file
 `companyAnnouncements`| Show your organization’s announcements at startup| Interface and terminal| Any file
+`copyOnSelect`| Turn off automatic copying of text you select with the mouse in [fullscreen rendering](</docs/en/fullscreen#use-the-mouse>) and agent view| Global config settings| Global config
 `crossSessionInbound`| Choose whether Claude Code delivers [messages from your other sessions](</docs/en/cross-session-messaging#control-inbound-messages>), shows a notice without delivering them, or refuses them| Agents, sessions, and worktrees| Any file
 `defaultShell`| Choose whether Bash or PowerShell runs the shell commands you type with the [`!` prefix](</docs/en/interactive-mode#shell-mode-with-prefix>)| Interface and terminal| Any file
 `deniedMcpServers`| Block specific [MCP servers](</docs/en/mcp>) by URL, command, or name| MCP| Any file
@@ -779,7 +780,7 @@ Start sessions with [ultracode](</docs/en/workflows#let-claude-decide-with-ultra
     * `true`: sessions start at `xhigh` effort, with ultracode on when dynamic workflows are enabled for you, your model supports `xhigh`, and no effort cap is below `xhigh`
     * `false`: sessions start with ultracode off
   * **Default** : unset, so ultracode is off
-  * **Per-session overrides** : `/effort ultracode` turns ultracode on for one session without this key. So does `--effort ultracode`, which requires Claude Code v2.1.203 or later
+  * **Per-session overrides** : `/effort ultracode` turns ultracode on for one session without this key. The `--effort ultracode` flag also turns it on for one session and requires Claude Code v2.1.203 or later
 
 settings.json
 
@@ -1086,7 +1087,7 @@ Set the [permission mode](</docs/en/permission-modes>) new sessions start in. Wh
     * `"acceptEdits"`: Claude Code also runs file edits and common filesystem commands such as `mkdir` and `mv` without asking
     * `"plan"`: Claude Code reads and plans but blocks edits until you approve a plan
     * `"auto"`: Claude Code runs everything, with background safety checks
-    * `"dontAsk"`: Claude Code runs only pre-approved tools and auto-denies every call that would otherwise prompt
+    * `"dontAsk"`: Claude Code auto-denies every call that would otherwise prompt; reads, other actions that need no approval, and pre-approved tools still run
     * `"bypassPermissions"`: Claude Code runs everything without asking
     * `"manual"`: an alias for `"default"`, in Claude Code v2.1.200 or later
   * **Default** : unset
@@ -5863,7 +5864,7 @@ Set it in an MDM profile or the managed settings file to enforce fail-closed sta
 
 `managedSourcesBehavior`
 
-Choose whether Claude Code applies only the highest-priority [managed source](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) your organization delivers, or combines every admin source it delivers. By default Claude Code takes the highest-priority source that carries a [policy key](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) and ignores the rest. A policy key is any settings key other than this one and `wslInheritsWindowsSettings`. So once server-managed settings or an MDM policy deliver a policy key, a `managed-settings.json` file contributes only the [keys Claude Code reads from every admin source](</docs/en/managed-settings#keys-read-from-every-admin-source>). With `"merge"`, every admin source you deliver contributes its keys to one combined policy. Requires Claude Code v2.1.242 or later. Set `"merge"` only where every source [ranked](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) below your highest one is under an administrator’s control, because Claude Code then adds entries from a lower source, such as `permissions.allow` rules, to the policy.
+Choose whether Claude Code applies only the highest-priority [managed source](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) your organization delivers, or combines every admin source it delivers. By default Claude Code takes the highest-priority source that carries a [policy key](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) and ignores the rest. A policy key is any settings key other than this one and `wslInheritsWindowsSettings`. Under that default, once server-managed settings or an MDM policy deliver a policy key, a `managed-settings.json` file contributes only the [keys Claude Code reads from every admin source](</docs/en/managed-settings#keys-read-from-every-admin-source>). With `"merge"`, every admin source you deliver contributes its keys to one combined policy. Requires Claude Code v2.1.242 or later. Set `"merge"` only where every source [ranked](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) below your highest one is under an administrator’s control, because Claude Code then adds entries from a lower source, such as `permissions.allow` rules, to the policy.
 
   * **Scope** : `Managed`. Claude Code reads this key from the highest-priority source that carries either this key or a policy key, and ignores this key in every source ranked lower, so a lower source can’t opt itself into combining with the source above it. Neither the Windows HKCU registry nor [parent settings from an embedding host](</docs/en/managed-settings#let-an-embedding-host-add-policy>) take part in the merge.
   * **Type** : string, one of:
@@ -5886,15 +5887,15 @@ Locks| Applies the strictest value any source sets. When no source sets a strict
 Restriction allowlists| Takes the list whole from the highest source that sets it, without adding entries from lower sources. When the highest source doesn’t set one, takes it whole from the next source down| `availableModels`, `allowedMcpServers`, `strictKnownMarketplaces`, `allowedChannelPlugins`, and the `fallbackModel` chain
 Values taken whole| Takes the value whole from the highest source that sets it, without combining entries or fields from lower sources. When the highest source doesn’t set it, takes it whole from the next source down| `sandbox.credentials.awsPairs`, `sandbox.ripgrep`
 Provided MCP servers| Combines the server names from every source. When two sources set the same name, applies the higher source’s whole entry| `managedMcpServers`
-Read from the highest-priority source only| Reads the key only from the highest-priority source that carries a policy key, so a lower source’s value is ignored even when the highest source sets none| `apiKeyHelper`, `awsAuthRefresh`, `awsCredentialExport`, `gcpAuthRefresh`, `otelHeadersHelper`, `proxyAuthHelper`, `forceLoginOrgUUID`, `forceLoginMethod`, `forceLoginGatewayUrl`, `parentSettingsBehavior`, `modelPicker`, `policyHelper`, `permissions.defaultMode`
+Read from the highest-priority source only| Reads the key only from the highest-priority source that carries a policy key, so a lower source’s value is ignored even when the highest source sets none| `apiKeyHelper`, `awsAuthRefresh`, `awsCredentialExport`, `gcpAuthRefresh`, `otelHeadersHelper`, `proxyAuthHelper`, `forceLoginOrgUUID`, the `"claudeai"` and `"console"` values of `forceLoginMethod`, `parentSettingsBehavior`, `modelPicker`, `policyHelper`, `permissions.defaultMode`
 `env`| [Merges per variable across admin sources](</docs/en/managed-settings#keys-read-from-every-admin-source>), under both `"first-wins"` and `"merge"`| `env`
 Every other key| Takes the value from the highest source that sets it| `cleanupPeriodDays`, `model`
 
-Taking `sandbox.credentials.awsPairs` and `sandbox.ripgrep` whole requires Claude Code v2.1.257 or later. Three of those keys add a condition of their own:
+Taking `sandbox.credentials.awsPairs` and `sandbox.ripgrep` whole requires Claude Code v2.1.257 or later. A few keys add a condition that the table doesn’t show:
 
   * **`policyHelper`** : Claude Code honors it only when the highest source that carries a policy key is an MDM policy or a managed settings file, so under server-managed settings it doesn’t apply.
   * **`modelOverrides`** : pairs with `availableModels`. Claude Code takes `modelOverrides` from the highest source that sets it, unless a higher source sets `availableModels` without `modelOverrides`. In that case it ignores `modelOverrides` from every source.
-  * **`forceLoginGatewayUrl` and the `"gateway"` value of `forceLoginMethod`**: Claude Code reads them only from the managed sources on the machine itself and ignores them in server-managed settings. The machine’s values apply even when server-managed settings are also present.
+  * **`forceLoginGatewayUrl` and the `"gateway"` value of `forceLoginMethod`**: Claude Code never reads either from server-managed settings, so a value there neither applies nor hides one set in an MDM policy or managed settings file. Among the admin sources on the machine, only the highest-ranked one that carries a policy key supplies them, whether or not server-managed settings are also present.
 
 To confirm which sources combined on a machine, run `/status` and [read the `Setting sources` line](</docs/en/managed-settings#read-the-source-in-/status>).
 
@@ -5974,7 +5975,7 @@ A helper run fails when:
   * The helper writes more than 1 MiB to stdout or to stderr.
   * stdout isn’t a single JSON object, or its `managedSettings` has a [schema violation Claude Code can’t repair](</docs/en/managed-settings#find-entries-claude-code-dropped>).
 
-When the startup run fails, Claude Code prints the reason and refuses to start. After a non-zero exit or a timeout, the message includes the helper’s stderr. The refusal covers interactive sessions, `claude -p`, Agent SDK sessions, [background sessions](</docs/en/agent-view>), and most subcommands. The refusal is deliberate, so a helper that needs outage resilience should serve from its own cache and exit `0`. When a background refresh fails, Claude Code keeps the last successful policy in effect, and `/status` shows the failing refresh with its reason until a refresh succeeds. Each refresh runs under the same `timeoutMs` and failure rules as the startup run. With `--debug`, Claude Code writes the helper’s stderr from every run to the [debug log](</docs/en/debug-your-config>). Claude Code reports an invalid `policyHelper` value as a [dropped entry](</docs/en/managed-settings#find-entries-claude-code-dropped>) and starts the session on the remaining managed settings without running a helper. Invalid values include a bare path string and a `timeoutMs` below its minimum. To turn a helper off, remove the key from the source that sets it.
+When the startup run fails, Claude Code prints the reason and refuses to start. After a non-zero exit, the reason includes the helper’s stderr, or its stdout when stderr is empty. After a timeout, the reason names the `timeoutMs` limit and includes none of the helper’s output. The refusal covers interactive sessions, `claude -p`, Agent SDK sessions, [background sessions](</docs/en/agent-view>), and most subcommands. The refusal is deliberate, so a helper that needs outage resilience should serve from its own cache and exit `0`. When a background refresh fails, Claude Code keeps the last successful policy in effect, and `/status` shows the failing refresh with its reason until a refresh succeeds. Each refresh runs under the same `timeoutMs` and failure rules as the startup run. With `--debug`, Claude Code writes the helper’s stderr from every run to the [debug log](</docs/en/debug-your-config>). Claude Code reports an invalid `policyHelper` value as a [dropped entry](</docs/en/managed-settings#find-entries-claude-code-dropped>) and starts the session on the remaining managed settings without running a helper. Invalid values include a bare path string and a `timeoutMs` below its minimum. To turn a helper off, remove the key from the source that sets it.
 
 ###
 
@@ -6112,6 +6113,28 @@ Install the Claude Code IDE extension automatically when you run Claude Code fro
 
     {
       "autoInstallIdeExtension": false
+    }
+
+Claude Code ignores this key in `settings.json`.
+
+###
+
+​
+
+`copyOnSelect`
+
+Copy text to your clipboard automatically when you finish selecting it with the mouse in [fullscreen rendering](</docs/en/fullscreen#use-the-mouse>) or [agent view](</docs/en/agent-view>). Appears in `/config` as **Copy on select** while fullscreen rendering is on.
+
+  * **Scope** : `Global config`
+  * **Type** : Boolean
+    * `true`: Claude Code copies text to your clipboard when you finish selecting it
+    * `false`: selecting text leaves your clipboard unchanged, and you [copy the selection with a keyboard shortcut](</docs/en/fullscreen#use-the-mouse>) instead
+  * **Default** : `true`
+
+~/.claude.json
+
+    {
+      "copyOnSelect": false
     }
 
 Claude Code ignores this key in `settings.json`.

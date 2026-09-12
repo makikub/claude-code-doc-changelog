@@ -33,6 +33,7 @@ Message| Section
 `Server is temporarily limiting requests`| Usage limits
 `Request rejected (429)`| Usage limits
 `Credit balance is too low`| Usage limits
+`You've hit your monthly spend limit` / `You've hit your individual spend limit` / `You've hit your org's monthly spend limit` / `You've hit your channel's monthly spend limit` / `You've hit your team's shared budget` / `You've hit your individual usage limit`| Usage limits
 `Could not update your spend limit`| Usage limits
 `spend limit reached` / `spend limit unavailable`| Usage limits
 `Not logged in · Please run /login`| Authentication
@@ -177,6 +178,7 @@ Message| Section
 `Couldn't read your Zed keymap` / `Couldn't back up your Zed keymap` / `Couldn't update your Zed keymap`| Command-line errors
 `Your Zed keymap isn't a readable list of keybindings`| Command-line errors
 `Skill usage reports are not available on this connection.`| Command-line errors
+``plugin eval` is currently in early access` / ``plugin eval` is currently unavailable`| Plugin errors
 `Marketplace "<name>" is registered from an untrusted source`| Plugin errors
 `references ${user_config.*} in a shell-form command`| Plugin errors
 `Monitor "<name>" from plugin <plugin> references ${user_config.*} in its command`| Plugin errors
@@ -532,7 +534,7 @@ Claude Code blocks further requests until the reset time shown in the message. T
   * Run `/usage-credits` to buy additional usage on Pro and Max, or to request it from your admin on Team and Enterprise. See [usage credits for paid plans](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) for how this is billed.
   * To upgrade your plan for higher base limits, see [claude.com/pricing](<https://claude.com/pricing>)
 
-To watch your remaining allowance before you hit the limit, add the `rate_limits` fields to a [custom status line](</docs/en/statusline#rate-limit-usage>), or in the Desktop app click the [usage ring](</docs/en/desktop#check-usage>) next to the model picker.
+Before a window runs out, Claude Code can warn you that you’ve used most of it, with a message such as `You've used 85% of your session limit · resets 3:45pm`. To watch your remaining allowance continuously, add the `rate_limits` fields to a [custom status line](</docs/en/statusline#rate-limit-usage>), or in the Desktop app click the [usage ring](</docs/en/desktop#check-usage>) next to the model picker.
 
 ###
 
@@ -601,6 +603,28 @@ The trailing sentence names where to check service health and varies by provider
   * Check your provider console for the active limits and request a higher tier if needed
   * For Anthropic API keys, see the [rate limits reference](<https://platform.claude.com/docs/en/api/rate-limits>) for how tiers work and how to set per-workspace caps
   * Reduce concurrency: lower [`CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY`](</docs/en/env-vars>), avoid running many parallel subagents, or switch to a smaller model with `/model` for high-volume scripted runs
+
+###
+
+​
+
+You’ve hit your monthly spend limit
+
+Your plan’s included usage can’t cover this request, and the [usage credits](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) that would otherwise pay for it have reached a spend limit. That happens when one of your plan’s usage windows has run out, or when the request is one that only usage credits pay for, such as a request to a model that [bills to usage credits](</docs/en/model-config#fable-and-usage-credits>). The message names whose limit blocked you. The text after the `·` says how to get that limit increased, and varies with your plan and whether you manage billing:
+
+    You've hit your monthly spend limit · raise it at claude.ai/settings/usage
+    You've hit your individual spend limit · ask your admin for a higher limit
+    You've hit your org's monthly spend limit · visit claude.ai/admin-settings/usage to raise it
+    You've hit your team's shared budget · ask your admin to raise it at claude.ai/admin-settings/usage
+    You've hit your channel's monthly spend limit · an org owner or channel manager can raise it in the channel's Claude settings
+
+`team's shared budget` is a pooled budget an admin assigned to a group you belong to; the message doesn’t name the group. `channel's monthly spend limit` is the budget of the one Slack channel the session runs in, so your organization may still have budget outside it. When one of your plan’s windows is what ran out, the message also says when that window resets, for example `· your session limit resets 3:45pm`, and access returns then without anyone raising the limit. On organizations with usage-based billing, the message says `usage limit` in place of `spend limit`, as in `You've hit your individual usage limit`. Before v2.1.239, the message didn’t name the plan window’s reset time. Before v2.1.268, a group’s pooled budget produced the `individual spend limit` message instead of `team's shared budget`. If you connect through a Claude apps gateway and see lowercase `spend limit reached`, that is your gateway operator’s cap instead; see Spend limit reached. **What to do:**
+
+  * On Pro and Max, increase your monthly spend limit in [**Settings > Usage**](<https://claude.ai/settings/usage>) on claude.ai, or run `/usage-credits`
+  * On Team and Enterprise, increase the limit in [**Admin settings > Usage**](<https://claude.ai/admin-settings/usage>) if you manage billing, or ask an admin to. `/usage-credits` sends that request to your admin for you
+  * For a channel’s limit, ask an org owner or the channel’s manager to raise it on claude.ai. See [Per-channel limits](<https://claude.com/docs/claude-tag/admins/set-spend-limit#per-channel-limits>) in the Claude Tag documentation
+  * If the message names a reset time for your plan’s window, you can wait for it instead
+  * Run `/usage` to see your plan’s windows and when each resets
 
 ###
 
@@ -1951,7 +1975,7 @@ The text in parentheses names which attempt failed and the underlying network er
 
 Command-line errors
 
-These errors come from the `claude` command line and its subcommands, from a command name you submit at the prompt, and from commands such as `/security-review` that gather context by running shell commands before their prompt runs. So do errors from `/tui`, which relaunches the CLI.
+These errors come from the `claude` command line and its subcommands, from a command name you submit at the prompt, and from commands such as `/security-review` that gather context by running shell commands before their prompt runs. They also come from `/tui`, which relaunches the CLI.
 
 ###
 
@@ -2047,10 +2071,11 @@ You started `claude` from a directory that was deleted or moved after your shell
     The current directory no longer exists (it was deleted or moved). Start Claude Code from an existing directory.
     error: The current working directory was deleted, so that command didn't work. Please cd into a different directory and try again.
 
-The cause and the fix are the same for both forms. When Claude Code can’t read the working directory for a different reason, such as a permissions change, the message names the error code instead: `Can't read the current directory (EACCES). Start Claude Code from a different directory.` **What to do:**
+The cause and the fix are the same for both forms. When Claude Code can’t read the working directory for a different reason, such as a permissions change, the message names the error code instead: `Can't read the current directory (EACCES). Start Claude Code from a different directory.` On macOS, `EPERM` for a directory in `~/Desktop`, `~/Documents`, `~/Downloads`, or iCloud Drive usually means macOS is blocking your terminal app from that folder. Other commands that read that folder fail the same way: `ls` there reports `Operation not permitted`, even with `sudo`. **What to do:**
 
   * Change to a directory that exists, such as your home or project directory, then run `claude` again
   * If the directory was recreated at the same path, your shell still holds the deleted one. Run `cd "$PWD"` or leave and re-enter the directory, then run `claude` again
+  * For `EPERM` on macOS, quit your terminal app with Cmd+Q, open it again, return to that folder, and run `claude`. If `ls` in that folder still fails, open **System Settings > Privacy & Security > Files and Folders**, turn on the folder for your terminal app, then reopen the terminal
 
 ###
 
@@ -2118,7 +2143,7 @@ You ran [`claude import`](</docs/en/cli-reference#cli-commands>), and Claude Cod
 Claude Code turns `claude import` on through a feature flag it fetches from Anthropic and caches on disk. This message means the cached value is off. The cause is usually one of the following:
 
   * You haven’t started a session since installing, so Claude Code hasn’t fetched the flag yet. The first `claude import` can print this even when the feature is available to you.
-  * You use Claude Code through Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or Claude Platform on AWS. Claude Code doesn’t fetch feature flags on these providers, so `claude import` stays unavailable.
+  * You use Claude Code through Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or Claude Platform on AWS, or through a [Claude apps gateway](</docs/en/claude-apps-gateway#availability-and-limitations>). Claude Code doesn’t fetch feature flags in these sessions, so `claude import` stays unavailable.
   * You set `DISABLE_TELEMETRY`, `DO_NOT_TRACK`, `DISABLE_GROWTHBOOK`, or [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](</docs/en/env-vars>), which turn off feature-flag fetching, so `claude import` stays unavailable.
 
 **What to do:**
@@ -2556,6 +2581,23 @@ These errors come from [plugin](</docs/en/plugins>) and [marketplace](</docs/en/
 
 ​
 
+plugin eval is currently in early access
+
+You ran [`claude plugin eval`](</docs/en/plugin-evals>) or `claude plugin eval init` and it exited 1 with one of these messages before doing anything:
+
+    `plugin eval` is currently in early access
+
+    `plugin eval` is currently unavailable
+
+The first message means your build is older than v2.1.269, the first version where the command is generally available. The second means Anthropic has switched the command off server-side; nothing on your machine turns it back on. **What to do:**
+
+  * Run `claude --version`, then `claude update`, and run the command again in a fresh session. See the [requirements for plugin evals](</docs/en/plugin-evals#requirements>)
+  * If you see the second message on a current build, try again later after another `claude update`
+
+###
+
+​
+
 Marketplace is registered from an untrusted source
 
 The marketplace is registered under a name that is [reserved for official Anthropic marketplaces](</docs/en/plugin-marketplaces#marketplace-schema>), but its registered source isn’t an `anthropics` GitHub repository. Claude Code re-checks reserved names every time it loads or refreshes a marketplace, so the marketplace and the plugins installed from it stop loading. Before v2.1.205, the name was checked only when the marketplace was added, so an entry registered before its name became reserved kept loading.
@@ -2681,7 +2723,7 @@ The plugin’s [marketplace entry](</docs/en/plugin-marketplaces#plugin-entries>
 
 `claude plugin install` reports the refusal like this:
 
-    Cannot install my-plugin@my-marketplace: its marketplace entry path does not stay inside the marketplace directory (an absolute, climbing, network-shaped or link-traversing entry, an entry of a fetched marketplace that resolves outside its tree — or a relative entry in a url-catalog marketplace, which has no local directory)
+    Cannot install my-plugin@my-marketplace: its marketplace entry path does not stay inside the marketplace directory (an absolute, climbing, network-shaped, backslash-containing or link-traversing entry, an entry of a fetched marketplace that resolves or opens outside its tree — or a relative entry in a url-catalog marketplace, which has no local directory)
 
 When an already-installed plugin’s entry fails the same check, `claude plugin list` shows the plugin as `failed to load` with:
 
