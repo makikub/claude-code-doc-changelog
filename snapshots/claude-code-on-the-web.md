@@ -63,7 +63,7 @@ This creates a new cloud session on claude.ai. The cloud VM clones your current 
 
 `--cloud` creates cloud sessions. `--remote-control` is unrelated: it exposes a local CLI session for monitoring from the web. See [Remote Control](</docs/en/remote-control>).
 
-Use `/tasks` in the Claude Code CLI to check progress, or open the session on claude.ai or the Claude mobile app to interact directly. From there you can steer Claude, provide feedback, or answer questions as in any other conversation. If Claude asks a question and the session sits idle, you can still answer when you come back, up to environment expiry, and the session continues from your answer.
+Open the session on claude.ai or the Claude mobile app to check progress or interact directly. From there you can steer Claude, provide feedback, or answer questions as in any other conversation. If Claude asks a question and the session sits idle, you can still answer when you come back, up to environment expiry, and the session continues from your answer.
 
 ####
 
@@ -85,7 +85,7 @@ In plan mode, Claude reads files, runs commands to explore, and proposes a plan 
     claude --cloud "Update the API documentation"
     claude --cloud "Refactor the logger to use structured output"
 
-Monitor all sessions with `/tasks` in the Claude Code CLI. When a session completes, you can create a PR from the web interface or teleport the session to your terminal to continue working.
+When a session completes, you can create a PR from the web interface or teleport the session to your terminal to continue working.
 
 ####
 
@@ -100,7 +100,7 @@ When you run `claude --cloud` from a repository that has no git remote, or from 
 Bundled repositories must meet these limits:
 
   * The directory must be a git repository with at least one commit
-  * The bundled repository must be under 100 MB. Larger repositories fall back to bundling only the current branch, then to a single squashed snapshot of the working tree, and fail only if the snapshot is still too large
+  * The bundled repository must be under 100 MB. Larger repositories fall back to bundling only the current branch, then to a single squashed snapshot of the working tree, and fail if the snapshot is still too large
   * Untracked files are not included; run `git add` on files you want the cloud session to see
   * Sessions created from a bundle can push back to a GitHub remote only when your GitHub connection has push access to that repository
 
@@ -168,7 +168,7 @@ Teleport checks these requirements before resuming a session. If any requirement
 Requirement| Details
 ---|---
 Clean git state| Your working directory must have no uncommitted changes. Teleport prompts you to stash changes if needed.
-Correct repository| You must run `--teleport` from a checkout of the same repository, not a fork. If you run it from a checkout of a different repository, Claude Code shows an error that names both the session’s repository and your checkout’s. If Claude Code can’t parse your remote into a hostname, for example an SSH host alias like `git@work:owner/repo.git`, it asks you to confirm, and accepts the checkout when the remote’s owner and repository name match the session’s repository.
+Correct repository| You must run `--teleport` from a checkout of the same repository, not a fork. If you run it from a checkout of a different repository, Claude Code shows an error that names both the session’s repository and your checkout’s. Before v2.1.219, the error didn’t name your checkout’s repository. If Claude Code can’t parse your remote into a hostname, for example an SSH host alias like `git@work:owner/repo.git`, it asks you to confirm, and accepts the checkout when the remote’s owner and repository name match the session’s repository.
 Branch available| The branch from the cloud session must have been pushed to the remote. Teleport automatically fetches and checks it out.
 Same account| You must be authenticated to the same claude.ai account used in the cloud session.
 

@@ -43,7 +43,7 @@ As the loop runs, the SDK yields a stream of messages. Each message carries a ty
     * `"init"`: session metadata for the run. When a `SessionStart` or `Setup` hook runs during session startup, its [hook lifecycle messages](</docs/en/agent-sdk/typescript#sdkhookstartedmessage>) arrive before the `init` message
     * `"compact_boundary"`: fires after compaction
     * `"informational"`: plain-text status banners from the loop
-    * `"worker_shutting_down"`: the loop will end after the current turn because the host is exiting or Remote Control disconnected
+    * `"worker_shutting_down"`: the host is exiting or Remote Control disconnected
 In TypeScript, each subtype other than `"init"` is its own type in the [`SDKMessage` union](</docs/en/agent-sdk/typescript#sdkmessage>) rather than a subtype of `SDKSystemMessage`.
   * **`AssistantMessage`:** emitted for each content block in Claude’s responses, including the final text-only one. Each carries a single content block, such as text or a tool call, and the messages from one response share a message ID.
   * **`UserMessage`:** emitted after each tool execution with the tool result content sent back to Claude. Also emitted for any user inputs you stream mid-loop.
@@ -220,7 +220,7 @@ Level| Behavior| Good for
 `"xhigh"`| Extended reasoning depth| Coding and agentic tasks on the [models that support it](</docs/en/model-config#adjust-effort-level>)
 `"max"`| Maximum reasoning depth| Multi-step problems requiring deep analysis
 
-If you don’t set `effort`, both SDKs leave the parameter unset and defer to the model’s default behavior.
+If you don’t set `effort`, Claude Code resolves the effort level itself, in the order [Adjust effort level](</docs/en/model-config#adjust-effort-level>) describes.
 
 `effort` trades latency and token cost for reasoning depth within each response. [Extended thinking](<https://platform.claude.com/docs/en/build-with-claude/extended-thinking>) is a separate feature that produces `thinking` blocks in the output, and the `display` field on `ThinkingConfig` for [Python](</docs/en/agent-sdk/python#thinkingconfig>) or [TypeScript](</docs/en/agent-sdk/typescript#thinkingconfig>) controls whether you receive their text. They are independent: you can set `effort: "low"` with extended thinking enabled, or `effort: "max"` without it.
 
@@ -343,7 +343,7 @@ Result subtype| What happened| `result` field available?
 `success`| Claude finished the task normally| Yes
 `error_max_turns`| Hit the `maxTurns` limit before finishing| No
 `error_max_budget_usd`| Hit the `maxBudgetUsd` limit before finishing| No
-`error_during_execution`| An error interrupted the loop (for example, an API failure or cancelled request)| No
+`error_during_execution`| An error interrupted the loop (for example, a cancelled request)| No
 `error_max_structured_output_retries`| No valid structured output was produced within the configured retry limit: every attempt failed validation, or a model fallback retracted the completed output with no successful retry| No
 
 The `result` field holds the final text output and is only present on the `success` variant, so always check the subtype before reading it. All result subtypes carry `total_cost_usd`, `usage`, `num_turns`, and `session_id` so you can track cost and resume even after errors. Two things to guard for:

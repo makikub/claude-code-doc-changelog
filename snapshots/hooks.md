@@ -589,7 +589,7 @@ TypeScript
 
 Make HTTP requests from hooks
 
-Hooks can perform asynchronous operations like HTTP requests. Catch errors inside your hook instead of letting them propagate, since an unhandled exception can interrupt the agent. This example sends a webhook after each tool completes, logging which tool ran and when. The hook catches errors so a failed webhook doesn’t interrupt the agent:
+Hooks can perform asynchronous operations like HTTP requests. Catch errors inside your hook instead of letting them propagate. This example sends a webhook after each tool completes, logging which tool ran and when. The hook catches errors from a failed webhook:
 
 Python
 
@@ -625,7 +625,7 @@ TypeScript
             # Run the blocking HTTP call in a thread to avoid blocking the event loop
             await asyncio.to_thread(_send_webhook, input_data["tool_name"])
         except Exception as e:
-            # Log the error but don't raise. A failed webhook shouldn't stop the agent
+            # Log the error but don't raise
             print(f"Webhook request failed: {e}")
 
         return {}
@@ -652,7 +652,7 @@ TypeScript
         if (error instanceof Error && error.name === "AbortError") {
           console.log("Webhook request cancelled");
         }
-        // Don't re-throw. A failed webhook shouldn't stop the agent
+        // Don't re-throw
       }
 
       return {};
@@ -894,7 +894,6 @@ Recursive hook loops with subagents
 
 A `UserPromptSubmit` hook that spawns subagents can create infinite loops if those subagents trigger the same hook. To prevent this:
 
-  * Check for a subagent indicator in the hook input before spawning
   * Use a shared variable or session state to track whether you’re already inside a subagent
   * Scope hooks to only run for the top-level agent session
 
