@@ -112,7 +112,7 @@ Configure the Claude Code plugin by going to **Settings → Tools → Claude Cod
 General settings
 
   * **Claude command** : specify a custom command to run Claude, for example `claude`, `/usr/local/bin/claude`, or `npx @anthropic-ai/claude-code`
-  * **Suppress notification for Claude command not found** : skip notifications about not finding the Claude command
+  * **Suppress notification for when Claude Command is not found** : skip notifications about not finding the Claude command
   * **Enable using Option+Enter for multi-line prompts** : on macOS only. When enabled, Option+Enter inserts new lines in Claude Code prompts. Disable if the Option key is being captured unexpectedly. Requires a terminal restart.
   * **Enable automatic updates** : automatically check for and install plugin updates, applied on restart
 
@@ -269,7 +269,7 @@ When the plugin is active, it runs a local MCP server that the CLI connects to a
 
 Tool name (as seen by hooks)| What it does| Read-only
 ---|---|---
-`mcp__ide__getDiagnostics`| Returns the IDE’s inspection diagnostics, the errors and warnings shown in the editor. Optionally scoped to one file.| Yes
+`mcp__ide__getDiagnostics`| Returns the IDE’s inspection diagnostics, the errors and warnings shown in the editor. Each call covers one file: the file Claude specifies, or the file in your active editor if Claude doesn’t specify one.| Yes
 
 The JetBrains plugin does not expose a code-execution tool to the model. **Listening interface.** Which network interface the server binds to is controlled by **Accept connections from all network interfaces** under **Settings → Tools → Claude Code [Beta] → Networking (Advanced)**. With the setting disabled, the server listens on `127.0.0.1` only and is not reachable from other hosts. With it enabled, the port is reachable from your local network. The setting exists for cases where the CLI cannot reach the IDE over loopback, such as WSL2 with default NAT networking or a remote-IDE setup; see WSL configuration for that scenario.
 

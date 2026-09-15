@@ -55,7 +55,7 @@ On a Pro, Max, Team, or Enterprise plan, `/usage` also shows a breakdown of what
   * **Behavior flags** : behaviors such as long context or cache misses, flagged when one accounts for 10% or more of recent usage.
   * **Loops** : a row for each of the heaviest [`/loop` or other scheduled tasks](</docs/en/scheduled-tasks>) that ran recently, ordered by total tokens, with a count of the rest. Claude Code reports how often each task fires, how many times it ran, its total and per-run tokens, and when it last ran. Claude Code keys a row by the task’s prompt, so a loop you stop and re-create stays one row. Requires Claude Code v2.1.242 or later.
 
-Press `d` or `w` to switch between the last 24 hours and the last 7 days. The figures are approximate and computed from local session history on this machine, so usage from other devices or claude.ai is not included. In the [VS Code extension](</docs/en/vs-code#check-account-and-usage>), the attribution shares and behavior flags appear in the Account & usage dialog with a Day and Week toggle, without the Loops rows. Requires Claude Code v2.1.174 or later.
+Press `d` or `w` to switch between the last 24 hours and the last 7 days. The figures are approximate and computed from local session history on this machine, so usage from other devices or claude.ai is not included. In the [VS Code extension](</docs/en/vs-code#check-account-and-usage>), the attribution shares and behavior flags appear in the Account & usage dialog with a Day and Week toggle, without the Loops rows.
 
 ####
 
@@ -136,7 +136,7 @@ Enter the per-million-token rates from your contract. Claude Code doesn’t fetc
 
 Write the setting
 
-Set `multiplier` for a flat percentage off list price, list each model’s four per-token rates under `overrides`, or do both. The [`modelPricing` entry](</docs/en/settings-reference#modelpricing>) has the shape and a paste-ready example.
+Set `multiplier` below 1 for a flat discount or above 1 for a markup, list each model’s four per-token rates under `overrides`, or do both. A markup requires Claude Code v2.1.271 or later. The [`modelPricing` entry](</docs/en/settings-reference#modelpricing>) has the shape and a paste-ready example.
 
 3
 

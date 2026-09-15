@@ -31,6 +31,7 @@ Rules with `paths:` frontmatter| Claude Code reloads them as Claude reads files 
 Nested CLAUDE.md in subdirectories| Claude Code reloads them as Claude reads files in that subdirectory
 Files Claude read or edited| Claude Code re-reads up to five, most recently modified first
 Invoked skill bodies| Re-injected, capped at 5,000 tokens per skill and 25,000 tokens total; oldest dropped first
+[Background commands](</docs/en/interactive-mode#background-bash-commands>) and background [subagents](</docs/en/sub-agents#run-subagents-in-foreground-or-background>)| Keep running. Claude Code reminds Claude which ones are still running so it doesn’t start a duplicate
 Context that hooks added earlier| Summarized with the rest of the conversation
 [SessionStart hooks](</docs/en/hooks-guide#re-inject-context-after-compaction>) that match the `compact` source| Claude Code runs them and adds their output to the compacted context
 

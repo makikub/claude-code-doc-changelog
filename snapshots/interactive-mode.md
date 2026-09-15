@@ -601,7 +601,8 @@ The diff panel lists the changed files with their added and removed line counts,
 When the panel can’t open, `/diff` opens the diff viewer instead or tells you why. The panel also opens on its own once Claude starts editing files, if your terminal is at least 144 columns wide. After you’ve opened it yourself with `/diff`, later sessions open it as soon as Claude edits a file in any terminal wide enough to fit it. Close the panel and it stays closed, in this session and later ones, until you run `/diff` again. While the panel is open, you can:
 
   * **Jump to a file** : click its row in the list. Scroll the panel with the mouse wheel. When the file list itself is too long to fit, scroll it with `Alt+Up` and `Alt+Down`, or `Ctrl+Up` and `Ctrl+Down`.
-  * **Ask Claude about specific lines** : select them in the panel with the mouse. Claude Code attaches the selection to your next prompt and shows a line count next to the input until you send it.
+  * **Ask Claude about specific lines** : select them in the panel with the mouse. Claude Code attaches the selection to your next prompt and shows a line count in the input until you send it.
+    * To send the prompt without the selection, move the cursor to just after the line-count indicator and press `Backspace` to delete it. Requires Claude Code v2.1.271 or later.
   * **Show the files the panel leaves out** : the list skips test files and generated files, and collapses changes from before this session into one line at the bottom. Click either count line to expand it.
   * **Change what the panel compares against** : press `Ctrl+X B` to cycle from this session’s changes, to your uncommitted changes as one list, to everything since your branch split from the default branch. Claude Code remembers the choice for each project.
 

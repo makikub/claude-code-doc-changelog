@@ -313,7 +313,7 @@ You can tune retry behavior with these environment variables:
 Variable| Default| Effect
 ---|---|---
 [`CLAUDE_CODE_MAX_RETRIES`](</docs/en/env-vars>)| 10| Number of retry attempts. Capped at 15 as of v2.1.186; as of v2.1.199 `CLAUDE_CODE_RETRY_WATCHDOG` raises the default and removes the cap. Lower it to surface failures faster in scripts.
-[`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>)| unset| Set to `1` in unattended sessions such as CI jobs to retry `429` and `529` capacity errors indefinitely instead of failing after `CLAUDE_CODE_MAX_RETRIES` attempts. Claude Code fails at once on a `429` that reports a spend limit or exhausted usage credits, even one from a gateway spend cap that resets on a schedule. Before v2.1.239, the watchdog retried these indefinitely. On v2.1.199 or later it also raises the default retry count for other transient errors, such as server errors, timeouts, and dropped connections, to 300, roughly three hours of backoff, and removes the cap of 15 on `CLAUDE_CODE_MAX_RETRIES` if you set that variable explicitly.
+[`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>)| unset| Set to `1` in unattended sessions such as CI jobs to retry `429` and `529` capacity errors indefinitely instead of failing after `CLAUDE_CODE_MAX_RETRIES` attempts. Claude Code fails at once when a standard-speed request gets a `429` that reports a spend limit or exhausted usage credits, even one from a gateway spend cap that resets on a schedule. Before v2.1.239, the watchdog retried these indefinitely. For fast mode requests, see [Handle rate limits](</docs/en/fast-mode#handle-rate-limits>). On v2.1.199 or later it also raises the default retry count for other transient errors, such as server errors, timeouts, and dropped connections, to 300, roughly three hours of backoff, and removes the cap of 15 on `CLAUDE_CODE_MAX_RETRIES` if you set that variable explicitly.
 [`API_TIMEOUT_MS`](</docs/en/env-vars>)| 600000| Per-request timeout in milliseconds. Raise it for slow networks or proxies. It also caps how long Claude Code waits for response headers, described in No response from API.
 [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](</docs/en/env-vars>)| unset| Deadline in milliseconds for the first response byte of a streaming request. Requires Claude Code v2.1.242 or later. For how Claude Code picks the deadline when this is unset, see No response from API.
 
@@ -871,6 +871,7 @@ A second sentence explains what routed the session away from the Anthropic API; 
 
   * A `CLAUDE_CODE_USE_*` provider variable, such as `CLAUDE_CODE_USE_BEDROCK` for [Amazon Bedrock](</docs/en/amazon-bedrock>) or `CLAUDE_CODE_USE_VERTEX` for [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>)
   * [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) pointing at a host other than `api.anthropic.com`, such as an [LLM gateway](</docs/en/llm-gateway>) or proxy, even when you sign in with claude.ai; before v2.1.196, a custom base URL didn’t block Remote Control
+  * `ANTHROPIC_UNIX_SOCKET` set, so the session sends its requests through a local socket rather than to `api.anthropic.com`
   * An enterprise [cloud gateway](</docs/en/claude-apps-gateway>) sign-in made through `/login`, which doesn’t support Remote Control and has no variable to unset
 
 **What to do:**
@@ -954,8 +955,7 @@ OAuth token revoked or expired
 Your saved login is no longer valid. A revoked token means you signed out everywhere or an admin removed access; an expired token means the automatic refresh failed mid-session. Both messages report a rejection the API returned for a request Claude Code sent. When the saved login has already been cleared after a failed refresh, you see Login expired instead. If you authenticate with a long-lived token in [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), you see the same messages when that token expires or is revoked.
 
     OAuth token revoked · Please run /login
-    OAuth token has expired · Please run /login
-    API Error: 401 ... authentication_error
+    Please run /login · API Error: 401 OAuth token has expired ...
 
 **What to do:**
 
@@ -996,7 +996,7 @@ In [non-interactive mode](</docs/en/headless>) (`-p`) and the [Agent SDK](</docs
 
     Failed to authenticate: OAuth session expired and could not be refreshed
 
-This is not the same state as OAuth token revoked or expired. Those messages report a 401 the API returned. Claude Code itself produces `Login expired` for a login it already failed to renew, so it sends no request. When the renewal fails because the account itself is suspended rather than the login being stale, Claude Code shows Your account is on hold instead. Sessions authenticated with an API key, [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), or a third-party provider don’t use the saved login and never see this message. You can check for this state before a request fails: [`/status`](</docs/en/commands>) shows a `Login` row reading `Expired — log in again`, plus the organization and email it has saved for the expired login. The row appears only when the saved login is your active credential and can no longer be refreshed. Sessions authenticated another way don’t show the row, even if an expired login remains saved. Before v2.1.210, `/status` gave no indication in this state that a login had ever existed, because the cleared credential left it nothing to report. **What to do:**
+This is not the same state as OAuth token revoked or expired. Those messages report a rejection the API returned. Claude Code itself produces `Login expired` for a login it already failed to renew, so it sends no request. When the renewal fails because the account itself is suspended rather than the login being stale, Claude Code shows Your account is on hold instead. Sessions authenticated with an API key, [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), or a third-party provider don’t use the saved login and never see this message. You can check for this state before a request fails: [`/status`](</docs/en/commands>) shows a `Login` row reading `Expired — log in again`, plus the organization and email it has saved for the expired login. The row appears only when the saved login is your active credential and can no longer be refreshed. Sessions authenticated another way don’t show the row, even if an expired login remains saved. Before v2.1.210, `/status` gave no indication in this state that a login had ever existed, because the cleared credential left it nothing to report. **What to do:**
 
   * Run `/login` to sign in again. Retrying without signing in shows the same message on every request.
   * In non-interactive mode, run `claude` in the same environment, complete `/login`, then rerun your command. For automation that can’t sign in interactively, authenticate with `ANTHROPIC_API_KEY` or [generate a long-lived token with `claude setup-token`](</docs/en/authentication#generate-a-long-lived-token>).
@@ -1302,7 +1302,7 @@ After that opening, the message reports what came back and which request failed:
   * A `Response:` clause with the content type, the kind of body, such as `body is an HTML page` or `empty body`, its size in bytes, and whether the response carried an Anthropic request id. When the response names a recognizable server, such as `nginx` or `cloudflare`, or carries intermediary headers, such as `cf-ray` or `via`, the clause lists those too.
   * A sentence naming the failed streaming request’s id and the failure that triggered the retry. When a stream had opened before the failure, it also reports how many stream events arrived and, if any did, how long the stream had been silent when the attempt failed.
 
-Before v2.1.234, the message ended after `intercepting the request`. **What to do:**
+Before v2.1.234, the message ended after `intercepting the request`. Before v2.1.271, a reply that carried a valid API message under a non-JSON content type such as `text/plain` also ended the turn with this error. Some LLM gateways use that content type for the non-streaming reply. **What to do:**
 
   * Read the `Response:` clause to see which system answered. An HTML body, no Anthropic request id, or a named server such as `nginx` or `cloudflare` means that something between Claude Code and the API replied in its place
   * If you route through an [LLM gateway](</docs/en/llm-gateway-connect#troubleshoot-gateway-errors>), test the route with a direct request and fix the hop that returns the non-API response
@@ -1533,7 +1533,7 @@ Context exceeds the token limit
 
     Context exceeds the 200k-token limit by 94k tokens — run /compact or /clear to continue.
 
-When the limit you exceeded is a compaction window smaller than the model’s context window, such as the 200K boundary on 1M-context models, the warning reads differently. Requests still succeed past a compaction window; run the named command to bring usage back under it.
+When the limit you exceeded is a compaction window, such as the 200K boundary on 1M-context models, the warning reads differently. A compaction window can sit below the model’s context window, so requests past it can still succeed.
 
     Context is 94k tokens past the 200k-token compaction window — run /compact to reduce usage.
 

@@ -158,6 +158,7 @@ Field| Type| Required| Description
 `initialPrompt`| `string`| No| Auto-submitted as the first user turn when this agent runs as the main thread agent. Ignored when the agent is invoked as a subagent
 `maxTurns`| `number`| No| Maximum number of agentic turns before the agent stops. When the agent reaches the limit, Claude Code returns its output marked as partial, and you can resume the agent to continue. The partial marking requires Claude Code v2.1.246 or later
 `background`| `boolean`| No| Run this agent as a non-blocking background task when invoked
+`omitClaudeMd`| `boolean`| No| Run this agent without the user, project, and local CLAUDE.md files when it runs as a subagent; managed policy files still load. Ignored when the agent runs as the main thread agent. Requires TypeScript Agent SDK v0.3.271 or later. The Python SDK’s [`AgentDefinition`](</docs/en/agent-sdk/python#agentdefinition>) doesn’t have this field
 `effort`| `'low' | 'medium' | 'high' | 'xhigh' | 'max' | number`| No| Reasoning effort level for this agent
 `permissionMode`| `PermissionMode`| No| Permission mode for tool execution within this agent. The [subagent inheritance rules](</docs/en/agent-sdk/permissions#available-modes>) decide when it applies
 
@@ -184,7 +185,7 @@ Unless the subagent is a [fork](</docs/en/sub-agents#fork-the-current-conversati
 The subagent receives| The subagent doesn’t receive
 ---|---
 Its own system prompt (`AgentDefinition.prompt`) and the Agent tool’s prompt| The parent’s conversation history or tool results
-Project CLAUDE.md (loaded via [`settingSources`](</docs/en/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources>))| Preloaded skill content, unless listed in `AgentDefinition.skills`
+Project CLAUDE.md (loaded via [`settingSources`](</docs/en/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources>)), unless the agent sets `omitClaudeMd`| Preloaded skill content, unless listed in `AgentDefinition.skills`
 Tool definitions (inherited from parent or the subset in `tools`, [filtered for background runs](</docs/en/sub-agents#available-tools>))| The parent’s system prompt
 
 The parent receives the subagent’s final message as the Agent tool result, but may summarize it in its own response. To preserve subagent output verbatim in the user-facing response, include an instruction to do so in the prompt or `systemPrompt` option you pass to the main `query()` call.In v2.1.210 and later, Claude Code [scans the final message for instruction-shaped patterns](</docs/en/sub-agents#subagent-output-scanning>) before the parent reads it. The scan treats three kinds of pattern differently:

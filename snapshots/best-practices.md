@@ -518,8 +518,6 @@ You can also integrate Claude into existing data/processing pipelines:
 
     claude -p "<your prompt>" --output-format json | your_command
 
-Use `--verbose` for debugging during development, and turn it off in production.
-
 ###
 
 ​

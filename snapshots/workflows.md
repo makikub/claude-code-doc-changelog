@@ -361,7 +361,7 @@ The runtime applies the following constraints:
 
 Constraint| Why
 ---|---
-No mid-run user input| Only agent permission prompts can pause a run. For sign-off between stages, run each stage as its own workflow
+No mid-run user input| A run pauses on its own only for agent permission prompts and a usage-limit wait. For sign-off between stages, run each stage as its own workflow
 No direct filesystem or shell access from the workflow itself| Agents read, write, and run commands. The script coordinates the agents
 No module loading: a script that contains `import()` fails before the run starts| The script body is plain JavaScript. Put work that needs a library in an agent’s task
 Up to 16 concurrent agents, fewer when Claude Code has fewer CPUs available, including inside a CPU-limited container| Bounds local resource use
@@ -400,9 +400,22 @@ In a [cloud session](</docs/en/claude-code-on-the-web>), Claude Code also saves 
 
 ​
 
+When a run hits your usage limit
+
+When an agent hits your claude.ai [usage limit](</docs/en/interactive-mode#wait-for-a-usage-limit-to-reset>), the run pauses rather than failing that agent: the agents that hit the limit wait for the reset, and no new agents start. Shortly after the limit resets, the waiting agents run again and the run continues on its own. Requires Claude Code v2.1.271 or later; on earlier versions, the affected agents fail. While the run waits, its progress line in the task panel and the `/workflows` header show when the limit resets. The run pauses only when all of these hold; when one doesn’t, the affected agent fails instead:
+
+  * The session is interactive and signed in with a claude.ai subscription. A run doesn’t pause in [non-interactive mode](</docs/en/headless>) with `claude -p` or the [Agent SDK](</docs/en/agent-sdk/overview>), in a [background session](</docs/en/agent-view>), or in a [Remote Control](</docs/en/remote-control>) or [agent team](</docs/en/agent-teams>) teammate session.
+  * [`autoContinueAtUsageLimit`](</docs/en/settings-reference#autocontinueatusagelimit>) is on, the same setting that lets the session itself [wait for a usage limit to reset](</docs/en/interactive-mode#wait-for-a-usage-limit-to-reset>). If you turn it off during a wait, the wait ends and the waiting agents fail.
+  * The limit resets within 24 hours. A weekly limit can reset further out.
+  * The run hasn’t already waited twice. When it hits the limit a third time, the agent fails.
+
+###
+
+​
+
 Cost
 
-A workflow spawns many agents, so a single run can use meaningfully more tokens than working through the same task in conversation. Runs count toward your plan’s usage and rate limits like any other session. To gauge the spend before committing to a large task, run the workflow on a small slice first: one directory instead of the whole repo, or a narrow question instead of a broad one. The `/workflows` view shows each agent’s token usage as the run progresses, and you can stop the run there at any time, usually without losing completed work. Resume after a pause covers what a stopped run keeps. The runtime’s agent caps limit how many agents a single run can spawn, which bounds the cost of a runaway script. To keep runs to fewer agents, choose the `small` size guideline. Claude Code also flags a run that grows unusually large. When a workflow schedules more than 25 agents, or its projected token total passes 1.5 million, its progress line in the task panel below the input box shows a `Large workflow` warning. The warning points you to `/workflows`, where you can stop the run. The warning is advisory: it doesn’t pause or limit the run. Two settings change when you see it:
+A workflow spawns many agents, so a single run can use meaningfully more tokens than working through the same task in conversation. Runs count toward your plan’s usage and rate limits. To gauge the spend before committing to a large task, run the workflow on a small slice first: one directory instead of the whole repo, or a narrow question instead of a broad one. The `/workflows` view shows each agent’s token usage as the run progresses, and you can stop the run there at any time, usually without losing completed work. Resume after a pause covers what a stopped run keeps. The runtime’s agent caps limit how many agents a single run can spawn, which bounds the cost of a runaway script. To keep runs to fewer agents, choose the `small` size guideline. Claude Code also flags a run that grows unusually large. When a workflow schedules more than 25 agents, or its projected token total passes 1.5 million, its progress line in the task panel below the input box shows a `Large workflow` warning. The warning points you to `/workflows`, where you can stop the run. The warning is advisory: it doesn’t pause or limit the run. Two settings change when you see it:
 
   * If you choose a size guideline yourself, its agent count replaces the 25-agent threshold. The built-in default guideline leaves the threshold at 25.
   * Sessions with ultracode on don’t show the warning, because turning ultracode on already opts you in to large runs.
@@ -426,10 +439,10 @@ Value| Agent count Claude aims for
 ---|---
 `unrestricted`| No guideline: Claude sizes the workflow to the task
 `small`| Fewer than 5 agents
-`medium`| Fewer than 15 agents
+`medium`| Fewer than 10 agents
 `large`| Fewer than 50 agents
 
-The default is `medium`. Until you choose a value, the `/config` row shows `medium (default)` and the workflow’s `Running in background` line shows `medium size (/config)`. Requires Claude Code v2.1.219 or later; earlier versions default to `unrestricted`. To change the guideline, pick a value for the Dynamic workflow size setting in `/config`, or run `/config workflowSizeGuideline=small`. On v2.1.219 and later, you can also set the [`workflowSizeGuideline` key](</docs/en/settings-reference#workflowsizeguideline>) in any settings file; that value takes precedence over `/config`, and Claude Code hides the `/config` row while a settings file provides one. Changes take effect on the next prompt. The runtime agent caps still apply regardless of the setting.
+The default is `medium`, or `small` when you’re signed in on a Pro plan with Claude Code v2.1.271 or later. Until you choose a value, the `/config` row marks the value as the default, and the workflow’s `Running in background` line names the size in force. Requires Claude Code v2.1.219 or later; earlier versions default to `unrestricted`. To change the guideline, pick a value for the Dynamic workflow size setting in `/config`, or run `/config workflowSizeGuideline=small`. On v2.1.219 and later, you can also set the [`workflowSizeGuideline` key](</docs/en/settings-reference#workflowsizeguideline>) in any settings file; that value takes precedence over `/config`, and Claude Code hides the `/config` row while a settings file provides one. Changes take effect on the next prompt. The runtime agent caps still apply regardless of the setting.
 
 ###
 

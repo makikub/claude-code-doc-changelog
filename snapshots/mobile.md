@@ -14,7 +14,7 @@ Download the Claude app
 
 Install the Claude app for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) or [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>). On an iPad, install the same iOS app.
 
-Run `/mobile` in a Claude Code session to display a download QR code you can scan. `/ios` and `/android` do the same thing.
+Run `/mobile` in a Claude Code session to show a QR code for [claude.ai/mobile](<https://claude.ai/mobile>), which opens the right app store for your phone. `/ios` and `/android` do the same thing.
 
 2
 

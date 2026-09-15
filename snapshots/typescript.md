@@ -941,6 +941,7 @@ Configuration for a subagent defined programmatically.
       initialPrompt?: string;
       maxTurns?: number;
       background?: boolean;
+      omitClaudeMd?: boolean;
       memory?: "user" | "project" | "local";
       effort?: "low" | "medium" | "high" | "xhigh" | "max" | number;
       permissionMode?: PermissionMode;
@@ -959,6 +960,7 @@ Field| Required| Description
 `initialPrompt`| No| Auto-submitted as the first user turn when this agent runs as the main thread agent
 `maxTurns`| No| Maximum number of agentic turns (API round-trips) before stopping
 `background`| No| Run this agent as a non-blocking background task when invoked
+`omitClaudeMd`| No| Run this agent without the user, project, and local CLAUDE.md files when it runs as a subagent; managed policy files still load. Use it for agents that take everything they need from the Agent tool prompt. Ignored when this agent runs as the main thread agent. Requires TypeScript Agent SDK v0.3.271 or later
 `memory`| No| Memory source for this agent: `'user'`, `'project'`, or `'local'`
 `effort`| No| Reasoning effort level for this agent. Accepts a named level or an integer
 `permissionMode`| No| Permission mode for tool execution within this agent. The [subagent inheritance rules](</docs/en/agent-sdk/permissions#available-modes>) decide when it applies. See `PermissionMode`
@@ -2814,17 +2816,16 @@ Monitor
 **Tool name:** `Monitor`
 
     type MonitorInput = {
+      description: string;
+      timeout_ms: number;
       command?: string;
       ws?: {
         url: string;
         protocols?: string[];
       };
-      description: string;
-      timeout_ms: number;
-      persistent: boolean;
     };
 
-Runs a background source and delivers each event to Claude so it can react without polling: `command` runs a script and emits one event per stdout line, and `ws` opens a WebSocket and emits one event per text frame. Provide exactly one of `command` or `ws`. The `ws` source requires Claude Code v2.1.195 or later. Set `persistent: true` for session-length watches such as log tails. When Monitor runs a command, it follows the same permission rules as Bash; a WebSocket watch prompts for approval separately. See the [Monitor tool reference](</docs/en/tools-reference#monitor-tool>) for behavior and provider availability. The exported type marks `timeout_ms` and `persistent` as required because the schema fills in their defaults, 300000 and `false`; a call that omits them validates.
+Runs a background source and delivers each event to Claude so it can react without polling: `command` runs a script and emits one event per stdout line, and `ws` opens a WebSocket and emits one event per text frame. Provide exactly one of `command` or `ws`. The `ws` source requires Claude Code v2.1.195 or later. `timeout_ms` is the watch’s deadline in milliseconds. It defaults to 300000, and the effective deadline is at most 1800000, which is 30 minutes. At the deadline the watch ends and Claude receives one notice so it can start a new watch if it still needs one. The exported type marks `timeout_ms` as required because the schema fills in the default; a call that omits it validates. When Monitor runs a command, it follows the same permission rules as Bash; a WebSocket watch prompts for approval separately. See the [Monitor tool reference](</docs/en/tools-reference#monitor-tool>) for behavior and provider availability.
 
 ###
 

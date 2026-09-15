@@ -45,7 +45,7 @@ Plugins can provide specialized subagents for specific tasks that Claude can inv
 
     Detailed system prompt for the agent describing its role, expertise, and behavior.
 
-Plugin agents support `name`, `description`, `model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, and `isolation` frontmatter fields. The only valid `isolation` value is `"worktree"`. For security reasons, `hooks`, `mcpServers`, and `permissionMode` are not supported for plugin-shipped agents. Claude Code loads a plugin agent even when its frontmatter has no `name` or doesn’t parse:
+Plugin agents support `name`, `description`, `model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, [`omitClaudeMd`](</docs/en/sub-agents#supported-frontmatter-fields>), and `isolation` frontmatter fields. The only valid `isolation` value is `"worktree"`. For security reasons, plugin-shipped agents don’t support `hooks`, `mcpServers`, or `permissionMode`. Claude Code loads a plugin agent even when its frontmatter has no `name` or doesn’t parse:
 
   * No `name`: Claude Code names the agent after the file, so `agents/reviewer.md` in a plugin named `my-plugin` loads as `my-plugin:reviewer`
   * Frontmatter that doesn’t parse: Claude Code names the agent after the file, uses `Agent from my-plugin plugin` as its description, and ignores every field in the file
@@ -366,7 +366,8 @@ Plugins synced from claude.ai
 
 In [Cowork](<https://claude.com/product/cowork>) and [cloud sessions](</docs/en/cloud-environments#what-carries-over-from-your-setup>), Claude Code downloads the plugins enabled for your claude.ai account into `~/.claude/plugins/synced/` in the session’s own environment and loads each one as `<name>@synced`, with no marketplace and no install record. Claude Code doesn’t load them in sessions you start in your own terminal. Inside that Cowork or cloud environment, `claude plugin list` shows the downloaded copies under a `Synced from claude.ai` heading. Before v2.1.239, Claude Code loaded these plugins as `<name>@inline`, the identity that `--plugin-dir` plugins use. Manage a synced plugin by the `<name>@synced` ID that `claude plugin list` prints:
 
-  * **Turn one off** : in the synced session, run `claude plugin disable <name>@synced`, or ask Claude to run it. Claude Code saves the choice as `"<name>@synced": false` in that environment’s user-level [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>). To turn the plugin back on, run `claude plugin enable <name>@synced` in the same session. To keep a plugin out of every synced session, [turn it off for your claude.ai account](</docs/en/desktop#extend-claude-code>). To keep it out of one project’s synced sessions in every environment, set `"<name>@synced": false` under `enabledPlugins` in that project’s committed `.claude/settings.json`.
+  * **Turn one off** : in the synced session, run `claude plugin disable <name>@synced`, or ask Claude to run it. Claude Code saves the choice as `"<name>@synced": false` in that environment’s user-level [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>). A synced plugin that your organization requires can’t be turned off this way. The command reports that the plugin is required by your organization and saves nothing. To turn the plugin back on, run `claude plugin enable <name>@synced` in the same session.
+  * **Keep one out of synced sessions** : to keep a plugin out of every synced session, [turn it off for your claude.ai account](</docs/en/desktop#extend-claude-code>). To keep it out of one project’s synced sessions in every environment, set `"<name>@synced": false` under `enabledPlugins` in that project’s committed `.claude/settings.json`.
   * **Manage the plugin itself on claude.ai** : `claude plugin install`, `update`, and `uninstall` don’t apply to a synced plugin. To remove one, turn the plugin off for your claude.ai account; the next synced session starts without it.
 
 When an enabled plugin from any other source, such as a marketplace install, a skills-directory plugin, or a `--plugin-dir` plugin, matches a synced plugin’s name, Claude Code loads that plugin and reports the synced copy as not loaded. To use the claude.ai copy instead, disable your own copy. Before v2.1.239, Claude Code loaded the synced copy instead of a same-named marketplace install.
@@ -547,10 +548,11 @@ Field| Required| Description
 `sensitive`| No| If `true`, masks input and stores the value in secure storage instead of `settings.json`
 `required`| No| If `true`, validation fails when the field is empty
 `default`| No| Value used when the user provides nothing
+`options`| No| For `string` type, the values the field accepts, shown in `/config` as a picker over them. Requires Claude Code v2.1.271 or later
 `multiple`| No| For `string` type, allow an array of strings
 `min` / `max`| No| Bounds for `number` type
 
-Each value is available for substitution as `${user_config.KEY}` in MCP and LSP server configs and hook commands. Non-sensitive values can also be substituted in skill and agent content. All values are exported to hook processes as `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables, where `<KEY>` is the option key uppercased. Fields that run in a shell reject `${user_config.*}`: substituting a configured value into a shell command would let the shell run whatever that value contains, so the component fails with an [error](</docs/en/errors#plugin-command-references-user-config>) instead. Each rejected field has an alternative way to pass the value:
+Except `sensitive` fields and `multiple` lists, each field of each enabled plugin also appears as a row in the `/config` panel. The rows require Claude Code v2.1.269 or later. Each value is available for substitution as `${user_config.KEY}` in MCP and LSP server configs and hook commands. Non-sensitive values can also be substituted in skill and agent content. All values are exported to hook processes as `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables, where `<KEY>` is the option key uppercased. Fields that run in a shell reject `${user_config.*}`: substituting a configured value into a shell command would let the shell run whatever that value contains, so the component fails with an [error](</docs/en/errors#plugin-command-references-user-config>) instead. Each rejected field has an alternative way to pass the value:
 
 Rejected field| How to pass the value
 ---|---
@@ -934,7 +936,8 @@ Option| Description| Default
 ---|---|---
 `-s, --scope <scope>`| Installation scope: `user`, `project`, or `local`| `user`
 `--config <key=value>`| Set a `userConfig` option declared in the plugin’s manifest. Repeat the flag to set multiple options|
-`-y, --yes`| Accept a command the plugin’s marketplace declares, without the confirmation prompt: the command that produces a plugin with a [`command` source](</docs/en/plugin-marketplaces#command-sources>), or the [`headersHelper`](</docs/en/plugin-marketplaces#authenticate-archive-downloads>) that authenticates an archive download. Accepting a `headersHelper` requires Claude Code v2.1.238 or later. Claude Code still prints the command first. Required when stdin or stdout isn’t a TTY. Has no effect inside a Claude Code session, so run the command from your own terminal|
+`-y, --yes`| Accept a command the plugin’s marketplace declares, without the confirmation prompt: the command that produces a plugin with a [`command` source](</docs/en/plugin-marketplaces#command-sources>), or the [`headersHelper`](</docs/en/plugin-marketplaces#authenticate-archive-downloads>) that authenticates an archive download. Accepting a `headersHelper` requires Claude Code v2.1.238 or later. Claude Code still prints the command first. Required when stdin or stdout isn’t a TTY, unless you pass `--accept-command`. Has no effect inside a Claude Code session, so run the command from your own terminal|
+`--accept-command <sha256>`| Accept the marketplace-declared command whose `sha256` a previous `--json` run reported in `shownCommand`, in place of `-y`. The acceptance counts for exactly that command, plugin, and marketplace catalog. If any of them changed since the command was displayed, including through the run’s own marketplace refresh, Claude Code doesn’t accept the digest and shows the command again. Can’t be combined with `-y`. Has no effect inside a Claude Code session, so run the command from your own terminal. Requires Claude Code v2.1.271 or later|
 `--json`| Print the result as one JSON object on the last line of stdout instead of the human-readable message, for use in scripts. See JSON result format. Requires Claude Code v2.1.268 or later|
 `-h, --help`| Display help for command|
 
@@ -944,7 +947,7 @@ Scope determines which settings file the installed plugin is added to. For examp
   * `outcome`: `ok` or `failed`
   * `message`: a human-readable description of the result
 
-Other fields, such as `pluginId`, `scope`, and `failureCode`, appear only when they apply. The `--json` option on `plugin uninstall`, `plugin update`, `plugin enable`, and `plugin disable` prints the same object with that subcommand’s own fields. A usage error, such as an invalid `--scope`, prints no result line and exits 1 with the reason on stderr. These examples show common invocations:
+Other fields, such as `pluginId`, `scope`, and `failureCode`, appear only when they apply. The `--json` option on `plugin uninstall`, `plugin update`, `plugin enable`, and `plugin disable` prints the same object with that subcommand’s own fields. A usage error, such as an invalid `--scope`, prints no result line and exits 1 with the reason on stderr. When a run displays a marketplace-declared command and doesn’t run it, the `failed` result also carries a `shownCommand` object whose fields include the command as displayed, the plugin it belongs to, and the command’s `sha256`. To accept exactly that command, re-run with that `sha256` as `--accept-command`. Requires Claude Code v2.1.271 or later. If `shownCommand.acceptCommandMatched` is `false`, the digest you passed doesn’t match the command now displayed. Show that command to a person before passing its `sha256`. These examples show common invocations:
 
     # Install to user scope (default)
     claude plugin install formatter@my-marketplace
@@ -1033,7 +1036,7 @@ Option| Description| Default
 
 plugin disable
 
-Disable a plugin without uninstalling it. When the target is installed from a marketplace, the command fails if another enabled plugin [depends on](</docs/en/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies>) it. The error message includes a chained command that disables every dependent first.
+Disable a plugin without uninstalling it. When the target is installed from a marketplace, the command fails if another enabled plugin [depends on](</docs/en/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies>) it. The error message includes a chained command that disables every dependent first. For a synced plugin that your organization requires, the command fails and saves nothing.
 
     claude plugin disable [plugin] [options]
 
@@ -1069,7 +1072,8 @@ The command accepts these options:
 Option| Description| Default
 ---|---|---
 `-s, --scope <scope>`| Scope to update: `user`, `project`, `local`, or `managed`| `user`
-`-y, --yes`| Accept a command the plugin’s marketplace declares, without the confirmation prompt: the command that produces a plugin with a [`command` source](</docs/en/plugin-marketplaces#command-sources>), or the [`headersHelper`](</docs/en/plugin-marketplaces#authenticate-archive-downloads>) that authenticates an archive download. Accepting a `headersHelper` requires Claude Code v2.1.238 or later. Claude Code still prints the command first. Required when stdin or stdout isn’t a TTY. Has no effect inside a Claude Code session, so run the command from your own terminal|
+`-y, --yes`| Accept a command the plugin’s marketplace declares, without the confirmation prompt: the command that produces a plugin with a [`command` source](</docs/en/plugin-marketplaces#command-sources>), or the [`headersHelper`](</docs/en/plugin-marketplaces#authenticate-archive-downloads>) that authenticates an archive download. Accepting a `headersHelper` requires Claude Code v2.1.238 or later. Claude Code still prints the command first. Required when stdin or stdout isn’t a TTY, unless you pass `--accept-command`. Has no effect inside a Claude Code session, so run the command from your own terminal|
+`--accept-command <sha256>`| Accept the marketplace-declared command whose `sha256` a previous `--json` run reported in `shownCommand`, in place of `-y`. The acceptance counts for exactly that command, plugin, and marketplace catalog. If any of them changed since the command was displayed, including through the run’s own marketplace refresh, Claude Code doesn’t accept the digest and shows the command again. Can’t be combined with `-y`. Has no effect inside a Claude Code session, so run the command from your own terminal. Requires Claude Code v2.1.271 or later|
 `--json`| Print the result as one JSON object on the last line of stdout, in the same format as `plugin install --json`. Requires Claude Code v2.1.268 or later|
 `-h, --help`| Display help for command|
 
