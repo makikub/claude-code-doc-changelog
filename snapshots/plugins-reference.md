@@ -24,7 +24,7 @@ Plugins add skills to Claude Code, creating `/name` shortcuts that you or Claude
     └── code-reviewer/
         └── SKILL.md
 
-Skills and commands are automatically discovered when the plugin is installed. If a plugin has no `skills/` directory and no `skills` manifest field, a `SKILL.md` at the plugin root is loaded as a single skill. Set the frontmatter `name` field to control the skill’s invocation name. Without it, Claude Code falls back to the install directory name, which for marketplace-installed plugins is a version string that changes on every update. For plugins that ship more than one skill, use the `skills/` directory layout shown above. In plugin skills and commands, Boolean frontmatter fields such as `disable-model-invocation` accept `yes`, `no`, `on`, `off`, `1`, and `0` in any letter case, in addition to `true` and `false`. Before v2.1.218, Claude Code recognized only `true` and `false`. For complete details, see [Skills](</docs/en/skills>).
+Skills and commands are automatically discovered when the plugin is installed. If a plugin has no `skills/` directory and no `skills` manifest field, a `SKILL.md` at the plugin root is loaded as a single skill. Set the frontmatter `name` field to control the skill’s invocation name. Without it, Claude Code falls back to the install directory name. For a plugin copied into the cache, that name is a version string that changes on every update. For plugins that ship more than one skill, use the `skills/` directory layout shown above. In plugin skills and commands, Boolean frontmatter fields such as `disable-model-invocation` accept `yes`, `no`, `on`, `off`, `1`, and `0` in any letter case, in addition to `true` and `false`. Before v2.1.218, Claude Code recognized only `true` and `false`. For complete details, see [Skills](</docs/en/skills>).
 
 ###
 
@@ -460,7 +460,7 @@ Field| Type| Description| Example
 ---|---|---|---
 `$schema`| string| JSON Schema URL for editor autocomplete and validation. Claude Code ignores this field at load time.| `"https://json.schemastore.org/claude-code-plugin-manifest.json"`
 `displayName`| string| Human-readable name shown in the `/plugin` picker and other UI surfaces. For a marketplace-installed plugin, a `displayName` on the [marketplace entry](</docs/en/plugin-marketplaces#optional-plugin-fields>) takes precedence over this value. When no display name is set in either place, users see `name`. Unlike `name`, may contain spaces and any casing. Not used for namespacing or lookup.| `"Deployment Tools"`
-`version`| string| Optional. Semantic version. Setting this pins the plugin to that version string, so users only receive updates when you bump it, except for a [`command` source](</docs/en/plugin-marketplaces#command-sources>); see Version management. If also set in the marketplace entry, `plugin.json` wins. If omitted, the version comes from the next source in Version management.| `"2.1.0"`
+`version`| string| Optional. Semantic version. Setting this pins the plugin to that version string, so users only receive updates when you bump it, except for a [`command` source](</docs/en/plugin-marketplaces#command-sources>) or a plugin loaded in place; see Version management. If also set in the marketplace entry, `plugin.json` wins. If omitted, the version comes from the next source in Version management.| `"2.1.0"`
 `description`| string| Brief explanation of plugin purpose| `"Deployment automation tools"`
 `author`| object| Author information| `{"name": "Dev Team", "email": "dev@company.com"}`
 `homepage`| string| Documentation URL| `"https://docs.example.com"`
@@ -476,7 +476,7 @@ Field| Type| Description| Example
 
 Default enablement
 
-Set `defaultEnabled: false` in `plugin.json` to ship a plugin that installs disabled. The user turns it on with `claude plugin enable <plugin>` or the `/plugin` interface. Use this for plugins that add cost or scope a user should opt into, such as one that connects to an external service. `defaultEnabled` is the fallback when nothing else has decided the plugin’s state. Two things take precedence over it:
+Set `defaultEnabled: false` in `plugin.json` to ship a plugin that installs disabled. The user turns it on with `claude plugin enable <plugin>` or the `/plugin` interface. Use this for plugins that add cost or scope a user should opt into, such as one that connects to an external service. `defaultEnabled` is the fallback when nothing else has decided the plugin’s state. The user’s setting and a dependency requirement take precedence over it:
 
   * **The user’s setting** : an entry for the plugin in `enabledPlugins` at any settings scope. Once written, it persists across plugin updates and reinstalls, so changing `defaultEnabled` in a later release does not flip an existing user.
   * **A dependency requirement** : when a plugin is required by another one that is active, Claude Code writes `true` for it at install or enable time. That gives it an explicit setting, so its own default no longer applies. See [Enable or disable a plugin with dependencies](</docs/en/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies>).
@@ -502,8 +502,8 @@ Field| Type| Description| Example
 `experimental.themes`| string|array| Color theme files/directories (replaces default `themes/`). See Themes| `"./themes/"`
 `experimental.monitors`| string|array| Background [Monitor](</docs/en/tools-reference#monitor-tool>) configurations that start automatically when the plugin is active. See Monitors| `"./monitors.json"`
 `experimental.evals`| string|array| Directory below the plugin root that holds the plugin’s [eval cases](</docs/en/plugin-evals#use-a-different-eval-directory>), when it isn’t the default `evals/`. `claude plugin eval --eval-dir` overrides it| `"quality/evals"`
-`userConfig`| object| User-configurable values prompted at enable time. See User configuration| See below
-`channels`| array| Channel declarations for message injection (Telegram, Slack, Discord style). See Channels| See below
+`userConfig`| object| User-configurable values prompted at enable time. See User configuration|
+`channels`| array| Channel declarations for message injection (Telegram, Slack, Discord style). See Channels|
 `dependencies`| array| Other plugins this plugin requires, optionally with semver version constraints. See [Constrain plugin dependency versions](</docs/en/plugin-dependencies>)| `[{ "name": "secrets-vault", "version": "~2.1.0" }]`
 
 ###
@@ -649,7 +649,7 @@ Variable| Resolves to| Use it for
 `${CLAUDE_PLUGIN_DATA}`| Persistent directory that survives plugin updates, created on first reference| Installed dependencies such as `node_modules` or Python virtual environments, generated code, and caches
 `${CLAUDE_PROJECT_DIR}`| The project root| Project-local scripts and config files
 
-All three are exported as environment variables to hook processes and to MCP and LSP server subprocesses. Which fields substitute them inline depends on the plugin component:
+All three are exported as environment variables to hook processes and to MCP and LSP server subprocesses. They aren’t present in the environment of commands Claude runs through the Bash tool, in the main session or in a subagent. In plugin content, write the placeholder instead, and Claude Code substitutes the path inline when it loads the content. Which fields substitute them inline depends on the plugin component:
 
 Plugin component| Fields where placeholders resolve
 ---|---
@@ -676,7 +676,7 @@ In hook commands, use [exec form](</docs/en/hooks#exec-form-and-shell-form>) wit
       }
     }
 
-`${CLAUDE_PLUGIN_ROOT}` changes when the plugin updates. The previous version’s directory remains on disk for a grace period after an update, but treat it as ephemeral and don’t write state there. See plugin caching for cleanup semantics. When a plugin updates mid-session, hook commands, monitors, MCP servers, and LSP servers keep using the previous version’s path. Run `/reload-plugins` to switch hooks, MCP servers, and LSP servers to the new path; monitors require a session restart. In a session without an interactive terminal, the reload leaves plugin MCP servers on the old path until the next session. For a plugin with a `command` source, Claude Code [can reload the plugin itself](</docs/en/plugin-marketplaces#when-claude-code-re-runs-the-command>). MCP servers can also call the `roots/list` request to read the session’s working directories at runtime. See [what `roots/list` returns and when Claude Code notifies the server of changes](</docs/en/mcp#option-3-add-a-local-stdio-server>).
+For a copied plugin, `${CLAUDE_PLUGIN_ROOT}` changes when the plugin updates. The previous version’s directory remains on disk for a grace period after an update, but treat it as ephemeral and don’t write state there. For a plugin loaded in place from a local-directory marketplace, the variable points at the stable source directory. See plugin caching for which plugins are copied and for cleanup semantics. When a copied plugin updates mid-session, hook commands, monitors, MCP servers, and LSP servers keep using the previous version’s path. Run `/reload-plugins` to switch hooks, MCP servers, and LSP servers to the new path; monitors require a session restart. In a session without an interactive terminal, the reload leaves plugin MCP servers on the old path until the next session. For a plugin with a `command` source, Claude Code [can reload the plugin itself](</docs/en/plugin-marketplaces#when-claude-code-re-runs-the-command>). MCP servers can also call the `roots/list` request to read the session’s working directories at runtime. See [what `roots/list` returns and when Claude Code notifies the server of changes](</docs/en/mcp#option-3-add-a-local-stdio-server>).
 
 ####
 
@@ -730,7 +730,7 @@ Plugins are specified in one of two ways:
   * Through `claude --plugin-dir` or `claude --plugin-url`, for the duration of a session.
   * Through a marketplace, installed for future sessions.
 
-For security and verification purposes, Claude Code copies _marketplace_ plugins to the user’s local **plugin cache** (`~/.claude/plugins/cache`) rather than using them in place, except for [`command` sources in link mode](</docs/en/plugin-marketplaces#copy-mode-and-link-mode>), which Claude Code uses in place through links in the cache entry. For copied plugins, each installed version is a separate directory in the cache, grouped by marketplace and plugin and named for the resolved version, with its own copy of the plugin’s files and Node.js package dependencies. A dependency resolved from a [release tag](</docs/en/plugin-dependencies#tag-plugin-releases-for-version-resolution>) gets a directory name with a commit-SHA suffix. When you update or uninstall a plugin, Claude Code marks the previous version directory as orphaned and removes it in a background sweep roughly 14 days later. The grace period lets concurrent Claude Code sessions that already loaded the old version keep running without errors. Claude Code runs the sweep only while at least one plugin is installed; after you uninstall your last plugin, orphaned directories stay on disk until you install a plugin again. Claude Code removes a plugin or marketplace folder from the cache only when it no longer contains any directory or symlink. If you symlink a development checkout into the cache as a plugin’s version entry, Claude Code never marks the link as orphaned and never removes it or the folders that hold it. Claude Code also never writes its version-tracking files inside the linked checkout. Claude’s Glob and Grep tools skip orphaned version directories during searches, so file results don’t include outdated plugin code.
+For security and verification purposes, Claude Code copies _marketplace_ plugins to the user’s local **plugin cache** (`~/.claude/plugins/cache`), unless the plugin loads in place. A [`command` source in link mode](</docs/en/plugin-marketplaces#copy-mode-and-link-mode>) loads in place through links in the cache entry. A [relative path source](</docs/en/plugin-marketplaces#relative-paths>) in a marketplace added from a local directory loads in place from the marketplace folder. For a plugin loaded in place from a local-directory marketplace, your edits to the source directory take effect at the next session start or `/reload-plugins`. You don’t need a version bump. The plugin’s hook processes and MCP and LSP servers receive a `CLAUDE_PLUGIN_ROOT` that points at the source directory. Claude Code doesn’t install the plugin’s Node.js package dependencies into the source directory. Install them there yourself, or from a hook into the persistent data directory. For copied plugins, each installed version is a separate directory in the cache, grouped by marketplace and plugin and named for the resolved version, with its own copy of the plugin’s files and Node.js package dependencies. A dependency resolved from a [release tag](</docs/en/plugin-dependencies#tag-plugin-releases-for-version-resolution>) gets a directory name with a commit-SHA suffix. When you update or uninstall a plugin, Claude Code marks the previous version directory as orphaned and removes it in a background sweep roughly 14 days later. The grace period lets concurrent Claude Code sessions that already loaded the old version keep running without errors. Claude Code runs the sweep only while at least one plugin is installed; after you uninstall your last plugin, orphaned directories stay on disk until you install a plugin again. Claude Code removes a plugin or marketplace folder from the cache only when it no longer contains any directory or symlink. If you symlink a development checkout into the cache as a plugin’s version entry, Claude Code never marks the link as orphaned and never removes it or the folders that hold it. Claude Code also never writes its version-tracking files inside the linked checkout. Claude’s Glob and Grep tools skip orphaned version directories during searches, so file results don’t include outdated plugin code.
 
 ###
 
@@ -1384,7 +1384,7 @@ Distribution and versioning reference
 
 Version management
 
-Claude Code uses the plugin’s version as the cache key that determines whether an update is available. When you run `/plugin update` or auto-update fires, Claude Code computes the current version and skips the update if it matches what’s already installed. For every source type except `command`, Claude Code resolves the version from the first of these that is set:
+Claude Code uses the plugin’s version as the cache key that determines whether an update is available. When you run `/plugin update` or auto-update fires, Claude Code computes the current version and skips the update if it matches what’s already installed. A plugin loaded in place from a local-directory marketplace loads its current source files at every session start, whatever its version string says. For every source type except `command`, Claude Code resolves the version from the first of these that is set:
 
   1. The `version` field in the plugin’s `plugin.json`
   2. The `version` field in the plugin’s marketplace entry in `marketplace.json`
@@ -1396,7 +1396,7 @@ For a [`command` source](</docs/en/plugin-marketplaces#command-sources>), Claude
 
 Approach| How| Update behavior| Best for
 ---|---|---|---
-**Explicit version**|  Set `"version": "2.1.0"` in `plugin.json`| Users get updates only when you bump this field. Pushing new commits without bumping it has no effect, and `/plugin update` reports “already at the latest version”.| Published plugins with stable release cycles
+**Explicit version**|  Set `"version": "2.1.0"` in `plugin.json`| Users get updates only when you bump this field. Pushing new commits without bumping it has no effect, and `/plugin update` reports “already at the latest version”. For a plugin loaded in place, the new content loads anyway.| Published plugins with stable release cycles
 **Commit-SHA version**|  Omit `version` from both `plugin.json` and the marketplace entry| Users get updates whenever the source’s resolved commit changes| Internal or team plugins under active development
 **Digest version**|  Use an [`archive` source](</docs/en/plugin-marketplaces#zip-archives>) and omit `version` from both `plugin.json` and the marketplace entry| With a `sha256` pin, users get updates when you change the pin. Without one, users get updates whenever the hosted zip file’s bytes change| Plugins published as zip files to a static server or artifact repository
 

@@ -50,7 +50,7 @@ This walkthrough builds a single-file server that listens for HTTP requests and 
 
 Create the project
 
-The permission relay examples later on this page import `zod` directly, so it installs alongside the MCP SDK. Create a new directory and install both:
+The permission relay examples import `zod` directly, so it installs alongside the MCP SDK. Create a new directory and install both:
 
     mkdir webhook-channel && cd webhook-channel
     bun add @modelcontextprotocol/sdk zod
@@ -100,7 +100,7 @@ webhook.ts
       },
     })
 
-The file does three things in order:
+The file configures the server, connects over stdio, and starts an HTTP listener, in that order:
 
   * **Server configuration** : creates the MCP server with `claude/channel` in its capabilities, which is what tells Claude Code this is a channel. Claude Code delivers the `instructions` string to Claude as context when the server connects: tell Claude what events to expect, whether to reply, and how to route replies if it should.
   * **Stdio connection** : connects to Claude Code over stdin/stdout. This is standard for any [MCP server](<https://modelcontextprotocol.io/docs/concepts/transports#standard-io>).
@@ -728,7 +728,7 @@ Listing files is read-only, so Claude runs it without approval. The permission d
 
     curl -d "yes <id>" -H "X-Sender: dev" localhost:8788
 
-The local dialog closes, the `reply` tool runs, and Claude’s reply lands in the stream. The three channel-specific pieces in this file:
+The local dialog closes, the `reply` tool runs, and Claude’s reply appears in the stream. The three channel-specific pieces in this file:
 
   * **Capabilities** in the `Server` constructor: `claude/channel` registers the notification listener, `claude/channel/permission` opts in to permission relay, `tools` lets Claude discover the reply tool.
   * **Outbound paths** : the `reply` tool handler is what Claude calls for conversational responses; the `PermissionRequestSchema` notification handler is what Claude Code calls when a permission dialog opens. Both call `send()` to broadcast over `/events`, but they’re triggered by different parts of the system.

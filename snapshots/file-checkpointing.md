@@ -165,7 +165,7 @@ TypeScript
 
 Capture checkpoint UUID and session ID
 
-With the `replay-user-messages` option set (shown above), each user message in the response stream has a UUID that serves as a checkpoint.For most use cases, capture the first user message UUID (`message.uuid`); rewinding to it restores the tracked files to their original state. To store multiple checkpoints and rewind to intermediate states, see Multiple restore points.Capturing the session ID (`message.session_id`) is optional; you only need it if you want to rewind later, after the stream completes. If you’re calling `rewindFiles()` immediately while still processing messages (as the example in Checkpoint before risky operations does), you can skip capturing the session ID.
+With the `replay-user-messages` option set, each user message in the response stream has a UUID that serves as a checkpoint.For most use cases, capture the first user message UUID (`message.uuid`); rewinding to it restores the tracked files to their original state. To store multiple checkpoints and rewind to intermediate states, see Multiple restore points.Capturing the session ID (`message.session_id`) is optional; you only need it if you want to rewind later, after the stream completes. If you’re calling `rewindFiles()` immediately while still processing messages (as the example in Checkpoint before risky operations does), you can skip capturing the session ID.
 
 Python
 

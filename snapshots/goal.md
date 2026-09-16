@@ -49,7 +49,7 @@ Setting a goal starts a turn immediately, with the condition itself as the direc
 
 Write an effective condition
 
-The evaluator judges your condition against what Claude has surfaced in the conversation. It doesn’t run commands or read files independently, so write the condition as something Claude’s own output can demonstrate. “All tests in `test/auth` pass” works because Claude runs the tests and the result lands in the transcript for the evaluator to read. A condition that holds up across many turns usually has:
+The evaluator judges your condition against what Claude has surfaced in the conversation. It doesn’t run commands or read files independently, so write the condition as something Claude’s own output can demonstrate. “All tests in `test/auth` pass” works because Claude runs the tests and the result appears in the transcript for the evaluator to read. A condition that holds up across many turns usually has:
 
   * **One measurable end state** : a test result, a build exit code, a file count, an empty queue
   * **A stated check** : how Claude should prove it, such as “`npm test` exits 0” or “`git status` is clean”

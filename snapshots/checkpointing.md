@@ -85,7 +85,7 @@ Limitations
 
 Bash command changes not tracked
 
-Checkpointing does not track files modified by bash commands. For example, if Claude Code runs:
+Checkpointing does not track files modified by Bash commands. For example, if Claude Code runs:
 
     rm file.txt
     mv old.txt new.txt

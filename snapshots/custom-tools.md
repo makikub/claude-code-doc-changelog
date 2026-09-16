@@ -130,7 +130,7 @@ To make a parameter optional: in TypeScript, add `.default()` to the Zod field. 
 
 Call a custom tool
 
-Pass the MCP server you created to `query` via the `mcpServers` option. The key in `mcpServers` becomes the `{server_name}` segment in each tool’s fully qualified name: `mcp__{server_name}__{tool_name}`. List that name in `allowedTools` so the tool runs without a permission prompt. These snippets reuse the `weatherServer` from the example above to ask Claude what the weather is in a specific location.
+Pass the MCP server you created to `query` via the `mcpServers` option. The key in `mcpServers` becomes the `{server_name}` segment in each tool’s fully qualified name: `mcp__{server_name}__{tool_name}`. List that name in `allowedTools` so the tool runs without a permission prompt. These snippets reuse the `weatherServer` from the weather tool example to ask Claude what the weather is in a specific location.
 
 Python
 

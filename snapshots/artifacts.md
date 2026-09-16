@@ -116,7 +116,7 @@ Claude can reply to or resolve only an activated thread. Other threads stay open
 
     Read the comments on https://claude.ai/code/artifact/5fbea6f3-... and make the changes the commenters ask for.
 
-If Claude tells you it can’t read comments, check three things:
+If Claude tells you it can’t read comments, confirm your version, your session, and your feature-flag setting:
 
   * You’re running Claude Code v2.1.221 or later.
   * You’re not in your first session since you installed Claude Code or upgraded from a version before v2.1.221. In that [first session after an install or upgrade](</docs/en/env-vars#first-session-after-an-install-or-upgrade>), Claude might not be able to read comments yet; start a new session and ask again.
@@ -237,7 +237,7 @@ Ask for sliders, toggles, or input fields bound to whatever you are adjusting, s
 
 Bring the result back to your session
 
-An artifact can act as a lightweight editor for a decision you then hand back to Claude. Ask for an export control that produces text you can paste into the terminal, so the result of interacting with the page flows back into the session instead of staying on the page.
+An artifact can act as a lightweight editor for a decision you then send back to Claude. Ask for an export control that produces text you can paste into the terminal, so the result of interacting with the page flows back into the session instead of staying on the page.
 
     Make a triage board artifact with each open issue as a draggable card across Now, Next, Later, and Cut columns. Add a "Copy as prompt" button that gives me the final ordering to paste back here.
 

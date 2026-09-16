@@ -48,7 +48,7 @@ v2.1.225–v2.1.233
 
 August 10–14, 2026
 
-**Auto-continue after a usage limit on Desktop** : when you hit your session limit in Claude Code Desktop, check **Auto-continue when limits reset** on the limit card and the app retries the interrupted turn once the limit resets.Also this week: **fork mode** is on by default in interactive sessions, so Claude can hand a side task to a subagent that inherits the full conversation; **GitLab** merge request URLs work with `--worktree` and the `claude agents` view, and marketplaces clone bare `gitlab.com` URLs; and typing **`@`** in the prompt mentions another Claude session by name.[Read the Week 33 digest →](</docs/en/whats-new/2026-w33>)
+**Auto-continue after a usage limit on Desktop** : when you hit your session limit in Claude Code Desktop, check **Auto-continue when limits reset** on the limit card and the app retries the interrupted turn once the limit resets.Also this week: **fork mode** is on by default in interactive sessions, so Claude can delegate a side task to a subagent that inherits the full conversation; **GitLab** merge request URLs work with `--worktree` and the `claude agents` view, and marketplaces clone bare `gitlab.com` URLs; and typing **`@`** in the prompt mentions another Claude session by name.[Read the Week 33 digest →](</docs/en/whats-new/2026-w33>)
 
 ​
 

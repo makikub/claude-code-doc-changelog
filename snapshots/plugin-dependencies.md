@@ -27,7 +27,7 @@ List dependencies in the `dependencies` array of your plugin’s `.claude-plugin
       ]
     }
 
-An entry can be a bare string with only the plugin name, like `"audit-logger"` in the example above, which depends on whatever version that plugin’s marketplace provides. For more control, use an object with these fields:
+An entry can be a bare string with only the plugin name, like `"audit-logger"` in the `deploy-kit` manifest, which depends on whatever version that plugin’s marketplace provides. For more control, use an object with these fields:
 
 Field| Type| Description
 ---|---|---

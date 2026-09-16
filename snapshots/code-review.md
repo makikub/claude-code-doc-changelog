@@ -40,7 +40,7 @@ Findings include a collapsible extended reasoning section you can expand to unde
 
 Rate and reply to findings
 
-Each review comment from Claude arrives with 👍 and 👎 already attached so both buttons appear in the GitHub UI for one-click rating. Click 👍 if the finding was useful or 👎 if it was wrong or noisy. Anthropic collects reaction counts after the PR merges and uses them to tune the reviewer. Reactions do not trigger a re-review or change anything on the PR. Replying to an inline comment does not prompt Claude to respond or update the PR. To act on a finding, fix the code and push. If the PR is subscribed to push-triggered reviews, the next run resolves the thread when the issue is fixed. To request a fresh review without pushing, comment `@claude review` as a top-level PR comment.
+Each review comment from Claude arrives with 👍 and 👎 already attached so both buttons appear in the GitHub UI for one-click rating. Click 👍 if the finding was useful or 👎 if it was wrong or noisy. Anthropic collects reaction counts after the PR merges and uses them to tune the reviewer. Reactions do not trigger a re-review or change anything on the PR. Replying to an inline comment does not prompt Claude to respond or update the PR. To act on a finding, fix the code and push. If the PR is subscribed to push-triggered reviews, the next run resolves the thread when the issue is fixed. To request a fresh review without pushing, comment `@claude review` as a top-level PR comment. To dismiss a finding without a code change, resolve its thread; replying doesn’t dismiss it.
 
 ###
 
@@ -179,7 +179,7 @@ Code Review reads your repository’s `CLAUDE.md` files and treats newly introdu
 
 REVIEW.md
 
-`REVIEW.md` is a file at your repository root that tailors Code Review to your repo. The agents in the review pipeline that find and verify findings receive its contents as your repository’s review instructions, alongside Code Review’s default review guidance, and the agents that rank and report findings consult it before settling severity and writing the review. The agents read the file’s text as-is, so `REVIEW.md` is plain instructions: [`@` import syntax](</docs/en/memory#import-additional-files>) is not expanded, and referenced files are not read along with it. Put the rules you want enforced directly in the file.
+`REVIEW.md` is a file at your repository root that tailors Code Review to your repo. The agents in the review pipeline that find and verify findings receive its contents as your repository’s review instructions, alongside Code Review’s default review guidance, and the agents that rank and report findings consult it before settling severity and writing the review. Put the rules you want enforced directly in `REVIEW.md`.
 
 ####
 
@@ -337,7 +337,7 @@ Act on the findings
 
 Ask Claude to fix what the review found. If you passed `--fix` or `--comment`, the review has already applied or posted its findings.
 
-Claude reports the findings as text in the reply in both of these runs, even when a host application requests the findings list described below:
+Claude reports the findings as text in the reply in both of these runs, even when a host application requests a findings list:
 
   * In a terminal session, where `/code-review` runs the review as a [forked subagent](</docs/en/skills#run-skills-in-a-subagent>)
   * In a `-p` run with text or JSON output

@@ -44,7 +44,7 @@ Claude Code also runs this command at startup when it can’t validate your exis
 
 The key is sent as `x-api-key` and takes precedence over SigV4, so any AWS credentials in your environment are ignored. API keys from a separate Claude Console organization won’t work here. Treat workspace API keys like any other production credential. The [user settings file](</docs/en/settings>) `env` block is a convenient way to scope the key to your machine without exporting it globally.
 
-The `/login` and `/logout` commands don’t sign you into a Claude.ai subscription for Claude Platform on AWS. Authentication runs through your AWS credentials or workspace API key.
+The `/login` and `/logout` commands don’t sign you into a claude.ai subscription for Claude Platform on AWS. Authentication runs through your AWS credentials or workspace API key.
 
 ###
 

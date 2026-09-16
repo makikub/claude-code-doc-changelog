@@ -1,7 +1,7 @@
 [Claude Code GitHub Actions](<https://github.com/anthropics/claude-code-action>) is a GitHub Action that runs Claude Code inside your repository’s workflows. Mention `@claude` in a pull request or issue comment to have Claude analyze code, implement changes, and push commits. You can also give the Claude Code GitHub Action a prompt to run automatically on any GitHub event. Use it to turn issues into pull requests, fix bugs from a comment, or automate recurring tasks. Several products share the Claude Code name. This page covers the `claude-code-action` workflow integration, which you configure with workflow files in your repository. For the related products, see:
 
   * [Code Review](</docs/en/code-review>): automatic review on every pull request, without writing a workflow
-  * [Claude Code on the web](</docs/en/claude-code-on-the-web>): Claude Code sessions from your browser or phone
+  * [Claude Code in the cloud](</docs/en/claude-code-on-the-web>): Claude Code sessions that run on cloud infrastructure instead of your machine
   * [Claude Agent SDK](</docs/en/agent-sdk/overview>): custom automation outside GitHub Actions. The Claude Code GitHub Action is built on the SDK
   * [GitHub Enterprise Server](</docs/en/github-enterprise-server>): Claude Code with self-hosted GitHub
 
@@ -119,7 +119,7 @@ If you configured a [cloud provider](</docs/en/github-actions-cloud-providers>),
 
 GitHub App permissions
 
-The [Claude GitHub App](<https://github.com/apps/claude>) is shared by every Claude feature that integrates with GitHub, including the Claude Code GitHub Action, [Code Review](</docs/en/code-review>), and [auto-fix for pull requests](</docs/en/claude-code-on-the-web#auto-fix-pull-requests>) on Claude Code on the web. A GitHub App has a single permission set covering all of its features, so the set includes some permissions that the Claude Code GitHub Action doesn’t use. When you install the app, you grant the following permissions:
+The [Claude GitHub App](<https://github.com/apps/claude>) is shared by every Claude feature that integrates with GitHub, including the Claude Code GitHub Action, [Code Review](</docs/en/code-review>), and [auto-fix for pull requests](</docs/en/claude-code-on-the-web#auto-fix-pull-requests>) in cloud sessions. A GitHub App has a single permission set covering all of its features, so the set includes some permissions that the Claude Code GitHub Action doesn’t use. When you install the app, you grant the following permissions:
 
 Permission| Access
 ---|---

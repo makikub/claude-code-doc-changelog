@@ -122,7 +122,7 @@ Parameter| Type| Description
 ---|---|---
 `name`| `str`| Unique identifier for the tool
 `description`| `str`| Human-readable description of what the tool does
-`input_schema`| `type | dict[str, Any]`| Schema defining the tool’s input parameters (see below)
+`input_schema`| `type | dict[str, Any]`| Schema defining the tool’s input parameters. See Input schema options
 `annotations`| `ToolAnnotations`` | None`| Optional MCP tool annotations providing behavioral hints to clients
 
 ####
@@ -551,7 +551,7 @@ Method| Description
 `receive_response()`| Receive messages until and including a ResultMessage
 `interrupt()`| Send interrupt signal (only works in streaming mode)
 `set_permission_mode(mode)`| Change the permission mode for the current session
-`set_model(model)`| Change the model for the current session. Pass `None` to reset to default
+`set_model(model)`| Change the model for the current session. Pass `None` to reset to [Claude Code’s default model](</docs/en/model-config>)
 `rewind_files(user_message_id)`| Restore files to their state at the specified user message. Requires `enable_file_checkpointing=True`. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
 `get_mcp_status()`| Get the status of all configured MCP servers. Returns `McpStatusResponse`
 `reconnect_mcp_server(server_name)`| Retry connecting to an MCP server that failed or was disconnected
@@ -902,17 +902,17 @@ Property| Type| Default| Description
 `resume`| `str | None`| `None`| Session ID to resume
 `session_id`| `str | None`| `None`| Use a specific session ID instead of an auto-generated one. Must be a valid UUID. Can’t be combined with `continue_conversation` or `resume` unless `fork_session` is also set
 `max_turns`| `int | None`| `None`| Maximum agentic turns (tool-use round trips)
-`max_budget_usd`| `float | None`| `None`| Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>) for accuracy caveats
+`max_budget_usd`| `float | None`| `None`| Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`. For accuracy caveats and reset behavior, see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>)
 `disallowed_tools`| `list[str]`| `[]`| Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`, for the command [as written](</docs/en/permissions#bash-rule-limits>). See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `enable_file_checkpointing`| `bool`| `False`| Enable file change tracking for rewinding. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
 `model`| `str | None`| `None`| Claude model alias or full model name. See [accepted values and provider-specific IDs](</docs/en/model-config#available-models>)
-`fallback_model`| `str | None`| `None`| Fallback model to use if the primary model fails
+`fallback_model`| `str | None`| `None`| Fallback model to use if the primary model fails. Accepts a comma-separated list. For guidance, see [Choose a model](</docs/en/agent-sdk/configuration#choose-a-model>)
 `betas`| `list[SdkBeta]`| `[]`| Beta features to enable. See `SdkBeta` for available options
 `output_format`| `dict[str, Any] | None`| `None`| Output format for structured responses (e.g., `{"type": "json_schema", "schema": {...}}`). See [Structured outputs](</docs/en/agent-sdk/structured-outputs>) for details
 `permission_prompt_tool_name`| `str | None`| `None`| MCP tool name for permission prompts
 `cwd`| `str | Path | None`| `None`| Current working directory
 `cli_path`| `str | Path | None`| `None`| Custom path to the Claude Code CLI executable
-`settings`| `str | None`| `None`| Path to settings file
+`settings`| `str | None`| `None`| Path to a settings file or an inline JSON string
 `add_dirs`| `list[str | Path]`| `[]`| Additional directories Claude can access. The SDK passes each entry to Claude Code as `--add-dir`, so with the `project` setting source Claude Code also [loads the directory’s skills, commands, and subagents](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>)
 `env`| `dict[str, str]`| `{}`| Environment variables merged on top of the inherited process environment. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads, and Handle slow or stalled API responses for timeout-related variables
 `extra_args`| `dict[str, str | None]`| `{}`| Additional CLI arguments to pass directly to the CLI
@@ -931,7 +931,7 @@ Property| Type| Default| Description
 `agents`| `dict[str, AgentDefinition] | None`| `None`| Programmatically defined subagents
 `plugins`| `list[SdkPluginConfig]`| `[]`| Load custom plugins from local paths. See [Plugins](</docs/en/agent-sdk/plugins>) for details
 `sandbox`| `SandboxSettings` ` | None`| `None`| Configure sandbox behavior programmatically. See Sandbox settings for details
-`setting_sources`| `list[SettingSource] | None`| `None` (CLI defaults: all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Endpoint-managed policy loads regardless; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). See [Use Claude Code features](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
+`setting_sources`| `list[SettingSource] | None`| `None` (CLI defaults: all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. With `skills` set and this field unset, only user and project sources load. Set `setting_sources` explicitly to keep local settings. Endpoint-managed policy loads regardless; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). For inputs read regardless of this option, see [What settingSources does not control](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
 `skills`| `list[str] | Literal["all"] | None`| `None`| Skills available to the session. Pass `"all"` to enable every discovered skill, or a list of skill names. Pass exact names only. The SDK rejects malformed and wildcard-form names with a `ValueError` before starting the Claude Code process; this check requires Python Agent SDK 0.2.129 or later. When set, the SDK adds the Skill tool to `allowed_tools` automatically. If you also pass `tools`, include `"Skill"` in that list. See [Skills](</docs/en/agent-sdk/skills>)
 `max_thinking_tokens`| `int | None`| `None`|  _Deprecated_ \- Maximum tokens for thinking blocks. Use `thinking` instead
 `thinking`| `ThinkingConfig` ` | None`| `None`| Controls extended thinking behavior. Takes precedence over `max_thinking_tokens`
@@ -1043,7 +1043,7 @@ Value| Description| Location
 
 Default behavior
 
-When `setting_sources` is omitted or `None`, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. Endpoint-managed policy is loaded in all cases; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). See [What settingSources does not control](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>) for inputs that are read regardless of this option, and how to disable them.
+When `setting_sources` is omitted or `None` and `skills` is not set, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. With `skills` set, the `setting_sources` row describes the current default. Endpoint-managed policy is loaded in all cases; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). For more information, see [What settingSources does not control](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>).
 
 ####
 
@@ -1126,7 +1126,7 @@ When multiple sources are loaded, settings are merged with this precedence (high
   2. Project settings (`.claude/settings.json`)
   3. User settings (`~/.claude/settings.json`)
 
-Programmatic options such as `agents` and `allowed_tools` override user, project, and local filesystem settings. Managed policy settings take precedence over programmatic options.
+Programmatic options such as `agents`, `allowed_tools`, and `settings` override user, project, and local filesystem settings. Managed policy settings take precedence over programmatic options.
 
 ###
 
@@ -2581,7 +2581,7 @@ Use `async_` (with underscore) in Python code. It is automatically converted to 
 
 Hook Usage Example
 
-This example registers two hooks: one that blocks dangerous bash commands like `rm -rf /`, and another that logs all tool usage for auditing. The security hook only runs on Bash commands (via the `matcher`), while the logging hook runs on all tools.
+This example registers two hooks: one that blocks dangerous Bash commands like `rm -rf /`, and another that logs all tool usage for auditing. The security hook only runs on Bash commands (via the `matcher`), while the logging hook runs on all tools.
 
     import asyncio
     from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, HookContext
@@ -2722,14 +2722,14 @@ Launches a new agent to handle complex, multi-step tasks autonomously. **Output 
 
     {
         "status": "remote_launched",
-        "taskId": str,  # ID of the remote task
-        "sessionUrl": str,  # Link to the remote cloud session
+        "taskId": str,  # ID of the dispatched task
+        "sessionUrl": str,  # Link to the cloud session
         "description": str,  # The task description
         "prompt": str,  # The prompt the agent runs
         "outputFile": str,  # File path where the agent's output is written
     }
 
-Returns the result from the subagent. The output is discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a remote cloud session, where `sessionUrl` links to that session and `taskId` identifies it. If Claude Code [kept the subagent’s isolated worktree](</docs/en/worktrees#isolate-subagents-with-worktrees>), `worktreePath` on the `completed` variant is where to find it, and `worktreeBranch` is its branch when Claude Code created the worktree with git. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On the `async_launched` variant, `resolvedModel` names the model in use when the agent moved to the background, so a swap that happened before backgrounding is reflected there. The `modelsUsed` field on both variants lists the models used in order, with consecutive repeats collapsed; it’s set only when the model was swapped mid-run. `modelsUsed` and the backgrounding-time `resolvedModel` behavior require Claude Code v2.1.212 or later. Claude Code fills `usage` and `totalTokens` from the subagent’s final API request, not from the whole run. When present, `thinking_tokens` under `output_tokens_details` in `usage` is the number of that request’s output tokens that were thinking tokens. The `output_tokens_details` key requires Python SDK v0.2.136 or later, which bundles Claude Code v2.1.228.
+Returns the result from the subagent. The output is discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a cloud session, where `sessionUrl` links to that session and `taskId` identifies it. If Claude Code [kept the subagent’s isolated worktree](</docs/en/worktrees#isolate-subagents-with-worktrees>), `worktreePath` on the `completed` variant is where to find it, and `worktreeBranch` is its branch when Claude Code created the worktree with git. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On the `async_launched` variant, `resolvedModel` names the model in use when the agent moved to the background, so a swap that happened before backgrounding is reflected there. The `modelsUsed` field on both variants lists the models used in order, with consecutive repeats collapsed; it’s set only when the model was swapped mid-run. `modelsUsed` and the backgrounding-time `resolvedModel` behavior require Claude Code v2.1.212 or later. Claude Code fills `usage` and `totalTokens` from the subagent’s final API request, not from the whole run. When present, `thinking_tokens` under `output_tokens_details` in `usage` is the number of that request’s output tokens that were thinking tokens. The `output_tokens_details` key requires Python SDK v0.2.136 or later, which bundles Claude Code v2.1.228.
 
 ###
 

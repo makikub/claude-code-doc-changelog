@@ -110,7 +110,7 @@ In any terminal you can configure a [Notification hook](</docs/en/hooks-guide#ge
 
 Configure tmux
 
-When Claude Code runs inside tmux, two things break by default: Shift+Enter submits instead of inserting a newline, and desktop notifications and the [progress bar](</docs/en/settings-reference#terminalprogressbarenabled>) never reach the outer terminal. Add these lines to `~/.tmux.conf`, then run `tmux source-file ~/.tmux.conf` to apply them to the running server:
+When Claude Code runs inside tmux, by default Shift+Enter submits instead of inserting a newline, and desktop notifications and the [progress bar](</docs/en/settings-reference#terminalprogressbarenabled>) never reach the outer terminal. Add these lines to `~/.tmux.conf`, then run `tmux source-file ~/.tmux.conf` to apply them to the running server:
 
 ~/.tmux.conf
 

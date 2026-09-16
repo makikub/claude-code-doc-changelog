@@ -56,7 +56,7 @@ Setting `"type": "module"` in `package.json` lets your agent script use top-leve
 
 [tsx](<https://tsx.hirok.io>) runs TypeScript files directly. If your project uses CommonJS, name your agent script `agent.mts` instead of `agent.ts`. The `.mts` extension makes tsx treat the file as an ES module, so top-level `await` works without converting your whole project to ES modules. Use `agent.mts` in place of `agent.ts` in the create and run steps later in this quickstart.
 
-[uv](<https://docs.astral.sh/uv/>) is a fast Python package manager that handles virtual environments automatically:
+[Install uv](<https://docs.astral.sh/uv/>), a fast Python package manager that handles virtual environments automatically. Then initialize a project and add the SDK:
 
     uv init
     uv add claude-agent-sdk
@@ -303,7 +303,7 @@ TypeScript
       }
     };
 
-With `Bash` enabled, try: `"Write unit tests for utils.py, run them, and fix any failures"`
+With `Bash` enabled, try: `"Write unit tests for utils.py, run them, and fix any failures"` Each of these snippets sets fields on the same options object. For more information, see [Configure your agent](</docs/en/agent-sdk/configuration>).
 
 ##
 
@@ -329,6 +329,7 @@ Next steps
 
 Now that you’ve created your first agent, learn how to extend its capabilities and tailor it to your use case:
 
+  * **[Configure your agent](</docs/en/agent-sdk/configuration>)** : compose the options object and find the page that covers each setting
   * **[Permissions](</docs/en/agent-sdk/permissions>)** : control what your agent can do and when it needs approval
   * **[Hooks](</docs/en/agent-sdk/hooks>)** : run custom code before or after tool calls
   * **[Sessions](</docs/en/agent-sdk/sessions>)** : build multi-turn agents that maintain context

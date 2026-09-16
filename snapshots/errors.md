@@ -1,4 +1,4 @@
-This page lists runtime errors Claude Code displays and how to recover from each one, plus what to check when responses seem off without an error. For installation errors such as `command not found` or TLS failures during setup, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>). Except for Wrapper and IDE errors, which the launching program prints rather than Claude Code itself, these errors and recovery commands apply across the CLI, the [Desktop app](</docs/en/desktop>), and [Claude Code on the web](</docs/en/claude-code-on-the-web>), since all three wrap the same Claude Code CLI. For other surface-specific issues, see the troubleshooting section on that surface’s page.
+This page lists runtime errors Claude Code displays and how to recover from each one, plus what to check when responses seem off without an error. For installation errors such as `command not found` or TLS failures during setup, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>). Except for Wrapper and IDE errors, which the launching program prints rather than Claude Code itself, these errors and recovery commands apply across the CLI, the [Desktop app](</docs/en/desktop>), and [cloud sessions](</docs/en/claude-code-on-the-web>), since all three wrap the same Claude Code CLI. For other surface-specific issues, see the troubleshooting section on that surface’s page.
 
 Claude Code calls the Claude API for model responses, so most runtime errors map to an underlying API error code. This page covers what each error means inside Claude Code and how to recover. For the raw HTTP status code definitions, see the [Claude Platform error reference](<https://platform.claude.com/docs/en/api/errors>).
 
@@ -141,6 +141,8 @@ Message| Section
 `Download timed out: exceeded the total deadline`| Installation errors
 `--bg and --print conflict`| Command-line errors
 `Cloud sessions cannot be created from a --restricted session`| Command-line errors
+`Cloud sessions are disabled by your organization's policy`| Command-line errors
+`Couldn't verify your organization's policy for cloud sessions`| Command-line errors
 `Error: --json-schema is not a valid JSON Schema`| Command-line errors
 `Error: Invalid --agents configuration:`| Command-line errors
 `Error: Settings file exceeds the 2MiB limit`| Command-line errors
@@ -157,6 +159,7 @@ Message| Section
 `Server rejected the Authorization header minted by the configured headersHelper`| Command-line errors
 `Error: MCP tool <name> (passed via --permission-prompt-tool) not found`| Command-line errors
 `OAuth callback port <port> is already in use — another process may be holding it`| Command-line errors
+`No available ports for OAuth redirect`| Command-line errors
 `Shell command failed for pattern "..."`, from `/security-review` or any skill that injects dynamic context| Command-line errors
 `Shell command permission check failed for pattern "..."`, from a skill that injects dynamic context| Command-line errors
 `Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`| Command-line errors
@@ -171,6 +174,7 @@ Message| Section
 `Ultrareview clones <owner>/<repo> in the cloud with the GitHub account connected to your Claude account, and none is connected`| Command-line errors
 `Your connected GitHub account can't see <owner>/<repo>`| Command-line errors
 `The GitHub App preflight failed transiently (network or service hiccup) — retry in a moment to start from GitHub instead`| Command-line errors
+`GitHub isn't connected to your Claude account, so this repository can't be cloned in the cloud`| Command-line errors
 `Failed to resume the conversation`| Command-line errors
 `No conversation found with session ID: <session-id>`| Command-line errors
 `Cannot switch renderers in this session`| Command-line errors
@@ -197,6 +201,7 @@ Message| Section
 `pkill: refusing to run`| Tool errors
 `Failed to write to <name>'s inbox — nothing was sent`| Tool errors
 `Failed to write the plan approval request to the lead's inbox — plan not submitted`| Tool errors
+`Its agent definition was not restored: the folder its definition file came from is not trusted`| Tool errors
 `Message too large for cross-session delivery`| Tool errors
 `Too many messages to this session just now`| Tool errors
 `Refusing to send: reply target is a symlink` / `Refusing to send: cannot vet reply target`| Tool errors
@@ -211,6 +216,9 @@ Message| Section
 `Command killed: its output file was replaced or could no longer be verified`| Tool errors
 `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text`| Tool errors
 `the source file has the replacement character U+FFFD`| Tool errors
+`Reading a local file from outside this session's connected folders, or through a link, needs the approval card`| Tool errors
+`cannot read file_path (...) — the file could not be examined, and no one can answer the approval card`| Tool errors
+`WebFetch cannot fetch localhost or other hostnames without a dot`| Tool errors
 `Can't open MCP settings while no terminal is attached to this background session`| Background session errors
 `Can't open MCP settings in a background session`| Background session errors
 `blocked because the path is spelled in a form that cannot be safely resolved`| Background session errors
@@ -219,6 +227,7 @@ Message| Section
 `Can't open — this session is running in another terminal`| Background session errors
 `This conversation is already open in another running Claude session`| Background session errors
 `This session's saved conversation is no longer on disk`| Background session errors
+`kept <id> — its worktree is still at <path>`| Background session errors
 `kept <id> — <n> unpushed commits on <branch>`| Background session errors
 `kept <id> — worktree has commits that are not pushed anywhere`| Background session errors
 `terminal host process died — press Enter to restart` / `This session's terminal host process died`| Background session errors
@@ -544,14 +553,16 @@ Usage credits required for 1M context
 
 The selected model uses the 1M-token extended context window, and your plan only includes it through usage credits.
 
-    API Error: Usage credits required for 1M context · run /usage-credits to turn them on, or /model to switch to standard context
+    API Error: Usage credits required for 1M context · run /usage-credits to turn them on (they take effect after you restart Claude Code), or /model to switch to standard context
 
 This is an entitlement check, not a quota exhaustion. It fires even when your session and weekly allowances have capacity remaining. See [Extended context](</docs/en/model-config#extended-context>) for which plans include 1M context directly and which require usage credits. Claude Code runs this check when you pick the model with `/model`, and only on a direct connection to the Anthropic API; if you point `ANTHROPIC_BASE_URL` at an [LLM gateway](</docs/en/llm-gateway>), `/model` allows the `[1m]` selection and the gateway decides whether the request succeeds. When this error appears mid-conversation because the context grew past 200K tokens, Claude Code automatically compacts the conversation back under the standard context limit and keeps the session at that limit afterward, so no action is needed. On versions before v2.1.172, the error repeated on every subsequent request including `/compact`; run `/clear` on those versions to recover. The steps below apply when you explicitly selected a `[1m]` model. **What to do:**
 
   * Run `/model` and select the variant without the `[1m]` suffix to fall back to the standard context window
-  * Where the message names `/usage-credits`, run it to turn on metered billing for the 1M variant on Pro and Max, or to request usage credits from your admin on Team and Enterprise
+  * Where the message names `/usage-credits`, run it to turn on metered billing for the 1M variant on Pro and Max, or to request usage credits from your admin on Team and Enterprise. Restart Claude Code once usage credits are on. Until you restart, the session stays at the standard context limit.
   * If the error persists after `/model`, a 1M model ID may be set elsewhere. See [Setting your model](</docs/en/model-config#setting-your-model>) for the configuration locations to check in priority order.
   * To remove 1M variants from the model picker entirely, set [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](</docs/en/env-vars>)
+
+Before v2.1.268, the message ended with `run /usage-credits to turn them on, or /model to switch to standard context` and didn’t mention restarting.
 
 ###
 
@@ -1738,7 +1749,7 @@ Your active subscription plan does not include the model you selected.
 **What to do:**
 
   * Run `/model` and select a model your plan includes
-  * If you upgraded your plan recently and still see this, run `/logout` then `/login`. The stored token reflects your plan at the time you signed in, so upgrading on the web does not take effect in an existing session until you re-authenticate.
+  * If you upgraded your plan recently and still see this, run `/logout` then `/login`. The stored token reflects your plan at the time you signed in, so upgrading on claude.ai does not take effect in an existing session until you re-authenticate.
   * See [claude.com/pricing](<https://claude.com/pricing>) for which models each plan includes
 
 ###
@@ -1767,7 +1778,7 @@ The organization-policy wording reads:
 
 Model is restricted by your organization’s settings
 
-Your organization admin has disabled this model in the claude.ai admin console, or it is excluded by an [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist in managed settings. When the restricted model was set with `--model`, `ANTHROPIC_MODEL`, or the `model` setting, Claude Code substitutes an allowed model and continues. Typing `/model <name>` for a restricted model is rejected with `Run /model to choose a different model.` and the session keeps its current model.
+Your organization admin has disabled this model in the claude.ai admin console, or it is excluded by an [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist in managed settings. When the restricted model was set with `--model`, `ANTHROPIC_MODEL`, or the `model` setting, Claude Code substitutes an allowed model and continues. Typing `/model <name>` for a restricted model is rejected with `Run /model to choose a different model.` and the session keeps its current model. The substitution notice can also appear mid-session after an admin disables the model a session is running on in the claude.ai admin console.
 
     Model "claude-opus-4-8" is restricted by your organization's settings. Using claude-sonnet-4-6 instead.
 
@@ -2019,7 +2030,7 @@ When there are more than 20 problem lines, Claude Code prints the first 20 and r
 
 Cloud sessions cannot be created from a —restricted session
 
-When you start a session with [`--restricted`](</docs/en/cli-reference#cli-flags>), Claude Code refuses to create [cloud sessions](</docs/en/claude-code-on-the-web#from-terminal-to-web>) from it, because the new session would run outside the restricted process and wouldn’t enforce restricted mode. Claude Code refuses on the client, before contacting the server, so no cloud session is created:
+When you start a session with [`--restricted`](</docs/en/cli-reference#cli-flags>), Claude Code refuses to create [cloud sessions](</docs/en/claude-code-on-the-web#from-terminal-to-cloud>) from it, because the new session would run outside the restricted process and wouldn’t enforce restricted mode. Claude Code refuses on the client, before contacting the server, so no cloud session is created:
 
     Cloud sessions cannot be created from a --restricted session: they would not enforce it.
 
@@ -2029,6 +2040,21 @@ When you start a session with [`--restricted`](</docs/en/cli-reference#cli-flags
   * If you control how the session was launched, start a new `claude` session without `--restricted` and create the cloud session from there
 
 Before v2.1.248, Claude Code had no `--restricted` flag; earlier versions reject the flag itself with an unknown-option error.
+
+###
+
+​
+
+Cloud sessions are disabled by your organization’s policy
+
+Your organization’s `allow_remote_sessions` policy is off, so [cloud sessions](</docs/en/claude-code-on-the-web>) and the commands that use them aren’t available:
+
+    Cloud sessions are disabled by your organization's policy. Contact your organization admin to enable them.
+
+The message appears when you [create a cloud session from the terminal](</docs/en/claude-code-on-the-web#from-terminal-to-cloud>) and when you submit a command that needs cloud sessions, such as `/teleport`, `/remote-env`, or `/web-setup`. Before v2.1.268, submitting one of those commands returned `Unknown command` instead. This is a server-side organization policy, so it can’t be overridden from local settings, environment variables, or CLI flags. If Claude Code hasn’t loaded your organization’s policy yet or can’t fetch it, those commands answer `Couldn't verify your organization's policy for cloud sessions. Check your network connection, then restart Claude Code and try again.` instead. **What to do:**
+
+  * Ask an [Owner](</docs/en/server-managed-settings#access-control>) in your organization to enable cloud sessions in the Claude Code admin settings at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>)
+  * If the message says it couldn’t verify the policy, check your network connection, then restart Claude Code and try again
 
 ###
 
@@ -2278,6 +2304,21 @@ On Windows, the suggested command is `netstat -ano | findstr :<port>` instead. *
 
 ​
 
+No available ports for OAuth redirect
+
+When you sign in to a remote MCP server with [OAuth](</docs/en/mcp#authenticate-with-remote-mcp-servers>), Claude Code starts a local listener to receive the sign-in callback. The sign-in fails with this message when Claude Code can’t bind a local port for it. Something on the machine is preventing it from listening on `127.0.0.1`, for example security software or a sandbox policy that denies local listeners.
+
+    No available ports for OAuth redirect
+
+Before v2.1.268, Claude Code didn’t fall back to an operating-system-assigned port, so the message also appeared when only its self-picked ports couldn’t be bound. That can happen on Windows hosts where Hyper-V reserves port ranges that cover the ports Claude Code picks from. **What to do:**
+
+  * Check whether security software or a sandbox policy blocks processes from listening on `127.0.0.1`, and allow Claude Code to bind a local port
+  * Then start the sign-in again, for example by selecting the server in `/mcp`
+
+###
+
+​
+
 /security-review fails without origin/HEAD
 
 [`/security-review`](</docs/en/commands#all-commands>) builds its review context by diffing your branch against `origin/HEAD`, the local ref that records which branch is the default on your `origin` remote. When that ref doesn’t exist, the git commands that gather the diff fail and the review stops before it starts.
@@ -2287,9 +2328,15 @@ On Windows, the suggested command is `netstat -ano | findstr :<port>` instead. *
     Use '--' to separate paths from revisions, like this:
     'git <command> [<revision>...] -- [<file>...]'
 
-The quoted command varies between runs: the review starts several `git` commands against `origin/HEAD` at once and reports whichever fails first, so you may see `git log` or a different `git diff` in its place. Git creates the ref only when the remote’s default branch is both advertised by the remote and covered by your fetch refspec. A full `git clone` of a remote with commits meets both conditions. Single-branch and CI checkouts fetch too narrow a refspec, a server-side HEAD left pointing at a branch nobody pushed advertises no default, and a repository with no `origin` remote, or one you never fetched, provides neither. Claude Code shows the same error for any skill that [injects dynamic context](</docs/en/skills#when-an-injected-command-fails>). A failed injected command aborts that skill’s invocation. Two sibling strings fire before the command runs at all:
+The message may quote `git log` or a different `git diff` instead. Git creates `origin/HEAD` only when the remote advertises a default branch and your fetch refspec covers it, which a full `git clone` of a remote with commits does. The ref is missing in these setups:
 
-  * `Shell command permission check failed for pattern "..."`: the command’s permission check returned something other than allow. Injected commands never prompt, so the invocation aborts without asking you. Pre-approve commands that no rule matches with [`allowed-tools`](</docs/en/skills#pre-approve-tools-for-a-skill>). A matching ask or deny rule still aborts the invocation regardless of `allowed-tools`
+  * A single-branch or CI checkout, which fetches too narrow a refspec
+  * A remote whose server-side HEAD points at a branch nobody pushed
+  * A repository with no `origin` remote, or one you never fetched
+
+Claude Code shows the same error for any skill that [injects dynamic context](</docs/en/skills#when-an-injected-command-fails>), and a failed injected command aborts that skill’s invocation. Two sibling strings fire before the command runs at all:
+
+  * `Shell command permission check failed for pattern "..."`: the command’s permission check didn’t allow it. [Permission checks on injected commands](</docs/en/skills#permission-checks-on-injected-commands>) covers which results abort in each permission mode and how to pre-approve a command with `allowed-tools`
   * `Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`: the skill’s frontmatter demands bash on a machine without it. Install Git for Windows or change the frontmatter to `shell: powershell`. See [How injected commands run](</docs/en/skills#how-injected-commands-run>)
 
 **What to do:**
@@ -2356,7 +2403,7 @@ You submitted a `/` name that doesn’t match any command in this session, so Cl
 Claude Code suggests the closest command name or alias that the menu lists in this session. When nothing is close, the message ends after the name. The cause is usually one of the following:
 
   * A typo, such as `/hepl` for `/help`. [How the command menu matches what you type](</docs/en/commands#how-the-command-menu-matches-what-you-type>) covers picking a close match before you submit
-  * A command that exists but isn’t available in this session because a requirement isn’t met, such as your platform, plan, or authentication method. The troubleshooting entries for [`/web-setup`](</docs/en/web-quickstart#web-setup-shows-no-commands-match-or-unknown-command>) and [`/schedule`](</docs/en/routines#schedule-returns-unknown-command>) walk through two common cases. Some commands answer with their own message when your organization’s policy disables them
+  * A command that exists but isn’t available in this session because a requirement isn’t met, such as your platform, plan, or authentication method. The troubleshooting entries for [`/web-setup`](</docs/en/web-quickstart#web-setup-shows-no-commands-match-or-unknown-command>) and [`/schedule`](</docs/en/routines#schedule-returns-unknown-command>) walk through two common cases. Some commands answer with their own message when your organization’s policy disables them, such as `Cloud sessions are disabled by your organization's policy`
   * A command from a [plugin](</docs/en/plugins>) or [MCP server](</docs/en/mcp#use-mcp-prompts-as-commands>) that isn’t installed or connected in this session
 
 Claude Code doesn’t treat every prompt that starts with `/` as a command. It sends the prompt to Claude as a normal message when the first word after the `/` starts with punctuation, such as the `/--` that opens a Lean doc comment, or is a path such as `/var/log/syslog`. Before v2.1.236, if you pressed `Enter` while the command menu listed a near match for the name you typed, Claude Code ran that match, so a typo such as `/hepl` ran `/help` instead of producing this message. **What to do:**
@@ -2464,6 +2511,23 @@ You started a [cloud session](</docs/en/claude-code-on-the-web>) from a local re
   * If retries keep failing, the start of the message names what stopped the upload. When that cause is something you can fix, fix it so the session can start from your local repository instead
 
 Before v2.1.251, Claude Code ended the message with `Please set up GitHub on https://claude.ai/code` even when the GitHub check failed only transiently, and setup advice can’t clear a transient failure.
+
+###
+
+​
+
+GitHub isn’t connected to your Claude account
+
+You started a [cloud session](</docs/en/claude-code-on-the-web>) from your local repository, for example with `/autofix-pr`. No GitHub account is connected to your Claude account, or the connection expired, so Claude Code refuses the launch:
+
+    GitHub isn't connected to your Claude account, so this repository can't be cloned in the cloud. Run /web-setup to connect with your GitHub CLI login, or connect on the web at https://claude.ai/connect-github
+
+When you create a routine with [`/schedule`](</docs/en/routines>), the same message appears as a setup note that names the repository; the note doesn’t block creating the routine. **What to do:**
+
+  * Run `/web-setup` to connect your GitHub CLI login to your Claude account, or connect an account at [claude.ai/connect-github](<https://claude.ai/connect-github>). See [GitHub authentication options](</docs/en/claude-code-on-the-web#github-authentication-options>) for how the two differ.
+  * Rerun the command a minute after connecting
+
+Before v2.1.268, Claude Code reported this as a temporary failure of the Claude GitHub App check and suggested retrying or installing the app; neither connects a GitHub account.
 
 ###
 
@@ -2687,7 +2751,7 @@ Path could not be checked
 
 Claude Code asked the operating system whether a plugin path exists and got an error other than “not found”, so it doesn’t load what the path names. How much of the plugin loads depends on which path failed:
 
-  * One of a plugin’s [default component folders](</docs/en/plugins-reference#file-locations-reference>), such as `skills/` or `commands/`: the plugin’s other components still load
+  * One of a plugin’s [default component locations](</docs/en/plugins-reference#file-locations-reference>), such as the `skills/` folder, the `monitors/monitors.json` file, or a [`SKILL.md` at the plugin root](</docs/en/plugins-reference#skills>): the plugin’s other components still load
   * The plugin’s own directory: nothing from that plugin loads
 
 You don’t see this error for a path that doesn’t exist at all. In `/plugin`, the error appears under the plugin and names the path and the code the operating system returned:
@@ -2876,6 +2940,21 @@ When you message a teammate yourself, typing `@name` followed by the message in 
 
 ​
 
+Teammate’s agent definition was not restored
+
+Claude messaged a stopped [agent team](</docs/en/agent-teams>) teammate, and Claude Code brought it back without re-applying the [subagent definition](</docs/en/agent-teams#use-subagent-definitions-for-teammates>) it was spawned from, because its definition file came from a folder with no saved trust. The notice follows the resume report in the sending agent’s tool result:
+
+    Its agent definition was not restored: the folder its definition file came from is not trusted (source: projectSettings), so the teammate is running with the team-essential tools and no custom instructions. To restore it, the user needs to run Claude Code in that folder once and accept the trust dialog (the --debug log names the folder); do not change trust settings on the user's behalf.
+
+The check applies to a definition in the `.claude/agents/` directory of the project or of an `--add-dir` directory, and accepting the trust dialog for a parent folder doesn’t satisfy it. **What to do:**
+
+  * Run `claude` in the folder the [debug log](</docs/en/debug-your-config>) names and accept the trust dialog. The definition is re-applied the next time Claude Code brings the teammate back; you don’t need to restart the lead session
+  * Or set the `hasTrustDialogAccepted` entry to `true` in `~/.claude.json`, using the exact `projects["<path>"]` key the debug log prints
+
+###
+
+​
+
 Message too large for cross-session delivery
 
 Claude’s [cross-session message](</docs/en/cross-session-messaging>) to another of your sessions on this machine was too long to send. Claude Code refused it, and the receiving session got nothing. The refusal appears in the sending session’s tool result, not as a banner in your terminal. It names both sizes and how to make the message fit:
@@ -3006,6 +3085,39 @@ Claude Code decodes the file as UTF-8, or as UTF-16 when it starts with a little
 
 Before v2.1.267, Claude Code uploaded such a file without checking it, and the server refused the publish instead.
 
+###
+
+​
+
+Reading a local file from outside the connected folders in a Cowork session
+
+In a [Cowork](<https://claude.com/docs/cowork/overview>) session running on your machine in the Claude Desktop app, Claude named a local file for an [artifact](</docs/en/artifacts>). Claude Code couldn’t confirm the file is a plain file inside the session’s connected folders: the path sits outside those folders, passes through a symbolic link, or is spelled in a way that can name a different file than it appears to. Reading such a file needs your approval, and in a session that can’t show you the approval card, such as one set to skip all approvals, Claude Code refuses the read. The refusal appears in the Artifact tool result; when the file couldn’t be examined at all, it names that failure instead:
+
+    Reading a local file from outside this session's connected folders, or through a link, needs the approval card, and no one can answer it in this Cowork session. Use a plain file inside the connected folders; do not retry this file in this session.
+
+    cannot read file_path (ENOENT) — the file could not be examined, and no one can answer the approval card in this Cowork session. Check that the file exists as a plain file inside the connected folders, then retry with that path.
+
+**What to do:**
+
+  * Usually nothing: the message tells Claude to use a plain file inside the connected folders instead
+  * To put that exact file in the artifact, copy it into one of the session’s connected folders as a regular file, not a symlink, and ask again
+
+###
+
+​
+
+WebFetch cannot fetch localhost
+
+Claude called [WebFetch](</docs/en/tools-reference#webfetch-tool-behavior>) with a URL whose hostname has no dot, such as `http://localhost:3000` or a bare intranet name like `http://wiki/`. WebFetch refuses these URLs before making any request:
+
+    WebFetch cannot fetch localhost or other hostnames without a dot. To reach a local server, use Bash with curl instead.
+
+**What to do:**
+
+  * Usually nothing: the message points Claude at `curl` through the Bash tool, which can reach local and intranet servers
+
+Before v2.1.268, WebFetch reported these URLs with a generic `Invalid URL` error.
+
 ##
 
 ​
@@ -3120,17 +3232,17 @@ Worktree has commits that are not pushed anywhere
 
 You tried to delete a [background session](</docs/en/agent-view#what-deleting-a-session-removes>) whose worktree holds commits Claude Code can’t confirm are saved elsewhere. Claude Code keeps the worktree and the session row rather than destroy the commits unseen. `claude rm` names the branch and the unpushed commits, and says how to proceed:
 
-    kept 7c5dcf5d — 2 unpushed commits on claude/fix-login (a1b2c3d Fix login flow, … and 1 more)
-      worktree: /home/you/project/.claude/worktrees/fix-login
-      push them, or discard the worktree and its commits: claude rm 7c5dcf5d --discard-unpushed a1b2c3d000000000000000000000000000000000@0123456789abcdef0123456789abcdef
+    kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktrees/fix-login”
+      2 unpushed commits on “claude/fix-login”: a1b2c3d “Fix login flow” and 1 more. They exist on no remote, so deleting the worktree would lose them.
+      push them and run 'claude rm 7c5dcf5d' again, or discard the worktree and its commits: claude rm 7c5dcf5d --discard-unpushed a1b2c3d000000000000000000000000000000000@0123456789abcdef0123456789abcdef
 
-When Claude Code can’t summarize the commits, the message reads `worktree has commits that are not pushed anywhere` instead. In [agent view](</docs/en/agent-view>), the session’s row shows `not deleted` with the same reason. Commits on a remote don’t block the delete. Neither do commits on the local copy of your `origin` remote’s default branch, as long as that branch is checked out in your main checkout, the repository directory itself rather than a worktree. **What to do:**
+When Claude Code can’t summarize the commits, the detail line reads `The worktree has unpushed commits` instead. In [agent view](</docs/en/agent-view>), the session’s row shows `not deleted` with the same reason. Commits on a remote don’t block the delete. Neither do commits on the local copy of your `origin` remote’s default branch, as long as that branch is checked out in your main checkout, the repository directory itself rather than a worktree. **What to do:**
 
   * To keep the commits, push the worktree’s branch, or merge it into the default branch checked out in your main checkout, then delete the session again
   * To discard the commits, run the `claude rm <id> --discard-unpushed` command the message printed, or press `Ctrl+X` twice on the session’s row in agent view again. This removes the session and the worktree along with its branch, the unpushed commits, and any uncommitted changes. If the worktree has gained a commit since the refusal, Claude Code keeps it again and shows the updated state
   * When the message says the worktree is also recorded by another finished session, deleting again doesn’t discard it: push the commits, then delete the session again
 
-Before v2.1.260, the message didn’t name the branch or the commits, and deleting again was refused the same way: deleting the session without pushing meant removing the worktree yourself with `git worktree remove --force <path>`, then running `claude rm <id>` again. Before v2.1.248, the default branch checked out in your main checkout didn’t count: a branch you had already merged there still triggered this refusal until its commits reached a remote.
+Before v2.1.268, `claude rm` put the commit summary on the `kept` line itself. When `claude rm` couldn’t summarize the commits, the `kept` line read `worktree has commits that are not pushed anywhere` in place of the summary. Before v2.1.260, the message didn’t name the branch or the commits, and deleting again was refused the same way: deleting the session without pushing meant removing the worktree yourself with `git worktree remove --force <path>`, then running `claude rm <id>` again. Before v2.1.248, the default branch checked out in your main checkout didn’t count: a branch you had already merged there still triggered this refusal until its commits reached a remote.
 
 ###
 

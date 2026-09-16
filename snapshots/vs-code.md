@@ -91,7 +91,7 @@ The prompt box supports several features:
     * **Plan** : Claude describes what it will do and waits for approval before making changes. VS Code automatically opens the plan as a full Markdown document where you can add inline comments to give feedback before Claude begins.
     * **Edit automatically** : Claude makes edits without asking.
   * **Model** : select **Switch model…** from the command menu to change the model mid-session. You can also click the model name at the bottom of the prompt box to open the same picker. When the current model supports [effort levels](</docs/en/model-config#adjust-effort-level>), the picker also shows an **Effort** row and the model name button shows the selected level. The model name button and the **Effort** row require Claude Code v2.1.257 or later.
-  * **Command menu** : click `/` or type `/` to open the command menu. Options include attaching files, switching models, and toggling extended thinking. The Customize section provides access to MCP servers, slash commands, output styles, hooks, memory, permissions, and plugins. Items with a terminal icon open in the integrated terminal.
+  * **Command menu** : click `/` or type `/` to open the command menu. Options include attaching files, switching models, and toggling extended thinking. The Customize section provides access to MCP servers, commands, output styles, hooks, memory, permissions, and plugins. Items with a terminal icon open in the integrated terminal.
     * To browse commands such as `/usage` or [`/remote-control`](</docs/en/remote-control>), select **Slash commands** in the Customize section. A dialog lists them with a filter box. Pick one to run it. Typing `/` in the prompt box still suggests commands inline. Requires Claude Code v2.1.257 or later.
     * Select **Output styles** in the Customize section to pick an [output style](</docs/en/output-styles>), including your custom styles. Requires Claude Code v2.1.257 or later. To create a custom style instead, select **Build a custom style** from the **Output styles** menu. Claude Code writes the [style file](</docs/en/output-styles#create-a-custom-output-style>) for you at the project or user level. Requires Claude Code v2.1.261 or later.
     * Select **Hooks** in the Customize section to view the [hooks](</docs/en/hooks>) loaded in the session, grouped by event. You can add, edit, or remove hooks saved in your user, project, and local settings files. Hooks from other sources, such as managed settings or plugins, are read-only. Requires Claude Code v2.1.269 or later.
@@ -144,7 +144,7 @@ By default, a session with no activity for 14 days moves to **Archived sessions*
 
 Resume cloud sessions from Claude.ai
 
-If you use [Claude Code on the web](</docs/en/claude-code-on-the-web>), you can resume those cloud sessions directly in VS Code. This requires signing in with **Claude.ai Subscription** , not Anthropic Console.
+If you run [cloud sessions](</docs/en/claude-code-on-the-web>), you can resume them directly in VS Code. This requires signing in with **Claude.ai Subscription** , not Anthropic Console.
 
 1
 
@@ -164,7 +164,7 @@ Select a session to resume
 
 Browse or search your cloud sessions. Click any session to download it and continue the conversation locally.
 
-Only web sessions started with a GitHub repository appear in the Web tab. Resuming loads the conversation history locally; changes are not synced back to claude.ai.
+Only cloud sessions started with a GitHub repository appear in the Web tab. Resuming loads the conversation history locally; changes are not synced back to claude.ai.
 
 ###
 
@@ -450,7 +450,7 @@ Feature| CLI| VS Code Extension
 Commands and skills| [All](</docs/en/commands>)| Subset (type `/` to see available)
 MCP server config| Yes| Yes (add and manage servers with `/mcp` in the chat panel)
 Checkpoints| Yes| Yes
-`!` bash shortcut| Yes| No
+`!` Bash shortcut| Yes| No
 Tab completion| Yes| No
 
 ###
@@ -580,14 +580,14 @@ Your code stays private. Claude Code processes your code to provide assistance b
 
 The built-in IDE MCP server
 
-When the extension is active, it runs a local MCP server that the CLI connects to automatically. This is how the CLI opens diffs in VS Code’s native diff viewer, reads your current selection for `@`-mentions, and — when you’re working in a Jupyter notebook — asks VS Code to execute cells. The server is named `ide` and is hidden from `/mcp` because there’s nothing to configure. If your organization uses a `PreToolUse` hook to allowlist MCP tools, though, you’ll need to know it exists. **Selection and open-file context.** While connected, the CLI includes your current editor selection and the path of the active file as context on each prompt you send. The transcript shows a `⧉ Selected N lines from <file>` line when this happens. To exclude a sensitive file such as `.env`, add a [`Read` deny rule](</docs/en/permissions#read-and-edit>) for its path. A matching deny rule prevents both the selected text and the open-file notice for that file from reaching Claude. If you turn off the Attach Open File setting, the CLI receives the active file’s path only while you have text selected in it. **Transport and authentication.** The server binds to `127.0.0.1` on a random port in the range 10000–65535, and the port is not configurable. The transport is unencrypted `ws://`; because the socket is loopback-only, any process that could capture the traffic can also read the token from the lock file, so TLS would not add protection. Each extension activation generates a fresh random auth token, writes it to a lock file at `~/.claude/ide/<port>.lock`, and the CLI must present it as the `X-Claude-Code-Ide-Authorization` header to connect. The lock file has `0600` permissions in a `0700` directory, so only the user running VS Code can read it. If `CLAUDE_CONFIG_DIR` is set, the lock file is written to `$CLAUDE_CONFIG_DIR/ide/` instead. **Tools exposed to the model.** The server hosts a dozen tools, but only two are visible to the model. The rest are internal RPC the CLI uses for its own UI — opening diffs, reading selections, saving files — and are filtered out before the tool list reaches Claude.
+When the extension is active, it runs a local MCP server that the CLI connects to automatically. This is how the CLI opens diffs in VS Code’s native diff viewer, reads your current selection for `@`-mentions, and — when you’re working in a Jupyter notebook — asks VS Code to execute cells. The server is named `ide` and is hidden from `/mcp` because there’s nothing to configure. If your organization uses a `PreToolUse` hook to allowlist MCP tools, though, you’ll need to know it exists. **Selection and open-file context.** While connected, the CLI includes your current editor selection and the path of the active file as context on each prompt you send. The transcript shows a `⧉ Selected N lines from <file>` line when this happens. To exclude a sensitive file such as `.env`, add a [`Read` deny rule](</docs/en/permissions#read-and-edit>) for its path. A matching deny rule prevents both the selected text and the open-file notice for that file from reaching Claude. If you turn off the Attach Open File setting, the CLI receives the active file’s path only while you have text selected in it. **Transport and authentication.** The server binds to `127.0.0.1` on a random port in the range 10000–65535, and the port is not configurable. The transport is unencrypted `ws://`; because the socket is loopback-only, any process that could capture the traffic can also read the token from the lock file, so TLS would not add protection. Each extension activation generates a fresh random auth token, writes it to a lock file at `~/.claude/ide/<port>.lock`, and the CLI must present it as the `X-Claude-Code-Ide-Authorization` header to connect. The lock file has `0600` permissions in a `0700` directory, so only the user running VS Code can read it. If `CLAUDE_CONFIG_DIR` is set, the lock file is written to `$CLAUDE_CONFIG_DIR/ide/` instead. **Tools exposed to the model.** The server hosts a dozen tools, but only two are visible to the model. The rest are internal RPC the CLI uses for its own UI, such as opening diffs, reading selections, and saving files. They are filtered out before the tool list reaches Claude.
 
 Tool name (as seen by hooks)| What it does| Read-only
 ---|---|---
-`mcp__ide__getDiagnostics`| Returns language-server diagnostics — the errors and warnings in VS Code’s Problems panel. Optionally scoped to one file.| Yes
+`mcp__ide__getDiagnostics`| Returns language-server diagnostics: the errors and warnings in VS Code’s Problems panel. Optionally scoped to one file.| Yes
 `mcp__ide__executeCode`| Runs Python code in the active Jupyter notebook’s kernel. See confirmation flow below.| No
 
-**Jupyter execution always asks first.** `mcp__ide__executeCode` can’t run anything silently. On each call, the code is inserted as a new cell at the end of the active notebook, VS Code scrolls it into view, and a native Quick Pick asks you to **Execute** or **Cancel**. Cancelling — or dismissing the picker with `Esc` — returns an error to Claude and nothing runs. The tool also refuses outright when there’s no active notebook, when the Jupyter extension (`ms-toolsai.jupyter`) isn’t installed, or when the kernel isn’t Python.
+**Jupyter execution always asks first.** `mcp__ide__executeCode` can’t run anything silently. On each call, the code is inserted as a new cell at the end of the active notebook, VS Code scrolls it into view, and a native Quick Pick asks you to **Execute** or **Cancel**. Cancelling, or dismissing the picker with `Esc`, returns an error to Claude and nothing runs. The tool also refuses outright when there’s no active notebook, when the Jupyter extension (`ms-toolsai.jupyter`) isn’t installed, or when the kernel isn’t Python.
 
 The Quick Pick confirmation is separate from `PreToolUse` hooks. An allowlist entry for `mcp__ide__executeCode` lets Claude _propose_ running a cell; the Quick Pick inside VS Code is what lets it _actually_ run.
 

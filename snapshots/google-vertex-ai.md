@@ -82,7 +82,7 @@ Enable Google Cloud’s Agent Platform API in your GCP project. Replace `YOUR-PR
 
 Request access to Claude models in Google Cloud’s Agent Platform:
 
-  1. Navigate to the [Google Cloud’s Agent Platform Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>)
+  1. Go to the [Google Cloud’s Agent Platform Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>)
   2. Search for “Claude” models
   3. Request access to desired Claude models (for example, Claude Sonnet 4.6)
   4. Wait for approval (may take 24-48 hours)

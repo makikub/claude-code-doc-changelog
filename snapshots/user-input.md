@@ -511,7 +511,7 @@ Field| Description
 ---|---
 `question`| The full question text to display
 `header`| Short label for the question (max 12 characters)
-`options`| Array of 2-4 choices, each with `label` and `description`. TypeScript: optionally `preview` (see below)
+`options`| Array of 2-4 choices, each with `label` and `description`. TypeScript: optionally `preview`. See Option previews.
 `multiSelect`| If `true`, users can select multiple options
 
 The structure your callback receives:
