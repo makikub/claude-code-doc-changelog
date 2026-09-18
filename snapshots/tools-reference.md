@@ -538,6 +538,7 @@ WebFetch tool behavior
 
 WebFetch takes a URL and a prompt describing what to extract. It fetches the page, converts the response to Markdown when the server returns HTML, and runs the prompt against the content using a small, fast model. For most fetches, Claude receives that model’s answer, not the raw page. The conversion step is not configurable. This makes WebFetch lossy by design. The extraction prompt determines what reaches Claude, so a result that says a page doesn’t mention something may only mean the prompt didn’t ask about it. Ask Claude to fetch again with a more specific prompt, or use `curl` via Bash for the unprocessed page. A few behaviors shape the response Claude receives:
 
+  * WebFetch refuses `localhost` and any other hostname without a dot, such as a bare intranet name, before making a request. The [error it returns](</docs/en/errors#webfetch-cannot-fetch-localhost>) tells Claude to reach local servers with `curl` through Bash instead.
   * HTTP URLs are automatically upgraded to HTTPS.
   * Large pages are truncated to a fixed character limit before processing.
   * WebFetch caches each response for 15 minutes by default, so repeated fetches of the same URL return quickly. On Claude Code v2.1.233 or later, set [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](</docs/en/env-vars#variables>) to change how long WebFetch keeps each response.

@@ -139,7 +139,7 @@ Before running the `awsAuthRefresh` command, Claude Code makes an STS `GetCaller
       }
     }
 
-As of Claude Code v2.1.181, the flat output from `aws configure export-credentials --format process` is also accepted, with the same keys at the top level instead of nested under `Credentials`. `Expiration` is optional. When the command returns a valid ISO 8601 `Expiration`, Claude Code caches the credentials until five minutes before that time. Without it, credentials are cached for one hour. When you configure `awsCredentialExport` without `awsAuthRefresh`, Claude Code uses the exported credentials directly and doesn’t re-resolve the AWS default credential provider chain at startup. Requires Claude Code v2.1.206 or later.
+The flat output from `aws configure export-credentials --format process` is also accepted, with the same keys at the top level instead of nested under `Credentials`. `Expiration` is optional. When the command returns a valid ISO 8601 `Expiration`, Claude Code caches the credentials until five minutes before that time. Without it, credentials are cached for one hour. When you configure `awsCredentialExport` without `awsAuthRefresh`, Claude Code uses the exported credentials directly and doesn’t re-resolve the AWS default credential provider chain at startup. Requires Claude Code v2.1.206 or later.
 
 ###
 

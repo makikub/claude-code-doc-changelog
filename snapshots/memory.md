@@ -356,7 +356,7 @@ Each project gets its own memory directory at `~/.claude/projects/<project>/memo
       "autoMemoryDirectory": "~/my-custom-memory-dir"
     }
 
-The value must be an absolute path or start with `~/`. When you set it in a project’s `.claude/settings.json` or `.claude/settings.local.json`, Claude Code honors it under the same [workspace trust rule as hooks in settings files](</docs/en/permissions#what-runs-before-you-trust-a-folder>). The directory contains a `MEMORY.md` index and one topic file per memory:
+The value must be an absolute path or start with `~/`. When you set it in a project’s `.claude/settings.json` or `.claude/settings.local.json`, Claude Code honors it under the same [workspace trust rule as hooks in settings files](</docs/en/permissions#what-runs-before-you-trust-a-folder>). While [`permissions.blockReadsOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockreadsoutsideworkingdirectories>) is on, Claude Code loads no auto memory from a directory that a [repository-supplied settings file](</docs/en/permissions#when-your-local-settings-file-needs-trust>) chooses and saves none to it, wherever that directory sits. The directory contains a `MEMORY.md` index and one topic file per memory:
 
     ~/.claude/projects/<project>/memory/
     ├── MEMORY.md           # Index, one line per memory, loaded into every session

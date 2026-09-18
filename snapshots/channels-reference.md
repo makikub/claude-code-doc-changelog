@@ -459,7 +459,7 @@ For `input_preview`, Claude Code applies the 3,500 limit to each top-level field
   * Claude Code never masks a span that contains shell syntax, path characters, or URL characters. A mask can’t hide the command, file path, or destination being approved.
   * Claude Code doesn’t mask a secret that lacks a recognizable prefix, or a secret that spans whitespace, such as a private-key block. Both reach your server unmasked.
 
-Masking doesn’t change who receives the fields. Whatever stays unmasked goes only to servers you opted in with `--channels` or the development flag. Treat both fields as untrusted unless you control the client fleet. The verdict your server sends back is `notifications/claude/channel/permission` with two fields: `request_id` echoing the ID above, and `behavior` set to `'allow'` or `'deny'`. Allow lets the tool call proceed; deny rejects it, the same as answering No in the local dialog. Neither verdict affects future calls.
+Masking doesn’t change who receives the fields. Whatever stays unmasked goes only to servers you opted in with `--channels` or the development flag. Treat both fields as untrusted unless you control the client fleet. The verdict your server sends back is `notifications/claude/channel/permission` with two fields: `request_id` echoing the ID above, and `behavior` set to `'allow'` or `'deny'`. Allow lets the tool call proceed; deny rejects it. Neither verdict affects future calls.
 
 ###
 

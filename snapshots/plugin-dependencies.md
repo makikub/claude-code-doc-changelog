@@ -59,7 +59,7 @@ Besides the required `name`, a plugin manifest can consist of only a `dependenci
       ]
     }
 
-Installing `backend-standard` resolves and installs all four dependencies. To add a tool to the standard set later, publish a new `backend-standard` version with the extra dependency. Auto-update is off by default for non-Anthropic marketplaces, so engineers pick up the new version in one of two ways:
+Installing `backend-standard` resolves and installs all four dependencies. To add a tool to the standard set later, publish a new `backend-standard` version with the extra dependency. Unless the marketplace [auto-updates](</docs/en/discover-plugins#configure-auto-updates>), engineers pick up the new version in one of two ways:
 
   * Enable auto-update for the marketplace in `/plugin`. The next auto-update moves the bundle to the new version and installs any dependencies it adds.
   * Run `claude plugin update backend-standard`, then `/reload-plugins` to install the newly added dependencies.

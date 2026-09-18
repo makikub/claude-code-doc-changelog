@@ -125,6 +125,7 @@ Path under `~/.claude/`| Contents
 `feedback-bundles/`| Redacted transcript archives written by `/feedback` on third-party providers or when no Anthropic credentials are configured, for sending to your Anthropic account team
 `feedback/drafts/`| Queued [Claude-drafted feedback](</docs/en/tools-reference#sendfeedback-tool-behavior>) awaiting your review in `/feedback`. Swept after `cleanupPeriodDays` or 30 days, whichever is shorter. When the queue is at its 10-draft limit, Claude Code deletes the oldest draft to make room.
 `usage-data/`| `report.html` and timestamped report copies written by [`/insights`](</docs/en/costs#analyze-your-usage-patterns>), plus cached per-session analysis data used to build them
+`skills/.trash/`, `plugins/.trash/`| [Skills](</docs/en/skills#how-synced-skills-behave>) and [plugins](</docs/en/plugins-reference#synced-plugins>) synced from claude.ai that Claude Code removed. Moved here instead of deleted so you can recover the files
 `todos/`, `statsig/`, `logs/`| Legacy directories from older versions. No longer written. The sweep removes their contents and then the empty directory.
 
 Session files in `sessions/`, auto memory, and Claude Desktop and Cowork transcripts each follow their own retention rule:
@@ -230,6 +231,7 @@ Delete| You lose
 `~/.claude/cache/changelog.md`| Nothing. Refreshed in the background.
 `~/.claude/policy-limits.json`| Nothing. Refreshed automatically.
 `~/.claude/tasks/`| Task lists that a resumed session would pick up
+`~/.claude/skills/.trash/`, `~/.claude/plugins/.trash/`| The chance to recover [synced skills](</docs/en/skills#how-synced-skills-behave>) and [synced plugins](</docs/en/plugins-reference#synced-plugins>) that Claude Code removed
 `~/.claude/debug/`, `~/.claude/plans/`, `~/.claude/image-cache/`, `~/.claude/session-env/`, `~/.claude/shell-snapshots/`, `~/.claude/backups/`| Nothing user-facing
 `~/.claude/todos/`, `~/.claude/statsig/`, `~/.claude/logs/`| Nothing. Legacy directories not written by current versions.
 
