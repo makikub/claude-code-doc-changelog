@@ -6,7 +6,7 @@ Claude Code is an agentic assistant that runs in your terminal. While it excels 
 
 The agentic loop
 
-When you give Claude a task, it works through three phases: **gather context** , **take action** , and **verify results**. These phases blend together. Claude uses tools throughout, whether searching files to understand your code, editing to make changes, or running tests to check its work. The loop adapts to what you ask. A question about your codebase might only need context gathering. A bug fix cycles through all three phases repeatedly. A refactor might involve extensive verification. Claude decides what each step requires based on what it learned from the previous step, chaining dozens of actions together and course-correcting along the way. You’re part of this loop too. You can interrupt at any point to steer Claude in a different direction, provide additional context, or ask it to try a different approach. Claude works autonomously but stays responsive to your input. The agentic loop is powered by two components: models that reason and tools that act. Claude Code serves as the **agentic harness** around Claude: it provides the tools, context management, and execution environment that turn a language model into a capable coding agent.
+When you give Claude a task, it works through three phases: **gather context** , **take action** , and **verify results**. These phases blend together. Claude uses tools throughout, whether searching files to understand your code, editing to make changes, or running tests to check its work. The loop adapts to what you ask. A question about your codebase might only need context gathering. A bug fix cycles through all three phases repeatedly. A refactor might involve extensive verification. Claude decides what each step requires based on what it learned from the previous step, chaining dozens of actions together and course-correcting along the way. You’re part of this loop too. You can interrupt at any point to steer Claude in a different direction, provide additional context, or ask it to try a different approach. Claude works autonomously but stays responsive to your input. The agentic loop is powered by two components: models that reason and tools that act. Claude Code is the layer around the model that provides the tools and manages the context the model sees. This surrounding layer is what the term agentic harness refers to.
 
 ###
 
@@ -212,10 +212,10 @@ Claude Code is conversational. You don’t need perfect prompts. Start with what
 
 Interrupt and steer
 
-You can redirect Claude at any point without waiting for the turn to finish or starting over:
+You can redirect Claude at any point without starting over. Do either of these:
 
   * **Press`Esc`** to stop Claude immediately. The running tool call is canceled and Claude waits for your next instruction. If you have messages queued, Claude Code [sends them next](</docs/en/interactive-mode#queue-messages-while-claude-works>).
-  * **Type a correction and press`Enter`** to send it without stopping the running tool. Claude reads it as soon as the current action completes and adjusts before deciding its next step.
+  * **Type a correction and press`Enter`** without stopping Claude. The message shows as queued above the input box. If Claude is running tool calls, it reads the message as soon as those calls finish, within the same turn, and adjusts before its next step. [Queue messages while Claude works](</docs/en/interactive-mode#queue-messages-while-claude-works>) covers when other queued entries are sent.
 
 ###
 

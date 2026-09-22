@@ -45,7 +45,12 @@ Plugins can provide specialized subagents for specific tasks that Claude can inv
 
     Detailed system prompt for the agent describing its role, expertise, and behavior.
 
-Plugin agents support `name`, `description`, `model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, [`omitClaudeMd`](</docs/en/sub-agents#supported-frontmatter-fields>), and `isolation` frontmatter fields. The only valid `isolation` value is `"worktree"`. For security reasons, plugin-shipped agents don’t support `hooks`, `mcpServers`, or `permissionMode`. Claude Code loads a plugin agent even when its frontmatter has no `name` or doesn’t parse:
+Plugin agents support `name`, `description`, `model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, [`omitClaudeMd`](</docs/en/sub-agents#supported-frontmatter-fields>), and `isolation` frontmatter fields. The only valid `isolation` value is `"worktree"`. For security reasons, plugin-shipped agents don’t support `hooks`, `mcpServers`, or `permissionMode`. You can put plugin agent files in subfolders of `agents/`. Claude Code [loads them recursively](</docs/en/sub-agents#choose-the-subagent-scope>) and joins the plugin name, each subfolder name, and the file name with colons to form the agent’s scoped name. For example, `agents/review/security.md` in a plugin named `my-plugin` loads as `my-plugin:review:security`. Two settings change that name:
+
+  * Frontmatter `name`: it replaces only the file name, so `name: audit` in `agents/review/security.md` loads as `my-plugin:review:audit`
+  * Manifest `agents` field: a file you list there loads without subfolder names, so `"agents": "./custom/review/security.md"` loads as `my-plugin:security`
+
+Claude Code loads a plugin agent even when its frontmatter has no `name` or doesn’t parse:
 
   * No `name`: Claude Code names the agent after the file, so `agents/reviewer.md` in a plugin named `my-plugin` loads as `my-plugin:reviewer`
   * Frontmatter that doesn’t parse: Claude Code names the agent after the file, uses `Agent from my-plugin plugin` as its description, and ignores every field in the file
@@ -622,7 +627,7 @@ When a plugin has both a default folder and the matching manifest key, Claude Co
   * All paths must be relative to the plugin root and start with `./`, except that the `skills` field also accepts `"."`
     * Both `"."` and `"./"` denote the plugin root itself
     * Before v2.1.221, `"."` failed manifest validation and the plugin didn’t load, so use `"./"` to support earlier versions
-  * Components from custom paths use the same naming and namespacing rules
+  * Components from custom paths use the same naming and namespacing rules, except agent files. See Agents for how agent names work
   * Multiple paths can be specified as arrays
   * A skill path can point to a directory that contains a `SKILL.md` directly, for example `"skills": ["."]` for the plugin root
     * Claude Code takes the skill’s invocation name from the frontmatter `name` field in `SKILL.md`, so the name stays stable whatever the install directory is named
@@ -820,7 +825,9 @@ A complete plugin follows this structure:
     ├── agents/                   # Subagent definitions
     │   ├── security-reviewer.md
     │   ├── performance-tester.md
-    │   └── compliance-checker.md
+    │   ├── compliance-checker.md
+    │   └── review/               # Agents here load as enterprise-plugin:review:<name>
+    │       └── accessibility.md
     ├── workflows/                # Workflow scripts
     │   └── release-audit.js
     ├── output-styles/            # Output style definitions
@@ -859,7 +866,7 @@ Component| Default Location| Purpose
 **Manifest**| `.claude-plugin/plugin.json`| Plugin metadata and configuration (optional)
 **Skills**| `skills/`| Skills with `<name>/SKILL.md` structure
 **Commands**| `commands/`| Skills as flat Markdown files. Use `skills/` for new plugins
-**Agents**| `agents/`| Subagent Markdown files
+**Agents**| `agents/`| Subagent Markdown files. Subfolders are part of the agent name
 **Workflows**| `workflows/`| [Workflow](</docs/en/workflows>) script files
 **Output styles**| `output-styles/`| Output style definitions
 **Themes**| `themes/`| Color theme definitions

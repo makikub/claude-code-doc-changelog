@@ -125,6 +125,7 @@ Action| Default| Description
 `chat:thinkingToggle`| Meta+T| Toggle extended thinking
 `chat:submit`| Enter| Submit message
 `chat:queueSubmit`| Ctrl+X Enter| Submit the message, marked to wait its turn: while Claude is working, Claude Code [queues it](</docs/en/interactive-mode#queue-messages-while-claude-works>) and never interrupts the turn. Unlike `chat:submit`, it submits the draft even while an autocomplete suggestion is highlighted. Requires v2.1.247 or later
+`chat:sendNow`| Ctrl+Enter, Ctrl+X Ctrl+S| Interrupt the running turn so your [queued messages](</docs/en/interactive-mode#queue-messages-while-claude-works>), and your draft with them, go out right away. When nothing is running, it submits the draft, and in [shell mode](</docs/en/interactive-mode#shell-mode-with-prefix>) it queues the command without interrupting. Terminals that don’t report extended keys deliver `Ctrl+Enter` as plain `Enter`, so `Ctrl+X Ctrl+S` is the binding that works in any terminal. Requires v2.1.275 or later
 `chat:newline`| Ctrl+J| Insert a newline without submitting
 `chat:undo`| Ctrl+_, Ctrl+Shift+-| Undo last action
 `chat:externalEditor`| Ctrl+G, Ctrl+X Ctrl+E| Open in external editor. The [agent view dispatch input](</docs/en/agent-view#keyboard-shortcuts>) follows this action’s single-keystroke bindings too
@@ -295,6 +296,8 @@ Action| Default| Description
 `footer:openSelected`| Enter| Open selected footer item
 `footer:clearSelection`| Escape| Clear footer selection
 `footer:dismiss`| Backspace, Delete| Dismiss the selected [artifact](</docs/en/artifacts>) link from the footer; the published artifact itself is unaffected. On other footer rows, these keys have no effect. Requires v2.1.217 or later
+
+While a footer item is selected, such as a row in the agent panel below the prompt, `Enter` opens it even when you rebind `Enter` in the `Chat` context to `chat:queueSubmit` or `chat:newline`. `Chat` bindings on keys the `Footer` context doesn’t bind, such as `Shift+Tab` for `chat:cycleMode`, keep working while an item is selected.
 
 ###
 
@@ -584,7 +587,7 @@ Set an action to `null` to unbind a default shortcut:
       ]
     }
 
-This also works for chord bindings. Unbinding every chord that shares a prefix frees that prefix for use as a single-key binding. A chord in any active context keeps its prefix reserved, so you must unbind each chord in the context that defines it. Claude Code binds these default chords on the `ctrl+x` prefix: `ctrl+x ctrl+k`, `ctrl+x ctrl+e`, `ctrl+x enter`, `ctrl+x ctrl+a`, and `ctrl+x tab` in `Chat`, `ctrl+x ctrl+b` in `Task`, and `ctrl+x b` in `DiffPanel`. The `ctrl+x enter` chord requires v2.1.247 or later, and `ctrl+x b`, `ctrl+x ctrl+a`, and `ctrl+x tab` require v2.1.260 or later. To reclaim `ctrl+x` itself as a single-key binding, unbind all of them:
+This also works for chord bindings. Unbinding every chord that shares a prefix frees that prefix for use as a single-key binding. A chord in any active context keeps its prefix reserved, so you must unbind each chord in the context that defines it. Claude Code binds these default chords on the `ctrl+x` prefix: `ctrl+x ctrl+k`, `ctrl+x ctrl+e`, `ctrl+x enter`, `ctrl+x ctrl+a`, `ctrl+x ctrl+s`, and `ctrl+x tab` in `Chat`, `ctrl+x ctrl+b` in `Task`, and `ctrl+x b` in `DiffPanel`. The `ctrl+x enter` chord requires v2.1.247 or later, `ctrl+x b`, `ctrl+x ctrl+a`, and `ctrl+x tab` require v2.1.260 or later, and `ctrl+x ctrl+s` requires v2.1.275 or later. To reclaim `ctrl+x` itself as a single-key binding, unbind all of them:
 
     {
       "bindings": [
@@ -607,6 +610,7 @@ This also works for chord bindings. Unbinding every chord that shares a prefix f
             "ctrl+x ctrl+e": null,
             "ctrl+x enter": null,
             "ctrl+x ctrl+a": null,
+            "ctrl+x ctrl+s": null,
             "ctrl+x tab": null,
             "ctrl+x": "chat:newline"
           }

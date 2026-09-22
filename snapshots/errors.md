@@ -61,6 +61,7 @@ Message| Section
 `API Error: 401 Invalid authentication credentials`| Authentication
 `Login expired · Please run /login`| Authentication
 `Claude login not accepted · Run /login, then try again`| Authentication
+`Artifacts need a claude.ai login`| Authentication
 `Not signed in to the Cloud gateway — run /login.`| Authentication
 `Administrator policy requires a Cloud gateway sign-in on this machine`| Authentication
 `Failed to authenticate: OAuth session expired and could not be refreshed`| Authentication
@@ -77,6 +78,7 @@ Message| Section
 `Issuer mismatch in authorization response (RFC 9207)`| Authentication
 `Cloud gateway session expired — run /login to reconnect.`| Authentication
 `Cloud gateway <url> no longer accepts this session`| Authentication
+`Sign-in timed out while waiting for you to continue. Try again.`| Authentication
 `AWS credentials expired or invalid`| Authentication
 `AWS authentication failed`| Authentication
 `Google Cloud credentials expired or invalid`| Authentication
@@ -139,6 +141,8 @@ Message| Section
 `effort '<level>' is not supported when thinking is disabled`| Request errors
 `max_tokens must be greater than thinking.budget_tokens`| Request errors
 `API Error: 400 due to tool use concurrency issues`| Request errors
+`API Error: 400 orphaned tool_result in conversation history`| Request errors
+`API Error: 400 duplicate tool_use ID in conversation history`| Request errors
 `[Unsupported tool content removed]`| Request errors
 `server_tool_use.name: Input should be` on every turn of a resumed session| Request errors
 `<model> can't help with this. Start a new session to continue`| Request errors
@@ -189,6 +193,8 @@ Message| Section
 `No conversation found with session ID: <session-id>`| Command-line errors
 `Cannot switch renderers in this session`| Command-line errors
 `Cannot switch renderers while work is running in the background`| Command-line errors
+`Couldn't open Claude Desktop`| Command-line errors
+`Failed to open Claude Desktop. Please try opening it manually.`| Command-line errors
 `Couldn't read your Zed keymap` / `Couldn't back up your Zed keymap` / `Couldn't update your Zed keymap`| Command-line errors
 `Your Zed keymap isn't a readable list of keybindings`| Command-line errors
 `Skill usage reports are not available on this connection.`| Command-line errors
@@ -196,6 +202,7 @@ Message| Section
 `Output styles are saved to local settings (.claude/settings.local.json), which this session doesn't load`| Command-line errors
 ``plugin eval` is currently in early access` / ``plugin eval` is currently unavailable`| Plugin errors
 `Marketplace "<name>" is registered from an untrusted source`| Plugin errors
+`Marketplace "<name>" is already added from a different source`| Plugin errors
 `references ${user_config.*} in a shell-form command`| Plugin errors
 `Monitor "<name>" from plugin <plugin> references ${user_config.*} in its command`| Plugin errors
 `headersHelper for MCP server '<name>' references ${user_config.*}`| Plugin errors
@@ -206,6 +213,7 @@ Message| Section
 `Plugin source path refused`| Plugin errors
 `Failed to load marketplace configuration`| Plugin errors
 `Marketplace configuration file is corrupted`| Plugin errors
+`Plugin "<name>@synced" is required by your organization and can't be disabled here`| Plugin errors
 `would be spawned with zero tools — refusing`| Tool errors
 `File is covered by a Read deny rule in your permission settings`| Tool errors
 `subagent_type is required: the general-purpose agent is not available in this session`| Tool errors
@@ -236,6 +244,8 @@ Message| Section
 `Can't open MCP settings in a background session`| Background session errors
 `blocked because the path is spelled in a form that cannot be safely resolved`| Background session errors
 `blocked because the path is network-shaped`| Background session errors
+`is isolated in the worktree <path>, but this command <reason>. Refusing to run it`| Background session errors
+`too complex to verify that it stays inside the worktree`| Background session errors
 `This session has no saved transcript`| Background session errors
 `Can't open — this session is running in another terminal`| Background session errors
 `This conversation is already open in another running Claude session`| Background session errors
@@ -271,6 +281,7 @@ Message| Section
 `MCP server <name> is blocked by enterprise managed policy`| Configuration warnings
 `Managed settings document could not be parsed as a JSON object; none of its settings are in effect. Fix or remove it.`| Configuration warnings
 `Managed settings drop-in directory could not be read`| Configuration warnings
+`otelHeadersHelper failed; telemetry is not being exported. See /status: ...`| Configuration warnings
 `"crossSessionInbound" must be one of "accept", "hold", "refuse"`| Configuration warnings
 `headersHelper not run — this workspace has no persisted trust`| Configuration warnings
 `Invalid permission rule "..." was skipped: Malformed Tool(content) rule`| Configuration warnings
@@ -572,7 +583,7 @@ The selected model uses the 1M-token extended context window, and your plan only
 This is an entitlement check, not a quota exhaustion. It fires even when your session and weekly allowances have capacity remaining. See [Extended context](</docs/en/model-config#extended-context>) for which plans include 1M context directly and which require usage credits. Claude Code runs this check when you pick the model with `/model`, and only on a direct connection to the Anthropic API; if you point `ANTHROPIC_BASE_URL` at an [LLM gateway](</docs/en/llm-gateway>), `/model` allows the `[1m]` selection and the gateway decides whether the request succeeds. When this error appears mid-conversation because the context grew past 200K tokens, Claude Code automatically compacts the conversation back under the standard context limit and keeps the session at that limit afterward, so no action is needed. On versions before v2.1.172, the error repeated on every subsequent request including `/compact`; run `/clear` on those versions to recover. The steps below apply when you explicitly selected a `[1m]` model. **What to do:**
 
   * Run `/model` and select the variant without the `[1m]` suffix to fall back to the standard context window
-  * Where the message names `/usage-credits`, run it to turn on metered billing for the 1M variant on Pro and Max, or to request usage credits from your admin on Team and Enterprise. Restart Claude Code once usage credits are on. Until you restart, the session stays at the standard context limit.
+  * Where the message names `/usage-credits`, run it to turn on metered billing for the 1M variant on Pro and Max, or to request usage credits from your admin on Team and Enterprise. Once usage credits are on, restart Claude Code or start a new session, whichever the message says. Until then, the session stays at the standard context limit.
   * If the error persists after `/model`, a 1M model ID may be set elsewhere. See [Setting your model](</docs/en/model-config#setting-your-model>) for the configuration locations to check in priority order.
   * To remove 1M variants from the model picker entirely, set [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](</docs/en/env-vars>)
 
@@ -781,7 +792,8 @@ In [non-interactive mode](</docs/en/headless>), stderr also carries the specific
   * Run the command configured in `apiKeyHelper` directly in your shell to reproduce the failure
   * If the command reports an expired session, re-authenticate with your credential provider, for example by signing in to your SSO or secrets vault again
   * Fix the command so it prints only the key to stdout, as a single token of printable ASCII up to 16,384 characters, and exits with code 0. See [rotate credentials with apiKeyHelper](</docs/en/llm-gateway-connect#rotate-credentials-with-apikeyhelper>) for a working setup.
-  * Run `/status` to confirm `apiKeyHelper` is the active credential source. Each time the command fails, its exit code and error output appear in an `Authentication` panel in the terminal. Before v2.1.212, the panel was titled `Cloud authentication`.
+  * Run `/status` to see the failure and confirm `apiKeyHelper` is the active credential source. The `apiKeyHelper` row shows `Failing` with the last failure’s detail, such as the exit code and the command’s error output, and disappears after the next successful run. Before v2.1.274, `/status` showed only the credential source, not the failure.
+  * Each time the command fails, its exit code and error output also appear in an `Authentication` panel in the terminal. Before v2.1.212, the panel was titled `Cloud authentication`.
 
 ###
 
@@ -1040,6 +1052,24 @@ You tried to start a [cloud session](</docs/en/claude-code-on-the-web>), and the
 **What to do:**
 
   * Run `/login`, complete the sign-in, then start the session again
+
+###
+
+​
+
+Artifacts need a claude.ai login
+
+Claude Code refused an [artifact](</docs/en/artifacts>) publish or read because the session has no claude.ai login it can use for artifacts. Every form of the message starts with the same words, followed by a remedy that depends on how your session authenticates. With no competing credential it reads:
+
+    Artifacts need a claude.ai login. Run /login and select "Claude account with subscription", then retry — the "Anthropic Console account" option does not provide claude.ai credentials.
+
+**What to do:**
+
+  * Run `/login` and select **Claude account with subscription**. The **Anthropic Console account** option doesn’t provide claude.ai credentials.
+  * When the message names a credential that takes precedence, such as `ANTHROPIC_API_KEY`, an `apiKeyHelper` setting, or a Console key saved by a previous `/login`, remove it the way the message says, then run `/login`
+  * When the message says this remote session authenticates through the machine that launched it, sign in to claude.ai on that machine, then reconnect the session
+  * When the message says the credential is injected by the session’s host environment, you can’t change it in that session; start a session that is signed in to claude.ai
+  * See [Availability](</docs/en/artifacts#availability>) for the other requirements artifacts have, such as plan, model provider, and organization policy
 
 ###
 
@@ -1337,6 +1367,20 @@ The same line can appear mid-session when the gateway credential expires and Cla
 
   * Run `/login` in the session and complete the browser sign-in
   * For a non-interactive launch, start `claude` in the same environment, run `/login`, then rerun your command
+
+###
+
+​
+
+Sign-in timed out while waiting for you to continue
+
+During a [Claude apps gateway](</docs/en/claude-apps-gateway>) sign-in, the gateway named the account that signed in, and Claude Code asked you to confirm it before saving the credential. You left the confirmation open past the sign-in’s own expiry, and the gateway issued no refresh token that could renew it, so Claude Code stored nothing when you continued:
+
+    Sign-in timed out while waiting for you to continue. Try again.
+
+**What to do:**
+
+  * Run `/login` again and confirm the account before the sign-in expires
 
 ###
 
@@ -2014,10 +2058,12 @@ Tool use or thinking block mismatch
 The conversation history reached the API in an inconsistent state, usually after a tool call was interrupted or a turn was edited mid-stream.
 
     API Error: 400 due to tool use concurrency issues. Run /rewind to recover the conversation.
+    API Error: 400 orphaned tool_result in conversation history. Run /rewind to recover the conversation.
+    API Error: 400 duplicate tool_use ID in conversation history. Run /rewind to recover the conversation.
     API Error: 400 ... unexpected `tool_use_id` found in `tool_result` blocks
     API Error: 400 ... thinking blocks ... cannot be modified
 
-All three variants mean the same thing: the sequence of `tool_use`, `tool_result`, and `thinking` blocks in history no longer matches what the API expects. **What to do:**
+All variants mean the same thing: the sequence of `tool_use`, `tool_result`, and `thinking` blocks in history no longer matches what the API expects. **What to do:**
 
   * If you are using Opus 4.7 or Opus 4.8, run `claude update` first. Versions before v2.1.156 can trigger this error during normal tool use, and `/rewind` doesn’t clear it.
   * Run `/rewind`, or press Esc twice, to step back to a checkpoint before the corrupted turn and continue from there. See [Checkpointing](</docs/en/checkpointing>) for how checkpoints are created and restored.
@@ -2702,6 +2748,7 @@ Claude Code couldn’t read or process the saved transcript for the session you 
 Claude Code exits with code 1 after showing the message. The `/resume` picker inside a running session reports `Failed to resume conversation` in the conversation instead, and your current session keeps running. Before v2.1.216, a failed resume from the `claude --resume` picker stayed on the `Resuming conversation…` spinner indefinitely instead of showing this message. **What to do:**
 
   * Run `claude --resume <session-id>` with the session ID from the message to retry
+  * If every retry fails the same way, run `claude update` and resume again. Versions before v2.1.275 fail the resume when the saved transcript contains an entry they can’t read.
   * If the retry fails again, run `claude` to start a new session
 
 ###
@@ -2751,6 +2798,23 @@ Each reason the message can show in parentheses:
 **What to do:**
 
   * In a session started without those restrictions, run `/tui fullscreen`, or `/tui default` to switch back. Claude Code saves the [`tui` setting](</docs/en/settings-reference#tui>) there
+
+###
+
+​
+
+Couldn’t open Claude Desktop
+
+You ran [`/desktop`](</docs/en/desktop#coming-from-the-cli>), or its alias `/app`, and the system command Claude Code uses to open Claude Desktop failed. The session stays in the terminal.
+
+    Error: Couldn't open Claude Desktop (`open` exited 1: LSOpenURLsWithRole() failed for the URL claude://resume?session=<session-id> with error -10814). Open Claude Desktop and run /desktop again.
+
+**What to do:**
+
+  * Open Claude Desktop yourself, then run `/desktop` again
+  * To read that command’s full error output, turn on debug logging with `/debug`, run `/desktop` again, and check the debug log
+
+Before v2.1.275, the message was `Failed to open Claude Desktop. Please try opening it manually.` and didn’t say what failed.
 
 ###
 
@@ -2862,6 +2926,21 @@ For a marketplace whose source isn’t a GitHub repository or a Git URL, such as
   * If the marketplace is already registered, run `claude plugin marketplace remove <name>`, then add it again from the official `github.com/anthropics` repository
   * If you publish a third-party marketplace that used the name before it became reserved, rename it and ask users to re-add it from your source
   * See the reserved name list under [Marketplace schema](</docs/en/plugin-marketplaces#marketplace-schema>)
+
+###
+
+​
+
+Marketplace is already added from a different source
+
+You confirmed adding a marketplace through [`/plugin install <plugin> --marketplace <source>`](</docs/en/discover-plugins#add-a-marketplace-and-install-in-one-command>), and the catalog Claude Code fetched from that source names itself the same as a marketplace you already added from a different source. Claude Code keeps the existing marketplace instead of replacing it, and the plugin isn’t installed.
+
+    Marketplace "acme-tools" is already added from a different source (github:acme/plugins). To use this source instead, remove that marketplace first with /plugin marketplace remove acme-tools.
+
+**What to do:**
+
+  * If the marketplace you already added is the one you want, install from it by name: `/plugin install <plugin>@<name>`
+  * To switch to the new source, run `/plugin marketplace remove <name>`, then retry the install
 
 ###
 
@@ -3006,6 +3085,20 @@ Before v2.1.246, `claude plugin install` didn’t report this failure. **What to
 
   * Open `~/.claude/plugins/known_marketplaces.json` and repair the JSON, or fix the entries the message names as not matching the registry schema
   * If you can’t repair it, delete the file or replace its contents with `{}`, then re-add each marketplace with `claude plugin marketplace add <source>`. Claude Code re-registers the marketplaces your user or managed settings declare in [`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>) the next time you start it in a folder you’ve trusted.
+
+###
+
+​
+
+Plugin is required by your organization
+
+You ran `claude plugin disable`, or used the `/plugin` **Installed** tab, to turn off a [plugin synced from claude.ai](</docs/en/plugins-reference#synced-plugins>) that your organization marks as required:
+
+    Plugin "<name>@synced" is required by your organization and can't be disabled here. Contact your admin to change it.
+
+Claude Code saves nothing and the plugin stays enabled. When you try to disable a plugin that a required plugin depends on, Claude Code refuses the same way, with a message naming the required plugin that needs it. **What to do:**
+
+  * Ask an admin of your claude.ai organization to change the plugin’s required status on claude.ai
 
 ##
 
@@ -3367,6 +3460,27 @@ A blocked command reports the same cause for its working directory and ends with
 
 ​
 
+Command blocked by the worktree isolation checks
+
+Claude ran a Bash or Monitor command in a [session isolated in a worktree](</docs/en/worktrees#how-claude-code-enforces-isolation>), and Claude Code refused it for one of two reasons:
+
+  * The command points git at the main checkout.
+  * Claude Code can’t verify from the command text that any git the command runs stays inside the worktree. A command that never names git can still be refused for this reason, because expanding a variable indirection such as `${!name}` or running a Bash function substitution such as `${ command; }` produces a value at runtime that can itself be a command.
+
+The middle of the message names what couldn’t be verified:
+
+    This session is isolated in the worktree /path/to/worktree, but this command evaluates ${!x@P} arithmetically inside a construct too complex to verify, which can run a command hidden in a variable's value. Refusing to run it — a worktree-isolated session's git operations must target its own worktree. Split it into plain, separate commands and run them from /path/to/worktree.
+
+**What to do:**
+
+  * Usually nothing: Claude reads the message and rewrites the command the way its final sentence asks
+  * If a command you asked for keeps being refused, spell the flagged value literally: replace the indirection or substitution with its value, and run git as its own plain command from inside the worktree
+  * To act on the main checkout on purpose, run the command yourself in a terminal outside the session
+
+###
+
+​
+
 This session has no saved transcript
 
 You attached to a stopped [background session](</docs/en/agent-view>) that was backgrounded from another conversation with `←` or `/background` and stopped before its first response finished. Until that first response finishes, the conversation still lives only in the session it was backgrounded from, so `claude attach` refuses to start the stopped session rather than begin a blank conversation under the same session ID. The message ends with the `claude respawn` command for this session:
@@ -3692,7 +3806,7 @@ Claude Code shows this message when you restore code with [`/rewind`](</docs/en/
     Failed to restore the code:
     No files were restored: 1 file failed (backup missing, or the file could not be updated)
 
-Claude Code deletes a session’s backups in the [retention sweep](</docs/en/claude-directory#cleaned-up-automatically>), by default about 30 days after the session last saved one. If you resume a session after that, `/rewind` still lists its checkpoints, but rewinding to one of them can fail with this error. If the message also says `N paths were skipped for link safety`, see Restored the code, but skipped files for those paths. **What to do:**
+Claude Code deletes a session’s backups in the [retention sweep](</docs/en/claude-directory#cleaned-up-automatically>), by default about 30 days after the session last saved one. If you resume a session after that, `/rewind` still lists its checkpoints, but rewinding to one of them can fail with this error. If the message also says `N paths were skipped for link safety`, see Restored the code, but skipped files for those paths. When you fork a session, for example with [`--fork-session`](</docs/en/cli-reference#cli-flags>) or [`/branch`](</docs/en/sessions#branch-a-session>), Claude Code copies the original session’s backups into the fork. When Claude Code can’t copy a backup, for example because the disk is full, that backup is missing in the fork. Rewinding to a checkpoint that needs it can fail with this error. **What to do:**
 
   * Undo the changes another way: ask Claude to reverse its edits, or restore the files from version control. When the backups are gone, running `/rewind` again fails the same way.
   * If Claude Code couldn’t write or delete a file, fix what blocks the write, such as file permissions, then run `/rewind` again.
@@ -3936,6 +4050,24 @@ The source is one of:
 
   * If you administer the machine, fix the named document so it parses as a JSON object, or remove the file, profile, or registry value. An empty `managed-settings.json` counts as `{}` and doesn’t block launch.
   * If you don’t, ask your administrator to fix the deployed document. Nothing in your own settings files causes or clears this error.
+
+###
+
+​
+
+otelHeadersHelper failed
+
+Claude Code shows this warning as a notification in the terminal interface, once per interactive session, when the [`otelHeadersHelper`](</docs/en/settings-reference#otelheadershelper>) script fails or prints output that doesn’t meet the [script requirements](</docs/en/monitoring-usage#script-requirements>). While the script keeps failing, exports fail and your telemetry backend receives nothing from the session. The text after `See /status:` says what failed, such as the script’s exit code followed by its error output:
+
+    otelHeadersHelper failed; telemetry is not being exported. See /status: exited 1: token service unreachable
+
+**What to do:**
+
+  * Run `/status` to read the failure detail.
+  * Fix the script so it exits 0 within 30 seconds and prints a JSON object of string header values on stdout. See [script requirements](</docs/en/monitoring-usage#script-requirements>).
+  * If your organization deploys the script through [managed settings](</docs/en/managed-settings>), ask whoever maintains them to fix it.
+
+In [non-interactive mode](</docs/en/headless>) with `-p`, the same failure appears on stderr as `otelHeadersHelper failed (OpenTelemetry export headers unavailable): <error>` instead.
 
 ###
 
