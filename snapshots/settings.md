@@ -66,7 +66,7 @@ Commit `.claude/settings.json` so everyone who clones the repository gets the sa
 
 Keep personal settings out of a repository
 
-To change a setting for yourself in one project without changing it for your teammates, save it in `.claude/settings.local.json` inside the project. Claude Code applies that file over the committed `.claude/settings.json`, so if your team’s file sets `"model": "claude-sonnet-5"` and you want Opus, put `"model": "claude-opus-4-8"` in your local file and only your sessions change. Claude Code also writes to this file, keeps it out of your commits, and applies its allow rules without the trust step:
+To change a setting for yourself in one project without changing it for your teammates, save it in `.claude/settings.local.json` inside the project. Claude Code applies that file over the committed `.claude/settings.json`, so if your team’s file sets `"model": "claude-sonnet-5"` and you want Opus, put `"model": "claude-opus-5-5"` in your local file and only your sessions change. Claude Code also writes to this file, keeps it out of your commits, and applies its allow rules without the trust step:
 
   * **Claude Code writes it too.** When Claude asks permission to run a Bash command and you choose “Yes, and don’t ask again”, Claude Code saves that [permission approval](</docs/en/permissions#permission-system>) here as an `allow` rule.
   * **You don’t need to gitignore it yourself, unless you created it by hand.** The first time Claude Code writes the file in a git repository that doesn’t already ignore it, it adds `**/.claude/settings.local.json` to your global git excludes file, so the file stays out of your commits in every repository. That file is `core.excludesFile` when your global git config sets it to an absolute or `~`-prefixed path; otherwise it’s `$XDG_CONFIG_HOME/git/ignore`, or `~/.config/git/ignore` when `XDG_CONFIG_HOME` is unset. If you created the file by hand and Claude Code hasn’t written to it yet, add it to `.gitignore` yourself.
@@ -163,7 +163,7 @@ To try a value without saving it, set it when you start Claude Code. The value a
 
 Each key’s entry on the [settings reference](</docs/en/settings-reference>) lists its per-session overrides and which one takes precedence, so check the entry for the key you want to change. Commands you run inside a session mostly save your choice: when you change a setting in `/config`, Claude Code writes it to your settings files, and `/model` saves the value as your default for new sessions. If you press `s` in the `/model` picker, Claude Code switches the model without saving it as your user default. [Adjust effort level](</docs/en/model-config#adjust-effort-level>) says which `/effort` picks Claude Code saves as your default for the model you’re using and which apply to the current session only. For example, to start one session on Opus without changing your default:
 
-    claude --settings '{"model": "claude-opus-4-8"}'
+    claude --settings '{"model": "claude-opus-5-5"}'
 
 ###
 

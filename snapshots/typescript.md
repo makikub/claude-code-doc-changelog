@@ -633,6 +633,7 @@ Interface returned by the `query()` function.
       reconnectMcpServer(serverName: string): Promise<void>;
       toggleMcpServer(serverName: string, enabled: boolean): Promise<void>;
       setMcpServers(servers: Record<string, McpServerConfig>): Promise<McpSetServersResult>;
+      readMcpResource(serverName: string, uri: string): Promise<SDKControlMcpReadResourceResponse>;
       streamInput(stream: AsyncIterable<SDKUserMessage>): Promise<void>;
       stopTask(taskId: string): Promise<void>;
       close(): void;
@@ -658,7 +659,7 @@ Method| Description
 `supportedCommands()`| Returns available commands. From Agent SDK v0.3.216 the list reflects mid-session command changes; see `SDKCommandsChangedMessage`
 `supportedModels()`| Returns available models with display info
 `supportedAgents()`| Returns available subagents as `AgentInfo``[]`
-`mcpServerStatus()`| Returns status of connected MCP servers
+`mcpServerStatus()`| Returns the status of connected MCP servers as `McpServerStatus``[]`
 `getContextUsage(opts?)`| Returns an `SDKControlGetContextUsageResponse` breaking down the session’s context window usage by category, skill, and tool. With the default `detail`, it is the same data `/context` shows in an interactive session. The `detail` option requires Agent SDK v0.3.257 or later
 `readFile(path, options?)`| Reads a file from the session’s filesystem. Claude Code resolves the path against `cwd`; What `readFile()` can read lists the files it serves. Pass `{ maxBytes }` to change the read cap (default 1 MB, ceiling 10 MB) and `{ encoding: 'base64' }` for binary files such as images. Resolves with an `SDKControlReadFileResponse`, or `null` on permission denial, a missing file, or a transport error. Requires TypeScript SDK v0.2.121 or later
 `reloadSkills()`| Reloads skills from disk, so skills you add or edit mid-session become available to the running session. Resolves with an `SDKControlReloadSkillsResponse` listing the skills available after the reload. Requires Agent SDK v0.3.163 or later
@@ -666,6 +667,7 @@ Method| Description
 `reconnectMcpServer(serverName)`| Reconnect an MCP server by name. If the name also matches an entry in a settings file such as `.mcp.json` or `~/.claude.json`, Claude Code reconnects the server you configured through `mcpServers` or `setMcpServers()`, not the settings-file entry. That resolution order requires Claude Code v2.1.257 or later
 `toggleMcpServer(serverName, enabled)`| Enable or disable an MCP server by name, with the same name resolution as `reconnectMcpServer()`. Disabling disconnects the server
 `setMcpServers(servers)`| Dynamically replace the set of MCP servers for this session. Resolves with an `McpSetServersResult` naming which servers were added and removed, and any errors
+`readMcpResource(serverName, uri)`| _Alpha._ Reads one MCP Apps `ui://` resource from a connected MCP server so your application can render a tool’s widget. Resolves with an `SDKControlMcpReadResourceResponse`. Requires TypeScript Agent SDK v0.3.280 or later
 `streamInput(stream)`| Stream input messages to the query for multi-turn conversations
 `stopTask(taskId)`| Stop a running background task by ID
 `close()`| Close the query and terminate the underlying process. Forcefully ends the query and cleans up all resources
@@ -941,6 +943,26 @@ Return type of `reloadSkills()`.
     };
 
 `skills` lists the skills available after the reload, in the same `SlashCommand` shape that `supportedCommands()` returns.
+
+###
+
+​
+
+`SDKControlMcpReadResourceResponse`
+
+Return type of `readMcpResource()`, carrying the MCP server’s `resources/read` result. Requires TypeScript Agent SDK v0.3.280 or later.
+
+    type SDKControlMcpReadResourceResponse = {
+      contents: {
+        uri: string;
+        mimeType?: string;
+        text?: string;
+        blob?: string;
+        _meta?: Record<string, unknown>;
+      }[];
+    };
+
+Pass `readMcpResource()` the server name as `mcpServerStatus()` reports it and a `ui://` URI, such as the `ui.resourceUri` a tool declares in its `_meta`. The call rejects for any other URI scheme, for an SDK MCP server your application hosts itself, and for a server that isn’t connected. It’s available when the init message’s `capabilities` include `mcp_read_resource_v1`. Each `contents` entry is one content item as the server sent it. `blob` holds base64 data for a binary item, and `_meta` is the item’s own `_meta`, where an MCP Apps server puts the resource’s `ui.csp` and `ui.permissions`. The contents are untrusted third-party HTML, so render them in a sandbox.
 
 ###
 
@@ -1363,9 +1385,10 @@ User input message.
       shouldQuery?: boolean;
       tool_use_result?: unknown;
       origin?: SDKMessageOrigin;
+      inline_pastes?: string[];
     };
 
-Set `pasted_content` to send content the user pasted into your prompt UI rather than typed, one entry per paste, each a string or an array of content blocks. Claude Code appends each entry’s text after the typed text, in order, and may wrap each paste in `<pasted_content>` tags. Blocks other than text are ignored, so send images and documents in `message.content`. Requires Agent SDK v0.3.277 or later. Set `shouldQuery` to `false` to append the message to the transcript without triggering an assistant turn. The message is held and merged into the next user message that does trigger a turn. Use this to inject context, such as the output of a command you ran out of band, without spending a model call on it. On a message that carries a `tool_result` block, `tool_use_result` is the tool’s structured output object rather than the text sent to the model. Its shape depends on the tool named by the matching `tool_use` block, so the field is typed `unknown`; the built-in shapes are listed under Tool Output Types. For the `Agent` tool, `tool_use_result` is `AgentOutput`. On a `completed` result, `content` holds the subagent’s report without the agent ID and usage trailer that Claude Code appends to the `tool_result` text, so render from `tool_use_result` instead of parsing that text. For an MCP tool whose result contains `resource_link` blocks, `tool_use_result` is an object with a `resourceLinks` array of `SDKMcpResourceLink` entries. Claude receives each link as a line of text in the `tool_result` block, so read `resourceLinks` to render the files the server returned instead of parsing that text. Claude Code omits `resourceLinks` when the result has no links and on results from subagents, keeps at most 50 links per result, and stops adding links once the array reaches 64 KiB of serialized JSON. `resourceLinks` requires Agent SDK v0.3.257 or later.
+Set `pasted_content` to send content the user pasted into your prompt UI rather than typed, one entry per paste, each a string or an array of content blocks. Claude Code appends each entry’s text after the typed text, in order, and may wrap each paste in `<pasted_content>` tags. Blocks other than text are ignored, so send images and documents in `message.content`. Requires Agent SDK v0.3.277 or later. Set `shouldQuery` to `false` to append the message to the transcript without triggering an assistant turn. The message is held and merged into the next user message that does trigger a turn. Use this to inject context, such as the output of a command you ran out of band, without spending a model call on it. On a message that carries a `tool_result` block, `tool_use_result` is the tool’s structured output object rather than the text sent to the model. Its shape depends on the tool named by the matching `tool_use` block, so the field is typed `unknown`; the built-in shapes are listed under Tool Output Types. For the `Agent` tool, `tool_use_result` is `AgentOutput`. On a `completed` result, `content` holds the subagent’s report without the agent ID and usage trailer that Claude Code appends to the `tool_result` text, so render from `tool_use_result` instead of parsing that text. For an MCP tool whose result contains `resource_link` blocks, `tool_use_result` is an object with a `resourceLinks` array of `SDKMcpResourceLink` entries. Claude receives each link as a line of text in the `tool_result` block, so read `resourceLinks` to render the files the server returned instead of parsing that text. Claude Code omits `resourceLinks` when the result has no links and on results from subagents, keeps at most 50 links per result, and stops adding links once the array reaches 64 KiB of serialized JSON. `resourceLinks` requires Agent SDK v0.3.257 or later. Set `inline_pastes` to tell Claude Code which parts of `message.content` the user pasted rather than typed, one string per paste. The prompt text stays where the user put it. Claude Code may wrap each listed paste in `<pasted_content>` tags where it stands, so Claude can tell pasted material from the user’s own words. Only pastes in the prompt’s last text block are wrapped. Requires TypeScript Agent SDK v0.3.280 or later.
 
 ###
 
@@ -1494,7 +1517,7 @@ Reason code| Meaning
 `sdk_opt_in_required`| The session hasn’t opted in to fast mode: pass `fastMode: true` in the `settings` option or through `applyFlagSettings()`
 `pending`| The availability check hasn’t completed yet
 
-The same pair of fields appears on `SDKSystemMessage` and on the `SDKControlInitializeResponse`, so you can read the fast mode state before the first turn. The `origin` field forwards the `SDKMessageOrigin` of the user message that triggered this result. When the SDK injects a synthetic follow-up turn, such as for a finished background task, the resulting `SDKResultMessage` carries `origin: { kind: "task-notification" }`. Routines whose trigger fired and server-verified messages from your other sessions arrive with this kind too, each with the `subkind` described in Task-notification subkinds. Check `kind` to distinguish results that answer your prompt from injected follow-ups before routing or suppressing them. When several background-task completions are queued together, Claude Code can answer them in one turn rather than one turn each. Each completion still produces its own result with this origin. All but the last of the completions Claude Code answers together produce empty results with `num_turns: 0`, in order, and the last one’s result carries the turn that answers them all. The field is absent for results emitted before any user turn, such as startup errors. When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](</docs/en/hooks#defer-a-tool-call-for-later>) for the full round trip.
+The same pair of fields appears on `SDKSystemMessage` and on the `SDKControlInitializeResponse`, so you can read the fast mode state before the first turn. The `origin` field forwards the `SDKMessageOrigin` of the user message that triggered this result. When the SDK injects a synthetic follow-up turn, such as for a finished background task, the resulting `SDKResultMessage` carries `origin: { kind: "task-notification" }`. Routines whose trigger fired and server-verified messages from your other sessions arrive with this kind too, each with the `subkind` described in Task-notification subkinds. Check `kind` to distinguish results that answer your prompt from injected follow-ups before routing or suppressing them. If your application declares scheduled runs, their results carry `kind: "task-notification"` too, so don’t suppress on `kind` alone. When several background-task completions are queued together, Claude Code can answer them in one turn rather than one turn each. Each completion still produces its own result with this origin. All but the last of the completions Claude Code answers together produce empty results with `num_turns: 0`, in order, and the last one’s result carries the turn that answers them all. The field is absent for results emitted before any user turn, such as startup errors. When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](</docs/en/hooks#defer-a-tool-call-for-later>) for the full round trip.
 
 ####
 
@@ -1899,6 +1922,7 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
       | {
           kind: "task-notification";
           subkind?: "scheduled-trigger" | "peer-send-message";
+          fireReason?: string;
         }
       | { kind: "coordinator" }
       | { kind: "auto-continuation" }
@@ -1909,7 +1933,7 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
 `human`| Direct input from the end user. If your application forwards what the user typed as a user message, set its `origin` to `{ kind: "human" }` explicitly: Claude Code treats a user message with no `origin` as unattributed, and checks that require a human-typed prompt, such as the [`ultracode` workflow keyword](</docs/en/workflows#ask-for-a-workflow-in-your-prompt>), don’t accept it. Before v2.1.210, Claude Code treated an absent `origin` on a user message as human input.
 `channel`| Message arriving on a [channel](</docs/en/channels>). `server` is the source MCP server name.
 `peer`| Message from another agent: an in-process [teammate](</docs/en/agent-teams>) or a [cross-session peer](</docs/en/cross-session-messaging>), another of your Claude Code sessions. See Peer origin fields for the per-field semantics and the trust model.
-`task-notification`| Synthetic turn injected for a delivery that arrives without a fresh user prompt, such as a finished background task; see `SDKTaskNotificationMessage` for that arm. The optional `subkind` marks what raised the notification. See Task-notification subkinds.
+`task-notification`| Synthetic turn injected for a delivery that arrives without a fresh user prompt, such as a finished background task; see `SDKTaskNotificationMessage` for that arm. A prompt your application declares as a scheduled run carries this kind too. The optional `subkind` marks what raised the notification. See Task-notification subkinds.
 `coordinator`| Message from a team coordinator in an [agent team](</docs/en/agent-teams>).
 `auto-continuation`| Synthetic turn injected when the session continues without fresh user input, such as a command result that triggers a follow-up prompt.
 `unclassified`| Injected turn whose origin couldn’t be determined. Requires Claude Code v2.1.223 or later. When Claude Code receives an `SDKUserMessage` with `isSynthetic: true` and can’t classify it as any other `kind`, it sets this kind as the message arrives and frames the turn to the model as a non-user source rather than treating it as human input. Your application shouldn’t set this value.
@@ -1920,12 +1944,20 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
 
 Task-notification subkinds
 
-When Claude Code delivers a task notification into a session, it sets `subkind` on the notification’s `origin` only if Anthropic servers verified where that notification came from. `subkind` requires Claude Code v2.1.213 or later, and it takes one of two values:
+When Claude Code delivers a task notification into a session, it sets `subkind` on the notification’s `origin` if Anthropic servers verified where that notification came from. It also sets `subkind` when your application declares the message as a scheduled run itself, which requires TypeScript Agent SDK v0.3.280 or later. `subkind` requires Claude Code v2.1.213 or later, and it takes one of two values:
 
-  * `scheduled-trigger`: the notification is a [routine](</docs/en/routines>)’s stored prompt, delivered because one of the routine’s triggers fired: its schedule, its [API trigger](</docs/en/routines#add-an-api-trigger>), its [GitHub trigger](</docs/en/routines#add-a-github-trigger>), or **Run now**. Claude Code frames these to the model as the session’s assigned task, with a different notice from the notice that other task notifications carry.
+  * `scheduled-trigger`: the notification is a [routine](</docs/en/routines>)’s stored prompt, delivered because one of the routine’s triggers fired: its schedule, its [API trigger](</docs/en/routines#add-an-api-trigger>), its [GitHub trigger](</docs/en/routines#add-a-github-trigger>), or **Run now**. A prompt your application declares as a scheduled run carries this value too. Claude Code frames these to the model as the session’s assigned task, with a different notice from the notice that other task notifications carry.
   * `peer-send-message`: the notification is a message that another of your sessions sent with the server-side `send_message` tool that [cloud sessions](</docs/en/claude-code-on-the-web>) use to message each other, not the [cross-session `SendMessage` tool](</docs/en/cross-session-messaging>), and Anthropic servers verified that both sessions belong to the same private group of sessions. Requires Claude Code v2.1.224 or later. A `send_message` delivery the servers didn’t verify that way gets no subkind.
 
-Every other task notification has no `subkind`. That includes [scheduled tasks](</docs/en/scheduled-tasks>) that fire on your own machine, [PR activity](</docs/en/claude-code-on-the-web#how-claude-responds-to-pr-activity>) delivered into a session, and background events such as a finished task. Messages from the [cross-session `SendMessage` tool](</docs/en/cross-session-messaging>) aren’t task notifications at all: whether they come from a session on the same machine or through Anthropic servers from another machine, Claude Code gives them `kind: "peer"` and the peer origin fields.
+Every other task notification has no `subkind`. That includes [PR activity](</docs/en/claude-code-on-the-web#how-claude-responds-to-pr-activity>) delivered into a session and background events such as a finished task. Messages from the [cross-session `SendMessage` tool](</docs/en/cross-session-messaging>) aren’t task notifications at all: whether they come from a session on the same machine or through Anthropic servers from another machine, Claude Code gives them `kind: "peer"` and the peer origin fields. `fireReason` says why a `scheduled-trigger` notification fired, as a short lowercase token such as `scheduled`, `manual`, `retry`, `catch_up`, or `api`. Anthropic servers set it on a [routine](</docs/en/routines>)’s deliveries, and your application sets it when it declares a scheduled run. It’s absent when neither sent one. Requires TypeScript Agent SDK v0.3.280 or later.
+
+####
+
+​
+
+Declare a scheduled run
+
+If your application runs prompts on its own schedule, declare each run so Claude Code frames the turn to the model as a scheduled task rather than as live input from the user. Start the session with `CLAUDE_CODE_HOST_SCHEDULED_RUN` set to `1` in `env`, then send the run’s `SDKUserMessage` with `origin: { kind: "task-notification", subkind: "scheduled-trigger", fireReason: "scheduled" }` and without `isSynthetic`. Claude Code ignores the declaration in a process started without that variable. It also ignores it in a process whose environment carries [`CLAUDECODE`](</docs/en/env-vars>) or `CLAUDE_CODE_CHILD_SESSION`. Claude Code keeps `fireReason` only when the value is 1 to 32 lowercase letters or underscores. Requires TypeScript Agent SDK v0.3.280 or later.
 
 ###
 
@@ -4742,7 +4774,7 @@ Available beta features that can be enabled via the `betas` option. See [Beta he
 
     type SdkBeta = "context-1m-2025-08-07";
 
-The `context-1m-2025-08-07` beta is retired as of April 30, 2026. Passing this value with Claude Sonnet 4.5 or Sonnet 4 has no effect, and requests that exceed the standard 200k-token context window return an error. To use a 1M-token context window, migrate to [Claude Opus 5, Claude Sonnet 5, Claude Sonnet 4.6, Claude Opus 4.6, Claude Opus 4.7, or Claude Opus 4.8](<https://platform.claude.com/docs/en/about-claude/models/overview>), which include 1M context at standard pricing with no beta header required.
+The `context-1m-2025-08-07` beta is retired as of April 30, 2026. Passing this value with Claude Sonnet 4.5 or Sonnet 4 has no effect, and requests that exceed the standard 200k-token context window return an error. To use a 1M-token context window, migrate to [Claude Opus 5.5, Claude Opus 5, Claude Sonnet 5, Claude Sonnet 4.6, Claude Opus 4.6, Claude Opus 4.7, or Claude Opus 4.8](<https://platform.claude.com/docs/en/about-claude/models/overview>), which include 1M context at standard pricing with no beta header required.
 
 ###
 
@@ -4810,7 +4842,7 @@ Information about an available subagent that can be invoked via the Agent tool.
 
 Field| Type| Description
 ---|---|---
-`name`| `string`| Agent type identifier (e.g., `"Explore"`, `"general-purpose"`)
+`name`| `string`| Agent type identifier (for example, `"Explore"`, `"general-purpose"`)
 `description`| `string`| Description of when to use this agent
 `model`| `string | undefined`| Model this agent uses: an alias or model ID, or `'inherit'` for the parent’s model. When it’s `undefined`, Claude Code picks the model in the [subagent model order](</docs/en/sub-agents#choose-a-model>)
 
@@ -4867,10 +4899,11 @@ Status of a connected MCP server.
           destructive?: boolean;
           openWorld?: boolean;
         };
+        _meta?: Record<string, unknown>;
       }[];
     };
 
-`source` says where the server’s definition came from, with the same values and trust rule as `McpServerProvenance`’s `source`. The field requires Agent SDK v0.3.274 or later and is absent on earlier versions.
+`source` says where the server’s definition came from, with the same values and trust rule as `McpServerProvenance`’s `source`. The field requires Agent SDK v0.3.274 or later and is absent on earlier versions. `_meta` on a `tools` entry carries the MCP Apps members of that tool’s `_meta`, so your application can find the `ui://` resource to render with `readMcpResource()`. Claude Code passes through the `ui` object and the deprecated flat `ui/resourceUri` string, and withholds every other key. Inside `ui`, `resourceUri` is a `ui://` string and `visibility` an array of `"model"` and `"app"` when the server sets them, and any other member passes through unchanged. Claude Code drops either key when the value is malformed, and omits `_meta` from a tool that declares neither. The field is present only when the init message’s `capabilities` include `mcp_tool_ui_meta_v1`, and requires TypeScript Agent SDK v0.3.280 or later.
 
 ###
 
@@ -5142,7 +5175,7 @@ Result of a `rewindFiles()` operation.
 
 `SDKStatusMessage`
 
-Status update message (e.g., compacting).
+Status update message (for example, compacting).
 
     type SDKStatusMessage = {
       type: "system";
@@ -5647,8 +5680,8 @@ Property| Type| Default| Description
 `deniedDomains`| `string[]`| `[]`| Domain names that sandboxed processes cannot access. Takes precedence over `allowedDomains`
 `strictAllowlist`| `boolean`| `false`| Deny sandboxed commands access to hosts outside the [network allowlist](</docs/en/sandboxing#network-isolation>) instead of prompting. Enforced for sandboxed commands only; in-process tools such as WebFetch aren’t gated by it. Only honored from user, managed, or CLI `--settings` settings; project settings are ignored. Requires Claude Code v2.1.219 or later
 `allowManagedDomainsOnly`| `boolean`| `false`| Managed-settings only. When set in [managed settings](</docs/en/managed-settings>), only `allowedDomains` entries and `WebFetch(domain:...)` allow rules from managed settings are honored, and allow entries from user, project, or local settings are ignored. Has no effect when set via SDK options
-`allowLocalBinding`| `boolean`| `false`| Allow processes to bind to local ports (e.g., for dev servers)
-`allowUnixSockets`| `string[]`| `[]`| Unix socket paths that processes can access (e.g., Docker socket)
+`allowLocalBinding`| `boolean`| `false`| Allow processes to bind to local ports (for example, for dev servers)
+`allowUnixSockets`| `string[]`| `[]`| Unix socket paths that processes can access (for example, Docker socket)
 `allowAllUnixSockets`| `boolean`| `false`| Allow access to all Unix sockets
 `httpProxyPort`| `number`| `undefined`| HTTP proxy port for network requests
 `socksProxyPort`| `number`| `undefined`| SOCKS proxy port for network requests

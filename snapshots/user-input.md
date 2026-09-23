@@ -46,7 +46,7 @@ Once you’ve passed a `canUseTool` callback in your query options, it fires whe
 
 Argument| Description
 ---|---
-`toolName`| The name of the tool Claude wants to use (e.g., `"Bash"`, `"Write"`, `"Edit"`)
+`toolName`| The name of the tool Claude wants to use (for example, `"Bash"`, `"Write"`, `"Edit"`)
 `input`| The parameters Claude is passing to the tool. Contents vary by tool.
 `options` (TS) / `context` (Python)| Additional context including optional `suggestions` (proposed `PermissionUpdate` entries to avoid re-prompting) and a cancellation signal. In TypeScript, `signal` is an `AbortSignal`; in Python, the signal field is reserved for future use. See [`ToolPermissionContext`](</docs/en/agent-sdk/python#toolpermissioncontext>) for Python.
 
@@ -189,7 +189,7 @@ Response| Python| TypeScript
 When allowing, the tool runs with the input Claude requested unless you return a modified input, `updatedInput` in TypeScript or `updated_input` in Python. Before v2.1.207, Claude Code rejected an allow result that omitted `updatedInput` and denied the tool call with a validation error. When denying, provide a message explaining why. Claude sees this message and may adjust its approach. Beyond allowing or denying, you can modify the tool’s input or provide context that helps Claude adjust its approach:
 
   * **Approve** : let the tool execute as Claude requested
-  * **Approve with changes** : modify the input before execution (e.g., sanitize paths, add constraints)
+  * **Approve with changes** : modify the input before execution (for example, sanitize paths, add constraints)
   * **Approve and remember** : echo a suggested permission rule back so matching calls skip the prompt next time
   * **Reject** : block the tool and tell Claude why
   * **Suggest alternative** : block but guide Claude toward what the user wants instead
@@ -469,8 +469,8 @@ Build the `answers` object as a record where each key is the `question` text and
 
 From the question object| Use as
 ---|---
-`question` field (e.g., `"How should I format the output?"`)| Key
-Selected option’s `label` field (e.g., `"Summary"`)| Value
+`question` field (for example, `"How should I format the output?"`)| Key
+Selected option’s `label` field (for example, `"Summary"`)| Value
 
 For multi-select questions, pass an array of labels or join them with `", "`. If you support free-text input, use the user’s custom text as the value.
 
@@ -620,7 +620,7 @@ Claude asks clarifying questions when it needs user input to proceed. For exampl
 
   1. **Route the request** : The `canUseTool` callback checks if the tool name is `"AskUserQuestion"` and routes to a dedicated handler
   2. **Display questions** : The handler loops through the `questions` array and prints each question with numbered options
-  3. **Collect input** : The user can enter a number to select an option, or type free text directly (e.g., “jquery”, “i don’t know”)
+  3. **Collect input** : The user can enter a number to select an option, or type free text directly (for example, “jquery”, “i don’t know”)
   4. **Map answers** : The code checks if input is numeric (uses the option’s label) or free text (uses the text directly)
   5. **Return to Claude** : The response includes both the original `questions` array and the `answers` mapping
 

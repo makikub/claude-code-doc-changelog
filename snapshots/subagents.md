@@ -710,7 +710,7 @@ Claude not delegating to subagents
 
 If Claude completes tasks directly instead of delegating to your subagent:
 
-  * **Use explicit prompting** : mention the subagent by name in your prompt, for example “Use the code-reviewer agent to…”
+  * **Use explicit prompting** : mention the subagent by name in your prompt, for example “Use the code-reviewer agent to check the authentication module”
   * **Write a clear description** : explain exactly when to use the subagent so Claude can match tasks appropriately
 
 ###

@@ -181,7 +181,7 @@ If a value from any of these sources isn’t shaped like a region name, Claude C
 
 Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to Claude Code’s built-in default for Amazon Bedrock, which can lag the newest release and may not yet be available in your account. Claude Code falls back to an earlier or lower-tier model at startup when the default is unavailable, but pinning lets you control when your users move to a new model.
 
-Set these environment variables to specific Amazon Bedrock model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Amazon Bedrock resolves to Opus 5, and without `ANTHROPIC_DEFAULT_SONNET_MODEL`, the `sonnet` alias resolves to Sonnet 4.5. This example pins each alias to a specific version:
+Set these environment variables to specific Amazon Bedrock model IDs. Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Amazon Bedrock resolves to Opus 5.5, and without `ANTHROPIC_DEFAULT_SONNET_MODEL`, the `sonnet` alias resolves to Sonnet 4.5. This example pins each alias to a specific version:
 
     export ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'
     export ANTHROPIC_DEFAULT_SONNET_MODEL='us.anthropic.claude-sonnet-4-6'
@@ -192,13 +192,13 @@ These IDs use the `us.` cross-region inference profile prefix. If you use a diff
 You set| The `opus` alias resolves to
 ---|---
 `ANTHROPIC_DEFAULT_OPUS_MODEL='us.anthropic.claude-opus-4-8'`| `us.anthropic.claude-opus-4-8`, the exact ID you pinned
-`ANTHROPIC_BEDROCK_REGION_PREFIX=eu`| `eu.anthropic.claude-opus-5`, the built-in default with your preferred prefix
+`ANTHROPIC_BEDROCK_REGION_PREFIX=eu`| `eu.anthropic.claude-opus-5-5`, the built-in default with your preferred prefix
 
 For current and legacy model IDs, see [Models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>). For the full list of pinning environment variables, see [Model configuration](</docs/en/model-config#pin-models-for-third-party-deployments>). Claude Code uses these default models when no pinning variables are set:
 
 Model type| Default model
 ---|---
-Primary model| Opus 5, for example `us.anthropic.claude-opus-5` in a `us-*` region
+Primary model| Opus 5.5, for example `us.anthropic.claude-opus-5-5` in a `us-*` region
 Small/fast model| Sonnet 4.5, for example `us.anthropic.claude-sonnet-4-5-20250929-v1:0` in a `us-*` region
 
 Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Amazon Bedrock, Claude Code uses the default Sonnet model for background tasks because Haiku may not be enabled in every account or region. Two selections change which model carries them:
@@ -208,7 +208,7 @@ Background tasks such as session title generation use the small/fast model, norm
 
 Opus models have a higher per-token price than Sonnet models, so a deployment that doesn’t pin a primary model is billed at the Opus rate once it updates to v2.1.207 or later. To keep Sonnet 4.5 as the primary model, set `ANTHROPIC_MODEL` to its full model ID. A deployment that steers the default with `ANTHROPIC_DEFAULT_SONNET_MODEL` and doesn’t set `ANTHROPIC_DEFAULT_OPUS_MODEL` keeps its steered Sonnet model as the default.
 
-On v2.1.207 through v2.1.218, the primary model on Amazon Bedrock defaulted to Opus 4.8 and the `opus` alias resolved to Opus 4.8. Before v2.1.207, the primary model defaulted to Sonnet 4.5, the `opus` alias resolved to Opus 4.6, and background tasks always used the primary model. To customize models further, use one of these methods:
+Before v2.1.280, the primary model on Amazon Bedrock defaulted to Opus 5 and the `opus` alias resolved to Opus 5 from v2.1.219. On v2.1.207 through v2.1.218, the primary model on Amazon Bedrock defaulted to Opus 4.8 and the `opus` alias resolved to Opus 4.8. Before v2.1.207, the primary model defaulted to Sonnet 4.5, the `opus` alias resolved to Opus 4.6, and background tasks always used the primary model. To customize models further, use one of these methods:
 
     # Using inference profile ID
     export ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6'
@@ -274,7 +274,7 @@ Set `ANTHROPIC_BEDROCK_REGION_PREFIX` to choose the prefix Claude Code tries fir
 
     export ANTHROPIC_BEDROCK_REGION_PREFIX=global
     # In a us-* region, the primary model now resolves to
-    # global.anthropic.claude-opus-5 instead of us.anthropic.claude-opus-5
+    # global.anthropic.claude-opus-5-5 instead of us.anthropic.claude-opus-5-5
 
 The preferred prefix is a preference, not a guarantee, whether it comes from your region or from the variable. How Claude Code applies it depends on whether it can check profile availability in your account:
 
