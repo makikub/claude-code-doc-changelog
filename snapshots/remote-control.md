@@ -207,9 +207,9 @@ Your local Claude Code session makes outbound HTTPS requests only and never open
 
 Trusted Devices
 
-Trusted Devices is currently in beta. Features and functionality may evolve as the experience is refined.Trusted Devices is available on Team and Enterprise plans. It is off by default until an Owner enables it.
+Trusted Devices is currently in beta. Features and functionality may evolve as the experience is refined.Trusted Devices is available on Pro, Max, Team, and Enterprise plans and is off by default. On Team and Enterprise plans, an Owner turns it on for the organization. On Pro and Max plans, you turn on **Require trusted devices** yourself in your settings, on the Cowork or Account page.
 
-Trusted Devices is an organization-wide setting that requires members to verify their device before they can view or steer Remote Control sessions from claude.ai, the Claude mobile apps, or Claude Desktop. It ties Remote Control access to a known device and a recent authentication, not just a signed-in account. When the setting is on, interacting with a Remote Control session requires both of the following:
+Trusted Devices requires each member of your organization, or you alone on a Pro or Max plan, to verify their device before they can view or steer Remote Control sessions from claude.ai, the Claude mobile apps, or Claude Desktop. It ties Remote Control access to a known device and a recent authentication, not just a signed-in account. When the setting is on, interacting with a Remote Control session requires both of the following:
 
   * **An enrolled device** : each browser, phone, or desktop app a member uses for Remote Control enrolls its own credential. Enrollment is only offered shortly after a full sign-in, so a device joins the trusted list as part of a real authentication rather than silently in the background.
   * **A recent sign-in** : the member’s sign-in must be no more than 18 hours old. Instead of signing in again each day, members confirm presence with Face ID, Touch ID, Windows Hello, or a passkey. This biometric step-up refreshes the session immediately.
@@ -220,15 +220,15 @@ Biometric checks run on the device through the operating system or browser, the 
 
 ​
 
-Enable Trusted Devices for your organization
+Enable Trusted Devices for a Team or Enterprise organization
 
-An Owner enables the setting from the Claude Code admin console.
+An Owner enables the setting from the claude.ai organization settings.
 
 1
 
-Open Claude Code admin settings
+Go to the Capabilities page
 
-Go to [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>). The **Require trusted devices** toggle appears under the Remote Control setting.
+Go to [**Organization settings > Capabilities > Remote sessions**](<https://claude.ai/admin-settings/capabilities>). The **Require trusted devices** toggle appears in that section.
 
 2
 

@@ -914,14 +914,14 @@ Property| Type| Default| Description
 `cli_path`| `str | Path | None`| `None`| Custom path to the Claude Code CLI executable
 `settings`| `str | None`| `None`| Path to a settings file or an inline JSON string
 `add_dirs`| `list[str | Path]`| `[]`| Additional directories Claude can access. The SDK passes each entry to Claude Code as `--add-dir`, so with the `project` setting source Claude Code also [loads the directory’s skills, commands, and subagents](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>)
-`env`| `dict[str, str]`| `{}`| Environment variables merged on top of the inherited process environment. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads, and Handle slow or stalled API responses for timeout-related variables
+`env`| `dict[str, str]`| `{}`| Environment variables merged on top of the inherited process environment. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads, and Handle slow or stalled API responses for timeout-related variables. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header
 `extra_args`| `dict[str, str | None]`| `{}`| Additional CLI arguments to pass directly to the CLI
 `max_buffer_size`| `int | None`| `None`| Maximum bytes when buffering CLI stdout
-`debug_stderr`| `Any`| `sys.stderr`|  _Deprecated_ \- File-like object for debug output. Use `stderr` callback instead
+`debug_stderr`| `Any`| `sys.stderr`|  _Deprecated_ \- The SDK ignores this value. Use the `stderr` callback for CLI stderr output
 `stderr`| `Callable[[str], None] | None`| `None`| Callback function for stderr output from CLI
 `can_use_tool`| `CanUseTool` ` | None`| `None`| Tool permission callback, invoked only when the [permission flow](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) falls through to a prompt. Not invoked for calls auto-approved by `allowed_tools`, allow rules, or `permission_mode`. An allow rule doesn’t pre-approve the [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>). See `CanUseTool` for details
 `hooks`| `dict[HookEvent, list[HookMatcher]] | None`| `None`| Hook configurations for intercepting events
-`user`| `str | None`| `None`| User identifier
+`user`| `str | None`| `None`| On POSIX platforms, the OS user account the Claude Code subprocess runs as. Claude Code keeps the parent process’s environment, including `HOME`, and runs in `cwd`
 `include_partial_messages`| `bool`| `False`| Include partial message streaming events. When enabled, `StreamEvent` messages are yielded
 `include_hook_events`| `bool`| `False`| Include hook lifecycle events in the message stream as `HookEventMessage` objects
 `forward_subagent_text`| `bool`| `False`| Forward subagent text and thinking blocks in the message stream. Without this option, Claude Code emits subagent `tool_use` and `tool_result` blocks but not text or thinking. Requires Python Agent SDK 0.2.140 or later
@@ -1846,7 +1846,7 @@ Rate limit state carried by `RateLimitEvent`.
 
 Field| Type| Description
 ---|---|---
-`status`| `RateLimitStatus`| Current status. `"allowed_warning"` means approaching the limit; `"rejected"` means the limit was hit
+`status`| `RateLimitStatus`| Current status, one of `"allowed"`, `"allowed_warning"`, or `"rejected"`. `"allowed_warning"` means approaching the limit; `"rejected"` means the limit was hit
 `resets_at`| `int | None`| Unix timestamp when the rate limit window resets
 `rate_limit_type`| `RateLimitType | None`| Which rate limit window applies
 `utilization`| `float | None`| Fraction of the rate limit consumed (0.0 to 1.0)

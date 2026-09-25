@@ -21,7 +21,7 @@ File| Location| Purpose
 `managed-settings.json`| System-level, varies by OS| Enterprise-enforced settings that you can’t override, apart from [narrow exceptions](</docs/en/settings#security-keys-where-the-stricter-value-applies>). See [where to save the file](</docs/en/managed-settings#deploy-a-managed-settings-file>) and [which managed source Claude Code uses](</docs/en/managed-settings#precedence-within-the-managed-tier>).
 `CLAUDE.local.md`| Project root| Your private preferences for this project, loaded alongside CLAUDE.md. Create it manually and add it to `.gitignore`.
 `AGENTS.md`| Project root, `.claude/`, or any directory| Project instructions you write for AI coding agents. Claude Code can [load it](</docs/en/memory#agents-md>) on its own or alongside `CLAUDE.md`.
-Installed plugins| `~/.claude/plugins`| Cloned marketplaces, installed plugin versions, the `installed_plugins.json` install record, and per-plugin data, managed by `claude plugin` commands. Plugins [synced from your claude.ai account](</docs/en/plugins-reference#synced-plugins>) download into `~/.claude/plugins/synced/`. For a plugin installed from a marketplace [`command` source](</docs/en/plugin-marketplaces#command-sources>) in link mode, Claude Code stores links here instead of a copy, and the plugin’s files stay in the directory the command prints. A `command` source requires Claude Code v2.1.229 or later. A plugin listed by relative path in a local-directory marketplace also [loads in place](</docs/en/plugins-reference#plugin-caching-and-file-resolution>) from its source directory rather than from a cache copy. See [plugin caching](</docs/en/plugins-reference#plugin-caching-and-file-resolution>) for how orphaned versions are cleaned up.
+Installed plugins| `~/.claude/plugins`| Cloned marketplaces, installed plugin versions, the `installed_plugins.json` install record, and per-plugin data, managed by `claude plugin` commands. Plugins [synced from your claude.ai account](</docs/en/plugins/loading#synced-plugins>) download into `~/.claude/plugins/synced/`. For a plugin installed from a marketplace [`command` source](</docs/en/plugins/marketplace-reference#command-plugin-source>) in link mode, Claude Code stores links here instead of a copy, and the plugin’s files stay in the directory the command prints. A `command` source requires Claude Code v2.1.229 or later. A plugin listed by relative path in a local-directory marketplace also [loads in place](</docs/en/plugins/loading#find-plugins-on-disk>) from its source directory rather than from a cache copy. See [plugin caching](</docs/en/plugins/loading#find-plugins-on-disk>) for how orphaned versions are cleaned up.
 
 `~/.claude` also holds data Claude Code writes as you work: transcripts, prompt history, file snapshots, caches, and logs. See application data below.
 
@@ -99,7 +99,7 @@ File| Frontmatter fields| Reference
 `output-styles/*.md`| `name`, `description`, `keep-coding-instructions`, `force-for-plugin`| [Output style frontmatter](</docs/en/output-styles#frontmatter>)
 `rules/*.md`| `paths`| [Rule frontmatter](</docs/en/memory#rules-frontmatter-reference>)
 
-Agents shipped in a [plugin](</docs/en/plugins-reference#plugin-agent-frontmatter>) honor a subset of the subagent fields.
+Agents shipped in a [plugin](</docs/en/plugins/components#agents>) honor a subset of the subagent fields.
 
 ##
 
@@ -144,7 +144,7 @@ Path under `~/.claude/`| Contents
 `feedback-bundles/`| Redacted transcript archives written by `/feedback` on third-party providers or when no Anthropic credentials are configured, for sending to your Anthropic account team
 `feedback/drafts/`| Queued [Claude-drafted feedback](</docs/en/tools-reference#sendfeedback-tool-behavior>) awaiting your review in `/feedback`. Swept after `cleanupPeriodDays` or 30 days, whichever is shorter. When the queue is at its 10-draft limit, Claude Code deletes the oldest draft to make room.
 `usage-data/`| `report.html` and timestamped report copies written by [`/insights`](</docs/en/costs#analyze-your-usage-patterns>), plus cached per-session analysis data used to build them
-`skills/.trash/`, `plugins/.trash/`| [Skills](</docs/en/skills#how-synced-skills-behave>) and [plugins](</docs/en/plugins-reference#synced-plugins>) that the claude.ai sync removed, such as after you turn one off on claude.ai or stop syncing. The files stay here so you can recover them until the sweep deletes them
+`skills/.trash/`, `plugins/.trash/`| [Skills](</docs/en/skills#how-synced-skills-behave>) and [plugins](</docs/en/plugins/loading#synced-plugins>) that the claude.ai sync removed, such as after you turn one off on claude.ai or stop syncing. The files stay here so you can recover them until the sweep deletes them
 `todos/`, `statsig/`, `logs/`| Legacy directories from older versions. No longer written. The sweep removes their contents and then the empty directory.
 
 Session files in `sessions/`, auto memory, and Claude Desktop and Cowork transcripts each follow their own retention rule:
@@ -250,7 +250,7 @@ Delete| You lose
 `~/.claude/cache/changelog.md`| Nothing. Refreshed in the background.
 `~/.claude/policy-limits.json`| Nothing. Refreshed automatically.
 `~/.claude/tasks/`| Task lists that a resumed session would pick up
-`~/.claude/skills/.trash/`, `~/.claude/plugins/.trash/`| The chance to recover [synced skills](</docs/en/skills#how-synced-skills-behave>) and [synced plugins](</docs/en/plugins-reference#synced-plugins>) that Claude Code removed
+`~/.claude/skills/.trash/`, `~/.claude/plugins/.trash/`| The chance to recover [synced skills](</docs/en/skills#how-synced-skills-behave>) and [synced plugins](</docs/en/plugins/loading#synced-plugins>) that Claude Code removed
 `~/.claude/debug/`, `~/.claude/plans/`, `~/.claude/session-env/`, `~/.claude/shell-snapshots/`, `~/.claude/backups/`| Nothing user-facing
 `~/.claude/todos/`, `~/.claude/statsig/`, `~/.claude/logs/`, `~/.claude/image-cache/`| Nothing. Legacy directories not written by current versions.
 

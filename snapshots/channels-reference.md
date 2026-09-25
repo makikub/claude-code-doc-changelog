@@ -159,7 +159,7 @@ During the research preview, every channel must be on the [approved allowlist](<
     # Testing a bare .mcp.json server (no plugin wrapper yet)
     claude --dangerously-load-development-channels server:webhook
 
-The bypass is per-entry. Combining this flag with `--channels` doesn’t extend the bypass to the `--channels` entries. During the research preview, the approved allowlist is Anthropic-curated, so your channel stays on the development flag while you build and test.
+The bypass is per-entry. Combining this flag with `--channels` doesn’t extend the bypass to the `--channels` entries. During the research preview, your channel isn’t on the approved allowlist, so it stays on the development flag while you build and test.
 
 This flag skips the allowlist only. The `channelsEnabled` organization policy still applies. Don’t use it to run channels from untrusted sources.
 
@@ -740,7 +740,7 @@ The local dialog closes, the `reply` tool runs, and Claude’s reply appears in 
 
 Package as a plugin
 
-To make your channel installable and shareable, wrap it in a [plugin](</docs/en/plugins>) and publish it to a [marketplace](</docs/en/plugin-marketplaces>). Users install it with `/plugin install`, then enable it per session with `--channels plugin:<name>@<marketplace>`. A channel published to your own marketplace still needs `--dangerously-load-development-channels` to run, since it isn’t on the [approved allowlist](</docs/en/channels#supported-channels>). The default allowlist is the channel plugins in `claude-plugins-official`, which Anthropic curates at its discretion. The [in-app submission forms](</docs/en/plugins#submit-your-plugin-to-the-community-marketplace>) add plugins to the community marketplace, which is not on the channel allowlist. If you are working with an Anthropic partner contact, reach out to them to coordinate an official-marketplace listing. On Team and Enterprise plans, an admin can instead include your plugin in the organization’s own [`allowedChannelPlugins`](</docs/en/channels#restrict-which-channel-plugins-can-run>) list, which replaces the default Anthropic allowlist.
+To make your channel installable and shareable, wrap it in a [plugin](</docs/en/plugins/overview>) and publish it to a [marketplace](</docs/en/plugins/overview>). Users install it with `/plugin install`, then enable it per session with `--channels plugin:<name>@<marketplace>`. A channel published to your own marketplace still needs `--dangerously-load-development-channels` to run, since it isn’t on the [approved allowlist](</docs/en/channels#supported-channels>). The default allowlist is the channel plugins in `claude-plugins-official`. The [in-app submission forms](</docs/en/plugins/publish#submit-to-the-community-marketplace>) add plugins to the community marketplace, which is not on the channel allowlist. If you are working with an Anthropic partner contact, reach out to them to coordinate an official-marketplace listing. On Team and Enterprise plans, an admin can instead include your plugin in the organization’s own [`allowedChannelPlugins`](</docs/en/channels#restrict-which-channel-plugins-can-run>) list, which replaces the default Anthropic allowlist.
 
 ##
 
@@ -751,4 +751,4 @@ See also
   * [Channels](</docs/en/channels>) to install and use Telegram, Discord, iMessage, or the fakechat demo, and to enable channels for a Team or Enterprise org
   * [Working channel implementations](<https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins>) for complete server code with pairing flows, reply tools, and file attachments
   * [MCP](</docs/en/mcp>) for the underlying protocol that channel servers implement
-  * [Plugins](</docs/en/plugins>) to package your channel so users can install it with `/plugin install`
+  * [Plugins](</docs/en/plugins/overview>) to package your channel so users can install it with `/plugin install`

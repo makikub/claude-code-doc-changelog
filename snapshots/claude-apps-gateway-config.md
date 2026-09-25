@@ -23,6 +23,7 @@ Five sections are required. Every other section is optional, and an omitted sect
   * `managed`: managed settings policies by IdP group
   * `telemetry`: OTLP forwarding to your observability stack
   * `access_control`, `limits`, `timeouts`, `rate_limits`: IP allow/deny, request size caps, upstream time-to-first-byte, and per-IP sign-in limits
+  * `load_test_mode`: load test the gateway without calling a model provider
 
 ##
 
@@ -863,6 +864,29 @@ If you leave both `access_control` lists empty, which is the default, the gatewa
 
 Both signals use the client address as the gateway resolves it. If a load balancer, port-forward, or tunnel relays traffic and isn’t listed in `listen.trusted_proxies`, the gateway sees the relay’s address, which is usually private, so neither the runtime warning nor a private allow list catches traffic relayed through it. Behind such a front end, set `listen.trusted_proxies` first so the gateway sees real client addresses, and keep the gateway and everything in front of it unreachable from the public internet regardless.
 
+###
+
+​
+
+`load_test_mode`
+
+The `load_test_mode` block lets you load test a gateway without calling a model provider. While it’s on, the gateway builds and signs each provider request as usual, discards it instead of sending it, and streams a canned reply back through its normal response path. The reply is filler text that begins with a sentence saying it is canned. Requires v2.1.283 or later. Earlier versions refuse to start when the key is set, so upgrade every replica before you add the block and remove it before you roll back. The example below turns the mode on with the defaults, a reply of 750 output tokens streamed over about 10 seconds:
+
+    load_test_mode:
+      enabled: true
+      reply_tokens: 750     # roughly how many tokens of text each canned reply carries
+      reply_seconds: 9.5    # how long a streamed reply takes
+
+Field| Required| Description
+---|---|---
+`enabled`| Yes| `true` turns the mode on. `false` keeps your numbers in the file with the mode off. The gateway refuses to start if the block is present without it.
+`reply_tokens`| No| Default `750`. Roughly how many tokens of text each canned reply carries, a whole number from 1 to 100000.
+`reply_seconds`| No| Default `9.5`. How long a streamed reply takes, from 0 to 600. `0` sends the whole reply at once. A reply to a non-streaming request always comes back at once.
+
+A load test in this mode covers the gateway, your Postgres, and everything in front of the gateway. It doesn’t cover the provider’s limits, speed, or network path. While the mode is on, a request can carry an `x-load-test-user` header holding a whole number of up to seven digits, and the gateway counts each number as a separate developer with the email and groups of the developer whose token came with the request. Give the load-test deployment its own empty database, because the gateway refuses to start with the mode on against a database in which any developer has already spent anything.
+
+Never turn this on for a gateway that developers use. Every request gets the canned reply and no model is called. The gateway logs a `load_test_mode is on` warning at boot and marks each `inference` [audit event](</docs/en/claude-apps-gateway-deploy#logs>) with `load_test: true` while the mode is on.
+
 ##
 
 ​
@@ -936,6 +960,13 @@ gateway.yaml
 
     # enforcement:
     #   fail_closed_on_error: false
+
+    # Load test this deployment without calling a model provider. Never on a
+    # gateway that developers use: every request gets a canned reply.
+    # load_test_mode:
+    #   enabled: true
+    #   # reply_tokens: 750
+    #   # reply_seconds: 9.5
 
     # Meter at contracted rates instead of USD list price. Requires admin: or a
     # managed: policy. With managed:, the same rates also go to signed-in clients.

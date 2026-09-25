@@ -296,7 +296,7 @@ Install plugins
 
 Run `/plugin` to browse the marketplace. Plugins add skills, tools, and integrations without configuration.
 
-[Plugins](</docs/en/plugins>) bundle skills, hooks, subagents, and MCP servers into a single installable unit from the community and Anthropic. If you work with a typed language, install a [code intelligence plugin](</docs/en/discover-plugins#code-intelligence>) to give Claude precise symbol navigation and automatic error detection after edits. For guidance on choosing between skills, subagents, hooks, and MCP, see [Extend Claude Code](</docs/en/features-overview#match-features-to-your-goal>).
+[Plugins](</docs/en/plugins/overview>) bundle skills, hooks, subagents, and MCP servers into a single installable unit from the community and Anthropic. If you work with a typed language, install a [code intelligence plugin](</docs/en/plugins/code-intelligence>) to give Claude precise symbol navigation and automatic error detection after edits. For guidance on choosing between skills, subagents, hooks, and MCP, see [Extend Claude Code](</docs/en/features-overview#match-features-to-your-goal>).
 
 * * *
 
@@ -491,7 +491,7 @@ Fan out across files
 
 Loop through tasks calling `claude -p` for each. Use `--allowedTools` to scope permissions for batch operations.
 
-For large migrations or analyses, you can distribute work across many parallel Claude invocations. In a git repository, run [`/batch <instruction>`](</docs/en/commands#all-commands>) to have Claude split the change across 5 to 30 subagents. Each subagent works in its own worktree and opens a pull request. To drive the fan-out from your own script instead, loop over `claude -p`:
+For large migrations or analyses, you can distribute work across many parallel Claude invocations. Run [`/batch <instruction>`](</docs/en/commands#all-commands>) to have Claude split the change across 5 to 30 subagents. Each subagent works in its own worktree. To drive the fan-out from your own script instead, loop over `claude -p`:
 
 1
 

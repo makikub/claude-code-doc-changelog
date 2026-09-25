@@ -275,7 +275,7 @@ By default, the extension opens a graphical chat panel. If you prefer the CLI-st
 
 Manage plugins
 
-The VS Code extension includes a graphical interface for installing and managing [plugins](</docs/en/plugins>). Type `/plugins` in the prompt box to open the **Manage plugins** interface.
+The VS Code extension includes a graphical interface for installing and managing [plugins](</docs/en/plugins/overview>). Type `/plugins` in the prompt box to open the **Manage plugins** interface.
 
 ###
 
@@ -336,7 +336,7 @@ Plugin changes you make in the dialog apply right away to the Claude Code sessio
 
 Plugin management in VS Code uses the same CLI commands under the hood. Plugins and marketplaces you configure in the extension are also available in the CLI, and vice versa.
 
-For more about the plugin system, see [Plugins](</docs/en/plugins>) and [Plugin marketplaces](</docs/en/plugin-marketplaces>).
+For more about the plugin system, see [Plugins](</docs/en/plugins/overview>) and [Plugin marketplaces](</docs/en/plugins/overview>).
 
 ##
 

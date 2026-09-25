@@ -147,7 +147,7 @@ Switch to your style
 
 Run `/output-style <style>` in the terminal, or run `/config` and select your style under **Output style**. Claude uses the new style starting with your next message. In the terminal, Claude Code reads style files when it starts, so if you create or edit one during a running session, restart Claude Code to pick up the change.
 
-[Plugins](</docs/en/plugins-reference>) can also ship output styles in an `output-styles/` directory.
+[Plugins](</docs/en/plugins/manifest-reference>) can also ship output styles in an `output-styles/` directory.
 
 ###
 
@@ -204,5 +204,5 @@ Related resources
 
   * [Settings](</docs/en/settings>): where the `outputStyle` field lives and how settings precedence works
   * [Permission modes](</docs/en/permission-modes>): how the Proactive style compares to auto mode
-  * [Plugins](</docs/en/plugins>): package and distribute output styles alongside skills, hooks, and agents
+  * [Plugins](</docs/en/plugins/overview>): package and distribute output styles alongside skills, hooks, and agents
   * [Debug your configuration](</docs/en/debug-your-config>): diagnose why an output style isn’t taking effect

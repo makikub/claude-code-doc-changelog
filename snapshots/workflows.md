@@ -213,7 +213,7 @@ Before v2.1.216, Claude Code followed the link, which could place the file outsi
 
 Distribute a workflow in a plugin
 
-To share a workflow across teams or repositories, include it in a [plugin](</docs/en/plugins>). Place the script in a `workflows/` directory at the plugin root, or point to a different location with the [`workflows` manifest field](</docs/en/plugins-reference#component-path-fields>). Plugin workflows are namespaced by the plugin name. A plugin called `acme-tools` containing a script whose `meta.name` is `release-audit` runs as `/acme-tools:release-audit`.
+To share a workflow across teams or repositories, include it in a [plugin](</docs/en/plugins/overview>). Place the script in a `workflows/` directory at the plugin root, or point to a different location with the [`workflows` manifest field](</docs/en/plugins/manifest-reference#fields>). Plugin workflows are namespaced by the plugin name. A plugin called `acme-tools` containing a script whose `meta.name` is `release-audit` runs as `/acme-tools:release-audit`.
 
 ###
 

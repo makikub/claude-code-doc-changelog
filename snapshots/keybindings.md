@@ -125,7 +125,7 @@ Action| Default| Description
 `chat:thinkingToggle`| Meta+T| Toggle extended thinking
 `chat:submit`| Enter| Submit message
 `chat:queueSubmit`| Ctrl+X Enter| Submit the message, marked to wait its turn: while Claude is working, Claude Code [queues it](</docs/en/interactive-mode#queue-messages-while-claude-works>) and never interrupts the turn. Unlike `chat:submit`, it submits the draft even while an autocomplete suggestion is highlighted. Requires v2.1.247 or later
-`chat:sendNow`| Ctrl+Enter, Ctrl+X Ctrl+S| Interrupt the running turn so your [queued messages](</docs/en/interactive-mode#queue-messages-while-claude-works>), and your draft with them, go out right away. When nothing is running, it submits the draft, and in [shell mode](</docs/en/interactive-mode#shell-mode-with-prefix>) it queues the command without interrupting. Terminals that don’t report extended keys deliver `Ctrl+Enter` as plain `Enter`, so `Ctrl+X Ctrl+S` is the binding that works in any terminal. Requires v2.1.275 or later
+`chat:sendNow`| Ctrl+Enter, Ctrl+X Ctrl+S| Send your [queued messages](</docs/en/interactive-mode#queue-messages-while-claude-works>), and your draft with them, right away. [When Claude Code sends what you queued](</docs/en/interactive-mode#when-claude-code-sends-what-you-queued>) covers what happens to the turn Claude is working on. When nothing is running, the key submits the draft, and in [shell mode](</docs/en/interactive-mode#shell-mode-with-prefix>) it only queues the command. Terminals that don’t report extended keys deliver `Ctrl+Enter` as plain `Enter`, so `Ctrl+X Ctrl+S` is the binding that works in any terminal. Requires v2.1.275 or later
 `chat:newline`| Ctrl+J| Insert a newline without submitting
 `chat:undo`| Ctrl+_, Ctrl+Shift+-| Undo last action
 `chat:externalEditor`| Ctrl+G, Ctrl+X Ctrl+E| Open in external editor. The [agent view dispatch input](</docs/en/agent-view#keyboard-shortcuts>) follows this action’s single-keystroke bindings too
@@ -182,7 +182,7 @@ Action| Default| Description
       ]
     }
 
-Before v2.1.280, `y` was also bound to `confirm:yes` and `n` to `confirm:no` by default. If you created your `keybindings.json` with `/keybindings` before v2.1.280, the file lists both bindings and they stay in effect until you delete those two lines.
+With these bindings, `y` and `n` still type as letters while a text field has focus. Before v2.1.280, `y` was also bound to `confirm:yes` and `n` to `confirm:no` by default. If you created your `keybindings.json` with `/keybindings` before v2.1.280, the file lists both bindings and they stay in effect until you delete those two lines.
 
 ###
 
@@ -665,6 +665,20 @@ Shortcut| Conflict
 Ctrl+B| tmux prefix (press twice to send)
 Ctrl+A| GNU screen prefix
 Ctrl+Z| Unix process suspend (SIGTSTP)
+
+##
+
+​
+
+Text fields
+
+If you bind a bare letter, digit, or Space, you can still type that character in a text field inside a dialog or panel. One such field is the `Other` answer to a question Claude asks. While the field has focus, a printable key you press without Ctrl, Alt, or Cmd goes to the field, and Claude Code doesn’t match it against your bindings. These keys still run their bindings while the field has focus:
+
+  * Keys that don’t type a character, such as Enter, Escape, Tab, and the arrow keys
+  * Any key pressed with Ctrl, Alt, or Cmd
+  * The second keystroke of a chord already in progress
+
+At the main prompt, Claude Code matches every key against the active contexts, such as `Chat`, and types the key only when no binding takes it.
 
 ##
 
