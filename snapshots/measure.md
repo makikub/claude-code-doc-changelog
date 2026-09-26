@@ -80,6 +80,8 @@ Claude Code doesn’t report a plugin’s usage back to its author. Usage is rec
   * **They’re teammates you can ask** : each user’s own Claude Code shows them whether they still use the plugin, in four places: the `/plugin` panel, `/skill-doctor`, `/doctor`, and `/usage`. All four are commands the user runs at the Claude Code prompt in a session on their own machine.
   * **Neither** : you have no usage signal from Claude Code for that plugin.
 
+For usage of a plugin listed in Anthropic’s directory, see [Track published plugin usage](<https://claude.com/docs/connectors/building/after-publishing#track-published-plugin-usage>) on claude.com.
+
 ###
 
 ​

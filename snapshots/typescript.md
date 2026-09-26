@@ -34,6 +34,14 @@ When you compile your application into a single-file executable with `bun build 
   * To cross-compile, install the non-matching platform package, for example `npm install @anthropic-ai/claude-agent-sdk-linux-x64 --force`.
   * On Windows, the binary subpath is `claude.exe`, for example `@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe`.
 
+###
+
+​
+
+Import the `/core` entry when you bundle the Agent SDK
+
+If your application bundles the Agent SDK together with its own dependencies, import from `@anthropic-ai/claude-agent-sdk/core` instead of the package root. The `/core` entry requires TypeScript Agent SDK v0.3.282 or later, and its types require TypeScript 5.0 or later. The `/core` entry exports the same `query()`, `startup()`, `tool()`, `createSdkMcpServer()`, and `resolveSettings()` as the root entry, along with the functions that rename, tag, and delete sessions, `AbortError`, the runtime constants, and every type. It adds no names of its own. To keep the code your application loads small, `/core` leaves out some root exports, including `prewarm()`, the `InMemorySessionStore` class, and the helpers that list, read, fork, import, and summarize sessions. If you need one of them, use the root entry instead. The root entry inlines its own copies of `zod` and `@modelcontextprotocol/sdk`. The `/core` entry imports them from your `node_modules` at the ranges the Agent SDK’s `peerDependencies` declare, so a bundle that already includes them doesn’t carry a second copy. Import from either the root or `/core` in a given process, not both: they are separate bundles, and loading both gives you two copies of the Agent SDK’s classes and state.
+
 ##
 
 ​
@@ -81,7 +89,7 @@ Returns a `Query` object that extends `AsyncGenerator<``SDKMessage``, void>` wit
 
 `startup()`
 
-Pre-warms the CLI subprocess by spawning it and completing the initialize handshake before a prompt is available. The returned `WarmQuery` handle accepts a prompt later and writes it to an already-ready process, so the first `query()` call resolves without paying subprocess spawn and initialization cost inline.
+Pre-warms the CLI subprocess by spawning it and completing the initialize handshake before a prompt is available. The returned `WarmQuery` handle accepts a prompt later and writes it to an already-ready process, so the first `query()` call resolves without paying subprocess spawn and initialization cost inline. If you don’t know the session’s working directory yet, use `prewarm()` instead.
 
     function startup(params?: {
       options?: Options;
@@ -122,6 +130,50 @@ Call `startup()` early, for example on application boot, then call `.query()` on
 
     // Later, when a prompt is ready, this is immediate
     for await (const message of warm.query("What files are here?")) {
+      console.log(message);
+    }
+
+###
+
+​
+
+`prewarm()`
+
+_Alpha._ Starts a Claude Code process as a spare before you know which session it will serve, so you can bind it to a session later with `claim()`. Use it in an application that boots before the user picks a folder. Requires TypeScript Agent SDK v0.3.282 or later. `prewarm()` completes the same initialize handshake as `startup()`, with the process waiting in `options.cwd` when you set it and otherwise in a private temporary directory under your Claude Code config directory. The session’s working directory, its `SessionStart` hooks, its stdio MCP servers, and its CLAUDE.md and git context wait for the claim. A spare holds roughly 230 to 260 MB of memory while it waits. If your `spawnClaudeCodeProcess` runs Claude Code on another machine or in a container, set `options.cwd` to a directory that exists there for the spare to wait in.
+
+    function prewarm(params?: {
+      options?: Options;
+      initializeTimeoutMs?: number;
+    }): Promise<SpareProcess>;
+
+`options` and `initializeTimeoutMs` mean the same as for `startup()`, except that `options.cwd` sets only the directory the spare waits in. The promise resolves with a `SpareProcess` once the process has completed its initialize handshake. `prewarm()` throws if `options` sets `resume`, `continue`, or `forkSession`, because a spare has no session yet. Everything a claim can’t set, such as `mcpServers`, `hooks`, `canUseTool`, `settingSources`, `systemPrompt`, and `plugins`, is fixed for the life of the spare, so keep one spare per distinct set of those options and prewarm again when they change.
+
+####
+
+​
+
+Example
+
+Prewarm on application boot, then claim the spare when the user starts a session:
+
+    import { prewarm } from "@anthropic-ai/claude-agent-sdk";
+
+    // On application boot, before the session's folder is known
+    const spare = await prewarm({ options: { maxTurns: 3 } });
+
+    // Later, when the user starts a session in a folder
+    const claimedQuery = spare.claim({
+      prompt: "What files are here?",
+      options: { cwd: "/path/to/project" },
+    });
+
+    spare.claimed.catch((error: Error) => {
+      // Unless the message starts with "option_not_applied", the prompt didn't run:
+      // start this session with query() instead
+      console.error("Claim failed:", error.message);
+    });
+
+    for await (const message of claimedQuery) {
       console.log(message);
     }
 
@@ -561,6 +613,7 @@ Property| Type| Default| Description
 `toolAliases`| `Record<string, string>`| `undefined`| Map built-in tool names to MCP tool names so Claude calls your MCP implementation in place of the built-in. For example, `{ Bash: 'mcp__workspace__bash' }`
 `toolConfig`| `ToolConfig`| `undefined`| Configuration for built-in tool behavior. See `ToolConfig` for details
 `tools`| `string[] | { type: 'preset'; preset: 'claude_code' }`| `undefined`| Tool configuration. Pass an array of tool names or use the preset to get Claude Code’s default tools
+`verbatimPrompts`| `boolean`| `false`| Deliver every prompt as written. The SDK sends each user message with `client_composed: true`. See `client_composed` for what Claude Code skips on those messages. Use this option when your prompt text includes content the end user didn’t type. For per-turn control, leave it off and set `client_composed` on individual streamed messages instead. Requires TypeScript Agent SDK v0.3.280 or later and Claude Code v2.1.248 or later; the Claude Code version bundled with those SDK versions satisfies the Claude Code requirement
 
 ####
 
@@ -742,6 +795,39 @@ Method| Description
 `close()`| Close the subprocess without sending a prompt. Use this to discard a warm query that is no longer needed
 
 `WarmQuery` implements `AsyncDisposable`, so it can be used with `await using` for automatic cleanup.
+
+###
+
+​
+
+`SpareProcess`
+
+_Alpha._ Handle returned by `prewarm()`: a started Claude Code process that isn’t bound to a session yet and can be claimed once. Requires TypeScript Agent SDK v0.3.282 or later.
+
+    interface SpareProcess extends AsyncDisposable {
+      claim(params: {
+        prompt: string | AsyncIterable<SDKUserMessage>;
+        options: ClaimOptions;
+      }): Query;
+      readonly claimed: Promise<{ cwd: string; sessionId: string; parkedMs?: number; sdkMcpSettled: boolean }>;
+      readonly exited: Promise<void>;
+      close(): void;
+    }
+
+####
+
+​
+
+Members
+
+Member| Description
+---|---
+`claim({ prompt, options })`| Bind the spare to a session in `options.cwd` and send its first message. Returns a `Query` synchronously, as `query()` does. Can only be called once
+`claimed`| Resolves with the session’s working directory and ID once Claude Code accepts the claim. Rejects when Claude Code refuses the claim, when the process exited or was closed first, and, with a message that starts with `option_not_applied`, when the session is running without the `model` or `maxThinkingTokens` you asked for
+`exited`| Settles when the process exits, claimed or not. Replace a spare that exits before you claim it
+`close()`| Terminate the process. Before a claim this discards the spare and rejects `claimed`
+
+`options.cwd` is required. A claim can also set `additionalDirectories`, `model`, `permissionMode`, `maxThinkingTokens`, a flag-settings overlay in `settings`, `appendSystemPrompt`, `title`, `agents`, and per-session tokens in `env`. Claude Code can refuse a claim, for example for a folder that doesn’t exist or one whose project settings set `env`, `agent`, or `model`. When `claimed` rejects with a message that starts with `option_not_applied`, the session is running without the `model` or `maxThinkingTokens` you asked for. After any other rejection your prompt hasn’t run, so start the session with `query()` instead.
 
 ###
 
@@ -962,7 +1048,7 @@ Return type of `readMcpResource()`, carrying the MCP server’s `resources/read`
       }[];
     };
 
-Pass `readMcpResource()` the server name as `mcpServerStatus()` reports it and a `ui://` URI, such as the `ui.resourceUri` a tool declares in its `_meta`. The call rejects for any other URI scheme, for an SDK MCP server your application hosts itself, and for a server that isn’t connected. It’s available when the init message’s `capabilities` include `mcp_read_resource_v1`. Each `contents` entry is one content item as the server sent it. `blob` holds base64 data for a binary item, and `_meta` is the item’s own `_meta`, where an MCP Apps server puts the resource’s `ui.csp` and `ui.permissions`. The contents are untrusted third-party HTML, so render them in a sandbox.
+Pass `readMcpResource()` the server name as `mcpServerStatus()` reports it and a `ui://` URI, such as the `ui.resourceUri` a tool declares in its `_meta`. The call rejects for any other URI scheme, for an SDK MCP server your application hosts itself, and for a server that isn’t connected. It’s available when the init message’s `capabilities` include `mcp_read_resource_v1`. Each `contents` entry is one content item as the server sent it, minus any `_meta` key under the `com.anthropic/` prefix, which is reserved for Claude Code. `blob` holds base64 data for a binary item, and `_meta` is the item’s own `_meta`, where an MCP Apps server puts the resource’s `ui.csp` and `ui.permissions`. The contents are untrusted third-party HTML, so render them in a sandbox.
 
 ###
 
@@ -1383,12 +1469,18 @@ User input message.
       parent_tool_use_id: string | null;
       isSynthetic?: boolean;
       shouldQuery?: boolean;
+      client_composed?: true;
       tool_use_result?: unknown;
       origin?: SDKMessageOrigin;
       inline_pastes?: string[];
     };
 
-Set `pasted_content` to send content the user pasted into your prompt UI rather than typed, one entry per paste, each a string or an array of content blocks. Claude Code appends each entry’s text after the typed text, in order, and may wrap each paste in `<pasted_content>` tags. Blocks other than text are ignored, so send images and documents in `message.content`. Requires Agent SDK v0.3.277 or later. Set `shouldQuery` to `false` to append the message to the transcript without triggering an assistant turn. The message is held and merged into the next user message that does trigger a turn. Use this to inject context, such as the output of a command you ran out of band, without spending a model call on it. On a message that carries a `tool_result` block, `tool_use_result` is the tool’s structured output object rather than the text sent to the model. Its shape depends on the tool named by the matching `tool_use` block, so the field is typed `unknown`; the built-in shapes are listed under Tool Output Types. For the `Agent` tool, `tool_use_result` is `AgentOutput`. On a `completed` result, `content` holds the subagent’s report without the agent ID and usage trailer that Claude Code appends to the `tool_result` text, so render from `tool_use_result` instead of parsing that text. For an MCP tool whose result contains `resource_link` blocks, `tool_use_result` is an object with a `resourceLinks` array of `SDKMcpResourceLink` entries. Claude receives each link as a line of text in the `tool_result` block, so read `resourceLinks` to render the files the server returned instead of parsing that text. Claude Code omits `resourceLinks` when the result has no links and on results from subagents, keeps at most 50 links per result, and stops adding links once the array reaches 64 KiB of serialized JSON. `resourceLinks` requires Agent SDK v0.3.257 or later. Set `inline_pastes` to tell Claude Code which parts of `message.content` the user pasted rather than typed, one string per paste. The prompt text stays where the user put it. Claude Code may wrap each listed paste in `<pasted_content>` tags where it stands, so Claude can tell pasted material from the user’s own words. Only pastes in the prompt’s last text block are wrapped. Requires TypeScript Agent SDK v0.3.280 or later.
+Set `pasted_content` to send content the user pasted into your prompt UI rather than typed, one entry per paste, each a string or an array of content blocks. Claude Code appends each entry’s text after the typed text, in order, and may wrap each paste in `<pasted_content>` tags. Blocks other than text are ignored, so send images and documents in `message.content`. Requires Agent SDK v0.3.277 or later. Set `shouldQuery` or `client_composed` to change how Claude Code handles a message you send:
+
+  * `shouldQuery`: set it to `false` to append the message to the transcript without triggering an assistant turn. The message is held and merged into the next user message that does trigger a turn. Use this to inject context, such as the output of a command you ran out of band, without spending a model call on it.
+  * `client_composed`: set it to `true` to have Claude Code deliver the message text as written. Claude Code then doesn’t expand `@path` or [`@server:resource`](</docs/en/mcp#use-mcp-resources>) mentions, and doesn’t run text that starts with `/` as a command. While the `verbatimPrompts` option is on, the SDK sets the field on every message. Requires TypeScript Agent SDK v0.3.280 or later and Claude Code v2.1.248 or later.
+
+On a message that carries a `tool_result` block, `tool_use_result` is the tool’s structured output object rather than the text sent to the model. Its shape depends on the tool named by the matching `tool_use` block, so the field is typed `unknown`; the built-in shapes are listed under Tool Output Types. For the `Agent` tool, `tool_use_result` is `AgentOutput`. On a `completed` result, `content` holds the subagent’s report without the agent ID and usage trailer that Claude Code appends to the `tool_result` text, so render from `tool_use_result` instead of parsing that text. For an MCP tool whose result contains `resource_link` blocks, `tool_use_result` is an object with a `resourceLinks` array of `SDKMcpResourceLink` entries. Claude receives each link as a line of text in the `tool_result` block, so read `resourceLinks` to render the files the server returned instead of parsing that text. Claude Code omits `resourceLinks` when the result has no links and on results from subagents, keeps at most 50 links per result, and stops adding links once the array reaches 64 KiB of serialized JSON. `resourceLinks` requires Agent SDK v0.3.257 or later. Set `inline_pastes` to tell Claude Code which parts of `message.content` the user pasted rather than typed, one string per paste. The prompt text stays where the user put it. Claude Code may wrap each listed paste in `<pasted_content>` tags where it stands, so Claude can tell pasted material from the user’s own words. Only pastes in the prompt’s last text block are wrapped. Requires TypeScript Agent SDK v0.3.280 or later.
 
 ###
 
@@ -1405,6 +1497,7 @@ Replayed user message with required UUID.
       message: MessageParam;
       parent_tool_use_id: string | null;
       isSynthetic?: boolean;
+      client_composed?: true;
       tool_use_result?: unknown;
       origin?: SDKMessageOrigin;
       isReplay: true;
@@ -1550,7 +1643,7 @@ Claude Code omits the field in these cases:
 
 `user_message_uuids`
 
-The `uuid`s of every message you sent that Claude Code answered in this turn. When you send several messages close together, Claude Code can merge them into one turn, and `user_message_uuid` then names only the last of them. To match the reply to any of the merged messages, look for that message’s `uuid` anywhere in this list. Requires Agent SDK v0.3.259 or later. Claude Code sets the list together with `user_message_uuid` on each reply frame that carries that field and on the result. For the full set of frames that carry `user_message_uuid`, and the version each requires, see `user_message_uuid`. The list always contains `user_message_uuid` and holds at most 64 entries. When Claude Code picks up a regular message you sent while a turn was running, it adds that message’s `uuid` to the result’s list. When a first reply or result carries `user_message_uuid` without the list, it came from an earlier Claude Code version, so fall back to the single field.
+The `uuid`s of every message you sent that Claude Code answered in this turn. When you send several messages close together, Claude Code can merge them into one turn, and `user_message_uuid` then names only the last of them. To match the reply to any of the merged messages, look for that message’s `uuid` anywhere in this list. Requires Agent SDK v0.3.259 or later. Claude Code sets the list together with `user_message_uuid` on each reply frame that carries that field and on the result. For the full set of turn frames that echo the answered message’s `uuid`, and the version each requires, see `user_message_uuid`. The list always contains `user_message_uuid` and holds at most 64 entries. When Claude Code picks up a regular message you sent while a turn was running, it adds that message’s `uuid` to the result’s list. When a first reply or result carries `user_message_uuid` without the list, it came from an earlier Claude Code version, so fall back to the single field.
 
 ####
 
@@ -1599,7 +1692,7 @@ Value| What stopped the session
 `org_pin_api_key_conflict`| Managed settings [require a first-party or Cloud gateway sign-in](</docs/en/authentication#restrict-login-to-your-organization>), and an Anthropic API key, auth token, or `apiKeyHelper` is configured instead
 `org_verify_failed`| The sign-in’s organization couldn’t be verified against the pin, for example because of a network failure or a revoked token
 `org_pin_mismatch`| The sign-in belongs to an organization the pin doesn’t allow
-`managed_settings_invalid`| Managed policy settings couldn’t be read, or the pin names no organization
+`managed_settings_invalid`| Managed policy settings couldn’t be read, the pin names no organization, or [managed model restrictions](</docs/en/errors#managed-settings-block-the-default-model>) leave no permitted model for the Default option
 `remote_settings_required_unavailable`| Managed settings that the organization requires couldn’t be loaded
 `gateway_signin_required`| The [Cloud gateway](</docs/en/claude-apps-gateway>) ended this sign-in
 `gateway_access_denied`| The managed settings request to the Cloud gateway came back with a 403, which the gateway’s [troubleshooting table](</docs/en/claude-apps-gateway-deploy#troubleshooting>) covers
@@ -1644,6 +1737,12 @@ System initialization message.
       output_style: string;
       skills: string[];
       plugins: { name: string; path: string }[];
+      plugin_errors?: {
+        plugin: string;
+        type: string;
+        message: string;
+        path?: string;
+      }[];
       fast_mode_state?: FastModeState;
       fast_mode_disabled_reason?: FastModeDisabledReason;
       effort?: "low" | "medium" | "high" | "xhigh" | "max" | null;
@@ -1661,6 +1760,15 @@ Capability| Meaning
 ---|---
 `interrupt_receipt_v1`| `interrupt()` resolves with an `SDKControlInterruptResponse` receipt listing the messages that were pending when the interrupt arrived
 `interrupt_cancel_queued_v1`| The `interrupt` control request honors `cancel_queued: true`, cancelling the messages the receipt would otherwise list under `still_queued` and listing them under `cancelled` instead. See `SDKControlInterruptResponse`. Requires Claude Code v2.1.219 or later
+
+The `plugin_errors` array lists plugin load failures. An entry describes either a plugin that didn’t load and is absent from `plugins`, or a plugin that loaded without one of its parts, such as its hooks file. The key is omitted when nothing failed. `SDKSystemMessage` declares `plugin_errors` in Agent SDK v0.3.283 or later. When a directory or archive from your `plugins` option itself fails to load, the entry’s `plugin` field holds a positional tag such as `inline[0]` instead of a plugin name. This happens, for example, when the path doesn’t exist or the manifest is invalid. Match such an entry to your option by its `path` field. The table below lists the fields of each `plugin_errors` entry.
+
+Field| Type| Description
+---|---|---
+`plugin`| `string`| The failing plugin’s ID, or a positional tag such as `inline[0]` when the plugin directory or archive itself failed to load
+`type`| `string`| Error category from an open set, such as `path-not-found` or `manifest-validation-error`. Treat a value you don’t recognize as a generic failure
+`message`| `string`| Display text describing the failure
+`path`| `string`| Present only when the plugin directory or archive itself failed to load. Its absolute path, with a relative path from your `plugins` option resolved against the `cwd` option
 
 ###
 
@@ -1708,7 +1816,7 @@ Message indicating a conversation compaction boundary.
 
 `SDKInformationalMessage`
 
-Generic text banner emitted by the loop. Carries non-error status lines, hook feedback such as a `UserPromptSubmit` hook’s block reason, and command output. On Claude Code v2.1.227 or later, a hook’s [`systemMessage`](</docs/en/hooks#json-output>) can arrive as this message, with each line prefixed by the hook’s name, such as `PostToolUse:Bash says:`. Whether a hook’s `systemMessage` arrives as this message depends on the event. Each [event’s section](</docs/en/hooks#hook-events>) on the hooks page says how output surfaces. Render `content` as plaintext at the given `level`.
+Generic text banner emitted by the loop. Carries warnings, notices, and other non-error status lines Claude Code raises, and hook feedback such as a `UserPromptSubmit` hook’s block reason. On Claude Code v2.1.227 or later, a hook’s [`systemMessage`](</docs/en/hooks#json-output>) can arrive as this message, with each line prefixed by the hook’s name, such as `PostToolUse:Bash says:`. Each [event’s section](</docs/en/hooks#hook-events>) on the hooks page says how output surfaces. Render `content` as plaintext at the given `level`.
 
     type SDKInformationalMessage = {
       type: "system";
@@ -5380,7 +5488,7 @@ A [resumed subagent](</docs/en/agent-sdk/subagents#resume-subagents>) always rep
 
 `SDKTaskProgressMessage`
 
-Emitted periodically while a subagent or background task is running. The `summary` field is populated only when `agentProgressSummaries` is enabled.
+Emitted periodically while a subagent or background task is running. For a subagent task, the `summary` field carries a model-generated progress summary and is populated only when `agentProgressSummaries` is enabled. For a [backgrounded MCP tool call](</docs/en/mcp#automatic-backgrounding-of-long-tool-calls>), `summary` carries the MCP server’s latest reported progress and doesn’t depend on that option.
 
     type SDKTaskProgressMessage = {
       type: "system";
@@ -5527,7 +5635,7 @@ Claude Code doesn’t emit this message type. When you send a command such as `/
 
 `SDKCommandsChangedMessage`
 
-Emitted when the set of available commands changes mid-session, such as when Claude Code discovers skills as the agent enters a subdirectory. The `commands` array is the full updated list, so replace any cached command list with this payload. Calling `supportedCommands()` after this message returns the same updated list, because the method tracks the latest push; this requires Agent SDK v0.3.216 or later. In earlier SDK versions, `supportedCommands()` returns the snapshot captured at initialization and never reflects mid-session changes.
+Emitted when the set of available commands changes mid-session, such as when Claude Code discovers skills as the agent enters a subdirectory. The `commands` array is the full updated list, so replace any cached command list with this payload. Calling `supportedCommands()` after this message returns the same updated list, because the method tracks the latest push; this requires Agent SDK v0.3.216 or later. In earlier SDK versions, `supportedCommands()` returns the snapshot captured at initialization and never reflects mid-session changes. Claude Code also emits this message when an MCP server’s [prompts](</docs/en/mcp#use-mcp-prompts-as-commands>) join or leave the list, for example when a server finishes connecting after the session starts. This requires Claude Code v2.1.281 or later.
 
     type SDKCommandsChangedMessage = {
       type: "system";
@@ -5565,9 +5673,18 @@ Emitted when the session’s conversation is replaced without ending the session
       new_conversation_id: UUID;
       uuid: UUID;
       session_id: string;
+      trigger?: "clear" | "plan_mode_exit" | "fresh_session" | "onboarding";
+      user_message_uuid?: string;
+      timestamp?: string;
     };
 
-The SDK’s published typings declare `SDKConversationResetMessage` in Claude Code v2.1.203 and later. Before v2.1.203, `SDKMessage` referenced the type without declaring it, so narrowing on `type === "conversation_reset"` failed to typecheck when `skipLibCheck` was disabled.
+The optional fields describe the reset:
+
+  * `trigger`: what discarded the conversation. Reset your transcript on every `conversation_reset` message, including one where this field is absent or carries a value you don’t recognize.
+  * `user_message_uuid`: the `uuid` of the user message that carried the `/clear`. Use it to match the reset to that message.
+  * `timestamp`: when the reset happened, as an ISO 8601 string in UTC. Use it for display, not for ordering messages.
+
+The `trigger`, `user_message_uuid`, and `timestamp` fields require Claude Code v2.1.281 or later. The SDK’s published typings declare `SDKConversationResetMessage` in Claude Code v2.1.203 and later. Before v2.1.203, `SDKMessage` referenced the type without declaring it, so narrowing on `type === "conversation_reset"` failed to typecheck when `skipLibCheck` was disabled.
 
 ###
 

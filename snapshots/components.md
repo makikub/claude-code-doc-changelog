@@ -4,7 +4,7 @@ These cases are covered on other pages:
 
   * **Building your first plugin** : start with [Create a plugin](</docs/en/plugins/create>)
   * **Installing someone else’s plugin** : see [Install plugins](</docs/en/plugins/install>)
-  * **Your plugin’s users are on claude.ai or in Cowork** : a different set of components loads there. See [Plugins on claude.ai and in Cowork](<https://claude.com/docs/plugins/overview>)
+  * **Your plugin’s users are on claude.ai or in Cowork** : a different set of components loads there. See [Plugin structure and testing](<https://claude.com/docs/plugins/build>) and the [component support table](<https://claude.com/docs/plugins/platform-support#compare-component-support-by-app>)
 
 ##
 
@@ -225,7 +225,7 @@ You can also omit the `mcpServers` wrapper and put `db` at the top level of the 
 
 Reach users on claude.ai and Cowork
 
-A local stdio server, such as the `db` server under MCP servers, runs in Claude Code and in a Cowork session that runs on your machine in the Claude Desktop app, but not on claude.ai. To reach users there too, reference a remote server by its `https://` URL, which claude.ai and Cowork offer to the user as a connector.
+A local stdio server, such as the `db` server under MCP servers, runs in Claude Code and in a Cowork session that runs on your machine in the Claude Desktop app, but not on claude.ai. To reach users there too, reference a remote server by its `https://` URL, which claude.ai and Cowork offer to the user as a connector, as [Bundle an MCP connector with its skill](<https://claude.com/docs/plugins/build#bundle-an-mcp-connector-with-its-skill>) shows.
 
 ####
 
@@ -297,7 +297,7 @@ bin/hello-plugin
     #!/bin/bash
     echo "hello from my-plugin"
 
-Make it executable with `chmod +x bin/hello-plugin` and load the plugin. When you ask Claude to run `hello-plugin`, the Bash tool result shows the script’s output. Plugin `bin/` directories come after the user’s own `PATH` entries, so a plugin can’t shadow `git`, `ls`, or another system command. claude.ai and Cowork don’t install a plugin that has a top-level `bin/` directory, including one you [distribute through claude.ai organization settings](</docs/en/plugins/host-marketplace#distribute-through-organization-settings>).
+Make it executable with `chmod +x bin/hello-plugin` and load the plugin. When you ask Claude to run `hello-plugin`, the Bash tool result shows the script’s output. Plugin `bin/` directories come after the user’s own `PATH` entries, so a plugin can’t shadow `git`, `ls`, or another system command. claude.ai and Cowork don’t install a plugin that has a top-level `bin/` directory, including one you [distribute through claude.ai organization settings](<https://claude.com/docs/plugins/org-sync#keep-executables-out-of-the-top-level-bin-directory>).
 
 ###
 

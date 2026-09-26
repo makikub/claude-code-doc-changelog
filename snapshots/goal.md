@@ -139,7 +139,7 @@ Errors you have to fix clear the goal
 
 If a turn fails on an error that won’t clear until you fix it, Claude Code clears the goal and prints a warning naming the cause. The warning starts with `Goal cleared after an unrecoverable error` and ends with `Run /goal again to continue`. Fix the cause, then set the goal again with `/goal <condition>`. Four kinds of failure clear the goal:
 
-  * An authentication failure, when Claude Code manages its own credentials. When a host manages them for you, such as the desktop app, the VS Code extension, or a [cloud session](</docs/en/claude-code-on-the-web>), Claude Code leaves the goal active because the host restores access on its own.
+  * An authentication failure, when Claude Code manages its own credentials. When a host manages them for you, such as the desktop app or a [cloud session](</docs/en/claude-code-on-the-web>), Claude Code leaves the goal active because the host restores access on its own.
   * An exhausted credit balance
   * A context overflow that [auto-compaction](</docs/en/model-config#set-the-auto-compact-window>) couldn’t clear
   * A model that isn’t available

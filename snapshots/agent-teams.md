@@ -285,7 +285,7 @@ When one agent sends another a message over `SendMessage`, Claude Code tells the
 
 Context and communication
 
-Each teammate has its own context window. When spawned, a teammate loads the same project context as a regular session: CLAUDE.md, MCP servers, and skills. It also receives the spawn prompt from the lead. The lead’s conversation history does not carry over. **How teammates share information:**
+Each teammate has its own context window. When spawned, a teammate loads the same project context as a regular session: CLAUDE.md, MCP servers, and skills. If you start the lead with [`--setting-sources`](</docs/en/cli-reference#cli-flags>), teammates load from the same restricted list of sources. Before v2.1.281, split-pane teammates loaded every settings source. A teammate also receives the spawn prompt from the lead. The lead’s conversation history does not carry over. **How teammates share information:**
 
   * **Automatic message delivery** : when teammates send messages, they’re delivered automatically to recipients. The lead doesn’t need to poll for updates.
   * **Idle notifications** : when a teammate finishes and stops, it automatically notifies the lead and includes its final answer in the notification. A teammate whose turn ends on an API error notifies the lead that it failed and includes the error text.

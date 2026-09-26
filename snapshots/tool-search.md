@@ -109,7 +109,7 @@ To run this example, replace `https://tools.example.com/mcp` with the URL of you
 
 Optimize tool discovery
 
-The search mechanism matches queries against tool names and descriptions. Names like `search_slack_messages` surface for a wider range of requests than `query_slack`. Descriptions with specific keywords (“Search Slack messages by keyword, channel, or date range”) match more queries than generic ones (“Query Slack”). You can also add a system prompt section listing available tool categories. This gives the agent context about what kinds of tools are available to search for. Pass the text through the `systemPrompt` option in TypeScript or `system_prompt` in Python, using the `claude_code` preset with `append`, which adds your text to the preset’s prompt instead of replacing it:
+The search mechanism matches queries against tool names and descriptions. Names like `search_slack_messages` surface for a wider range of requests than `query_slack`. Descriptions with specific keywords (“Search Slack messages by keyword, channel, or date range”) match more queries than generic ones (“Query Slack”). You can also add a system prompt section listing available tool categories. This gives the agent context about what kinds of tools are available to search for. Pass the text in the `systemPrompt` option of `query()` in TypeScript, or `system_prompt` in Python. Use the `claude_code` preset with `append`, which adds your text to the preset’s prompt instead of replacing it:
 
 TypeScript
 

@@ -48,12 +48,12 @@ For what each provider stores and processes, see [data usage](</docs/en/data-usa
 
 Actions that invalidate the cache
 
-These actions cause the next request to miss part or all of the cache. You see a one-time slower, more expensive turn, after which the new prefix is cached. Most of them are avoidable mid-task once you know they have a cost. A model switch can feel free until you notice the slower turn that follows.
+These actions can cause the next request to miss part or all of the cache. You see a one-time slower, more expensive turn, after which the new prefix is cached. Most of them are avoidable mid-task once you know they have a cost. A model switch can feel free until you notice the slower turn that follows.
 
   * Switching models
   * Changing effort level
   * Turning on fast mode
-  * Connecting or disconnecting an MCP server
+  * Connecting or removing an MCP server
   * Enabling or disabling a plugin
   * Denying an entire tool
   * Compacting the conversation
@@ -88,14 +88,23 @@ Enabling [fast mode](</docs/en/fast-mode>) adds a request header that is part of
 
 ​
 
-Connecting or disconnecting an MCP server
+Connecting or removing an MCP server
 
 Tool definitions sit in the system prompt layer, so the cache invalidates when the set of tool definitions in the request changes between turns. Toggling the [advisor tool](</docs/en/advisor>) is an exception: its definition sits after the cache breakpoint, so enabling or disabling `/advisor` keeps the cached prefix intact. Whether an [MCP server](</docs/en/mcp>) change does this depends on whether its tools are deferred by [tool search](</docs/en/mcp#scale-with-mcp-tool-search>) or loaded into the prefix:
 
   * **Deferred tools** , the default on supported models: a server connecting, disconnecting, or changing its tool list only appends new content and doesn’t disturb anything already cached.
-  * **Tools loaded into the prefix** : any change to them invalidates the cache. This happens when [tool search is unavailable or disabled](</docs/en/mcp#configure-tool-search>), such as on Google Cloud’s Agent Platform models earlier than the Claude 4.5 generation, with a custom `ANTHROPIC_BASE_URL` gateway, or on a Microsoft Foundry [deployment hosted on Azure](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>) once Claude Code detects that the deployment rejects tool search. It also happens for a server or tool marked [`alwaysLoad`](</docs/en/mcp#exempt-a-server-from-deferral>), and for definitions kept upfront by [threshold-based loading](</docs/en/mcp#configure-tool-search>).
+  * **Tools loaded into the prefix** : adding a definition invalidates the cache, and so does removing one on purpose. This is the case when [tool search is unavailable or disabled](</docs/en/mcp#configure-tool-search>), such as on Google Cloud’s Agent Platform models earlier than the Claude 4.5 generation, with a custom `ANTHROPIC_BASE_URL` gateway, or on a Microsoft Foundry [deployment hosted on Azure](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>) once Claude Code detects that the deployment rejects tool search.
 
-When tools load into the prefix, the most common cause of an invalidation is a server connecting or disconnecting mid-session, which can happen without any action on your part: a stdio server’s process exits, an HTTP session expires, or a server [reconnects automatically after a transient failure](</docs/en/mcp#automatic-reconnection>). A connected server can also push a [dynamic tool update](</docs/en/mcp#dynamic-tool-updates>) that changes its tool list. Editing your MCP config does not by itself change the cache. The new config takes effect only after a restart, which is when the server connects or disconnects.
+Without tool search, whether a mid-session server change invalidates the cache depends on what changed. For each change, this table gives whether the cache is kept and what happens to the tool definitions in the next request.
+
+Mid-session change| Cache| Tool definitions in the next request
+---|---|---
+A server connects, or a [dynamic tool update](</docs/en/mcp#dynamic-tool-updates>) adds tools| Invalidated| The new definitions are added
+A server drops out with no action on your part, such as a stdio server’s process exiting| Kept| The server’s definitions stay unchanged. A call to one of its tools returns an error instead of running
+A remote server [reconnects automatically](</docs/en/mcp#automatic-reconnection>) after its connection drops| Kept, unless a request sent while the server reconnects adds the `WaitForMcpServers` tool, which invalidates the cache once| The server’s definitions stay unchanged. A request sent while the server reconnects can add `WaitForMcpServers` when the conversation hasn’t listed it yet, and the tool then stays listed for the rest of the conversation
+You remove a tool on purpose, such as with a deny rule or by disabling its server in `/mcp`| Invalidated| The definition is removed
+
+When you resume a conversation whose tools load into the prefix, one of its MCP servers can still be connecting as the first request goes out. If the transcript recorded that server’s tool definitions, that request includes them as recorded, so it doesn’t change when the server finishes connecting with the same tools. Editing your MCP config does not by itself change the cache. The new config takes effect only after a restart, which is when the server connects or disconnects.
 
 ###
 
@@ -119,7 +128,7 @@ Claude Code never invalidates the cache for a plugin’s skills, commands, agent
 
 Plugins that provide MCP servers
 
-When you enable or disable a plugin that provides [MCP servers](</docs/en/plugins/components#mcp-servers>), Claude Code follows the same rules as when you connect or disconnect an MCP server:
+When you enable or disable a plugin that provides [MCP servers](</docs/en/plugins/components#mcp-servers>), Claude Code follows the same rules as when you connect or remove an MCP server:
 
   * If Claude Code defers the server’s tools, it keeps the cache.
   * If Claude Code loads them into the prefix, the next request re-reads the entire conversation.
@@ -369,12 +378,12 @@ Disabling caching is occasionally useful when debugging caching behavior with a 
 Variable| Effect
 ---|---
 `DISABLE_PROMPT_CACHING`| Disable for all models
-`DISABLE_PROMPT_CACHING_HAIKU`| Disable for Haiku only
+`DISABLE_PROMPT_CACHING_HAIKU`| Disable for the default Haiku model
 `DISABLE_PROMPT_CACHING_SONNET`| Disable for Sonnet only
 `DISABLE_PROMPT_CACHING_OPUS`| Disable for Opus only
 `DISABLE_PROMPT_CACHING_FABLE`| Disable for Fable only
 
-To set caching policy across an organization, put any of these or the TTL variables in the `env` block of [managed settings](</docs/en/managed-settings>). For normal use, leave caching enabled.
+`DISABLE_PROMPT_CACHING_HAIKU` applies to the default Haiku model, the model the `haiku` alias resolves to. It disables caching wherever that model runs, including the main conversation when it is your main model. Covering the main conversation requires Claude Code v2.1.283 or later. The variable also covers a background model you set with the deprecated `ANTHROPIC_SMALL_FAST_MODEL` variable, when that model differs from your main model. A different Haiku version that you pin as your main model keeps caching; set `DISABLE_PROMPT_CACHING` to disable caching for it. To set caching policy across an organization, put any of these or the TTL variables in the `env` block of [managed settings](</docs/en/managed-settings>). For normal use, leave caching enabled.
 
 ##
 

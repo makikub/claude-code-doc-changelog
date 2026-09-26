@@ -25,7 +25,8 @@ Create a routine
 Create a routine from the web at [claude.ai/code/routines](<https://claude.ai/code/routines>), from the Desktop app, or from the CLI. All three surfaces write to the same cloud account, so a routine you create in one shows up in the others immediately. In the Desktop app’s **Code** tab, click **Routines** in the sidebar or in the sidebar’s **More** menu, then **New routine** , and choose **Cloud** ; choosing **Local** instead creates a [Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), which runs on your machine rather than in the cloud. The creation form sets up the routine’s prompt, repositories, environment, connectors, and triggers. Routines run autonomously as full Claude Code cloud sessions: there is no permission-mode picker, and the session runs shell commands, uses [skills](</docs/en/skills>) committed to the cloned repository, and calls any connectors you include, all without stopping for approval apart from some [artifact](</docs/en/artifacts>) actions. What a routine can reach is determined by the repositories you select, the [environment’s](</docs/en/cloud-environments>) network access and variables, and the connectors you include. Scope each of those to what the routine actually needs. When the routine’s schedule or **Run now** starts a run, Claude republishes an existing artifact without asking only when all of these hold:
 
   * You can edit the artifact and it belongs to your own organization
-  * The artifact isn’t shared publicly, and isn’t shared with specific people or your organization with the latest version chosen as the version viewers see
+  * The artifact isn’t shared publicly
+  * If the artifact is shared with specific people or your organization, its viewers don’t automatically see each new version
   * The publish carries only the page, with no supporting files or anything else added, and doesn’t force over a newer version
   * The page holds no grant that reaches beyond the page, such as [connector calls](</docs/en/artifacts#pull-live-data-with-mcp-connectors>)
 
@@ -79,7 +80,7 @@ Under **Select a trigger** , choose how the routine starts. You can pick one tri
 
   * API
 
-Pick a preset frequency for a recurring run, or schedule a single one-off run at a specific timestamp. See Add a schedule trigger for timezone handling, stagger, custom cron intervals, and one-off runs.
+Pick a preset frequency for a recurring run, or schedule a single one-off run at a specific timestamp. See Add a schedule trigger for timezone handling, late starts, custom cron intervals, and one-off runs.
 
 Select the repository, the event to react to, and optional filters. See Add a GitHub trigger for the full list of supported events and filter fields.
 
@@ -119,7 +120,7 @@ A routine starts when one of its triggers matches. You can attach any combinatio
 
 Add a schedule trigger
 
-A schedule trigger runs the routine on a recurring cadence, or once at a specific future time. Pick a preset frequency in the **Select a trigger** section: hourly, daily, weekdays, or weekly. Times are entered in your local zone and converted automatically, so the routine runs at that wall-clock time regardless of where the cloud infrastructure is located. Runs may start a few minutes after the scheduled time due to stagger. The offset is consistent for each routine. For a custom interval such as every two hours or the first of each month, pick the closest preset in the form, then run `/schedule update` in the CLI to set a specific cron expression. The minimum interval is one hour; expressions that run more frequently are rejected.
+A schedule trigger runs the routine on a recurring cadence, or once at a specific future time. Pick a preset frequency in the **Select a trigger** section: hourly, daily, weekdays, or weekly. Times are entered in your local zone and converted automatically, so the routine runs at that wall-clock time regardless of where the cloud infrastructure is located. If you schedule a run exactly on the hour, such as 9:00, it can start several minutes late. To start close to the scheduled time, pick a few minutes past the hour, for example 9:07. For a custom interval such as every two hours or the first of each month, pick the closest preset in the form, then run `/schedule update` in the CLI to set a specific cron expression. The minimum interval is one hour; expressions that run more frequently are rejected.
 
 ####
 

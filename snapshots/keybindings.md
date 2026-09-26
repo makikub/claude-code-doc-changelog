@@ -168,7 +168,7 @@ Action| Default| Description
 `confirm:toggle`| Space| Toggle selection
 `confirm:cycleMode`| Shift+Tab*| Cycle permission modes. On a file permission prompt, closes an open [comment field](</docs/en/permissions#add-a-comment-when-you-answer-a-permission-prompt>); with no field open, selects the option that allows the action for the rest of the session, when the prompt offers that option
 
-*On Windows without VT mode (Node <24.2.0/<22.17.0, Bun <1.2.23), defaults to Meta+M. Before v2.1.257, a `confirm:toggleExplanation` action, bound to `Ctrl+E` by default, showed a model-generated explanation of the command on Bash and PowerShell permission prompts. Dialogs use `confirm:yes` and `confirm:no` to accept and cancel even when they don’t ask a yes-or-no question. If you bind a bare letter such as `y` or `n` in this context, the letter also acts on dialogs that never show it as a key. A dialog that shows `y` and `n` as its keys reads those letters itself and needs no binding. This example binds `y` to `confirm:yes` and `n` to `confirm:no`:
+*On Windows without VT mode (Node <24.2.0/<22.17.0, Bun <1.2.23), defaults to Meta+M. Before v2.1.257, a `confirm:toggleExplanation` action, bound to `Ctrl+E` by default, showed a model-generated explanation of the command on Bash and PowerShell permission prompts. Dialogs use `confirm:yes` and `confirm:no` to accept and cancel even when they don’t ask a yes-or-no question. If you bind a bare letter such as `y` or `n` in this context, the letter also acts on dialogs that never show it as a key. A dialog that shows `y` and `n` as its keys reads those letters itself and needs no binding. In most dialogs, pressing `Ctrl+C` or `Ctrl+D` twice closes the dialog instead of exiting Claude Code. The hint after the first press says whether the second press closes the dialog or exits. Both keys are reserved and can’t be rebound. This example binds `y` to `confirm:yes` and `n` to `confirm:no`:
 
     {
       "bindings": [
@@ -278,6 +278,8 @@ Action| Default| Description
 `tabs:next`| Tab, Right| Next tab
 `tabs:previous`| Shift+Tab, Left| Previous tab
 
+In a tabbed dialog, `tabs:next` and `tabs:previous` switch tabs while the tab row has focus. In some dialogs, such as `/help` and `/sandbox`, the tab-switching keys also work from inside the tab’s content. `Up` and `Down` move focus between the tab row and the tab’s content, and a list in the content responds to keys only while it has focus.
+
 ###
 
 ​
@@ -309,7 +311,7 @@ Action| Default| Description
 `footer:down`| Down| Navigate down in footer
 `footer:openSelected`| Enter| Open selected footer item
 `footer:clearSelection`| Escape| Clear footer selection
-`footer:dismiss`| Backspace, Delete| Dismiss the selected [artifact](</docs/en/artifacts>) link from the footer; the published artifact itself is unaffected. On other footer rows, these keys have no effect. Requires v2.1.217 or later
+`footer:dismiss`| (unbound)| Removed in v2.1.281. A `keybindings.json` that still names the action remains valid, and the binding does nothing. Before v2.1.281, Backspace and Delete dismissed the selected artifact link from the footer
 
 While a footer item is selected, such as a row in the agent panel below the prompt, `Enter` opens it even when you rebind `Enter` in the `Chat` context to `chat:queueSubmit` or `chat:newline`. `Chat` bindings on keys the `Footer` context doesn’t bind, such as `Shift+Tab` for `chat:cycleMode`, keep working while an item is selected.
 
@@ -319,15 +321,20 @@ While a footer item is selected, such as a row in the agent panel below the prom
 
 Message selector actions
 
-Actions available in the `MessageSelector` context:
+In the message list of the [rewind menu](</docs/en/checkpointing>), you move through messages and pick one with the Select actions and their default keys. Your `Select` bindings for those actions apply there too. The `MessageSelector` context has no actions or default bindings of its own. Use it to change a key for this list alone, by binding a Select action such as `select:accept` in a `MessageSelector` block. This example binds `o` to pick the highlighted message in the rewind menu, without changing any other list:
 
-Action| Default| Description
----|---|---
-`messageSelector:up`| Up, K, Ctrl+P| Move up in list
-`messageSelector:down`| Down, J, Ctrl+N| Move down in list
-`messageSelector:top`| Ctrl+Up, Shift+Up, Meta+Up, Shift+K| Jump to top
-`messageSelector:bottom`| Ctrl+Down, Shift+Down, Meta+Down, Shift+J| Jump to bottom
-`messageSelector:select`| Enter| Select message
+    {
+      "bindings": [
+        {
+          "context": "MessageSelector",
+          "bindings": {
+            "o": "select:accept"
+          }
+        }
+      ]
+    }
+
+Before v2.1.283, this list ignored `Select` bindings and had its own actions: `messageSelector:up`, `messageSelector:down`, `messageSelector:top`, `messageSelector:bottom`, and `messageSelector:select`. If your `keybindings.json` binds one of those names, the binding keeps working in this list as the Select action that does the same thing. `Home` and `End` jump to either end of the list; before v2.1.283, keys such as `Shift+K` and `Shift+J` did that by default.
 
 ###
 
@@ -344,10 +351,9 @@ Action| Default| Description
 `diff:nextSource`| Right| Next diff source
 `diff:previousFile`| Up, K| Previous file in the file list; scroll up one line in the detail view
 `diff:nextFile`| Down, J| Next file in the file list; scroll down one line in the detail view
-`diff:viewDetails`| Enter| View diff details
 `diff:back`| (unbound)| Go back in diff viewer. Escape performs the back action via `diff:dismiss`. The previous default of Left in the detail view was removed in v2.1.203
 
-The diff detail view also binds pager-style keys to the standard scroll actions. These bindings are part of the `DiffDialog` context and apply only in the detail view; the `Scroll` context defaults listed under Scroll actions are unchanged.
+The file list also responds to the Select actions, through their default keys and your `Select` bindings. `select:previous` and `select:next` move to the previous and next file, and `Enter` opens the selected file’s diff through `select:accept`. To change one of those keys for the file list alone, bind the Select action in a `DiffDialog` block. Before v2.1.283, the file list ignored `Select` bindings, and `Enter` opened the selected file’s diff through a separate `diff:viewDetails` action. If your `keybindings.json` binds `diff:viewDetails`, the binding keeps working in the file list as `select:accept`. The diff detail view also binds pager-style keys to the standard scroll actions. These bindings are part of the `DiffDialog` context and apply only in the detail view; the `Scroll` context defaults listed under Scroll actions are unchanged.
 
 Action| Default| Description
 ---|---|---
@@ -420,7 +426,7 @@ Action| Default| Description
 `select:accept`| Enter| Accept selection
 `select:cancel`| Escape| Cancel selection
 
-Claude Code applies your `select:pageUp`, `select:pageDown`, `select:first`, and `select:last` bindings in the `/skills` menu. In most other lists, such as the `/model` picker, your `select:first` and `select:last` bindings apply. PageUp and PageDown page through the options in those lists regardless of your bindings. Before v2.1.280, those other lists ignored Home, End, and your `select:first` and `select:last` bindings.
+In list panels such as `/skills` and `/mcp`, Claude Code applies your `select:pageUp`, `select:pageDown`, `select:first`, and `select:last` bindings. In most other lists, such as the `/model` picker, your `select:first` and `select:last` bindings apply. PageUp and PageDown page through the options in those lists regardless of your bindings. Before v2.1.280, those other lists ignored Home, End, and your `select:first` and `select:last` bindings.
 
 ###
 

@@ -3,7 +3,7 @@ A plugin marketplace is a directory or repository with a `.claude-plugin/marketp
 These cases are covered on other pages:
 
   * **Sharing one plugin with a few people** : send them the plugin’s directory or a `.zip` of it. See [Share a plugin without a marketplace](</docs/en/plugins/publish#share-a-plugin-without-a-marketplace>).
-  * **Offering a plugin to everyone** : submit it to Anthropic’s community marketplace. See [Submit to the community marketplace](</docs/en/plugins/publish#submit-to-the-community-marketplace>).
+  * **Offering a plugin to everyone** : submit it to Anthropic’s directory. See [Submit to Anthropic’s directory](</docs/en/plugins/publish#submit-to-anthropics-directory>).
   * **Using a plugin yourself** : load it with `--plugin-dir` or save it in your skills directory. See [Develop without a marketplace](</docs/en/plugins/create#develop-without-a-marketplace>).
 
 Start with Create a marketplace to build one on your own machine and install a plugin from it, then add more plugin entries.

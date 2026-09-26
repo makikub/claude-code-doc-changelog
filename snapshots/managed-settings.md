@@ -176,8 +176,8 @@ To have Claude Code apply every admin source your organization delivers, set [`m
 
 Kind of key| How Claude Code combines it| Examples
 ---|---|---
-Lists| Combines the entries from every source| `permissions.allow`, `hooks`, `sandbox.network.allowedDomains`, `deniedMcpServers`
-Locks| Applies the strictest value any source sets; a looser value applies only from the highest-ranked source| `allowManagedHooksOnly`, `permissions.disableBypassPermissionsMode`, `crossSessionInbound`
+Lists| Combines the entries from every source| `permissions.allow`, `hooks`, `sandbox.network.allowedDomains`, `deniedMcpServers`, `deniedModels`
+Locks| Applies the strictest value any source sets; a looser value applies only from the highest-ranked source| `allowManagedHooksOnly`, `permissions.disableBypassPermissionsMode`, `crossSessionInbound`, `availableModelsMatch`
 Restriction allowlists| Takes the list whole from the highest-ranked source that sets it, without adding entries from lower sources| `availableModels`, `allowedMcpServers`, `strictKnownMarketplaces`, `allowedChannelPlugins`, and the `fallbackModel` chain
 Values taken whole| Takes the value whole from the highest-ranked source that sets it, without combining entries or fields from lower sources| `sandbox.credentials.awsPairs`, `sandbox.ripgrep`
 Provided MCP servers| Combines the server names from every source; when two sources set the same name, applies the higher-ranked source’s whole entry| `managedMcpServers`
@@ -321,11 +321,13 @@ Field| Behavior when present but invalid
 `disableSideloadFlags`| Treated as `true` until the value is fixed, with the effects listed for [`disableSideloadFlags`](</docs/en/settings-reference#disablesideloadflags>).
 `availableModels`| Enforced as an empty allowlist until fixed, so only the Default model is available; a non-string entry is stripped and the valid subset enforced.
 `enforceAvailableModels`| Treated as `true`.
+[`availableModelsMatch`](</docs/en/settings-reference#availablemodelsmatch>)| Treated as `exact` until the value is fixed.
 `syncClaudeAiPlugins`| Treated as `false`, so syncing of [claude.ai plugins](</docs/en/settings-reference#syncclaudeaiplugins>) is off until the value is fixed.
 `forceLoginOrgUUID`| No organization is permitted to log in until the value is fixed.
 `gatewayInternalNetworks`| When the invalid value comes from the highest managed source on the machine, `/login` refuses every new [cloud gateway](</docs/en/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own>) sign-in on that machine until the value is fixed.
 `crossSessionInbound`| Treated as `refuse`, the most restrictive value, so inbound [cross-session messages](</docs/en/cross-session-messaging#control-inbound-messages>) are refused until the value is fixed. The developer sees [a warning](</docs/en/errors#crosssessioninbound-must-be-one-of-accept-hold-refuse>).
 `deniedMcpServers`| An individual invalid entry is stripped and the valid subset is enforced. A wholly invalid value is dropped with a warning, since denying every server would block servers the policy never named.
+[`deniedModels`](</docs/en/settings-reference#deniedmodels>)| A non-string entry is stripped and the rest of the list is enforced. A wholly invalid value is dropped with a warning and blocks no models until it is fixed.
 `blockedMarketplaces`| An individual invalid entry is stripped and the valid subset is enforced. An entry that parses but can never match, such as a `hostPattern` regex that doesn’t compile, is kept with a warning. It blocks nothing until fixed, but [marketplace restrictions](</docs/en/plugins/org#restrict-what-users-can-install>) stay active. A wholly invalid value is dropped with a warning, since blocking every marketplace would block sources the policy never named.
 `sandbox.credentials`| A recoverable invalid entry is degraded to `mode: "deny"` with a warning; an unrecoverable one is stripped; valid entries stay enforced. See [invalid credential entries](</docs/en/settings-reference#invalid-credential-entries-in-managed-settings>)
 
@@ -337,7 +339,7 @@ Field| Behavior when present but invalid
 
 Keys only a managed source can set
 
-Claude Code reads the following keys only from a managed source; placing them in user or project settings files has no effect. Most of them are locks: the value a lock governs, such as permission rules or `sandbox.network.allowedDomains`, is an ordinary key that any level can set, and the lock tells Claude Code to honor only the managed value. The table covers the permission, plugin, and delivery controls. For any key not listed here, the Scope column of the [settings reference](</docs/en/settings-reference#all-settings>) index says whether it’s managed-only; the remaining managed-only keys there include the gateway login URL, version, browser, mobile-simulator, SSH host, Desktop local-session, sandbox binary path, model pricing, and CLAUDE.md controls.
+Claude Code reads the following keys only from a managed source; placing them in user or project settings files has no effect. Most of them are locks: the value a lock governs, such as permission rules or `sandbox.network.allowedDomains`, is an ordinary key that any level can set, and the lock tells Claude Code to honor only the managed value. The table covers the permission, plugin, and delivery controls. For any key not listed here, the Scope column of the [settings reference](</docs/en/settings-reference#all-settings>) index says whether it’s managed-only; the remaining managed-only keys there include the gateway login URL, version, browser, mobile-simulator, SSH host, Desktop local-session, sandbox binary path, model pricing, model restriction, and CLAUDE.md controls.
 
 Setting| Description
 ---|---
@@ -379,7 +381,7 @@ Claude Code sends Anthropic operational [telemetry](</docs/en/data-usage#telemet
       }
     }
 
-Claude Code applies a value of `1` without showing the user the [approval dialog](</docs/en/server-managed-settings#environment-variables-and-the-approval-dialog>). If you turn telemetry off, Claude Code stops sending the usage data that feeds your organization’s [analytics dashboard](</docs/en/analytics>) for the developers the policy reaches. The variable also turns off feature-flag fetching, which makes Remote Control, default auto mode, and the other [features that need feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) unavailable for those developers. Where and when a policy applies says which delivery mechanism reaches each surface, and [Platform availability](</docs/en/server-managed-settings#platform-availability>) says which sessions skip the server-managed settings fetch. If your organization uses customer-managed encryption keys and routes Claude Code through a gateway, [Configure proxies and gateways](</docs/en/third-party-integrations#configure-proxies-and-gateways>) says why those sessions need this variable.
+Claude Code applies a value of `1` without showing the user the [approval dialog](</docs/en/server-managed-settings#environment-variables-and-the-approval-dialog>). If you turn telemetry off, Claude Code stops sending the usage data that feeds your organization’s [analytics dashboard](</docs/en/analytics>) for the developers the policy reaches. The variable also turns off [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) for those developers. For Remote Control, see the [Remote Control requirements](</docs/en/remote-control#requirements>). Where and when a policy applies says which delivery mechanism reaches each surface, and [Platform availability](</docs/en/server-managed-settings#platform-availability>) says which sessions skip the server-managed settings fetch. If your organization uses customer-managed encryption keys and routes Claude Code through a gateway, [Configure proxies and gateways](</docs/en/third-party-integrations#configure-proxies-and-gateways>) says why those sessions need this variable.
 
 ##
 

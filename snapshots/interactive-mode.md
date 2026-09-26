@@ -26,10 +26,10 @@ Shortcut| Description| Context
 `Ctrl+T`| Toggle Claude’s task checklist| Show or hide Claude’s to-do checklist in the status area. This is not the background-task view; use [`/tasks`](</docs/en/commands>) to see running shells and subagents
 `Ctrl+S`| Stash or restore prompt| With text in the input, stashes it and clears the prompt. Pressed again on an empty prompt, restores the stashed text, cursor position, pasted content, and input mode, so a stashed `!` shell command comes back in shell mode
 `Ctrl+Z`| Suspend Claude Code| Unix only. Suspends the process to your shell; run `fg` to resume
-`Left/Right arrows`| Cycle through dialog tabs| Navigate between tabs in permission dialogs and menus
+`Left/Right arrows`| Cycle through dialog tabs| Navigate between tabs in permission dialogs and menus. In a tabbed dialog, the keys switch tabs while the tab row has focus. See [Tabs actions](</docs/en/keybindings#tabs-actions>) for how focus moves
 `Tab`| Accept an autocomplete suggestion, or add a comment to a permission answer| While autocomplete suggestions are showing in the prompt input, accepts the selected suggestion. On most permission prompts, with **Yes** or **No** focused, opens a comment field on that option, and pressing it again closes the field. See [add a comment when you answer a permission prompt](</docs/en/permissions#add-a-comment-when-you-answer-a-permission-prompt>)
 `Up/Down arrows` or `Ctrl+P`/`Ctrl+N`| Move cursor or navigate command history| When the input spans more than one visual row, whether wrapped or multiline, first moves the cursor within the prompt. Once the cursor is on the first or last visual row, pressing again navigates command history. While you have messages queued, `Up` from the first row instead takes them back
-`Esc`| Interrupt Claude, or close a dialog| Stop the current response or tool call mid-turn so you can redirect. Claude keeps the work done so far. If you have messages queued, Claude Code sends them next. When a dialog is open, `Esc` closes the dialog. On a permission prompt, `Esc` declines the action, the same as [**No** without a comment](</docs/en/permissions#add-a-comment-when-you-answer-a-permission-prompt>)
+`Esc`| Interrupt Claude, or close a dialog| Stop the current response or tool call mid-turn so you can redirect. Claude keeps the work done so far. If you have messages queued, Claude Code sends them next. When a dialog is open, `Esc` closes the dialog. While a footer item is selected, such as a row in the [subagent panel](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) below the prompt, `Esc` [deselects it](</docs/en/keybindings#footer-actions>) instead of interrupting. On a permission prompt, `Esc` declines the action, the same as [**No** without a comment](</docs/en/permissions#add-a-comment-when-you-answer-a-permission-prompt>)
 `Esc` \+ `Esc`| Clear input draft, or rewind| When the prompt input contains text, double `Esc` clears it and saves the draft to history so `Up` recalls it. When the input is empty, double `Esc` opens the [rewind menu](</docs/en/checkpointing>) to restore or summarize code and conversation from a previous point
 `Ctrl+Enter` or `Ctrl+X Ctrl+S`| Send queued messages now| Sends your queued messages, and your draft with them, right away. When Claude Code sends what you queued covers what happens to the turn Claude is working on. In shell mode, the key only queues your command. In terminals that don’t report extended keys, `Ctrl+Enter` arrives as plain `Enter`; `Ctrl+X Ctrl+S` works in any terminal. Requires Claude Code v2.1.275 or later
 `Shift+Tab`, or `Alt+M` on Windows when the Node or Bun runtime doesn’t enable VT input mode| Cycle permission modes| Cycle through `default` (labeled Manual in the mode indicator), `acceptEdits`, `plan`, and, when available, `bypassPermissions` and then `auto`. From `auto`, the first press switches to `default`. See [permission modes](</docs/en/permission-modes>). On a file permission prompt, the same key closes an open [comment field](</docs/en/permissions#add-a-comment-when-you-answer-a-permission-prompt>). With no field open, it selects the option that allows the action for the rest of the session, when the prompt offers that option
@@ -229,10 +229,14 @@ Editing (NORMAL mode)
 Command| Action
 ---|---
 `x`| Delete character
+`r{char}`| Replace character under cursor with `{char}`
 `dd`| Delete line
 `D`| Delete to end of line
 `dw`/`de`/`db`| Delete word/to end/back
 `df{char}`/`dt{char}`| Delete to and including, or up to, the next occurrence of a character
+`dj`/`dk`| Delete the current line and the line below or above
+`dgg`/`dG`| Delete from the current line to the first or last line
+`d0`/`c0`/`y0`| Delete, change, or yank from the cursor back to the beginning of the line. Requires Claude Code v2.1.281 or later
 `cc`| Change line
 `C`| Change to end of line
 `cw`/`ce`/`cb`| Change word/to end/back
@@ -344,7 +348,7 @@ When Claude Code runs a command in the background, it runs the command asynchron
   * Prompt Claude Code to run a command in the background
   * Press `Ctrl+B` to move a regular Bash tool invocation to the background. Tmux users must press `Ctrl+B` twice due to tmux’s prefix key.
 
-**Key features:**
+When a command reaches its timeout before it finishes, Claude Code automatically [moves it to the background](</docs/en/tools-reference#background-commands>) instead of stopping it, unless the command starts with `sleep`. To change how long commands run before that happens, set the [Bash timeout environment variables](</docs/en/tools-reference#timeout-and-output-limits>). **Key features:**
 
   * Output is written to a file and Claude can retrieve it using the Read tool
   * Background tasks have unique IDs for tracking and output retrieval
@@ -395,7 +399,7 @@ Unless your session is one of those listed under [strict sandbox mode](</docs/en
 
 Queue messages while Claude works
 
-Type a message and press `Enter` while Claude is working. Claude Code queues the message instead of interrupting the turn, and lists the queued entries above the input box until it sends them. You can queue `!` shell commands and most [commands](</docs/en/commands>) the same way, apart from the commands, such as `/status`, that Claude Code runs as soon as you send them. Sent and queued messages show in gray until Claude starts responding to them, so you can tell which messages Claude hasn’t started on yet.
+Type a message and press `Enter` while Claude is working. Claude Code queues the message instead of interrupting the turn, and lists the queued entries in the conversation until it sends them. You can queue `!` shell commands and most [commands](</docs/en/commands>) the same way, apart from the commands, such as `/status`, that Claude Code runs as soon as you send them. Sent and queued messages show in gray until Claude starts responding to them, so you can tell which messages Claude hasn’t started on yet. If you queue a message with a selection attached from a [connected IDE](</docs/en/vs-code#the-built-in-ide-mcp-server>) or the diff panel, it keeps the selection you had when you pressed `Enter`, whatever you select afterward.
 
 ###
 

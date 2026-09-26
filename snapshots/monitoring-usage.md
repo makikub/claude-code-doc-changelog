@@ -29,7 +29,7 @@ Configure OpenTelemetry using environment variables:
     # 6. Run Claude Code
     claude
 
-To verify a setup that exports metrics, check your backend for the `claude_code.session.count` metric, which Claude Code emits when a session starts. To verify a logs-only setup, submit a prompt and check for the `claude_code.user_prompt` event. If nothing arrives, run `claude --debug` and check the debug log. Claude Code reports failures from the exporters you configure as `[3P telemetry]` errors, where 3P means third-party. Lines prefixed `[Anthropic telemetry]` describe [Anthropic’s separate operational telemetry](</docs/en/data-usage#telemetry-services>) and don’t indicate a problem with your setup. For full configuration options, see the [OpenTelemetry specification](<https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md#configuration-options>).
+To verify a setup that exports metrics, check your backend for the `claude_code.session.count` metric, which Claude Code emits when a session starts. To verify a logs-only setup, submit a prompt and check for the `claude_code.user_prompt` event. If nothing arrives, start Claude Code with `claude --debug-file <path>` and check the log it writes to that path. Claude Code reports failures from the exporters you configure as `[3P telemetry]` errors, where 3P means third-party. Lines prefixed `[Anthropic telemetry]` describe [Anthropic’s separate operational telemetry](</docs/en/data-usage#telemetry-services>) and don’t indicate a problem with your setup. For full configuration options, see the [OpenTelemetry specification](<https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/protocol/exporter.md#configuration-options>).
 
 ##
 
@@ -58,7 +58,7 @@ Claude Code ignores the [OpenTelemetry exporter variables](</docs/en/settings-re
 
 How managed settings lock the OTLP destination
 
-When you set an `OTEL_EXPORTER_OTLP_*` variable in managed settings, Claude Code removes conflicting developer-set variables at startup and logs a warning you can see with `claude --debug`. What it removes depends on which variable you set:
+When you set an `OTEL_EXPORTER_OTLP_*` variable in managed settings, Claude Code removes conflicting developer-set variables at startup and logs a warning in the debug log. What it removes depends on which variable you set:
 
   * **Endpoints** : when you set `OTEL_EXPORTER_OTLP_ENDPOINT`, Claude Code removes every developer-set per-signal endpoint. Developers can’t point one signal at a different collector, so you don’t need to also set the per-signal endpoint variables in managed settings.
   * **Protocols** : when you set `OTEL_EXPORTER_OTLP_PROTOCOL`, Claude Code removes every developer-set per-signal protocol.
@@ -225,7 +225,7 @@ Attribute| Description| Gated by
 `output_tokens`| Output token count|
 `cache_read_tokens`| Tokens read from prompt cache|
 `cache_creation_tokens`| Tokens written to prompt cache|
-`request_id`| Anthropic API request ID from the `request-id` response header|
+`request_id`| API request ID. Same value as the `request_id` event correlation attribute|
 `gen_ai.response.id`| Same value as `request_id`. OpenTelemetry GenAI semantic convention|
 `client_request_id`| Client-generated `x-client-request-id` of the final attempt|
 `attempt`| Total attempts made for this request|
@@ -258,18 +258,19 @@ Attribute| Description| Gated by
 `skill_name`| Skill name for the Skill tool| `OTEL_LOG_TOOL_DETAILS`
 `subagent_type`| Subagent type for the Agent tool or legacy Task tool| `OTEL_LOG_TOOL_DETAILS`
 
-**`tool.output` span event on `claude_code.tool`** If you set `OTEL_LOG_TOOL_CONTENT=1`, Read and Bash calls can record a `tool.output` span event on the `claude_code.tool` span. Edit and Write calls record one only when you also set `OTEL_LOG_TOOL_DETAILS=1`. That variable isn’t scoped to those two tools, so check its row in the configuration table for the arguments it adds elsewhere. Claude Code writes this event from a tool call’s successful return, so a call that raises an error records nothing, whatever the tool. Among the calls that do return, it records no `tool.output` event for:
+**`tool.output` span event on `claude_code.tool`** If you set `OTEL_LOG_TOOL_CONTENT=1`, Read and Bash calls can record a `tool.output` span event on the `claude_code.tool` span. Edit and Write calls record one only when you also set `OTEL_LOG_TOOL_DETAILS=1`. That variable isn’t scoped to those two tools, so check its row in the configuration table for the arguments it adds elsewhere. MCP tools, WebFetch, and WebSearch record this event too, on Claude Code v2.1.283 or later. Claude Code writes this event from a tool call’s successful return, so a call that raises an error records nothing, whatever the tool. Among the calls that do return, it records no `tool.output` event for:
 
-  * A call to any tool other than Read, Edit, Write, and Bash, including MCP tools and WebFetch
+  * A call to any tool other than Read, Edit, Write, Bash, WebFetch, WebSearch, and MCP tools
   * A Read that returns anything other than file text, such as an image, a PDF, or a re-read of a file whose contents haven’t changed
   * An Edit or Write call, unless you also set `OTEL_LOG_TOOL_DETAILS=1`
+  * A WebFetch or WebSearch call that Claude Code moved to the background because you interrupted the turn to [send your queued messages right away](</docs/en/interactive-mode#when-claude-code-sends-what-you-queued>) while the call ran. Claude receives that result later, after the tool span has ended
 
 The event carries these attributes, each truncated at the content limit (60 KB by default). `Gated by` names the variable an attribute needs on top of `OTEL_LOG_TOOL_CONTENT=1`, and for Edit and Write that variable gates the event itself rather than the attribute.
 
 Attribute| Description| Gated by
 ---|---|---
 `content`| Text the Read tool returned, or the text a Write call was asked to write| `OTEL_LOG_TOOL_DETAILS` for the Write tool
-`output`| Combined output of a Bash command, with stderr interleaved into stdout|
+`output`| For the Bash tool, the command’s combined output, with stderr interleaved into stdout. For an MCP tool, WebFetch, or WebSearch, the result the tool returned: text blocks joined by newlines, with an image or document replaced by a placeholder such as `[image]`|
 `diff`| Structured patch the Edit tool applied| `OTEL_LOG_TOOL_DETAILS`
 `file_path`| Target file path for the Read, Edit, and Write tools, repeating the span attribute of the same name| `OTEL_LOG_TOOL_DETAILS`
 `bash_command`| Command string for the Bash tool| `OTEL_LOG_TOOL_DETAILS`
@@ -656,6 +657,7 @@ Attribute| Description
 `prompt.id`| UUID v4 identifier linking all events produced while processing a single user prompt
 `event.sequence`| 0-based counter for ordering events, counted per Claude Code process rather than per session
 `message.uuid`| UUID of the message as persisted in the session transcript, the `~/.claude/projects/*/*.jsonl` files. Present on `assistant_response`, on `api_response_body`, and on `user_prompt` except for command dispatches, which can produce zero or many messages. On `assistant_response` and `api_response_body`, this is the response’s final transcript entry, which the next turn’s `parentUuid` chains from. Requires Claude Code v2.1.214 or later, or v2.1.274 or later on `api_response_body`
+`request_id`| Server-assigned ID of the API request, read from the `request-id` response header, such as `req_011...`. On a response with no `request-id` header, as on [Amazon Bedrock](</docs/en/amazon-bedrock>), the value comes from the `x-amzn-requestid` header instead. Present on `api_request`, `api_error`, `api_refusal`, `assistant_response`, and `api_response_body` when the response carries either header. Matches the same attribute on the `llm_request` trace span. The `x-amzn-requestid` source requires Claude Code v2.1.282 or later
 `client_request_id`| Client-generated UUID sent as the `x-client-request-id` request header. Present on `api_request` and `api_error` on first-party API connections; absent on third-party provider backends and when the request was retried through the non-streaming fallback. Pairs a request with its response and remains available for failures such as timeouts that never produced a server `request_id`. Matches the same attribute on the `llm_request` trace span. Requires Claude Code v2.1.214 or later
 
 To trace all activity triggered by a single prompt, filter your events by a specific `prompt.id` value. This returns the user_prompt event, any api_request events, and any tool_result events that occurred while processing that prompt. `event.sequence` starts at 0 each time a Claude Code process starts and counts up for the life of that process. It keeps counting across `/clear`, which assigns a new `session.id`. If you [resume a session without forking](</docs/en/how-claude-code-works#resume-or-fork-sessions>), the session keeps its `session.id` but takes its `event.sequence` values from the process that resumed it, so within one session a later event can carry a lower value than an earlier one, or repeat one. To order a session’s events, sort by `event.timestamp` and use `event.sequence` to order events that share a timestamp. For message-level reconstruction, each event class carries a key that matches a field in the session transcript. The transcript entry format is [internal to Claude Code](</docs/en/sessions#where-transcripts-are-stored>) and changes between versions, so a pipeline that joins on these fields can break on any release; treat the joins as version-specific rather than a stable contract:
@@ -697,7 +699,7 @@ Logged after each API request that returns text content from the model. Only the
   * `response_length`: Length of the response text in characters
   * `response`: Response text, truncated at the content limit (60 KB by default). Redacted to `<REDACTED>` by default. Set `OTEL_LOG_ASSISTANT_RESPONSES=1` to include it. When `OTEL_LOG_ASSISTANT_RESPONSES` is unset, `OTEL_LOG_USER_PROMPTS` controls it instead, so set `OTEL_LOG_ASSISTANT_RESPONSES=0` to keep responses redacted while prompt logging is on
   * `model`: Model identifier (for example, “claude-sonnet-5”)
-  * `request_id`: Anthropic API request ID from the response’s `request-id` header. Present only when the API returns one
+  * `request_id`: API request ID, described under Event correlation attributes
   * `message.uuid`: UUID of the response’s final transcript entry. An API response is persisted as one transcript entry per content block; this is the last one, which the next turn’s `parentUuid` chains from. Requires Claude Code v2.1.214 or later
   * `query_source`: Subsystem that issued the request, such as `"repl_main_thread"`, `"compact"`, or a subagent name
 
@@ -753,7 +755,7 @@ Logged for each API request to Claude. **Event Name** : `claude_code.api_request
   * `output_tokens`: Number of output tokens
   * `cache_read_tokens`: Number of tokens read from cache
   * `cache_creation_tokens`: Number of tokens used for cache creation
-  * `request_id`: Anthropic API request ID from the response’s `request-id` header, such as `"req_011..."`. Present only when the API returns one.
+  * `request_id`: API request ID, such as `"req_011..."`, described under Event correlation attributes.
   * `client_request_id`: Client-generated UUID sent as the `x-client-request-id` request header; see the event correlation attributes table for when it’s present. Requires Claude Code v2.1.214 or later
   * `speed`: `"fast"` or `"normal"`, indicating whether fast mode was active
   * `query_source`: Subsystem that issued the request, such as `"repl_main_thread"`, `"compact"`, or a subagent name
@@ -777,7 +779,7 @@ Logged when an API request to Claude fails. **Event Name** : `claude_code.api_er
   * `status_code`: HTTP status code as a number. Absent for non-HTTP errors such as connection failures.
   * `duration_ms`: Request duration in milliseconds
   * `attempt`: Total number of attempts made, including the initial request (`1` means no retries occurred)
-  * `request_id`: Anthropic API request ID from the response’s `request-id` header, such as `"req_011..."`. Present only when the API returns one.
+  * `request_id`: API request ID, such as `"req_011..."`, described under Event correlation attributes.
   * `client_request_id`: Client-generated UUID sent as the `x-client-request-id` request header. Available even when a failure such as a timeout or connection error never produced a server `request_id`; see the event correlation attributes table for when it’s present. Requires Claude Code v2.1.214 or later
   * `speed`: `"fast"` or `"normal"`, indicating whether fast mode was active
   * `query_source`: Subsystem that issued the request, such as `"repl_main_thread"`, `"compact"`, or a subagent name
@@ -797,7 +799,7 @@ Logged when an API request returns `stop_reason: "refusal"`. Refusals arrive on 
   * `event.timestamp`: ISO 8601 timestamp
   * `event.sequence`: per-process counter for ordering events, described under Event correlation attributes
   * `model`: Model identifier from the request
-  * `request_id`: Anthropic API request ID from the response’s `request-id` header, such as `"req_011..."`. Present only when the API returns one.
+  * `request_id`: API request ID, such as `"req_011..."`, described under Event correlation attributes.
   * `query_source`: Subsystem that issued the request, such as `"repl_main_thread"`, `"compact"`, or a subagent name. See `api_request` for definitions.
   * `speed`: Either `"fast"` when [Fast mode](</docs/en/fast-mode>) is active, or `"normal"`
   * `attempt`: Retry attempt number. The first attempt is `1`.
@@ -846,7 +848,7 @@ Logged for each successful API response when `OTEL_LOG_RAW_API_BODIES` is set. I
   * `body_truncated`: `"true"` when inline truncation occurred. Absent in file mode and when no truncation occurred.
   * `model`: Model identifier
   * `query_source`: Subsystem that issued the request
-  * `request_id`: Anthropic API request ID from the response’s `request-id` header, such as `"req_011..."`. Present only when the API returns one.
+  * `request_id`: API request ID, such as `"req_011..."`, described under Event correlation attributes.
   * `request_body_id`: The `request_body_id` of the `api_request_body` event that this response answers. Requires Claude Code v2.1.274 or later
   * `message.id`: Message ID the API assigned to the response, the `id` field of the response body. Requires Claude Code v2.1.274 or later
   * `message.uuid`: UUID of the response’s final transcript entry. Together with `request_body_id`, it links a transcript message to the request and response bodies behind it. Requires Claude Code v2.1.274 or later
@@ -1427,7 +1429,7 @@ Point `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` at your SIEM’s OTLP receiver, or at a
       }
     }
 
-To confirm events arrive, submit a prompt in a session running under this configuration and check your SIEM for the `claude_code.user_prompt` event. If nothing arrives, run `claude --debug` and check the debug log for `[3P telemetry]` export errors.
+To confirm events arrive, submit a prompt in a session running under this configuration and check your SIEM for the `claude_code.user_prompt` event. If nothing arrives, start Claude Code with `claude --debug-file <path>` and check that log for `[3P telemetry]` export errors.
 
 ##
 
@@ -1512,7 +1514,7 @@ Security and privacy
     * `tool_result` events additionally include a `tool_input` attribute with file paths, URLs, search patterns, and other arguments. Individual values over 512 characters are truncated and the total is bounded to ~4 K characters
     * `user_prompt` events include the verbatim `command_name` for custom, plugin, and MCP commands
     * Trace spans include the same `tool_input` attribute and input-derived attributes such as `file_path`, with the same truncation as `tool_input`
-  * Tool content is not logged in trace spans by default. To include it, set `OTEL_LOG_TOOL_CONTENT=1`. The `claude_code.tool` span then carries a `tool.output` span event with raw file contents and Bash command output, truncated at the content limit (60 KB by default) per attribute. Tool content also reaches spans through `new_context`, whose gate differs per span. Configure your telemetry backend to filter or redact these attributes as needed
+  * Tool content is not logged in trace spans by default. To include it, set `OTEL_LOG_TOOL_CONTENT=1`. The `claude_code.tool` span then carries a `tool.output` span event with raw file contents, Bash command output, and what MCP tools, WebFetch, and WebSearch return, truncated at the content limit (60 KB by default) per attribute. Results from MCP tools, WebFetch, and WebSearch require Claude Code v2.1.283 or later. Tool content also reaches spans through `new_context`, whose gate differs per span. Configure your telemetry backend to filter or redact these attributes as needed
   * Raw Anthropic Messages API request and response bodies are not logged by default. To include them, set `OTEL_LOG_RAW_API_BODIES` in your shell, user settings, or managed settings. It’s ignored in [project and local settings](</docs/en/settings-reference#variables-claude-code-ignores-in-env>). The bodies contain the full conversation history, including the system prompt, every prior user and assistant turn, and tool results, so enabling this implies consent to everything the other `OTEL_LOG_*` content flags would reveal. Claude Code always redacts Claude’s extended-thinking content from these bodies, regardless of other settings. The value you set determines how Claude Code delivers the bodies:
     * With `=1`, Claude Code emits `api_request_body` and `api_response_body` log events for each API call. The events’ `body` attribute carries the JSON-serialized payload, truncated at the content limit (60 KB by default)
     * With `=file:<dir>`, Claude Code writes untruncated bodies to `.request.json` and `.response.json` files under that directory, and the events carry a `body_ref` path instead of the inline body. Ship the directory with a log collector or sidecar rather than through the telemetry stream. For each successful response, Claude Code also appends one line to `index.jsonl` in that directory, linking the response file to the request file that produced it and to the transcript message it became. Each line holds no message content, and the API response body event section lists its fields. The index file requires Claude Code v2.1.274 or later

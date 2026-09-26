@@ -63,7 +63,15 @@ If you stop a `claude -p` run with SIGTERM, for example with `kill` or from a pr
   * **Running a command** : Claude Code records the command as killed in the session.
   * **Waiting for an answer to a permission prompt** : if you send SIGTERM to the process, Claude Code leaves the prompt unanswered. If your program closes the session through the Agent SDK, the SDK ends Claude Code’s input before sending any signal, and Claude Code cancels the prompt as soon as the input ends.
 
-When you resume the session, Claude Code continues the turn that SIGTERM left unfinished.
+When you resume the session, Claude Code leaves the interrupted turn as it is, and your next prompt drives the conversation. To have Claude Code continue the interrupted turn on resume instead, set [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN=1`](</docs/en/env-vars>).
+
+###
+
+​
+
+If the working directory is deleted
+
+If the working directory of a `claude -p` or Agent SDK session is deleted mid-session, the session keeps running. When a turn starts while the directory is missing, Claude Code emits a [warning message](</docs/en/agent-sdk/typescript#sdkinformationalmessage>) in `stream-json` output, and shell commands fail until the directory exists again.
 
 ##
 
@@ -215,9 +223,9 @@ Use the plugin fields in the `system/init` event to catch a plugin that didn’t
 Field| Type| Description
 ---|---|---
 `plugins`| array| plugins that loaded successfully, each with `name` and `path`
-`plugin_errors`| array| plugin load-time errors, each with `plugin`, `type`, and `message`. Includes unsatisfied dependency versions and `--plugin-dir` load failures such as a missing path or invalid archive. Affected plugins are demoted and absent from `plugins`. The key is omitted when there are no errors
+`plugin_errors`| array| plugin load-time errors, each with `plugin`, `type`, and `message`. Includes unsatisfied dependency versions and `--plugin-dir` load failures such as a missing path or invalid archive. A plugin that didn’t load is absent from `plugins`. The key is omitted when there are no errors
 
-Use the MCP server fields the same way. When you pass [`--mcp-config`](</docs/en/cli-reference#cli-flags>) with `-p`, Claude Code waits for still-pending servers before running the first turn, up to the [`MCP_TIMEOUT`](</docs/en/env-vars>) startup timeout, 30 seconds by default. A remote server with a [cached tool list](</docs/en/agent-sdk/mcp#connection-timing>) skips the wait, shows `pending` in `system/init`, and connects on its first tool call. The wait requires Claude Code v2.1.221 or later. Claude Code validates each `--mcp-config` entry at startup and skips entries that fail validation, for example a `url` entry with no `type`. The run continues and exits cleanly, so check these fields to catch a server that never loaded:
+When a `--plugin-dir` directory or archive itself fails to load, its `plugin_errors` entry includes the resolved absolute path as `path`. Use it to tell which of several `--plugin-dir` values failed. The `path` field requires Claude Code v2.1.283 or later. Use the MCP server fields the same way. When you pass [`--mcp-config`](</docs/en/cli-reference#cli-flags>) with `-p`, Claude Code waits for still-pending servers before running the first turn, up to the [`MCP_TIMEOUT`](</docs/en/env-vars>) startup timeout, 30 seconds by default. A remote server with a [cached tool list](</docs/en/agent-sdk/mcp#connection-timing>) skips the wait, shows `pending` in `system/init`, and connects on its first tool call. The wait requires Claude Code v2.1.221 or later. Claude Code validates each `--mcp-config` entry at startup and skips entries that fail validation, for example a `url` entry with no `type`. The run continues and exits cleanly, so check these fields to catch a server that never loaded:
 
 Field| Type| Description
 ---|---|---
