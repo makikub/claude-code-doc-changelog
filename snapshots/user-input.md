@@ -261,7 +261,7 @@ TypeScript
       return { behavior: "allow", updatedInput: input };
     };
 
-The user approves and doesn’t want to be asked again for this kind of call. The third callback argument carries `suggestions`, an array of ready-made [`PermissionUpdate`](</docs/en/agent-sdk/typescript#permissionupdate>) entries. Echo one back in `updatedPermissions` to apply it. A suggestion with the `localSettings` destination writes the rule to `.claude/settings.local.json` so future sessions skip the prompt for matching calls.The Python example requires `claude-agent-sdk` 0.1.80 or later.
+The user approves and doesn’t want to be asked again for this kind of call. The third callback argument carries `suggestions`, an array of ready-made [`PermissionUpdate`](</docs/en/agent-sdk/typescript#permissionupdate>) entries. Echo one back in `updatedPermissions` to apply it. A suggestion with the `localSettings` destination writes the rule to `.claude/settings.local.json` so future sessions skip the prompt for matching calls.In TypeScript, skip the always-allow choice for a request whose options carry [`suppressAlwaysAllowRule: true`](</docs/en/agent-sdk/typescript#canusetool>). The hint requires Agent SDK v0.3.268 or later, and the Python `context` doesn’t carry it.The Python example requires `claude-agent-sdk` 0.1.80 or later.
 
 Python
 

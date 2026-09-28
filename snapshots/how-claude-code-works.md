@@ -126,6 +126,21 @@ Claude’s context window holds your conversation history, file contents, comman
 
 ​
 
+Context Claude Code adds on its own
+
+If Claude follows a rule you didn’t write, such as adding a `Co-Authored-By` trailer to a commit, the rule may have come from a [system reminder](</docs/en/glossary#system-reminder>). As you work, Claude Code adds its own context to the conversation alongside your messages:
+
+  * Your CLAUDE.md files
+  * The instructions of your [output style](</docs/en/output-styles>)
+  * A note when a file Claude read earlier changes on disk
+  * The commit and pull request attribution lines
+
+To change or remove the attribution lines, set [`attribution`](</docs/en/settings-reference#attribution>). To remove Claude Code’s built-in commit and pull request instructions, set [`includeGitInstructions`](</docs/en/settings-reference#includegitinstructions>) to `false`. For the other switches, see [Turn off the context your agent replaces](</docs/en/agent-sdk/modifying-system-prompts#turn-off-the-context-your-agent-replaces>).
+
+####
+
+​
+
 When context fills up
 
 Claude Code manages context automatically as you approach the limit. It clears older tool outputs first, then summarizes the conversation if needed. Your requests and key code snippets are preserved; detailed instructions from early in the conversation may be lost. Put persistent rules in CLAUDE.md rather than relying on conversation history. To control what’s preserved during compaction, add a “Compact Instructions” section to CLAUDE.md or run `/compact` with a focus (like `/compact focus on the API changes`). If a single file or tool output is so large that context refills immediately after each summary, Claude Code stops auto-compacting after a few attempts and shows an error instead of looping. See [Auto-compaction stops with a thrashing error](</docs/en/troubleshooting#auto-compaction-stops-with-a-thrashing-error>) for recovery steps. Run `/context` to see what’s using space. MCP tool definitions are deferred by default and loaded on demand via [tool search](</docs/en/mcp#scale-with-mcp-tool-search>), so only tool names and server instructions consume context until Claude uses a specific tool.

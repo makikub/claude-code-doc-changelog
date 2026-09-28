@@ -174,7 +174,7 @@ Claude Code keeps plugin files and state records under one plugins root, which i
 Path| What it holds
 ---|---
 `cache/<marketplace>/<plugin>/<version>/`| One directory per installed version of a marketplace plugin. `<plugin>` is the marketplace entry name and `<version>` is the resolved version. `${CLAUDE_PLUGIN_ROOT}` points at this directory
-`data/<plugin-id>/`| The plugin’s persistent directory, exposed as `${CLAUDE_PLUGIN_DATA}`. For how `<plugin-id>` is formed, see [Path variables and persistent data](</docs/en/plugins/components#path-variables-and-persistent-data>). Claude Code creates it when a plugin component first uses it and keeps it across updates. Claude Code deletes it when you uninstall the plugin from its last scope, unless you pass `--keep-data`
+`data/<plugin-id>/`| The plugin’s persistent directory, exposed as `${CLAUDE_PLUGIN_DATA}`. For how `<plugin-id>` is formed, see [Path variables and persistent data](</docs/en/plugins/components#path-variables-and-persistent-data>). Claude Code creates it when a plugin component first uses it and keeps it across updates. By default, Claude Code deletes it when you uninstall the plugin from its last scope. For `--keep-data` and the other cases where it stays, see [plugin uninstall](</docs/en/plugins/cli-reference#plugin-uninstall>)
 `marketplaces/<name>/`| The clone or download of a marketplace added from GitHub, another Git host, or a URL. A marketplace added from a local `file` or `directory` source has no copy here, and its `installLocation` in `known_marketplaces.json` is the path you gave
 `synced/`| The plugins Claude Code synced from your claude.ai account
 `.trash/`| Plugins that the claude.ai sync removed, such as after you turn one off on claude.ai or stop syncing

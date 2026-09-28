@@ -1,4 +1,4 @@
-This page routes you to complete, runnable Agent SDK projects and guided Claude Cookbook recipes. TypeScript applications live in the [`claude-agent-sdk-demos`](<https://github.com/anthropics/claude-agent-sdk-demos>) repo, and Python recipes live in the [Claude Cookbook](<https://platform.claude.com/cookbook>).
+This page routes you to complete, runnable Agent SDK projects and guided Claude Cookbook recipes. The applications live in the [`claude-agent-sdk-demos`](<https://github.com/anthropics/claude-agent-sdk-demos>) repo, and Python recipes live in the [Claude Cookbook](<https://platform.claude.com/cookbook>).
 
 ##
 
@@ -15,9 +15,9 @@ If you haven’t built anything with the SDK yet, start with one of these before
 
 ​
 
-Explore a TypeScript application
+Explore a demo application
 
-The TypeScript applications in [`claude-agent-sdk-demos`](<https://github.com/anthropics/claude-agent-sdk-demos>) are demos for local development, from an email client to a multi-agent research system. Clone the demo whose shape matches what you’re building.
+The applications in [`claude-agent-sdk-demos`](<https://github.com/anthropics/claude-agent-sdk-demos>) are demos for local development, from an email client to a multi-agent research system. Clone the demo whose shape matches what you’re building.
 
 ##
 

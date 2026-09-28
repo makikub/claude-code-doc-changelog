@@ -100,6 +100,11 @@ The command reports one of these results:
   * **`Validation passed with warnings`** : the manifest loads, but the validator found something to fix, such as an unknown top-level field that Claude Code strips, a `name` that isn’t kebab-case, or a missing `version`, `description`, or `author`. Pass `--strict` to turn warnings into failures in CI
   * **`Validation failed`** : the manifest has a type mismatch, a path that is missing or escapes the plugin root, or an unknown key inside a `userConfig` option, `channels` entry, `lspServers` config, or `monitors` entry. Claude Code reports the same problem when it loads the plugin
 
+The command also checks each MCP server entry the plugin declares in `.mcp.json`, in a `.json` file that `mcpServers` names, or inline in `plugin.json`. These MCP checks require Claude Code v2.1.281 or later and include:
+
+  * **Errors** : an entry Claude Code would drop when it loads the plugin, a `${user_config.KEY}` reference to an option the manifest doesn’t declare, and a remote `url` that isn’t a valid absolute URL
+  * **Warnings** : an `http://` or `ws://` URL to a non-loopback host, and a header value that looks like a literal credential
+
 ##
 
 ​
@@ -541,7 +546,7 @@ Variable| Resolves to| Use it for
 `${CLAUDE_PLUGIN_DATA}`| `~/.claude/plugins/data/<id>/`, created on first reference and kept across plugin updates. `<id>` is the plugin identifier with every character other than a letter, digit, `_`, or `-` replaced by `-`| Installed dependencies such as `node_modules`, generated code, and caches
 `${CLAUDE_PROJECT_DIR}`| The project root| Project-local scripts and config files
 
-`${CLAUDE_PLUGIN_ROOT}` changes when the plugin updates, so don’t write state there. For where the root moves and when the old directory is cleaned up, see the [loading page](</docs/en/plugins/loading>). When you uninstall the plugin from the last place it’s installed, the `${CLAUDE_PLUGIN_DATA}` directory is deleted unless you pass [`--keep-data`](</docs/en/plugins/cli-reference>).
+`${CLAUDE_PLUGIN_ROOT}` changes when the plugin updates, so don’t write state there. For where the root moves and when the old directory is cleaned up, see the [loading page](</docs/en/plugins/loading>). By default, Claude Code deletes the `${CLAUDE_PLUGIN_DATA}` directory when you uninstall the plugin from the last place it’s installed. For `--keep-data` and the other cases where it stays, see [plugin uninstall](</docs/en/plugins/cli-reference#plugin-uninstall>).
 
 ###
 
@@ -573,7 +578,7 @@ Keep each substituted path a single argument:
   * **Hook commands** : use [exec form](</docs/en/hooks#exec-form-and-shell-form>) with `args` so each path is one argument with no quoting
   * **Shell-form hooks and monitor commands** : wrap the variable in double quotes so a path with spaces stays one word
 
-This shell-form hook runs a script bundled with the plugin:
+If you leave one of these variables outside quotes in a shell-form command in a hooks file, `claude plugin validate` warns about it unless the hook sets [`shell`](</docs/en/hooks#command-hook-fields>) to `"powershell"`. This shell-form hook runs a script bundled with the plugin:
 
     {
       "hooks": {

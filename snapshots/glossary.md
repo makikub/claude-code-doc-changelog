@@ -436,6 +436,31 @@ Surface
 
 Any place you access Claude Code: the CLI, VS Code, JetBrains, Desktop, or claude.ai. All surfaces share the same engine. Sessions on your machine read your local CLAUDE.md, settings, and skills; [cloud sessions](</docs/en/cloud-environments#what-carries-over-from-your-setup>) start from a fresh clone of your repository and don’t read `~/.claude/` on your machine. Slack and the Chrome extension are integrations that connect to a surface rather than surfaces themselves. Learn more: [Platforms and integrations](</docs/en/platforms>)
 
+###
+
+​
+
+System prompt
+
+The instructions Claude Code sends ahead of your conversation on every request, covering how Claude uses tools, behaves safely, and formats its responses. You can add to the system prompt with `--append-system-prompt` or replace it with `--system-prompt`. The system prompt is the first layer of the [prompt cache](</docs/en/prompt-caching#how-the-cache-is-organized>). Your CLAUDE.md files and the instructions of your output style aren’t part of the system prompt. Claude Code delivers them in the conversation as system reminders. Learn more: [System prompt flags](</docs/en/cli-reference#system-prompt-flags>)
+
+###
+
+​
+
+System reminder
+
+A message that Claude Code, as the harness, adds to the conversation to give Claude context. You don’t send system reminders yourself. Claude Code inserts them as a session runs, for example when the session starts, when a hook returns text, or when a file changes on disk. Claude reads them alongside your messages. The following all reach Claude as system reminders:
+
+  * Your CLAUDE.md files
+  * The instructions of your output style
+  * Text a hook returns as `additionalContext`
+  * The list of available skills
+  * A note that a file Claude read earlier has changed on disk
+  * The commit and pull request attribution lines
+
+In a logged API request, a system reminder appears wrapped in `<system-reminder>` tags inside a user message, or on some models as a separate message with the `system` role. Learn more: [Context Claude Code adds outside the system prompt](</docs/en/agent-sdk/modifying-system-prompts#context-claude-code-adds-outside-the-system-prompt>)
+
 ##
 
 ​

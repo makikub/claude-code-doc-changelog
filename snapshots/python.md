@@ -295,7 +295,7 @@ Return type: `SDKSessionInfo`
 Property| Type| Description
 ---|---|---
 `session_id`| `str`| Unique session identifier
-`summary`| `str`| Display title: custom title, auto-generated summary, or first prompt
+`summary`| `str`| Display title: custom title, most recent prompt, auto-generated summary, or first prompt
 `last_modified`| `int`| Last modified time in milliseconds since epoch
 `file_size`| `int | None`| Session file size in bytes (`None` for remote storage backends)
 `custom_title`| `str | None`| Session title: the user-set title, or the auto-generated title when none is set
@@ -3605,7 +3605,7 @@ When `allowUnsandboxedCommands` is enabled, the model can request to run command
 
     asyncio.run(main())
 
-Commands running with `dangerouslyDisableSandbox: True` have full system access. Ensure your `can_use_tool` handler validates these requests carefully.If `permission_mode` is set to `bypassPermissions` and `allow_unsandboxed_commands` is enabled, the model can autonomously execute commands outside the sandbox without approval prompts, apart from the [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>). This combination effectively allows the model to escape sandbox isolation silently.
+Commands running with `dangerouslyDisableSandbox: True` have full system access. Ensure your `can_use_tool` handler validates these requests carefully.If `permission_mode` is set to `bypassPermissions` and `allowUnsandboxedCommands` is enabled, the model can autonomously execute commands outside the sandbox without approval prompts, apart from the [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>). This combination effectively allows the model to escape sandbox isolation silently.
 
 ##
 
