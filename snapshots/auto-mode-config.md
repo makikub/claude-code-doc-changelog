@@ -333,7 +333,7 @@ To see what the classifier blocked, find the tool call in the conversation. If t
   * A command you want to run without review from now on: add an `allow` rule.
   * A one-off action you did intend: state that intent in your next message and let Claude retry.
 
-You can add the environment entry or `allow` rule from the `/permissions` dialog’s **Auto mode** tab.
+You can add the environment entry or `allow` rule from the `/permissions` dialog’s **Auto mode** tab. The text in square brackets, such as `[Data Exfiltration]`, is the name of the rule the classifier matched. To read that rule’s full wording, see Inspect the defaults and your effective config.
 
 ###
 

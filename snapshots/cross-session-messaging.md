@@ -50,7 +50,7 @@ The receiving Claude reads the message between tool calls during an active turn,
 
   * The message is over the size cap. Claude Code refuses it in the sending session, before it leaves.
   * A rapid burst to a session on this machine has reached what that session’s inbox accepts. Claude Code refuses further messages to that session.
-  * The reply target on this machine fails a safety check, such as a symlinked target or an endpoint that isn’t the expected process. [Refusing to send a cross-session message](</docs/en/errors#refusing-to-send-a-cross-session-message>) lists these checks.
+  * The reply target on this machine fails a safety check, such as a symlinked target. [Refusing to send a cross-session message](</docs/en/errors#refusing-to-send-a-cross-session-message>) lists these checks.
 
 The receiving session checks each arriving message against its own inbound controls, and the check ends in one of three outcomes:
 

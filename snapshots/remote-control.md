@@ -24,7 +24,7 @@ Before using Remote Control, confirm that your environment meets these condition
   * **Feature-flag evaluation** : if you set an [environment variable that turns off feature-flag evaluation](</docs/en/env-vars#features-that-need-feature-flag-fetching>), whether Remote Control is available depends on which one:
     * If you set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `DISABLE_GROWTHBOOK`, Remote Control is unavailable. Unset the variable wherever it’s set, in your shell environment or in the `env` block of a [`settings.json` file](</docs/en/settings-reference#all-settings>), to use Remote Control.
     * If you set only `DISABLE_TELEMETRY` or `DO_NOT_TRACK`, Remote Control stays available unless your organization requires Trusted Devices. If it does, unset the variable to use Remote Control. Using Remote Control with either variable set requires Claude Code v2.1.283 or later.
-  * **Workspace trust** : run `claude` in your project directory at least once to accept the workspace trust dialog. The startup trust dialog never saves trust for your home directory, so start Remote Control from a project directory.
+  * **Workspace trust** : in a directory you haven’t trusted yet, `claude remote-control` prints what trusting it turns on and asks `Trust <directory>? [y/N]` before it starts. Answering `y` saves the choice, except in your home directory, where trust is never saved and the question returns on every run. When its standard input or output isn’t a terminal, the command can’t ask and exits with a [`Workspace not trusted`](</docs/en/errors#workspace-not-trusted-when-starting-remote-control>) error.
 
 ##
 
@@ -410,7 +410,7 @@ An [environment variable](</docs/en/env-vars#features-that-need-feature-flag-fet
 
 ”Remote Control is only available when using Claude via api.anthropic.com”
 
-The session isn’t talking to the Anthropic API directly, so there is no claude.ai backend to pair with. This happens on Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry. It also happens when [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at a host other than `api.anthropic.com`, such as an [LLM gateway](</docs/en/llm-gateway>) or proxy, even if you sign in with claude.ai. See the [error reference](</docs/en/errors#remote-control-requires-the-anthropic-api>) for the full cause list. The message names what routed the session away from the Anthropic API, such as `CLAUDE_CODE_USE_BEDROCK` or a custom `ANTHROPIC_BASE_URL`. If you have an eligible claude.ai login, unset the named variable, remove it from the `env` key in [settings](</docs/en/settings>) if you set it there, and restart the session.
+The session isn’t talking to the Anthropic API directly, which Remote Control requires. This happens on Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry. It also happens when [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at a host other than `api.anthropic.com`, such as an [LLM gateway](</docs/en/llm-gateway>) or proxy, even if you sign in with claude.ai. See the [error reference](</docs/en/errors#remote-control-requires-the-anthropic-api>) for the full cause list. The message names what routed the session away from the Anthropic API, such as `CLAUDE_CODE_USE_BEDROCK` or a custom `ANTHROPIC_BASE_URL`. If you have an eligible claude.ai login, unset the named variable, remove it from the `env` key in [settings](</docs/en/settings>) if you set it there, and restart the session.
 
 ###
 

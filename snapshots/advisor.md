@@ -85,8 +85,8 @@ Main model| Accepted advisors| Notes
 ---|---|---
 Haiku 4.5| Fable, Opus, Sonnet| Haiku can call the advisor but cannot act as one
 Sonnet 4.6| Fable, Opus, Sonnet|
-Sonnet 5| Fable, Opus 4.7 or later, Sonnet 5| A Sonnet 4.6 advisor is rejected, and the API refuses an Opus 4.6 advisor
-Opus 4.6| Fable, Opus, Sonnet 5| A Sonnet 4.6 advisor is rejected
+Sonnet 5.5 or Sonnet 5| Fable, Opus 4.7 or later, Sonnet 5 or later| A Sonnet 4.6 advisor is rejected, and the API refuses an Opus 4.6 advisor
+Opus 4.6| Fable, Opus, Sonnet 5 or later| A Sonnet 4.6 advisor is rejected
 Opus 4.7 or Opus 4.8| Fable, and Opus 4.7 or later| An Opus 4.6 or Sonnet advisor is rejected
 Opus 5.5 or Opus 5| Fable, and Opus 5 or later| An Opus 4.6 or Sonnet advisor is rejected, and the API refuses an Opus 4.7 or Opus 4.8 advisor
 Fable 5| Fable 5.1 or Fable 5| An Opus or Sonnet advisor is rejected

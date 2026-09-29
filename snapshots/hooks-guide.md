@@ -778,7 +778,7 @@ Run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) in Claude Code to browse all 
 
 Prompt-based hooks
 
-For decisions that require judgment rather than deterministic rules, use `type: "prompt"` hooks. Instead of running a shell command, Claude Code sends your prompt and the hook’s input data to a Claude model, Haiku by default, to make the decision. You can specify a different model with the `model` field if you need more capability. The model’s only job is to return its decision as JSON:
+For decisions that require judgment rather than deterministic rules, use `type: "prompt"` hooks. Instead of running a shell command, Claude Code sends your prompt and the hook’s input data to a Claude model to make the decision. You can specify a different model with the `model` field if you need more capability. The model’s only job is to return its decision as JSON:
 
   * `"ok": true`: the action proceeds
   * `"ok": false`: what happens depends on the event:

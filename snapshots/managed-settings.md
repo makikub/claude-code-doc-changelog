@@ -63,7 +63,7 @@ Mechanism| How you deliver it| When Claude Code reads it| Use it when
 [Server-managed settings](</docs/en/server-managed-settings>)| In the claude.ai admin console, or on a self-hosted [Claude apps gateway](</docs/en/claude-apps-gateway>)| Fetched at startup and polled hourly; see changes that need approval| You want one place to change policy for a claude.ai organization without touching each machine
 MDM or OS-level policy| As a macOS configuration profile or a Windows `HKLM` registry value, through Jamf, Intune, Group Policy, or a similar tool; see where each mechanism stores the policy| Read at startup and checked for changes every 30 minutes| You already manage devices with MDM or Group Policy
 File-based| As `managed-settings.json` in a system directory on each machine; see where each mechanism stores the policy| Read at startup and reloaded when a file changes| Machines without MDM, Linux hosts, or images you build yourself
-HKCU registry, Windows and WSL| As a Windows `HKCU` registry value; see where each mechanism stores the policy| Read at startup and checked for changes every 30 minutes; Claude Code uses it only when no other managed source delivers a policy key and no host-supplied parent settings supply a restrictive key| You can’t write the machine-level `HKLM` key
+HKCU registry, Windows and WSL| As a Windows `HKCU` registry value; see where each mechanism stores the policy| Read at startup and checked for changes every 30 minutes; Claude Code uses it only when no admin document is present above it and no host-supplied parent settings supply a restrictive key| You can’t write the machine-level `HKLM` key
 
 Starter templates for Jamf, Iru, Intune, and Group Policy are in the [MDM examples repository](<https://github.com/anthropics/claude-code/tree/main/examples/mdm>). For managed MCP servers, which you deploy alongside any of these through `managed-mcp.json` or provide through the [`managedMcpServers`](</docs/en/settings-reference#managedmcpservers>) key, see [Managed MCP configuration](</docs/en/managed-mcp>).
 
@@ -77,6 +77,7 @@ A deployed policy reaches the developer’s sessions as follows:
 
   * **Surfaces** : on the developer’s machine, the terminal, the VS Code and JetBrains extensions, the desktop app’s Code tab, and [Agent SDK](</docs/en/agent-sdk/typescript>) sessions read all of these sources. Agent SDK sessions load managed settings even when `settingSources` excludes the user, project, and local files.
   * **Cloud sessions** : a session in an Anthropic-hosted environment doesn’t read a device’s MDM profile or file, so policy for it has to come from server-managed settings. A session in a [self-hosted environment](</docs/en/self-hosted-environments>) also reads the managed settings file in its runner image, by default only when server-managed settings deliver no policy key, apart from the keys Claude Code reads from every admin source. How Claude Code combines managed sources covers the opt-in that applies both.
+  * **Claude Tag sessions** : [Claude Tag](<https://claude.com/docs/claude-tag/overview>) sessions run in cloud environments but don’t receive server-managed settings. In a [self-hosted environment](</docs/en/self-hosted-environments>), they still read the managed settings file in the runner image. Configure Claude Tag itself in the [Claude Tag admin settings](<https://claude.com/docs/claude-tag/admins/customize>).
   * **Cowork sessions** : [Cowork](<https://claude.com/docs/cowork/overview>) in the Claude Desktop app runs its sessions on Claude Code. In a Cowork session, Claude Code never fetches server-managed settings from the claude.ai admin console, even when the user signs in with a Team or Enterprise account, so which policy applies depends on where the session runs:
     * **On the user’s machine** : by default, Claude Code in a Cowork session reads the MDM or OS-level policy and the managed settings file on that device, so deploy policy there.
     * **In a full VM sandbox** : when your Claude Desktop managed configuration sets [`requireCoworkFullVmSandbox`](<https://claude.com/docs/third-party/claude-desktop/configuration#requirecoworkfullvmsandbox>), Claude Code runs inside a virtual machine where the device’s MDM policy and managed settings file aren’t present.
@@ -138,9 +139,9 @@ Claude Code checks the sources in this order, highest priority first:
   1. Remote settings, delivered from claude.ai as [server-managed settings](</docs/en/server-managed-settings>) or by a [Claude apps gateway](</docs/en/claude-apps-gateway>). Claude Code fetches this source only when the session authenticates to Anthropic’s API directly with an [eligible login or key](</docs/en/server-managed-settings#platform-availability>), or signs in to a gateway with `/login`. On other providers, or when `ANTHROPIC_BASE_URL` points somewhere other than Anthropic’s API, it starts at the next source
   2. MDM or OS-level policies: the macOS plist or the HKLM registry key
   3. Managed settings files, `managed-settings.d/*.json` and `managed-settings.json` merged together
-  4. The HKCU registry, on Windows, and on WSL once the HKLM registry or the Windows managed settings file turns [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>) on and the HKCU value also sets it. Claude Code reads it only when no source above it delivers a policy key and no host-supplied parent settings supply a restrictive key
+  4. The HKCU registry, on Windows, and on WSL once the HKLM registry or the Windows managed settings file turns [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>) on and the HKCU value also sets it. Claude Code reads it only when no admin document is present above it and no host-supplied parent settings supply a restrictive key
 
-This diagram shows the ranking, with examples of the cross-source keys Claude Code reads from the first three sources under either setting:
+Claude Code never applies the user-writable HKCU registry beneath an admin document that is present. A document is present when it sets any policy key to a value other than `null`, even a value Claude Code can’t read. An HKLM value, managed settings file, or `managed-settings.d` directory that exists but can’t be read is present too. On WSL, `/etc/claude-code` is user-writable as well, and the [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>) entry says when the Windows documents stand above it. This diagram shows the ranking, with examples of the cross-source keys Claude Code reads from the first three sources under either setting:
 
 ###
 
@@ -306,7 +307,20 @@ If a managed settings file, drop-in file, or `managed-settings.d/` directory can
 
 Keys that fail closed
 
-A few enforcement keys aren’t dropped when invalid. Claude Code enforces a stricter fallback until the value is fixed; the table shows what it enforces for each key:
+When a managed source sets a top-level key that has a single restrictive value, such as `allowManagedPermissionRulesOnly`, `disableAutoMode`, or `skipDangerousModePermissionPrompt`, to something Claude Code can’t read, the key reads as that value until you fix it. The report says the key `was present but invalid` and names the value Claude Code treats it as. For a key inside `sandbox`, see Invalid values inside `sandbox`. These cases don’t fail closed:
+
+  * A `null` removes the key.
+  * An invalid `disableAllHooks`, even a quoted boolean, is dropped with a warning, because enforcing `true` would also unload the hooks your own managed settings deploy.
+  * For every other boolean key the rule covers, the string `"true"` or `"false"` reads as that boolean, with a notice in `/status` asking you to drop the quotes.
+
+Claude Code repairs the `permissions`, `autoMode`, `worktree`, and `attribution` blocks per field instead of dropping them whole:
+
+  * A lock inside one, such as `permissions.disableBypassPermissionsMode`, reads as its restrictive value.
+  * An invalid `permissions.defaultMode` reads as `default`.
+  * While a `deny` or `ask` list in `permissions` can’t be read at all, Claude Code withholds `allow` and `additionalDirectories`, so the grants never apply without the restrictions written beside them. The report names each withheld grant and the list that couldn’t be read.
+  * In `autoMode`, a `soft_deny` or `hard_deny` list that can’t be read, or that lost an invalid entry, withholds `allow` and `environment` the same way.
+
+The fail-closed rule for keys with a single restrictive value and the per-field repairs require Claude Code v2.1.282 or later. These keys have their own fallback:
 
 Field| Behavior when present but invalid
 ---|---
@@ -315,14 +329,8 @@ Field| Behavior when present but invalid
 `httpHookAllowedEnvVars`| Claude Code enforces an empty managed [allowlist](</docs/en/settings-reference#httphookallowedenvvars>) until you fix the value, so a header variable is interpolated only if another settings file names it. If only an individual entry is invalid, Claude Code strips that entry and enforces the rest.
 `allowedChannelPlugins`| Claude Code enforces an empty allowlist until you fix the value, so no channel plugin passed to `--channels` is admitted. If only an individual entry is invalid, it strips that entry and enforces the rest.
 `strictKnownMarketplaces`| Enforced as an empty allowlist until the value is fixed, so no [marketplace source](</docs/en/plugins/org#restrict-what-users-can-install>) is admitted. An individual entry that is invalid or can’t be enforced, such as a `hostPattern` regex that doesn’t compile, is stripped and the valid subset is enforced.
-`allowManagedHooksOnly`| Treated as `true` until fixed: the [hook restrictions](</docs/en/settings-reference#allowmanagedhooksonly>) apply and, unless `disableCommandPluginSources` is explicitly `false`, command-sourced plugins are disabled.
-`allowManagedMcpServersOnly`| Treated as `true`.
-`disableCommandPluginSources`| Treated as `true`, so command-sourced plugins stay disabled until the value is fixed.
-`disableSideloadFlags`| Treated as `true` until the value is fixed, with the effects listed for [`disableSideloadFlags`](</docs/en/settings-reference#disablesideloadflags>).
 `availableModels`| Enforced as an empty allowlist until fixed, so only the Default model is available; a non-string entry is stripped and the valid subset enforced.
-`enforceAvailableModels`| Treated as `true`.
 [`availableModelsMatch`](</docs/en/settings-reference#availablemodelsmatch>)| Treated as `exact` until the value is fixed.
-`syncClaudeAiPlugins`| Treated as `false`, so syncing of [claude.ai plugins](</docs/en/settings-reference#syncclaudeaiplugins>) is off until the value is fixed.
 `forceLoginOrgUUID`| No organization is permitted to log in until the value is fixed.
 `gatewayInternalNetworks`| When the invalid value comes from the highest managed source on the machine, `/login` refuses every new [cloud gateway](</docs/en/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own>) sign-in on that machine until the value is fixed.
 `crossSessionInbound`| Treated as `refuse`, the most restrictive value, so inbound [cross-session messages](</docs/en/cross-session-messaging#control-inbound-messages>) are refused until the value is fixed. The developer sees [a warning](</docs/en/errors#crosssessioninbound-must-be-one-of-accept-hold-refuse>).
@@ -330,9 +338,11 @@ Field| Behavior when present but invalid
 [`deniedModels`](</docs/en/settings-reference#deniedmodels>)| A non-string entry is stripped and the rest of the list is enforced. A wholly invalid value is dropped with a warning and blocks no models until it is fixed.
 `blockedMarketplaces`| An individual invalid entry is stripped and the valid subset is enforced. An entry that parses but can never match, such as a `hostPattern` regex that doesn’t compile, is kept with a warning. It blocks nothing until fixed, but [marketplace restrictions](</docs/en/plugins/org#restrict-what-users-can-install>) stay active. A wholly invalid value is dropped with a warning, since blocking every marketplace would block sources the policy never named.
 `sandbox`| When one value inside the block is invalid, Claude Code doesn’t drop the whole block. For what happens to each kind of invalid field, see Invalid values inside `sandbox`.
-`sandbox.credentials`| A recoverable invalid entry is degraded to `mode: "deny"` with a warning; an unrecoverable one is stripped; valid entries stay enforced. See [invalid credential entries](</docs/en/settings-reference#invalid-credential-entries-in-managed-settings>)
+`sandbox.credentials`| A recoverable invalid entry is degraded to `mode: "deny"` with a warning; an unrecoverable one is stripped; valid entries stay enforced. See [invalid credential entries](</docs/en/settings-reference#invalid-credential-entries-in-managed-settings>).
+`strictPluginOnlyCustomization`| Treated as `true`, locking all four surfaces, when the value is neither a boolean nor an array. An array entry that this version doesn’t recognize as a surface locks nothing; a status note counts such entries so you can check them for typos.
+`enabledPlugins`| An invalid entry is dropped with a warning and the other entries stay enforced. A value that isn’t a map of plugin IDs, or whose every entry is invalid, is dropped whole with a warning.
 
-`allowedHttpHookUrls` and `httpHookAllowedEnvVars` merge across settings files, so entries in your user, project, or local settings still apply while the managed list is empty. The fallbacks for those two keys and for `allowedChannelPlugins` require Claude Code v2.1.267 or later; earlier versions drop the whole key when its value or any entry is invalid. The `strictKnownMarketplaces`, `blockedMarketplaces`, and `disableSideloadFlags` fallbacks require Claude Code v2.1.277 or later; earlier versions drop the whole key when its value or any entry is invalid. `requiredMinimumVersion` and `requiredMaximumVersion` fail open by design: an invalid value is dropped rather than enforced. This tolerance applies only to managed settings. User, project, and local settings files remain strict: a file whose JSON or top-level shape fails validation is rejected as a whole and reported, and an individual entry that fails, such as a malformed permission rule, is skipped with a warning while the rest of the file applies.
+`allowedHttpHookUrls` and `httpHookAllowedEnvVars` merge across settings files, so entries in your user, project, or local settings still apply while the managed list is empty. The fallbacks for those two keys and for `allowedChannelPlugins` require Claude Code v2.1.267 or later; earlier versions drop the whole key when its value or any entry is invalid. The `strictKnownMarketplaces` and `blockedMarketplaces` fallbacks require Claude Code v2.1.277 or later; earlier versions drop the whole key when its value or any entry is invalid. The `strictPluginOnlyCustomization` and `enabledPlugins` fallbacks require Claude Code v2.1.282 or later. `requiredMinimumVersion` and `requiredMaximumVersion` fail open by design: an invalid value is dropped rather than enforced. This tolerance applies only to managed settings. User, project, and local settings files remain strict: a file whose JSON or top-level shape fails validation is rejected as a whole and reported, and an individual entry that fails, such as a malformed permission rule, is skipped with a warning while the rest of the file applies.
 
 ####
 
@@ -379,7 +389,7 @@ Setting| Description
 [`sandbox.network.allowManagedDomainsOnly`](</docs/en/settings-reference#sandbox-network-allowmanageddomainsonly>)| Honor only managed `allowedDomains` and `WebFetch(domain:...)` allow rules; block other domains without prompting
 [`strictKnownMarketplaces`](</docs/en/settings-reference#strictknownmarketplaces>)| Controls which plugin marketplace sources users can add and install plugins from. See [managed marketplace restrictions](</docs/en/plugins/org#restrict-what-users-can-install>)
 [`strictPluginOnlyCustomization`](</docs/en/settings-reference#strictpluginonlycustomization>)| Block skills, agents, hooks, and MCP servers from user and project sources; `true` locks all four, an array names which
-[`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>)| When set in the HKLM registry or a file under `C:\Program Files\ClaudeCode`, have WSL read the Windows policy chain, and read `/etc/claude-code` only when no managed settings file or drop-in under that directory delivers a policy key; the entry gives the order
+[`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>)| When set in the HKLM registry or a file under `C:\Program Files\ClaudeCode`, have WSL read the Windows policy chain, and read `/etc/claude-code` only when no Windows admin document is present; the entry gives the order
 
 On Team and Enterprise plans, an Owner enables or disables [Remote Control](</docs/en/remote-control>) and [cloud sessions](</docs/en/claude-code-on-the-web>) organization-wide in [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>). Remote Control can additionally be disabled per device with the [`disableRemoteControl`](</docs/en/settings-reference#disableremotecontrol>) setting. Cloud sessions have no per-device managed settings key.To check whether these organization settings reached a given machine, run `claude doctor` there and read the `Organization policy` line, which says where Claude Code loaded the policy from or why it didn’t load. Requires Claude Code v2.1.261 or later. In a running session, `/status` shows the same line when the policy didn’t load.
 

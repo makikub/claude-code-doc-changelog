@@ -105,7 +105,7 @@ Environment Variable| Description| Example Values
 `OTEL_LOGS_EXPORT_INTERVAL`| Logs export interval in milliseconds (default: 5000)| `1000`, `10000`
 `OTEL_LOG_USER_PROMPTS`| Enable logging of user prompt content (default: disabled)| `1` to enable
 `OTEL_LOG_ASSISTANT_RESPONSES`| Enable logging of assistant response text on `assistant_response` events (default: disabled). When unset, falls back to the value of `OTEL_LOG_USER_PROMPTS`. Requires Claude Code v2.1.193 or later| `1` to enable, `0` to keep redacted
-`OTEL_LOG_TOOL_DETAILS`| Enable logging of tool parameters and input arguments in tool events and trace span attributes: Bash commands, MCP server and tool names, skill names, user-authored workflow names, and tool input. Also enables custom, plugin, and MCP command names on `user_prompt` events (default: disabled). For Claude Desktop’s built-in servers, in sessions Claude Desktop owns, `mcp_server_name`/`mcp_tool_name` emit on `tool_decision`/`tool_result` even with the flag off. The exception requires Claude Code v2.1.214 or later| `1` to enable
+`OTEL_LOG_TOOL_DETAILS`| Enable logging of tool parameters and input arguments in tool events and trace span attributes: Bash commands, MCP server and tool names, skill names, user-authored workflow names, and tool input. Also enables custom, plugin, and MCP command names on `user_prompt` events, and real agent, skill, plugin, and MCP server and tool names on the cost and token counters (default: disabled). For Claude Desktop’s built-in servers, in sessions Claude Desktop owns, `mcp_server_name`/`mcp_tool_name` emit on `tool_decision`/`tool_result` even with the flag off. The exception requires Claude Code v2.1.214 or later| `1` to enable
 `OTEL_LOG_TOOL_CONTENT`| Enable logging of tool content in the `tool.output` span event (default: disabled). Span attributes carry tool content under their own gates. Requires tracing. Content is truncated at the content limit (60 KB by default)| `1` to enable
 `OTEL_LOG_MANAGED_SETTINGS`| Add the redacted managed settings, and a SHA-256 digest of the settings before redaction, to managed settings resolved events (default: disabled). A value in project or local settings doesn’t turn it on. Requires Claude Code v2.1.274 or later| `1` to enable
 `OTEL_LOG_RAW_API_BODIES`| Emit the full Anthropic Messages API request and response JSON as `api_request_body` / `api_response_body` log events (default: disabled). Bodies include the entire conversation history. Enabling this implies consent to everything `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_DETAILS`, and `OTEL_LOG_TOOL_CONTENT` would reveal| `1` for inline bodies truncated at the content limit (60 KB by default), or `file:<dir>` for untruncated bodies on disk with a `body_ref` pointer in the event
@@ -140,7 +140,7 @@ The following environment variables control which attributes are included in met
 
 Environment Variable| Description| Default Value| Example to Disable
 ---|---|---|---
-`OTEL_METRICS_INCLUDE_SESSION_ID`| Include session.id attribute in metrics| `true`| `false`
+`OTEL_METRICS_INCLUDE_SESSION_ID`| Include session.id and, on cloud sessions, ccr.session.id attributes in metrics| `true`| `false`
 `OTEL_METRICS_INCLUDE_VERSION`| Include app.version attribute in metrics| `false`| `true`
 `OTEL_METRICS_INCLUDE_ACCOUNT_UUID`| Include user.account_uuid and user.account_id attributes in metrics| `true`| `false`
 `OTEL_METRICS_INCLUDE_ENTRYPOINT`| Include app.entrypoint attribute in metrics| `false`| `true`
@@ -455,6 +455,36 @@ To export events and logs only, without metrics:
 
 ​
 
+Telemetry from cloud sessions and Claude Tag
+
+[Cloud sessions](</docs/en/claude-code-on-the-web>), including [Claude Tag](<https://claude.com/docs/claude-tag/overview>) channel sessions, run in [cloud environments](</docs/en/cloud-environments>) rather than on your users’ devices, so a managed settings file or shell profile on those devices doesn’t configure their telemetry. For sessions in Anthropic-hosted environments, this section covers where to set the telemetry variables, how to make your collector reachable from the environment, and how to tell cloud and Claude Tag sessions apart in the exported data. To export telemetry from those sessions, set `CLAUDE_CODE_ENABLE_TELEMETRY` and the `OTEL_*` variables, using the same keys as the administrator configuration example, in one of two places:
+
+  * **Server-managed settings** : add them to the `env` block of your organization’s [server-managed settings](</docs/en/server-managed-settings>). Claude Code fetches those settings at startup wherever [server-managed settings apply](</docs/en/model-config#surface-coverage>), which includes your users’ machines and cloud sessions other than Claude Tag channel sessions. Claude Tag sessions don’t receive your server-managed settings, so this route doesn’t configure them.
+  * **The environment’s variables** : add them to a cloud environment’s [environment variables](</docs/en/cloud-environments#set-environment-variables>) to configure only the sessions that run in that environment. This is the route that reaches Claude Tag sessions.
+
+Anyone who uses an environment can read its variables, so don’t put a credential there, such as a collector token in `OTEL_EXPORTER_OTLP_HEADERS`. An [API credential](</docs/en/cloud-environments#add-api-credentials>) on the environment doesn’t help either, because Claude Code’s own telemetry export is one of the [requests that never get the credential](</docs/en/cloud-environments#requests-that-never-get-the-credential>). If your collector requires a credential, configure the whole export through server-managed settings instead, because when you set a credential there, Claude Code removes endpoint variables set outside managed settings. Keep these constraints in mind when you configure telemetry for cloud sessions:
+
+  * **Let sessions reach the collector** : Claude Code sends the export through the session’s network, so whether it reaches the host in your `OTEL_EXPORTER_OTLP_ENDPOINT` depends on the environment’s [network access level](</docs/en/cloud-environments#access-levels>). If sessions can’t reach the collector’s domain at the level you chose, [add the domain to the environment’s allowlist](</docs/en/cloud-environments#allow-specific-domains>), because no server-managed setting adds domains to an environment’s network allowlist.
+  * **Claude Tag channels use organization-level environments** : channel sessions run in organization-level environments rather than members’ personal ones, so make the allowlist and any environment-variable changes on the [shared environment](</docs/en/cloud-environments#organization-shared-environments>) set as your organization’s default or pinned to the channel.
+  * **Cowork is configured separately** : Cowork sessions don’t receive server-managed settings, as the [surface coverage table](</docs/en/model-config#surface-coverage>) shows, so the server-managed `env` block doesn’t configure their telemetry.
+
+###
+
+​
+
+Attribute telemetry to cloud sessions
+
+By default, metrics and events from a cloud session carry the standard attributes, including `session.id`, `ccr.session.id`, and `organization.id`, so you can filter by session or organization without extra configuration. The `ccr.session.id` value is the session’s `CLAUDE_CODE_REMOTE_SESSION_ID`. To turn it into the session’s transcript URL, see [Link output back to the session](</docs/en/cloud-environments#link-output-back-to-the-session>). To attribute telemetry in more detail, use these options:
+
+  * **Identify Claude Tag sessions** : set `OTEL_METRICS_INCLUDE_ENTRYPOINT=true`, as described under Metrics cardinality control. Metrics then carry `app.entrypoint`, whose value is `claude-in-slack` for Claude Tag sessions.
+  * **Add custom attributes** : set `OTEL_RESOURCE_ATTRIBUTES` in the same place you set the other `OTEL_*` variables for those sessions. If you `export` it in the environment’s [setup script](</docs/en/cloud-environments#setup-scripts>) instead, the value doesn’t reach Claude Code: the setup script is a separate Bash script that runs before Claude Code launches, and variables it exports end with it.
+
+In Claude Tag channel sessions, Claude works as your organization’s [shared identity](</docs/en/cloud-environments#set-the-environment-a-claude-tag-channel-uses>) rather than as any member, so don’t rely on the `user.*` attributes to identify who tagged Claude.
+
+##
+
+​
+
 Available metrics and events
 
 ###
@@ -468,8 +498,9 @@ All metrics and events share these standard attributes:
 Attribute| Description| Controlled By
 ---|---|---
 `session.id`| Unique session identifier| `OTEL_METRICS_INCLUDE_SESSION_ID` (default: true)
+`ccr.session.id`| Cloud session identifier, the value of `CLAUDE_CODE_REMOTE_SESSION_ID`, on sessions that run in a [cloud environment](</docs/en/cloud-environments>)| `OTEL_METRICS_INCLUDE_SESSION_ID` (default: true)
 `app.version`| Current Claude Code version| `OTEL_METRICS_INCLUDE_VERSION` (default: false)
-`app.entrypoint`| How the session was launched, such as `cli`, `sdk-cli`, `sdk-ts`, `sdk-py`, or `claude-vscode`| `OTEL_METRICS_INCLUDE_ENTRYPOINT` (default: false)
+`app.entrypoint`| How the session was launched, such as `cli`, `sdk-cli`, `sdk-ts`, `sdk-py`, `claude-vscode`, or `claude-in-slack` for Claude Tag sessions| `OTEL_METRICS_INCLUDE_ENTRYPOINT` (default: false)
 `organization.id`| Organization UUID (when authenticated)| Always included when available
 `user.account_uuid`| Account UUID (when authenticated)| `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` (default: true)
 `user.account_id`| Account ID in tagged format matching Anthropic admin APIs (when authenticated), such as `user_01BWBeN28...`| `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` (default: true)
@@ -492,7 +523,7 @@ When Claude Code is signed in to a [Claude apps gateway](</docs/en/claude-apps-g
 
 Repository attributes
 
-Set `OTEL_METRICS_INCLUDE_REPOSITORY=true` to tag metrics and events with the identity of the session’s repository, so a shared collector can attribute usage per repository. Requires Claude Code v2.1.269 or later. Claude Code derives these attributes once per session from the repository’s `origin` remote. The HTTPS and SSH remotes of one repository produce identical values:
+Set `OTEL_METRICS_INCLUDE_REPOSITORY=true` to tag metrics and events with the identity of the session’s repository, so a shared collector can attribute usage per repository. Requires Claude Code v2.1.269 or later. Claude Code derives these attributes once per session from the repository’s `origin` remote. When the HTTPS and SSH remotes of a repository name the same host and the same path, as they do on GitHub, GitLab, and Bitbucket Cloud, both produce identical values:
 
 Attribute| Value
 ---|---
@@ -501,7 +532,7 @@ Attribute| Value
 `vcs.repository.name`| The bare repository name, such as `example-repo`
 `vcs.provider.name`| `github`, `gitlab`, `bitbucket`, or `gitea` when Claude Code recognizes the remote’s host or URL shape as one of those providers; omitted otherwise
 
-Values are lowercased, and credentials, query strings, and fragments from the remote URL never appear in them. The attributes are omitted when the session has no `origin` remote, when the remote isn’t URL-shaped, or when the only enclosing repository is your home directory. A `vcs.*` key you declare in `OTEL_RESOURCE_ATTRIBUTES` replaces the derived value for that key. If you declare `vcs.repository.url.full`, Claude Code never reads the remote and reports only the keys you declare. The attributes flow only to your own exporters; Anthropic’s telemetry drops every `vcs.*` key.
+Values are lowercased, and credentials, query strings, and fragments from the remote URL never appear in them. The attributes are omitted when the session has no `origin` remote, when the remote isn’t URL-shaped, or when the only enclosing repository is your home directory. To get these attributes from a [cloud session](</docs/en/claude-code-on-the-web>), set the telemetry variables, including `OTEL_METRICS_INCLUDE_REPOSITORY`, on its [cloud environment](</docs/en/cloud-environments#set-environment-variables>). Also allow your collector’s domain in the environment’s [network access](</docs/en/cloud-environments#network-access>). A `vcs.*` key you declare in `OTEL_RESOURCE_ATTRIBUTES` replaces the derived value for that key. If you declare `vcs.repository.url.full`, Claude Code never reads the remote and reports only the keys you declare. If HTTPS and SSH clones of one repository report different values, such as on a self-hosted install whose HTTPS clone URL carries a path prefix the SSH URL lacks, declare `vcs.repository.url.full` in `OTEL_RESOURCE_ATTRIBUTES` along with every other `vcs.*` key you want reported. Every clone then reports the identity you declare. The attributes flow only to your own exporters; Anthropic’s telemetry drops every `vcs.*` key.
 
 ###
 
@@ -581,18 +612,18 @@ Incremented when creating git commits via Claude Code. **Attributes** :
 
 Cost counter
 
-Incremented after each API request. **Attributes** :
+Incremented after each API request. The `agent.name`, `skill.name`, `plugin.name`, `mcp_server.name`, and `mcp_tool.name` attributes each redact some names to a `"custom"` or `"third-party"` placeholder by default. If you set `OTEL_LOG_TOOL_DETAILS=1`, they carry the real names instead. Before v2.1.273, the cost and token counters and the `api_request`, `api_error`, and `api_refusal` events carried the redacted values even with `OTEL_LOG_TOOL_DETAILS=1` set. **Attributes** :
 
   * All standard attributes
   * `model`: Model identifier (for example, “claude-sonnet-5”)
   * `query_source`: Category of the subsystem that issued the request. One of `"main"`, `"subagent"`, or `"auxiliary"`
   * `speed`: `"fast"` when the request used fast mode. Absent otherwise
   * `effort`: [Effort level](</docs/en/model-config#adjust-effort-level>) applied to the request: `"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`. Absent when Claude Code sends no effort level, for example on a model that doesn’t support effort.
-  * `agent.name`: Subagent type that issued the request. Built-in agent names and agents from official-marketplace plugins appear verbatim. Other user-defined agent names are replaced with `"custom"` unless `OTEL_LOG_TOOL_DETAILS=1` is set. Absent when the request was not issued by a named subagent type.
-  * `skill.name`: Skill active for the request, set by the Skill tool, a `/` command, or inherited by a spawned subagent. Built-in, bundled, user-defined, and official-marketplace plugin skill names appear verbatim. Third-party plugin skill names are replaced with `"third-party"` unless `OTEL_LOG_TOOL_DETAILS=1` is set. Absent when no skill is active.
-  * `plugin.name`: Owning plugin when the active skill or subagent is provided by a plugin. Official-marketplace plugin names appear verbatim. Third-party plugin names are replaced with `"third-party"` unless `OTEL_LOG_TOOL_DETAILS=1` is set. Absent when neither the skill nor the subagent has an owning plugin.
-  * `marketplace.name`: Marketplace the owning plugin was installed from. Only emitted for official-marketplace plugins. Absent otherwise.
-  * `mcp_server.name`: MCP server whose tool result this request consumed. Built-in, claude.ai-proxied, and official-registry server names appear verbatim. User-configured server names are replaced with `"custom"` unless `OTEL_LOG_TOOL_DETAILS=1` is set. Absent when the request consumed no MCP tool result. Before v2.1.222, Claude Code set this attribute on every request after an MCP tool call, not only on requests that consumed a tool result, so dashboards that aggregate it show a step down after you upgrade.
+  * `agent.name`: Subagent type that issued the request. Built-in agent names and agents from official-marketplace plugins appear verbatim. Other user-defined agent names are replaced with `"custom"`. Absent when the request was not issued by a named subagent type.
+  * `skill.name`: Skill active for the request, set by the Skill tool or a `/` command, or inherited by a spawned subagent. Built-in, bundled, user-defined, and official-marketplace plugin skill names appear verbatim. Third-party plugin skill names are replaced with `"third-party"`. Absent when no skill is active.
+  * `plugin.name`: Owning plugin when the active skill or subagent is provided by a plugin. Official-marketplace plugin names appear verbatim. Third-party plugin names are replaced with `"third-party"`. Absent when neither the skill nor the subagent has an owning plugin.
+  * `marketplace.name`: Marketplace the owning plugin was installed from. Only emitted for official-marketplace plugins, even with `OTEL_LOG_TOOL_DETAILS=1` set. Absent otherwise.
+  * `mcp_server.name`: MCP server whose tool result this request consumed. Built-in, claude.ai-proxied, and official-registry server names appear verbatim. User-configured server names are replaced with `"custom"`. Absent when the request consumed no MCP tool result. Before v2.1.222, Claude Code set this attribute on every request after an MCP tool call, not only on requests that consumed a tool result, so dashboards that aggregate it show a step down after you upgrade.
   * `mcp_tool.name`: MCP tool whose result this request consumed, with the same redaction and version behavior as `mcp_server.name`. Absent when the request consumed no MCP tool result.
 
 ####
@@ -1365,7 +1396,7 @@ OpenTelemetry events are the audit data source for Claude Code activity. Every e
 
 Attribute actions to users
 
-The standard attributes on each event include the authenticated user’s identity: `user.email`, `user.account_uuid`, `user.account_id`, and `organization.id` when signed in with a Claude account or, in a [cloud session](</docs/en/claude-code-on-the-web>), when the session’s own credentials carry them, plus `user.id` and the per-session `session.id`. `user.id` is an installation-scoped identifier, except on [Claude apps gateway](</docs/en/claude-apps-gateway>) sessions, where it is the IdP subject from the gateway-issued token. MCP tool calls, Bash commands, and file edits are therefore attributed to the developer who started the session. Claude Code doesn’t act under a separate service account; the identity recorded on each event is the developer’s own Claude account, or the developer’s IdP identity on a [Claude apps gateway](</docs/en/claude-apps-gateway>) session. When Claude Code authenticates with a direct API key, or against Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, there is no Claude account in the session and only `user.id` and `session.id` are populated. In these deployments, attach user identity yourself with `OTEL_RESOURCE_ATTRIBUTES`, set per user through the managed settings file or a launch wrapper. Claude apps gateway sessions need none of this: the CLI stamps the IdP identity automatically, as described in Standard attributes.
+The standard attributes on each event include the authenticated user’s identity: `user.email`, `user.account_uuid`, `user.account_id`, and `organization.id` when signed in with a Claude account or, in a [cloud session](</docs/en/claude-code-on-the-web>), when the session’s own credentials carry them, plus `user.id` and the per-session `session.id`. `user.id` is an installation-scoped identifier, except on [Claude apps gateway](</docs/en/claude-apps-gateway>) sessions, where it is the IdP subject from the gateway-issued token. In a session a developer starts, MCP tool calls, Bash commands, and file edits are therefore attributed to that developer. Claude Code doesn’t act under a separate service account there; the identity recorded on each event is the developer’s own Claude account, or the developer’s IdP identity on a [Claude apps gateway](</docs/en/claude-apps-gateway>) session. In Claude Tag channel sessions, Claude works as your organization’s [shared identity](</docs/en/cloud-environments#set-the-environment-a-claude-tag-channel-uses>) instead. When Claude Code authenticates with a direct API key, or against Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, there is no Claude account in the session and only `user.id` and `session.id` are populated. In these deployments, attach user identity yourself with `OTEL_RESOURCE_ATTRIBUTES`, set per user through the managed settings file or a launch wrapper. Claude apps gateway sessions need none of this: the CLI stamps the IdP identity automatically, as described in Standard attributes.
 
     export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_id=S-1-5-21-..."
 
@@ -1513,6 +1544,7 @@ Security and privacy
     * `tool_result` and `tool_decision` events include a `tool_parameters` attribute with Bash commands, MCP server and tool names, and skill names. Fields such as `full_command` are emitted untruncated
     * `tool_result` events additionally include a `tool_input` attribute with file paths, URLs, search patterns, and other arguments. Individual values over 512 characters are truncated and the total is bounded to ~4 K characters
     * `user_prompt` events include the verbatim `command_name` for custom, plugin, and MCP commands
+    * The cost and token counters and the `api_request`, `api_error`, and `api_refusal` events carry real agent, skill, plugin, and MCP server and tool names in their attribution attributes
     * Trace spans include the same `tool_input` attribute and input-derived attributes such as `file_path`, with the same truncation as `tool_input`
   * Tool content is not logged in trace spans by default. To include it, set `OTEL_LOG_TOOL_CONTENT=1`. The `claude_code.tool` span then carries a `tool.output` span event with raw file contents, Bash command output, and what MCP tools, WebFetch, and WebSearch return, truncated at the content limit (60 KB by default) per attribute. Results from MCP tools, WebFetch, and WebSearch require Claude Code v2.1.283 or later. Tool content also reaches spans through `new_context`, whose gate differs per span. Configure your telemetry backend to filter or redact these attributes as needed
   * Raw Anthropic Messages API request and response bodies are not logged by default. To include them, set `OTEL_LOG_RAW_API_BODIES` in your shell, user settings, or managed settings. It’s ignored in [project and local settings](</docs/en/settings-reference#variables-claude-code-ignores-in-env>). The bodies contain the full conversation history, including the system prompt, every prior user and assistant turn, and tool results, so enabling this implies consent to everything the other `OTEL_LOG_*` content flags would reveal. Claude Code always redacts Claude’s extended-thinking content from these bodies, regardless of other settings. The value you set determines how Claude Code delivers the bodies:

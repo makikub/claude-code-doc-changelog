@@ -151,17 +151,17 @@ Before v2.1.210, the keyword started a workflow from any of these routes too, in
 
 Let Claude decide with ultracode
 
-Ultracode is a Claude Code setting that combines `xhigh` [reasoning effort](</docs/en/model-config#adjust-effort-level>) with automatic workflow orchestration. With it on, Claude plans a workflow for each substantive task instead of waiting for you to ask.
+Ultracode is a Claude Code setting that turns on automatic workflow orchestration for the session, at whichever [effort level](</docs/en/model-config#adjust-effort-level>) the session runs at. With it on, Claude plans a workflow for each substantive task instead of waiting for you to ask. Turn it on at the Claude Code prompt:
 
     /effort ultracode
 
-To start a session with ultracode already on, launch with `claude --effort ultracode`. Requires Claude Code v2.1.203 or later. To turn it on while you choose a model, move the `/model` picker’s effort slider to `ultracode` with the arrow keys. [Adjust effort level](</docs/en/model-config#adjust-effort-level>) lists the routes that turn ultracode on. With ultracode on, Claude decides when a task warrants a workflow. A single request can turn into several workflows in a row: one to understand the code, one to make the change, and one to verify it. This applies to every task in the session, so each request uses more tokens and takes longer than at lower effort levels. On a subscription plan those tokens draw on your usage limits, so a session with ultracode on reaches a session or weekly limit sooner than the same work at `high`. Turning ultracode on already opts you in to large runs, so these checks don’t apply while it’s on:
+To start a session with ultracode already on, launch with `claude --effort ultracode`, which also sets the effort level to `xhigh`. Requires Claude Code v2.1.203 or later. To turn it on from the `/effort` slider, press `Tab` to flip the **Ultracode** toggle, then `Enter` to apply it. [Adjust effort level](</docs/en/model-config#adjust-effort-level>) lists the routes that turn ultracode on. With ultracode on, Claude decides when a task warrants a workflow. A single request can turn into several workflows in a row: one to understand the code, one to make the change, and one to verify it. This applies to every task in the session, so each request uses more tokens and takes longer than the same request without a workflow. On a subscription plan those tokens draw on your usage limits, so a session with ultracode on reaches a session or weekly limit sooner than the same work with it off. Turning ultracode on already opts you in to large runs, so these checks don’t apply while it’s on:
 
   * The `Large workflow` warning doesn’t appear on a workflow run
   * The session’s [concurrent subagent limit](</docs/en/sub-agents#concurrent-subagent-limit>) isn’t enforced for the subagents Claude spawns with the Agent tool
   * In auto permission mode, you aren’t asked to approve the first workflow launch
 
-`/effort ultracode` lasts for the current session; to have every session start with it, set the [`ultracode`](</docs/en/settings-reference#ultracode>) setting. Drop back with `/effort high` when you return to routine work. The `/effort` menu offers it only [when ultracode is available](</docs/en/model-config#when-ultracode-is-available>).
+`/effort ultracode` lasts for the current session; to have every session start with it, set the [`ultracode`](</docs/en/settings-reference#ultracode>) setting. Turn it off with `/effort ultracode off` when you return to routine work. The `/effort` slider offers the toggle only [when ultracode is available](</docs/en/model-config#when-ultracode-is-available>).
 
 ###
 
@@ -462,7 +462,7 @@ Workflows are available in the CLI, the Desktop app, the IDE extensions, [non-in
   * Set `"disableWorkflows": true` in `~/.claude/settings.json`. Persists across sessions.
   * Set `CLAUDE_CODE_DISABLE_WORKFLOWS=1`. Read at startup, so it applies wherever you set it.
 
-To turn workflows off for your whole organization, set `"disableWorkflows": true` in [managed settings](</docs/en/server-managed-settings>), or use the toggle on the [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>) page. When workflows are disabled, the bundled workflow commands and the `/workflow-authoring` skill are unavailable, the `ultracode` keyword no longer triggers a run, and `ultracode` is removed from the `/effort` menu. A run that was already in progress keeps going. No setting turns off ultracode alone. To keep workflows but rule out ultracode, set an [effort cap](</docs/en/model-config#organization-effort-limits>) below `xhigh` on the models you want to cover. Ultracode needs `xhigh`, so it’s then [unavailable](</docs/en/model-config#when-ultracode-is-available>) on those models.
+To turn workflows off for your whole organization, set `"disableWorkflows": true` in [managed settings](</docs/en/server-managed-settings>), or use the toggle on the [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>) page. When workflows are disabled, the bundled workflow commands and the `/workflow-authoring` skill are unavailable, the `ultracode` keyword no longer triggers a run, and the **Ultracode** toggle is removed from `/effort`. A run that was already in progress keeps going. Turning workflows off also makes ultracode unavailable. No managed setting rules out ultracode alone: wherever it’s [available](</docs/en/model-config#when-ultracode-is-available>), users can turn it on with `/effort ultracode`. An [effort cap](</docs/en/model-config#organization-effort-limits>) lowers the effort level a session with ultracode on runs at, but doesn’t turn ultracode off.
 
 ##
 
