@@ -756,6 +756,8 @@ These settings are configured through the [admin settings console](<https://clau
   * **Remote Control** : enable or disable [Remote Control](</docs/en/remote-control>) for your organization
   * **Disable Bypass permissions mode** : prevent users in your organization from enabling bypass permissions mode
 
+The OpenTelemetry form for Cowork under **Monitoring** in the admin console’s [Data and privacy settings](<https://claude.ai/admin-settings/data-privacy-controls>) applies to Cowork sessions only. In a Cowork session on this machine, the desktop app passes that collector to Claude Code as `OTEL_*` environment variables, so the form takes effect even though Claude Code in that session never fetches admin-console settings.To export telemetry from Code tab sessions, set `CLAUDE_CODE_ENABLE_TELEMETRY` and the `OTEL_*` variables in the `env` block of your Claude Code managed settings, as shown in [administrator configuration for monitoring](</docs/en/monitoring-usage#administrator-configuration>). Local, cloud, and SSH sessions each read managed settings from different sources. For the hosts a cloud session can reach, see [network access](</docs/en/cloud-environments#network-access>). For the `service.name` that Code tab sessions report, see [service information](</docs/en/monitoring-usage#service-information>).
+
 ###
 
 ​
@@ -844,7 +846,7 @@ If your organization has [IP allowlisting](<https://support.claude.com/en/articl
 
 Authentication and SSO
 
-Enterprise organizations can require SSO for all users. See [authentication](</docs/en/authentication>) for plan-level details and [Setting up SSO](<https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso>) for SAML configuration; OIDC setup is covered in the [Claude Enterprise Administrator Guide](<https://claude.com/resources/tutorials/claude-enterprise-administrator-guide>).
+Team and Enterprise organizations can require SSO for all users. See [authentication](</docs/en/authentication>) for plan-level details and [Setting up SSO](<https://support.claude.com/en/articles/13132885-setting-up-single-sign-on-sso>) for SAML configuration; OIDC setup is covered in the [Claude Enterprise Administrator Guide](<https://claude.com/resources/tutorials/claude-enterprise-administrator-guide>).
 
 ###
 
@@ -873,7 +875,13 @@ For the domains to allowlist in your firewall, see network access requirements a
 
 Coming from the CLI?
 
-If you already use the Claude Code CLI, Desktop runs the same underlying engine with a graphical interface. You can run both simultaneously on the same machine, even on the same project. Each keeps its own session list, and you can bring a CLI session into Desktop. They share configuration and project memory via CLAUDE.md files. To move a CLI session into Desktop, run `/desktop` in the terminal. Claude saves your session and opens it in the desktop app, then exits the CLI. This command is available on macOS and x64 Windows when you are signed in with a Claude subscription. It is not available with API key authentication or on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. To pick up a CLI session from inside Desktop instead, type `/resume` in the prompt box. Desktop lists the sessions you started from the CLI, and you can search them by title, folder, or branch and preview where each one left off. Select a session and it continues in the app with its full conversation and context.
+If you already use the Claude Code CLI, Desktop runs the same underlying engine with a graphical interface. You can run both simultaneously on the same machine, even on the same project. Each keeps its own session list, and you can bring a CLI session into Desktop. They share configuration and project memory via CLAUDE.md files. To move a CLI session into Desktop, run `/desktop` in the terminal. Claude saves your session and opens it in the desktop app, then exits the CLI. This command is available on macOS and x64 Windows when you are signed in with a Claude subscription. It is not available with API key authentication or on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. You can also pick up a CLI session from inside Desktop with `/resume`. The command is available in local sessions, not in SSH, WSL, or cloud sessions. To continue a terminal session in Desktop:
+
+  1. Close the session in the terminal.
+  2. In the Desktop prompt box, type `/resume`. Desktop lists the sessions you started from the CLI on this computer. Search by title, folder, or branch, and preview where each one left off.
+  3. Select the session. It continues in the app with its full conversation and context.
+
+Desktop continues the same session rather than a copy, so `claude --resume` in the terminal still finds it afterwards.
 
 When to use Desktop vs CLI: use Desktop when you want to manage parallel sessions in one window, arrange panes side by side, or review changes visually. Use the CLI when you need scripting, automation, or prefer a terminal workflow.
 

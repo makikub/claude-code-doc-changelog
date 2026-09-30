@@ -36,7 +36,7 @@ A deep link never executes anything on its own. The link only chooses a director
 
 Build a link
 
-Every deep link starts with `claude-cli://open`, which is the only path the handler accepts, followed by optional query parameters. The minimal form opens Claude Code in your home directory with an empty prompt:
+A deep link starts with `claude-cli://open`, followed by optional query parameters. The minimal form opens Claude Code in your home directory with an empty prompt:
 
     claude-cli://open
 

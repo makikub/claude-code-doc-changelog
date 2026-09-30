@@ -68,6 +68,7 @@ Message| Section
 `OAuth token revoked` / `OAuth token has expired`| Authentication
 `API Error: 401 Invalid authentication credentials`| Authentication
 `Login expired · Please run /login`| Authentication
+`Failed to start OAuth callback server`| Authentication
 `Claude login not accepted · Run /login, then try again`| Authentication
 `Artifacts need a claude.ai login`| Authentication
 `Not signed in to the Cloud gateway — run /login.`| Authentication
@@ -134,19 +135,21 @@ Message| Section
 `Request too large for the API's 32MB request limit`| Request errors
 `Image was too large`| Request errors
 `Unable to resize image`| Request errors
-`PDF too large` / `PDF is password protected`| Request errors
+`PDF too large` / `PDF is password protected` / `pdftoppm is not installed`| Request errors
 `Extra inputs are not permitted`| Request errors
 `API Error: 400 ... tools.N.custom.input_schema: JSON schema is invalid` / `Property keys should match pattern`| Request errors
 `tool_use.name: String should have at most 200 characters`| Request errors
 `There's an issue with the selected model`| Request errors
 `Model ... is not a recognized model id`| Request errors
 `Model ... not found`| Request errors
+`Couldn't confirm model ... with the API`| Request errors
 `API error: ... · model not changed`| Request errors
 `Claude Opus is not available with the Claude Pro plan`| Request errors
 `Claude Code ... does not support this model; version ... or newer is required`| Request errors
 `Claude Code ... is older than the minimum version required by your organization's policy`| Request errors
 `Model ... is restricted by your organization's settings`| Request errors
 `Model ... is not available. Your organization restricts model selection.`| Request errors
+`Can't switch to the default model`| Request errors
 `Model switch ... blocked by a PreModelSwitch hook`| Request errors
 `couldn't save it as your default` / `couldn't confirm it was saved as your default`| Request errors
 `thinking.type.enabled is not supported for this model`| Request errors
@@ -208,6 +211,7 @@ Message| Section
 `Ultrareview clones <owner>/<repo> in the cloud with the GitHub account connected to your Claude account, and none is connected`| Command-line errors
 `Your connected GitHub account can't see <owner>/<repo>`| Command-line errors
 `The GitHub App preflight failed transiently (network or service hiccup) — retry in a moment to start from GitHub instead`| Command-line errors
+`Not uploading this working tree` with `the upload cannot follow that setting`| Command-line errors
 `GitHub isn't connected to your Claude account, so this repository can't be cloned in the cloud`| Command-line errors
 `Single sign-on authorization needed`| Command-line errors
 `Failed to resume the conversation`| Command-line errors
@@ -241,6 +245,7 @@ Message| Section
 `Plugin "<name>@synced" is required by your organization and can't be disabled here`| Plugin errors
 `"<plugin>" was not uninstalled: it is still switched on in <file>`| Plugin errors
 `"<plugin>" was not uninstalled: <file> is there and could not be read`| Plugin errors
+`Plugin "<plugin>" was not uninstalled: installed_plugins.json`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read>)
 `would be spawned with zero tools — refusing`| Tool errors
 `File is covered by a Read deny rule in your permission settings`| Tool errors
 `cannot contain null bytes (\0)`| Tool errors
@@ -253,6 +258,7 @@ Message| Section
 `Its agent definition was not restored: the folder its definition file came from is not trusted`| Tool errors
 `Message too large for cross-session delivery`| Tool errors
 `Too many messages to this session just now`| Tool errors
+`Cross-session message was dropped at the recipient session's inbox`| Tool errors
 `Refusing to send: reply target is a symlink` / `Refusing to send: cannot vet reply target`| Tool errors
 `Refusing to read <path>: its symlink resolution changed after permission was checked (<reason>)` / `Refusing to search <path>: its symlink resolution changed after permission was checked`| Tool errors
 `Refusing to write <path>: its parent-directory symlink resolution changed after permission was checked` / `Refusing to write <path>: it is a symbolic link. Write to the link's target path instead`| Tool errors
@@ -665,16 +671,16 @@ Before v2.1.268, the message ended with `run /usage-credits to turn them on, or 
 
 The prompt to confirm went unanswered
 
-If your account requires the [Fable usage-credits consent](</docs/en/model-config#fable-and-usage-credits>), Claude Code asks you to confirm before a Fable request bills usage credits. When nobody answers that consent prompt in a session that may have no one at its terminal, Claude Code closes the prompt and ends the turn with one of these messages:
+If your account requires the [Fable usage-credits consent](</docs/en/model-config#fable-and-usage-credits>), Claude Code asks you to confirm before a Fable request bills usage credits. When the consent prompt closes with nobody answering it, Claude Code ends the turn with one of these messages:
 
     Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
     Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
 
-The messages name the session’s Fable model, so on Fable 5 they read `continuing on Fable 5` and `Fable 5 now uses usage credits`. Before v2.1.257, the first message began `Fable 5 limit reached`. This happens in [Remote Control](</docs/en/remote-control>) sessions, [background sessions](</docs/en/agent-view>), and [agent team](</docs/en/agent-teams>) teammate sessions. Claude Code shows the consent prompt only in the session’s own interactive view: the terminal where it runs, or, for a background session, the [agents view](</docs/en/agent-view>) once you attach. A Remote Control client can’t display it. Claude Code closes the prompt at the [`dialogExpiry`](</docs/en/settings-reference#dialogexpiry>) deadline, five minutes by default, or as soon as a new prompt arrives while nobody has typed at that terminal, such as a prompt sent from a Remote Control client. Typing at the terminal where the session runs cancels the deadline, and Claude Code waits for your answer. In a background session’s attached view, typing doesn’t cancel the deadline, and a new prompt still closes the consent prompt, so answer before either happens. Claude Code sends nothing and keeps your model, so when you send your next prompt, Claude Code shows the consent prompt again. **What to do:**
+The messages name the session’s Fable model, so on Fable 5 they read `continuing on Fable 5` and `Fable 5 now uses usage credits`. Before v2.1.257, the first message began `Fable 5 limit reached`. This happens in [Remote Control](</docs/en/remote-control>) sessions, [background sessions](</docs/en/agent-view>), [agent team](</docs/en/agent-teams>) teammate sessions, and sessions that another application hosts through the Agent SDK. For when Claude Code closes the prompt, see [Fable and usage credits](</docs/en/model-config#fable-and-usage-credits>). **What to do:**
 
-  * At the terminal where the session runs, send another prompt and answer the consent prompt when it reappears. For a background session, attach to it from the [agents view](</docs/en/agent-view>) first. Resending from a Remote Control client shows this message again, because the client can’t display the prompt.
+  * Where the session runs, at the terminal or in the application hosting it, send another prompt and answer the consent prompt when it reappears. For a background session, attach to it from the [agents view](</docs/en/agent-view>) first. Resending from a Remote Control client shows this message again, because the client can’t display the prompt.
   * Run `/model` to switch to a model that doesn’t bill usage credits
-  * To give yourself more time to reach that terminal, set [`dialogExpiry`](</docs/en/settings-reference#dialogexpiry>) to a longer value or `"never"`
+  * To give yourself more time, set [`dialogExpiry`](</docs/en/settings-reference#dialogexpiry>) to a longer value or `"never"`
 
 Before v2.1.236, this message didn’t appear: while a Remote Control client was connected, Claude Code waited 60 seconds for an answer and then continued the turn on your default model.
 
@@ -1145,6 +1151,21 @@ The first form appears on macOS and the second everywhere else. A transient cred
   * On macOS, unlock the login keychain, then run `/login` again
   * On other platforms, run `/login` again
   * If the login still doesn’t save, see [Not logged in or token expired](</docs/en/troubleshoot-install#not-logged-in-or-token-expired>) for the keychain unlock command and other credential-storage recovery steps
+
+###
+
+​
+
+Failed to start OAuth callback server
+
+When `/login`, `claude auth login`, or `claude setup-token` signs you in through the browser, Claude Code opens a listening port on `127.0.0.1` so your browser can return the sign-in result to it. This message means Claude Code couldn’t open that port, and the sign-in stops before a browser window or login URL appears:
+
+    Failed to start OAuth callback server: Failed to start server. Is port 0 in use?
+
+If your message ends with `Is port 0 in use?`, the attempt to listen on the IPv4 loopback address `127.0.0.1` failed outright. Because the failure happens before a login URL exists, the `Paste code here if prompted` flow isn’t available as a workaround. **What to do:**
+
+  * To sign in right away without the local listener: if you use a claude.ai subscription, run [`claude setup-token`](</docs/en/authentication#generate-a-long-lived-token>) on a machine where sign-in works and set the token it prints as `CLAUDE_CODE_OAUTH_TOKEN` on this machine. Otherwise set `ANTHROPIC_API_KEY` to a key from the [Claude Console](<https://platform.claude.com/settings/keys>). [Authentication precedence](</docs/en/authentication#authentication-precedence>) explains how Claude Code chooses between credentials.
+  * To use browser sign-in on this machine instead, Claude Code must be able to listen on `127.0.0.1`. If it runs inside a sandbox, check that the sandbox’s policy allows listening on local ports, then run `/login` again. If it should be able to and still fails, run `/feedback` so the report includes your environment details.
 
 ###
 
@@ -1936,6 +1957,12 @@ The PDF you attached couldn’t be processed. The messages are shown here in the
   * For oversized PDFs, ask Claude to read a page range with the Read tool instead of attaching the whole file, or extract text with a tool like `pdftotext` and reference the output file by path
   * For protected or invalid PDFs, remove the password or re-export the file from its source application, then try again
 
+When Claude reads a page range from a PDF with the Read tool, the read can fail with a different message:
+
+    pdftoppm is not installed. Install poppler-utils (e.g. `brew install poppler` or `apt-get install poppler-utils`) to enable PDF page rendering.
+
+Page-range reads render pages with `pdftoppm`. Install poppler-utils with the command the message gives, or on other platforms a poppler build that puts `pdftoppm` on your `PATH`. See [Read tool behavior](</docs/en/tools-reference#read-tool-behavior>) for which PDFs are read by page range.
+
 ###
 
 ​
@@ -2010,16 +2037,16 @@ The configured model name was not recognized or your account lacks access to it.
 
 Model is not a recognized model id
 
-The model string you passed to a model switch isn’t a model alias, a model ID this Claude Code version knows, or an ID that starts with `claude-`. The usual causes are a typo in the ID, a display name such as `Sonnet 5` where the ID `claude-sonnet-5` is expected, or an alias that only newer Claude Code versions recognize. Claude Code rejects the switch immediately. Before v2.1.200, Claude Code saved the string and failed on the next request with There’s an issue with the selected model.
+The string you passed to a model switch isn’t one Claude Code can use as a model, so it refused the switch without sending a request and the session keeps its current model. You can get this error when a model is set through the [Agent SDK](</docs/en/agent-sdk/typescript>) `setModel()` method, by an app that runs the Claude Code CLI for you, such as the [Desktop app](</docs/en/desktop>), or when you pick a model from a device connected through [Remote Control](</docs/en/remote-control>). Before v2.1.200, Claude Code saved the string and failed on the next request with There’s an issue with the selected model.
 
-    Model "claud-sonnet-5" is not a recognized model id. Did you mean 'claude-sonnet-5'?
+    Model "Sonnet5" is not a recognized model id. Did you mean 'claude-sonnet-5'?
 
-The trailing hint names the closest matching alias or model ID. When nothing is close enough, it reads `Run /model to see available models.` instead. In a session that the [Desktop app](</docs/en/desktop>) starts for you, the no-match hint reads `Switch to a different model.` Claude Code produces this error locally at the moment the switch is requested, before any API request is made. It applies when a model is set through the [Agent SDK](</docs/en/agent-sdk/typescript>) `setModel()` method, by an app such as the [Desktop app](</docs/en/desktop>) that runs the Claude Code CLI for you, or when you pick a model from a device connected through [Remote Control](</docs/en/remote-control>). Before v2.1.260, the check didn’t cover Remote Control picks, so Claude Code applied the pick and the next request failed with There’s an issue with the selected model. **What to do:**
+In this example an app sent the display name `Sonnet 5`, which the message repeats without its space. The trailing hint names the closest matching alias or model ID. When nothing is close enough, it reads `Run /model to see available models.` instead. In a session that the [Desktop app](</docs/en/desktop>) starts for you, the no-match hint reads `Switch to a different model.` When you switch through the Agent SDK or an app on the Anthropic API, only a string that can’t be a model ID gets this error, such as a display name or an empty string. When you pick a model from a Remote Control device, Claude Code checks the string locally. Any string that isn’t a model alias, a model Claude Code lists or you configured, or an ID that starts with `claude-` gets this error, a mistyped ID such as `claud-sonnet-5` included. Before v2.1.260, this check didn’t cover Remote Control picks, so an unrecognized string was applied and failed on the next request. **What to do:**
 
   * Run `/model` with no argument to open the picker and choose from the models available to your account, then pass the alias or ID shown there
-  * If you used an alias that a newer Claude Code version supports, run `claude update`. A full ID that starts with `claude-` passes this local check even when the model is newer than your Claude Code version. The server can still require a minimum version for that model; see Claude Code does not support this model.
+  * If you used an alias that only a newer Claude Code version supports, run `claude update`, or pass the model’s full ID instead. The server can still require a minimum Claude Code version for that model; see Claude Code does not support this model.
   * A model saved before v2.1.200 isn’t repaired by this check. If a stale value keeps coming back, remove it from the locations listed under [Setting your model](</docs/en/model-config#setting-your-model>).
-  * The check runs only on the Anthropic API. On any other provider or gateway, including a custom `ANTHROPIC_BASE_URL`, the provider defines the model names, so Claude Code accepts any string and passes it through. Claude Code can still write the unrecognized-model diagnostic line at request time, on every provider.
+  * On any provider other than the Anthropic API, or behind a gateway or custom `ANTHROPIC_BASE_URL`, only an empty string gets this error. Claude Code can still write the unrecognized-model diagnostic line at request time, on every provider.
 
 ###
 
@@ -2027,7 +2054,7 @@ The trailing hint names the closest matching alias or model ID. When nothing is 
 
 Model not found
 
-You picked a model with `/model <name>` and Claude Code couldn’t confirm that a model with that name exists. When the name isn’t a [model alias](</docs/en/model-config#model-aliases>) or another spelling Claude Code accepts locally, `/model` verifies it with a minimal API request, and this error is usually your API endpoint’s answer. A name that can’t be a model ID at all, such as one containing spaces, gets the same message.
+You switched to a model by name and Claude Code couldn’t confirm that a model with that name exists. When the name isn’t a [model alias](</docs/en/model-config#model-aliases>) or another spelling Claude Code accepts locally, Claude Code verifies it with a minimal API request, and this error is usually your API endpoint’s answer. With `/model <name>`, a name that can’t be a model ID at all, such as one containing spaces, gets the same message.
 
     Model 'claude-opus-9' not found
 
@@ -2035,7 +2062,23 @@ On providers with provider-specific model IDs, the message may add a `Try '...' 
 
   * Run `/model` with no argument and pick from the models available to your account, or use a [model alias](</docs/en/model-config#model-aliases>) such as `sonnet`, which resolves to a maintained default
   * If you typed a full ID, check it against your provider’s model catalog. A newly launched model can be available on the Anthropic API before your provider or region offers it.
+  * In the Agent SDK, `setModel()` fails with this message and the session keeps running on its previous model. In the TypeScript SDK, call [`supportedModels()`](</docs/en/agent-sdk/typescript#query-object>) to list the models you can switch to.
   * Before v2.1.265, `/model` also rejected the `opusplan[1m]` alias spelling with this error. On those versions, update Claude Code, or set the model in [settings](</docs/en/model-config#setting-your-model>) or with `--model` instead.
+
+###
+
+​
+
+Couldn’t confirm model with the API
+
+You switched models through the [Agent SDK](</docs/en/agent-sdk/typescript>) `setModel()` method or an app that runs the Claude Code CLI for you, such as the [Desktop app](</docs/en/desktop>), and the request that confirms the model ID with your API endpoint got no answer within five seconds. The session keeps its current model.
+
+    Couldn't confirm model "claude-sonnet-5" with the API. Try again, or run /model to see available models.
+
+In a session that the [Desktop app](</docs/en/desktop>) starts for you, the message ends at `Try again.` **What to do:**
+
+  * Switch to the model again
+  * If the switch keeps failing, check that Claude Code can reach your API endpoint; see Network and connection errors
 
 ###
 
@@ -2082,10 +2125,16 @@ The organization-policy wording reads:
 
     API Error: 400 Claude Code 2.1.240 is older than the minimum version required by your organization's policy. Run 'claude update', or update the Claude desktop app, to continue.
 
-**What to do:**
+The version the API checks is the one reported by the Claude Code binary that made the request. **What to do:** Update that binary, then start a new session. Where the binary came from decides how, except in a [self-hosted environment](</docs/en/self-hosted-environments-deploy#pin-the-version>):
 
-  * Run `claude update`, or update the Claude desktop app, then start a new session
-  * For the per-model wording, you can keep working in the current session by switching to another model with `/model`
+The binary that made the request| How to update it
+---|---
+A Claude Code you installed| Run `claude update`
+The Claude desktop app| Update the app
+The binary the [VS Code extension](</docs/en/vs-code>) bundles| Update the extension
+The binary an Agent SDK package bundles| [Upgrade the SDK package](</docs/en/agent-sdk/hosting#runtime-dependencies>), then restart your application. In a [compiled single-file executable](</docs/en/agent-sdk/typescript#compile-to-a-single-executable>), rebuild it
+
+  * For the per-model wording, you can keep working in the current session by switching to another model: run `/model` in the CLI, call [`setModel()`](</docs/en/agent-sdk/typescript#query-object>) on the TypeScript SDK’s `Query` object in streaming input mode, or call [`set_model()`](</docs/en/agent-sdk/python#claudesdkclient>) on the Python SDK’s `ClaudeSDKClient`
   * For the organization-policy wording, update before you continue
 
 ###
@@ -2103,6 +2152,30 @@ Typing `/model <name>` for a restricted model is rejected and the session keeps 
   * Run `/model` to pick from the models your organization allows. Restricted models are hidden from the picker.
   * If the restricted model was set in `--model`, `ANTHROPIC_MODEL`, the `model` field of a settings file, or the `model` frontmatter of a [subagent](</docs/en/sub-agents#choose-a-model>), skill, or command, remove or update that value so the notice doesn’t recur
   * If you need access to the restricted model, ask your organization admin to enable it. See [Organization model restrictions](</docs/en/model-config#organization-model-restrictions>).
+
+###
+
+​
+
+Can’t switch to the default model
+
+You picked the Default model, for example by selecting the Default row in the `/model` picker or typing `/model default`. Claude Code refused the switch, so the session keeps its current model.
+
+    Can't switch to the default model: your organization's managed settings block it (claude-opus-4-6) in "deniedModels", and none of the models they allow can be used as the default instead. Ask your administrator to update "deniedModels" or "availableModels".
+
+The wording after the colon names what blocked the switch:
+
+  * **`your organization's managed settings block it ... in "deniedModels"`** : a managed deny list blocks the model the Default option resolves to
+  * **`your organization allows only the models listed in "availableModels"`** : a managed [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist with [`availableModelsMatch`](</docs/en/settings-reference#availablemodelsmatch>) set to `"exact"` leaves out the model the Default option resolves to
+  * **`Claude Code couldn't read your organization's managed settings to check which models they allow`** : the [managed settings](</docs/en/managed-settings>) couldn’t be read, and Claude Code refuses the switch rather than apply it unchecked
+
+**What to do:**
+
+  * For the [`deniedModels`](</docs/en/settings-reference#deniedmodels>) and `availableModels` wordings, run `/model` and pick a model your organization allows by name
+  * Ask your administrator to update the managed setting the message names
+  * For the `couldn't read` wording, restart Claude Code; if it keeps happening, ask your administrator to check the managed settings
+
+If a session instead fails to start with a `Claude Code can't start` message under these managed settings, see Managed settings block the default model.
 
 ###
 
@@ -2361,7 +2434,7 @@ These errors come from the `claude` command line and its subcommands, from a com
 
 ​
 
-Conflict between —bg and —print
+Conflict between `--bg` and `--print`
 
 This message requires Claude Code v2.1.198 or later. You combined `--bg` with `-p` or `--print` in the same `claude` invocation. `--bg` starts a [background session](</docs/en/agent-view#from-your-shell>) that you later attach to with `claude agents`, while `--print` runs [non-interactively](</docs/en/headless>) and never starts the interactive session that `claude agents` attaches to. Before v2.1.198 this combination silently created a background job that could never be attached to.
 
@@ -2376,7 +2449,7 @@ This message requires Claude Code v2.1.198 or later. You combined `--bg` with `-
 
 ​
 
-Invalid —agents configuration
+Invalid `--agents` configuration
 
 The value you passed to `--agents` is invalid, so `claude` exits with code 1 instead of starting the session. When you pass `--safe-mode` or set [`CLAUDE_CODE_SAFE_MODE`](</docs/en/env-vars#variables>), Claude Code ignores `--agents` entirely. With `--resume` or `--continue`, an inline JSON value isn’t checked and the session starts; a value read from a file is checked on every launch. Before v2.1.242, Claude Code started the session anyway.
 
@@ -2402,7 +2475,7 @@ When there are more than 20 problem lines, Claude Code prints the first 20 and r
 
 ​
 
-Cloud sessions cannot be created from a —restricted session
+Cloud sessions cannot be created from a `--restricted` session
 
 When you start a session with [`--restricted`](</docs/en/cli-reference#cli-flags>), Claude Code refuses to create [cloud sessions](</docs/en/claude-code-on-the-web#from-terminal-to-cloud>) from it, because the new session would run outside the restricted process and wouldn’t enforce restricted mode. Claude Code refuses on the client, before contacting the server, so no cloud session is created:
 
@@ -2434,7 +2507,7 @@ The message appears when you [create a cloud session from the terminal](</docs/e
 
 ​
 
-The —json-schema value is not a valid JSON Schema
+The `--json-schema` value is not a valid JSON Schema
 
 The schema you passed to [`--json-schema`](</docs/en/cli-reference#cli-flags>) in [non-interactive mode](</docs/en/headless#get-structured-output>) failed JSON Schema compilation, so `claude` exits with code 1 instead of running the prompt. Before v2.1.205, an invalid schema produced unstructured output with no error, and any schema that used the `format` keyword was treated as invalid.
 
@@ -2747,7 +2820,7 @@ Claude Code shows the same error for any skill that [injects dynamic context](</
 
 ​
 
-Input must be provided when using —print
+Input must be provided when using `--print`
 
 Bare `claude` needs stdout to be a terminal to start the interactive UI. When stdout is redirected, or the console isn’t a real terminal, such as PowerShell ISE and some IDE output panes, `claude` runs [non-interactively](</docs/en/headless>) instead. That is the same mode as `claude -p`, which requires a prompt, so the message names `--print` even when you didn’t pass the flag. Passing `-p`/`--print` with no prompt and nothing piped on stdin produces the same error anywhere.
 
@@ -2917,6 +2990,20 @@ You started a [cloud session](</docs/en/claude-code-on-the-web>) from a local re
   * If retries keep failing, the start of the message names what stopped the upload. When that cause is something you can fix, fix it so the session can start from your local repository instead
 
 Before v2.1.251, Claude Code ended the message with `Please set up GitHub on https://claude.ai/code` even when the GitHub check failed only transiently, and setup advice can’t clear a transient failure.
+
+###
+
+​
+
+The repository upload can’t follow a git setting
+
+You started a [cloud session that uploads your local repository](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>), or an [ultrareview](</docs/en/ultrareview>) of a branch, and the upload can’t follow one of the git settings that decide which attribute rules apply to your files. If the upload went ahead and missed a rule, a file that git transforms before storing it, such as one a clean filter encrypts, could reach the cloud as it is on disk. Claude Code refuses the upload instead, and nothing is uploaded:
+
+    Not uploading this working tree: core.ignoreCase (which decides whether .gitattributes patterns match file names regardless of letter case) is set in <file>, and the upload cannot follow that setting, so a file git would change before storing it (to encrypt it, for example) could be uploaded as it is on disk. Move the core.ignoreCase line into this repository’s .git/config or directly into your ~/.gitconfig, then retry.
+
+The message names the setting and where it’s set, and ends with the fix for the case you hit. The same refusal appears for `core.attributesFile` and `attr.tree`, each with its own fix. The message can name a config file that your git configuration pulls in through an `include` or `includeIf` directive, even when that directive’s condition doesn’t apply to this repository. **What to do:**
+
+  * Apply the fix in the message’s final sentence
 
 ###
 
@@ -3380,7 +3467,7 @@ Claude Code saves nothing and the plugin stays enabled. When you try to disable 
 
 Plugin was not uninstalled
 
-You ran [`claude plugin uninstall`](</docs/en/plugins/cli-reference#plugin-uninstall>), or chose **Uninstall** in the `/plugin` **Installed** tab, and the uninstall stopped with a message starting `"<plugin>" was not uninstalled:`. When Claude Code removed the plugin’s entry from `enabledPlugins` and read that scope’s settings files back, either the plugin was still switched on there, or a file that could switch it on couldn’t be read or checked. Deleting the plugin’s saved options, secrets, and data while a settings entry could switch it back on would lose them, so the uninstall stops instead: the plugin stays installed and nothing it saved is deleted.
+You ran [`claude plugin uninstall`](</docs/en/plugins/cli-reference#plugin-uninstall>), or chose **Uninstall** in the `/plugin` **Installed** tab, and the uninstall stopped with a message starting `"<plugin>" was not uninstalled:`. If the text after that colon starts with `installed_plugins.json` instead of naming a settings file, the cause is content in `installed_plugins.json` that this version of Claude Code can’t read. For that form, see [`installed_plugins.json` holds a record this version can’t read](</docs/en/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read>). When Claude Code removed the plugin’s entry from `enabledPlugins` and read that scope’s settings files back, either the plugin was still switched on there, or a file that could switch it on couldn’t be read or checked. Deleting the plugin’s saved options, secrets, and data while a settings entry could switch it back on would lose them, so the uninstall stops instead: the plugin stays installed and nothing it saved is deleted.
 
     ✘ Failed to uninstall plugin "formatter": "formatter" was not uninstalled: it is still switched on in /home/user/project/.claude/settings.local.json, although the settings change reported no error. It is still installed. Take it out of "enabledPlugins" in that file yourself, then uninstall it again.
 
@@ -3577,6 +3664,31 @@ Claude sent a rapid burst of [cross-session messages](</docs/en/cross-session-me
   * If you prompted the burst yourself, ask Claude to combine what’s left into a single message
 
 Before v2.1.236, Claude Code reported these sends as sent. The receiving session dropped them unread.
+
+###
+
+​
+
+Cross-session message was dropped at the recipient session’s inbox
+
+Claude sent a [cross-session message](</docs/en/cross-session-messaging>) to another of your sessions on this machine, and that session’s inbox discarded it before Claude in that session read it. The line names the recipient’s address and, when the recipient gave a reason, adds the reason after a dash:
+
+    Cross-session message was dropped at the recipient session's inbox (recipient: uds:/tmp/cc-socks/13605.sock) and not delivered — its queue of undelivered peer messages was full. Claude was told not to resend right away.
+
+One line can cover several dropped messages. It then starts in the plural, for example `Cross-session messages (12) were dropped`. To find which session an address belongs to, compare it with the [`Peer address` row](</docs/en/cross-session-messaging#the-sessions-inbox-socket>) that `/status` shows in each session. After the dash, the line gives one or more of these reasons:
+
+  * `its queue of undelivered peer messages was full`: the recipient already held as many undelivered messages from other sessions as its queue allows
+  * `you sent faster than that session accepts`: the sending session’s messages arrived faster than the recipient accepts from one sender
+  * `it repeated your previous message`: the message was identical to one the sending session sent this recipient shortly before
+  * `a relay loop between sessions was cut`: the message continued a chain of sessions messaging each other, and the chain had passed through the recipient too many times or grown too long
+
+**What to do:**
+
+  * Assume the recipient never saw the dropped messages. Claude Code tells Claude the same, and tells it to include anything that still matters in one later message instead of resending right away
+  * If your sessions send each other frequent updates, ask Claude to send fewer, larger messages, such as one report when a session finishes its work
+  * For `a relay loop between sessions was cut`, type the next instruction into one of the sessions yourself. A message Claude sends in response to your own prompt begins a new chain
+
+Before v2.1.238, the sending session got no report when the recipient’s inbox discarded a message.
 
 ###
 

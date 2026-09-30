@@ -69,7 +69,7 @@ You can also place skills outside the default `skills/` directory:
   * **Additional directories** : list them in the `skills` manifest key. They add to the default `skills/` scan rather than replacing it, unlike `commands` and `agents`
   * **A single skill at the plugin root** : with no `skills/` directory and no `skills` manifest key, a `SKILL.md` at the plugin root loads as one skill. Set `name` in its frontmatter, because otherwise a marketplace install names the skill after its [cache directory](</docs/en/plugins/loading#find-plugins-on-disk>) rather than your plugin
 
-To include instructions in a plugin, write them as a skill. Claude Code doesn’t load a `CLAUDE.md` at the plugin root, and `claude plugin validate` warns `CLAUDE.md at the plugin root is not loaded as project context`. For frontmatter fields and supporting files, see [Skills](</docs/en/skills>).
+To include instructions in a plugin, write them as a skill. Claude Code doesn’t load a `CLAUDE.md` at the plugin root, and `claude plugin validate` warns `CLAUDE.md at the plugin root is not loaded as project context`. If a rule must hold every time, such as [blocking edits to protected files](</docs/en/hooks-guide#block-edits-to-protected-files>), add it to the plugin as a hook rather than a skill. To choose between the two, see the Hook vs Skill tab under [Compare similar features](</docs/en/features-overview#compare-similar-features>). For frontmatter fields and supporting files, see [Skills](</docs/en/skills>).
 
 ###
 

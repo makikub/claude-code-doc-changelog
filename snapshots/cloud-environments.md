@@ -536,6 +536,10 @@ Anthropic services
   * platform.claude.com
   * code.claude.com
   * claude.ai
+  * claude.com
+  * support.claude.com
+  * anthropic.com
+  * [www.anthropic.com](<http://www.anthropic.com>)
 
 Version control
 
@@ -566,6 +570,7 @@ Container registries
   * hub.docker.com
   * [www.docker.com](<http://www.docker.com>)
   * production.cloudflare.docker.com
+  * production.cloudfront.docker.com
   * download.docker.com
   * gcr.io
   * *.gcr.io

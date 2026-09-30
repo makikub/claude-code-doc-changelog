@@ -93,7 +93,7 @@ Route a session to the environment
 
 Start a session at claude.ai/code and select your environment from the environment picker, where self-hosted environments appear alongside Anthropic-hosted ones. The runner clones with whatever git credentials the host already has, so pick a repository this host can already clone, or a public one; credential options for private repositories in production are on [Configure git](</docs/en/self-hosted-environments-deploy#configure-git>). The next available runner picks up the queued session and logs `Picked up session <session-id>` along with its active count and capacity, so you can confirm from the runner’s own output which host took the session. Watch the session work and read Claude’s replies at [claude.ai/code](<https://claude.ai/code>). If the session sits queued instead, see [Troubleshooting](</docs/en/self-hosted-environments-deploy#troubleshooting>).
 
-The runner exits by design once its active sessions finish; see [Runner lifecycle](</docs/en/self-hosted-environments#runner-lifecycle>). For production, deploy it under an orchestrator that restarts it on exit. See [Deploy to production](</docs/en/self-hosted-environments-deploy>).
+The runner exits by design once its active sessions finish; see [Runner lifecycle](</docs/en/self-hosted-environments#runner-lifecycle>). For production, deploy it under an orchestrator that restarts it on exit and waits longer between restarts when the runner keeps exiting right after it starts. See [Deploy to production](</docs/en/self-hosted-environments-deploy>) and [When the runner exits](</docs/en/self-hosted-environments-deploy#when-the-runner-exits>).
 
 ##
 

@@ -80,7 +80,10 @@ When Claude needs your browser in an interactive session and Claude Code doesn�
   * **Not now** : continues the task without browser tools. Claude Code can ask again in a later session.
   * **Don’t ask again** : stops the prompt in future sessions. You can still set up the integration anytime with `/chrome`.
 
-If your organization blocks the `claude-in-chrome` MCP server with the [`deniedMcpServers` managed setting](</docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists>), Claude Code doesn’t show the install prompt.
+Two managed MCP policies turn the prompt off:
+
+  * If your organization blocks the `claude-in-chrome` MCP server with the [`deniedMcpServers` managed setting](</docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists>), Claude Code doesn’t show the install prompt.
+  * If your organization deploys a [`managed-mcp.json`](</docs/en/managed-mcp#exclusive-control-with-managed-mcp-json>) file without [allowing Claude in Chrome alongside the managed set](</docs/en/managed-mcp#allow-claude-in-chrome-alongside-the-managed-set>), Claude Code doesn’t show the install prompt.
 
 ###
 
@@ -98,7 +101,7 @@ Enabling Chrome by default in the CLI increases context usage since browser tool
 
 Manage site permissions
 
-Site-level permissions are inherited from the Chrome extension. Manage permissions in the Chrome extension settings to control which sites Claude can browse, click, and type on.
+Site-level permissions are inherited from the Chrome extension. Manage permissions in the Chrome extension settings to control which sites Claude can browse, click, and type on. In [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), when the auto mode classifier itself approves a browser call to a site, the extension skips its own per-site check for that call, unless your permission rules deny any site to Claude in Chrome.
 
 ###
 

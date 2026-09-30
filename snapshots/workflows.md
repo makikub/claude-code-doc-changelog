@@ -81,7 +81,7 @@ Command| What it does
 
 Watch the run
 
-Workflows run in the background, so the session stays responsive while agents work. Run `/workflows` at any time to list running and completed workflows, then select one to open its progress view. The progress view shows each phase with its agent counts, token totals, and elapsed time. The footer lists the key for each action:
+Workflows run in the background, so the session stays responsive while agents work. Run `/workflows` at any time to list running and completed workflows, then select one to open its progress view. To stop a running workflow without opening it, select it in the list and press `x`. The progress view shows each phase with its agent counts, token totals, and elapsed time. The footer lists the key for each action:
 
 Key| Action
 ---|---

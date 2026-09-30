@@ -136,7 +136,9 @@ Claude Code first shows a full-screen warning dialog listing the development cha
 
 The payload arrives in Claude’s context as a `<channel>` tag:
 
-    <channel source="webhook" path="/" method="POST">build failed on main: https://ci.example.com/run/1234</channel>
+    <channel source="webhook" path="/" method="POST">
+    build failed on main: https://ci.example.com/run/1234
+    </channel>
 
 Your terminal renders the event as a one-line summary, `← webhook: build failed on main: https://ci.example.com/run/1234`, rather than the raw tag. You’ll then see Claude start responding: reading files, running commands, or whatever the message calls for. This is a one-way channel, so Claude acts in your session but doesn’t send anything back through the webhook. To add replies, see Expose a reply tool.If the event doesn’t arrive, the diagnosis depends on what `curl` returned:
 

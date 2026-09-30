@@ -143,7 +143,7 @@ If `apt` stops with `The following packages have unmet dependencies` or `Unsatis
 
 ​
 
-Running as root without —no-sandbox is not supported
+Running as root without `--no-sandbox` is not supported
 
 If `claude-desktop` exits with this message, you launched it as root. Log in as a regular user and launch it from there.
 
