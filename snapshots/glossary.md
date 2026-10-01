@@ -487,6 +487,14 @@ An action Claude can take: read a file, edit code, run a shell command, search t
 
 ​
 
+Transcript
+
+The stored record of a session. The conversation is what you and Claude exchange; the transcript is that conversation kept as a file, by default at `~/.claude/projects/<project>/<session-id>.jsonl`. Claude Code reads the file back when you resume, which is how a conversation continues after the session ends. For the on-screen view of the same conversation, see the [transcript viewer](</docs/en/interactive-mode#transcript-viewer>). Learn more: [Where transcripts are stored](</docs/en/sessions#where-transcripts-are-stored>)
+
+###
+
+​
+
 Turn
 
 One complete response from Claude within a session. A turn begins when you send a message and ends when Claude finishes responding, with any number of tool calls in between. Stop hooks fire at the end of each turn. A session consists of many turns, and the agentic loop describes what happens inside one. Learn more: [How Claude Code works](</docs/en/how-claude-code-works#the-agentic-loop>)

@@ -168,7 +168,7 @@ For local development, point `postgres_url` at a throwaway Postgres container, f
 
 `upstreams`
 
-`upstreams` is an ordered list. The gateway forwards inference to the first upstream that resolves the requested model. On `5xx`, `429`, `401`, `403`, `404`, or timeout the gateway fails over to the next upstream; other `4xx` doesn’t, because those errors are attributable to the request rather than the upstream. A `401` or `403` means the gateway’s own credential failed against that upstream. A `404` means that upstream doesn’t serve the requested model, so a later upstream in the list still can. If you set `forward_user_identity: true` on an upstream, a `429` it returns to a request that carried the developer’s email doesn’t fail over. See how a per-user limit denial reaches the developer. Failover on `404` requires gateway v2.1.198 or later. Earlier releases returned the first `404` to the client even when a later upstream in the list served the model. Multiple upstreams of the same provider must set a distinct `name:`. Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry clients are built once at startup, and their SDKs refresh credentials internally, so rotating cloud credentials doesn’t require a restart. Static Anthropic API keys and bearers are read at startup; see Anthropic API.
+`upstreams` is an ordered list. The gateway forwards inference to the first upstream that resolves the requested model. On `5xx`, `429`, `401`, `403`, `404`, or timeout the gateway fails over to the next upstream; other `4xx` doesn’t, because those errors are attributable to the request rather than the upstream. A `401` or `403` means the credential the gateway used against that upstream failed. A `404` means that upstream doesn’t serve the requested model, so a later upstream in the list still can. If you set `forward_user_identity: true` on an upstream, a `429` it returns to a request that carried the developer’s email doesn’t fail over. See how a per-user limit denial reaches the developer. Failover on `404` requires gateway v2.1.198 or later. Earlier releases returned the first `404` to the client even when a later upstream in the list served the model. Multiple upstreams of the same provider must set a distinct `name:`. Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry clients are built once at startup, and their SDKs refresh credentials internally, so rotating cloud credentials doesn’t require a restart. Static Anthropic API keys and bearers are read at startup; see Anthropic API.
 
 ####
 
@@ -291,7 +291,66 @@ To apply an Amazon Bedrock guardrail to every inference request the gateway send
 
 The gateway doesn’t support guardrail input tags. It adds no guard content tags to prompts, so a guardrail filter that Amazon Bedrock applies only to tagged input doesn’t run on traffic through the gateway. For which filters depend on input tags, see [input tags](<https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html>) in the Amazon Bedrock documentation.
 
-Also grant the gateway’s AWS principal `bedrock:ApplyGuardrail` on the guardrail. Set `guardrail` on every `bedrock` upstream or on none. The gateway refuses to start on a mix, because failover could otherwise send a request to a Bedrock upstream that has no guardrail. The guardrail covers Bedrock upstreams only. If you list another provider in `upstreams`, the gateway sends requests to that provider without the guardrail. When a `/v1/messages` request whose body carries an `amazon-bedrock-*` field, such as `amazon-bedrock-guardrailConfig`, reaches a Bedrock upstream that has `guardrail` set, the gateway answers 400 instead of forwarding it.
+Also grant `bedrock:ApplyGuardrail` on the guardrail to the principal that signs this upstream’s requests: the gateway’s AWS principal, or with `assume_role` the role named in `role_arn`. Set `guardrail` on every `bedrock` upstream or on none. The gateway refuses to start on a mix, because failover could otherwise send a request to a Bedrock upstream that has no guardrail. The guardrail covers Bedrock upstreams only. If you list another provider in `upstreams`, the gateway sends requests to that provider without the guardrail. When a `/v1/messages` request whose body carries an `amazon-bedrock-*` field, such as `amazon-bedrock-guardrailConfig`, reaches a Bedrock upstream that has `guardrail` set, the gateway answers 400 instead of forwarding it.
+
+##### Bedrock in another AWS account
+
+Set `assume_role` on a Bedrock upstream and the gateway uses its own AWS identity only to call `sts:AssumeRole` on a role you name, which can be in a different AWS account from the gateway. Every Bedrock request from that upstream is signed with the one-hour credentials STS returns, so no long-lived access key crosses accounts. Requires a gateway running Claude Code v2.1.281 or later. An earlier gateway refuses to start when it finds the key.
+
+    upstreams:
+      - name: bedrock-isolated
+        provider: bedrock
+        region: us-east-1
+        auth: {}                           # the gateway's own role: it only calls STS
+        assume_role:
+          role_arn: arn:aws:iam::222222222222:role/claude-gateway-bedrock
+          # external_id: ${BEDROCK_ROLE_EXTERNAL_ID}   # when the role's trust policy requires one
+
+The `assume_role` block takes three keys:
+
+Key| Meaning
+---|---
+`role_arn`| The IAM role the gateway assumes, as an `arn:aws:iam::` or `arn:aws-us-gov:iam::` ARN. Give it the Bedrock permissions this upstream needs, `bedrock:CountTokens` included, plus `bedrock:ApplyGuardrail` when the upstream sets `guardrail`.
+`external_id`| Optional. Sent as the external ID on every `sts:AssumeRole` call. Set it when the role’s trust policy requires one, and quote it if it’s all digits.
+`session_name`| Optional. `email` or `sub` gives each developer their own session: see Per-developer AWS cost attribution. Unset, every request uses one session named `claude-apps-gateway`.
+
+The role’s trust policy names the gateway’s own principal, such as its IRSA or ECS task role. That principal needs `sts:AssumeRole` on the role and no Bedrock permission of its own. Drop the `Condition` if you set no `external_id`.
+
+    {
+      "Version": "2012-10-17",
+      "Statement": [{
+        "Effect": "Allow",
+        "Principal": { "AWS": "arn:aws:iam::111111111111:role/claude-gateway" },
+        "Action": "sts:AssumeRole",
+        "Condition": { "StringEquals": { "sts:ExternalId": "your-external-id" } }
+      }]
+    }
+
+  * If STS refuses or is unreachable, the gateway doesn’t send the request with the upstream’s own credentials. It logs the STS error with what to check, then tries the next upstream you listed. Upstream error messages covers what the client receives when no upstream succeeds. A later upstream without `assume_role` would serve the request with its own credentials, so list one only if that is what you want.
+  * The gateway calls the regional STS endpoint `sts.<region>.amazonaws.com`, which its network must reach. For the FIPS endpoint, set `AWS_USE_FIPS_ENDPOINT=true` in the gateway’s environment rather than `use_fips_endpoint` in an AWS config file.
+  * `assume_role` applies to `provider: bedrock` only and needs SigV4 source credentials: the gateway refuses to start when it’s set beside `aws_bearer_token`.
+  * Every developer the gateway admits can use this upstream; `managed` governs which developers may use which models. To keep a model served through the role from also being served from another account, give it a custom id whose `upstream_model` map has only this upstream’s name. For such an id the gateway skips every other upstream, so neither the request nor the token count for an aborted request can fail over to another account. Built-in model names are still tried on every upstream in order, this one included, and a request that reaches it is signed with the same role, so list this upstream last unless its account should also serve them.
+
+This example gives one model a custom id that only the isolated upstream serves:
+
+    models:
+      - id: claude-opus-restricted          # a custom id, not a built-in model name
+        upstream_model:
+          bedrock-isolated: us.anthropic.claude-opus-4-8   # the only upstream that serves it
+
+##### Per-developer AWS cost attribution
+
+By default the gateway signs every Bedrock request with one credential, so AWS sees all developers’ requests under a single IAM principal. Add `session_name: email` to `assume_role` and the gateway calls `sts:AssumeRole` once per developer per hour, with the session name set to that developer’s email, and signs their requests with the returned credentials, so each developer’s requests reach AWS under their own assumed-role session. The role can be in the gateway’s own account. Requires a gateway running Claude Code v2.1.281 or later. [Cost attribution on AWS](</docs/en/claude-apps-gateway-on-aws#cost-attribution>) covers the IAM role and where AWS billing shows the sessions.
+
+    upstreams:
+      - provider: bedrock
+        region: us-east-1
+        auth: {}                           # the gateway's own role: it only calls STS
+        assume_role:
+          role_arn: arn:aws:iam::123456789012:role/claude-gateway-bedrock-user
+          session_name: email              # or sub
+
+`session_name` selects which verified claim becomes the AWS `RoleSessionName`: `email` or `sub`. The gateway writes any character other than ASCII letters, digits, and `_+,.@-` as `=XX` hex per UTF-8 byte, and shortens a result longer than 64 characters to a prefix plus a hash, so each developer’s session name stays valid and unique. A request from a developer whose token lacks the claim isn’t sent through this upstream, and the operator log says to switch to `sub` or set `oidc.email_claim`. An active developer costs one STS call per hour per gateway replica, and concurrent first requests share one call. The gateway also makes one call of its own on this role: the token count for a request the client abandoned, so that [spend limits](</docs/en/claude-apps-gateway-spend-limits>) stay accurate. That count and its one-token fallback request are signed by the shared `claude-apps-gateway` session, so AWS attributes the fallback to `claude-apps-gateway` rather than to the developer. For strict per-developer attribution, set `assume_role` with `session_name` on every Bedrock upstream you list. An upstream without it signs the requests it serves with its own credentials.
 
 ####
 
@@ -434,7 +493,7 @@ The same provider can appear more than once with a distinct `name:`. This covers
         provider: bedrock
         region: us-west-2
         auth: {}
-      # Different account: a separate Bedrock allotment via assumed-role creds.
+      # Different account: a separate Bedrock allotment via static keys.
       - name: bedrock-acct2
         provider: bedrock
         region: us-east-1
@@ -460,7 +519,7 @@ The same provider can appear more than once with a distinct `name:`. This covers
 Lever| How
 ---|---
 Different regions| One Amazon Bedrock upstream per region, each with its own `region:`. With `auto_include_builtin_models: true` the cross-region inference profiles route automatically; for region-pinned deployments use a `models:` block.
-Different accounts| One Amazon Bedrock upstream per account, each with its own credentials in `auth:`. The default chain (`auth: {}`) uses the pod’s identity; for a second account, set explicit credentials or a bearer token.
+Different accounts| One Amazon Bedrock upstream per account. The default chain (`auth: {}`) uses the pod’s identity; for a second account, add `assume_role` to reach it with short-lived credentials, or set explicit credentials or a bearer token in `auth:`.
 Provisioned throughput| Map the model to the provisioned-throughput ARN in `models:` for that upstream’s name. Other upstreams keep the on-demand ID, so PT capacity is exhausted before failing over.
 VPC / FIPS endpoints| Set `base_url:` on the upstream to your VPC endpoint or FIPS endpoint URL
 Model-scoped routing| Only a custom model `id`, one that isn’t a built-in Claude model, skips the upstreams absent from its `upstream_model:` map. The gateway tries built-in models on every upstream in order and uses the provider’s default ID where the map has no entry, so for built-in models the map changes which ID an upstream receives rather than whether it is tried; an upstream that rejects the ID follows the same failover rules as any other upstream error.
@@ -1102,7 +1161,7 @@ Everything above configures the gateway server. You point developer machines at 
       "parentSettingsBehavior": "merge"
     }
 
-`parentSettingsBehavior: "merge"` keeps Claude Desktop’s delivery of the egress allowlist to its embedded Claude Code sessions working; [Deliver policy to Claude Desktop sessions](</docs/en/claude-apps-gateway#deliver-policy-to-claude-desktop-sessions>) explains the mechanism and where the opt-in must sit. Deploy the `managed-settings.json` file to each device, typically via your MDM platform. The file path differs by platform. See [where each mechanism stores the policy](</docs/en/managed-settings#where-each-mechanism-stores-the-policy>). By default, a registry policy on Windows or a managed-preferences plist on macOS replaces the `managed-settings.json` file rather than merging with it, apart from the exception keys and cross-source checks above. All three keys in this snippet follow the highest-priority-source rule, so fleets that deliver policy through Group Policy or configuration profiles must put all three in that mechanism instead. For Claude Desktop, set the `bootstrapUrl` key in Claude Desktop’s own [managed configuration](<https://claude.com/docs/third-party/claude-desktop/configuration>) to `<listen.public_url>/user/bootstrap`. The sign-in flow and per-group policy then match the CLI’s once a policy opts in server-side with a `desktop` key; without the opt-in, `/user/bootstrap` returns 404. See Claude Desktop overlay for the server-side half. Claude Code honors [`forceLoginGatewayUrl`](</docs/en/settings-reference#forcelogingatewayurl>), [`gatewayInternalNetworks`](</docs/en/settings-reference#gatewayinternalnetworks>), and the `"gateway"` value of [`forceLoginMethod`](</docs/en/settings-reference#forceloginmethod>) only from a managed source on the machine: `managed-settings.json`, the macOS plist or Windows HKLM registry, or a policy helper. Setting them in a developer’s own `~/.claude/settings.json` or in the gateway payload doesn’t configure the gateway sign-in. Leave `forceLoginMethod` and `forceLoginOrgUUID` out of the payload. Claude Code still reads both keys from the payload for its startup credential check, so a developer who keeps an Anthropic-issued credential on the machine gets the startup exit described under [Administrator policy requires a Cloud gateway sign-in](</docs/en/errors#administrator-policy-requires-a-cloud-gateway-sign-in>) even after they sign in.
+`parentSettingsBehavior: "merge"` keeps Claude Desktop’s delivery of the egress allowlist to its embedded Claude Code sessions working; [Deliver policy to Claude Desktop sessions](</docs/en/claude-apps-gateway#deliver-policy-to-claude-desktop-sessions>) explains the mechanism and where the opt-in must sit. To stop developers from bypassing the gateway with a cloud provider variable or an `ANTHROPIC_BASE_URL` of their own, add `"allowedProviders": ["gateway"]` to the same file. Claude Code then refuses every session on the machine that isn’t set up for a Cloud gateway, and admits a gateway only when it is the one `forceLoginGatewayUrl` names or one whose URL the file’s `env` block sets as `ANTHROPIC_BASE_URL`. `claude gateway` refuses to run on a machine that sets the list, so keep the key off the gateway host. See the [`allowedProviders`](</docs/en/settings-reference#allowedproviders>) entry in the settings reference. Requires Claude Code v2.1.285 or later. Deploy the `managed-settings.json` file to each device, typically via your MDM platform. The file path differs by platform. See [where each mechanism stores the policy](</docs/en/managed-settings#where-each-mechanism-stores-the-policy>). By default, a registry policy on Windows or a managed-preferences plist on macOS replaces the `managed-settings.json` file rather than merging with it, apart from the exception keys and cross-source checks above. All three keys in this snippet follow the highest-priority-source rule, so fleets that deliver policy through Group Policy or configuration profiles must put all three in that mechanism instead. For Claude Desktop, set the `bootstrapUrl` key in Claude Desktop’s own [managed configuration](<https://claude.com/docs/third-party/claude-desktop/configuration>) to `<listen.public_url>/user/bootstrap`. The sign-in flow and per-group policy then match the CLI’s once a policy opts in server-side with a `desktop` key; without the opt-in, `/user/bootstrap` returns 404. See Claude Desktop overlay for the server-side half. Claude Code honors [`forceLoginGatewayUrl`](</docs/en/settings-reference#forcelogingatewayurl>), [`gatewayInternalNetworks`](</docs/en/settings-reference#gatewayinternalnetworks>), and the `"gateway"` value of [`forceLoginMethod`](</docs/en/settings-reference#forceloginmethod>) only from a managed source on the machine: `managed-settings.json`, the macOS plist or Windows HKLM registry, or a policy helper. Setting them in a developer’s own `~/.claude/settings.json` or in the gateway payload doesn’t configure the gateway sign-in. Leave `forceLoginMethod` and `forceLoginOrgUUID` out of the payload. Claude Code still reads both keys from the payload for its startup credential check, so a developer who keeps an Anthropic-issued credential on the machine gets the startup exit described under [Administrator policy requires a Cloud gateway sign-in](</docs/en/errors#administrator-policy-requires-a-cloud-gateway-sign-in>) even after they sign in.
 
 ##
 

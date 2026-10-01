@@ -783,28 +783,6 @@ The terminal host died or the session stopped responding
 
 The supervisor runs each background session’s terminal in its own host process. When that process dies or stops responding, Claude Code shows the reason and offers a restart; in both cases the conversation is saved and the restart resumes it. The [error reference](</docs/en/errors#terminal-host-process-died>) quotes the full messages. Claude Code never restarts a row running a shell command, from `Enter` or from `claude attach`, because that would run the command again; the row’s message and `claude attach` both say the command isn’t run again.
 
-####
-
-​
-
-Terminal host died
-
-On Linux and WSL, the supervisor checks each host process every few seconds, whether or not you open the session, and marks the session failed when the process has exited but its connection to the supervisor never closed.
-
-  * In agent view, the row shows `terminal host process died — press Enter to restart`. Press `Enter` on it and Claude Code restarts the session on a fresh host process.
-  * From the shell, `claude attach <id>` restarts a session already marked failed. Otherwise it reports the cause and exits, telling you to run `claude attach <id>` again.
-
-####
-
-​
-
-Session isn’t responding
-
-When the supervisor accepts an open but no output arrives for about ten seconds, Claude Code ends the attempt and offers a restart. A session that merely stalled, for example across machine sleep, doesn’t reach this offer: the supervisor restarts it on open itself.
-
-  * In agent view, the footer shows `Press enter again to restart this session — it isn't responding (its conversation is saved and resumes).` Press `Enter` on the same row again and Claude Code stops the unresponsive process and restarts the session; it stops nothing without that second press.
-  * From the shell, `claude attach <id>` reports the cause and exits, telling you to run `claude stop <id>`, then `claude attach <id>`.
-
 ###
 
 ​

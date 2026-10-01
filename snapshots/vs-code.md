@@ -44,7 +44,7 @@ Throughout VS Code, the Spark icon indicates Claude Code: The quickest way to op
 
   * **Activity Bar** : click the Spark icon in the left sidebar to open the sessions list. Click any session to open it in your preferred location, or start a new one. This icon is always visible in the Activity Bar.
   * **Command Palette** : `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux), type “Claude Code”, and select an option like “Open in New Tab”
-  * **Status Bar** : if you’ve set `preferredLocation` to `sidebar`, or opened Claude with **Claude Code: Open in Side Bar** , click **✻ Claude Code** in the bottom-right corner of the window. This works even when no file is open.
+  * **Status Bar** : click **✻ Claude Code** in the bottom-right corner of the window. This works even when no file is open.
 
 You can drag the Claude panel to reposition it anywhere in VS Code. See Customize your workflow for details.
 
@@ -300,7 +300,8 @@ Install plugins
 
 The plugin dialog shows two tabs: **Plugins** and **Marketplaces**. In the Plugins tab:
 
-  * **Installed plugins** appear at the top with toggle switches to enable or disable them
+  * **Installed plugins** appear at the top with toggle switches to enable or disable them.
+    * If you turn off a plugin that your project’s shared `.claude/settings.json` turns on, the extension asks first: **Disable for me** turns it off only for you, while **Disable for everyone** changes the shared file.
   * **Available plugins** from your configured marketplaces appear below
   * Search to filter plugins by name or description
   * Click **Install** on any available plugin
@@ -310,6 +311,19 @@ When you install a plugin, choose the installation scope:
   * **Install for you** : available in all your projects (user scope)
   * **Install for this project** : shared with project collaborators (project scope)
   * **Install locally** : only for you, only in this repository (local scope)
+
+Once the install finishes, a form asks for any of the plugin’s [configuration options](</docs/en/plugins/components#user-configuration>) that aren’t set yet. To review or change the options later, click the gear icon on the plugin’s row. Sensitive text fields are masked, and a secret you saved earlier shows **(unchanged)**. Leave the field blank to keep the saved value. After you save changes, the open sessions reload their plugins and the dialog shows **Restart Claude to apply plugin changes**.
+
+###
+
+​
+
+Uninstall plugins
+
+Each installed row names the [scope](</docs/en/plugins/install#choose-an-install-scope>) it’s installed at. To uninstall that installation, click the row’s trash icon. A dimmed trash icon marks a row you can’t uninstall from this workspace, such as a plugin your organization manages or one installed for another project. The extension asks first in two cases:
+
+  * **A plugin your project’s shared`.claude/settings.json` turns on**: choose **Disable for me** , which keeps the plugin installed for your collaborators, or **Uninstall for everyone** , which removes the project’s installation with [`--keep-data`](</docs/en/plugins/cli-reference#what-an-uninstall-deletes-and-keeps>), so the plugin’s saved data directory stays. If you already turned the plugin off for yourself, the trash icon removes your own installation without the question.
+  * **Otherwise, the last installation of a plugin with saved data** : choose whether to keep or delete the data; **Keep** is the default
 
 ###
 
@@ -345,7 +359,7 @@ Switch to the **Marketplaces** tab to add or remove plugin sources:
 
   * Enter a GitHub repo, URL, or local path to add a new marketplace
   * Click the refresh icon to update a marketplace’s plugin list
-  * Click the trash icon to remove a marketplace
+  * Click the trash icon to remove a marketplace. Removing it [uninstalls every plugin you installed from it](</docs/en/plugins/install#manage-marketplaces>), so a confirmation names those plugins first
 
 Plugin changes you make in the dialog apply right away to the Claude Code sessions open in that VS Code window. If the session you opened the dialog from can’t reload its plugins, the dialog offers to try again or to restart Claude in that session.
 
@@ -694,7 +708,7 @@ The Spark icon appears in the **Editor Toolbar** (top-right of editor) when you 
   4. **Disable conflicting extensions** : Temporarily disable other AI extensions (Cline, Continue, etc.)
   5. **Check workspace trust** : The extension doesn’t work in Restricted Mode
 
-Alternatively, if you’ve set `preferredLocation` to `sidebar`, or opened Claude with **Claude Code: Open in Side Bar** , click ”✻ Claude Code” in the **Status Bar** (bottom-right corner). This works even without a file open. You can also use the **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`) and type “Claude Code”.
+Alternatively, click **✻ Claude Code** in the **Status Bar** at the bottom-right corner of the window. This works even without a file open. You can also use the **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`) and type “Claude Code”.
 
 ###
 
