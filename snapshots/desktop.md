@@ -84,11 +84,19 @@ Mode| Settings key| Behavior
 **Auto**| `auto`| Claude runs without routine prompts; before actions such as shell commands and network requests run, a background classifier checks that they align with your request. Appears when auto mode is available; there is no separate Settings toggle for it.
 **Bypass permissions**| `bypassPermissions`| Claude runs without permission prompts, except for the [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>), safety classifiers when Claude acts on external sites, or desktop actions where Claude always asks first, such as archiving a session. Equivalent to `--dangerously-skip-permissions` in the CLI. On Pro and Max plans, enable it in your Settings → Claude Code under “Allow bypass permissions mode”; on Team and Enterprise plans there is no Settings toggle, and organization policy controls it instead. Only use this in sandboxed containers or VMs.
 
-Earlier versions of the Code tab labeled these modes Ask permissions, Auto accept edits, and Plan mode. The `dontAsk` permission mode is available only in the [CLI](</docs/en/permission-modes#allow-only-pre-approved-tools-with-dontask-mode>). Auto mode is available to all users on the Anthropic API and requires Claude Opus 4.6 or later, Sonnet 4.6 or later, or a [Fable model](</docs/en/model-config#work-with-fable>). Organization administrators can turn auto mode off with the `disableAutoMode` key in managed settings. In Enterprise deployments that route Desktop to Google Cloud’s Agent Platform, auto mode is also available by default; see [Auto mode on Bedrock, Agent Platform, or Foundry](</docs/en/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry>) for the supported models.
+Earlier versions of the Code tab labeled these modes Ask permissions, Auto accept edits, and Plan mode. The `dontAsk` permission mode is available only in the [CLI](</docs/en/permission-modes#allow-only-pre-approved-tools-with-dontask-mode>).
 
 Start complex tasks in Plan so Claude maps out an approach before making changes. Once you approve the plan, switch to Accept edits or Manual to execute it. See [explore first, then plan, then code](</docs/en/best-practices#explore-first-then-plan-then-code>) for more on this workflow.
 
 Cloud sessions support Accept edits, Plan, and Auto. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Manual. Bypass permissions isn’t available in cloud sessions, including sessions in a [self-hosted environment](</docs/en/self-hosted-environments>). Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
+
+####
+
+​
+
+Auto mode availability
+
+Auto mode is available to all users on the Anthropic API and requires Claude Opus 4.6 or later, Sonnet 4.6 or later, or a [Fable model](</docs/en/model-config#work-with-fable>). Organization administrators can turn auto mode off with the `disableAutoMode` key in managed settings. In Enterprise deployments that route Desktop to Google Cloud’s Agent Platform, auto mode is also available by default; see [Auto mode on Bedrock, Agent Platform, or Foundry](</docs/en/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry>) for the supported models.
 
 ###
 
@@ -677,7 +685,7 @@ Your administrator can turn off local sessions with the `disableDesktopLocalSess
 
 Cloud sessions
 
-Cloud sessions continue in the background even if you close the app. Usage counts toward your [subscription plan limits](</docs/en/costs>) with no separate compute charges. You can create custom cloud environments with different network access levels and environment variables. When you start a cloud session, open the environment dropdown in the prompt box to manage them:
+Cloud sessions continue in the background even if you close the app. Usage counts toward your [subscription plan limits](</docs/en/costs>) with no separate compute charges. You can create custom cloud environments with different network access levels and environment variables. To manage them, open the environment dropdown in the prompt box and select **Cloud** :
 
   * **Add an environment** : select **Add cloud environment**
   * **Edit or archive one of your own environments** : hover over it and click the gear icon

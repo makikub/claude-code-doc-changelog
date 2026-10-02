@@ -28,7 +28,7 @@ Open [BotFather](<https://t.me/BotFather>) in Telegram and send `/newbot`. Give 
 
 Install the plugin
 
-In Claude Code, run:
+Start Claude Code by running `claude` in your terminal, then enter this at its prompt:
 
     /plugin install telegram@claude-plugins-official
 
@@ -106,7 +106,7 @@ Open the generated URL to add the bot to your server.
 
 Install the plugin
 
-In Claude Code, run:
+Start Claude Code by running `claude` in your terminal, then enter this at its prompt:
 
     /plugin install discord@claude-plugins-official
 
@@ -163,7 +163,7 @@ The Messages database at `~/Library/Messages/chat.db` is protected by macOS. The
 
 Install the plugin
 
-In Claude Code, run:
+Start Claude Code by running `claude` in your terminal, then enter this at its prompt:
 
     /plugin install imessage@claude-plugins-official
 
@@ -216,7 +216,7 @@ Fakechat is an officially supported demo channel that runs a chat UI on localhos
 
 Install the fakechat channel plugin
 
-Start a Claude Code session and run the install command:
+Start Claude Code by running `claude` in your terminal, then enter the install command at its prompt:
 
     /plugin install fakechat@claude-plugins-official
 

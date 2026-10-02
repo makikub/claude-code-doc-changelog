@@ -184,7 +184,7 @@ When you stop `claude remote-control` with Ctrl+C, the sessions it was serving s
   * **`claude remote-control --continue`** : brings back only the session the server started with, and exits when that session ends. If this directory has no record, Claude Code uses the newest one from this repository’s other git worktrees.
   * **`claude remote-control --session-id<id>`**: brings back only the session whose ID you pass, and exits when that session ends. The ID is the part of the session’s URL at claude.ai/code between `/code/` and any `?`.
 
-These commands work for about four hours after the server stopped. After that, run `claude remote-control` to start a new session. If you archived a session in the meantime, `--continue` and `--session-id` unarchive it on Claude Code v2.1.228 or later. To bring back a session you started with `claude --remote-control` or `/remote-control`, resume the conversation with `claude --continue` or `claude --resume`. If Remote Control doesn’t reconnect, see Couldn’t reconnect to your Remote Control session. If you resume the conversation in a second terminal while the first one still has Remote Control on, Claude Code prints a `Remote Control not started here` notice in the second terminal and leaves Remote Control off there instead of taking the session away from the first. Run `/remote-control` in the second terminal to move Remote Control to it. When you resume a conversation in Claude Desktop or an IDE extension that had Remote Control on, Claude Code reattaches it to the existing claude.ai session instead of adding a new one to the session list.
+These commands work for about four hours after the server stopped. After that, run `claude remote-control` to start a new session. If you archived a session in the meantime, `--continue` and `--session-id` unarchive it on Claude Code v2.1.228 or later. To bring back a session you started with `claude --remote-control` or `/remote-control`, resume the conversation with `claude --continue` or `claude --resume`. For the permission mode that the resumed conversation starts in, see [permission mode on resume](</docs/en/sessions#permission-mode-on-resume>). If Remote Control doesn’t reconnect, see Couldn’t reconnect to your Remote Control session. If you resume the conversation in a second terminal while the first one still has Remote Control on, Claude Code prints a `Remote Control not started here` notice in the second terminal and leaves Remote Control off there instead of taking the session away from the first. Run `/remote-control` in the second terminal to move Remote Control to it. When you resume a conversation in Claude Desktop or an IDE extension that had Remote Control on, Claude Code reattaches it to the existing claude.ai session instead of adding a new one to the session list.
 
 ##
 
@@ -207,7 +207,7 @@ Trusted Devices requires each member of your organization, or you alone on a Pro
   * **An enrolled device** : each browser, phone, or desktop app a member uses for Remote Control enrolls its own credential. Enrollment is only offered shortly after a full sign-in, so a device joins the trusted list as part of a real authentication rather than silently in the background.
   * **A recent sign-in** : the member’s sign-in must be no more than 18 hours old. Instead of signing in again each day, members confirm presence with Face ID, Touch ID, Windows Hello, or a passkey. This biometric step-up refreshes the session immediately.
 
-Biometric checks run on the device through the operating system or browser, the same mechanism as passkey sign-in. Anthropic never receives or stores fingerprints, face data, or any other biometric information. Only the device’s public key and basic metadata such as display name, platform, and enrollment time are stored. The setting applies only to Remote Control. Regular Claude chat, Claude Code in the terminal, and API usage are unaffected.
+Biometric checks run on the device through the operating system or browser, the same mechanism as passkey sign-in. Anthropic never receives or stores fingerprints, face data, or any other biometric information. Only the device’s public key and basic metadata such as display name, platform, and enrollment time are stored. The setting applies to Remote Control in both Claude Code and [Cowork](<https://claude.com/docs/cowork/overview>). This page covers the Claude Code side. Regular Claude chat, Claude Code in the terminal, and API usage are unaffected.
 
 ###
 
@@ -327,13 +327,14 @@ Limitations
   * **Extended network outage** : if your machine is awake but can’t reach the network, what you do next depends on the mode:
     * **Server mode** : Claude Code gives up after roughly 10 minutes and the `claude remote-control` process exits. Run `claude remote-control` again to start a new session.
     * **Interactive session** : keep working locally. Claude Code retries for as long as the outage lasts and reconnects on its own when the network returns.
+  * **Attachments that don’t download** : if a file you attach from your phone or browser can’t be downloaded to your machine, Claude still receives your message and the files that were downloaded. In place of the missing files, Claude Code adds a note such as `[1 of 3 attachments did not arrive]` to the message.
   * **Presence heartbeats failing** : if an interactive session disconnects with `could not reach the Remote Control server for about 30 minutes`, run `/remote-control` to reconnect.
   * **Forwarded dialogs expire** : Claude Code keeps permission prompts and `AskUserQuestion` questions open until you answer them. When Claude Code forwards another kind of dialog to the remote session, such as the model-choice prompt shown after a safety refusal, it waits five minutes by default, then closes the dialog and continues with the dialog’s no-action default. Set [`dialogExpiry`](</docs/en/settings-reference#dialogexpiry>) to adjust or disable the deadline. Requires Claude Code v2.1.224 or later.
   * **The Fable usage-credits consent prompt isn’t forwarded** : Claude Code shows the mid-session [Fable usage-credits consent prompt](</docs/en/model-config#fable-and-usage-credits>) only where the session runs, not on your device. When the session runs in a terminal and nobody there answers before Claude Code closes the prompt, the turn ends without sending the request; see [The prompt to confirm went unanswered](</docs/en/errors#the-prompt-to-confirm-went-unanswered>).
-  * **Some commands are local-only** : commands that only run in the terminal interface, such as `/plugin` or `/resume`, work only from the local CLI, whether or not you pass an argument. The following work from mobile and web:
+  * **Some commands are local-only** : commands that only run in the terminal interface, such as `/plugin` or `/resume`, work only from the local CLI, whether or not you pass an argument. `/claude-api` is also unavailable when you type it from mobile or web. Claude can still [load that skill on its own](</docs/en/skills#work-on-claude-api-projects>) there. The following work from mobile and web:
     * Text-output commands: `/compact`, `/clear`, `/context`, `/usage`, `/exit`, `/usage-credits`, `/recap`, and `/reload-plugins`. `/usage-credits` prints the billing URL instead of opening a browser. `/reload-plugins` works only when the session runs in an interactive terminal; a session without one declines it.
     * `/model`, `/effort`, `/fast`, `/color`, and `/rename`: pass the value as an argument, for example `/model sonnet` or `/effort high`. From mobile and web, `/model` and `/effort` take the argument in place of the terminal picker or slider.
-    * `/mcp`: from the mobile app, returns a text summary of server status instead of opening the picker. On the web, `/mcp` on its own opens a directory of [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>) instead of returning the summary. The `reconnect`, `enable`, and `disable` [subcommands](</docs/en/commands#all-commands>) work from both. Unlike the local CLI, `/mcp reconnect` without a server name reconnects every server that has failed or needs authentication.
+    * `/mcp`: from the mobile app, returns a text summary of server status instead of opening the picker. On the web, `/mcp` on its own opens a directory of [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>) instead of returning the summary. The `reconnect`, `enable`, and `disable` [subcommands](</docs/en/commands#all-commands>) work from both. `/mcp reconnect` with no server name retries every server that has failed or needs authentication.
     * `/config`: from the mobile app, pass `key=value` to set a setting, or run it with no argument to list the keys you can set. On the web, `/config` opens the Claude Code section of your settings instead, and ignores text after the command.
     * On Team and Enterprise, `/usage-credits` from mobile or web doesn’t send a [usage-credits request to your admin](</docs/en/costs#add-usage-credits-to-your-subscription>). Sending requires a confirmation that appears only in the interactive CLI, so the command tells you to run it there instead.
     * `/autocompact`, from v2.1.221: pass the window size as an argument, for example `/autocompact 500k`. With no argument, it prints the current window size as text instead of opening the dialog the command shows in a terminal session.
@@ -416,7 +417,7 @@ The session isn’t talking to the Anthropic API directly, which Remote Control 
 
 ​
 
-”Remote Control is disabled by your organization’s policy”
+“Remote Control is disabled by your organization’s policy”
 
 A policy blocks Remote Control. Check these causes in order:
 
@@ -426,6 +427,19 @@ A policy blocks Remote Control. Check these causes in order:
   * **Otherwise, an Owner hasn’t enabled it for your organization** : Remote Control is off by default on Team and Enterprise plans. An Owner can enable it at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>) by turning on the **Remote Control** toggle. This toggle is a server-side organization setting.
 
 Before v2.1.281, this message also appeared when Claude Code hadn’t loaded your organization’s policy on this machine, for example after starting offline. Later versions report that state as `Couldn't verify your organization's policy for remote control` instead.
+
+###
+
+​
+
+“Remote Control was turned off by your organization’s policy”
+
+Your organization’s policy stopped allowing Remote Control while a session was connected, so Claude Code disconnected it. What happens to the session depends on how you started Remote Control:
+
+  * **With`/remote-control`, `claude --remote-control`, or auto-connect**: the session keeps running without Remote Control, and Claude Code archives it at claude.ai
+  * **With`claude remote-control`**: the server stops and archives the sessions it was serving, then exits
+
+You can still find an archived session by [filtering for archived sessions](</docs/en/claude-code-on-the-web#archive-sessions>). Remote Control doesn’t reconnect on its own. To turn it back on after your organization allows it again, run `/remote-control` in the session or `claude remote-control` in your shell. Either command fails with `Remote Control is disabled by your organization's policy` until Claude Code on this machine has fetched the changed policy. An open session fetches it about once an hour. To find out what is blocking Remote Control, match the full text the command prints against that entry.
 
 ###
 

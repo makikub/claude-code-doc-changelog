@@ -95,7 +95,7 @@ The prompt box supports several features:
       * `/plan` with a task, such as `/plan fix the auth bug`: switches to plan mode and starts planning that task.
       * `/plan open`: when you’re already in plan mode, opens the plan file in the editor.
     * **Edit automatically** : Claude makes edits without asking.
-  * **Model** : select **Switch model…** from the command menu to change the model mid-session. You can also click the model name at the bottom of the prompt box to open the same picker. When the current model supports [effort levels](</docs/en/model-config#adjust-effort-level>), the picker also shows an **Effort** row and the model name button shows the selected level. When you pick a level other than `max`, Claude Code saves it for the current model as your default, under [`modelSettings`](</docs/en/settings-reference#modelsettings>) in your user settings; `max` applies to the current session only. The model name button and the **Effort** row require Claude Code v2.1.257 or later. When [dynamic workflows](</docs/en/workflows>) are enabled and the current model supports it, an **Ultracode** switch appears under the **Effort** row. Turn it on to have Claude plan a [workflow](</docs/en/workflows#let-claude-decide-with-ultracode>) for each substantive task in this session, at the selected effort level. While it’s on, the model name button shows `· Ultracode` after the level. The switch requires Claude Code v2.1.284 or later.
+  * **Model** : select **Switch model…** from the command menu to change the model mid-session. You can also click the model name at the bottom of the prompt box to open the same picker. With Claude Code v2.1.284 or later, typing `/model` on its own in the prompt box opens the picker too. When the current model supports [effort levels](</docs/en/model-config#adjust-effort-level>), the picker also shows an **Effort** row and the model name button shows the selected level. When you pick a level other than `max`, Claude Code saves it for the current model as your default, under [`modelSettings`](</docs/en/settings-reference#modelsettings>) in your user settings; `max` applies to the current session only. The model name button and the **Effort** row require Claude Code v2.1.257 or later. When [dynamic workflows](</docs/en/workflows>) are enabled and the current model supports it, an **Ultracode** switch appears under the **Effort** row. Turn it on to have Claude plan a [workflow](</docs/en/workflows#let-claude-decide-with-ultracode>) for each substantive task in this session, at the selected effort level. While it’s on, the model name button shows `· Ultracode` after the level. The switch requires Claude Code v2.1.284 or later.
   * **Command menu** : click `/` or type `/` to open the command menu. Options include attaching files, switching models, and toggling extended thinking. The Customize section includes entries such as MCP servers, commands, output styles, hooks, memory, instructions, permissions, and plugins. Items with a terminal icon open in the integrated terminal.
     * To browse commands such as `/usage` or [`/remote-control`](</docs/en/remote-control>), select **Slash commands** in the Customize section. A dialog lists them with a filter box. Pick one to run it. Typing `/` in the prompt box still suggests commands inline. Requires Claude Code v2.1.257 or later. Typing `/skills` also opens this dialog. Each [skill](</docs/en/skills>) row shows its [visibility](</docs/en/skills#override-skill-visibility-from-settings>), such as **On** or **Name only**. Click the visibility to change it, except on rows marked **locked** , such as plugin skills. The `/skills` shortcut and the visibility controls require Claude Code v2.1.280 or later.
     * Select **Output styles** in the Customize section to pick an [output style](</docs/en/output-styles>), including your custom styles. Requires Claude Code v2.1.257 or later. To create a custom style instead, select **Build a custom style** from the **Output styles** menu. Claude Code writes the [style file](</docs/en/output-styles#create-a-custom-output-style>) for you at the project or user level. Requires Claude Code v2.1.261 or later.
@@ -161,7 +161,7 @@ Click the **Session history** button at the top of the Claude Code panel to acce
   * **Session titles** : new sessions receive AI-generated titles based on your first message.
   * **Rename and archive** : hover over a session to reveal these actions. Rename to give it a descriptive title, or archive to move it to the **Archived sessions** group at the bottom of the list.
 
-By default, a session with no activity for 14 days moves to **Archived sessions** automatically, unless it is open, unread, or in a group. Automatic archiving requires Claude Code v2.1.265 or later. To change the period or turn it off, open the [Archive Inactive Sessions setting](<vscode://settings/claudeCode.archiveInactiveSessions>) and select a number of days or **Never**. To restore an archived session, expand **Archived sessions** and click **Unarchive session**. To restore every archived session at once, hover over the **Archived sessions** header in the sessions list in the Activity Bar and click its unarchive icon, which requires Claude Code v2.1.277 or later. Before v2.1.257, the action was **Delete session** , which hid a session with no way to restore it. Sessions you deleted then appear under **Archived sessions** after you upgrade. When the conversation you resume ended in plan mode, Claude Code restores plan mode. Requires Claude Code v2.1.246 or later. Claude Code doesn’t restore it in two cases:
+If the conversation is open in another Claude Code process, such as `claude` in a terminal or another VS Code window, a notice appears in place of the prompt box: `This conversation is still open somewhere else. Using it in two places at once can mix up its messages.` To continue here, close the conversation in the other place and then click **Open here anyway**. If you click without closing it, the conversation is open in both places. With `claudeProcessWrapper` set, the extension skips this check and opens the conversation directly. By default, a session with no activity for 14 days moves to **Archived sessions** automatically, unless it is open, unread, or in a group. Automatic archiving requires Claude Code v2.1.265 or later. To change the period or turn it off, open the [Archive Inactive Sessions setting](<vscode://settings/claudeCode.archiveInactiveSessions>) and select a number of days or **Never**. To restore an archived session, expand **Archived sessions** and click **Unarchive session**. To restore every archived session at once, hover over the **Archived sessions** header in the sessions list in the Activity Bar and click its unarchive icon, which requires Claude Code v2.1.277 or later. Before v2.1.257, the action was **Delete session** , which hid a session with no way to restore it. Sessions you deleted then appear under **Archived sessions** after you upgrade. When the conversation you resume ended in plan mode, Claude Code restores plan mode. Requires Claude Code v2.1.246 or later. Claude Code doesn’t restore it in two cases:
 
   * The extension [chooses the starting permission mode](</docs/en/permission-modes#switch-permission-modes>) from `claudeCode.initialPermissionMode` or a pick that carries over from an earlier conversation
   * You have `claudeCode.claudeProcessWrapper` configured
@@ -233,12 +233,18 @@ When Claude opens a tab in a new editor group, the extension locks that group, s
 
 Use the sidebar for your main Claude session and open additional tabs for side tasks. Claude remembers your preferred location. The Activity Bar sessions list icon is separate from the Claude panel: the sessions list is always visible in the Activity Bar, while the Claude panel icon only appears there when the panel is docked to the left sidebar.
 
+###
+
+​
+
+Continue conversations after a reload
+
 After you run **Developer: Reload Window** or restart VS Code, whether a chat comes back with its conversation depends on where it was open:
 
   * **Editor tab** : the conversation comes back with its tab.
   * **Sidebar** : the conversation comes back if you sent a message or Claude responded in it within the last 10 minutes. If it doesn’t come back, resume the conversation from Session history.
 
-If the reload interrupted Claude mid-step, Claude continues that step when the conversation comes back, and a notice in the chat marks the continuation. Requires Claude Code v2.1.274 or later. If the step was interrupted more than an hour ago or the session is open elsewhere, the conversation comes back idle instead. To turn continuation off, open the [Continue After Reload setting](<vscode://settings/claudeCode.continueAfterReload>) and uncheck it.
+If another Claude Code process still has the conversation open, you’re asked before it opens here, with the same **Open here anyway** notice as when you resume it from session history. If the reload interrupted Claude mid-step, Claude continues that step when the conversation comes back, and a notice in the chat marks the continuation. Requires Claude Code v2.1.274 or later. If the step was interrupted more than an hour ago or the session is open elsewhere, the conversation comes back idle instead. To turn continuation off, open the [Continue After Reload setting](<vscode://settings/claudeCode.continueAfterReload>) and uncheck it. Setting [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](</docs/en/env-vars#variables>) or any other `CLAUDE_CODE_RESUME_` variable in VS Code’s environment or in the `environmentVariables` setting has no effect in the panel, because the extension removes those variables before it starts the panel’s sessions.
 
 ###
 
@@ -302,6 +308,7 @@ The plugin dialog shows two tabs: **Plugins** and **Marketplaces**. In the Plugi
 
   * **Installed plugins** appear at the top with toggle switches to enable or disable them.
     * If you turn off a plugin that your project’s shared `.claude/settings.json` turns on, the extension asks first: **Disable for me** turns it off only for you, while **Disable for everyone** changes the shared file.
+    * A plugin that failed to load shows a short reason on its row. Click the reason for what you can do about it, including copying the full error message to look up in [Troubleshoot plugins](</docs/en/plugins/troubleshooting>).
   * **Available plugins** from your configured marketplaces appear below
   * Search to filter plugins by name or description
   * Click **Install** on any available plugin
@@ -340,12 +347,19 @@ The URL takes two query parameters:
 Parameter| Description
 ---|---
 `plugin`| The plugin’s name as its marketplace lists it. Required.
-`marketplace`| Where the plugin comes from: a GitHub `owner/repo`, an `https://` URL, or a git SSH URL such as `git@github.com:owner/repo.git`. Defaults to `anthropics/claude-plugins-official` when omitted.
+`marketplace`| The marketplace’s [source](</docs/en/plugins/install#add-a-marketplace>): a GitHub `owner/repo`, an `https://` URL, or a git SSH address such as `git@github.com:owner/repo.git`. Defaults to `anthropics/claude-plugins-official` when omitted.
 
-Some values that the Marketplaces tab accepts don’t work in a link, such as a local path or an `http://` address. For those, VS Code shows an error message and the dialog doesn’t open. Two cases end at a message in the dialog instead of the scope choice:
+The extension checks both values before it opens anything:
+
+  * **Plugin name** : at most 100 characters, starting with an ASCII letter or digit and otherwise using only ASCII letters, digits, `.`, `_`, and `-`.
+  * **Marketplace source** : only the forms the `marketplace` parameter lists, so not a local path, an `http://` address, or the marketplace’s name, such as `claude-plugins-official`. An `https://` URL can’t contain a user name, password, or query string.
+  * **Git ref** : to pin the marketplace to a branch or tag, append the ref to the source after `%23`, the encoded form of `#`, as in `marketplace=owner/repo%23v1.0`. A link with an unencoded `#` fails. Marketplaces in the `anthropics` GitHub organization can’t be pinned in a link.
+
+Someone who opens a link that breaks these rules sees an error that starts with `Invalid plugin installation URL`. The Claude Code panel and the dialog don’t open, and nothing installs. If your plugin’s name or marketplace can’t go in a link, tell people to add the marketplace in the **Marketplaces** tab and then install the plugin from the **Plugins** tab. These cases end at a message in the dialog instead of the scope choice:
 
   * **The marketplace doesn’t list a plugin by that name** : the dialog reports that the plugin wasn’t found. Check the `plugin` value against the marketplace’s listing.
   * **The plugin is already installed** : the dialog says so, and nothing changes.
+  * **A different marketplace with the same name is already added** : the dialog says the link’s marketplace wasn’t added, and nothing installs.
 
 GitHub READMEs, issues, and some other Markdown hosts strip links whose scheme isn’t `http` or `https`, so a `vscode://` link there renders as plain text. Put the URL in a code block on those hosts, as [The link renders as plain text instead of being clickable](</docs/en/deep-links#the-link-renders-as-plain-text-instead-of-being-clickable>) describes for `claude-cli://` links.
 
@@ -377,7 +391,7 @@ Connect Claude to your Chrome browser to test web apps, debug with console logs,
 
     @browser go to localhost:3000 and check the console for errors
 
-You can also open the attachment menu to select specific browser tools like opening a new tab or reading page content. Claude opens new tabs for browser tasks and shares your browser’s login state, so it can access any site you’re already signed into. For setup instructions, the full list of capabilities, and troubleshooting, see [Use Claude Code with Chrome](</docs/en/chrome>).
+You can also open the attachment menu to select specific browser tools like opening a new tab or reading page content. Claude opens new tabs for browser tasks and shares your browser’s login state, so it can access any site you’re already signed into. To have each session connect to your browser as it starts, without typing `@browser`, see [Enable Chrome by default](</docs/en/chrome#enable-chrome-by-default>). For when Claude Code asks you before a browser action in a session connected that way, see [Permission prompts in VS Code sessions](</docs/en/chrome#permission-prompts-in-vs-code-sessions>). For setup instructions, the full list of capabilities, and troubleshooting, see [Use Claude Code with Chrome](</docs/en/chrome>).
 
 ##
 
@@ -481,6 +495,7 @@ Setting| Default| Description
 `attachOpenFile`| `true`| Add the file that is open in the editor to your messages and show it in the prompt box. When off, only your selected text is added. Requires Claude Code v2.1.271 or later
 `useCtrlEnterToSend`| `false`| Use Ctrl/Cmd+Enter instead of Enter to send prompts
 `scrollToBottomOnSend`| `true`| Scroll the conversation to the bottom when you send a message. When off, the conversation stays where you left it. Requires Claude Code v2.1.275 or later
+`showMessageTimestamps`| `false`| Show when each message was sent. A date line marks where the day changes. Requires Claude Code v2.1.284 or later
 `enableNewConversationShortcut`| `false`| Enable Cmd/Ctrl+N to start a new conversation
 `enableReopenClosedSessionShortcut`| `true`| Use Cmd/Ctrl+Shift+T to reopen the most recently closed Claude session tab. When the last closed tab wasn’t a Claude session, the shortcut runs VS Code’s normal reopen-closed-editor command instead.
 `archiveInactiveSessions`| `14`| Archive a session automatically after this many days without activity: `1`, `2`, `7`, or `14`. Set `0` to turn it off. Requires Claude Code v2.1.265 or later
@@ -489,7 +504,7 @@ Setting| Default| Description
 `focusView`| `false`| Hide tool calls, tool results, and thinking behind expandable rows, leaving your prompts and Claude’s responses. Claude’s latest to-do list stays visible; this requires Claude Code v2.1.225 or later. You can also toggle Focus view from the command menu. Requires Claude Code v2.1.221 or later
 `respectGitIgnore`| `true`| Exclude .gitignore patterns from file searches and from selection context
 `usePythonEnvironment`| `true`| Activate the workspace’s Python environment when running Claude. Requires the Python extension.
-`environmentVariables`| `[]`| Set environment variables for the Claude process. Use Claude Code settings instead for shared config.
+`environmentVariables`| `[]`| Set environment variables for the Claude process. Use Claude Code settings instead for shared config. A [`CLAUDE_CONFIG_DIR`](</docs/en/env-vars>) entry applies only when its value is an absolute path; the extension doesn’t expand `~` and ignores a relative value.
 `disableLoginPrompt`| `false`| Skip authentication prompts (for third-party provider setups)
 `allowDangerouslySkipPermissions`| `false`| Adds Bypass permissions to the mode selector. Use it only in sandboxes with no internet access.
 `claudeProcessWrapper`| -| Executable used to launch the Claude process. The bundled binary path is passed as an argument when present. Set this to a separately installed `claude` binary if the extension build doesn’t include one for your platform. In a wrapped setup, conversations start in Manual mode unless you set `initialPermissionMode` or picked Manual, Edit automatically, or Auto in an earlier conversation, because the extension skips the settings and built-in-default steps there; see [Switch permission modes](</docs/en/permission-modes#switch-permission-modes>). An “Unsupported platform” error at activation means no binary is bundled for your platform; see [which platforms have prebuilt binaries](</docs/en/troubleshoot-install#native-binary-not-found-after-npm-install>).
@@ -582,9 +597,17 @@ Reference terminal output in your prompts using `@terminal:name` where `name` is
 
 ​
 
+Move a running command or subagent to the background
+
+When Claude is waiting on a command or a [subagent](</docs/en/sub-agents>) that is taking longer than you want, click **Run in background** below its tool call in the conversation. The action appears once a command has been running for about two seconds, or as soon as a subagent starts. Claude stops waiting and continues the turn, while the command or subagent keeps running as a [background task](</docs/en/tools-reference#background-commands>) that notifies Claude when it finishes. Requires Claude Code v2.1.287 or later. To check on the task or stop it in the meantime, type `/tasks` in the prompt box to open the agent map. A subagent keeps its place in the tree of agents there, and a command is listed below the agents with its latest output on its card. A command you move to the background this way is subject to the [time limit for background commands](</docs/en/tools-reference#time-limit-for-background-commands>).
+
+###
+
+​
+
 Monitor background processes
 
-Type `/tasks` in the prompt box to open the agent map, which lists the session’s background tasks, such as a dev server Claude left running as a background shell command. Click a task to open its card and stop it there. Requires Claude Code v2.1.277 or later.
+Type `/tasks` in the prompt box to open the agent map, which lists the session’s background tasks, such as a dev server Claude left running as a background shell command. Click a task to open its card, where you can stop it. Requires Claude Code v2.1.277 or later. For a background shell command, or a [monitor](</docs/en/tools-reference#monitor-tool>) that runs a command, the card also shows the command’s latest output and refreshes it while the command runs.
 
 ###
 
@@ -674,7 +697,18 @@ Tool name (as seen by hooks)| What it does| Read-only
 `mcp__ide__getDiagnostics`| Returns language-server diagnostics: the errors and warnings in VS Code’s Problems panel. Optionally scoped to one file.| Yes
 `mcp__ide__executeCode`| Runs Python code in the active Jupyter notebook’s kernel. See confirmation flow below.| No
 
-**Jupyter execution always asks first.** `mcp__ide__executeCode` can’t run anything silently. On each call, the code is inserted as a new cell at the end of the active notebook, VS Code scrolls it into view, and a native Quick Pick asks you to **Execute** or **Cancel**. Cancelling, or dismissing the picker with `Esc`, returns an error to Claude and nothing runs. The tool also refuses outright when there’s no active notebook, when the Jupyter extension (`ms-toolsai.jupyter`) isn’t installed, or when the kernel isn’t Python.
+**Diagnostics in the chat panel.** In the chat panel, with Claude Code v2.1.285 or later, Claude reads VS Code’s Problems panel through a separate built-in server named `claude-vscode`. Claude can ask it for the current errors and warnings in one file, or in every file VS Code has diagnostics for. Hooks and permission rules see the chat panel’s diagnostics tool as `mcp__claude-vscode__getDiagnostics`. To cover diagnostics in both the CLI and the chat panel, name both `mcp__ide__getDiagnostics` and `mcp__claude-vscode__getDiagnostics` in your hook or rule. This `settings.json` example denies both tools:
+
+    {
+      "permissions": {
+        "deny": [
+          "mcp__ide__getDiagnostics",
+          "mcp__claude-vscode__getDiagnostics"
+        ]
+      }
+    }
+
+A `Read` deny rule covers neither tool, so block them by name with a [deny rule](</docs/en/permissions#mcp>) as the example does. **Jupyter execution always asks first.** `mcp__ide__executeCode` can’t run anything silently. On each call, the code is inserted as a new cell at the end of the active notebook, VS Code scrolls it into view, and a native Quick Pick asks you to **Execute** or **Cancel**. Cancelling, or dismissing the picker with `Esc`, returns an error to Claude and nothing runs. The tool also refuses outright when there’s no active notebook, when the Jupyter extension (`ms-toolsai.jupyter`) isn’t installed, or when the kernel isn’t Python.
 
 The Quick Pick confirmation is separate from `PreToolUse` hooks. An allowlist entry for `mcp__ide__executeCode` lets Claude _propose_ running a cell; the Quick Pick inside VS Code is what lets it _actually_ run.
 

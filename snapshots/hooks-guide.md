@@ -57,15 +57,13 @@ You can also ask Claude to write the hook for you by describing what you want in
 
 Verify the configuration
 
-Type `/hooks` to open the hooks browser. You’ll see a list of all available hook events, with a count next to each event that has hooks configured. Select `Notification` to confirm your new hook appears in the list. Selecting the hook shows its details: the event, matcher, type, source file, and command.
+Type `/hooks` at the Claude Code prompt to open the hooks browser. Your new hook appears in the list under `Notification`.
 
 3
 
 Test the hook
 
 Press `Esc` to return to the CLI. Press `Shift+Tab` until the status bar shows `⏸ manual mode on`, ask Claude to do something that requires permission, then switch away from the terminal. You should receive a desktop notification.
-
-The `/hooks` menu is read-only. To add, modify, or remove hooks, edit your settings JSON directly or ask Claude to make the change.
 
 ##
 
@@ -107,7 +105,7 @@ Get a desktop notification whenever Claude finishes working and needs your input
 
 If no notification appears
 
-`osascript` routes notifications through the built-in Script Editor app. If Script Editor doesn’t have notification permission, the command fails silently, and macOS won’t prompt you to grant it. Run this in Terminal once to make Script Editor appear in your notification settings:
+`osascript` routes notifications through the built-in Script Editor app. If Script Editor doesn’t have notification permission, the command fails silently, and macOS won’t prompt you to grant it.Run this in Terminal once to make Script Editor appear in your notification settings:
 
     osascript -e 'display notification "test"'
 
@@ -155,7 +153,7 @@ If the command isn’t found, install the `libnotify-bin` package on Debian and 
 
 If no dialog appears
 
-This command opens a dialog box rather than a notification in the corner of your screen, so the dialog can open behind your terminal window. Test the command directly in PowerShell first. If you run Claude Code inside WSL, `powershell.exe` must be available on your `PATH` through Windows interop.
+This command opens a dialog box rather than a notification in the corner of your screen, so the dialog can open behind your terminal window. Test the command directly in PowerShell first.If you run Claude Code inside WSL, `powershell.exe` must be available on your `PATH` through Windows interop.
 
 The empty `matcher` fires on all notification types. To fire only on specific events, set it to one of these values:
 
@@ -174,7 +172,7 @@ Matcher| Fires when
 `quota_auto_resume_stale`| A claude.ai usage limit reset while your computer slept for more than about 30 minutes. Claude Code waits for you to press `Enter` instead of continuing. After a shorter sleep it continues and fires `quota_auto_resume_fired` instead
 `quota_auto_resume_disabled`| Claude Code ends its wait for a claude.ai usage limit without continuing your task: [`autoContinueAtUsageLimit`](</docs/en/settings-reference#autocontinueatusagelimit>) turned off or the reset moved more than 24 hours away during a wait Claude Code started on its own, the continued task kept hitting the limit, or the continuation was blocked before it reached the model. Doesn’t fire when you press `Esc` or `Ctrl+C`, or pick **Don’t continue automatically**
 
-Claude Code times `permission_prompt` differently in a terminal and in Claude Desktop, the VS Code extension, and other hosts that answer permission requests through the Agent SDK. See [when each notification type fires](</docs/en/hooks#notification>) for both timings. The `agent_needs_input` and `agent_completed` matchers require Claude Code v2.1.198 or later. The `quota_auto_resume_fired`, `quota_auto_resume_stale`, and `quota_auto_resume_disabled` matchers require Claude Code v2.1.234 or later. In terminal sessions, `permission_prompt` for a sandboxed command’s network request requires Claude Code v2.1.246 or later. `agent_needs_input` for a teammate’s terminal setup question requires Claude Code v2.1.248 or later. Type `/hooks` and select `Notification` to confirm the hook is registered. For the full event schema, see the [Notification reference](</docs/en/hooks#notification>).
+Claude Code times `permission_prompt` differently in a terminal and in Claude Desktop, the VS Code extension, and other hosts that answer permission requests through the Agent SDK. See [when each notification type fires](</docs/en/hooks#notification>) for both timings. The `quota_auto_resume_fired`, `quota_auto_resume_stale`, and `quota_auto_resume_disabled` matchers require Claude Code v2.1.234 or later. In terminal sessions, `permission_prompt` for a sandboxed command’s network request requires Claude Code v2.1.246 or later. `agent_needs_input` for a teammate’s terminal setup question requires Claude Code v2.1.248 or later. Type `/hooks` at the Claude Code prompt and confirm the hook appears under `Notification`.
 
 ###
 
@@ -896,7 +894,7 @@ Keep these constraints in mind when designing hooks:
 
 Hooks and permission modes
 
-`PreToolUse` hooks fire before any permission-mode check, in every [permission mode](</docs/en/permission-modes>), including `dontAsk`. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings, and it can’t suppress the prompt for MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) or for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) in sessions where that setting reaches Claude Code. Hooks can tighten restrictions but not loosen them past what permission rules allow.
+`PreToolUse` hooks fire before any permission-mode check, in every [permission mode](</docs/en/permission-modes>), including `dontAsk`. A hook that returns `permissionDecision: "deny"` blocks the tool even in `bypassPermissions` mode or with `--dangerously-skip-permissions`. This lets you enforce policy that users can’t bypass by changing their permission mode. The reverse is not true: a hook returning `"allow"` doesn’t bypass deny rules from settings, and it can’t suppress the prompt for MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) or for connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) in sessions where that setting reaches Claude Code. Hooks in settings files and in a plugin’s `hooks/hooks.json` can tighten restrictions but not loosen them past what permission rules allow. A [mod](</docs/en/plugins/mods/overview>) you install that handles `tool.check` can approve a call that your `PreToolUse` hook blocked, unless the hook is in managed settings. [Extend permissions with hooks](</docs/en/permissions#extend-permissions-with-hooks>) lists which rules hold over a mod.
 
 ###
 
@@ -939,6 +937,7 @@ You edited a settings file but the hooks don’t appear in the menu.
   * File edits are normally picked up automatically. If they haven’t appeared after a few seconds, the file watcher may have missed the change: restart your session to force a reload.
   * Verify your JSON is valid: trailing commas and comments aren’t allowed
   * Confirm the settings file is in the correct location: `.claude/settings.json` for project hooks, `~/.claude/settings.json` for global hooks
+  * If the menu shows `Only hooks from managed settings run here`, your organization has set [`allowManagedHooksOnly`](</docs/en/settings-reference#allowmanagedhooksonly>). Hooks in your user, project, and local settings files don’t run and aren’t listed
 
 ###
 

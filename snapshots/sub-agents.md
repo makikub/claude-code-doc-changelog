@@ -30,11 +30,13 @@ Claude Code includes built-in subagents that Claude automatically uses when appr
 
 A fast, read-only agent optimized for searching and analyzing codebases.
 
-  * **Model** : inherits from the main conversation, capped at Opus on the Claude API, so Explore never runs on a more expensive model than the one you already chose for the session, unless you set `CLAUDE_CODE_SUBAGENT_MODEL` and force it onto every subagent
+  * **Model** : the main conversation’s model. When the main conversation runs Fable, Explore’s model depends on how you connect:
+    * With a Claude subscription, an Anthropic Console account, or an [LLM gateway](</docs/en/llm-gateway>) reached through `ANTHROPIC_BASE_URL`, Explore runs on the Opus model that the [`opus` alias](</docs/en/model-config#model-aliases>) resolves to.
+    * On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), or a [Claude apps gateway](</docs/en/claude-apps-gateway>), Explore stays on the main conversation’s model.
   * **Tools** : read-only tools; Write and Edit are denied
   * **Purpose** : file discovery, code search, codebase exploration
 
-As of v2.1.198, Explore inherits the main conversation’s model instead of always running on Haiku. On the Claude API, the inherited model is capped at Opus: a main conversation on a higher tier runs Explore on Opus, and a main conversation on Sonnet or Haiku runs Explore on that same model. On any other provider, such as [Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or Claude Platform on AWS](</docs/en/third-party-integrations>), Explore inherits the main conversation’s model directly.A user or project subagent named `Explore` overrides the built-in and keeps its own `model` field, so define one with `model: haiku` to keep exploration on a lower-cost model.Claude delegates to Explore when it needs to search or understand a codebase without making changes. This keeps exploration results out of your main conversation context.When invoking Explore, Claude specifies a thoroughness level: **quick** for targeted lookups, **medium** for balanced exploration, or **very thorough** for comprehensive analysis.
+A user or project subagent named `Explore` overrides the built-in and keeps its own `model` field, so define one with `model: haiku` to run exploration on a lower-cost model. To force one model onto every subagent, Explore included, see Run every subagent on one model.Claude delegates to Explore when it needs to search or understand a codebase without making changes. This keeps exploration results out of your main conversation context.When invoking Explore, Claude specifies a thoroughness level: **quick** for targeted lookups, **medium** for balanced exploration, or **very thorough** for comprehensive analysis.
 
 A research agent used during [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) to gather context before presenting a plan.
 
@@ -75,7 +77,7 @@ An Agent tool call that omits `subagent_type` fails with [`subagent_type is requ
 
 Quickstart: create your first subagent
 
-Subagents are Markdown files with YAML frontmatter. To create one, ask Claude to write it for you, or write the file yourself. As of v2.1.198, the `/agents` command no longer opens the interactive creation wizard; running it prints a reminder to ask Claude or edit `.claude/agents/` directly. Subagent files, frontmatter fields, and the `.claude/agents/` and `~/.claude/agents/` locations are unchanged; only the terminal wizard is removed. This walkthrough creates a user-level subagent that reviews code and suggests improvements.
+Subagents are Markdown files with YAML frontmatter. To create one, ask Claude to write it for you, or write the file yourself. This walkthrough creates a user-level subagent that reviews code and suggests improvements.
 
 1
 
@@ -120,7 +122,7 @@ Claude delegates to your new subagent, which scans the codebase and returns impr
 
 You now have a subagent you can use in any project on your machine to analyze codebases and suggest improvements. You can also write subagent files by hand, define them via CLI flags, or distribute them through plugins. The following sections cover all configuration options.
 
-On Claude Code v2.1.197 and earlier, `/agents` opens an interactive wizard with a **Running** tab that lists live subagents and a **Library** tab for creating, editing, and deleting them.
+Running `/agents` prints a reminder to ask Claude or edit `.claude/agents/` and `~/.claude/agents/` directly. On Claude Code v2.1.197 and earlier, `/agents` opens an interactive wizard with a **Running** tab that lists live subagents and a **Library** tab for creating, editing, and deleting them.
 
 ##
 
@@ -188,7 +190,7 @@ In [non-interactive mode](</docs/en/headless>), `--agents` also accepts the path
 
 For what Claude Code does with a value it can’t load, and the flags and environment variable that skip that check, see [`Invalid --agents configuration`](</docs/en/errors#invalid-agents-configuration>). **Managed subagents** are deployed by organization administrators. Place markdown files in `.claude/agents/` inside the [managed settings directory](</docs/en/managed-settings#delivery-mechanisms>), using the same frontmatter format as project and user subagents. Managed definitions take precedence over project and user subagents with the same name. **Plugin subagents** come from [plugins](</docs/en/plugins/overview>) you’ve installed. They load automatically alongside your custom subagents and appear in the @-mention typeahead under their scoped name. See the [plugin components reference](</docs/en/plugins/components#agents>) for details on creating plugin subagents.
 
-For security reasons, plugin subagents don’t support the `hooks`, `mcpServers`, or `permissionMode` frontmatter fields. These fields are ignored when loading agents from a plugin. If you need them, copy the agent file into `.claude/agents/` or `~/.claude/agents/`. You can also add rules to [`permissions.allow`](</docs/en/settings-reference#permissions-allow>) in `settings.json` or `settings.local.json`, but these rules apply to the entire session, not only the plugin subagent.
+For security reasons, plugin subagents don’t support the `hooks`, `mcpServers`, or `permissionMode` frontmatter fields. These fields are ignored when loading agents from a plugin. If you need them, copy the agent file into `.claude/agents/` or `~/.claude/agents/`. You can also add rules to [`permissions.allow`](</docs/en/settings-reference#permissions-allow>) in `settings.json` or `settings.local.json`, but these rules apply to the entire session, not only the plugin subagent.If you’re the plugin’s author, ship the hooks in the plugin’s [`hooks/hooks.json`](</docs/en/plugins/components#hooks>) and the MCP servers in its [`.mcp.json`](</docs/en/plugins/components#mcp-servers>) instead. They apply whenever the plugin is enabled rather than only inside the subagent.
 
 Subagent definitions from any of these scopes are also available to [agent teams](</docs/en/agent-teams#use-subagent-definitions-for-teammates>): when spawning a teammate, you can reference a subagent type, and Claude Code applies parts of that definition to the teammate. See [agent teams](</docs/en/agent-teams#use-subagent-definitions-for-teammates>) for which parts apply in each display mode.
 
@@ -323,7 +325,7 @@ Run every subagent on one model
 `CLAUDE_CODE_SUBAGENT_MODEL` is a default, so a subagent’s definition or a model Claude passes still takes precedence over it. To apply one model to every subagent, [teammate](</docs/en/agent-teams#specify-teammates-and-models>), and [workflow agent](</docs/en/workflows>), also set `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` to `1`. Requires Claude Code v2.1.257 or later.
 
   * If you set both variables, subagents run on the model in `CLAUDE_CODE_SUBAGENT_MODEL`.
-  * If you set only `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, subagents run on the main conversation’s model.
+  * If you set only `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, subagents run on the main conversation’s model, except that the built-in Explore subagent runs on the model listed for it under Built-in subagents.
 
 For example, to run every subagent on Haiku, set both variables in the `env` block of a [settings file](</docs/en/settings>):
 
@@ -334,12 +336,10 @@ For example, to run every subagent on Haiku, set both variables in the `env` blo
       }
     }
 
-To check that the setting took effect, run [`/tasks`](</docs/en/commands>) while a subagent is running. The subagent’s row shows the model it runs on. While `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is [on](</docs/en/env-vars>), Claude Code ignores the `model` field of every subagent definition, including the built-in Explore and Plan subagents, and Claude can’t pass a model when it starts a subagent. Two kinds of subagent still run on the main conversation’s model:
+To check that the setting took effect, run [`/tasks`](</docs/en/commands>) while a subagent is running. The subagent’s row shows the model it runs on. While `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is [on](</docs/en/env-vars>), Claude Code ignores the `model` field in subagent definitions, and Claude can’t pass a model when it starts a subagent. These subagents still run on the main conversation’s model:
 
   * A fork
   * A [skill that runs in a subagent](</docs/en/skills#run-skills-in-a-subagent>) with `model: inherit`
-
-When you set only `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, the built-in Explore subagent keeps its model cap.
 
 ###
 
@@ -446,7 +446,21 @@ Each entry in the list is either an inline server definition or a string referen
 
     Use the Playwright tools to navigate, screenshot, and interact with pages.
 
-Inline definitions use the same schema as `.mcp.json` server entries, keyed by the server name, and support the `stdio`, `http`, `sse`, and `ws` types. To keep an MCP server out of the main conversation entirely and avoid its tool descriptions consuming context there, define it inline here rather than in `.mcp.json`. The subagent gets the tools; the parent conversation doesn’t. Claude Code loads an inline server from an agent file in your project’s `.claude/agents/` directory, or in an `--add-dir` directory’s `.claude/agents/`, only after you [trust the folder the agent file came from](</docs/en/permissions#what-runs-before-you-trust-a-folder>). Before v2.1.238, Claude Code loaded these servers without checking trust.
+Inline definitions use the same schema as `.mcp.json` server entries, keyed by the server name, and support the `stdio`, `http`, `sse`, and `ws` types. To keep an MCP server out of the main conversation entirely and avoid its tool descriptions consuming context there, define it inline here rather than in `.mcp.json`. The subagent gets the tools; the parent conversation doesn’t. The MCP restrictions that apply to the main session also cover servers declared in subagent frontmatter:
+
+  * [`--strict-mcp-config`](</docs/en/cli-reference>) and [`--bare`](</docs/en/cli-reference>)
+  * [Enterprise managed MCP configuration](</docs/en/managed-mcp>)
+  * [`allowedMcpServers` and `deniedMcpServers` policies](</docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists>)
+
+When one of these blocks a server, Claude Code skips it and shows a warning naming the blocked servers. Managed-settings restrictions apply to every subagent regardless of how it is defined. `--strict-mcp-config` doesn’t filter servers you pass inline via `--agents` or the SDK `agents` option, since those are explicit caller input.
+
+####
+
+​
+
+Trust required for inline MCP servers
+
+Claude Code loads an inline MCP server from an agent file in your project’s `.claude/agents/` directory, or in an `--add-dir` directory’s `.claude/agents/`, only after you [trust the folder the agent file came from](</docs/en/permissions#what-runs-before-you-trust-a-folder>). Before v2.1.238, Claude Code loaded these servers without checking trust.
 
   * **Trust that doesn’t count** : a parent folder’s trust, and the automatic trust a `-p` or SDK session gets for [hooks in settings files](</docs/en/permissions#what-runs-before-you-trust-a-folder>)
   * **Until then** : Claude Code skips every inline server in that agent file and writes the exact `projects["<path>"].hasTrustDialogAccepted` key for `~/.claude.json` to the debug log
@@ -456,14 +470,6 @@ Claude Code loads two kinds of server without checking trust for the folder the 
 
   * A name that references a server you already configured
   * An inline server in an agent file from `~/.claude/agents/`, in one you pass with `--agents` or the SDK `agents` option, or in one that managed settings supplies
-
-The MCP restrictions that apply to the main session also cover servers declared in subagent frontmatter:
-
-  * [`--strict-mcp-config`](</docs/en/cli-reference>) and [`--bare`](</docs/en/cli-reference>)
-  * [Enterprise managed MCP configuration](</docs/en/managed-mcp>)
-  * [`allowedMcpServers` and `deniedMcpServers` policies](</docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists>)
-
-When one of these blocks a server, Claude Code skips it and shows a warning naming the blocked servers. Managed-settings restrictions apply to every subagent regardless of how it is defined. `--strict-mcp-config` doesn’t filter servers you pass inline via `--agents` or the SDK `agents` option, since those are explicit caller input.
 
 ####
 
@@ -967,7 +973,7 @@ Claude uses the `SendMessage` tool with the agent’s ID or name as the `to` fie
     Continue that code review and now analyze the authorization logic
     [Claude resumes the subagent with full context from previous conversation]
 
-When Claude sends a completed subagent a message with the `SendMessage` tool, the subagent resumes in the background without a new `Agent` invocation. The same applies to a subagent that Claude stopped with the `TaskStop` tool, once its stopped run has exited. The resumed run keeps the tool set from where the subagent first ran and can keep reading the [prompt cache the original run warmed](</docs/en/prompt-caching#subagents-and-the-cache>). A subagent that has the `SendMessage` tool can send that message too. In an interactive session, the resumed agent then reports back to the subagent that resumed it, not to your main conversation. That subagent waits for the result before finishing its own work. When a subagent messages an agent it reports to, such as its own launcher, Claude Code resumes that agent without redirecting its results. A subagent you stopped yourself, with `x` in `/tasks` or an SDK `stop_task` request, doesn’t auto-resume. If Claude sends it a message, the message is refused and Claude is told the agent was cancelled. While that subagent’s row is still in the subagent panel, type into its transcript to resume it yourself. After that, a message from Claude can auto-resume it again. Resuming starts a new run of the agent under the same ID, so a subagent that had already failed or completed shows as running again in the task list and in the Agent SDK’s task events. Before v2.1.205, it kept showing its earlier failed or completed status while the resumed run was working. As of v2.1.199, `SendMessage` checks that a name still refers to the same agent it reached earlier in the conversation. If a newer agent has taken the name, such as a re-spawned background agent that reused it, Claude Code refuses the send rather than delivering it to the wrong agent, and the error reports which agent the name now reaches so Claude can retarget. To reach the earlier agent while it’s still running, Claude addresses it by the agent ID it received when it spawned that agent. The check is scoped to the current conversation and resets on `/clear`. As of v2.1.198, a subagent treats messages from the agent that launched it as normal task direction, including mid-task course corrections, and acts on them within its own permission settings. Two limits still hold regardless of who sent the message: no message from any agent counts as your approval for a pending permission prompt, and no agent message can change a subagent’s permission settings, `CLAUDE.md`, or configuration. Only the permission system or your own messages can grant approval. You can also ask Claude for the agent ID if you want to reference it explicitly, or find IDs in the transcript files at `~/.claude/projects/{project}/{sessionId}/subagents/`. Each transcript is stored as `agent-{agentId}.jsonl`. Subagent transcripts persist independently of the main conversation:
+When Claude sends a completed subagent a message with the `SendMessage` tool, the subagent resumes in the background without a new `Agent` invocation. The same applies to a subagent that Claude stopped with the `TaskStop` tool, once its stopped run has exited. The resumed run keeps the tool set from where the subagent first ran and can keep reading the [prompt cache the original run warmed](</docs/en/prompt-caching#subagents-and-the-cache>). A subagent that has the `SendMessage` tool can send that message too. In an interactive session, the resumed agent then reports back to the subagent that resumed it, not to your main conversation. That subagent waits for the result before finishing its own work. When a subagent messages an agent it reports to, such as its own launcher, Claude Code resumes that agent without redirecting its results. A subagent you stopped yourself, with `x` in `/tasks` or an SDK `stop_task` request, doesn’t auto-resume. If Claude sends it a message, the message is refused and Claude is told the agent was cancelled. While that subagent’s row is still in the subagent panel, type into its transcript to resume it yourself. After that, a message from Claude can auto-resume it again. Resuming starts a new run of the agent under the same ID, so a subagent that had already failed or completed shows as running again in the task list and in the Agent SDK’s task events. Before v2.1.205, it kept showing its earlier failed or completed status while the resumed run was working. As of v2.1.199, `SendMessage` checks that a name still refers to the same agent it reached earlier in the conversation. If a newer agent has taken the name, such as a re-spawned background agent that reused it, Claude Code refuses the send rather than delivering it to the wrong agent, and the error reports which agent the name now reaches so Claude can retarget. To reach the earlier agent while it’s still running, Claude addresses it by the agent ID it received when it spawned that agent. The check is scoped to the current conversation and resets on `/clear`. A subagent treats messages from the agent that launched it as normal task direction, including mid-task course corrections, and acts on them within its own permission settings. Two limits hold regardless of who sent the message: no message from any agent counts as your approval for a pending permission prompt, and no agent message can change a subagent’s permission settings, `CLAUDE.md`, or configuration. Only the permission system or your own messages can grant approval. You can also ask Claude for the agent ID if you want to reference it explicitly, or find IDs in the transcript files at `~/.claude/projects/{project}/{sessionId}/subagents/`. Each transcript is stored as `agent-{agentId}.jsonl`. Subagent transcripts persist independently of the main conversation:
 
   * **Main conversation compaction** : when the main conversation compacts, subagent transcripts are unaffected. They’re stored in separate files.
   * **Session persistence** : subagent transcripts persist within their session. You can resume a subagent after restarting Claude Code by resuming the same session.
@@ -1021,7 +1027,12 @@ Key| Action
 `x`| Stop the selected fork if it’s running, or dismiss its row if it’s no longer running. On the main session row, or on the row of the fork whose transcript you opened with `Enter`, `x` types into the prompt instead
 `Esc`| Return focus to the prompt input
 
-With a fork’s or subagent’s transcript open, follow-up messages and [skills](</docs/en/skills>) go to that agent, but built-in commands still run in your main conversation. As of v2.1.199, typing `/model` or `/fast` in that view shows a notice that it changes the main conversation’s model or fast mode, not the viewed agent’s, instead of running it silently.
+With a fork’s or subagent’s transcript open, follow-up messages and [skills](</docs/en/skills>) go to that agent, and built-in commands go to your main conversation, with these safeguards:
+
+  * `/compact`, `/clear`, and `/rewind` act on the main conversation, so Claude Code asks you to confirm before running one of them from this view.
+  * `/model` and `/fast` set the main conversation’s model and fast mode, not the viewed agent’s, so they don’t run from this view. A notice tells you why.
+
+To have the viewed agent read your message before the work it’s waiting on finishes, send it with [`Ctrl+Enter` or `Ctrl+X Ctrl+S`](</docs/en/keybindings#chat-actions>). Any shell command or subagent the agent is waiting on that can move to the [background](</docs/en/tools-reference#background-commands>) moves there and keeps running. When the agent is writing a response, or waiting on work that can’t move to the background, it keeps going and reads your message once that finishes. Requires Claude Code v2.1.286 or later.
 
 ###
 

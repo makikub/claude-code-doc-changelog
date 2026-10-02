@@ -785,6 +785,23 @@ Because these settings arrive over the network, the CLI shows each developer a s
 
 ​
 
+Context window in terminal sessions
+
+Terminal sessions signed in through `/login` use the 1M context window for Opus 4.7 and later, Sonnet 5 and later, and the Fable models. The model ID needs no `[1m]` suffix, and sessions compact at about 967K tokens. Before Claude Code v2.1.287 on the developer’s machine, Claude Code treated the Opus and Fable models as having a 200K window unless the model ID ended in `[1m]`. To have terminal sessions compact at the 200K boundary instead, set the [auto-compact window](</docs/en/model-config#set-the-auto-compact-window>) in the policy’s `env`:
+
+    managed:
+      policies:
+        - match: {}
+          cli:
+            env:
+              CLAUDE_CODE_AUTO_COMPACT_WINDOW: "200000"
+
+Claude Code applies this variable without showing the developer the approval dialog. The variable applies to every model, including model IDs that end in `[1m]`. To turn off 1M context instead, set [`CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"`](</docs/en/model-config#extended-context>) in the same `env` block. Claude Code then treats every model as having a 200K window. In interactive sessions, each developer approves this variable in the approval dialog before it takes effect.
+
+####
+
+​
+
 MCP servers in a policy
 
 To provide MCP servers to the Claude Code clients a policy matches, set [`managedMcpServers`](</docs/en/managed-mcp#provide-servers-through-managed-settings>) in that policy’s `cli` block. You need Claude Code v2.1.259 or later on the gateway server and on clients. The gateway checks each entry at boot with [the same rules Claude Code applies on the client](</docs/en/managed-mcp#what-an-entry-can-contain>), and if an entry fails a check, the gateway refuses to start and names the entry. If you write a `${VAR}` reference in `gateway.yaml`, the gateway resolves it from its environment at boot through secret expansion before it runs the entry checks, so every matching client receives the literal value and can read it. The [header guidance for provided servers](</docs/en/managed-mcp#provide-servers-through-managed-settings>) applies to the expanded value. The gateway rejects the `.mcp.json` spelling `mcpServers` in a `cli` block, and its boot error names `managedMcpServers` as the key to use. Before v2.1.259, the gateway rejected any MCP server definition in a `cli` block.
@@ -801,7 +818,7 @@ Requires Claude Code v2.1.203 or later on the gateway server, and an explicit op
 
 The gateway derives much of the response from the matched policy’s `cli` block and from top-level gateway config:
 
-  * The model list, from `availableModels`
+  * The model list, from `availableModels`. Extended context in Claude Desktop covers each model’s 1M context option
   * Disabled tools, from bare tool-name `permissions.deny` entries. If you set `disabledBuiltinTools` in the policy’s `desktop` block, the gateway serves the union of your value and the derived list, so you can disable more tools this way but can’t re-enable one you disabled through `permissions.deny`
   * The egress allowlist, from `sandbox.network.allowedDomains`. If you set `coworkEgressAllowedHosts` in the policy’s `desktop` block, the gateway uses that value instead of the derived list
   * An OTLP endpoint that points at the gateway itself, and the signed-in user’s identity attributes. The gateway relays the exports it receives at that endpoint to your `forward_to` destinations. It includes the endpoint and the attributes when you set both `telemetry.forward_to` and `listen.public_url`. Claude Desktop exports every signal with one encoding: `http/protobuf`, or `http/json` when you set `OTEL_EXPORTER_OTLP_PROTOCOL` or one of its per-signal variants to `http/json` in the policy’s `env`. Before Claude Code v2.1.261 on the gateway server, the response set `http/json` regardless, so a collector that accepts only protobuf rejected Claude Desktop’s exports
@@ -831,6 +848,42 @@ If you use a deprecated value or entry shape, such as a `managedMcpServers` entr
   * `builtinToolPolicy`: if you set a tool to a value other than `allow` in the base, the gateway keeps that value even if you set `allow` for the same tool in a role policy
 
 For every other key, if you set it in the role policy, the gateway uses the role policy’s value. The gateway replaces an array or a nested object such as `banner` whole, so if you set `banner.text` in a role policy, the gateway drops the base’s `banner.backgroundColor`. If you don’t deploy Claude Desktop, leave `desktop` out of your policies entirely; the gateway then returns 404 from `/user/bootstrap` for every user.
+
+####
+
+​
+
+Extended context in Claude Desktop
+
+If you serve Claude Desktop from the gateway, its model picker offers a 1M context option for each listed model that can run with a 1M context window. These include Claude Opus 4.6 and later, Claude Sonnet 4.6 and later, and the Fable models. The option is the model’s `[1m]` variant, which [Extended context](</docs/en/model-config#extended-context>) describes. You need Claude Code v2.1.284 or later on the gateway server. A `models` entry gets no 1M option when:
+
+  * An upstream that can serve the entry maps it to a model without 1M support, including an upstream the gateway reaches only on failover
+  * Neither its `id` nor any of its `upstream_model` values names a Claude model, such as a custom alias routed to an application inference profile ARN
+
+To change what the picker offers, use one of these:
+
+  * **Start users on the 1M option** : set `modelPrefer1mContext: true` in the policy’s `desktop` block. Users who haven’t yet chosen a model start on the 1M option when the first listed model has one. Users who already chose a model keep their choice.
+  * **Offer the option by hand** : do this if your gateway server runs a version older than v2.1.284, or an entry names no Claude model. List the model twice in `models`, once with its plain ID and once with `[1m]` appended, both with the same `upstream_model` map. Claude Desktop shows the pair as one model with a 1M option. The gateway serves a `[1m]` entry without checking it, so add one only for a model your upstreams serve at 1M.
+
+This example offers the option by hand for a custom alias routed to an application inference profile, and starts new users on it:
+
+    models:
+      - id: corp-sonnet
+        upstream_model:
+          bedrock: arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/sonnet-5-prod
+      - id: corp-sonnet[1m]
+        upstream_model:
+          bedrock: arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/sonnet-5-prod
+
+    managed:
+      policies:
+        - match: {}
+          desktop:
+            modelPrefer1mContext: true
+
+##### Remove the 1M option
+
+To remove the option from the picker, set `CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"` in the `env` block under the policy’s `cli` key. If you also listed an entry whose `id` ends in `[1m]`, the gateway still serves it, so delete that entry too. The variable also reaches the terminal sessions of developers the policy matches. For what it changes there, see [Extended context](</docs/en/model-config#extended-context>).
 
 ####
 

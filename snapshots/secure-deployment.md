@@ -90,7 +90,7 @@ VMs (Firecracker, QEMU)| Excellent (with correct setup)| High| Medium/High
 
 Sandbox runtime
 
-For lightweight isolation without containers, [sandbox-runtime](<https://github.com/anthropic-experimental/sandbox-runtime>) enforces filesystem and network restrictions at the OS level. The main advantage is simplicity: no Docker configuration, container images, or networking setup required. The proxy and filesystem restrictions are built in. **How it works:**
+For lightweight isolation without containers, [sandbox-runtime](<https://github.com/anthropics/sandbox-runtime>) enforces filesystem and network restrictions at the OS level. The main advantage is simplicity: no Docker configuration, container images, or networking setup required. The proxy and filesystem restrictions are built in. **How it works:**
 
   * **Filesystem** : Uses OS primitives (`bubblewrap` on Linux, `sandbox-exec` on macOS) to restrict read/write access to configured paths
   * **Network** : Removes network namespace (Linux) or uses Seatbelt profiles (macOS) to route network traffic through a built-in proxy
@@ -147,7 +147,7 @@ Option| Purpose
 `-v ...:/workspace:ro`| Mounts code read-only so the agent can analyze but not modify it. **Avoid mounting sensitive host directories like`~/.ssh`, `~/.aws`, or `~/.config`**
 `-v .../proxy.sock:...`| Mounts a Unix socket connected to a proxy running outside the container (see below)
 
-**Unix socket architecture:** With `--network none`, the container has no network interfaces at all. The only way for the agent to reach the outside world is through the mounted Unix socket, which connects to a proxy running on the host. This proxy can enforce domain allowlists, inject credentials, and log all traffic. This is the same architecture used by [sandbox-runtime](<https://github.com/anthropic-experimental/sandbox-runtime>). Even if the agent is compromised via prompt injection, it cannot exfiltrate data to arbitrary servers. It can only communicate through the proxy, which controls what domains are reachable. For more details, see the [Claude Code sandboxing blog post](<https://www.anthropic.com/engineering/claude-code-sandboxing>). **Additional hardening options:**
+**Unix socket architecture:** With `--network none`, the container has no network interfaces at all. The only way for the agent to reach the outside world is through the mounted Unix socket, which connects to a proxy running on the host. This proxy can enforce domain allowlists, inject credentials, and log all traffic. This is the same architecture used by [sandbox-runtime](<https://github.com/anthropics/sandbox-runtime>). Even if the agent is compromised via prompt injection, it cannot exfiltrate data to arbitrary servers. It can only communicate through the proxy, which controls what domains are reachable. For more details, see the [Claude Code sandboxing blog post](<https://www.anthropic.com/engineering/claude-code-sandboxing>). **Additional hardening options:**
 
 Option| Purpose
 ---|---
@@ -356,7 +356,7 @@ Further reading
   * [Claude Code security documentation](</docs/en/security>)
   * [Hosting the Agent SDK](</docs/en/agent-sdk/hosting>)
   * [Handling permissions](</docs/en/agent-sdk/permissions>)
-  * [Sandbox runtime](<https://github.com/anthropic-experimental/sandbox-runtime>)
+  * [Sandbox runtime](<https://github.com/anthropics/sandbox-runtime>)
   * [The Lethal Trifecta for AI Agents](<https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/>)
   * [OWASP Top 10 for LLM Applications](<https://owasp.org/www-project-top-10-for-large-language-model-applications/>)
   * [Docker Security Best Practices](<https://docs.docker.com/engine/security/>)

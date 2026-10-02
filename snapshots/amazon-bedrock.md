@@ -378,7 +378,7 @@ AWS Guardrails
       }
     }
 
-If your organization delivers the guardrail headers through a [Claude apps gateway](</docs/en/claude-apps-gateway>) policy instead, they count as [settings that need approval](</docs/en/server-managed-settings#environment-variables-and-the-approval-dialog>).
+If your organization delivers the guardrail headers through a [Claude apps gateway](</docs/en/claude-apps-gateway>) policy instead, they count as [settings that need approval](</docs/en/server-managed-settings#environment-variables-and-the-approval-dialog>). When the guardrail blocks a response partway through, the text streamed so far stays and the reply ends with the message configured on the guardrail for blocked responses.
 
 ##
 

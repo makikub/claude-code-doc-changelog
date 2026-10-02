@@ -89,7 +89,7 @@ Native Windows| None; [Git for Windows](<https://git-scm.com/downloads/win>) is 
 WSL 2| WSL 2 enabled| Supported| Linux toolchains or sandboxed command execution
 WSL 1| WSL 1 enabled| Not supported| If WSL 2 is unavailable
 
-**Option 1: Native Windows** Run the install command from PowerShell or CMD. You do not need to run as Administrator. Installing [Git for Windows](<https://git-scm.com/downloads/win>) is optional. It enables the [Bash tool](</docs/en/tools-reference#bash-tool-behavior>) by providing Git Bash. Whether you install from PowerShell or CMD only affects which install command you run. Your prompt shows `PS C:\Users\YourName>` in PowerShell and `C:\Users\YourName>` without the `PS` in CMD. If you’re new to the terminal, the [terminal guide](</docs/en/terminal-guide#windows>) walks through each step. After installation, launch `claude` from any terminal.
+**Option 1: Native Windows** Run the install command from PowerShell or CMD. You do not need to run as Administrator. Installing [Git for Windows](<https://git-scm.com/downloads/win>) is optional. It provides Git Bash, which the [Bash tool](</docs/en/tools-reference#bash-tool-behavior>) and the [Monitor tool](</docs/en/tools-reference#monitor-tool>) need. Whether you install from PowerShell or CMD only affects which install command you run. Your prompt shows `PS C:\Users\YourName>` in PowerShell and `C:\Users\YourName>` without the `PS` in CMD. If you’re new to the terminal, the [terminal guide](</docs/en/terminal-guide#windows>) walks through each step. After installation, launch `claude` from any terminal.
 
   * **Without Git for Windows** , Claude Code runs shell commands via the [PowerShell tool](</docs/en/tools-reference#powershell-tool>).
   * **With Git for Windows** , Claude Code uses Git Bash for the [Bash tool](</docs/en/tools-reference#bash-tool-behavior>). If Claude Code can’t find Git Bash, set the path in your [settings.json file](</docs/en/settings>):
@@ -234,7 +234,7 @@ When an update installs, the command reports `Successfully updated from <old ver
 
 Advanced installation options
 
-These options are for version pinning, Linux package managers, npm, and verifying binary integrity.
+These options are for version pinning, Linux package managers, npm, network storage, and verifying binary integrity.
 
 ###
 
@@ -366,13 +366,28 @@ Verify the downloaded key with `sha256sum /etc/apk/keys/claude-code.rsa.pub`, wh
 
 Install with npm
 
-You can also install Claude Code as a global npm package. As of v2.1.198, the npm package requires [Node.js 22 or later](<https://nodejs.org/en/download>). On an older Node.js version, npm prints an `EBADENGINE` warning during install rather than failing; the install completes and `claude` still runs, since the package downloads a native binary that doesn’t use your Node.js at runtime.
+You can also install Claude Code as a global npm package. The npm package requires [Node.js 22 or later](<https://nodejs.org/en/download>). On an older Node.js version, npm prints an `EBADENGINE` warning during install rather than failing; the install completes and `claude` still runs, since the package downloads a native binary that doesn’t use your Node.js at runtime.
 
     npm install -g @anthropic-ai/claude-code
 
 The npm package installs the same native binary as the standalone installer. npm pulls the binary in through a per-platform optional dependency such as `@anthropic-ai/claude-code-darwin-arm64`, and a postinstall step links it into place. The installed `claude` binary does not itself invoke Node. Supported npm install platforms are `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `linux-x64-musl`, `linux-arm64-musl`, `win32-x64`, and `win32-arm64`. Your package manager must allow optional dependencies. See [troubleshooting](</docs/en/troubleshoot-install#native-binary-not-found-after-npm-install>) if the binary is missing after install. To upgrade an npm installation, run `npm install -g @anthropic-ai/claude-code@latest`. Avoid `npm update -g`, which respects the semver range from the original install and may not move you to the newest release.
 
 Do NOT use `sudo npm install -g` as this can lead to permission issues and security risks. If you encounter permission errors, see [troubleshooting permission errors](</docs/en/troubleshoot-install#permission-errors-during-installation>).
+
+###
+
+​
+
+Install on network storage
+
+A running session reads parts of the Claude Code executable from disk as it works, not only at startup. If the file becomes unreadable mid-session, for example because it was truncated or deleted on network storage, the session crashes. On Linux, your shell reports this as a `Bus error`. When home directories live on network storage, such as an NFS home mounted on several machines, lay out installs so that each session’s executable stays readable until the session ends:
+
+  * **Install on local disk** : put the binary on each machine’s local filesystem, for example with a Linux package manager or your own deployment tooling. A per-user npm prefix and the native installer’s default `~/.local/share/claude/versions/` directory both sit in the home directory.
+  * **Keep each version in its own directory** : upgrading an npm installation in place with `npm install -g` deletes the previous binary. On storage that several machines share, that removes the file that sessions on the other machines are still running. Install each new version next to the old ones and move users to it.
+  * **Delete an old version only when no machine can still be running it** : a machine can’t see processes running on other machines, so checking for running processes before you delete isn’t enough.
+  * **Turn off Claude Code’s own updates** : set [`DISABLE_UPDATES`](</docs/en/env-vars>) and install new versions with your own tooling. Otherwise an auto-update of an npm installation on one machine runs the same in-place upgrade and removes the binary that sessions on other machines are running. Setting `DISABLE_AUTOUPDATER` alone isn’t enough, because users can still run `claude update` and `claude install`. See Disable auto-updates.
+
+The native installer deletes old versions from `~/.local/share/claude/versions/` on its own, which matters when that directory is on shared storage. Besides the version the launcher points to and any version a session on the same machine is running, it keeps the two newest versions and deletes the rest. A session on another machine that is running a deleted version loses its binary. With a custom launcher, Claude Code keeps every installed version and leaves cleanup to you.
 
 ###
 

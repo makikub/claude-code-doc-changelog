@@ -184,7 +184,7 @@ Deny rules cover Claude’s built-in file tools. In Bash, they cover the file co
 
 Reduce file reads with code intelligence
 
-In a large codebase, finding where a symbol is defined or used can cost many file reads and grep calls. [Code intelligence plugins](</docs/en/plugins/code-intelligence>) connect Claude to a language server so it can jump to definitions, find references, and surface type errors directly instead of scanning the tree. The official marketplace has plugins for TypeScript, Python, Go, Rust, and other common languages. Run the command below inside a Claude Code session to install the TypeScript plugin:
+In a large codebase, finding where a symbol is defined or used can cost many file reads and grep calls. [Code intelligence plugins](</docs/en/plugins/code-intelligence>) connect Claude to a language server so it can jump to definitions, find references, and surface type errors directly instead of scanning the tree. The official marketplace has plugins for TypeScript, Python, Go, Rust, and other common languages. In the VS Code extension or the desktop app, install one by following [Install a plugin](</docs/en/plugins/install#install-a-plugin>). In a terminal, start Claude Code by running `claude`, then enter this at its prompt to install the TypeScript plugin:
 
     /plugin install typescript-lsp@claude-plugins-official
 

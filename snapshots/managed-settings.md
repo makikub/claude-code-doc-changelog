@@ -141,7 +141,20 @@ Claude Code checks the sources in this order, highest priority first:
   3. Managed settings files, `managed-settings.d/*.json` and `managed-settings.json` merged together
   4. The HKCU registry, on Windows, and on WSL once the HKLM registry or the Windows managed settings file turns [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>) on and the HKCU value also sets it. Claude Code reads it only when no admin document is present above it and no host-supplied parent settings supply a restrictive key
 
-Claude Code never applies the user-writable HKCU registry beneath an admin document that is present. A document is present when it sets any policy key to a value other than `null`, even a value Claude Code can’t read. An HKLM value, managed settings file, or `managed-settings.d` directory that exists but can’t be read is present too. On WSL, `/etc/claude-code` is user-writable as well, and the [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>) entry says when the Windows documents stand above it. This diagram shows the ranking, with examples of the cross-source keys Claude Code reads from the first three sources under either setting:
+This diagram shows the ranking, with examples of the cross-source keys Claude Code reads from the first three sources under either setting:
+
+###
+
+​
+
+When an admin document counts as present
+
+In the ranking of managed sources, Claude Code never applies the user-writable HKCU registry beneath an admin document that is present. A document is present when:
+
+  * It sets any policy key to a value other than `null`, even a value Claude Code can’t read
+  * It is an HKLM value, managed settings file, or `managed-settings.d` directory that exists but can’t be read
+
+On WSL, `/etc/claude-code` is user-writable as well, and the [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>) entry says when the Windows documents stand above it.
 
 ###
 
@@ -397,7 +410,7 @@ Setting| Description
 [`strictPluginOnlyCustomization`](</docs/en/settings-reference#strictpluginonlycustomization>)| Block skills, agents, hooks, and MCP servers from user and project sources; `true` locks all four, an array names which
 [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>)| When set in the HKLM registry or a file under `C:\Program Files\ClaudeCode`, have WSL read the Windows policy chain, and read `/etc/claude-code` only when no Windows admin document is present; the entry gives the order
 
-On Team and Enterprise plans, an Owner enables or disables [Remote Control](</docs/en/remote-control>) and [cloud sessions](</docs/en/claude-code-on-the-web>) organization-wide in [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>). Remote Control can additionally be disabled per device with the [`disableRemoteControl`](</docs/en/settings-reference#disableremotecontrol>) setting. Cloud sessions have no per-device managed settings key.To check whether these organization settings reached a given machine, run `claude doctor` there and read the `Organization policy` line, which says where Claude Code loaded the policy from or why it didn’t load. Requires Claude Code v2.1.261 or later. In a running session, `/status` shows the same line when the policy didn’t load.
+On Team and Enterprise plans, an Owner enables or disables [Remote Control](</docs/en/remote-control>) and [cloud sessions](</docs/en/claude-code-on-the-web>) organization-wide in [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>). When an Owner turns Remote Control off, already-connected sessions that run Claude Code v2.1.286 or later disconnect too. Each one disconnects the next time it refreshes your organization’s policy, about once an hour. For what happens in those sessions, see [`Remote Control was turned off by your organization's policy`](</docs/en/remote-control#remote-control-was-turned-off-by-your-organizations-policy>).Remote Control can additionally be disabled per device with the [`disableRemoteControl`](</docs/en/settings-reference#disableremotecontrol>) setting. Cloud sessions have no per-device managed settings key.To check whether these organization settings reached a given machine, run `claude doctor` there and read the `Organization policy` line, which says where Claude Code loaded the policy from or why it didn’t load. Requires Claude Code v2.1.261 or later. In a running session, `/status` shows the same line when the policy didn’t load.
 
 ##
 

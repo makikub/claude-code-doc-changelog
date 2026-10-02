@@ -176,7 +176,7 @@ hooks/hooks.json
       }
     }
 
-Save the script at `scripts/format.sh` and make it executable. Load the plugin and ask Claude to edit a file. A `PostToolUse` hook that exits 0 shows nothing in the transcript, so confirm it ran with [debug logging](</docs/en/hooks#debug-hooks>) or by what the script itself changes. Hooks in `hooks/hooks.json` and in the `hooks` manifest key both load. For every event and its payload, see [Hook events](</docs/en/hooks#hook-events>).
+Save the script at `scripts/format.sh` and make it executable. Load the plugin and ask Claude to edit a file. A `PostToolUse` hook that exits 0 shows nothing in the transcript, so confirm it ran with [debug logging](</docs/en/hooks#debug-hooks>) or by what the script itself changes. Hooks in `hooks/hooks.json` and in the `hooks` manifest key both load. For every event and its payload, see [Hook events](</docs/en/hooks#hook-events>). To write hooks as JavaScript functions that run inside Claude Code and can draw in its interface, list a module file under a `modules` key in the same `hooks/hooks.json`. A plugin with one is a mod. See [Create a mod](</docs/en/plugins/mods/create>).
 
 ####
 
@@ -408,7 +408,7 @@ monitors/monitors.json
 
 The command runs in a shell, in the working directory the session started in. A monitor’s command is limited in where it starts and what it can reference:
 
-  * **Interactive sessions only** : plugin monitors start in an interactive session and never in non-interactive mode with the `-p` flag. They also start only where the [Monitor tool](</docs/en/tools-reference#monitor-tool>) is available
+  * **Interactive sessions only** : plugin monitors start in an interactive session and never in non-interactive mode with the `-p` flag. They also don’t start in sessions where the API provider or telemetry settings make the [Monitor tool](</docs/en/tools-reference#monitor-tool>) unavailable
   * **No user configuration** : `command` gets the path variables and `${ENV_VAR}` from the environment, but never `${user_config.*}`. A monitor that references one doesn’t start, and monitor processes don’t receive `CLAUDE_PLUGIN_OPTION_<KEY>` either
   * **Disabling mid-session** : if you disable a plugin mid-session, Claude Code doesn’t stop monitors that are already running. They stop when the session ends
 

@@ -323,11 +323,7 @@ The CLI supports managing existing routines. Run `/schedule list` to see all rou
 
 Repositories and branch permissions
 
-Routines need GitHub access to clone repositories. When you create a routine from the CLI with `/schedule`, Claude checks whether your account has GitHub access for the repository you ran it from and, if it doesn’t, adds a setup note naming how to grant it. See [GitHub authentication options](</docs/en/claude-code-on-the-web#github-authentication-options>) for the two ways to grant access. If your GitHub connection is missing or expired when a run is due, the routine skips runs until you reconnect, for up to 72 hours. Reconnect GitHub within that window and the routine resumes on its own. After 72 hours without a connection, the routine turns off, and you turn it back on after reconnecting GitHub. Each repository you add is cloned on every run. Claude starts from the repository’s default branch unless your prompt specifies otherwise. Claude pushes its work to branches prefixed with `claude/`, which are always accepted. When your prompt directs Claude to push to another branch, Claude Code checks the push first and rejects it if any of the following is true:
-
-  * The branch is protected on GitHub
-  * Someone else has an open pull request from that branch
-  * The branch carries commits authored by someone other than you
+Routines need GitHub access to clone repositories. When you create a routine from the CLI with `/schedule`, Claude checks whether your account has GitHub access for the repository you ran it from and, if it doesn’t, adds a setup note naming how to grant it. See [GitHub authentication options](</docs/en/claude-code-on-the-web#github-authentication-options>) for the two ways to grant access. If your GitHub connection is missing or expired when a run is due, the routine skips runs until you reconnect, for up to 72 hours. Reconnect GitHub within that window and the routine resumes on its own. After 72 hours without a connection, the routine turns off, and you turn it back on after reconnecting GitHub. Each repository you add is cloned on every run. Claude starts from the repository’s default branch unless your prompt specifies otherwise. Claude pushes its work to a branch prefixed with `claude/` unless your prompt directs it to push to another branch. To control which branches a run can push to, use branch protection rules or rulesets on GitHub. For runs on Anthropic-managed infrastructure, and for self-hosted runs that push through [Anthropic’s git proxy](</docs/en/self-hosted-environments-deploy#use-the-anthropic-git-proxy>), GitHub applies them to the GitHub access you connected, so a rule that access can bypass doesn’t block a run’s push. A self-hosted run that pushes with the git credentials your deployment provides is checked against those instead. See [Configure git](</docs/en/self-hosted-environments-deploy#configure-git>).
 
 ###
 
@@ -367,7 +363,7 @@ Hover over the environment in the list and click the settings icon that appears 
 
 Change the network access level
 
-In the **Update cloud environment** dialog, change **Network access** to **Custom** and enter your domains in **Allowed domains**. Check **Also include default list of common package managers** to keep the [default allowlist](</docs/en/cloud-environments#default-allowed-domains>) alongside your custom domains. Select **Full** instead for unrestricted access.
+In the **Edit cloud environment** dialog, change **Network access** to **Custom** and enter your domains in **Allowed domains**. Check **Also include default list of common package managers** to keep the [default allowlist](</docs/en/cloud-environments#default-allowed-domains>) alongside your custom domains. Select **Full** instead for unrestricted access.
 
 5
 

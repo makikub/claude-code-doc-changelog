@@ -50,6 +50,7 @@ The receiving Claude reads the message between tool calls during an active turn,
 
   * The message is over the size cap. Claude Code refuses it in the sending session, before it leaves.
   * A rapid burst to a session on this machine has reached what that session’s inbox accepts. Claude Code refuses further messages to that session.
+  * A session beyond this machine is listed as unable to receive cross-session messages. Claude Code refuses the message in the sending session, before it leaves this machine.
   * The reply target on this machine fails a safety check, such as a symlinked target. [Refusing to send a cross-session message](</docs/en/errors#refusing-to-send-a-cross-session-message>) lists these checks.
 
 The receiving session checks each arriving message against its own inbound controls, and the check ends in one of three outcomes:
@@ -140,7 +141,12 @@ On this machine| Over a per-session socket on macOS and Linux, or a per-session 
 On another of your machines| Through Anthropic servers, arriving over that machine’s [Remote Control](</docs/en/remote-control>) connection
 In the [cloud](</docs/en/claude-code-on-the-web>)| Through Anthropic servers, straight to the cloud session
 
-Starting a conversation with a session on another of your machines requires Claude Code v2.1.225 or later and a target that appears in the listing. You can message a session shown as `offline` in the listing, one whose Remote Control connection has dropped. The send goes through, but the message arrives only after that session’s machine reconnects. A session inside a container and a session on the host can’t reach each other. Two sessions inside the same container can still message each other, including on a [self-hosted runner](</docs/en/self-hosted-environments>). A session inside WSL 2 and a native Windows session on the same computer can’t reach each other either. If this session isn’t connected to Remote Control when Claude sends to a session beyond this machine, the message still goes through, but without a reply address, so the receiving Claude can’t answer it. To require your approval before any message goes beyond this machine, set `isolatePeerMachines`.
+Starting a conversation with a session on another of your machines requires Claude Code v2.1.225 or later and a target that appears in the listing. A session’s row in the listing can show a condition that changes what happens when Claude messages that session:
+
+  * **`offline`** : that session’s Remote Control connection has dropped. The message goes through, but arrives only after that session’s machine reconnects.
+  * **`can't receive cross-session messages (off in that session)`** : messaging isn’t available in that session, or its [`crossSessionInbound`](</docs/en/settings-reference#crosssessioninbound>) value is `refuse`. Claude Code refuses a message to that session before the message leaves this machine. The result under Claude’s `SendMessage` call begins `Not sent` and names the reason. Once the cause is fixed in that session, a later listing no longer shows this condition, and Claude can message that session.
+
+A session inside a container and a session on the host can’t reach each other. Two sessions inside the same container can still message each other, including on a [self-hosted runner](</docs/en/self-hosted-environments>). A session inside WSL 2 and a native Windows session on the same computer can’t reach each other either. If this session isn’t connected to Remote Control when Claude sends to a session beyond this machine, the message still goes through, but without a reply address, so the receiving Claude can’t answer it. To require your approval before any message goes beyond this machine, set `isolatePeerMachines`.
 
 ##
 
@@ -303,6 +309,7 @@ To check a session, type `/list-agents`, also available as `/peers`. The result 
     * **Cloud session missing** : a cloud session appears only while this session is connected to [Remote Control](</docs/en/remote-control>).
     * **Other-machine session missing** : a session on another of your machines appears only when it runs with [Remote Control](</docs/en/remote-control>) and this session is connected as well.
     * **Other-machine session`offline`**: a message to a session listed as `offline` goes through, but arrives only after that session’s machine reconnects.
+    * **Cloud or other-machine session`can't receive cross-session messages`**: a message to a session listed with this condition doesn’t leave this machine, and the result under `SendMessage` begins `Not sent`.
     * **Older cloud or other-machine session missing** : Claude Code reads those session lists newest first and stops after a bounded number of pages, so Claude can’t message a session that fell past them by name.
 
 In a session with messaging, `/status` also shows a `Peer address` row with the session’s own inbox address, or `unavailable` and the reason when Claude Code couldn’t set up an inbox.
