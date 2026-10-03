@@ -703,7 +703,7 @@ To trace all activity triggered by a single prompt, filter your events by a spec
 
 User prompt event
 
-Logged when a user submits a prompt. **Event Name** : `claude_code.user_prompt` **Attributes** :
+Logged when a prompt is submitted, including on turns Claude Code starts on its own. **Event Name** : `claude_code.user_prompt` **Attributes** :
 
   * All standard attributes
   * `event.name`: `"user_prompt"`

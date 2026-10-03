@@ -385,7 +385,7 @@ There is no built-in credential deny list, so only the files and variables you l
 
 Mask credentials
 
-When you mask a credential, Claude Code shows sandboxed commands a per-session placeholder called the sentinel, and the sandbox proxy substitutes the real value on outbound requests to hosts you allow. A `deny` entry under Protect credentials blocks the credential instead. For files on macOS, Claude Code blocks the file instead of masking it. Masking environment variables requires Claude Code v2.1.199 or later. The [`sandbox.credentials`](</docs/en/settings-reference#sandbox-credentials>) reference lists every field. Masking requires the following:
+When you mask a credential, Claude Code shows sandboxed commands a per-session placeholder called the sentinel, and the sandbox proxy substitutes the real value on outbound requests to hosts you allow. A `deny` entry under Protect credentials blocks the credential instead. For files on macOS, Claude Code blocks the file instead of masking it. The [`sandbox.credentials`](</docs/en/settings-reference#sandbox-credentials>) reference lists every field. Masking requires the following:
 
   * **TLS termination** : the proxy substitutes the real value inside request contents, so it has to see them. Set [`network.tlsTerminate`](</docs/en/settings-reference#sandbox-network-tlsterminate>) so the proxy terminates TLS itself. Without it, masking fails without exposing anything: the command still sees only the sentinel, but the sentinel reaches the server unchanged and authentication fails. Claude Code reports this misconfiguration at startup.
   * **An allowed destination** : each `mask` entry can list `injectHosts`, the hosts the real value is allowed to reach. The proxy injects only on connections the domain allowlist admits, so each `injectHosts` host must also be reachable through `network.allowedDomains`. For a `mask` entry with no `injectHosts`, the proxy substitutes the real value on requests to every host in `network.allowedDomains`.
@@ -533,7 +533,7 @@ The following settings and behaviors control which hosts the proxy allows:
 
 In a `WebFetch(domain:...)` rule, the sandbox honors two wildcard forms: a leading `*.`, such as `*.example.com`, and a bare `*`. The bare `*` form requires Claude Code v2.1.186 or later. A wildcard in any other position, such as `WebFetch(domain:example.*)`, still matches fetches but has no effect on sandboxed commands.
 
-The built-in proxy enforces the allowlist based on the requested hostname and, by default, does not terminate or inspect TLS traffic. The experimental [`network.tlsTerminate`](</docs/en/settings-reference#sandbox-network-tlsterminate>) setting, available in Claude Code v2.1.199 and later, makes the built-in proxy terminate TLS itself, which `mask` credential entries require. See Security limitations for the implications of the default, and Custom proxy configuration if your threat model requires TLS inspection.
+The built-in proxy enforces the allowlist based on the requested hostname and, by default, does not terminate or inspect TLS traffic. The experimental [`network.tlsTerminate`](</docs/en/settings-reference#sandbox-network-tlsterminate>) setting makes the built-in proxy terminate TLS itself, which `mask` credential entries require. See Security limitations for the implications of the default, and Custom proxy configuration if your threat model requires TLS inspection.
 
 ####
 

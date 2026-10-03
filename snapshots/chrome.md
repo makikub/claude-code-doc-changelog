@@ -112,7 +112,7 @@ Permission prompts in VS Code sessions
 In a VS Code session, whether Claude Code asks you before a browser action depends on how the session connected to your browser:
 
   * **You typed`@browser`**: the extension approves each browser action that Claude Code would otherwise ask you about.
-  * **TheEnabled by default setting connected it at start**: Claude Code asks you before browser actions in Manual, Edit automatically, Auto, and Bypass permissions modes, until you type `@browser` in that session.
+  * **TheEnabled by default setting connected it at start**: Claude Code asks you before browser actions on a site you haven’t allowed, in Manual, Edit automatically, Auto, and Bypass permissions modes, until you type `@browser` in that session.
 
 ###
 

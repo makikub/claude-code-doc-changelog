@@ -172,7 +172,7 @@ The scratchpad is a per-session directory that Claude Code gives Claude for temp
   * **Linux** : `/tmp/claude-<uid>/<project>/<session-id>/scratchpad/`, or the same shape under `$TMPDIR` when your system sets one
   * **Windows** : `%TEMP%\claude\<project>\<session-id>\scratchpad\`
 
-`<project>` is your working directory path with every character other than letters and digits replaced by `-`, such as `-Users-you-my-project`. If you set [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>), the tree moves under that directory instead. Hooks receive the current session’s path as [`scratchpad_dir`](</docs/en/hooks#common-input-fields>). Scratchpad files last as long as the session’s transcript: the retention sweep deletes the directory when it deletes the transcript, and `claude project purge` doesn’t touch the temp directory. Because the directory sits under the system temp location, your operating system can also clear it, such as on restart. To keep something Claude wrote there, ask Claude to move it into your project. A session has a scratchpad only when all of these hold:
+`<project>` is your working directory path with every character other than letters and digits replaced by `-`, such as `-Users-you-my-project`. If you set [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>), the tree moves under that directory instead. Hooks receive the current session’s path as [`scratchpad_dir`](</docs/en/hooks#common-input-fields>). Scratchpad files last as long as the session’s transcript: the retention sweep deletes the directory when it deletes the transcript, and `claude purge` doesn’t touch the temp directory. Because the directory sits under the system temp location, your operating system can also clear it, such as on restart. To keep something Claude wrote there, ask Claude to move it into your project. A session has a scratchpad only when all of these hold:
 
   * You’re signed in with a claude.ai account rather than an API key
   * The session uses the Anthropic API, not Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry
@@ -225,16 +225,16 @@ Transcripts and history are not encrypted at rest. OS file permissions are the o
 
 Clear local data
 
-Run `claude project purge` to delete the state Claude Code holds for one project. It deletes:
+Run `claude purge` to delete the state Claude Code holds for one project. It deletes:
 
   * Transcripts and auto memory under `projects/`
   * Per-session `tasks/`, `debug/`, and `file-history/` entries
   * Matching prompt lines in `history.jsonl`
   * The project’s entry in `~/.claude.json`
 
-Images you pasted or attached in the project’s sessions and each session’s scratchpad are stored under Claude Code’s temp directory rather than `~/.claude`, so the purge doesn’t remove them. The retention sweep still deletes the images once they’re older than `cleanupPeriodDays`; a purged session’s scratchpad stays until you delete it or your operating system clears the temp directory. The command prints the full deletion plan and asks for confirmation before removing anything. The examples below use `~/work/my-repo` as a placeholder. Replace it with the path to your project. If no state matches the path, the command prints an error and exits with status 1. Preview the plan without deleting anything:
+Images you pasted or attached in the project’s sessions and each session’s scratchpad are stored under Claude Code’s temp directory rather than `~/.claude`, so the purge doesn’t remove them. The retention sweep still deletes the images once they’re older than `cleanupPeriodDays`; a purged session’s scratchpad stays until you delete it or your operating system clears the temp directory. The command prints the full deletion plan and asks for confirmation before removing anything. Before v2.1.288, the command was `claude project purge`. The examples below use `~/work/my-repo` as a placeholder. Replace it with the path to your project. If no state matches the path, the command prints an error and exits with status 1. Preview the plan without deleting anything:
 
-    claude project purge ~/work/my-repo --dry-run
+    claude purge ~/work/my-repo --dry-run
 
 The plan lists each matching item and why it is included:
 
@@ -253,11 +253,11 @@ The plan lists each matching item and why it is included:
 
 Delete with a single confirmation prompt:
 
-    claude project purge ~/work/my-repo
+    claude purge ~/work/my-repo
 
 The command prints the same plan, then asks `Delete 3 item(s) for /home/user/work/my-repo? This cannot be undone. [y/N]` and deletes only if you answer `y`. Omit the path to pick a project from an interactive list. Skip the confirmation prompt for use in scripts:
 
-    claude project purge ~/work/my-repo --yes
+    claude purge ~/work/my-repo --yes
 
 Pass `--all` instead of a path to purge state for every project at once, which deletes `history.jsonl` outright rather than filtering it. Pass `-i` to step through the deletion plan one item at a time. The command leaves `shell-snapshots/` and `backups/` alone because those are not project-scoped, and warns about them in the plan output. You can also delete any of the application-data paths above by hand, apart from the state files to keep. New sessions are unaffected. The table below shows what you lose for past sessions.
 
