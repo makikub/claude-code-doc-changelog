@@ -356,7 +356,7 @@ Element| What it draws| Where
 `Link`, `Code`, `Markdown`| A link with `href` and an optional `label`, a code block, and text formatted the way Claude’s replies are. `Markdown` takes its content in a `text` prop, not in `children`, and needs a `key` when you pass `onLinkPress`.| Everywhere
 `Input`, `Select`| A text field and a dropdown| Terminal, Desktop
 `Svg`| An SVG document| Desktop
-`Client`| A region drawn by a second file of yours, for animation and pointer input. That file gets no mods API. It reaches your hooks only by posting data, which arrives as a `ui.message` event.| Terminal, Desktop
+`Client`| A region drawn by a second file of yours, for animation and pointer input. That file gets no mods API. It reaches your hooks by posting data, which arrives as a `ui.message` event. If it fails to load, draw, or run, your hooks receive a [`ui.fault`](</docs/en/plugins/mods/reference#interface>) event.| Terminal, Desktop
 `Raster`, `Image`| A grid of colored cells, and a picture| Terminal
 
 If your module is a `.tsx` or `.jsx` file, you can write the tree as JSX. Destructure the elements from `$.ui.resolve(e)` first. If a tree uses an element the app doesn’t have, a prop an element doesn’t take, or a child where none goes, Claude Code draws its own version of the site. In a session started with `--plugin-dir`, a transcript line says so, such as `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`. The [debug log](</docs/en/plugins/mods/troubleshoot#read-the-debug-log>) records it as `ui.render (Pane): a hook returned a tree that does not validate` with the same reason. Nothing else appears in the session, so when a drawing doesn’t show up, check that line or the log.
@@ -580,7 +580,7 @@ A drawing is a snapshot: it shows what your `ui.render` hook returned the last t
 
 When Claude Code redraws without being asked
 
-Claude Code runs your `ui.render` hook again when the site’s props change or the terminal’s width changes. It doesn’t run the hook on a timer, and it can’t tell when a variable in your module changes.
+Claude Code runs your `ui.render` hook again when the site’s props change or the terminal’s width changes. When a `Client` in the site fails and your mod handles [`ui.fault`](</docs/en/plugins/mods/reference#interface>), Claude Code runs the hook once more after your `ui.fault` hooks return, so your `ui.render` hook can leave the `Client` out. It doesn’t run the hook on a timer, and it can’t tell when a variable in your module changes.
 
 ###
 

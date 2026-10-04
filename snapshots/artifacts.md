@@ -124,7 +124,7 @@ If Claude tells you it can’t read comments, confirm your version, your session
 
 Let Claude reply to comments on its own
 
-After your session publishes an artifact, Claude Code watches that artifact for comments for as long as the session runs. When someone who can edit the artifact sends a comment to Claude, it reaches your session right away, and Claude can read the thread and reply without you asking. You need Claude Code v2.1.228 or later. If you turned [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) off, Claude Code doesn’t watch for comments. Your [permission mode](</docs/en/permission-modes>) decides what Claude does when a sent comment arrives:
+After your session publishes an artifact, Claude Code watches that artifact for comments. When someone who can edit the artifact sends a comment to Claude, it reaches your session right away, and Claude can read the thread and reply without you asking. You need Claude Code v2.1.228 or later. If you turned [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) off, Claude Code doesn’t watch for comments. Your [permission mode](</docs/en/permission-modes>) decides what Claude does when a sent comment arrives:
 
   * **Claude replies on its own** : when your permission mode lets Claude post the reply without asking you, Claude reads the thread and replies, and edits the artifact when the comment asks for a change. You see `Auto-replied to comment thread on Artifact: <name>` or `Auto-edited Artifact: <name> in response to a comment thread`.
   * **Claude waits for you** : outside plan mode, when posting the reply would need your approval, you see `Comments are waiting on Artifact: <name>`. Claude then asks you for approval to read the thread, and again to post the reply.
@@ -136,7 +136,7 @@ Claude also stops replying on its own to an artifact after it handles 60 sent co
   * **Stop the task in`/tasks`**: Claude stops replying on that artifact until you ask it to resume replies there. Publishing the artifact again doesn’t start replies again, and the stop still applies when you resume the session later.
   * **Press`Ctrl+X Ctrl+K` twice within 3 seconds**: the chord that [stops every running background subagent](</docs/en/interactive-mode#general-controls>) also stops Claude from replying on every artifact for the rest of the session. Asking Claude to resume replies doesn’t undo this stop.
 
-If the service that delivers comments becomes unavailable or stops answering, Claude Code keeps trying to reconnect for a while, then stops watching each artifact your session was watching.
+A watch that Claude Code started on its own can end after the artifact goes several hours without activity. To start the watch again, publish the artifact again or ask Claude to watch it. If the service that delivers comments becomes unavailable or stops answering, Claude Code keeps trying to reconnect for a while, then stops watching each artifact your session was watching.
 
 ##
 

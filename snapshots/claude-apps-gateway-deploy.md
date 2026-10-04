@@ -384,11 +384,18 @@ The `Cloud gateway sign-in was not completed` message names the gateway hostname
 
 Request headers too large after sign-in
 
-A developer’s requests can fail with a `431` error after sign-in when the developer belongs to many IdP groups. The gateway answers `431` when a request’s headers total more than 256 KiB, or more than [`limits.max_request_header_bytes`](</docs/en/claude-apps-gateway-config#http-tuning>) if you set it. It writes no log line or audit event for these requests. Gateway versions before v2.1.284 answer `431` above 16 KiB. What to change depends on your gateway’s version and configuration:
+A developer’s requests can fail with a `431` error after sign-in when the developer belongs to many IdP groups. The gateway answers `431` when a request’s headers total more than 256 KiB, or more than [`limits.max_request_header_bytes`](</docs/en/claude-apps-gateway-config#http-tuning>) if you set it. It writes no log line or audit event for these requests. Gateway versions before v2.1.284 answer `431` above 16 KiB. Start with the first of these that applies to your gateway:
 
   * **Gateway older than v2.1.284** : upgrade the gateway
   * **`limits.max_request_header_bytes` set**: raise the value or remove the key
   * **Neither applies, or`431` continues afterward**: have your IdP emit fewer groups. Identity provider setup covers how Okta, Microsoft Entra ID, and Google Workspace supply groups
+
+When you trim the groups claim, keep the groups you named in these settings, which decide a developer’s access, policy, and spend caps:
+
+  * **[`oidc.allowed_groups`](</docs/en/claude-apps-gateway-config#oidc>)** : decides who can sign in
+  * **[`admin.admin_groups`](</docs/en/claude-apps-gateway-config#admin>)** : decides who can call the admin API with their gateway session
+  * **`match.groups` in [`managed.policies`](</docs/en/claude-apps-gateway-config#managed>)**: decides which policy applies to a developer
+  * **`rbac_group` [spend caps](</docs/en/claude-apps-gateway-spend-limits>)**: decide which group caps apply to a developer
 
 ##
 

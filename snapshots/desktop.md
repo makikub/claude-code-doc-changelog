@@ -326,7 +326,7 @@ Make sure you have the latest version of Claude Desktop. On macOS and Windows, d
 
 Turn on the toggle
 
-In the desktop app, go to **Settings > General** (under **Desktop app**). Find the **Computer use** toggle and turn it on. On Windows, the toggle takes effect immediately and setup is complete. On macOS, continue to the next step.If you don’t see the toggle, confirm you’re on macOS or Windows with a Pro or Max plan, then update and restart the app.
+In the desktop app, go to **Settings > This computer > System**. Under **Computer use** , turn on **Enable computer use**. On Windows, the toggle takes effect immediately and setup is complete. On macOS, continue to the next step.If you don’t see the toggle, confirm you’re on macOS or Windows with a Pro or Max plan, then update and restart the app.
 
 3
 
@@ -353,7 +353,7 @@ View only| See the app in screenshots| Browsers, trading platforms
 Click only| Click and scroll, but not type or use keyboard shortcuts| Terminals, IDEs
 Full control| Click, type, drag, and use keyboard shortcuts| Everything else
 
-Apps with broad reach, like terminals, Finder or File Explorer, and System Settings or Settings, show an extra warning in the prompt so you know what approving them grants. You can configure two settings in **Settings > General** (under **Desktop app**):
+Apps with broad reach, like terminals, Finder or File Explorer, and System Settings or Settings, show an extra warning in the prompt so you know what approving them grants. The **Computer use** section in **Settings > This computer > System** includes these options:
 
   * **Denied apps** : add apps here to reject them without prompting. Claude may still affect a denied app indirectly through actions in an allowed app, but it can’t interact with the denied app directly.
   * **Unhide apps when Claude finishes** : when computer use isn’t running in the background, Claude hides your other windows while it works so it interacts with only the approved app. When Claude finishes, hidden windows are restored unless you turn this setting off.
@@ -423,10 +423,10 @@ For large refactors, test suites, migrations, or other long-running tasks, selec
 
 Continue in another surface
 
-The **Continue in** menu, accessible from the VS Code icon in the bottom right of the session toolbar, lets you move your session to another surface:
+To continue a session somewhere else, open the session menu from the caret beside the session title or from the session’s row in the sidebar, then select **Open in** :
 
-  * **Claude Code on the Web** : sends your local session to continue running in the cloud. Desktop pushes your branch, generates a summary of the conversation, and creates a new cloud session with the full context. You can then choose to archive the local session or keep it. This requires a clean working tree, and is not available for SSH sessions.
-  * **Your IDE** : opens your project in a supported IDE at the current working directory.
+  * Select **Cloud** to continue the session as a [cloud session](</docs/en/claude-code-on-the-web>), with your conversation carried over as a summary. Before you confirm, the dialog states whether your files move too and whether this session is archived once the cloud one is ready. You can’t move a session that runs over SSH or in [WSL](</docs/en/desktop-wsl>) this way.
+  * Select an installed editor or your file manager to open the session’s folder on disk there.
 
 ###
 
@@ -669,7 +669,7 @@ The environment you pick when starting a session determines where Claude execute
 
 Local sessions
 
-The desktop app does not always inherit your full shell environment. On macOS, when you launch the app from the Dock or Finder, it reads your shell profile, such as `~/.zshrc` or `~/.bashrc`, to extract `PATH` and a fixed set of Claude Code variables, but other variables you export there are not picked up. On Windows, the app inherits user and system environment variables but does not read PowerShell profiles. To set environment variables for local sessions and dev servers on any platform, open the environment dropdown in the prompt box, hover over **Local** , and click the gear icon to open the local environment editor. Variables you save here are stored encrypted on your machine and apply to every local session and preview server you start. You can also add variables to the `env` key in your `~/.claude/settings.json` file, though these reach Claude sessions only and not dev servers. See [environment variables](</docs/en/env-vars>) for the full list of supported variables. [Extended thinking](</docs/en/model-config#extended-thinking>) is enabled by default, which improves performance on complex reasoning tasks but uses additional tokens. On the Anthropic API, set `MAX_THINKING_TOKENS` to `0` in the local environment editor to turn thinking off; this has no effect on Opus 5.5, Sonnet 5.5, or the Fable models, which always use extended thinking. With thinking turned off on the Anthropic API, Claude Code sends effort `high` instead of a higher level to models it knows [don’t accept that combination](</docs/en/errors#effort-isnt-available-with-thinking-turned-off>), such as Opus 5. On models with [adaptive reasoning](</docs/en/model-config#adjust-effort-level>), `MAX_THINKING_TOKENS` values other than `0` are ignored because adaptive reasoning controls thinking depth instead. On Opus 4.6 and Sonnet 4.6, set `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` to `1` to use a fixed thinking budget; Fable models, Sonnet 5 and later, and Opus 4.7 and later always use adaptive reasoning and have no fixed-budget mode.
+The desktop app does not always inherit your full shell environment. On macOS, when you launch the app from the Dock or Finder, it reads your shell profile, such as `~/.zshrc` or `~/.bashrc`, to extract `PATH` and a fixed set of Claude Code variables, but other variables you export there are not picked up. On Windows, the app inherits user and system environment variables but does not read PowerShell profiles. To set environment variables for local sessions and dev servers on any platform, open the environment dropdown in the prompt box, hover over **Local** , and click the gear icon to open the local environment editor. Variables you save here are stored encrypted on your machine and apply to every local session and preview server you start. You can also add variables to the `env` key in your `~/.claude/settings.json` file, though these reach Claude sessions only and not dev servers. See [environment variables](</docs/en/env-vars>) for the full list of supported variables. [Extended thinking](</docs/en/model-config#extended-thinking>) is enabled by default, which improves performance on complex reasoning tasks but uses additional tokens. On the Anthropic API, set `MAX_THINKING_TOKENS` to `0` in the local environment editor to turn thinking off; this has no effect on Opus 5.5, Sonnet 5.5, or the Fable models, which always use extended thinking. With thinking turned off on the Anthropic API, Claude Code sends effort `high` instead of a higher level to models it knows [don’t accept that combination](</docs/en/errors#effort-isnt-available-with-thinking-turned-off>), such as Opus 5. On models with [adaptive reasoning](</docs/en/model-config#adjust-effort-level>), Claude Code ignores the number itself in a positive `MAX_THINKING_TOKENS` value because adaptive reasoning controls thinking depth instead. On Opus 4.6 and Sonnet 4.6, set `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` to `1` to use a fixed thinking budget; Fable models, Sonnet 5 and later, and Opus 4.7 and later always use adaptive reasoning and have no fixed-budget mode.
 
 ####
 

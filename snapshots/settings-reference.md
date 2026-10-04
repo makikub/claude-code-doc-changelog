@@ -409,7 +409,7 @@ In your user settings file, `~/.claude/settings.json`, this key is the older for
 
 `enforceAvailableModels`
 
-The `/model` picker has a **Default** option, and [`default` model setting](</docs/en/model-config#default-model-setting>) describes the model it resolves to. An `availableModels` allowlist limits the models you can name, but with the default prefix matching it doesn’t remap your account type’s default, so **Default** can still resolve to a model outside the list. This key closes that gap. Requires Claude Code v2.1.175 or later. When your organization deploys any managed settings, Claude Code reads this key from the managed source alone and ignores it in your other files.
+The `/model` picker has a **Default** option, and [`default` model setting](</docs/en/model-config#default-model-setting>) describes the model it resolves to. An `availableModels` allowlist limits the models you can name, but with the default prefix matching it doesn’t remap your account type’s default, so **Default** can still resolve to a model outside the list. This key closes that gap. Requires Claude Code v2.1.175 or later. When your organization deploys any managed settings, Claude Code reads this key from the managed source alone and ignores it in your other files. For how this key applies to the startup model checks, see [Amazon Bedrock](</docs/en/amazon-bedrock#when-your-organization-enforces-a-model-allowlist>) and [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai#when-your-organization-enforces-a-model-allowlist>).
 
   * **Scope** : `Any file`
   * **Type** : Boolean
@@ -2616,7 +2616,7 @@ Before v2.1.251, project and local settings could also set the variables in this
   * [`CLAUDE_CODE_PROJECT_DIR_NAME`](</docs/en/sessions#name-the-project-directory-yourself>), which Claude Code reads from the launch environment only, is ignored from every file; requires v2.1.234 or later.
   * [`CLAUDE_CODE_RESTRICTED`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file.
   * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file. The variable requires Claude Code v2.1.283 or later.
-  * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT` and `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file.
+  * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`, `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`, and `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file.
 
 ###
 

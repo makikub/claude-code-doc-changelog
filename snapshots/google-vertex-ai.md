@@ -199,6 +199,21 @@ When Claude Code starts with Google Cloud’s Agent Platform configured, it veri
 
 ​
 
+When your organization enforces a model allowlist
+
+If you set [`enforceAvailableModels`](</docs/en/model-config#enforce-the-allowlist-for-the-default-model>) in managed settings, the startup model checks use only models your `availableModels` list permits. This requires Claude Code v2.1.287 or later. A list without `enforceAvailableModels` doesn’t restrict these checks. The checks compare each entry with the model ID they would send to Agent Platform, so write the list in those IDs. This example permits Opus 4.8 and Sonnet 4.5:
+
+    {
+      "availableModels": ["claude-opus-4-8", "claude-sonnet-4-5@20250929"],
+      "enforceAvailableModels": true
+    }
+
+For aliases, version prefixes, and `modelOverrides` entries, see [Pin models for third-party deployments](</docs/en/model-config#pin-models-for-third-party-deployments>).
+
+###
+
+​
+
 When a model is disabled mid-session
 
 If your project loses access to the model your session is running on, for example because an administrator disables it in [Model Garden](<https://console.cloud.google.com/vertex-ai/model-garden>), Claude Code switches the session to another model instead of failing each request, and shows `Switched to <fallback> because <model> is not available`. It tries the same models as the startup fallback: earlier versions of the same tier first and, for an Opus session with no Opus version available, the default Sonnet model. The switch applies only to a tier you haven’t pinned, the same condition as the startup fallback. A session on a specific version you picked keeps its model and, without a fallback model chain, the request fails instead. In [auto mode](</docs/en/permission-modes#enable-auto-mode-on-bedrock-agent-platform-or-foundry>), Claude Code switches only to a model auto mode supports on Agent Platform. If none of those models is available either, the request fails. A [fallback model chain](</docs/en/model-config#fallback-model-chains>) you configure replaces the tier switch: on these refusals Claude Code switches to your configured fallback instead. To have refused requests fail rather than switch, set [`CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK=1`](</docs/en/env-vars>). A fallback chain you configured still switches on these refusals; remove the chain as well if you want every refused request to fail.
