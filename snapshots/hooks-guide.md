@@ -943,7 +943,7 @@ You edited a settings file but the hooks don’t appear in the menu.
 
 Stop hook hits the block cap
 
-Claude keeps working instead of stopping, then ends the turn with a warning that the Stop hook blocked too many consecutive times. Claude Code overrides a Stop hook after it blocks eight times in a row without progress. Your hook script needs to check whether it already triggered a continuation. Parse the `stop_hook_active` field from the JSON input and exit early if it’s `true`:
+Claude keeps working instead of stopping, then ends the turn with a warning that the Stop hook blocked too many consecutive times. Claude Code overrides a Stop hook after it blocks eight times in a row with no tool call from Claude in between. Your hook script needs to check whether it already triggered a continuation. Parse the `stop_hook_active` field from the JSON input and exit early if it’s `true`:
 
     #!/bin/bash
     INPUT=$(cat)

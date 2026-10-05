@@ -942,7 +942,7 @@ settings.json
       }
     }
 
-See [Route all shell commands through the classifier](</docs/en/auto-mode-config#route-all-shell-commands-through-the-classifier>). Requires Claude Code v2.1.193 or later.
+See [Route all shell commands through the classifier](</docs/en/auto-mode-config#route-all-shell-commands-through-the-classifier>).
 
 ###
 
@@ -6035,7 +6035,7 @@ Setting `0` fails validation, so pick a large value such as `3650` for long rete
 
 `desktopSessionCleanupPeriodDays`
 
-Set an age limit in days for the transcripts of sessions you started or most recently continued in Claude Desktop or Cowork. Without this key, Claude Code [keeps those transcripts at any age](</docs/en/claude-directory#cleaned-up-automatically>). Claude Code deletes each one once it’s older than both this limit and `cleanupPeriodDays`, so with `cleanupPeriodDays` at its default of 30, a value of `7` still keeps them 30 days. When managed settings set `cleanupPeriodDays`, that period applies instead and this key is ignored. Requires Claude Code v2.1.248 or later.
+Set an age limit in days for the transcripts of sessions you started or most recently continued in Claude Desktop or Cowork. Without this key, Claude Code [keeps those transcripts at any age](</docs/en/claude-directory#cleaned-up-automatically>). Claude Code deletes each one once it’s older than both this limit and `cleanupPeriodDays`, so with `cleanupPeriodDays` at its default of 30, a value of `7` still keeps them 30 days. [Cleaned up automatically](</docs/en/claude-directory#cleaned-up-automatically>) lists the cases where `cleanupPeriodDays` applies instead and Claude Code ignores this key. Requires Claude Code v2.1.248 or later.
 
   * **Scope** : `User or managed`. Claude Code also reads the key from a file you pass with `--settings`, and ignores it in project and local settings.
   * **Type** : number of days, a whole number, minimum `0`

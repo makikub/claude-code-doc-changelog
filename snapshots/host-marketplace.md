@@ -283,7 +283,7 @@ A plugin’s `name` is its identifier. Users reference it in the `enabledPlugins
 
 Migrate users with a renames map
 
-When you must change a `name`, add a top-level `renames` map to `marketplace.json` so Claude Code migrates existing users instead of reporting [`Plugin "<name>" not found in marketplace`](</docs/en/plugins/troubleshooting#plugin-not-found-in-marketplace>). Do the same when you remove an entry from `plugins`. Automatic migration requires Claude Code v2.1.193 or later. Map each former name to its current name, or to `null` when the plugin is gone. This marketplace renames `formatter` to `code-formatter` and records that `legacy-linter` was removed:
+When you must change a `name`, add a top-level `renames` map to `marketplace.json` so Claude Code migrates existing users instead of reporting [`Plugin "<name>" not found in marketplace`](</docs/en/plugins/troubleshooting#plugin-not-found-in-marketplace>). Do the same when you remove an entry from `plugins`. Map each former name to its current name, or to `null` when the plugin is gone. This marketplace renames `formatter` to `code-formatter` and records that `legacy-linter` was removed:
 
     {
       "name": "your-marketplace",

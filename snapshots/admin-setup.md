@@ -106,7 +106,7 @@ None of these controls reach sessions on Amazon Bedrock, Google Cloud’s Agent 
 
   * **Cloud environments page** : Owners create [organization-shared environments](</docs/en/cloud-environments#organization-shared-environments>) that set the [network access level](</docs/en/cloud-environments#network-access>), environment variables, and setup script for members’ cloud sessions.
   * **Default environment** : Owners choose the organization’s default environment separately, at [claude.ai/admin-settings/claude-code](<https://claude.ai/admin-settings/claude-code>).
-  * **GitHub page** : see Connected GitHub accounts for the GitHub accounts linked to your organization.
+  * **Git providers page** : see Connected GitHub accounts for the GitHub accounts linked to your organization.
 
 Permission rules and sandboxing cover different layers. Denying WebFetch blocks Claude’s fetch tool, but if Bash is allowed, `curl` and `wget` can still reach any URL. Sandboxing closes that gap with a network domain allowlist enforced at the OS level. For the threat model these controls defend against, see [Security](</docs/en/security>).
 
@@ -116,9 +116,9 @@ Permission rules and sandboxing cover different layers. Denying WebFetch blocks 
 
 Connected GitHub accounts
 
-On Team and Enterprise plans, [**Admin settings > GitHub**](<https://claude.ai/admin-settings/github>) lists the GitHub organizations and personal accounts linked to your Claude organization through the [Claude GitHub App](<https://github.com/apps/claude>). Claude Code, [Claude Tag](<https://claude.com/docs/claude-tag/admins/configure-github>), and Claude Security share the list. Opening it requires an admin role in your Claude organization. An admin or a member can link an account:
+On Team and Enterprise plans, the GitHub section of [**Organization settings > Git providers**](<https://claude.ai/admin-settings/source-control>) lists the GitHub organizations and personal accounts linked to your Claude organization through the [Claude GitHub App](<https://github.com/apps/claude>). Claude Code, [Claude Tag](<https://claude.com/docs/claude-tag/admins/configure-github>), and Claude Security share the list. Opening the page requires an admin role in your Claude organization. An admin or a member can link an account:
 
-  * **Admin connection** : an admin clicks **Connect** on that page and installs the Claude GitHub App on a GitHub organization. Linking an organization this way requires someone who is both an owner of the GitHub organization and an admin of your Claude organization.
+  * **Admin connection** : an admin clicks **Connect** in that section, or **Add organization** once an account is connected, and installs the Claude GitHub App on a GitHub organization. Linking an organization this way requires someone who is both an owner of the GitHub organization and an admin of your Claude organization.
   * **Member connection** : when a member connects their GitHub account to Claude, for example while [setting up cloud sessions](</docs/en/web-quickstart#connect-github>), Claude links the GitHub accounts that member owns where the Claude GitHub App is already installed. That can include their personal account and GitHub organizations they own.
 
 A row marked **Not linked** comes from your own GitHub sign-in. It’s an account you can see on GitHub where the Claude GitHub App is installed. To unlink an account from your Claude organization, open its row’s menu and select **Unlink from this workspace**. Unlinking leaves the Claude GitHub App installed on GitHub, and the account is linked again the next time one of its owners connects GitHub to Claude. To keep it from being linked again, uninstall the Claude GitHub App from that account on GitHub. On Enterprise plans, the [Compliance API](<https://platform.claude.com/docs/en/api/compliance/activities/list>) activity types for linking and unlinking are `github_app_installation_linked` and `github_app_installation_unlinked`.
@@ -136,7 +136,7 @@ Capability| What you get| Availability| Where to start
 Usage monitoring| OpenTelemetry export of sessions, tools, and tokens| All providers| [Monitoring usage](</docs/en/monitoring-usage>)
 Analytics dashboard| Adoption and contribution metrics with a leaderboard on Teams / Enterprise; per-user usage and spend metrics on Console| Teams / Enterprise at [claude.ai/analytics](<https://claude.ai/analytics/claude-code>), Console at [platform.claude.com/claude-code](<https://platform.claude.com/claude-code>)| [Analytics](</docs/en/analytics>)
 Programmatic reporting| Per-user usage and cost data over an API| [Enterprise Analytics API](<https://platform.claude.com/docs/en/api/admin/analytics>) for Enterprise, [Claude Code Analytics API](<https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api>) for Console| [Costs](</docs/en/costs#manage-costs-for-your-organization>)
-Spend controls| Spend limits and rate limits| Admin settings for Teams / Enterprise, workspace limits for Console; on third-party clouds, cloud budget controls or a [Claude apps gateway](</docs/en/claude-apps-gateway>) with per-user [spend limits](</docs/en/claude-apps-gateway-spend-limits>)| [Costs](</docs/en/costs#manage-costs-for-your-organization>)
+Spend controls| Spend limits and rate limits| Organization settings for Teams / Enterprise, workspace limits for Console; on third-party clouds, cloud budget controls or a [Claude apps gateway](</docs/en/claude-apps-gateway>) with per-user [spend limits](</docs/en/claude-apps-gateway-spend-limits>)| [Costs](</docs/en/costs#manage-costs-for-your-organization>)
 
 On Teams and Enterprise, per-user usage and spend numbers come from the [spend report](<https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans>) in your organization’s analytics settings, not the analytics dashboard. Cloud providers expose spend through AWS Cost Explorer, GCP Billing, or Azure Cost Management. For planning enterprise budgets across Claude chat, Claude Code, and Cowork, see the [Claude Enterprise consumption guide](<https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide>).
 
@@ -152,9 +152,10 @@ Topic| What to know| Where to start
 ---|---|---
 Data usage policy| What Anthropic collects, how long it’s retained, what’s never used for training| [Data usage](</docs/en/data-usage>)
 Zero Data Retention (ZDR)| Nothing stored after the request completes. Available to qualified accounts on Claude for Enterprise| [Zero data retention](</docs/en/zero-data-retention>)
+HIPAA configuration| For Claude for Enterprise organizations that have HIPAA enabled. Some Claude Code (local mode) features are turned off and others are off by default| [Set up Claude Code (local mode) for a HIPAA-ready organization](</docs/en/hipaa-setup>)
 Security architecture| Network model, encryption, authentication, audit trail| [Security](</docs/en/security>)
 
-If you need request-level audit logging or to route traffic by data sensitivity, place a gateway between developers and your provider: a self-hosted [Claude apps gateway](</docs/en/claude-apps-gateway>) records a per-request audit log with IdP identity, or use another [LLM gateway](</docs/en/llm-gateway>). For regulatory requirements and certifications, see [Legal and compliance](</docs/en/legal-and-compliance>).
+If you need request-level audit logging or to route traffic by data sensitivity, we recommend you place a gateway between developers and your provider: a self-hosted [Claude apps gateway](</docs/en/claude-apps-gateway>) records a per-request audit log with IdP identity, or you can use another [LLM gateway](</docs/en/llm-gateway>). Sessions that go through a gateway aren’t eligible for the HIPAA configuration. [Check how developers sign in and connect](</docs/en/hipaa-setup#check-how-developers-sign-in-and-connect>) lists the connections that are. For regulatory requirements and certifications, see [Legal and compliance](</docs/en/legal-and-compliance>).
 
 ##
 

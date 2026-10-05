@@ -177,6 +177,7 @@ Message| Section
 `<model>'s safeguards flagged this message`| Request errors
 `<model>'s safeguards flagged this session`| Request errors
 `<model> has safety measures that flagged this message for a cybersecurity topic`| Request errors
+`Details: `[reasoning_extraction]``| Request errors
 `API Error: Output blocked by content filtering policy`| Request errors
 `Installation was killed before it could finish (exit code 137)`| Installation errors
 `The connection dropped while downloading the update`| Installation errors
@@ -767,7 +768,7 @@ Your plan’s included usage can’t cover this request, and the [usage credits]
 `team's shared budget` is a pooled budget an admin assigned to a group you belong to; the message doesn’t name the group. `channel's monthly spend limit` is the budget of the one Slack channel the session runs in, so your organization may still have budget outside it. When one of your plan’s windows is what ran out, the message also says when that window resets, for example `· your session limit resets 3:45pm`, and access returns then without anyone raising the limit. On organizations with usage-based billing, the message says `usage limit` in place of `spend limit`, as in `You've hit your individual usage limit`. Before v2.1.239, the message didn’t name the plan window’s reset time. Before v2.1.268, a group’s pooled budget produced the `individual spend limit` message instead of `team's shared budget`. If you connect through a Claude apps gateway and see lowercase `spend limit reached`, that is your gateway operator’s cap instead; see Spend limit reached. **What to do:**
 
   * On Pro and Max, increase your monthly spend limit in [**Settings > Usage**](<https://claude.ai/settings/usage>) on claude.ai, or run `/usage-credits`
-  * On Team and Enterprise, increase the limit in [**Admin settings > Usage**](<https://claude.ai/admin-settings/usage>) if you manage billing, or ask an admin to. `/usage-credits` sends that request to your admin for you
+  * On Team and Enterprise, increase the limit in [**Organization settings > Usage**](<https://claude.ai/admin-settings/usage>) if you manage billing, or ask an admin to. `/usage-credits` sends that request to your admin for you
   * For a channel’s limit, ask an org owner or the channel’s manager to raise it on claude.ai. See [Per-channel limits](<https://claude.com/docs/claude-tag/admins/set-spend-limit#per-channel-limits>) in the Claude Tag documentation
   * If the message names a reset time for your plan’s window, you can wait for it instead
   * Run `/usage` to see your plan’s windows and when each resets
@@ -2448,7 +2449,7 @@ Results from the API’s hosted [web search tool](<https://platform.claude.com/d
 
 Usage Policy refusal
 
-The API declined to respond because content in the conversation triggered a [Usage Policy](<https://www.anthropic.com/legal/aup>) check. The message includes a Request ID and a Message ID you can quote to support if you believe the refusal is incorrect.
+The API declined to respond because content in the conversation triggered a [Usage Policy](<https://www.anthropic.com/legal/aup>) check. If the message includes the line `Details: `[reasoning_extraction]``, see Safeguards flagged a request for Claude’s reasoning. The message includes a Request ID and a Message ID you can quote to support if you believe the refusal is incorrect.
 
     API Error: Opus 4.6 can't help with this. Start a new session to continue.
 
@@ -2470,11 +2471,30 @@ The model’s safety measures flagged content in the conversation as a cybersecu
 
     API Error: Opus 4.8's safeguards flagged this message. Our intentionally broad safeguards allow us to deliver more capabilities faster, but can sometimes flag legitimate cybersecurity work. Apply to the Cyber Verification Program to reduce these interruptions. Send feedback with /feedback or learn more: https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude
 
-The message links to the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>), which grants access for legitimate cybersecurity work. On Opus 5.5 and Sonnet 5.5, the message opens with `<model>'s safeguards flagged this session` instead. When the flagged category has a fallback model available, Claude Code [switches models](</docs/en/model-config#automatic-model-fallback>) rather than showing this error. On [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), and [Microsoft Foundry](</docs/en/microsoft-foundry>), a cybersecurity flag produces the Usage Policy refusal message instead. The safeguard itself is server-side and predates v2.1.203; client releases since then have changed only the message’s wording. From v2.1.203 through v2.1.218, the message read `<model> has safety measures that flagged this message for a cybersecurity topic. To learn about the Cyber Verification Program and apply for access, visit our help center:` followed by the same help-center link, and interactive sessions appended `If you were not engaging in a cybersecurity topic, please send feedback via /feedback.` Before v2.1.203, it read `<model>'s safeguards flagged this message for a cybersecurity topic. If your work requires this access, you can apply for an exemption:` followed by an exemption form link. **What to do:**
+If the message includes the line `Details: `[reasoning_extraction]``, see Safeguards flagged a request for Claude’s reasoning. The message links to the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>), which grants access for legitimate cybersecurity work. On Opus 5.5 and Sonnet 5.5, the message opens with `<model>'s safeguards flagged this session` instead. When the flagged category has a fallback model available, Claude Code [switches models](</docs/en/model-config#automatic-model-fallback>) rather than showing this error. On [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), and [Microsoft Foundry](</docs/en/microsoft-foundry>), a cybersecurity flag produces the Usage Policy refusal message instead. The safeguard itself is server-side and predates v2.1.203; client releases since then have changed only the message’s wording. From v2.1.203 through v2.1.218, the message read `<model> has safety measures that flagged this message for a cybersecurity topic. To learn about the Cyber Verification Program and apply for access, visit our help center:` followed by the same help-center link, and interactive sessions appended `If you were not engaging in a cybersecurity topic, please send feedback via /feedback.` Before v2.1.203, it read `<model>'s safeguards flagged this message for a cybersecurity topic. If your work requires this access, you can apply for an exemption:` followed by an exemption form link. **What to do:**
 
   * If your work requires this content, apply for access through the [Cyber Verification Program](<https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude>)
   * If your request wasn’t about a cybersecurity topic, run `/feedback` to report the false positive
   * To keep working in the same session, press Esc twice or run `/rewind` to step back to a checkpoint before the turn that triggered the flag, then take a different approach. See [Checkpointing](</docs/en/checkpointing>).
+
+###
+
+​
+
+Safeguards flagged a request for Claude’s reasoning
+
+The API declined the request because safeguards flagged it as asking the model to reproduce its internal reasoning in the response. The API names this [refusal category](<https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#refusal-response>) `reasoning_extraction`, and the refusal message includes this line:
+
+    Details: `[reasoning_extraction]`
+
+Before v2.1.234, refusal messages didn’t include the `Details` line. **What to do:**
+
+  * Remove or reword any instruction that asks Claude to write out its thinking or reasoning verbatim or in a fixed format, such as a `<thinking>` section, a scratchpad section, or a `reasoning` field in JSON output. The instruction can be in your prompt or in a customization that Claude Code loads with it, such as CLAUDE.md, a skill, a subagent prompt, an output style, or an MCP tool description.
+  * To check whether a customization is the trigger, run [`claude --safe-mode`](</docs/en/cli-reference#cli-flags>) in your terminal to start a session with customizations disabled, then send the same prompt
+  * After you change a customization, start a new session
+  * To reword a prompt you already sent, see [Rewind and summarize](</docs/en/checkpointing#rewind-and-summarize>)
+  * You can still ask Claude to explain its answer. Ask for a short explanation, the evidence behind a result, or a summary of the actions it took. To read summaries of Claude’s thinking, see [`showThinkingSummaries`](</docs/en/settings-reference#showthinkingsummaries>).
+  * For more examples, and what to do if a reworded request is still declined, see [Keep reasoning in thinking blocks](<https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#keep-reasoning-in-thinking-blocks>)
 
 ###
 

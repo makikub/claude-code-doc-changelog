@@ -3934,6 +3934,7 @@ Agent
             output_tokens_details?: {
               thinking_tokens?: number | null;
             } | null;
+            fallback_credit?: unknown;
           };
           toolStats?: {
             readCount: number;
@@ -3969,7 +3970,7 @@ Agent
           outputFile: string;
         };
 
-Returns the result from the subagent. Discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a cloud session, where `sessionUrl` links to that session and `taskId` identifies it. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On `async_launched`, it names the model in use when the task moved to the background. `modelsUsed` lists the models the subagent used, in order. The field is present only when a mid-run swap happened, and a model appears again when the run swapped back to it. On `async_launched`, the list covers the models used before backgrounding. Both `modelsUsed` and the backgrounding behavior of `resolvedModel` require Claude Code v2.1.212 or later. If Claude Code [kept the subagent’s isolated worktree](</docs/en/worktrees#isolate-subagents-with-worktrees>), `worktreePath` on the `completed` result is where to find it. `worktreeBranch` is its branch, present when Claude Code created the worktree with git. Claude Code fills `usage` and `totalTokens` from the subagent’s final API request, not from the whole run, so `usage.service_tier` is the service tier string the API reported on that request. When present, `usage.output_tokens_details.thinking_tokens` is the number of that request’s output tokens that were thinking tokens. The `output_tokens_details` field requires TypeScript SDK v0.3.228 or later, which bundles Claude Code v2.1.228. `usage.output_tokens_details` matches `Usage.output_tokens_details` in meaning, scoped to that final request, but every level of it is optional here. Guard both the object and the field, for example `usage.output_tokens_details?.thinking_tokens ?? 0`, rather than reading it directly. Before v2.1.207, the published type was narrower. It omitted `worktreePath`, `worktreeBranch`, `citations`, `toolStats.frameCount`, and the `inference_geo`, `speed`, and `iterations` usage fields, and it typed `service_tier` as `"standard" | "priority" | "batch"`. Fields the type marks optional can be absent on results recorded by earlier versions.
+Returns the result from the subagent. Discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"remote_launched"` for tasks Claude Code dispatched to a cloud session, where `sessionUrl` links to that session and `taskId` identifies it. On the `completed` variant, `resolvedModel` names the model the subagent started on, which can differ from the requested `model` input when [`availableModels`](</docs/en/model-config#restrict-model-selection>) or another override applies. This field requires Claude Code v2.1.174 or later. On `async_launched`, it names the model in use when the task moved to the background. `modelsUsed` lists the models the subagent used, in order. The field is present only when a mid-run swap happened, and a model appears again when the run swapped back to it. On `async_launched`, the list covers the models used before backgrounding. Both `modelsUsed` and the backgrounding behavior of `resolvedModel` require Claude Code v2.1.212 or later. If Claude Code [kept the subagent’s isolated worktree](</docs/en/worktrees#isolate-subagents-with-worktrees>), `worktreePath` on the `completed` result is where to find it. `worktreeBranch` is its branch, present when Claude Code created the worktree with git. Claude Code fills `usage` and `totalTokens` from the subagent’s final API request, not from the whole run, so `usage.service_tier` is the service tier string the API reported on that request. When present, `usage.output_tokens_details.thinking_tokens` is the number of that request’s output tokens that were thinking tokens. The `output_tokens_details` field requires TypeScript SDK v0.3.228 or later, which bundles Claude Code v2.1.228. The `fallback_credit` field requires TypeScript SDK v0.3.285 or later, which bundles Claude Code v2.1.285. `usage.output_tokens_details` matches `Usage.output_tokens_details` in meaning, scoped to that final request, but every level of it is optional here. Guard both the object and the field, for example `usage.output_tokens_details?.thinking_tokens ?? 0`, rather than reading it directly. Before v2.1.207, the published type was narrower. It omitted `worktreePath`, `worktreeBranch`, `citations`, `toolStats.frameCount`, and the `inference_geo`, `speed`, and `iterations` usage fields, and it typed `service_tier` as `"standard" | "priority" | "batch"`. Fields the type marks optional can be absent on results recorded by earlier versions.
 
 ###
 
@@ -5231,10 +5232,12 @@ Per-model usage statistics returned in result messages. The `costUSD` value is a
 
 `NonNullableUsage`
 
-A version of `Usage` with all nullable fields made non-nullable.
+A version of `Usage` with every nullable field made non-nullable except `fallback_credit`, which can still be `null`.
 
     type NonNullableUsage = {
-      [K in keyof Usage]: NonNullable<Usage[K]>;
+      [K in keyof Usage]: K extends "fallback_credit"
+        ? Usage[K]
+        : NonNullable<Usage[K]>;
     };
 
 ###
@@ -5260,14 +5263,17 @@ Token usage statistics. This is the `BetaUsage` type from `@anthropic-ai/sdk`.
       inference_geo: string | null;
       iterations: BetaIterationsUsage | null;
       output_tokens_details: BetaOutputTokensDetails | null;
+      fallback_credit: BetaFallbackCreditUsage | null;
     };
 
-`BetaServerToolUsage`, `BetaIterationsUsage`, and `BetaOutputTokensDetails` are defined in `@anthropic-ai/sdk`. `output_tokens_details` breaks the billed output down by category. It currently carries one field, `thinking_tokens: number`, counting the output tokens the model generated as internal reasoning, including the thinking-block delimiters. The `output_tokens_details` field requires TypeScript SDK v0.3.228 or later, which bundles Claude Code v2.1.228.
+`BetaServerToolUsage`, `BetaIterationsUsage`, `BetaOutputTokensDetails`, and `BetaFallbackCreditUsage` are defined in `@anthropic-ai/sdk`. `output_tokens_details` breaks the billed output down by category. It currently carries one field, `thinking_tokens: number`, counting the output tokens the model generated as internal reasoning, including the thinking-block delimiters. The `output_tokens_details` field requires TypeScript SDK v0.3.228 or later, which bundles Claude Code v2.1.228.
 
   * **Billing** : read the breakdown for observability, not for billing. `output_tokens` stays the authoritative total, and `output_tokens - thinking_tokens` approximates the non-reasoning output.
   * **What the count covers** : the raw reasoning the model produced, which can be longer than the thinking text returned in the response body. The API computes it by re-tokenizing that raw text, so it can differ from the model’s exact generation count by a few tokens.
   * **Streaming** : on streamed assistant messages this breakdown, like `output_tokens`, is a `message_start` placeholder and carries no real count, so read it from the result message’s `usage` as [Read output tokens from the result message](</docs/en/agent-sdk/cost-tracking#read-output-tokens-from-the-result-message>) describes. On the result message, `thinking_tokens` reads `0` when the model or provider reports no breakdown.
   * **`null` cases**: `output_tokens_details` itself is `null` on assistant messages Claude Code synthesizes, such as API-error messages.
+
+Whether `Usage` carries `fallback_credit` depends on your installed `@anthropic-ai/sdk`, which added it in 0.115.0.
 
 ###
 
