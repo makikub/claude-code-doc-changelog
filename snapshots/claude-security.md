@@ -41,7 +41,7 @@ The command opens the plugin’s details, where you choose an [installation scop
   * If it reports `Marketplace "claude-plugins-official" not found`, add the marketplace with `/plugin marketplace add anthropics/claude-plugins-official`, then retry the install.
   * If it reports that it [can’t find the plugin in the marketplace](</docs/en/plugins/install#install-a-plugin>), check the plugin name for a typo.
 
-Check the install summary. If it reports `Run /reload-plugins to activate.`, see [Apply plugin changes without restarting](</docs/en/plugins/cli-reference#reload-plugins>) to activate the plugin in your current session. Once the plugin is active, you’re ready to scan and fix your codebase.
+Check the install summary. If it reports `Run /reload-plugins to apply.`, see [Apply plugin changes without restarting](</docs/en/plugins/cli-reference#reload-plugins>) to activate the plugin in your current session. Once the plugin is active, you’re ready to scan and fix your codebase.
 
 ###
 

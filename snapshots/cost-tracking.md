@@ -210,7 +210,7 @@ Each `query()` call returns `total_cost_usd` on its results. How you combine the
   * **Independent calls, with no`resume` or `continue` option**: each result covers only its own call, so add the totals yourself, as the examples below do.
   * **Calls that resume the same session** : Claude Code saves the session’s totals to its [transcript](</docs/en/sessions#where-transcripts-are-stored>) when the process exits normally and restores them when a later call resumes or forks the session. Each result already includes the session’s earlier spend. Read the latest result for the session total; summing results double-counts the restored spend. Before v2.1.277, a session that you resumed through the SDK or `claude -p` started its totals at zero, so each call’s results covered only that call.
 
-In streaming input mode, read each call’s total as described in Track costs in streaming input mode. For a call that ended in a crash, see Recover totals after a session crash. The following examples run two `query()` calls sequentially, add each call’s `total_cost_usd` to a running total, and print both the per-call and combined cost:
+Either way, the combined figure is still a client-side estimate. In streaming input mode, read each call’s total as described in Track costs in streaming input mode. For a call that ended in a crash, see Recover totals after a session crash. The following examples run two `query()` calls sequentially, add each call’s `total_cost_usd` to a running total, and print both the per-call and combined cost:
 
 TypeScript
 

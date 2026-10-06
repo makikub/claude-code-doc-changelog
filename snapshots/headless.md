@@ -166,7 +166,7 @@ Use `--output-format stream-json` with `--verbose` and `--include-partial-messag
 
     claude -p "Explain recursion" --output-format stream-json --verbose --include-partial-messages
 
-The last line of the stream is a `result` message with the final response text, cost, and session metadata. If your consumer reads the stream slowly, Claude Code waits for the queued output to drain before exiting, scaling the wait with how much is still queued, capped at 30 seconds. Before v2.1.214 the exit wait was capped at about two seconds, which could cut off the end of a large response. The following example uses [jq](<https://jqlang.org/>) to filter for text deltas and display just the streaming text. The `-r` flag outputs raw strings (no quotes) and `-j` joins without newlines so tokens stream continuously:
+The last line of the stream is a `result` message with the final response text, cost, and session metadata. If your consumer reads the stream slowly, Claude Code waits for the queued output to drain before exiting, scaling the wait with how much is still queued, capped at 30 seconds. Before v2.1.214 the exit wait was capped at about two seconds, which could cut off the end of a large response. The following example uses [jq](<https://jqlang.org/>) to filter for text deltas and display only the streaming text. The `-r` flag outputs raw strings (no quotes) and `-j` joins without newlines so tokens stream continuously:
 
     claude -p "Write a poem" --output-format stream-json --verbose --include-partial-messages | \
       jq -rj 'select(.type == "stream_event" and .event.delta.type? == "text_delta") | .event.delta.text'
