@@ -151,7 +151,7 @@ The policy names one ARN per secret rather than a bare `gateway-*` wildcard, whi
 
 Provision Amazon RDS for PostgreSQL
 
-The instance runs in the private subnets with no public address and storage encryption on. The engine version is pinned to Postgres 16, which satisfies the gateway’s supported floor of PostgreSQL 14 and guarantees the parameter-group family below matches the instance.First, create the subnet group that places the database in the private subnets, and a parameter group with `rds.force_ssl=1` so the server rejects plaintext connections. The engine version is pinned once because the parameter group’s family must match the engine major version the instance runs:
+The instance runs Postgres 16 in the private subnets, with no public address and storage encryption on.First, create the subnet group that places the database in the private subnets, and a parameter group with `rds.force_ssl=1` so the server rejects plaintext connections. The engine version is pinned once because the parameter group’s family must match the engine major version the instance runs:
 
     aws rds create-db-subnet-group --db-subnet-group-name claude-gateway-db \
       --db-subnet-group-description "Claude gateway" --subnet-ids $PRIVATE_SUBNETS

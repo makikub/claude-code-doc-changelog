@@ -187,7 +187,7 @@ Run `claude plugin install` in your shell to install a plugin without starting a
 
     claude plugin install formatter@your-org --scope project
 
-The command prints `Successfully installed plugin: formatter@your-org (scope: project)` when it finishes. Some plugins install by running a command that their marketplace names, called a [`command` source](</docs/en/plugins/marketplace-reference#command-plugin-source>). Claude Code shows you that command and asks you to accept it before it runs. A script has no one to answer that prompt, so pass `--yes` there to accept it. For every `claude plugin install` flag, see [plugin install](</docs/en/plugins/cli-reference#plugin-install>).
+The command prints `Successfully installed plugin: formatter@your-org (scope: project)` when it finishes. Some plugins install by running a command that their marketplace names, called a [`command` source](</docs/en/plugins/marketplace-reference#command-plugin-source>). Claude Code shows you that command and asks you to accept it before it runs. A script has no one to answer that prompt, so pass `--yes` there to accept it. For the other `claude plugin install` flags, see [plugin install](</docs/en/plugins/cli-reference#plugin-install>).
 
 ##
 

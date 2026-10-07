@@ -7,6 +7,8 @@ Remote Control connects [claude.ai/code](<https://claude.ai/code>) or the Claude
 
 Unlike [cloud sessions](</docs/en/claude-code-on-the-web>), which run on cloud infrastructure, Remote Control sessions run directly on your machine and interact with your local filesystem. The web and mobile interfaces are a window into that local session, so your computer has to stay on and the `claude` process has to keep running.
 
+Remote Control is a Claude Code feature. For conversations in other Claude products, see the [Claude Help Center](<https://support.claude.com>).
+
 ##
 
 ​

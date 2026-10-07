@@ -128,7 +128,7 @@ The directory where Claude Code reads project-scoped configuration: settings, ho
 
 CLAUDE.md
 
-A markdown file of persistent instructions you write for Claude, loaded at the start of every session as a user message after the system prompt. Put project conventions, architecture notes, and “always do X” rules here. Project-root CLAUDE.md survives compaction and is re-read fresh from disk afterward. You can place CLAUDE.md at project scope in `./CLAUDE.md` or `./.claude/CLAUDE.md`, at user scope in `~/.claude/CLAUDE.md`, or as managed policy for your organization. All discovered files are concatenated into context rather than overriding each other, ordered from broadest scope to most specific. Claude Code can also load a project’s AGENTS.md files, on their own or alongside CLAUDE.md. Learn more: [CLAUDE.md files](</docs/en/memory#claude-md-files>)
+A markdown file of persistent instructions you write for Claude, loaded at the start of every session as a user message after the system prompt. Put project conventions, architecture notes, and “always do X” rules here. Project-root CLAUDE.md survives compaction and is re-read fresh from disk afterward. You can place CLAUDE.md at project scope in `./CLAUDE.md` or `./.claude/CLAUDE.md`, at user scope in `~/.claude/CLAUDE.md`, or as managed policy for your organization. All discovered files are concatenated into context rather than overriding each other, ordered from broadest scope to most specific. Claude Code can also load a project’s AGENTS.md files in place of CLAUDE.md. Learn more: [CLAUDE.md files](</docs/en/memory#claude-md-files>)
 
 ###
 

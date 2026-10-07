@@ -1,12 +1,12 @@
 Each Claude Code session begins with a fresh context window. Two mechanisms carry knowledge across sessions:
 
-  * **CLAUDE.md files** : instructions you write to give Claude persistent context. Claude can also read a repository’s `AGENTS.md` files, on their own or alongside CLAUDE.md
+  * **CLAUDE.md files** : instructions you write to give Claude persistent context. Claude can also read a repository’s `AGENTS.md` files in place of CLAUDE.md
   * **Auto memory** : notes Claude writes itself based on your corrections and preferences
 
 This page covers how to:
 
   * Write and organize CLAUDE.md files
-  * Use an existing AGENTS.md as your project instructions, on its own or alongside CLAUDE.md
+  * Use an existing AGENTS.md as your project instructions
   * Scope rules to specific file types with `.claude/rules/`
   * Configure auto memory so Claude takes notes automatically
   * Troubleshoot when instructions aren’t being followed

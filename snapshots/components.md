@@ -123,7 +123,7 @@ agents/security-reviewer.md
 
     You are a security reviewer. Read the changed files and report injection, authentication, and secrets-handling risks.
 
-This agent is named `my-plugin:security-reviewer`, and the user can [invoke it explicitly](</docs/en/sub-agents#invoke-subagents-explicitly>) with `@agent-my-plugin:security-reviewer`. The name form is `<plugin>:<name>`, where `<name>` comes from the frontmatter, or from the file name when there is none. The `agents` manifest key replaces the `agents/` scan.
+This agent is named `my-plugin:security-reviewer`, and the user can [invoke it explicitly](</docs/en/sub-agents#invoke-subagents-explicitly>) with `@agent-my-plugin:security-reviewer`. The name form is `<plugin>:<name>`, where `<name>` comes from the frontmatter `name` field, or from the file name when that field is missing. The `agents` manifest key replaces the `agents/` scan.
 
 ####
 

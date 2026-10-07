@@ -173,8 +173,13 @@ Prewarm on application boot, then claim the spare when the user starts a session
       console.error("Claim failed:", error.message);
     });
 
-    for await (const message of claimedQuery) {
-      console.log(message);
+    try {
+      for await (const message of claimedQuery) {
+        console.log(message);
+      }
+    } catch (error) {
+      // After a refused claim, the claimed query throws once it has yielded the error result
+      console.error(`Session ended with an error: ${error}`);
     }
 
 ###
@@ -725,7 +730,7 @@ Method| Description
 `accountInfo()`| Returns account information
 `reconnectMcpServer(serverName)`| Reconnect an MCP server by name. If the name also matches an entry in a settings file such as `.mcp.json` or `~/.claude.json`, Claude Code reconnects the server you configured through `mcpServers` or `setMcpServers()`, not the settings-file entry. That resolution order requires Claude Code v2.1.257 or later
 `toggleMcpServer(serverName, enabled)`| Enable or disable an MCP server by name, with the same name resolution as `reconnectMcpServer()`. Disabling a server disconnects it and removes its tools. See `toggleMcpServer()` for the Claude Code version this needs for each kind of server
-`setMcpServers(servers)`| Dynamically replace the set of MCP servers for this session. Resolves with an `McpSetServersResult` naming which servers were added and removed, and any errors
+`setMcpServers(servers)`| Replace the MCP servers this method manages: servers added through it and in-process SDK servers. Resolves with an `McpSetServersResult` naming which servers were added and removed, and any errors; that section says which other servers stay connected
 `readMcpResource(serverName, uri)`| _Alpha._ Reads one MCP Apps `ui://` resource from a connected MCP server so your application can render a tool’s widget. Resolves with an `SDKControlMcpReadResourceResponse`. Requires TypeScript Agent SDK v0.3.280 or later
 `streamInput(stream)`| Stream input messages to the query for multi-turn conversations
 `stopTask(taskId)`| Stop a running background task by ID
@@ -844,7 +849,7 @@ Member| Description
 `exited`| Settles when the process exits, claimed or not. Replace a spare that exits before you claim it
 `close()`| Terminate the process. Before a claim this discards the spare and rejects `claimed`
 
-`options.cwd` is required. A claim can also set `additionalDirectories`, `model`, `permissionMode`, `maxThinkingTokens`, a flag-settings overlay in `settings`, `appendSystemPrompt`, `title`, `agents`, and per-session tokens in `env`. Claude Code can refuse a claim, for example for a folder that doesn’t exist or one whose project settings set `env`, `agent`, or `model`. When `claimed` rejects with a message that starts with `option_not_applied`, the session is running without the `model` or `maxThinkingTokens` you asked for. After any other rejection your prompt hasn’t run, so start the session with `query()` instead.
+`options.cwd` is required. A claim can also set `additionalDirectories`, `model`, `permissionMode`, `maxThinkingTokens`, a flag-settings overlay in `settings`, `appendSystemPrompt`, `title`, `agents`, and per-session tokens in `env`. Claude Code can refuse a claim, for example for a folder that doesn’t exist or one whose project settings set `env`, `agent`, or `model`. After a refusal, a prompt that `claim()` already sent gets an error result whose text starts with `not_claimed`, and the returned query then throws. Wrap the query’s loop in a try block to continue past the throw. When `claimed` rejects with a message that starts with `option_not_applied`, the session is running without the `model` or `maxThinkingTokens` you asked for. After any other rejection your prompt hasn’t run, so start the session with `query()` instead.
 
 ###
 
@@ -1307,7 +1312,7 @@ Option| Type| Description
 `mcpServer`| `{ name: string; source: string }`| For an `mcp__*` tool, the MCP server that serves it and where that server’s definition came from, with the fields of `McpServerProvenance`. Absent for other tools. Requires Agent SDK v0.3.274 or later
 `decisionReason`| `string`| Explains why this permission request was triggered
 `defaultToNo`| `boolean`| When `true`, a single stray keystroke must not approve this request: open your prompt on its decline option, don’t pre-select approve, and offer no one-key approve shortcut. Requires Agent SDK v0.3.268 or later
-`suppressAlwaysAllowRule`| `boolean`| When `true`, don’t offer a persistent always-allow choice for this request, because the rule it would write grants more than the request’s own action. Requires Agent SDK v0.3.268 or later
+`suppressAlwaysAllowRule`| `boolean`| When `true`, don’t offer a persistent always-allow choice for this request. Requires Agent SDK v0.3.268 or later
 `toolUseID`| `string`| Unique identifier for this specific tool call within the assistant message
 `agentID`| `string`| If running within a sub-agent, the sub-agent’s ID
 `requestId`| `string`| The `control_request` envelope’s `request_id`. A `control_response` your application sends outside the SDK, such as a signed HTTP POST, must echo this value so the Claude Code process can match the reply to the request
@@ -5337,7 +5342,7 @@ Controls Claude’s thinking/reasoning behavior. Takes precedence over the depre
       | { type: "enabled"; budgetTokens?: number; display?: ThinkingDisplay } // Fixed thinking token budget
       | { type: "disabled" }; // No extended thinking
 
-The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `thinking` blocks. Claude Code doesn’t send `display` to Amazon Bedrock or Google Cloud’s Agent Platform, so on those providers Opus 4.7 and later return empty `thinking` blocks even when you set `display` to `"summarized"`.
+The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `thinking` blocks. Claude Code leaves `display` out of requests to some providers, such as Amazon Bedrock and Google Cloud’s Agent Platform. On those providers, Opus 4.7 and later return empty `thinking` blocks even when you set `display` to `"summarized"`.
 
 ###
 
@@ -5404,8 +5409,8 @@ Result of a `setMcpServers()` operation.
 
 When you call `setMcpServers()`, Claude Code applies these rules:
 
-  * **Servers the call doesn’t name** : Claude Code keeps plugin-provided servers running. Requires Agent SDK v0.3.210 or later.
-  * **Servers the call names** : except for built-in servers the CLI started at startup, Claude Code replaces a running server only when its config differs from the one you passed.
+  * **Servers the call doesn’t name** : outside a [cloud session](</docs/en/claude-code-on-the-web>), Claude Code disconnects the servers an earlier `setMcpServers()` call added and the in-process SDK servers, and lists them in `removed`. Other servers keep running and aren’t listed in `removed`, among them the stdio, HTTP, and SSE servers from the `mcpServers` option, servers from settings files, and plugin-provided servers.
+  * **Servers the call names** : Claude Code replaces a stdio, HTTP, or SSE server that an earlier `setMcpServers()` call added only when its config differs from the one you passed. An in-process SDK server already registered under that name stays as it is, so to swap one, leave it out of one call and add it in the next.
   * **Built-in servers the CLI started at startup** : if the call names one, Claude Code drops that entry and reports it in `errors`.
 
 The promise resolves after newly added stdio, HTTP, and SSE servers connect or fail, so tools from servers that connected are available on the next turn. `added` lists the servers Claude Code added or replaced, whether or not they connected. A server that failed to connect appears in both `added` and `errors`, with the failure text under `errors` and a `failed` row in `mcpServerStatus()`. Before Claude Code v2.1.257, a server whose connection attempt threw was reported only under `errors`.

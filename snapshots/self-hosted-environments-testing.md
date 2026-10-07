@@ -98,7 +98,7 @@ Claude Code creates the session, prints the session ID and a link to it, and exi
 
 Example script
 
-The script below runs the full loop against `$CLAUDE_TEST_ENVIRONMENT_ID`, your test environment’s `ccpool_...` ID, shown in the environment’s detail dialog on the admin page or returned by the create-environment call, and asserts on a sentinel phrase in each reply. Run it from a git checkout of the repository you want the session to work in, after starting a runner on this host with the capture hook installed and `E2E_REPLY_DIR` exported.
+The script below runs the full loop against `$CLAUDE_TEST_ENVIRONMENT_ID`, your test environment’s `ccpool_...` ID, shown in the environment’s detail dialog on the admin page or returned by the create-environment call, and asserts on a sentinel phrase in each reply. Run it from a git checkout of the repository you want the session to work in, after starting a runner on this host with the capture hook installed and `E2E_REPLY_DIR` exported. First sign in with a claude.ai account on the machine that runs the script, as Authenticate from CI describes. Without that sign-in, the first dispatch fails with an error such as `Unable to get organization UUID for cloud session creation`.
 
     #!/usr/bin/env bash
     # End-to-end test against a self-hosted environment, using Stop-hook read-back.

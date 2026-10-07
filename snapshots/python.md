@@ -191,7 +191,7 @@ Example
 
 `ToolAnnotations`
 
-Behavioral hints for a tool, passed as the `annotations` argument of `tool()`. `ToolAnnotations` extends the MCP SDK’s `mcp.types.ToolAnnotations` with a `maxResultSizeChars` field, and you can write each hint in camelCase or snake_case: `ToolAnnotations(readOnlyHint=True)` and `ToolAnnotations(read_only_hint=True)` are equivalent. You can also pass a plain `mcp.types.ToolAnnotations` wherever the SDK accepts annotations. The snake_case names and the typed `maxResultSizeChars` field require Python Agent SDK 0.2.140 or later. Versions 0.1.31 through 0.2.139 re-export `mcp.types.ToolAnnotations` unchanged. On versions 0.1.55 through 0.2.139 you can still pass `maxResultSizeChars` as a keyword argument: the MCP class accepts extra fields, and the SDK forwards the value to Claude Code. All fields are optional. Clients shouldn’t rely on the hints for security decisions.
+Behavioral hints for a tool, passed as the `annotations` argument of `tool()`. `ToolAnnotations` extends the MCP SDK’s `mcp.types.ToolAnnotations` with a `maxResultSizeChars` field, and you can write each hint in camelCase or snake_case: `ToolAnnotations(readOnlyHint=True)` and `ToolAnnotations(read_only_hint=True)` are equivalent. To read a hint back from the object, use the spelling your installed `mcp` package declares: `.readOnlyHint` on `mcp` 1.x and `.read_only_hint` on 2.x, while `.maxResultSizeChars` works on both. You can also pass a plain `mcp.types.ToolAnnotations` wherever the SDK accepts annotations. The snake_case names and the typed `maxResultSizeChars` field require Python Agent SDK 0.2.140 or later. Versions 0.1.31 through 0.2.139 re-export `mcp.types.ToolAnnotations` unchanged. On versions 0.1.55 through 0.2.139 you can still pass `maxResultSizeChars` as a keyword argument: the MCP class accepts extra fields, and the SDK forwards the value to Claude Code. All fields are optional. Clients shouldn’t rely on the hints for security decisions.
 
 Field| Type| Default| Description
 ---|---|---|---
@@ -1435,7 +1435,7 @@ Variant| Fields| Description
 `enabled`| `type`, `budget_tokens`, `display`| Enable thinking with a specific token budget
 `disabled`| `type`| Disable thinking
 
-The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `ThinkingBlock` outputs. Claude Code doesn’t send `display` to Amazon Bedrock or Google Cloud’s Agent Platform, so on those providers Opus 4.7 and later return empty `ThinkingBlock` outputs even when you set `display` to `"summarized"`. Because these are `TypedDict` classes, they’re plain dicts at runtime. Either construct them as dict literals or call the class like a constructor; both produce a `dict`. Access fields with `config["budget_tokens"]`, not `config.budget_tokens`:
+The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `ThinkingBlock` outputs. Claude Code leaves `display` out of requests to some providers, such as Amazon Bedrock and Google Cloud’s Agent Platform. On those providers, Opus 4.7 and later return empty `ThinkingBlock` outputs even when you set `display` to `"summarized"`. Because these are `TypedDict` classes, they’re plain dicts at runtime. Either construct them as dict literals or call the class like a constructor; both produce a `dict`. Access fields with `config["budget_tokens"]`, not `config.budget_tokens`:
 
     from claude_agent_sdk import ClaudeAgentOptions, ThinkingConfigEnabled
 
@@ -1829,6 +1829,7 @@ Key| Type| Description
 `maxOutputTokens`| `int`| Maximum output token limit for this model.
 `canonicalModel`| `str`| Canonical model ID used for the pricing lookup. May differ from the raw model string the entry is keyed by, such as a provider-specific ID or alias. Not always present.
 `provider`| `str`| API provider that served this model, such as `firstParty`, `bedrock`, `vertex`, `foundry`, `anthropicAws`, `mantle`, or `gateway`. Not always present.
+`costBasis`| `str`| Price table that priced this model’s latest request: `list` for list price, `managed` for a [`modelPricing`](</docs/en/settings-reference#modelpricing>) table, or `unknown` when neither matched the model ID. Not always present, and not declared on the TypedDict, so read it with `.get()`. Requires Claude Code v2.1.246 or later.
 
 ###
 
@@ -2121,7 +2122,7 @@ Base exception class for all SDK errors.
     class ClaudeSDKError(Exception):
         """Base error for Claude SDK."""
 
-When a single-shot `query()` ends with an error result, for example a turn-limit error, the SDK raises a `ResultError` after yielding the final result message. Python Agent SDK versions before 0.2.140 raised a plain `Exception` that wasn’t a `ClaudeSDKError` subclass.
+When a single-shot `query()` ends with an error result, for example a turn-limit error, the SDK raises a `ResultError`.
 
 ###
 
@@ -2173,7 +2174,7 @@ Raised when the Claude Code process fails.
 
 `ResultError`
 
-Raised after the final `ResultMessage` when the Claude Code process exits because the run ended with an error result, such as a turn-limit error or an API error. `ResultError` subclasses `ProcessError`, so an existing `except ProcessError` handler also catches it. Its attributes carry the fields of that result message, so you can branch on why the run failed without parsing the message text. Requires Python Agent SDK 0.2.140 or later.
+Raised when the Claude Code process exits because the run ended with an error result message, such as a turn-limit error or an API error. `ResultError` subclasses `ProcessError`, so an existing `except ProcessError` handler also catches it. Its attributes carry the fields of that result message, so you can branch on why the run failed without parsing the message text. Requires Python Agent SDK 0.2.140 or later.
 
     class ResultError(ProcessError):
         subtype: str | None  # "error_max_turns", "error_during_execution", ...; "success" when the run ended on a failed request
@@ -2602,7 +2603,7 @@ A discriminated union of event-specific `TypedDict` output types. The `hookEvent
         hookEventName: Literal["PostToolUse"]
         additionalContext: NotRequired[str]
         updatedToolOutput: NotRequired[Any]
-        updatedMCPToolOutput: NotRequired[Any]  # Deprecated: use updatedToolOutput, which works for all tools
+        updatedMCPToolOutput: NotRequired[Any]  # MCP tools only. Prefer updatedToolOutput, which works for all tools
 
     class PostToolUseFailureHookSpecificOutput(TypedDict):
         hookEventName: Literal["PostToolUseFailure"]
@@ -2709,7 +2710,7 @@ This example registers two hooks: one that blocks dangerous Bash commands like `
 
 Tool Input/Output Types
 
-Documentation of input/output schemas for all built-in Claude Code tools. While the Python SDK doesn’t export these as types, they represent the structure of tool inputs and outputs in messages. Each output shown is the value you read from `UserMessage.tool_use_result` for that tool. Key names appear exactly as Claude Code emits them. A key annotated `| None` with a “present when” or “optional” comment is omitted when it doesn’t apply.
+Documentation of input/output schemas for built-in Claude Code tools. While the Python SDK doesn’t export these as types, they represent the structure of tool inputs and outputs in messages. Each output shown is the value you read from `UserMessage.tool_use_result` for that tool. Key names appear exactly as Claude Code emits them. A key annotated `| None` with a “present when” or “optional” comment is omitted when it doesn’t apply.
 
 ###
 
