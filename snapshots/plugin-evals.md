@@ -104,7 +104,7 @@ When the suite finishes you see a summary table, followed by where the report we
 
 Open the report and iterate
 
-Open the `Published:` URL, or the `Report:` path when no `Published:` line appears, to see each grader’s verdict and explanation for every run, and for `llm` graders the judge’s votes and the excerpt it judged. The `Published:` line appears only when your account can publish reports.The most common first finding is a `Δ` near zero with the case’s `tool_used: Skill` grader failing, which means Claude isn’t choosing your skill on natural phrasing. Adjust the skill’s [`description`](</docs/en/skills#frontmatter-reference>), run `claude plugin eval .` again, and compare.To iterate on one case cheaply, run a single arm once. A single run is noisy, so confirm any change at the default three runs before you trust it. With one arm the table shows `SCORE` and `PASS%` columns instead of `WITH`, `W/OUT`, and `Δ`:
+Open the `Published:` URL, or the `Report:` path when no `Published:` line appears, to see each grader’s verdict and explanation for every run, and for `llm` graders the judge’s votes and the excerpt it judged. The `Published:` line appears only when your account can publish reports.The most common first finding is a `Δ` near zero with the case’s `tool_used: Skill` grader failing, which means Claude isn’t choosing your skill on natural phrasing. Adjust the skill’s [`description`](</docs/en/skills#frontmatter-reference>), run `claude plugin eval .` again, and compare.To iterate on one case with fewer runs, run a single arm once. A single run is noisy, so confirm any change at the default three runs before you trust it. With one arm the table shows `SCORE` and `PASS%` columns instead of `WITH`, `W/OUT`, and `Δ`:
 
     claude plugin eval . --case <case-name> --runs 1 --ablation none
 
@@ -293,7 +293,7 @@ A mock file’s body and frontmatter accept these options:
   * **Substitutions** : insert fields from the call’s input with `{{input.<field>}}`, and the contents of a fixture file beside the mock with `{{file:fixtures/{input.<field>}.json}}`.
   * **`expect:`** : the `expect:` block guards the input. If a call violates it, the run aborts with score 0 and records why, so a case can assert what your plugin asked the server to do.
   * **`error: true`** : set `error: true` to return the body as a tool error instead.
-  * **`type: agent`** : set `type: agent` to have the judge model answer as the server from instructions in the body.
+  * **`type: agent`** : set `type: agent` to have the judge model answer as the server from instructions in the body. Calls to agent mocks share one budget per run of four times the case’s `max_turns`, and a call past it aborts the run with score 0.
 
 The mock file reference lists every key and the `_server.md` and `_tools.json` files. To grade the calls themselves, point a grader at `target: mock_calls`. To run against the plugin’s real MCP servers instead, pass one of these flags. Either way those processes run as you, outside the run’s sandbox, and their tools need an `--allow-tools` grant:
 
@@ -450,7 +450,7 @@ Field| Meaning
 `cases[].aggregates.score`| Mean with-arm run score for the case
 `cases[].aggregates.delta`| With-arm score minus without-arm score. Omitted when the case ran one arm or the arms aren’t comparable
 `cases[].arms.with[].error`| `null`, or why a run ended abnormally, such as `timed out after 300s`. A run that started but ended badly is still graded on what it produced, so a non-null error doesn’t imply score 0
-`cases[].arms.with[].aborted`| Present when a mock’s `expect:` or `abort_when` stopped the run, with `server`, `tool`, and `reason`. The run scores 0 and `error` stays `null`
+`cases[].arms.with[].aborted`| Present when a mock stopped the run through `expect:`, `abort_when`, or the agent-mock call budget, with `server`, `tool`, and `reason`. The run scores 0 and `error` stays `null`
 `cases[].arms.with[].skippedPaidGraders`| `true` when the cost ceiling skipped this run’s judge graders, so its score isn’t comparable
 `costUsd`, `durationSeconds`, `claudeVersion`| Estimated cost at list price including judge calls, wall-clock seconds, and the Claude Code version that ran the suite
 
@@ -622,10 +622,25 @@ Key| Default| Purpose
 
 Two optional files sit beside the tool files in a server’s directory:
 
-  * **`_server.md`** : a single `type: agent` mock that answers several tools, listed in its `tools:` frontmatter key. A `<tool>.md` for the same tool takes precedence. Put an `expect:` guard on the individual `<tool>.md`, not here
+  * **`_server.md`** : a single `type: agent` mock that answers several tools, listed in its `tools:` frontmatter key. A `<tool>.md` for the same tool takes precedence. An `expect:` guard here is a load error unless `tools:` lists a single tool, so put the guard on the individual `<tool>.md` instead
   * **`_tools.json`** : a saved `tools/list` response from the real server, so mocked tools carry their real descriptions and input schemas instead of a permissive placeholder
 
 A case’s own `mocks/` directory uses the same layout and overrides the suite’s mocks file by file.
+
+####
+
+​
+
+Regex patterns in expect
+
+A `/regex/` value in `expect:` uses a small dialect that Claude Code checks when it loads the suite:
+
+  * Literal characters, `.`, escapes such as `\d`, and character classes such as `[a-z]`
+  * The quantifiers `*`, `+`, `?`, and the `{m,n}` forms, each on a single character, escape, or class
+  * An optional `^` at the start and `$` at the end
+  * The flags `i` and `s` only
+
+A pattern outside the dialect, such as one with a group, alternation, a backreference, lookaround, or another flag, stops the case from loading: the case scores 0 and its error names the pattern. To allow several exact values, write a list of literals instead of an alternation. Each pattern checks values only up to a maximum length, and a longer value counts as a violation. Quantifiers can lower that length, and a leading `^` raises it, so anchor patterns with `^` and keep quantifiers few.
 
 ##
 
@@ -752,6 +767,14 @@ That grader is excluded from the score by design in a two-arm run, and its `scor
 Runs fail with a usage-limit or rate-limit error partway through
 
 If your account reaches its plan’s usage limit or an API rate limit while a suite is running, each later run ends with that error, is graded on what it produced, and usually scores 0. The suite still finishes and isn’t marked `partial`, so the result can look like a regression. Check the `NOTES` column or `cases[].arms.with[].error` in the JSON for the limit message before trusting the scores, then re-run after the limit resets, with `--runs 1` or a `--case` filter if you need to stay under it.
+
+###
+
+​
+
+“mock call budget exceeded”
+
+Every `type: agent` mock in a run draws on one call budget of four times the case’s `max_turns`, which is 40 calls at the default of 10. Calls answered from `.replay/` recordings count too, and the case’s `mock budget` progress line prints the budget. A call past it aborts the run with score 0 and this reason, so raise `max_turns` in the case for a skill that makes many calls to agent mocks.
 
 ###
 

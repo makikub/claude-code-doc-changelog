@@ -575,7 +575,7 @@ Property| Type| Default| Description
 `extraArgs`| `Record<string, string | null>`| `{}`| Additional arguments
 `fallbackModel`| `string`| `undefined`| Model to use if the primary model fails. Accepts a comma-separated list. For the order and the cap, see [Fallback model chains](</docs/en/model-config#fallback-model-chains>). For guidance, see [Choose a model](</docs/en/agent-sdk/configuration#choose-a-model>)
 `forkSession`| `boolean`| `false`| When resuming with `resume`, fork to a new session ID instead of continuing the original session
-`forwardSubagentText`| `boolean`| `false`| Forward subagent text and thinking blocks as assistant and user messages with `parent_tool_use_id` set, so consumers can render a nested transcript. Without this option, Claude Code emits subagent `tool_use` and `tool_result` blocks but not text or thinking. Messages from subagents at every nesting depth are forwarded on Claude Code v2.1.219 and later; before v2.1.219, only messages from depth-1 subagents appeared. Messages of subagents that a forked skill spawns, and of nested forked skills, require v2.1.275 or later
+`forwardSubagentText`| `boolean`| `false`| Forward subagent text and thinking blocks as assistant and user messages with `parent_tool_use_id` set, so consumers can render a nested transcript. Without this option, Claude Code omits the text and thinking blocks of a subagent that runs in the [foreground](</docs/en/sub-agents#run-subagents-in-foreground-or-background>). For nested subagents, skills with `context: fork`, and the Claude Code version each needs, see [Follow subagent messages](</docs/en/headless#follow-subagent-messages>)
 `hooks`| `Partial<Record<``HookEvent``, ``HookCallbackMatcher``[]>>`| `{}`| Hook callbacks for events
 `includeHookEvents`| `boolean`| `false`| Include hook lifecycle events in the message stream as `SDKHookStartedMessage`, `SDKHookProgressMessage`, and `SDKHookResponseMessage`. Lifecycle events for `SessionStart` and `Setup` hooks are always included and don’t need this option. Some hook events, such as `Notification`, `SessionEnd`, `PreCompact`, and `PostCompact`, never produce an `SDKHookStartedMessage`, even with this option. For those events, Claude Code still emits an `SDKHookProgressMessage` while a command hook that runs for more than a second produces output, and emits an `SDKHookResponseMessage` only when a hook [that runs in the background](</docs/en/hooks#run-hooks-in-the-background>) finishes
 `includePartialMessages`| `boolean`| `false`| Include partial message events
@@ -3711,7 +3711,7 @@ ReportFindings
       }>;
     };
 
-Reports code-review findings as a structured list so Claude Code can render them instead of printing them as text. `level` is the effort level the review ran at. Findings are ordered most-severe first, with at most 32 per call, and the array is empty when none survived. Requires Claude Code v2.1.196 or later. Each finding carries these fields:
+Reports code-review findings as a structured list so Claude Code can render them instead of printing them as text. Findings are ordered most-severe first, with at most 32 per call, and the array is empty when none survived. Requires Claude Code v2.1.196 or later. `level` is optional and holds the effort level Claude reports for the review. Claude Code doesn’t compare it with the level the review ran at, so the two can differ. Each finding carries these fields:
 
   * `file`: repo-relative path the finding is in. The optional `line` is the 1-indexed line it anchors to.
   * `summary`: one-sentence statement of the defect. `failure_scenario` describes the concrete inputs and state that lead to the wrong output or crash.
@@ -4731,7 +4731,7 @@ ReportFindings
       }>;
     };
 
-Returns the number of findings reported, the effort level the review ran at, and the findings echoed back for the result body. Requires Claude Code v2.1.196 or later. The echoed `short_summary` field requires Claude Code v2.1.212 or later.
+Returns the number of findings reported, the `level` value Claude passed, and the findings echoed back for the result body. Requires Claude Code v2.1.196 or later. The echoed `short_summary` field requires Claude Code v2.1.212 or later.
 
 ###
 
@@ -5342,7 +5342,7 @@ Controls Claude’s thinking/reasoning behavior. Takes precedence over the depre
       | { type: "enabled"; budgetTokens?: number; display?: ThinkingDisplay } // Fixed thinking token budget
       | { type: "disabled" }; // No extended thinking
 
-The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `thinking` blocks. Claude Code leaves `display` out of requests to some providers, such as Amazon Bedrock and Google Cloud’s Agent Platform. On those providers, Opus 4.7 and later return empty `thinking` blocks even when you set `display` to `"summarized"`.
+The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `thinking` blocks. Claude Code doesn’t pass your `display` value to some providers, such as Amazon Bedrock and Google Cloud’s Agent Platform. On those providers, Opus 4.7 and later return empty `thinking` blocks even when you set `display` to `"summarized"`.
 
 ###
 
@@ -5703,12 +5703,15 @@ Emitted whenever the set of live background tasks changes: a task starts, comple
       tasks: {
         task_id: string;
         task_type: string;
+        subagent_type?: string;
         description: string;
         ambient?: boolean;
       }[];
       uuid: UUID;
       session_id: string;
     };
+
+`subagent_type` names the subagent type on entries whose `task_type` is `"local_agent"`, such as `general-purpose` or a custom subagent’s name. The field requires Agent SDK v0.3.293 or later.
 
 ###
 

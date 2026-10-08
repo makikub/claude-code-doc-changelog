@@ -59,6 +59,8 @@ A tool is for Claude. Register it with a name, a description Claude reads, and a
 
 When you ask about a ticket, Claude can call `mcp__my-mod__ticket` with its id. The second hook fetches the ticket and returns the response body, which Claude reads as the tool’s result. When the server answers with an error status, Claude reads `Lookup failed with status` and the number.
 
+When [MCP tool search](</docs/en/mcp#scale-with-mcp-tool-search>) defers a registered tool, Claude sees its name but not its description until it searches for it. If Claude should consider the tool on every turn, add [`isDeferred: false`](</docs/en/plugins/mods/reference#tools>) to the registration to [load the full tool upfront](</docs/en/mcp#exempt-a-server-from-deferral>). The field requires Claude Code v2.1.293 or later, and earlier versions ignore it.
+
 ##
 
 ​
@@ -186,7 +188,10 @@ Files and processes have a few rules of their own:
   * **`$.fs.list`** : returns one directory’s entries as `{ name, kind, size, isLink }` and isn’t recursive
   * **`$.process.run`** : takes an argument list and uses no shell. It resolves to `{ exitCode, stdout, stderr }` whatever the exit code. It rejects if the program can’t start or is still running at the timeout, which is 30 seconds by default, so wrap it in `try` and `catch`.
 
-Every one of these calls is itself an event, named for its namespace and method without the `$.`, such as `fs.read` for `$.fs.read`. A mod [earlier in the chain](</docs/en/plugins/mods/events#the-order-mods-run-in>) can observe, rewrite, or refuse your call, which is how an organization restricts what mods reach.
+Every one of these calls is itself an event, named for its namespace and method without the `$.`, such as `fs.read` for `$.fs.read`. A mod [earlier in the chain](</docs/en/plugins/mods/events#the-order-mods-run-in>) can observe, rewrite, or refuse your call, which is how an organization restricts what mods reach. A mod can refuse your `$.process.spawn` call after the command has produced output or exited, and nothing the command did is undone. The call then rejects with a message that ends with one of these strings and the refusing mod’s reason:
+
+  * **`$.process.spawn started, and a plugin withheld its result:`** : the refusing mod hadn’t read the command’s output to the end. Claude Code stops the command if it’s still running.
+  * **`$.process.spawn ran, and a plugin withheld its result:`** : the refusing mod had read the command’s output to the end, so the command had exited
 
 ##
 

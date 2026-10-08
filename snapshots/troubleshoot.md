@@ -26,7 +26,7 @@ Message includes| What it means
 `hooks modules are turned off here`| A setting is blocking your mods: `disableAllHooks` in your own settings, or your organization’s policy
 `hooks modules are turned off in this process`| Anthropic has turned installed mods off remotely. No setting on your machine turns them back on.
 
-An organization can also set `allowManagedModsOnly` to allow only its own mods, which this command doesn’t report. In that case a mod you install doesn’t load, and [a message says why](</docs/en/plugins/mods/troubleshoot#messages-from-the-built-in-guard>).
+An organization can also set `allowManagedModsOnly` to allow only its own mods, which this command doesn’t report. In that case Claude Code refuses a mod you install, and [a message says why](</docs/en/plugins/mods/troubleshoot#messages-from-the-built-in-guard>).
 
 ##
 
@@ -86,7 +86,7 @@ On a machine with managed settings, or for a user signed in with a Team or Enter
 
 Message contains| What it means| Where it appears
 ---|---|---
-`mods are limited to your organization's by policy (allowManagedModsOnly)`| Your organization allows only [its own mods](</docs/en/plugins/mods/admin#install-your-organizations-mods>), so yours wasn’t loaded| The debug log, and the transcript in a session that hot-reloads a plugin directory
+`mods are limited to your organization's by policy (allowManagedModsOnly)`| Your organization allows only [its own mods](</docs/en/plugins/mods/admin#install-your-organizations-mods>), so yours was refused| The debug log, and the transcript in a session that hot-reloads a plugin directory
 `tried to lift a deny rule in your settings`| Your mod’s [`tool.check`](</docs/en/plugins/mods/reference#tools>) hook approved a call that a `deny` rule refuses. The call stays denied.| The transcript and the debug log, once for each mod in a session. In a `claude -p` run, the debug log only.
 `the deny rules in your settings could not be checked for this call, so it is refused`| The guard failed while checking a call that a mod approved, so it refused the call| The reason Claude reads for the denied call
 

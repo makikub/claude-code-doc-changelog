@@ -12,7 +12,7 @@ The first two approaches in the table below run on the host operating system wit
 
 Approach| What is isolated| Requires Docker| Setup effort
 ---|---|---|---
-Sandboxed Bash tool| Bash, PowerShell, and Monitor commands and their child processes| No| Minimal on macOS; low on Linux and WSL2
+Sandboxed Bash tool| Bash, PowerShell, and Monitor tool commands and their child processes| No| Minimal on macOS; low on Linux and WSL2
 Sandbox runtime| The whole Claude Code process, including file tools, MCP servers, and hooks| No| Low
 Dev container| Full development environment| Yes| Medium
 Custom container| Full development environment| Yes| Medium to high
@@ -58,10 +58,10 @@ Sandboxed Bash tool
 
 This option does not support native Windows. On Windows hosts, use WSL2 or one of the container or VM approaches below.
 
-The sandboxed Bash tool is built into Claude Code. It uses operating system primitives to restrict the filesystem and network access of every Bash, PowerShell, or Monitor command Claude runs. Run the `/sandbox` command to open the sandbox panel and choose a mode. The [Sandboxing](</docs/en/sandboxing>) guide covers the approval modes, the default boundary, and how to widen or narrow it. The per-command sandbox does not cover everything that runs in a session:
+The sandboxed Bash tool is built into Claude Code. It uses operating system primitives to restrict the filesystem and network access of Bash, PowerShell, and Monitor tool commands Claude runs. Run the `/sandbox` command to open the sandbox panel and choose a mode. The [Sandboxing](</docs/en/sandboxing>) guide covers the approval modes, the default boundary, and how to widen or narrow it. The per-command sandbox does not cover everything that runs in a session:
 
   * Other [built-in tools](</docs/en/tools-reference>) such as Read, Edit, and WebFetch run inside the Claude Code process and do not spawn arbitrary code. [Permission rules](</docs/en/permissions>) for path or domain gate them instead.
-  * [MCP](</docs/en/mcp>) servers and [command hooks](</docs/en/hooks#command-hook-fields>) are separate processes that run unconstrained on the host.
+  * [MCP](</docs/en/mcp>) servers, [command hooks](</docs/en/hooks#command-hook-fields>), and [plugin monitors](</docs/en/plugins/components#monitors>) are separate processes that run unconstrained on the host. For other processes that run this way, see [What runs outside the sandbox](</docs/en/sandboxing#what-runs-outside-the-sandbox>).
 
 To put built-in tools, MCP servers, and hooks all behind one OS boundary, run the whole Claude Code process inside the sandbox runtime, the dev container, or a custom container.
 

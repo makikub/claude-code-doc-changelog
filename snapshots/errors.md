@@ -120,7 +120,7 @@ Message| Section
 `unable to get local issuer certificate`| Network
 `403` with `x-deny-reason: host_not_allowed` in a cloud or routine session| Network
 `proxy refused the connection`| Network
-`403` with `This GraphQL query is not enabled for this session` in a cloud session| [GitHub proxy](</docs/en/cloud-environments#github-proxy>)
+`403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session| [GitHub proxy](</docs/en/cloud-environments#github-proxy>)
 `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format`| Network
 `Couldn't reconnect to your Remote Control session`| Network
 `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.`| Network

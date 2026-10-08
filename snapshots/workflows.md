@@ -462,7 +462,12 @@ Workflows are available in the CLI, the Desktop app, the IDE extensions, [non-in
   * Set `"disableWorkflows": true` in `~/.claude/settings.json`. Persists across sessions.
   * Set `CLAUDE_CODE_DISABLE_WORKFLOWS=1`. Read at startup, so it applies wherever you set it.
 
-To turn workflows off for your whole organization, set `"disableWorkflows": true` in [managed settings](</docs/en/server-managed-settings>), or use the toggle on the [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>) page. When workflows are disabled, the bundled workflow commands and the `/workflow-authoring` skill are unavailable, the `ultracode` keyword no longer triggers a run, and the **Ultracode** toggle is removed from `/effort`. A run that was already in progress keeps going. Turning workflows off also makes ultracode unavailable. No managed setting rules out ultracode alone: wherever it’s [available](</docs/en/model-config#when-ultracode-is-available>), users can turn it on with `/effort ultracode`. An [effort cap](</docs/en/model-config#organization-effort-limits>) lowers the effort level a session with ultracode on runs at, but doesn’t turn ultracode off.
+To turn workflows off for your whole organization, set `"disableWorkflows": true` in [managed settings](</docs/en/server-managed-settings>), or use the toggle on the [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>) page. When workflows are disabled:
+
+  * `/workflows`, the workflow commands, and the `/workflow-authoring` skill are unavailable
+  * The `ultracode` keyword no longer triggers a run, and the **Ultracode** toggle is removed from `/effort`
+
+A run that was already in progress keeps going. Turning workflows off also makes ultracode unavailable. No managed setting rules out ultracode alone: wherever it’s [available](</docs/en/model-config#when-ultracode-is-available>), users can turn it on with `/effort ultracode`. An [effort cap](</docs/en/model-config#organization-effort-limits>) lowers the effort level a session with ultracode on runs at, but doesn’t turn ultracode off.
 
 ##
 

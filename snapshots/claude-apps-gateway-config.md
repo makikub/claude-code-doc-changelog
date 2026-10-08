@@ -800,8 +800,10 @@ An authenticated user who matches no policy gets the gateway’s defaults, which
 
 The gateway keeps no user directory of its own. It authorizes each request from the user’s IdP token, reading group membership from the token’s `groups` claim and evaluating policies against it. There is no roster to enumerate and no accounts to pre-create, and therefore no SCIM endpoint, because there is nothing for SCIM to sync into.Run user and group lifecycle management at the source of truth, which is your IdP’s native SCIM provisioning or a dedicated identity-governance platform. Membership and deprovisioning governed there flow into the gateway automatically through the token. If you want SCIM provisioning of Claude accounts themselves, that is a [Claude for Enterprise](</docs/en/admin-setup>) capability.Two propagation clocks apply:
 
-  * **Policy contents** : editing a policy and redeploying reaches connected clients on their next managed-settings poll, within an hour, apart from the [changes that apply only at the next launch](</docs/en/server-managed-settings#fetch-and-caching-behavior>)
+  * **Policy contents** : editing a policy and redeploying reaches connected Claude Code clients on their next managed-settings poll, within an hour, apart from the [changes that apply only at the next launch](</docs/en/server-managed-settings#fetch-and-caching-behavior>)
   * **Group membership** : changing a user’s group membership changes which policy matches them. This takes effect on the next session re-mint, meaning the next silent refresh, bounded by `session.ttl_hours`.
+
+Claude Desktop follows its own schedule.
 
 ####
 
@@ -938,14 +940,22 @@ If your organization also deploys [Claude Desktop](</docs/en/desktop>), the same
 
 Requires Claude Code v2.1.203 or later on the gateway server, and an explicit opt-in: `/user/bootstrap` returns 404 unless the policy matching the user carries a `desktop` key. An empty `desktop: {}` opts a policy in, and a `desktop` key on the `match: {}` base layer opts in every policy that inherits it. The audit log records each request as `desktop_bootstrap.serve` or `desktop_bootstrap.denied`.
 
-The gateway derives much of the response from the matched policy’s `cli` block and from top-level gateway config:
+If you don’t deploy Claude Desktop, leave `desktop` out of your policies entirely; the gateway then returns 404 from `/user/bootstrap` for every user.
+
+##### Settings the gateway derives for Claude Desktop
+
+The gateway derives much of the bootstrap response from the matched policy’s `cli` block and from top-level gateway config:
 
   * The model list, from `availableModels`. Extended context in Claude Desktop covers each model’s 1M context option
   * Disabled tools, from bare tool-name `permissions.deny` entries. If you set `disabledBuiltinTools` in the policy’s `desktop` block, the gateway serves the union of your value and the derived list, so you can disable more tools this way but can’t re-enable one you disabled through `permissions.deny`
   * The egress allowlist, from `sandbox.network.allowedDomains`. If you set `coworkEgressAllowedHosts` in the policy’s `desktop` block, the gateway uses that value instead of the derived list
   * An OTLP endpoint that points at the gateway itself, and the signed-in user’s identity attributes. The gateway relays the exports it receives at that endpoint to your `forward_to` destinations. It includes the endpoint and the attributes when you set both `telemetry.forward_to` and `listen.public_url`. Claude Desktop exports every signal with one encoding: `http/protobuf`, or `http/json` when you set `OTEL_EXPORTER_OTLP_PROTOCOL` or one of its per-signal variants to `http/json` in the policy’s `env`. Before Claude Code v2.1.261 on the gateway server, the response set `http/json` regardless, so a collector that accepts only protobuf rejected Claude Desktop’s exports
 
-To set `disabledBuiltinTools`, `coworkEgressAllowedHosts`, or Claude Desktop’s own `managedMcpServers` setting in a policy’s `desktop` block, you need Claude Code v2.1.232 or later on the gateway server. Claude Desktop’s `managedMcpServers` takes an array value rather than an object. The gateway omits keys with no Claude Desktop equivalent, such as `hooks` and scoped permission rules like `Bash(npm *)`, from the bootstrap response. Add the optional `desktop` block alongside `cli` to set Claude Desktop settings directly. Write settings from Claude Desktop’s [managed configuration reference](<https://claude.com/docs/third-party/claude-desktop/configuration>) as flat key names. Leave out keys Claude Desktop reads only from MDM or local files, such as `bootstrapUrl`; the gateway rejects them at boot. Before v2.1.232, the gateway accepted a fixed list of 11 feature-gate keys, such as `chatTabEnabled` and `disableAutoUpdates`, and rejected every other key at boot. Before v2.1.227, the gateway also rejected `chatTabEnabled` and `chatAdvancedFileAnalysisEnabled` at boot.
+To set `disabledBuiltinTools`, `coworkEgressAllowedHosts`, or Claude Desktop’s own `managedMcpServers` setting in a policy’s `desktop` block, you need Claude Code v2.1.232 or later on the gateway server. Claude Desktop’s `managedMcpServers` takes an array value rather than an object. The gateway omits keys with no Claude Desktop equivalent, such as `hooks` and scoped permission rules like `Bash(npm *)`, from the bootstrap response.
+
+##### Set Claude Desktop settings directly
+
+Add the optional `desktop` block alongside `cli` to set Claude Desktop settings directly. Write settings from Claude Desktop’s [managed configuration reference](<https://claude.com/docs/third-party/claude-desktop/configuration>) as flat key names. Leave out keys Claude Desktop reads only from MDM or local files, such as `bootstrapUrl`; the gateway rejects them at boot. This example sets three Claude Desktop keys for the `eng-contractors` group alongside its `cli` settings:
 
     managed:
       policies:
@@ -958,19 +968,40 @@ To set `disabledBuiltinTools`, `coworkEgressAllowedHosts`, or Claude Desktop’s
             disableAutoUpdates: true
             banner: { text: "Contractor build: internal use only" }
 
-Every key is optional; Claude Desktop applies its own default for any key you omit. The gateway validates each `desktop` block at boot against the configuration schema Claude Desktop itself uses, so a mistake surfaces at gateway start as an error naming the key rather than reaching every connected desktop. The gateway fails at boot when a block contains:
+Every key is optional; Claude Desktop applies its own default for any key you omit.
+
+##### What the gateway rejects at boot
+
+The gateway validates each `desktop` block at boot against the configuration schema Claude Desktop itself uses, so a mistake surfaces at gateway start as an error naming the key rather than reaching every connected desktop. The gateway fails at boot when a block contains:
 
   * An unknown key
   * A recognized key whose value Claude Desktop would reject or silently drop, such as an empty value or a misspelled sub-key inside a nested entry. Before v2.1.260, the gateway silently dropped a misspelled field inside a nested object of a `managedMcpServers` or `orgPluginSettings` entry instead of failing at boot.
   * A key the gateway computes itself: the inference connection, the model list, and the OTLP relay. Configure those through `upstreams`, `models`, and the `telemetry` section’s `forward_to`.
   * A legacy alias of a current key. In the boot error, the gateway names the canonical key to write.
 
-If you use a deprecated value or entry shape, such as a `managedMcpServers` entry without `transport`, the gateway starts and logs a warning that names the replacement. The gateway validates a `desktop` block against the schema bundled with its installed version, as it does the `cli` block. To deliver a setting introduced by a newer Claude Desktop release, upgrade the gateway first. For example, `userPluginMarketplacesEnabled` and `userPluginUploadsEnabled` need Claude Code v2.1.260 or later on the gateway server and Claude Desktop 1.37937.0 or later on members’ machines. `blockReadsOutsideWorkingDirectories`, `disableBypassPermissionsMode`, `configRecheckIntervalMinutes`, and `sshClientPath` need Claude Code v2.1.281 or later on the gateway server. So do the `required` value of `microsoftAuthBroker` and the `continuousAccessEvaluation` field of a Microsoft 365 `managedMcpServers` entry. Claude Desktop releases that predate the `required` value read it as `disabled`, so set `required` only after every member’s Claude Desktop supports it. Claude Desktop’s [managed configuration reference](<https://claude.com/docs/third-party/claude-desktop/configuration>) lists the release that first reads each key. If you set `orgPluginSettings` in a policy’s `desktop` block, the gateway serves it in the array form that Claude Desktop 1.15200.0 and later reads. Older desktops ignore the array and enforce no plugin tool policy, so update members to 1.15200.0 or later before you rely on it. The gateway fills in keys a policy’s `desktop` block doesn’t set from the `match: {}` catch-all’s `desktop` block, the same way it fills in a policy’s `cli` block from the base. If you set `disabledBuiltinTools` or `builtinToolPolicy` in both the base and a role policy, the gateway keeps the base’s restriction:
+If you use a deprecated value or entry shape, such as a `managedMcpServers` entry without `transport`, the gateway starts and logs a warning that names the replacement. Before v2.1.232, the gateway accepted a fixed list of 11 feature-gate keys, such as `chatTabEnabled` and `disableAutoUpdates`, and rejected every other key at boot. Before v2.1.227, the gateway also rejected `chatTabEnabled` and `chatAdvancedFileAnalysisEnabled` at boot.
+
+##### Keys that need a later gateway or Claude Desktop version
+
+The gateway validates a `desktop` block against the schema bundled with its installed version, as it does the `cli` block. To deliver a setting introduced by a newer Claude Desktop release, upgrade the gateway first. For example, `userPluginMarketplacesEnabled` and `userPluginUploadsEnabled` need Claude Code v2.1.260 or later on the gateway server and Claude Desktop 1.37937.0 or later on members’ machines. `blockReadsOutsideWorkingDirectories`, `disableBypassPermissionsMode`, `configRecheckIntervalMinutes`, and `sshClientPath` need Claude Code v2.1.281 or later on the gateway server. So do the `required` value of `microsoftAuthBroker` and the `continuousAccessEvaluation` field of a Microsoft 365 `managedMcpServers` entry. Claude Desktop releases that predate the `required` value read it as `disabled`, so set `required` only after every member’s Claude Desktop supports it. Claude Desktop’s [managed configuration reference](<https://claude.com/docs/third-party/claude-desktop/configuration>) lists the release that first reads each key. If you set `orgPluginSettings` in a policy’s `desktop` block, the gateway serves it in the array form that Claude Desktop 1.15200.0 and later reads. Older desktops ignore the array and enforce no plugin tool policy, so update members to 1.15200.0 or later before you rely on it.
+
+##### How a role policy inherits the base `desktop` block
+
+The gateway fills in keys a policy’s `desktop` block doesn’t set from the `match: {}` catch-all’s `desktop` block, the same way it fills in a policy’s `cli` block from the base. If you set `disabledBuiltinTools` or `builtinToolPolicy` in both the base and a role policy, the gateway keeps the base’s restriction:
 
   * `disabledBuiltinTools`: the gateway uses the union of the base’s list and the policy’s list
   * `builtinToolPolicy`: if you set a tool to a value other than `allow` in the base, the gateway keeps that value even if you set `allow` for the same tool in a role policy
 
-For every other key, if you set it in the role policy, the gateway uses the role policy’s value. The gateway replaces an array or a nested object such as `banner` whole, so if you set `banner.text` in a role policy, the gateway drops the base’s `banner.backgroundColor`. If you don’t deploy Claude Desktop, leave `desktop` out of your policies entirely; the gateway then returns 404 from `/user/bootstrap` for every user.
+For every other key, if you set it in the role policy, the gateway uses the role policy’s value. The gateway replaces an array or a nested object such as `banner` whole, so if you set `banner.text` in a role policy, the gateway drops the base’s `banner.backgroundColor`.
+
+##### When a policy change reaches Claude Desktop
+
+After you redeploy the gateway with a changed policy, Claude Desktop applies most settings only when it next starts:
+
+  * **Closed** : Claude Desktop fetches the bootstrap response when it starts, so the change applies from the next start
+  * **Open** : Claude Desktop checks for a changed response every 10 minutes by default and applies a few settings without a restart. For the rest, such as [`skillCreationEnabled`](<https://claude.com/docs/third-party/claude-desktop/configuration#skillcreationenabled>), the user sees a **Relaunch Claude Desktop** card in the sidebar and keeps the previous configuration until they restart the app. After 24 hours by default, Claude Desktop shows a restart dialog and restarts on its own after 2 minutes of inactivity
+
+To shorten the 24 hours, set [`relaunchEnforcementHours`](<https://claude.com/docs/third-party/claude-desktop/configuration#relaunchenforcementhours>) in the policy’s `desktop` block. You need Claude Code v2.1.260 or later on the gateway server and Claude Desktop 1.40609.0 or later on members’ machines. With `0`, the dialog appears as soon as Claude Desktop finds the change.
 
 ####
 

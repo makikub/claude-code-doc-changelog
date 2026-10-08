@@ -8,7 +8,7 @@ Subagents help you:
   * **Enforce constraints** by limiting which tools a subagent can use
   * **Reuse configurations** across projects with user-level subagents
   * **Specialize behavior** with focused system prompts for specific domains
-  * **Control costs** by routing tasks to faster, cheaper models like Haiku
+  * **Control costs** by routing tasks to faster, lower-cost models like Haiku
 
 Claude uses each subagent’s description to decide when to delegate tasks. When you create a subagent, write a clear description so Claude knows when to use it. Those descriptions take up context, so keep them short. When the combined descriptions of your subagents, except the built-in ones, exceed 15,000 tokens, Claude Code shows a [warning at startup with the total token count](</docs/en/errors#agent-descriptions-are-over-the-15000-token-limit>). Trim the `description` fields of your subagents, and move detail into each subagent’s system prompt, which only loads when that subagent runs.
 
@@ -304,7 +304,7 @@ When Claude invokes a subagent, it can also pass a `model` parameter for that sp
   3. The [`CLAUDE_CODE_SUBAGENT_MODEL`](</docs/en/model-config#environment-variables>) environment variable, when you set it to a model alias or model ID
   4. The main conversation’s model
 
-In two cases, a family alias such as `opus` in the per-invocation parameter or the frontmatter resolves to the main conversation’s model instead of the [version the alias points to](</docs/en/model-config#model-aliases>):
+If an installed [mod](</docs/en/plugins/mods/overview>) sets a model in its [`agent.spawn`](</docs/en/plugins/mods/reference#subagents>) hook, Claude Code uses that model in place of the per-invocation parameter. In two cases, a family alias such as `opus` in the per-invocation parameter or the frontmatter resolves to the main conversation’s model instead of the [version the alias points to](</docs/en/model-config#model-aliases>):
 
   * **The main conversation’s model belongs to that family** : the subagent runs on the main conversation’s exact model, including any `[1m]` suffix, so it gets the same [extended context](</docs/en/model-config#extended-context>) window as the main conversation.
   * **Claude Code can’t tell the main conversation’s model family, on[a provider other than the Anthropic API](</docs/en/third-party-integrations>)**: this can happen with an [application inference profile ARN](</docs/en/amazon-bedrock#iam-configuration>) on Amazon Bedrock that Claude Code hasn’t resolved to a backing model. This case covers only the `opus` alias, and doesn’t apply when you set [`ANTHROPIC_DEFAULT_OPUS_MODEL`](</docs/en/model-config#environment-variables>), since `opus` then resolves to the model you set.
@@ -963,7 +963,7 @@ Each subagent invocation creates a new instance rather than continuing an earlie
 
   * When a subagent completes, Claude receives its agent ID.
   * The built-in Explore and Plan agents are one-shot and return no agent ID, so Claude can’t resume them. Use `general-purpose` or a custom subagent when you need to continue the work.
-  * When a subagent stops at its `maxTurns` limit, Claude Code marks the returned output as partial. For subagents that return an agent ID, Claude Code also notes in the result that Claude can message the subagent to continue from where it stopped.
+  * When a subagent stops at its `maxTurns` limit, Claude Code marks the returned output as partial, and Claude can resume the subagent to continue its work.
 
 Claude uses the `SendMessage` tool with the agent’s ID or name as the `to` field to resume it. `SendMessage` doesn’t require [agent teams](</docs/en/agent-teams>) to be enabled; only structured team-protocol messages such as `shutdown_request` and `plan_approval_response` do. Beyond subagents and teammates, in sessions where cross-session messaging is enabled, Claude can use the same tool to message [your other Claude Code sessions](</docs/en/cross-session-messaging>), on this machine or [beyond it](</docs/en/cross-session-messaging#message-sessions-on-other-machines>). To resume a subagent, ask Claude to continue the previous work:
 
@@ -1050,7 +1050,7 @@ Model| Same as main session| From the subagent’s `model` field
 Permissions| Prompts surface in your terminal| Prompts surface in your main session when running in the background
 Prompt cache| Shared with main session| Separate cache
 
-Because a fork’s system prompt and tool definitions are identical to the parent, its first request reuses the parent’s [prompt cache](</docs/en/prompt-caching#subagents-and-the-cache>). This makes forking cheaper than spawning a fresh subagent for tasks that need the same context. When Claude spawns a fork through the Agent tool, it can pass `isolation: "worktree"` so the fork’s file edits are written to a separate git worktree instead of your checkout. A fork can’t spawn further forks.
+Because a fork’s system prompt and tool definitions are identical to the parent, its first request reuses the parent’s [prompt cache](</docs/en/prompt-caching#subagents-and-the-cache>). Because of that reuse, a fork costs less than a fresh subagent for tasks that need the same context. When Claude spawns a fork through the Agent tool, it can pass `isolation: "worktree"` so the fork’s file edits are written to a separate git worktree instead of your checkout. A fork can’t spawn further forks.
 
 ###
 
