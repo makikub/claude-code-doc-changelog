@@ -270,7 +270,7 @@ Parameter| Type| Description
 `options.version`| `string`| Optional version string
 `options.instructions`| `string`| Optional server instructions, returned from `initialize` and surfaced to the model as an MCP instructions block
 `options.tools`| `Array<SdkMcpToolDefinition>`| Array of tool definitions created with `tool()`
-`options.alwaysLoad`| `boolean`| When `true`, every tool from this server stays in the initial prompt instead of being deferred behind [tool search](</docs/en/agent-sdk/tool-search>). Combines with per-tool `alwaysLoad` in `tool()`
+`options.alwaysLoad`| `boolean`| When `true`, this server’s tools stay in the initial prompt instead of being deferred behind [tool search](</docs/en/agent-sdk/tool-search>). Combines with per-tool `alwaysLoad` in `tool()`
 `options.timeout`| `number`| Timeout in milliseconds for this server’s tool calls. Claude Code applies it to this server in place of [`MCP_TOOL_TIMEOUT`](</docs/en/env-vars>). Pass a whole number of at least 1000. Claude Code ignores other values. Requires TypeScript Agent SDK v0.3.248 or later
 
 ###
@@ -581,7 +581,7 @@ Property| Type| Default| Description
 `includePartialMessages`| `boolean`| `false`| Include partial message events
 `loadTimeoutMs`| `number`| `60000`|  _Alpha._ Timeout in milliseconds for each `sessionStore.load()` and `sessionStore.listSubkeys()` call during resume materialization. If the adapter doesn’t settle within this window, the query fails instead of hanging. Ignored when `sessionStore` is not set
 `managedSettings`| `Settings`| `undefined`| Policy-tier settings your host process supplies to the spawned session. On machines with admin-deployed managed settings, Claude Code ignores these unless the admin’s highest-priority managed source sets `parentSettingsBehavior: 'merge'`, and never merges them while a [`policyHelper`](</docs/en/settings-reference#policyhelper>) supplies managed settings. Merged values pass through a restrictive-only filter; [Restrict parent settings](</docs/en/claude-apps-gateway#restrict-parent-settings>) covers what the filter admits and the `allowManaged*Only` locks. A host that sets [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](</docs/en/env-vars>) has three keys read straight from this payload instead: its [model configuration](</docs/en/model-config#restrict-model-selection>) on Claude Code v2.1.222 or later, [`modelPricing`](</docs/en/settings-reference#modelpricing>) when no managed source sets it on v2.1.246 or later, and its `ENABLE_TOOL_SEARCH` env entry on v2.1.247 or later
-`maxBudgetUsd`| `number`| `undefined`| Stop the query when the client-side cost estimate reaches this USD value. Counts only the call’s own spend; totals restored from a resumed session don’t count. For accuracy caveats and reset behavior, see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>)
+`maxBudgetUsd`| `number`| `undefined`| Stop the query when the client-side cost estimate reaches this USD value. The estimate can pass this value, so [leave headroom](</docs/en/agent-sdk/agent-loop#budget-headroom>). Counts only the call’s own spend; totals restored from a resumed session don’t count. For accuracy caveats and reset behavior, see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>)
 `maxThinkingTokens`| `number`| `undefined`|  _Deprecated:_ Use `thinking` instead. Maximum tokens for thinking process
 `maxTurns`| `number`| `undefined`| Maximum agentic turns (tool-use round trips)
 `mcpServers`| `Record<string, [`McpServerConfig`](#mcpserverconfig)>`| `{}`| MCP server configurations
@@ -643,7 +643,7 @@ The CLI subprocess reads several environment variables that control API timeouts
     });
 
   * `API_TIMEOUT_MS`: per-request timeout on the Anthropic client, in milliseconds. Default `600000`. Applies to the main loop and all subagents.
-  * `CLAUDE_CODE_MAX_RETRIES`: maximum API retries. Default `10`, capped at `15`. Each retry gets its own `API_TIMEOUT_MS` window, so worst-case wall time is roughly `API_TIMEOUT_MS × (CLAUDE_CODE_MAX_RETRIES + 1)` plus backoff. For unattended runs that need to wait through longer outages, set [`CLAUDE_CODE_RETRY_WATCHDOG=1`](</docs/en/errors#tune-retry-behavior>): it retries transient capacity errors indefinitely and, on Claude Code v2.1.199 or later, raises the default for other transient errors to `300` and removes the cap on this variable.
+  * `CLAUDE_CODE_MAX_RETRIES`: maximum API retries. Default `10`, capped at `15`. Each retry gets its own `API_TIMEOUT_MS` window. For unattended runs that need to wait through longer outages, set [`CLAUDE_CODE_RETRY_WATCHDOG=1`](</docs/en/errors#tune-retry-behavior>): it retries transient capacity errors indefinitely and, on Claude Code v2.1.199 or later, raises the default for other transient errors to `300` and removes the cap on this variable.
   * `CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS`: stall watchdog for subagents. While the stream watchdog is on, the default is `CLAUDE_STREAM_IDLE_TIMEOUT_MS` plus 5 minutes, which comes to `600000` unless you raise that variable. With the stream watchdog off, the default is `600000`. Before v2.1.257, the default was always `600000`. The timer resets on each stream event. On a stall, Claude Code aborts the subagent and reports the stall to the parent. For a background subagent, it also marks the task failed and attaches any partial result.
   * `CLAUDE_ENABLE_STREAM_WATCHDOG` with `CLAUDE_STREAM_IDLE_TIMEOUT_MS`: stream watchdog that aborts the request when headers have arrived but the response body stops streaming. The watchdog is on by default for all providers; set `CLAUDE_ENABLE_STREAM_WATCHDOG=0` to disable it. `CLAUDE_STREAM_IDLE_TIMEOUT_MS` defaults to `300000` and is clamped to that minimum. After the abort, [Automatic retries](</docs/en/errors#automatic-retries>) covers what Claude Code does, based on how far the response had progressed. While the watchdog waits out a response that a gateway behind `ANTHROPIC_BASE_URL` holds open with keep-alive pings, a host that sets `includePartialMessages` keeps receiving `ping` stream events, so read those frames as liveness rather than timing the session out on silence. Before v2.1.257, the frames stopped 5 minutes after the last real stream event.
 
@@ -1532,6 +1532,7 @@ Assistant response message.
       parent_tool_use_id: string | null;
       error?: SDKAssistantMessageError;
       aborted?: true;
+      agent_id?: string;
       timestamp?: string;
       context_usage?: SDKContextUsage;
       user_message_uuid?: string;
@@ -1546,7 +1547,7 @@ The `message` field is a [`BetaMessage`](<https://platform.claude.com/docs/en/ap
   * `'account_on_hold'`: [your account is on hold](</docs/en/errors#your-account-is-on-hold>)
   * `'cloud_credential_error'`: Claude Code couldn’t obtain usable AWS or Google Cloud credentials on the machine it runs on, so no request reached the cloud provider. The usual cause is a cloud sign-in that expired or was never completed on that machine, though a briefly unreachable credential service reports the same value. See [Could not load AWS or Google Cloud credentials](</docs/en/errors#could-not-load-aws-or-google-cloud-credentials>). Requires TypeScript Agent SDK v0.3.267 or later, which bundles Claude Code v2.1.267
 
-`aborted` is `true` when an interrupt or abort truncated the assistant message before the stream completed: the message has no `stop_reason` and the content may end mid-word. The field is absent on normally completed messages. It requires Agent SDK v0.3.214 or later. Claude Code sets `user_message_uuid` and `user_message_uuids` on the turn’s first assistant message, under the conditions in `user_message_uuid`. When Claude Code re-runs a turn that a restart interrupted, the re-run’s assistant messages that carry those fields also carry `resume_reason`. `timestamp` is the ISO 8601 time when the message’s content finished generating on the process that produced it. The value comes from that machine’s clock, so use it for display only and don’t order messages by it. One API turn can produce several assistant messages that share a `message.id`, each with its own `timestamp`. When the field is absent, fall back to the time you received the message. `context_usage` is a structured copy of the `/context` report, typed as `SDKContextUsage`, and requires Agent SDK v0.3.232 or later. When you send `/context` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the markdown table, and attaches `context_usage` to that same message. Claude Code doesn’t set the field on any other assistant message, and earlier versions deliver the `/context` table without it, so read the breakdown from the field when it’s present and fall back to the markdown text when it isn’t.
+`aborted` is `true` when an interrupt or abort truncated the assistant message before the stream completed: the message has no `stop_reason` and the content may end mid-word. The field is absent on normally completed messages. It requires Agent SDK v0.3.214 or later. `agent_id` identifies the subagent that produced the message and is absent on main-thread messages. The value equals the `task_id` on that subagent’s `task_started` and other task events, and is unchanged when the subagent is [resumed](</docs/en/agent-sdk/subagents#resume-subagents>). The field requires Agent SDK v0.3.292 or later. Match a subagent’s messages to its task events on `agent_id` rather than pairing a message’s `parent_tool_use_id` with a task event’s `tool_use_id`. When a tool call resumes the subagent, the task events carry that call’s `tool_use_id`, while the messages keep the `parent_tool_use_id` of the tool call that first started the subagent, so the two no longer match. Claude Code sets `user_message_uuid` and `user_message_uuids` on the turn’s first assistant message, under the conditions in `user_message_uuid`. When Claude Code re-runs a turn that a restart interrupted, the re-run’s assistant messages that carry those fields also carry `resume_reason`. `timestamp` is the ISO 8601 time when the message’s content finished generating on the process that produced it. The value comes from that machine’s clock, so use it for display only and don’t order messages by it. One API turn can produce several assistant messages that share a `message.id`, each with its own `timestamp`. When the field is absent, fall back to the time you received the message. `context_usage` is a structured copy of the `/context` report, typed as `SDKContextUsage`, and requires Agent SDK v0.3.232 or later. When you send `/context` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the markdown table, and attaches `context_usage` to that same message. Claude Code doesn’t set the field on any other assistant message, and earlier versions deliver the `/context` table without it, so read the breakdown from the field when it’s present and fall back to the markdown text when it isn’t.
 
 ###
 
@@ -1560,6 +1561,7 @@ User input message.
       type: "user";
       uuid?: UUID;
       session_id?: string;
+      agent_id?: string;
       message: MessageParam; // From Anthropic SDK
       pasted_content?: MessageParam["content"][];
       parent_tool_use_id: string | null;
@@ -1592,7 +1594,7 @@ This message, sent while a turn is running, asks Claude to change course without
       origin: { kind: "human" },
     };
 
-On a message that carries a `tool_result` block, `tool_use_result` is the tool’s structured output object rather than the text sent to the model. Its shape depends on the tool named by the matching `tool_use` block, so the field is typed `unknown`; the built-in shapes are listed under Tool Output Types. These results need handling beyond their listed shape:
+A user message that a subagent produces, such as the `tool_result` for one of its own tool calls, carries `agent_id`. See `SDKAssistantMessage`, which defines the field and its version requirement. On a message that carries a `tool_result` block, `tool_use_result` is the tool’s structured output object rather than the text sent to the model. Its shape depends on the tool named by the matching `tool_use` block, so the field is typed `unknown`; the built-in shapes are listed under Tool Output Types. These results need handling beyond their listed shape:
 
   * The `Agent` tool: `tool_use_result` is `AgentOutput`. Render from it rather than parsing the `tool_result` text. A `completed` result’s `content` holds the subagent’s report, or, for a subagent whose report goes through a `SubagentHandback` tool call, a short note about that hand-back in place of the report. In [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) on Claude Code v2.1.271 or later, every subagent that produces a `completed` result reports that way unless it is a [fork](</docs/en/sub-agents#fork-the-current-conversation>), and Claude receives the report as a separate message from the subagent.
   * A WebFetch or WebSearch call that Claude Code moved to the background to deliver a `'now'` message: the user message carrying that call’s `tool_result` has `tool_use_result` set to `{ detachedToolCall: true }`. The call is still running, and Claude receives its result once it finishes. No second `tool_result` for that `tool_use_id` follows, so if your application draws a row for each tool call, mark this row as moved to the background when this message arrives. Requires Claude Code v2.1.287 or later.
@@ -1712,7 +1714,7 @@ Several fields on the result carry diagnostic detail beyond `subtype`:
   * `ttft_stream_ms`: time in milliseconds until the first `message_start` stream event, when the response stream opens. Lower than `ttft_ms`; the gap between the two is time spent streaming the first message. Present on the success arm only.
   * `user_message_uuid`: the `uuid` of the message you sent that this turn answered. See `user_message_uuid` for which results carry it.
   * `user_message_uuids`: the `uuid`s of every message you sent that Claude Code answered in this turn. See `user_message_uuids`.
-  * `resume_reason`: why Claude Code re-ran this turn after a restart interrupted it. Present on both arms, and only on such a re-run. See `resume_reason`.
+  * `resume_reason`: why Claude Code re-ran this turn after a restart interrupted it. Present on both arms. See `resume_reason`.
   * `local_command`: the name of the command the turn dispatched, on the success result of a turn that a command completed without entering the agent loop, such as `/compact`. The name is folded to lowercase letters and underscores, so `/reload-plugins` reports `reload_plugins`. A command that an MCP server provides, and the built-in `/mcp`, report `mcp`. A command you defined yourself reports `custom`. The arguments are never included. Absent on every turn that entered the agent loop and on sends that ran no command. Requires Agent SDK v0.3.268 or later.
   * `request_sent_wall_ms`: epoch milliseconds at which Claude Code dispatched the API request, for joins against server-side timestamps. Present only together with `user_message_uuid`, on a success result with `is_error` false whose turn sent an API request.
   * `first_content_frame_ms`: time in milliseconds until the first `content_block_start` or `content_block_delta` stream event, counting thinking blocks as content. Present on the success arm only, when `is_error` is false. Requires Agent SDK v0.3.260 or later.
@@ -1789,7 +1791,7 @@ Why Claude Code re-ran this turn after a restart. Claude Code sets this field on
   * **The re-run’s result** : on the success and error arms alike, whether or not the result carries `user_message_uuid`.
   * **The re-run’s reply frames** : those that carry `user_message_uuid`.
 
-The value is a short lowercase token naming why the turn was re-run, such as `interrupted_turn`. The field is absent on every other turn.
+The value is a short lowercase token naming why the turn was re-run, such as `interrupted_turn`.
 
 ####
 
@@ -1830,7 +1832,9 @@ Why Claude Code refused to start, so your application can offer the fix instead 
       | "worktree_resume_refused"
       | "worktree_unverified"
       | "cli_version_too_old"
-      | "bypass_root";
+      | "bypass_root"
+      | "org_config_required_unavailable"
+      | "org_config_refused";
 
 Each value names one refusal:
 
@@ -1853,6 +1857,8 @@ Value| What stopped the session
 `worktree_unverified`| The session’s worktree couldn’t be verified right now, and retrying may succeed
 `cli_version_too_old`| This Claude Code version is below the minimum Anthropic requires
 `bypass_root`| Bypass permissions mode was requested while running as root
+`org_config_required_unavailable`| The session needs the organization’s policies and managed settings before it can start, and they couldn’t be loaded, for example because of a network failure or an Anthropic server error. Requires Agent SDK v0.3.293 or later
+`org_config_refused`| Anthropic refused to provide the organization’s policies and managed settings for this sign-in, for example because the sign-in expired or was revoked, or the organization doesn’t allow Claude Code for this account. Requires Agent SDK v0.3.293 or later
 
 ###
 
@@ -1926,7 +1932,7 @@ Field| Type| Description
 
 `SDKPartialAssistantMessage`
 
-Streaming partial message (only when `includePartialMessages` is true). The `parent_tool_use_id` field is always `null`: stream events are emitted for the main session only. For subagent attribution, use complete messages, which carry `parent_tool_use_id`, or enable `forwardSubagentText` to receive subagent text and thinking as complete messages.
+Streaming partial message (only when `includePartialMessages` is true). The `parent_tool_use_id` field is always `null`: stream events are emitted for the main session only. For subagent attribution, use complete messages, which carry `agent_id` and `parent_tool_use_id`, or enable `forwardSubagentText` to receive subagent text and thinking as complete messages.
 
     type SDKPartialAssistantMessage = {
       type: "stream_event";
@@ -3131,6 +3137,7 @@ The `mode` field is deprecated and ignored on Claude Code v2.1.212 or later. A s
       prompt: string;
       subagent_type?: string;
       model?: "sonnet" | "opus" | "haiku" | "fable";
+      effort?: "low" | "medium" | "high" | "xhigh" | "max";
       run_in_background?: boolean;
       name?: string;
       team_name?: string; // Deprecated; ignored
@@ -3344,9 +3351,10 @@ WebFetch
     type WebFetchInput = {
       url: string;
       prompt: string;
+      offset?: number;
     };
 
-Fetches content from a URL and processes it with an AI model.
+Fetches content from a URL and processes it with an AI model. `offset` is the number of characters to skip from the start of the page. Claude sets it to keep reading a long page. The field requires Agent SDK v0.3.290 or later.
 
 ###
 
@@ -3751,7 +3759,7 @@ Publishes a local `.html` or `.md` file as a hosted artifact page, or lists the 
   * `title`: names the published page in the browser tab and gallery when the HTML file has no `<title>` tag.
   * `url`: targets an existing artifact to update in place instead of creating a new one.
 
-`force` is a last-resort overwrite that discards a newer version another session published. On a conflict, the failed publish returns the newer content; Claude merges its changes onto that content, or re-reads the artifact, and publishes again. Pass `force` only when the user explicitly asks to discard that version. Pass `"list"` to enumerate the user’s published artifacts; only `limit` and `scope` may accompany it. `scope` defaults to `"mine"`, which lists artifacts the user owns; `"shared"` lists artifacts other people shared with the user, and `"all"` lists both.
+`force` is a last-resort overwrite that discards a newer version another session published. On a conflict, the failed publish returns the newer content; Claude merges its changes onto that content, or re-reads the artifact, and publishes again. Pass `force` only when the user explicitly asks to discard that version. Pass `"list"` to enumerate the user’s published artifacts; only `limit` and `scope` may accompany it. `scope` defaults to `"mine"`, which lists artifacts the user owns; `"shared"` lists artifacts other people shared with the user, and `"all"` lists both. `limit` sets the most artifacts a listing returns, from 1 to 200. A `limit` above 50 requires Agent SDK v0.3.292 or later. Without `limit`, a listing returns up to 25.
 
   * `capabilities`: the runtime capabilities the published page uses, keyed by capability name, such as the [connectors the page may call](</docs/en/artifacts#pull-live-data-with-mcp-connectors>). The artifact service validates the declaration and rejects a publish that names a capability the account can’t use or gives one an invalid config. Pass `{}` to clear a stored declaration, and omit the field on a redeploy to keep it. Requires Agent SDK v0.3.235 or later.
   * `contract`: the runtime version the published page runs against. Omit it to keep the artifact’s current version, pass `"latest"` to upgrade, or pass a specific version to pin or roll back. Requires Agent SDK v0.3.235 or later.
@@ -4765,10 +4773,12 @@ Artifact
             rel?: "mine" | "shared";
           }>;
           truncated?: boolean;
+          total?: number;
+          total_at_least?: true;
           scope?: "shared" | "all";
         };
 
-Returns the published page’s `url` and the local `path` that was published for the publish action, with `updated` set to true when the publish redeployed an existing artifact, and `warnings` carrying any publish-time advisories. The list action returns the `artifacts` rows instead, with `truncated` set when more artifacts exist than the requested limit. On listings whose scope isn’t `"mine"`, each row carries `rel` marking whether the user owns the artifact or it was shared with them, and the output’s `scope` records which non-default scope produced the listing; both are absent on default listings.
+Returns the published page’s `url` and the local `path` that was published for the publish action, with `updated` set to true when the publish redeployed an existing artifact, and `warnings` carrying any publish-time advisories. The list action returns the `artifacts` rows instead, with `truncated` set when more artifacts exist than the requested limit. On listings whose scope isn’t `"mine"`, each row carries `rel` marking whether the user owns the artifact or it was shared with them, and the output’s `scope` records which non-default scope produced the listing; both are absent on default listings. A list result also reports `total`, the number of artifacts that match the listed scope, including ones beyond `limit`. When `total_at_least` is set, that number is a lower bound and more artifacts may exist. Both fields require Agent SDK v0.3.292 or later.
 
 ###
 
@@ -5627,6 +5637,7 @@ Emitted when a task begins. The `task_type` field is `"local_bash"` for Bash com
       task_type?: string;
       is_backgrounded?: boolean;
       spawn_depth?: number;
+      parent_task_id?: string;
       ambient?: boolean;
       uuid: UUID;
       session_id: string;
@@ -5637,7 +5648,13 @@ Emitted when a task begins. The `task_type` field is `"local_bash"` for Bash com
   * `is_backgrounded`: Claude Code sets it on `"local_agent"` and `"local_bash"` tasks. `true` means the task runs in the background. `false` means the task runs in the foreground, and the tool call that started it stays blocked until the task finishes or moves to the background.
   * `spawn_depth`: Claude Code sets it on `"local_agent"` tasks only. A subagent that the main thread spawned has depth `1`. A subagent that a depth `1` subagent spawned has depth `2`, and so on.
 
-A [resumed subagent](</docs/en/agent-sdk/subagents#resume-subagents>) always reports `is_backgrounded: true`, because Claude Code runs every resumed subagent in the background. When a foreground task moves to the background later, Claude Code reports the new `is_backgrounded` value in a `task_updated` message rather than sending a second `task_started`.
+A [resumed subagent](</docs/en/agent-sdk/subagents#resume-subagents>) always reports `is_backgrounded: true`, because Claude Code runs every resumed subagent in the background. When a foreground task moves to the background later, Claude Code reports the new `is_backgrounded` value in a `task_updated` message rather than sending a second `task_started`. `parent_task_id` holds the `task_id` of the subagent that launched this task. Use it to group each task under the subagent that started it. Claude Code sets it on subagent, Bash, and Monitor tasks. The field requires Agent SDK v0.3.292 or later. It is absent when:
+
+  * The main thread launched the task
+  * Claude Code no longer tracks the parent task
+  * A [teammate](</docs/en/agent-teams>) or an agent inside a workflow launched the task
+
+The parent can be a foreground task or one that already ended, so treat an ID you don’t recognize as no parent.
 
 ###
 
@@ -5695,7 +5712,7 @@ Emitted when a background task’s state changes, such as when it transitions fr
 
 `SDKBackgroundTasksChangedMessage`
 
-Emitted whenever the set of live background tasks changes: a task starts, completes, is killed, a foreground agent is backgrounded, or a task’s `description` or `ambient` field changes. The `tasks` array is the full live set. Replace any cached set with each payload instead of pairing `task_started` and `task_notification` events, so the next membership change corrects any event you missed. Ordering relative to those per-task events is unspecified, so don’t correlate the two streams. Nothing is emitted at startup. Reset to an empty set whenever the session’s CLI process starts or restarts and let the next membership change repopulate it. When you send a repeated `initialize` control request to a running session, such as with `reinitialize()` after a transport gap, Claude Code follows the response with a snapshot of the current live set, even when it is empty. A reconnecting host therefore learns what is running without waiting for the next membership change. Before Agent SDK v0.3.239, Claude Code sent no snapshot after a repeated `initialize`. Requires Claude Code v2.1.203 or later.
+Emitted whenever the set of live background tasks changes: a task starts, completes, or is killed; a foreground agent is backgrounded; or a task’s `description`, `ambient`, or `parent_task_id` field changes. For the `parent_task_id` field on each entry, see `SDKTaskStartedMessage`, which defines it and its version requirement. The `tasks` array is the full live set. Replace any cached set with each payload instead of pairing `task_started` and `task_notification` events, so the next membership change corrects any event you missed. When a task ends, its `task_updated` and `task_notification` arrive before the `background_tasks_changed` that drops it from the list. Ordering relative to the per-task events is otherwise unspecified. Nothing is emitted at startup. Reset to an empty set whenever the session’s CLI process starts or restarts and let the next membership change repopulate it. When you send a repeated `initialize` control request to a running session, such as with `reinitialize()` after a transport gap, Claude Code follows the response with a snapshot of the current live set, even when it is empty. A reconnecting host therefore learns what is running without waiting for the next membership change. Before Agent SDK v0.3.239, Claude Code sent no snapshot after a repeated `initialize`. Requires Claude Code v2.1.203 or later.
 
     type SDKBackgroundTasksChangedMessage = {
       type: "system";
@@ -5705,6 +5722,7 @@ Emitted whenever the set of live background tasks changes: a task starts, comple
         task_type: string;
         subagent_type?: string;
         description: string;
+        parent_task_id?: string;
         ambient?: boolean;
       }[];
       uuid: UUID;

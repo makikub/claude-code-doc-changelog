@@ -20,10 +20,13 @@ TypeScript
 
     options = ClaudeAgentOptions(can_use_tool=handle_tool_request)
 
-    async function handleToolRequest(toolName, input, options) {
+    import type { CanUseTool } from "@anthropic-ai/claude-agent-sdk";
+
+    const handleToolRequest: CanUseTool = async (toolName, input, options) => {
       // options includes { signal: AbortSignal, suggestions?: PermissionUpdate[] }
-      // Prompt user and return allow or deny
-    }
+      // Prompt the user here, then return allow or deny
+      return { behavior: "deny", message: "User declined" };
+    };
 
     const options = { canUseTool: handleToolRequest };
 
@@ -391,7 +394,8 @@ TypeScript
         // Include AskUserQuestion in your tools list
         tools: ["Read", "Glob", "Grep", "AskUserQuestion"],
         canUseTool: async (toolName, input) => {
-          // Handle clarifying questions here
+          // Placeholder that approves every call. The Detect AskUserQuestion step replaces it.
+          return { behavior: "allow", updatedInput: input };
         }
       }
     })) {
@@ -705,6 +709,7 @@ TypeScript
     asyncio.run(main())
 
     import { query } from "@anthropic-ai/claude-agent-sdk";
+    import type { PermissionResult } from "@anthropic-ai/claude-agent-sdk";
     import * as readline from "readline/promises";
 
     // Helper to prompt user for input in the terminal
@@ -725,7 +730,7 @@ TypeScript
     }
 
     // Display Claude's questions and collect user answers
-    async function handleAskUserQuestion(input: any) {
+    async function handleAskUserQuestion(input: any): Promise<PermissionResult> {
       const answers: Record<string, string> = {};
 
       for (const q of input.questions) {

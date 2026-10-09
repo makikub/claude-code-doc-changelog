@@ -920,7 +920,7 @@ Property| Type| Default| Description
 `resume`| `str | None`| `None`| Session ID to resume
 `session_id`| `str | None`| `None`| Use a specific session ID instead of an auto-generated one. Must be a valid UUID. Can’t be combined with `continue_conversation` or `resume` unless `fork_session` is also set
 `max_turns`| `int | None`| `None`| Maximum agentic turns (tool-use round trips)
-`max_budget_usd`| `float | None`| `None`| Stop the query when the client-side cost estimate reaches this USD value. Counts only the call’s own spend; totals restored from a resumed session don’t count. For accuracy caveats and reset behavior, see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>)
+`max_budget_usd`| `float | None`| `None`| Stop the query when the client-side cost estimate reaches this USD value. The estimate can pass this value, so [leave headroom](</docs/en/agent-sdk/agent-loop#budget-headroom>). Counts only the call’s own spend; totals restored from a resumed session don’t count. For accuracy caveats and reset behavior, see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>)
 `disallowed_tools`| `list[str]`| `[]`| Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`, for the command [as written](</docs/en/permissions#bash-rule-limits>). See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `enable_file_checkpointing`| `bool`| `False`| Enable file change tracking for rewinding. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
 `model`| `str | None`| `None`| Claude model alias or full model name. See [accepted values and provider-specific IDs](</docs/en/model-config#available-models>)
@@ -979,7 +979,7 @@ The CLI subprocess reads several environment variables that control API timeouts
     )
 
   * `API_TIMEOUT_MS`: per-request timeout on the Anthropic client, in milliseconds. Default `600000`. Applies to the main loop and all subagents.
-  * `CLAUDE_CODE_MAX_RETRIES`: maximum API retries. Default `10`, capped at `15`. Each retry gets its own `API_TIMEOUT_MS` window, so worst-case wall time is roughly `API_TIMEOUT_MS × (CLAUDE_CODE_MAX_RETRIES + 1)` plus backoff. For unattended runs that need to wait through longer outages, set [`CLAUDE_CODE_RETRY_WATCHDOG=1`](</docs/en/errors#tune-retry-behavior>): it retries transient capacity errors indefinitely and, on Claude Code v2.1.199 or later, raises the default for other transient errors to `300` and removes the cap on this variable.
+  * `CLAUDE_CODE_MAX_RETRIES`: maximum API retries. Default `10`, capped at `15`. Each retry gets its own `API_TIMEOUT_MS` window. For unattended runs that need to wait through longer outages, set [`CLAUDE_CODE_RETRY_WATCHDOG=1`](</docs/en/errors#tune-retry-behavior>): it retries transient capacity errors indefinitely and, on Claude Code v2.1.199 or later, raises the default for other transient errors to `300` and removes the cap on this variable.
   * `CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS`: stall watchdog for subagents. While the stream watchdog is on, the default is `CLAUDE_STREAM_IDLE_TIMEOUT_MS` plus 5 minutes, which comes to `600000` unless you raise that variable. With the stream watchdog off, the default is `600000`. Before v2.1.257, the default was always `600000`. The timer resets on each stream event. On a stall, Claude Code aborts the subagent and reports the stall to the parent. For a background subagent, it also marks the task failed and attaches any partial result.
   * `CLAUDE_ENABLE_STREAM_WATCHDOG` with `CLAUDE_STREAM_IDLE_TIMEOUT_MS`: stream watchdog that aborts the request when headers have arrived but the response body stops streaming. The watchdog is on by default for all providers; set `CLAUDE_ENABLE_STREAM_WATCHDOG=0` to disable it. `CLAUDE_STREAM_IDLE_TIMEOUT_MS` defaults to `300000` and is clamped to that minimum. After the abort, [Automatic retries](</docs/en/errors#automatic-retries>) covers what Claude Code does, based on how far the response had progressed. While the watchdog waits out a response that a gateway behind `ANTHROPIC_BASE_URL` holds open with keep-alive pings, a host that sets `include_partial_messages` keeps receiving `ping` `StreamEvent` messages. Read those frames as liveness rather than timing the session out on silence. Before v2.1.257, the frames stopped 5 minutes after the last real stream event.
 
@@ -3194,6 +3194,7 @@ WebFetch
     {
         "url": str,  # The URL to fetch content from
         "prompt": str,  # The prompt to run on the fetched content
+        "offset": int | None,  # Number of characters to skip from the start of the page. Requires Python Agent SDK 0.2.164 or later
     }
 
 **Output:**

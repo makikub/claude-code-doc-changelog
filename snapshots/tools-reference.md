@@ -181,7 +181,7 @@ For long-running processes such as dev servers or watch builds, Claude can set `
 
 When a background command stops
 
-A command that a [foreground subagent](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) started stops when that subagent’s run ends, whether it finished, failed, or was interrupted. A command that the main conversation or a background subagent started keeps running after a final response, until it exits, is stopped, or reaches its time limit. In non-interactive mode with the `-p` flag, [background commands end shortly after the run’s final result](</docs/en/headless#background-tasks-at-exit>).
+A command that a [foreground subagent](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) started stops when that subagent’s run ends, whether it finished, failed, or was interrupted. A command that the main conversation or a background subagent started keeps running after a final response, until it exits, is stopped, or reaches its time limit. While a command that the main conversation started is still running, a run in non-interactive mode with the `-p` flag [stays open after its result](</docs/en/headless#background-tasks-at-exit>) until that command exits or reaches its time limit. A command that a background subagent started is stopped when the run exits.
 
 ####
 
@@ -194,7 +194,7 @@ In a session that runs unattended, such as a run with the `-p` flag, an Agent SD
   * A command that Claude starts in the background gets 30 minutes, or the `timeout` Claude passes with `run_in_background`, up to a maximum of 2 hours
   * A command that starts in the foreground and then moves to the background, for example at its timeout, gets 30 minutes from the move
 
-When a background command reaches its time limit, Claude Code stops it and tells Claude why, and Claude can start the command again with a longer `timeout` if the work still needs it. The stop notice reads `Background command "<description>" was stopped after reaching its background time limit`.
+In a run with the `-p` flag whose prompt you pass as text rather than with `--input-format stream-json`, both defaults are 10 minutes instead of 30, because the run [waits for background commands after its result](</docs/en/headless#background-tasks-at-exit>). When a background command reaches its time limit, Claude Code stops it and tells Claude why, and Claude can start the command again with a longer `timeout` if the work still needs it. The stop notice reads `Background command "<description>" was stopped after reaching its background time limit`.
 
 ####
 
@@ -202,9 +202,9 @@ When a background command reaches its time limit, Claude Code stops it and tells
 
 Raise the time limit for background commands
 
-Two [environment variables](</docs/en/env-vars>) raise these limits, for Bash and PowerShell commands alike. Both take milliseconds, and neither can shorten a limit: a lower value leaves the 30-minute default and the 2-hour maximum in place.
+Two [environment variables](</docs/en/env-vars>) raise these limits, for Bash and PowerShell commands alike. Both take milliseconds, and neither can shorten a limit: a lower value leaves the defaults and the 2-hour maximum in place.
 
-  * Set `BASH_DEFAULT_TIMEOUT_MS` above `1800000` to replace the 30-minute default with that value, both for commands Claude starts without a `timeout` and for moved commands
+  * Set `BASH_DEFAULT_TIMEOUT_MS` above `1800000` to replace the 30-minute default with that value, both for commands Claude starts without a `timeout` and for moved commands. In a `-p` run whose prompt you pass as text, any value above `600000` replaces its 10-minute default
   * Set `BASH_MAX_TIMEOUT_MS` above `7200000` to raise the 2-hour maximum to that value. Setting `BASH_DEFAULT_TIMEOUT_MS` above `7200000` raises the maximum the same way
 
 ####
@@ -259,7 +259,7 @@ The Edit tool performs exact string replacement. It takes an `old_string` and a 
   * **Match** : `old_string` must appear in the file exactly as written. A single character of whitespace or indentation difference is enough to miss.
   * **Uniqueness** : `old_string` must appear exactly once. When it appears more than once, Claude either supplies a longer string with enough surrounding context to pin down one occurrence, or sets `replace_all: true` to replace them all.
 
-A file that changed on disk after Claude last read it can still be edited when `old_string` matches the current content exactly and unambiguously and Claude Code can read the file without prompting. Matching against the file’s current content keeps this safe, and the result notes that the file carries other changes so Claude re-reads it before edits that depend on surrounding content. In any other case, such as a stale `old_string` or one that matches more than once without `replace_all`, Claude reads the file again before editing. The relaxed handling of unread and changed files requires Claude Code v2.1.208 or later; before that, Claude Code refused any edit to a file it hadn’t read in the conversation or that changed on disk after the read. Viewing a file with Bash also satisfies the read-before-edit requirement when the command is `cat`, `nl`, `bat`, `batcat`, `head`, `tail`, `sed -n 'X,Yp'`, `grep`, `egrep`, `fgrep`, or `rg` on a single file with no pipes or redirects. Piped output and other Bash commands don’t count toward the read-before-edit check. Viewing a file with Bash affects edit eligibility only, not permissions. See [Read and Edit permission rules](</docs/en/permissions#read-and-edit>) for which Bash commands your `Read` and `Edit` deny rules cover.
+A file that changed on disk after Claude last read it can still be edited when `old_string` matches the current content exactly and unambiguously and Claude Code can read the file without prompting. Matching against the file’s current content keeps this safe, and the result notes that the file carries other changes so Claude re-reads it before edits that depend on surrounding content. In any other case, such as a stale `old_string` or one that matches more than once without `replace_all`, Claude reads the file again before editing. The relaxed handling of unread and changed files requires Claude Code v2.1.208 or later; before that, Claude Code refused any edit to a file it hadn’t read in the conversation or that changed on disk after the read. Viewing a file with Bash also satisfies the read-before-edit requirement when the command is `cat`, `nl`, `bat`, `batcat`, `head`, `tail`, `sed -n 'X,Yp'`, `grep`, `egrep`, `fgrep`, or `rg` on a single file with no pipes or redirects. Piped output and other Bash commands don’t count toward the read-before-edit check. When Claude views a file this way, Claude Code also loads any [subdirectory `CLAUDE.md`](</docs/en/memory#how-claude-md-files-load>) and [path-scoped rules](</docs/en/memory#path-specific-rules>) that apply to that file. See [Read and Edit permission rules](</docs/en/permissions#read-and-edit>) for which Bash commands your `Read` and `Edit` deny rules cover.
 
 ##
 
@@ -592,7 +592,7 @@ WebFetch takes a URL and a prompt describing what to extract. It fetches the pag
 
   * WebFetch refuses `localhost` and any other hostname without a dot, such as a bare intranet name, before making a request. The [error it returns](</docs/en/errors#webfetch-cannot-fetch-localhost>) tells Claude to reach local servers with `curl` through Bash instead.
   * HTTP URLs are automatically upgraded to HTTPS.
-  * Large pages are truncated to a fixed character limit before processing.
+  * WebFetch reads up to 100,000 characters of a page’s content per call. On Claude Code v2.1.290 or later, the result for a longer page tells Claude how much went unread, so Claude can fetch the next part.
   * WebFetch caches each response for 15 minutes by default, so repeated fetches of the same URL return quickly. On Claude Code v2.1.233 or later, set [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](</docs/en/env-vars#variables>) to change how long WebFetch keeps each response.
   * A page that hasn’t finished downloading within five minutes, including any redirects WebFetch follows, fails with a deadline error. On Claude Code v2.1.268 or later, set [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](</docs/en/env-vars#variables>) to change the limit, or to `0` to remove it.
   * When a URL redirects to a different host, WebFetch returns a text result that names the original URL and the redirect target instead of following it. Claude then fetches the new URL with a second WebFetch call.
@@ -630,7 +630,11 @@ WebSearch is available on the Claude API, [Claude Platform on AWS](</docs/en/cla
 
 Session search limit
 
-An interactive terminal session can make 200 WebSearch calls, counted across the main conversation and every [subagent](</docs/en/sub-agents>) it spawns, so searches made by parallel research fan-outs count against the same limit. The limit requires Claude Code v2.1.212 or later. When Claude reaches the limit, further calls return a notice telling Claude to continue with the information it already gathered, rather than an error that would invite a retry. You don’t see the notice: a capped call appears in the conversation as a search that did nothing, and if Claude needs more searches, the notice tells it to ask you to raise the limit. Set the [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](</docs/en/env-vars>) environment variable to change the cap; it accepts a positive whole number, so the cap can be raised but not turned off. An interactive terminal session’s limit refills at about 100 calls per hour, and [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](</docs/en/env-vars#variables>) sets the rate. Running [`/clear`](</docs/en/commands#all-commands>) resets the count. If work that can still spawn [subagents](</docs/en/sub-agents>) survives the clear, such as a running workflow, the count carries over instead.
+An interactive terminal session has a limit of 200 WebSearch calls. Searches from the main conversation and from [subagents](</docs/en/sub-agents>), such as a parallel research fan-out, count against the same limit. The limit requires Claude Code v2.1.212 or later. While a session is at the limit, searches appear in the conversation as calls that did nothing. Claude gets a notice telling it to continue with the information it already gathered and, if it needs more searches, to ask you to raise the limit. To get more searches, raise the cap, wait for the limit to refill, or start a new conversation:
+
+  * **Raise the cap** : set the [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](</docs/en/env-vars#variables>) environment variable to a positive whole number, such as `500`. The cap can be raised but not turned off.
+  * **Wait for the refill** : on Claude Code v2.1.290 or later, an interactive terminal session’s limit refills at about 100 calls per hour. To change the rate, set [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](</docs/en/env-vars#variables>) to a number of calls per hour, such as `50`.
+  * **Start a new conversation** : running [`/clear`](</docs/en/commands#all-commands>) at the Claude Code prompt also resets the count. If work that can still spawn subagents survives the clear, such as a running workflow, the count carries over instead.
 
 ##
 

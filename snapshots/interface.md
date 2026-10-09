@@ -266,7 +266,7 @@ Field| What it does
 `title`| The pane’s tab label when more than one pane is open
 `focus`| Requests keyboard focus
 `closeOnEscape`| Makes Esc close the pane
-`holdToasts`| Holds toasts, the small notices from [`$.ui.toast`](</docs/en/plugins/mods/api#show-something-without-starting-a-turn>), until the pane closes
+`holdToasts`| In the terminal, holds toasts while this pane is the one showing. See Hold toasts behind a dialog.
 `rows`| The height to ask for when the pane sits above the prompt. The default is a third of the space.
 `columns`| The width to ask for when the pane sits beside the transcript
 
@@ -276,6 +276,14 @@ Field| What it does
     await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 
 To let a command open the pane while Claude is working, add `immediate: true` when you [register the command](</docs/en/plugins/mods/api#add-a-command>). Without it, a command typed during a turn waits for the turn to end.
+
+####
+
+​
+
+Hold toasts behind a dialog
+
+Pass `holdToasts: true` to `$.ui.open` when the pane is a dialog the user answers and leaves, so toasts don’t appear while they decide. In the terminal, the hold lasts while that pane is the one showing, and a toast raised in that time waits until the hold ends. Claude Code holds other mods’ toasts and its own short-lived notifications as well as the ones your mod raises with [`$.ui.toast`](</docs/en/plugins/mods/api#show-something-without-starting-a-turn>). Leave the field off a pane that stays open, so the user keeps seeing them.
 
 ####
 
@@ -360,6 +368,28 @@ Element| What it draws| Where
 `Raster`, `Image`| A grid of colored cells, and a picture| Terminal
 
 If your module is a `.tsx` or `.jsx` file, you can write the tree as JSX. Destructure the elements from `$.ui.resolve(e)` first. If a tree uses an element the app doesn’t have, a prop an element doesn’t take, or a child where none goes, Claude Code draws its own version of the site. In a session started with `--plugin-dir`, a transcript line says so, such as `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`. The [debug log](</docs/en/plugins/mods/troubleshoot#read-the-debug-log>) records it as `ui.render (Pane): a hook returned a tree that does not validate` with the same reason. Nothing else appears in the session, so when a drawing doesn’t show up, check that line or the log.
+
+###
+
+​
+
+`Link` in the Desktop app
+
+In the Desktop app, a `Link` draws as plain text unless its `href` meets these requirements:
+
+  * **Scheme and host** : an `https:` URL, or an `http://localhost` URL such as `http://localhost:3000`
+  * **No`@`**: write an `@` in the path or query as `%40`
+  * **Spelling** : what `new URL(href).href` returns, apart from a missing `/` after the host. That excludes an uppercase host, a space, and `:443` on an `https:` URL.
+
+In the terminal, these requirements don’t apply.
+
+###
+
+​
+
+When a `Client` fails
+
+In the terminal, when the file a `Client` runs fails, a dimmed line such as `my-mod: Client client/spinner.js: boom` takes the `Client`’s place, and the rest of your drawing still shows. If your mod handles [`ui.fault`](</docs/en/plugins/mods/reference#interface>), Claude Code then draws the site again.
 
 ###
 

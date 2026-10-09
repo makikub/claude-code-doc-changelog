@@ -87,7 +87,7 @@ Admin and analytics
 Organization-level controls and usage visibility. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud’s Agent Platform| Microsoft Foundry
 ---|---|---|---|---|---|---
 [Analytics dashboard and API](</docs/en/analytics>)| ✓ (dashboard: Team and Enterprise; API: Enterprise)| ✓ 4| ✗| ✗| ✗| ✗
-[Server-managed settings](</docs/en/server-managed-settings>)| ✓ (Team and Enterprise)| ✓ (Team and Enterprise)| ✗| ✗| ✗| ✗
+[Server-managed settings](</docs/en/server-managed-settings>)| ✓ (Team and Enterprise)| See [Platform availability](</docs/en/server-managed-settings#platform-availability>)| ✗| ✗| ✗| ✗
 [Zero Data Retention](</docs/en/zero-data-retention>)| ✓ (qualified Enterprise accounts)| ✓ (qualified accounts)| See note 3| ✓ (qualified accounts)| See note 3| See note 3
 1 On Google Cloud’s Agent Platform, web search is available for Claude 4 models and later.
 2 On these providers, auto mode supports only Claude Sonnet 5 or later, Opus 4.7 or later, Haiku 5.5, and the Fable models. See [Auto mode configuration](</docs/en/auto-mode-config>). For the permission mode a session on these providers starts in, see [Which mode a session starts in](</docs/en/permission-modes#which-mode-a-session-starts-in>). In v2.1.158 through v2.1.206, auto mode on these providers also required setting `CLAUDE_CODE_ENABLE_AUTO_MODE=1`; v2.1.207 removed the requirement.
@@ -149,7 +149,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>).
 
-**Not available:** all features that require a Claude subscription.Everything in CLI capabilities that vary by provider is available, except that [fast mode](</docs/en/fast-mode>) requires [provisioned access](</docs/en/fast-mode#enable-fast-mode-for-your-organization>). [Server-managed settings](</docs/en/server-managed-settings>) are also available when your API key belongs to a Team or Enterprise organization.
+**Not available:** all features that require a Claude subscription.Everything in CLI capabilities that vary by provider is available, except that [fast mode](</docs/en/fast-mode>) requires [provisioned access](</docs/en/fast-mode#enable-fast-mode-for-your-organization>). [Server-managed settings](</docs/en/server-managed-settings>) that you configure in a claude.ai Team or Enterprise organization don’t reach a session that authenticates with a Console API key. See [Platform availability](</docs/en/server-managed-settings#platform-availability>) for how to cover those sessions.
 
 ##
 
