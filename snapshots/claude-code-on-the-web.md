@@ -79,7 +79,7 @@ From the CLI, session handoff is one-way: you can pull cloud sessions into your 
 
 ​
 
-From terminal to cloud
+Start a cloud session from your terminal
 
 Start a cloud session from the command line with the `--cloud` flag:
 
@@ -177,7 +177,7 @@ Pass `--output-format json` for a machine-readable result: `{ok, session_id, url
 
 ​
 
-From cloud to terminal
+Continue a cloud session in your terminal
 
 Pull a cloud session into your terminal using any of these:
 
@@ -455,7 +455,7 @@ Environment expired
 Cloud sessions stop after a period of inactivity and the session’s VM is reclaimed. A session counts as inactive while it waits for you to approve an [MCP connector](</docs/en/cloud-environments#network-access>) tool call or to sign in to an MCP server, and it can expire during that wait. Reopen the session from [claude.ai/code](<https://claude.ai/code>) to provision a fresh VM:
 
   * **Restored** : your conversation history
-  * **Not restored** : background work that was still running when the VM was reclaimed, such as subagents and shell commands
+  * **Not restored** : background work that was still running when the VM was reclaimed, such as subagents and shell commands, and the pending wakeup of a [self-paced `/loop`](</docs/en/scheduled-tasks#let-claude-choose-the-interval>). To restart the loop, run `/loop` again.
 
 ##
 

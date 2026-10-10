@@ -311,7 +311,7 @@ You can dispatch new background sessions from agent view, send or copy an existi
 
 ​
 
-From agent view
+Dispatch an agent from agent view
 
 Type a prompt in the input at the bottom of agent view and press `Enter` to start a new background session. The session is named automatically from the prompt; rename it later with `Ctrl+R`. The automatic name is a short label written by a [Haiku-class model](</docs/en/model-config>). A name the session gets later also appears on its row, including the [generated title](</docs/en/sessions#name-your-sessions>) the session gets when you [accept a plan](</docs/en/permission-modes#review-and-approve-a-plan>) in that session. Paste an image into the prompt to include a screenshot or diagram with the task. Pasted text longer than 800 characters or more than three lines collapses to a `[Pasted text #N]` placeholder so the input stays on one line; the full text is sent when you dispatch. To review or edit the collapsed text before dispatching, paste the same text again and the placeholder expands back into the input. Prefix or mention parts of the prompt to control how the session starts:
 
@@ -356,7 +356,7 @@ When agent view is grouped by directory, dispatching sends the prompt to the sel
 
 ​
 
-From inside a session
+Send or copy a session to the background
 
 Two commands move work from the session you’re in to the background: `/background` sends the current conversation there and frees your terminal, and `/fork` sends a copy while you keep working where you are.
 
@@ -405,7 +405,7 @@ Directories you added during the session with [`/add-dir`](</docs/en/permissions
 
 ​
 
-From your shell
+Dispatch an agent from your shell
 
 Pass `--bg` or its long form `--background` to start a session that goes straight to the background:
 
@@ -644,7 +644,7 @@ Command| Purpose
 `claude daemon logs`| Follow the supervisor’s log file, `~/.claude/daemon.log`, printing new lines as they arrive until you press `Ctrl+C`
 `claude daemon stop --any`| Stop the supervisor process and the background sessions it hosts. Pass `--keep-workers` to leave background sessions running so the next supervisor reconnects to them. The next `claude agents` or `claude --bg` starts a fresh supervisor
 
-`claude attach` and `claude logs` can take part of a running session’s name in place of the ID, as in `claude logs "auth refactor"`. Passing a name requires Claude Code v2.1.290 or later.
+`claude attach` and `claude logs` can take part of a session’s name in place of the ID, as in `claude logs "auth refactor"`. Passing a name requires Claude Code v2.1.290 or later.
 
 ###
 
@@ -919,7 +919,7 @@ Agent view has evolved quickly during research preview. If you are on an older C
 
 Version| Change
 ---|---
-v2.1.290| `claude attach` and `claude logs` can take part of a running session’s name in place of the ID.
+v2.1.290| `claude attach` and `claude logs` can take part of a session’s name in place of the ID.
 v2.1.290| `/model`, `/effort`, `/rename`, and `/usage` sent as a peek reply to a working session run right away.
 v2.1.290| A peek reply that can’t be delivered is no longer saved for the next restart when it starts with `/`, or when it answers a question with predefined choices while the session’s process is running.
 v2.1.288| `Ctrl+F` finds sessions by name, and `Alt+↑` / `Alt+↓` jump between group headers. Both, and `Ctrl+R`, can be [rebound](</docs/en/keybindings#agents-actions>).

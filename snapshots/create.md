@@ -171,7 +171,7 @@ You can load a plugin for a single session in three ways: from a directory or `.
 
 ​
 
-From a directory or `.zip`
+Load a plugin from a directory or `.zip`
 
 When you start `claude` from your shell, pass `--plugin-dir` with the plugin’s root directory or a `.zip` archive of it. Repeat the flag to load several plugins:
 
@@ -181,7 +181,7 @@ When you start `claude` from your shell, pass `--plugin-dir` with the plugin’s
 
 ​
 
-From a folder of plugins
+Load a folder of plugins
 
 To load several plugins from one place, pass a folder that holds them, such as `--plugin-dir ./plugins`. Loading a folder of plugins requires Claude Code v2.1.265 or later. If the folder has no `.claude-plugin/` directory and no plugin components at its top level, Claude Code treats it as a folder of plugins. Each immediate subfolder that has a `.claude-plugin/plugin.json` manifest then loads as a separate plugin. Everything else in the folder is skipped without an error, including a subfolder that has no manifest. If a plugin in the folder doesn’t load, check that its subfolder has a `.claude-plugin/plugin.json`. You can also pass a folder that keeps a `.claude-plugin/marketplace.json` beside its plugin folders. As long as that `.claude-plugin/` directory holds no `plugin.json`, the plugin folders still load. Nothing is installed or enabled from the marketplace file, because Claude Code doesn’t read it. Loading plugins from such a folder requires Claude Code v2.1.281 or later. In an interactive session, you can also add and remove plugins in the folder after startup:
 
@@ -194,7 +194,7 @@ A message appears in the session for each of these changes. If loading or unload
 
 ​
 
-From a URL
+Load a plugin from a URL
 
 When you start `claude` from your shell, pass `--plugin-url` with the address of a `.zip` archive, such as a build artifact your CI publishes:
 
@@ -206,7 +206,7 @@ Claude Code downloads the archive at startup. To load several, repeat the flag o
 
 ​
 
-From an environment variable
+Load plugins from an environment variable
 
 To load plugins in a session where you can’t add the `--plugin-dir` flag, list their absolute paths in the [`CLAUDE_CODE_PLUGIN_DIRS`](</docs/en/env-vars#variables>) environment variable instead. Claude Code loads each path as it loads a `--plugin-dir` path. These plugins load in addition to any you pass with `--plugin-dir`. [Project and local settings can’t set this variable](</docs/en/settings-reference#variables-claude-code-ignores-in-env>). `CLAUDE_CODE_PLUGIN_DIRS` requires Claude Code v2.1.280 or later. Managed settings can turn off `--plugin-dir` and `CLAUDE_CODE_PLUGIN_DIRS`. See [Flags that load a plugin for one session](</docs/en/plugins/cli-reference#flags-that-load-a-plugin-for-one-session>). To test a plugin together with a plugin it depends on, see [Test a plugin and its dependency locally](</docs/en/plugins/dependencies#test-a-plugin-and-its-dependency-locally>).
 

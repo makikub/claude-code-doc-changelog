@@ -70,7 +70,7 @@ You can extend each layer by adding your own rules. Built-in checks cannot be re
 
 ​
 
-On each file edit
+Checks on each file edit
 
 When Claude writes to a file, the plugin scans the new content for known risky patterns. This is a pattern match with no model call, so it adds no usage cost. Example pattern categories:
 
@@ -85,7 +85,7 @@ The check runs after the edit lands and appends the warning to Claude’s contex
 
 ​
 
-At the end of each turn
+Checks at the end of each turn
 
 A turn is one round of Claude responding: you send a message, Claude works and replies, and the turn ends. After each turn, the plugin computes a git diff of everything that changed in the working tree during the turn, including changes from Claude’s edit tools, Bash commands, and subagents, and sends it to a separate Claude review focused on security. The review runs in the background, so Claude’s reply is not delayed. If the review finds issues, Claude is re-prompted with the findings and addresses them as a follow-up. This catches issues a string match cannot, such as:
 
@@ -101,7 +101,7 @@ You see both the finding and Claude’s resolution directly in your session. The
 
 ​
 
-On each commit or push Claude makes
+Checks on each commit or push Claude makes
 
 When Claude runs `git commit` or `git push` through its Bash tool, the plugin runs a deeper agentic review of the change in the background. This review reads surrounding code, including callers, sanitizers, and related files, to decide whether a finding is real before reporting it. The extra context keeps false positives low on patterns that look dangerous in isolation but are safe in your codebase. This layer fires only on commits and pushes Claude makes through its Bash tool. Commits you run from your own shell, including the `!` shell escape inside a session, are not reviewed. Commit and push reviews are capped at 20 per rolling hour. If the commit review’s findings duplicate what the end-of-turn review already reported, Claude is not re-prompted, so a clean commit produces no visible output from this layer.
 

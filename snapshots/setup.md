@@ -500,7 +500,7 @@ To remove Claude Code, follow the instructions for your installation method. If 
 
 ​
 
-Native installation
+Uninstall a native installation
 
 Remove the Claude Code binary and version files:
 
@@ -518,7 +518,7 @@ Remove the Claude Code binary and version files:
 
 ​
 
-Homebrew installation
+Uninstall with Homebrew
 
 Remove the Homebrew cask you installed. If you installed the stable cask:
 
@@ -532,7 +532,7 @@ If you installed the latest cask:
 
 ​
 
-WinGet installation
+Uninstall with WinGet
 
 Remove the WinGet package:
 
@@ -542,7 +542,7 @@ Remove the WinGet package:
 
 ​
 
-apt / dnf / apk
+Uninstall with apt, dnf, or apk
 
 Remove the package and the repository configuration:
 
@@ -566,7 +566,7 @@ Remove the package and the repository configuration:
 
 ​
 
-npm
+Uninstall with npm
 
 Remove the global npm package:
 

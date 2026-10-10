@@ -60,7 +60,7 @@ Event| Fires when| A hook can return
 ---|---|---
 [`tool.call`](</docs/en/plugins/mods/events#guard-or-change-a-tool-call>)| A tool is about to run| `next(e)`, `{ deny: reason }`, or `{ result }`
 [`tool.check`](</docs/en/plugins/mods/events#where-settings-hooks-run-in-the-order>)| Claude Code decides whether a tool call may run, after the `tool.call` and `PreToolUse` hooks. `next(e)` resolves to the decision the rules, the permission mode, and those hooks reached.| `{ decision }`, which is `allow`, `ask`, or `deny`
-`tool.describe`| Once for each tool, when its description is first sent to Claude| `{ description }`, optionally with `isDeferred` set to `true` to put the tool behind [tool search](</docs/en/mcp#scale-with-mcp-tool-search>) or `false` to load it upfront
+`tool.describe`| Once for each tool, when its description is first sent to Claude. A second time for an MCP tool when Claude loads it through [tool search](</docs/en/mcp#scale-with-mcp-tool-search>), with `e.description` set to the text Claude reads for the loaded tool.| `{ description }`, optionally with `isDeferred` set to `true` to put the tool behind tool search or `false` to load it upfront
 
 ####
 
@@ -139,7 +139,7 @@ Event| Fires when| A hook can return
 `session.end`| The session ends, or `/clear`, `/resume`, or `/branch` runs. `e.reason` is `clear`, `resume`, `logout`, `prompt_input_exit`, or `other`. `/branch` reports `resume`.| `next(e)`
 `session.compact`| The conversation is about to be compacted| `{ skip: reason }`
 [`session.receive`](</docs/en/plugins/mods/api#send-and-receive-messages-between-sessions>), [`session.send`](</docs/en/plugins/mods/api#send-and-receive-messages-between-sessions>)| A message arrives from, or is about to go to, another agent or session. See [Send and receive messages between sessions](</docs/en/plugins/mods/api#send-and-receive-messages-between-sessions>).| `{ consumed: reason }` for `receive`, `{ isDelivered: false, reason }` for `send`
-`session.append`| Once for each row the conversation keeps, such as a prompt, a response block, a tool result, or a notice, before it’s stored| `next({ ...e, message })` to rewrite the row’s `content`
+`session.append`| Once for each row the conversation keeps, such as a prompt, a response block, a tool result, or a notice, before it’s stored| `next({ ...e, message })` with a changed `message.content`, to rewrite the row’s text blocks or the `content` of a `tool_result` block in it
 `session.attach`, `session.detach`| Another app connects to or disconnects from the session| `next(e)`
 `session.measure`| After each turn, and when a plan limit’s percent used changes| `next(e)`
 
@@ -352,6 +352,7 @@ A `Link`’s `href`| 2,048 characters. A longer `href` keeps the whole tree from
 `$.ui.invalidate('ui.render')` redraws| Throttled to 10 a second, or 30 in the terminal for the visible pane, the expanded band, and the hint line under the prompt. Calls that come sooner are coalesced.
 `$.ui.toast`| Shown for 4 seconds unless you pass `{ timeoutMs }`
 A pane opened without the user asking| Placed from 144 terminal columns, 110 after they’ve opened it once
+Scopes, such as functions, blocks, and loops, nested inside one another in one file of a hooks module| 2,000
 Command, tool, subagent type, and pane names| Letters, digits, `_`, and `-`, up to 64 characters
 One `claude plugin test` test| 5 seconds unless the test sets `timeoutMs`
 

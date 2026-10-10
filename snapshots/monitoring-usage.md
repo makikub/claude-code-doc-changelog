@@ -1080,7 +1080,7 @@ Logged when a skill is invoked, whether Claude calls it through the Skill tool o
 
 At mention event
 
-Logged when Claude Code resolves an `@`-mention in a prompt. Not every mention emits an event: early-exit paths such as permission denials, oversized files, PDF reference attachments, and directory listing failures return without logging. **Event Name** : `claude_code.at_mention` **Attributes** :
+Logged when Claude Code resolves an `@`-mention in a prompt. Not every mention emits an event: early-exit paths such as permission denials, oversized files, PDF reference attachments, and directory listing failures return without logging. Each time Claude Code reads a prompt, it logs at most 100 events with a `mention_type` of `"agent"` and 100 with `"mcp_resource"`. Mentions past either limit still resolve but emit no event. **Event Name** : `claude_code.at_mention` **Attributes** :
 
   * All standard attributes
   * `event.name`: `"at_mention"`
@@ -1569,7 +1569,7 @@ Your choice of metrics, logs, and traces backends determines the types of analys
 
 ​
 
-For metrics
+Backends for metrics
 
   * **Time series databases** : Rate calculations, aggregated metrics
   * **Columnar stores** : Complex queries, unique user analysis
@@ -1579,7 +1579,7 @@ For metrics
 
 ​
 
-For events/logs
+Backends for events and logs
 
   * **Log aggregation systems** : Full-text search, log analysis
   * **Columnar stores** : Structured event analysis
@@ -1589,7 +1589,7 @@ For events/logs
 
 ​
 
-For traces
+Backends for traces
 
 Choose a backend that supports distributed trace storage and span correlation:
 

@@ -28,7 +28,7 @@ Migration Steps
 
 ​
 
-For TypeScript/JavaScript Projects
+Migrate a TypeScript or JavaScript project
 
 **1\. Uninstall the old package:**
 
@@ -52,7 +52,7 @@ For TypeScript/JavaScript Projects
 
 ​
 
-For Python Projects
+Migrate a Python project
 
 **1\. Uninstall the old package:**
 
