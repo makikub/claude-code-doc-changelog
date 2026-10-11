@@ -82,6 +82,21 @@ When the request for your plan limits fails, most often because the usage endpoi
 
 ​
 
+Read the token count beside the spinner
+
+While Claude works in the main conversation, the line beside the spinner can end with an elapsed time and a token count, as in `Deciphering… (10m 27s · ↓ 5.5k tokens)`. It is a live, approximate count of the output the current turn has produced so far. The arrow beside the count points down while output arrives or tools run.
+
+  * **What it covers** : output the turn generates, such as the text and tool calls Claude streams back, its thinking, and the output of subagents that run in the [foreground](</docs/en/sub-agents#run-subagents-in-foreground-or-background>)
+  * **What it leaves out** : what Claude Code sends to the model, so your prompt, the conversation history, and the rest of your context don’t move it
+  * **When it resets** : at the start of each turn, and when Claude Code [compacts the conversation](</docs/en/prompt-caching#compacting-the-conversation>)
+  * **When it stays hidden** : until output starts arriving, when the row is too narrow to fit it, and in [screen reader mode](</docs/en/accessibility>)
+
+It won’t match the `Usage by model` output figures in the `/usage` Session block, which add up the whole session rather than one turn. It also differs from the token count [verbose mode adds](</docs/en/statusline#notifications-share-the-status-line-row>), because that count measures the size of your context rather than one turn’s output.
+
+###
+
+​
+
 Analyze your usage patterns
 
 Run [`/insights`](</docs/en/commands#all-commands>) for a report on how you work rather than how many tokens you’ve used. It analyzes your recent sessions on this machine and writes an HTML report covering what you work on, friction points such as misunderstood requests or buggy code, and suggestions for using Claude Code more effectively. A single run analyzes up to 200 sessions it hasn’t seen before and skips very short ones. When sessions are left out, the report header shows the analyzed count with the total in parentheses, for example `200 sessions (412 total)`. When [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) is available to the session and your recent sessions mostly ran without it, the report can also include an estimate of how many permission prompts auto mode could have handled across those sessions. Claude Code writes the latest report to `~/.claude/usage-data/report.html` and saves a timestamped copy of each run in the same directory, so earlier reports aren’t overwritten. Claude Code deletes reports on the same schedule as the rest of your session data: at startup, it removes files older than [`cleanupPeriodDays`](</docs/en/claude-directory#cleaned-up-automatically>), 30 days by default. You can run `/insights` on any plan and with any provider. The analysis runs through the same provider and account as your regular sessions, and the tokens count against your plan or API usage. Sessions from other devices and claude.ai aren’t included.

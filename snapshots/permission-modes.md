@@ -14,7 +14,7 @@ Mode| What runs without asking| Best for
 `acceptEdits`| Reads, file edits, and common filesystem commands (`mkdir`, `touch`, `mv`, `cp`, etc.)| Iterating on code you’re reviewing
 `plan`| Reads, plus classifier-approved commands when auto mode is available| Exploring a codebase before changing it
 `auto`| Everything, with background safety checks| Long tasks, reducing prompt fatigue
-`dontAsk`| Reads and pre-approved tools; anything that would prompt is denied| Locked-down CI and scripts
+`dontAsk`| File reads inside your working directories and pre-approved tools; anything that would prompt is denied| Locked-down CI and scripts
 `bypassPermissions`| Everything| Isolated containers and VMs only
 
 The mode that reviews every action is named **Manual** in the CLI, in `claude --help`, in the VS Code and JetBrains extensions, and in the desktop app. Its config value is `default`, which is what hooks and SDK integrations use. The CLI accepts `manual` as an alias wherever you type the value, for example `claude --permission-mode manual` or `"defaultMode": "manual"`. Writes to protected paths are never auto-approved except in `bypassPermissions` mode and in plan-mode sessions where bypass permissions are available, meaning interactive terminal sessions started in a way that puts `bypassPermissions` in the mode cycle. Modes set the baseline. Layer [permission rules](</docs/en/permissions#manage-permissions>) on top to pre-approve or block specific tools. Deny rules block in every mode, including `bypassPermissions`. Deny and ask rules don’t apply to [`EndConversation`](</docs/en/tools-reference#endconversation-tool-behavior>) as long as Claude still has at least one other tool it can call. Allow rules have no effect in `bypassPermissions`.
@@ -376,7 +376,7 @@ Sandboxed commands don’t get network access by default. Claude names the hosts
 
 The first read outside the working directories
 
-While [`permissions.blockReadsOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockreadsoutsideworkingdirectories>) is off, file reads run without a prompt in auto mode, including reads outside the [working directories](</docs/en/permissions#working-directories>). The first time Claude uses the Read, Grep, or Glob tool on a path outside them, Claude Code asks whether to allow that read. The prompt doesn’t appear in non-interactive `-p` runs or background sessions; reads there run as before. Whatever you answer, Claude keeps working:
+While [`permissions.blockReadsOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockreadsoutsideworkingdirectories>) is off, file reads other than [reads from network paths](</docs/en/permissions#network-paths>) run without a prompt in auto mode, including reads outside the [working directories](</docs/en/permissions#working-directories>). The first time Claude uses the Read, Grep, or Glob tool on a path outside them, Claude Code asks whether to allow that read. The prompt doesn’t appear in non-interactive `-p` runs or background sessions; reads there run as before. Whatever you answer, Claude keeps working:
 
   * **Yes, and keep allowing any reads outside the working directories** : the read runs, later reads outside the working directories run as before, and Claude Code records your answer so the prompt doesn’t appear again
   * **No, and block reads outside the working directories from now on** : the read is refused, and Claude Code sets [`permissions.blockReadsOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockreadsoutsideworkingdirectories>) to `true` in your user settings, which makes the file tools refuse such reads in every later session and every permission mode. To let Claude read such a path later, add its directory with `/add-dir` or remove the setting.
@@ -438,16 +438,18 @@ How the classifier evaluates actions
 Each action goes through a fixed decision order. The first matching step wins:
 
   1. Actions matching your [allow, ask, or deny rules](</docs/en/permissions#manage-permissions>) resolve immediately, with these exceptions:
-     * Writes to protected paths route to the classifier even when an allow rule matches
+     * Writes to protected paths route to the classifier even when an allow rule matches. When the protected path is the file that a symlinked settings file points to, the write can prompt you instead, as the protected paths list describes
      * No allow rule approves `rm` and `rmdir` removals targeting a critical path
      * MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>) prompt you directly even when an allow rule matches, and so do connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) in sessions where that setting reaches Claude Code
      * A shell command that carries [per-command allowed domains](</docs/en/sandboxing#per-command-allowed-domains-in-auto-mode>) also routes to the classifier even when an allow rule matches, because a rule approves the command, not its hosts
      * Ask rules that match on a command’s content, such as `Bash(git push *)`, fall back to a permission prompt
      * A write that the [symlink check](</docs/en/permissions#symlinks>) resolves to a protected path prompts you when the path Claude requested isn’t itself protected
+     * A read from a [network path](</docs/en/permissions#network-paths>) prompts you even when an allow rule matches
   2. Read-only actions and file edits in your working directory are auto-approved, except writes to protected paths and the first read outside the working directories, which prompts you
      * In a session with server-side classifier review, read-only and [sandboxed](</docs/en/sandboxing#sandbox-modes>) shell commands wait for that review and are blocked if it flags them
      * A write inside your working directory that the [symlink check](</docs/en/permissions#symlinks>) resolves to a location outside it prompts you
      * When Claude reads an [artifact someone else made](</docs/en/artifacts#read-an-artifact-shared-with-you>), the approval cases listed in that section apply
+     * A read from a [network path](</docs/en/permissions#network-paths>) prompts you
   3. Everything else goes to the classifier, apart from critical-path removals under their default handling. The connector tools and `requiresUserInteraction` MCP tools that prompt you directly in step 1 never reach the classifier either, so neither an org-required approval nor a consent step is auto-approved
   4. If the classifier blocks, Claude receives the reason. In most sessions the reason names the rule the classifier matched, such as `[Data Exfiltration]`, rather than giving a written explanation; see [Review denials](</docs/en/auto-mode-config#review-denials>)
 
@@ -479,7 +481,7 @@ The classifier runs on Claude Sonnet 5 by default rather than on your `/model` s
 
 Allow only pre-approved tools with dontAsk mode
 
-If you set `dontAsk` mode, Claude Code auto-denies every tool call that would otherwise prompt you. Claude still runs actions that need no approval in Manual mode, such as file reads inside your working directories and [read-only Bash commands](</docs/en/permissions#read-only-commands>), plus actions matching your `permissions.allow` rules and calls approved by a [PreToolUse hook](</docs/en/permissions#extend-permissions-with-hooks>). Use this mode for CI pipelines or restricted environments where you pre-define what Claude may do; the session never waits for input. The status bar shows `⏵⏵ don't ask on` while this mode is active. Claude Code denies calls matching your explicit [`ask` rules](</docs/en/permissions#manage-permissions>) rather than prompting. It also denies the built-in `AskUserQuestion` tool even if your allow rules match it, and does the same to connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) in sessions where that setting reaches Claude Code. It denies MCP tools marked [`_meta["anthropic/requiresUserInteraction"]`](</docs/en/mcp#require-approval-for-a-specific-tool>) the same way, because their approval card needs an answer this mode never collects. `rm` and `rmdir` removals targeting a critical path, such as `rm -rf /` and `rm -rf ~`, are denied even when an allow rule matches them or a `PreToolUse` hook allows them. [Cloud sessions](</docs/en/claude-code-on-the-web>) ignore `defaultMode: "dontAsk"`; see bypassPermissions for details. Set it at startup with the flag:
+If you set `dontAsk` mode, Claude Code auto-denies every tool call that would otherwise prompt you. Claude still runs actions that need no approval in Manual mode, such as file reads inside your working directories and [read-only Bash commands](</docs/en/permissions#read-only-commands>), plus actions matching your `permissions.allow` rules and calls approved by a [PreToolUse hook](</docs/en/permissions#extend-permissions-with-hooks>). Use this mode for CI pipelines or restricted environments where you pre-define what Claude may do; the session never waits for input. The status bar shows `⏵⏵ don't ask on` while this mode is active. Claude Code denies calls matching your explicit [`ask` rules](</docs/en/permissions#manage-permissions>) rather than prompting. It also denies the built-in `AskUserQuestion` tool even if your allow rules match it, and does the same to connector tools [your organization set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>) in sessions where that setting reaches Claude Code. It denies MCP tools marked [`_meta["anthropic/requiresUserInteraction"]`](</docs/en/mcp#require-approval-for-a-specific-tool>) the same way, because their approval card needs an answer this mode never collects. `rm` and `rmdir` removals targeting a critical path, such as `rm -rf /` and `rm -rf ~`, are denied even when an allow rule matches them or a `PreToolUse` hook allows them. A read from a [network path](</docs/en/permissions#network-paths>) is denied the same way. [Cloud sessions](</docs/en/claude-code-on-the-web>) ignore `defaultMode: "dontAsk"`; see bypassPermissions for details. Set it at startup with the flag:
 
     claude --permission-mode dontAsk
 
@@ -507,7 +509,12 @@ The `--dangerously-skip-permissions` flag is equivalent. Claude Code refuses `by
   * **If you accept** : Claude Code sets `skipDangerousModePermissionPrompt` to `true` in `~/.claude/settings.json`, so later sessions skip the dialog. To see the dialog again, remove the key from that file or set it to `false`. The [`skipDangerousModePermissionPrompt` reference](</docs/en/settings-reference#skipdangerousmodepermissionprompt>) lists the other settings files where you or your organization can set it.
   * **If you decline** : Claude Code exits.
 
-In [non-interactive mode](</docs/en/headless>) no dialog is shown, and a [background session](</docs/en/agent-view>) started with `--bg` is refused until you’ve accepted the dialog in an interactive session. On Linux and macOS, Claude Code refuses to start in this mode when running as root or under `sudo`:
+In [non-interactive mode](</docs/en/headless>) no dialog is shown. A [background session](</docs/en/agent-view>) honors your acceptance when it’s recorded in user or managed settings:
+
+  * With no acceptance recorded, `claude --bg --permission-mode bypassPermissions` is refused until you accept the dialog in an interactive session.
+  * With `skipDangerousModePermissionPrompt` set only in `.claude/settings.local.json`, the background session starts with the bypass request ignored and pins the notice `Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true`. To get bypass honored, add that key to `~/.claude/settings.json`, then start a new background session.
+
+On Linux and macOS, Claude Code refuses to start in this mode when running as root or under `sudo`:
 
     --dangerously-skip-permissions cannot be used with root/sudo privileges for security reasons
 
@@ -566,6 +573,7 @@ Protected files:
   * `.devcontainer.json`
   * `.ripgreprc`, `pyrightconfig.json`
   * `.mcp.json`, `.claude.json`
+  * The file that your user, project, or local [settings file](</docs/en/settings#settings-files-and-who-they-affect>) points to when the settings file is itself a symbolic link, for example into a dotfiles repository. In the modes that route protected-path writes to the classifier, a write to this file prompts you instead, even when an allow rule matches. If the file’s own path is also that of a settings file, such as `.claude/settings.json` in another folder, the write goes to the classifier as other protected-path writes do
 
 ##
 
@@ -585,10 +593,12 @@ Claude Code treats an `rm` or `rmdir` target as a critical path when it is any o
 
   * The filesystem root
   * Top-level directories, meaning any direct child of the root, such as `/usr`, `/etc`, or `/data`
-  * Your home directory
-  * Windows drive roots and their top-level directories, such as `C:\` and `C:\Windows`
+  * Your home directory. On Windows, its 8.3 short name counts too, such as `C:\Users\LONGNA~1`
+  * Windows drive roots and their top-level directories, such as `C:\` and `C:\Windows`. Spellings such as `\\?\C:\` and `\\localhost\C$` count as `C:\`
   * Your working directory and its parents
   * Your additional working directories and their parents, but only when the removal is a glob under one of them, such as `rm -rf <dir>/*`. `rm -rf <dir>` on the directory itself doesn’t trigger this check
+
+The checks on the home directory’s 8.3 short name and on the `\\?\C:\` and `\\localhost\C$` spellings require Claude Code v2.1.292 or later.
 
 ###
 
@@ -607,6 +617,7 @@ A variable that the same command assigns from a directory-printing substitution,
 A target that is only the output of a command substitution, when the `rm` is recursive| `rm -rf "$(pwd)"`| Claude Code can’t check the target before the command runs
 A trailing command substitution after a critical path| `rm -rf ~/$(cmd)`| Claude Code checks the path that would remain if the substitution expanded empty, here your home directory
 A target that is only backslashes| `rm -rf "\\"`| Git Bash on Windows reads a lone backslash as the current drive’s root, so the check applies on every platform
+A Windows path that names a volume by GUID instead of a drive letter| `rm -rf '\\?\Volume{GUID}\work\build'`| The path doesn’t say which drive it’s on, so it could be a critical path. Requires Claude Code v2.1.292 or later
 Some targets that end in `/*` or `/*/`| `rm -rf logs/*/*`, `rm -rf logs/*/`, `cd logs && rm -rf a/*`| Claude Code can’t tell before the command runs which directories they reach
 
 To turn off the check on a target that is only command substitution output, set [`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT=1`](</docs/en/env-vars#variables>) in the environment that launches Claude Code.

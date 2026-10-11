@@ -245,11 +245,11 @@ Go to [claude.ai/analytics/code-review](<https://claude.ai/analytics/code-review
 Section| What it shows
 ---|---
 PRs reviewed| Daily count of pull requests reviewed over the selected time range
-Cost weekly| Weekly spend on Code Review
+Code Review cost| Code Review spend so far this month
 Feedback| Count of review comments that were auto-resolved because a developer addressed the issue
-Repository breakdown| Per-repo counts of PRs reviewed and comments resolved
+Repository breakdown| Per-repo counts of PRs reviewed, comments resolved, and review runs, with estimated cost and a per-PR view
 
-Dashboard cost figures are estimates for monitoring activity. For invoice-accurate spend, refer to your Anthropic bill.
+The Code Review cost card shows an amount only when the current month is selected. Cost figures in analytics can differ from your invoice. Repository breakdown costs are estimated at list price, before any discounts or credits, and cover only reviews that Claude posted on a pull request. For invoice-accurate spend, refer to your Anthropic bill.
 
 ##
 
@@ -263,7 +263,7 @@ Code Review is billed based on token usage. Each review averages $15-25 in cost,
   * **After every push** : runs on each push, multiplying cost by the number of pushes
   * **Manual** : no reviews on open or push, so cost accrues only from reviews someone requests
 
-In Once after PR creation or Manual mode, commenting `@claude review always` opts the PR into push-triggered reviews, so additional cost accrues per push after that comment. In After every push mode, pushes already trigger reviews, so the subscription doesn’t change per-push cost. Commenting `@claude review` runs a single review without subscribing to future pushes. Claude reviews a pull request from a fork only when someone comments `@claude review`, so a fork pull request never accrues per-push cost in any mode. Costs appear on your Anthropic bill regardless of whether your organization uses Amazon Bedrock or Google Cloud’s Agent Platform for other Claude Code features. To set a monthly spend cap for Code Review, go to [claude.ai/admin-settings/usage](<https://claude.ai/admin-settings/usage>) and configure the limit for the Claude Code Review service. Monitor spend via the weekly cost chart in analytics or the per-repo average cost column in admin settings.
+In Once after PR creation or Manual mode, commenting `@claude review always` opts the PR into push-triggered reviews, so additional cost accrues per push after that comment. In After every push mode, pushes already trigger reviews, so the subscription doesn’t change per-push cost. Commenting `@claude review` runs a single review without subscribing to future pushes. Claude reviews a pull request from a fork only when someone comments `@claude review`, so a fork pull request never accrues per-push cost in any mode. Costs appear on your Anthropic bill regardless of whether your organization uses Amazon Bedrock or Google Cloud’s Agent Platform for other Claude Code features. To set a monthly spend cap for Code Review, go to [claude.ai/admin-settings/usage](<https://claude.ai/admin-settings/usage>) and configure the limit for the Claude Code Review service. To monitor spend, use the analytics dashboard.
 
 ##
 
