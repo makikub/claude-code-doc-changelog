@@ -389,13 +389,29 @@ Once a run starts, you manage it from the `/workflows` view, or by expanding its
 
 Resume after a pause
 
-Resume a paused run from `/workflows` by selecting it and pressing `p`. For a run you stopped, ask Claude to relaunch the workflow with the same script. If agents from the stopped run haven’t exited yet, Claude Code refuses the relaunch until they have, so a second copy of those agents can’t run alongside them. Claude Code replays the run in the order agents started, and each agent either returns its saved result or runs again:
+Resume a paused run from `/workflows` by selecting it and pressing `p`. For a run you stopped, ask Claude to relaunch the workflow with the same script. If agents from the stopped run haven’t exited yet, Claude Code refuses the relaunch until they have, so a second copy of those agents can’t run alongside them.
+
+####
+
+​
+
+Which agents run again
+
+Claude Code replays the run in the order agents started, and each agent either returns its saved result or runs again:
 
   * **Completed** : returns its saved result. The first agent whose prompt differs from the previous run, because you edited the script or an earlier agent returned something different, runs again, and so does every agent after it, even ones that completed.
   * **Still running when you stopped** : starts over. Stopping the whole run doesn’t count any agent as failed.
   * **Failed** : runs again, and so does every agent that started after it, even ones that completed. Stopping one agent alone, by selecting it in `/workflows` and pressing `x`, counts as failing.
 
-That last case means a failure in the middle of a fan-out reruns work that already finished. If a script starts A, B, C, and D in that order and B fails, relaunching returns A from cache and runs B, C, and D again. You can resume a run within the same Claude Code session. What happens to a running workflow when you leave the session depends on how you leave:
+That last case means a failure in the middle of a fan-out reruns work that already finished. If a script starts A, B, C, and D in that order and B fails, relaunching returns A from cache and runs B, C, and D again. If you edit a script that started A, B, C, and D so that it starts A, C, B, and D, the second agent to start is now C, where the previous run started B. Relaunching returns A from cache and runs C, B, and D again.
+
+####
+
+​
+
+Resume after you leave the session
+
+You can resume a run within the same Claude Code session. What happens to a running workflow when you leave the session depends on how you leave:
 
   * If you [background the session](</docs/en/agent-view#what-carries-over-when-you-background>), Claude Code replays the run the same way in the background session and continues it.
   * If you exit Claude Code while a workflow is running and [agent view is on](</docs/en/agent-view#from-inside-a-session>), the exit dialog offers `Move to background and exit`, which carries the run over the same way. If you choose `Exit and stop tasks` instead, or the option isn’t offered, the run stops with the session. Claude Code keeps the run’s saved results under that session’s directory in `~/.claude/projects/`, so a session you resume with `claude --resume` can replay them when you ask Claude to relaunch the workflow. In a session you start fresh, Claude has no earlier run to relaunch and starts the workflow over as a new run.

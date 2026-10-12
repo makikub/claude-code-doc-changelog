@@ -60,7 +60,7 @@ Flag| Description
 `--session-id <id>`| Bring back one session by its ID. See Resume sessions after stopping the server. Can’t be combined with `--continue`, `--spawn`, `--capacity`, or `--create-session-in-dir`. Requires Claude Code v2.1.200 or later.
 `--spawn <mode>`| How the server creates sessions.
 • `same-dir` (default): all sessions share the current working directory, so they can conflict if editing the same files.
-• `worktree`: each on-demand session gets its own [git worktree](</docs/en/worktrees>). Requires a git repository.
+• `worktree`: each on-demand session gets its own [git worktree](</docs/en/worktrees>). Requires a git repository or a [`WorktreeCreate` hook](</docs/en/hooks#worktreecreate>).
 • `session`: single-session mode. Serves exactly one session and rejects additional connections. Set at startup only.
 Press `w` at runtime to toggle between `same-dir` and `worktree`.
 `--capacity <N>`| Maximum number of concurrent sessions. Default is 32. Cannot be used with `--spawn=session`.

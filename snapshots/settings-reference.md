@@ -1370,7 +1370,7 @@ Let Claude Code run sandboxed Bash commands without a permission prompt. Command
 
   * **Scope** : `Any file`
   * **Type** : Boolean
-    * `true`: Claude Code runs sandboxed Bash commands without a permission prompt, subject to `deny` rules and content-scoped `ask` rules; `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` turns auto-allow off
+    * `true`: Claude Code runs sandboxed Bash commands without a permission prompt, except in the cases that [Auto-allow mode](</docs/en/sandboxing#auto-allow-mode>) describes; `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` turns auto-allow off
     * `false`: sandboxed commands go through the regular permission flow, so your allow rules and permission mode decide. The `/sandbox` **Mode** tab calls this regular permissions mode
   * **Default** : `true`
 
@@ -1385,7 +1385,7 @@ settings.json
       }
     }
 
-See [Sandbox modes](</docs/en/sandboxing#sandbox-modes>) for what auto-allow mode still prompts on and how it behaves in plan mode.
+See [Auto-allow mode](</docs/en/sandboxing#auto-allow-mode>) for what auto-allow mode still prompts on and how it behaves in plan mode.
 
 ###
 

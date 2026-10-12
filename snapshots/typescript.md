@@ -2303,6 +2303,7 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
           kind: "task-notification";
           subkind?: "scheduled-trigger" | "peer-send-message";
           fireReason?: string;
+          runId?: string;
         }
       | { kind: "coordinator" }
       | { kind: "auto-continuation" }
@@ -2329,7 +2330,7 @@ When Claude Code delivers a task notification into a session, it sets `subkind` 
   * `scheduled-trigger`: the notification is a [routine](</docs/en/routines>)’s stored prompt, delivered because one of the routine’s triggers fired: its schedule, its [API trigger](</docs/en/routines#add-an-api-trigger>), its [GitHub trigger](</docs/en/routines#add-a-github-trigger>), or **Run now**. A prompt your application declares as a scheduled run carries this value too. Claude Code frames these to the model as the session’s assigned task, with a different notice from the notice that other task notifications carry.
   * `peer-send-message`: the notification is a message that another of your sessions sent with the server-side `send_message` tool that [cloud sessions](</docs/en/claude-code-on-the-web>) use to message each other, not the [cross-session `SendMessage` tool](</docs/en/cross-session-messaging>), and Anthropic servers verified that both sessions belong to the same private group of sessions. Requires Claude Code v2.1.224 or later. A `send_message` delivery the servers didn’t verify that way gets no subkind.
 
-Every other task notification has no `subkind`. That includes [PR activity](</docs/en/claude-code-on-the-web#how-claude-responds-to-pr-activity>) delivered into a session and background events such as a finished task. Messages from the [cross-session `SendMessage` tool](</docs/en/cross-session-messaging>) aren’t task notifications at all: whether they come from a session on the same machine or through Anthropic servers from another machine, Claude Code gives them `kind: "peer"` and the peer origin fields. `fireReason` says why a `scheduled-trigger` notification fired, as a short lowercase token such as `scheduled`, `manual`, `retry`, `catch_up`, or `api`. Anthropic servers set it on a [routine](</docs/en/routines>)’s deliveries, and your application sets it when it declares a scheduled run. It’s absent when neither sent one. Requires TypeScript Agent SDK v0.3.280 or later.
+Every other task notification has no `subkind`. That includes [PR activity](</docs/en/claude-code-on-the-web#how-claude-responds-to-pr-activity>) delivered into a session and background events such as a finished task. Messages from the [cross-session `SendMessage` tool](</docs/en/cross-session-messaging>) aren’t task notifications at all: whether they come from a session on the same machine or through Anthropic servers from another machine, Claude Code gives them `kind: "peer"` and the peer origin fields. `fireReason` says why a `scheduled-trigger` notification fired, as a short lowercase token such as `scheduled`, `manual`, `retry`, `catch_up`, or `api`. Anthropic servers set it on a [routine](</docs/en/routines>)’s deliveries, and your application sets it when it declares a scheduled run. It’s absent when neither sent one. Requires TypeScript Agent SDK v0.3.280 or later. A background task can run more than once under the same `task_id`, such as when Claude [resumes a subagent](</docs/en/agent-sdk/subagents#resume-subagents>). Each run has its own `run_id`. When a run’s notification reaches your session as a user message, `runId` on that message’s `task-notification` origin holds the same value. A notification can arrive after the task’s next run has started, and it still carries the earlier run’s ID. To tell which run a turn belongs to, compare `runId`, not `task_id`. Requires TypeScript Agent SDK v0.3.292 or later.
 
 ####
 
@@ -3187,7 +3188,7 @@ Hook return value.
 
 Tool Input Types
 
-Documentation of input schemas for all built-in Claude Code tools. These types are exported from `@anthropic-ai/claude-agent-sdk/sdk-tools` and can be used for type-safe tool interactions.
+Documentation of input schemas for built-in Claude Code tools. These types are exported from `@anthropic-ai/claude-agent-sdk/sdk-tools` and can be used for type-safe tool interactions.
 
 ###
 
@@ -3973,7 +3974,7 @@ MCP tool arguments are an open object: each server defines its own parameters, s
 
 Tool Output Types
 
-Documentation of output schemas for all built-in Claude Code tools. These types are exported from `@anthropic-ai/claude-agent-sdk/sdk-tools` and represent the actual response data returned by each tool.
+Documentation of output schemas for built-in Claude Code tools. These types are exported from `@anthropic-ai/claude-agent-sdk/sdk-tools` and represent the actual response data returned by each tool.
 
 ###
 
@@ -5582,12 +5583,13 @@ Status update message (for example, compacting).
 
 `SDKTaskNotificationMessage`
 
-Notification when a background task completes, fails, or is stopped. Background tasks include `run_in_background` Bash commands, Monitor watches, and background subagents. For the `ambient` field, see `SDKTaskStartedMessage`, which defines it and its version requirement.
+Notification when a background task completes, fails, or is stopped. Background tasks include `run_in_background` Bash commands, Monitor watches, and background subagents. For the `run_id` and `ambient` fields, see `SDKTaskStartedMessage`, which defines them and their version requirements.
 
     type SDKTaskNotificationMessage = {
       type: "system";
       subtype: "task_notification";
       task_id: string;
+      run_id?: string;
       tool_use_id?: string;
       status: "completed" | "failed" | "stopped";
       reason?: "worker_restart";
@@ -5748,6 +5750,7 @@ Emitted when a task begins. The `task_type` field is `"local_bash"` for Bash com
       type: "system";
       subtype: "task_started";
       task_id: string;
+      run_id?: string;
       tool_use_id?: string;
       description: string;
       task_type?: string;
@@ -5758,6 +5761,18 @@ Emitted when a task begins. The `task_type` field is `"local_bash"` for Bash com
       uuid: UUID;
       session_id: string;
     };
+
+`run_id` identifies one run of the task. When a task runs again under the same `task_id`, such as a [subagent that Claude resumes](</docs/en/agent-sdk/subagents#resume-subagents>), the new run gets a new `run_id`. The field requires Agent SDK v0.3.292 or later. Use it to keep the runs of one task apart:
+
+  * **Match messages to a run** : the `task_started`, `task_progress`, `task_updated`, and `task_notification` messages of one run carry the same `run_id`. The run’s entry in each `SDKBackgroundTasksChangedMessage` carries it too, and so does the `runId` on the origin of the user message that delivers the run’s notification.
+  * **Detect a late message** : compared as plain strings, the run IDs of one task sort in the order the runs started, so a message whose `run_id` sorts before the run you’re showing comes from an earlier run. Treat the value as opaque apart from that comparison.
+  * **Fall back to`task_id`**: when a message carries no `run_id`, such as the `task_notification` that a resumed session emits to close a task the earlier process started, attribute it by `task_id`.
+
+For example, these three messages, trimmed to their identifying fields, come from a background subagent that Claude resumed once. The two `task_started` messages share a `task_id`, and the notification that ended the first run carries the first run’s ID:
+
+    {"subtype": "task_started", "task_id": "a5c2e8f41b09d7a36", "run_id": "0mubbs7i8-6f0c2d41"}
+    {"subtype": "task_notification", "task_id": "a5c2e8f41b09d7a36", "run_id": "0mubbs7i8-6f0c2d41", "status": "completed"}
+    {"subtype": "task_started", "task_id": "a5c2e8f41b09d7a36", "run_id": "0mubc18m1-b7719e05"}
 
 `ambient` is `true` for tasks that aren’t part of the session’s work, such as tasks Claude Code runs for its own operation. Live-update watchers are also ambient, including watchers the user asked for. Exclude ambient tasks from activity indicators. The field requires Agent SDK v0.3.247 or later. `ambient` also appears on `SDKTaskNotificationMessage` and on `SDKBackgroundTasksChangedMessage` entries. `is_backgrounded` and `spawn_depth` describe how Claude Code started the task. Both fields require Agent SDK v0.3.238 or later.
 
@@ -5778,12 +5793,13 @@ The parent can be a foreground task or one that already ended, so treat an ID yo
 
 `SDKTaskProgressMessage`
 
-Emitted periodically while a subagent or background task is running. For a subagent task, the `summary` field carries a model-generated progress summary and is populated only when `agentProgressSummaries` is enabled. For a [backgrounded MCP tool call](</docs/en/mcp#automatic-backgrounding-of-long-tool-calls>), `summary` carries the MCP server’s latest reported progress and doesn’t depend on that option.
+Emitted periodically while a subagent or background task is running. For the `run_id` field, see `SDKTaskStartedMessage`, which defines it and its version requirement. For a subagent task, the `summary` field carries a model-generated progress summary and is populated only when `agentProgressSummaries` is enabled. For a [backgrounded MCP tool call](</docs/en/mcp#automatic-backgrounding-of-long-tool-calls>), `summary` carries the MCP server’s latest reported progress and doesn’t depend on that option.
 
     type SDKTaskProgressMessage = {
       type: "system";
       subtype: "task_progress";
       task_id: string;
+      run_id?: string;
       tool_use_id?: string;
       description: string;
       subagent_type?: string;
@@ -5804,12 +5820,13 @@ Emitted periodically while a subagent or background task is running. For a subag
 
 `SDKTaskUpdatedMessage`
 
-Emitted when a background task’s state changes, such as when it transitions from `running` to `completed`. Merge `patch` into your local task map keyed by `task_id`. The `end_time` field is a Unix epoch timestamp in milliseconds, comparable with `Date.now()`.
+Emitted when a background task’s state changes, such as when it transitions from `running` to `completed`. Merge `patch` into your local task map keyed by `task_id`. The `end_time` field is a Unix epoch timestamp in milliseconds, comparable with `Date.now()`. For the `run_id` field, see `SDKTaskStartedMessage`, which defines it and its version requirement.
 
     type SDKTaskUpdatedMessage = {
       type: "system";
       subtype: "task_updated";
       task_id: string;
+      run_id?: string;
       patch: {
         status?: "pending" | "running" | "completed" | "failed" | "killed";
         description?: string;
@@ -5828,13 +5845,14 @@ Emitted when a background task’s state changes, such as when it transitions fr
 
 `SDKBackgroundTasksChangedMessage`
 
-Emitted whenever the set of live background tasks changes: a task starts, completes, or is killed; a foreground agent is backgrounded; or a task’s `description`, `ambient`, or `parent_task_id` field changes. For the `parent_task_id` field on each entry, see `SDKTaskStartedMessage`, which defines it and its version requirement. The `tasks` array is the full live set. Replace any cached set with each payload instead of pairing `task_started` and `task_notification` events, so the next membership change corrects any event you missed. When a task ends, its `task_updated` and `task_notification` arrive before the `background_tasks_changed` that drops it from the list. Ordering relative to the per-task events is otherwise unspecified. Nothing is emitted at startup. Reset to an empty set whenever the session’s CLI process starts or restarts and let the next membership change repopulate it. When you send a repeated `initialize` control request to a running session, such as with `reinitialize()` after a transport gap, Claude Code follows the response with a snapshot of the current live set, even when it is empty. A reconnecting host therefore learns what is running without waiting for the next membership change. Before Agent SDK v0.3.239, Claude Code sent no snapshot after a repeated `initialize`. Requires Claude Code v2.1.203 or later.
+Emitted whenever the set of live background tasks changes: a task starts, completes, or is killed; a foreground agent is backgrounded; or a task’s `description`, `ambient`, or `parent_task_id` field changes. For the `run_id` and `parent_task_id` fields on each entry, see `SDKTaskStartedMessage`, which defines them and their version requirements. The `tasks` array is the full live set. Replace any cached set with each payload instead of pairing `task_started` and `task_notification` events, so the next membership change corrects any event you missed. When a task ends, its `task_updated` and `task_notification` arrive before the `background_tasks_changed` that drops it from the list. Ordering relative to the per-task events is otherwise unspecified. Nothing is emitted at startup. Reset to an empty set whenever the session’s CLI process starts or restarts and let the next membership change repopulate it. When you send a repeated `initialize` control request to a running session, such as with `reinitialize()` after a transport gap, Claude Code follows the response with a snapshot of the current live set, even when it is empty. A reconnecting host therefore learns what is running without waiting for the next membership change. Before Agent SDK v0.3.239, Claude Code sent no snapshot after a repeated `initialize`. Requires Claude Code v2.1.203 or later.
 
     type SDKBackgroundTasksChangedMessage = {
       type: "system";
       subtype: "background_tasks_changed";
       tasks: {
         task_id: string;
+        run_id?: string;
         task_type: string;
         subagent_type?: string;
         description: string;
