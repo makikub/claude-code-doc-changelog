@@ -22,15 +22,7 @@ Each example pairs a trigger type with the kind of work routines are suited to: 
 
 Create a routine
 
-Create a routine from the web at [claude.ai/code/routines](<https://claude.ai/code/routines>), from the Desktop app, or from the CLI. All three surfaces write to the same cloud account, so a routine you create in one shows up in the others immediately. In the Desktop app’s **Code** tab, click **Routines** in the sidebar or in the sidebar’s **More** menu, then **New routine** , and choose **Cloud** ; choosing **Local** instead creates a [Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), which runs on your machine rather than in the cloud. The creation form sets up the routine’s prompt, repositories, environment, connectors, and triggers. Routines run autonomously as full Claude Code cloud sessions: there is no permission-mode picker, and the session runs shell commands, uses [skills](</docs/en/skills>) committed to the cloned repository, and calls any connectors you include, all without stopping for approval apart from some [artifact](</docs/en/artifacts>) actions. What a routine can reach is determined by the repositories you select, the [environment’s](</docs/en/cloud-environments>) network access and variables, and the connectors you include. Scope each of those to what the routine actually needs. When the routine’s schedule or **Run now** starts a run, Claude republishes an existing artifact without asking only when all of these hold:
-
-  * You can edit the artifact and it belongs to your own organization
-  * The artifact isn’t shared publicly
-  * If the artifact is shared with specific people or your organization, its viewers don’t automatically see each new version
-  * The publish carries only the page, with no supporting files or anything else added, and doesn’t force over a newer version
-  * The page holds no grant that reaches beyond the page, such as [connector calls](</docs/en/artifacts#pull-live-data-with-mcp-connectors>)
-
-In every other case, including publishing a new artifact, Claude asks first. When a routine’s job is to keep a page current, give it an artifact you already published. Routines belong to your individual claude.ai account. They are not shared with teammates, and their runs count against your account’s usage and limits. Anything a routine does through your connected GitHub identity or connectors appears as you: commits and pull requests carry your GitHub user, and Slack messages, Linear tickets, or other connector actions use your linked accounts for those services.
+Create a routine from the web at [claude.ai/code/routines](<https://claude.ai/code/routines>), from the Desktop app, or from the CLI. All three surfaces write to the same cloud account, so a routine you create in one shows up in the others immediately. In the Desktop app’s **Code** tab, click **Routines** in the sidebar or in the sidebar’s **More** menu, then **New routine** , and choose **Cloud** ; choosing **Local** instead creates a [Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), which runs on your machine rather than in the cloud. The creation form sets up the routine’s prompt, repositories, environment, connectors, and triggers. Routines run autonomously as full Claude Code cloud sessions: there is no permission-mode picker, and the session runs shell commands, uses [skills](</docs/en/skills>) committed to the cloned repository, and calls any connectors you include, all without stopping for approval apart from some artifact actions. What a routine can reach is determined by the repositories you select, the [environment’s](</docs/en/cloud-environments>) network access and variables, and the connectors you include. Scope each of those to what the routine actually needs. Routines belong to your individual claude.ai account. They are not shared with teammates, and their runs count against your account’s usage and limits. Anything a routine does through your connected GitHub identity or connectors appears as you: commits and pull requests carry your GitHub user, and Slack messages, Linear tickets, or other connector actions use your linked accounts for those services.
 
 ###
 
@@ -142,7 +134,7 @@ The same local-to-UTC conversion as recurring schedules applies to one-off times
 
 Add an API trigger
 
-An API trigger gives a routine a dedicated HTTP endpoint. POSTing to the endpoint with the routine’s bearer token starts a new session and returns a session URL. Use this to wire Claude Code into alerting systems, deploy pipelines, internal tools, or anywhere you can make an authenticated HTTP request. API triggers are added to an existing routine from the web. The CLI cannot currently create or revoke tokens.
+An API trigger gives a routine a dedicated HTTP endpoint. POSTing to the endpoint with the routine’s bearer token starts a new session and returns a session URL. Use this to wire Claude Code into alerting systems, deploy pipelines, internal tools, or anywhere you can make an authenticated HTTP request. API triggers are added to an existing routine from the web. The CLI can’t currently create, regenerate, or delete tokens.
 
 1
 
@@ -168,7 +160,10 @@ Call the endpoint
 
 Send the token in the `Authorization: Bearer` header when you POST to the URL. The Trigger a routine section below shows a complete example.
 
-Each routine has its own token, scoped to triggering that routine only. To rotate or revoke it, return to the same modal and click **Regenerate** or **Revoke**.
+Each routine has its own token, scoped to triggering that routine only. To turn off API access or rotate the token, return to the same modal:
+
+  * **Turn off API access** : click **Delete token** , the trash icon next to **Regenerate**
+  * **Rotate the token** : click **Regenerate**
 
 ####
 
@@ -332,6 +327,24 @@ Routines need GitHub access to clone repositories. When you create a routine fro
 Connectors
 
 Routines can use your connected MCP connectors to read from and write to external services during each run. For example, a routine that triages support requests might read from a Slack channel and create issues in Linear. Connectors are the [claude.ai integrations](</docs/en/mcp#use-mcp-servers-from-claude-ai>) on your account. MCP servers you added locally in the CLI with `claude mcp add` are stored on your machine rather than your claude.ai account, so they do not appear in the connectors list. To use one of those servers in a routine, add it as a connector at [claude.ai/customize/connectors](<https://claude.ai/customize/connectors>). For a routine with one repository, you can instead declare it in a committed [`.mcp.json`](</docs/en/mcp#project-scope>) so it is part of the cloned repository. When you create a routine, all of your currently connected connectors are included by default. Remove any that aren’t needed to limit which tools Claude has access to during the run. You can also add connectors directly from the routine form. To manage or add connectors outside of the routine form, visit [claude.ai/customize/connectors](<https://claude.ai/customize/connectors>) or use `/schedule update` in the CLI.
+
+###
+
+​
+
+When a run publishes an artifact without asking
+
+When a routine’s schedule or **Run now** starts a run, Claude can publish a new [artifact](</docs/en/artifacts>) without asking. The new artifact is visible only to you until you [share it](</docs/en/artifacts#share-an-artifact>). If the publish declares runtime capabilities for the page, such as [connector calls](</docs/en/artifacts#pull-live-data-with-mcp-connectors>) or [file downloads](</docs/en/artifacts#offer-a-file-download>), Claude asks first. In those runs, Claude republishes an existing artifact without asking only when all of these hold:
+
+  * You can edit the artifact and it belongs to your own organization
+  * If the publish carries more than the page, such as supporting files, you own the artifact
+  * The artifact isn’t shared publicly
+  * If the artifact is shared with specific people or your organization, its viewers don’t automatically see each new version
+  * The publish doesn’t force over a newer version
+  * The publish doesn’t declare runtime capabilities for the page
+  * The existing page holds no grant that reaches beyond the page, such as [connector calls](</docs/en/artifacts#pull-live-data-with-mcp-connectors>)
+
+In every other case, including a run that an API or GitHub trigger starts, Claude asks first. When a routine’s job is to keep a page current, give it an artifact you already published.
 
 ###
 

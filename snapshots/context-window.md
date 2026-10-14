@@ -44,7 +44,7 @@ Right after compaction, Claude Code re-reads up to five of the files Claude has 
 
 When your context fills up
 
-Claude Code compacts automatically as you approach the limit, so a full context window doesn’t end your session. The automatic pass works the same way as the `/compact` step in the timeline. See [When context fills up](</docs/en/how-claude-code-works#when-context-fills-up>) for what it preserves. You can also act before the automatic pass runs:
+Claude Code compacts automatically as you approach the limit, so a full context window doesn’t end your session. The automatic pass works the same way as the `/compact` step in the timeline. See [When context fills up](</docs/en/how-claude-code-works#when-context-fills-up>) for what it preserves. For when Claude Code also compacts a conversation you leave idle, see [idle compaction](</docs/en/settings-reference#idlecompaction>). You can also act before the automatic pass runs:
 
   * **Compact with a focus** : run `/compact` with instructions, like `/compact focus on the auth bug fix`, before starting a long new task. The summary keeps what you choose instead of what the automatic pass guesses is important.
   * **Compact part of the conversation** : run `/rewind`, select a message, and choose **Summarize from here** or **Summarize up to here**. See [Rewind and summarize](</docs/en/checkpointing#rewind-and-summarize>) for what each option keeps and how to guide the summary.
