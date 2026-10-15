@@ -185,7 +185,7 @@ Plugin’s `agents/` directory| Where plugin is enabled| 5 (lowest)| Installed w
 In [non-interactive mode](</docs/en/headless>), `--agents` also accepts the path to a JSON file holding the same object, for definitions too large to pass on the command line. For example, `claude -p --agents ./agents.json "Review my changes"` reads the definitions from that file. In an interactive session, Claude Code refuses a file path. The file form requires Claude Code v2.1.281 or later. Each top-level key in the JSON is an agent’s name, and its value is that agent’s definition. Don’t start a name with `-`. A definition takes these fields:
 
   * **`prompt`** : the agent’s system prompt, equivalent to the markdown body in file-based subagents. `prompt` may be empty. If you select an agent with an empty `prompt` and no `memory` field as the session’s agent with `--agent`, the session’s system prompt is left unchanged. An empty `prompt` requires Claude Code v2.1.281 or later.
-  * **Frontmatter fields** : `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `initialPrompt`, `memory`, `effort`, `background`, `omitClaudeMd`, and `isolation`.
+  * **Frontmatter fields** : `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `autoCompactWindow`, `skills`, `initialPrompt`, `memory`, `effort`, `background`, `omitClaudeMd`, and `isolation`.
   * **Ignored fields** : `color` and `experimental` aren’t accepted here and are ignored rather than rejected.
 
 For what Claude Code does with a value it can’t load, and the flags and environment variable that skip that check, see [`Invalid --agents configuration`](</docs/en/errors#invalid-agents-configuration>). **Managed subagents** are deployed by organization administrators. Place markdown files in `.claude/agents/` inside the [managed settings directory](</docs/en/managed-settings#delivery-mechanisms>), using the same frontmatter format as project and user subagents. Managed definitions take precedence over project and user subagents with the same name. **Plugin subagents** come from [plugins](</docs/en/plugins/overview>) you’ve installed. They load automatically alongside your custom subagents and appear in the @-mention typeahead under their scoped name. See the [plugin components reference](</docs/en/plugins/components#agents>) for details on creating plugin subagents.
@@ -233,7 +233,10 @@ The redirect vectors and the shape rules are listed under [How Claude Code enfor
 
 Frontmatter reference
 
-Configure a subagent with YAML [frontmatter](</docs/en/glossary#frontmatter>) between `---` markers at the top of its file, and write its system prompt as Markdown after the closing `---`. Only `name` and `description` are required. Multi-word field names use camelCase, such as `maxTurns` and `disallowedTools`, and must match the table exactly: Claude Code ignores a field it doesn’t recognize without reporting an error. To find out why a subagent file didn’t load, see Subagent files Claude Code skips.
+Configure a subagent with YAML [frontmatter](</docs/en/glossary#frontmatter>) between `---` markers at the top of its file, and write its system prompt as Markdown after the closing `---`. Only `name` and `description` are required. Multi-word field names use camelCase, such as `maxTurns` and `disallowedTools`, and must match the table exactly: Claude Code ignores a field it doesn’t recognize without reporting an error.
+
+  * To find a misspelled field in a subagent that loaded, run [`claude --debug`](</docs/en/cli-reference#cli-flags>) in your shell and search the debug log at `~/.claude/debug/<session-id>.txt` for `does not recognize or apply`. The debug log names up to five top-level fields in the subagent’s file that Claude Code doesn’t recognize, with the likely intended name when a supported field is close. Requires Claude Code v2.1.296 or later.
+  * To find out why a subagent file didn’t load, see Subagent files Claude Code skips.
 
 Field| Required| Description
 ---|---|---
@@ -244,6 +247,7 @@ Field| Required| Description
 `model`| No| Model to use: `sonnet`, `opus`, `haiku`, `fable`, a full model ID such as `claude-opus-5-5`, or `inherit`. When you omit it, Claude Code picks the model in the subagent model order
 `permissionMode`| No| Permission mode: `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, or `manual` as an alias for `default`. Ignored for plugin subagents
 `maxTurns`| No| Maximum number of agentic turns before the subagent stops. When the subagent reaches the limit, Claude Code returns its output marked as partial, and Claude can resume it to continue. The partial marking requires Claude Code v2.1.246 or later
+`autoCompactWindow`| No| Lower the auto-compact window for this subagent to a token count from `100000` to `1000000`. Requires Claude Code v2.1.296 or later
 `skills`| No| [Skills](</docs/en/skills>) to preload into the subagent’s context at startup. The full skill content is injected, not only the description. Subagents can still invoke unlisted project, user, and plugin skills through the Skill tool
 `mcpServers`| No| [MCP servers](</docs/en/mcp>) available to this subagent. Each entry is either a server name referencing an already-configured server (e.g., `"slack"`) or an inline definition with the server name as key and a full [MCP server config](</docs/en/mcp#installing-mcp-servers>) as value. Ignored for plugin subagents
 `hooks`| No| Lifecycle hooks scoped to this subagent. Ignored for plugin subagents
@@ -757,7 +761,7 @@ Your full message still goes to Claude, which writes the subagent’s task promp
 
     claude --agent code-reviewer
 
-Unless the agent’s prompt is empty, a custom subagent’s system prompt replaces the default Claude Code system prompt entirely, the same way [`--system-prompt`](</docs/en/cli-reference>) does. `CLAUDE.md` files and project memory still load through the normal message flow, even when the agent’s definition sets `omitClaudeMd`. The agent name appears as `@<name>` in the startup header so you can confirm it’s active. This works with built-in and custom subagents, and the choice persists when you resume the session: Claude Code restores the agent’s tool restrictions and model along with the conversation. If the agent no longer exists when you resume, the session continues with the default tools and shows a [warning naming the agent](</docs/en/errors#session-agent-no-longer-available>). For the system prompt in either case, see [System prompt flags in resumed conversations](</docs/en/cli-reference#system-prompt-flags-in-resumed-conversations>). For a plugin-provided subagent, you can pass only the agent name and Claude Code finds it:
+Unless the agent’s prompt is empty, a custom subagent’s system prompt replaces the default Claude Code system prompt entirely, the same way [`--system-prompt`](</docs/en/cli-reference>) does. `CLAUDE.md` files and project memory still load through the normal message flow, even when the agent’s definition sets `omitClaudeMd`. If you run the session with `-p` as a custom agent that has its own prompt, it also starts without the [git status snapshot](</docs/en/settings-reference#includegitinstructions>). The agent name appears as `@<name>` in the startup header so you can confirm it’s active. This works with built-in and custom subagents, and the choice persists when you resume the session: Claude Code restores the agent’s tool restrictions and model along with the conversation. If the agent no longer exists when you resume, the session continues with the default tools and shows a [warning naming the agent](</docs/en/errors#session-agent-no-longer-available>). For the system prompt in either case, see [System prompt flags in resumed conversations](</docs/en/cli-reference#system-prompt-flags-in-resumed-conversations>). For a plugin-provided subagent, you can pass only the agent name and Claude Code finds it:
 
     claude --agent security-reviewer
 
@@ -1007,6 +1011,21 @@ Subagents support automatic compaction. Compaction triggers as the subagent’s 
     }
 
 The `preTokens` value shows how many tokens were used before compaction occurred.
+
+##### Set the auto-compact window for one subagent
+
+To make one subagent compact earlier than it otherwise would, set `autoCompactWindow` in its frontmatter to a token count from `100000` to `1000000`. If you set [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/env-vars#variables>) to a positive integer, the subagent uses that variable’s window instead and the field has no effect. Requires Claude Code v2.1.296 or later. This frontmatter sets `autoCompactWindow` to 200,000 tokens for a subagent that reads long log files:
+
+    ---
+    name: log-reader
+    description: Reads long log files and reports the errors it finds
+    autoCompactWindow: 200000
+    ---
+
+Write the value as a plain integer such as `200000`, because in frontmatter Claude Code reads `200k` as 200, which is outside the allowed range. The subagent still loads and compacts as if the field were absent. To check whether Claude Code ignored your value, run `claude --debug` in your shell and search the debug log for `invalid autoCompactWindow`. If the value is in range and you still see no change, check for these causes:
+
+  * **The value isn’t below the[auto-compact window](</docs/en/model-config#context-window-and-auto-compaction>) the subagent would otherwise inherit**: to compact earlier, set a value below that window.
+  * **You run the whole session as this subagent with`--agent` or the `agent` setting**: the field has no effect there. To set the session’s window, see [Set the auto-compact window](</docs/en/model-config#set-the-auto-compact-window>).
 
 ##
 

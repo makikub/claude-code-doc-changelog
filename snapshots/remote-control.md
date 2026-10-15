@@ -209,7 +209,7 @@ Trusted Devices requires each member of your organization, or you alone on a Pro
   * **An enrolled device** : each browser, phone, or desktop app a member uses for Remote Control enrolls its own credential. Enrollment is only offered shortly after a full sign-in, so a device joins the trusted list as part of a real authentication rather than silently in the background.
   * **A recent sign-in** : the member’s sign-in must be no more than 18 hours old. Instead of signing in again each day, members confirm presence with Face ID, Touch ID, Windows Hello, or a passkey. This biometric step-up refreshes the session immediately.
 
-Biometric checks run on the device through the operating system or browser, the same mechanism as passkey sign-in. Anthropic never receives or stores fingerprints, face data, or any other biometric information. Only the device’s public key and basic metadata such as display name, platform, and enrollment time are stored. The setting applies to Remote Control in both Claude Code and [Cowork](<https://claude.com/docs/cowork/overview>). This page covers the Claude Code side. Regular Claude chat, Claude Code in the terminal, and API usage are unaffected.
+Biometric checks run on the device through the operating system or browser, the same mechanism as passkey sign-in. Anthropic never receives or stores fingerprints, face data, or any other biometric information. Only the device’s public key and basic metadata such as display name, platform, and enrollment time are stored. The setting applies to Remote Control in Claude Code and to Computer access in [Cowork](<https://claude.com/docs/cowork/overview>). This page covers the Claude Code side. Regular Claude chat, Claude Code in the terminal, and API usage are unaffected.
 
 ###
 

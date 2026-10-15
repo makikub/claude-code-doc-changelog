@@ -356,7 +356,9 @@ Message| Section
 `Claude Code's fullscreen renderer didn't finish starting last time on this machine` / `Claude Code's fullscreen renderer has repeatedly failed to start on this machine`| [Fullscreen rendering](</docs/en/fullscreen#fullscreen-renderer-didnt-finish-starting>)
 `Claude Code exited after an unrecoverable interface error (...)`| Configuration warnings
 `Agent descriptions are over the 15.0k-token limit`| Configuration warnings
+`hook needs quotes around a path with a space`| Configuration warnings
 `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account`| Configuration warnings
+`N skill or command names refused: run with --debug to see which ([names]), rename, then restart`| Configuration warnings
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
 `is a network path, which cannot be added as a working directory`| Configuration warnings
 `Remote managed settings failed to load (<cause>)`| Configuration warnings
@@ -1779,7 +1781,7 @@ An outbound HTTP request from a cloud session or routine was blocked by the envi
 You may also see a TLS certificate that doesn’t match the destination’s real certificate. Cloud sessions route outbound traffic through a proxy that enforces the network policy, so a mismatched certificate means the proxy terminated the connection, not the destination. This is not a client-side network problem. Cloud sessions and [routines](</docs/en/routines>) run inside a sandboxed VM whose outbound traffic through the session’s network is filtered to the [cloud environment’s](</docs/en/cloud-environments>) allowlist; [GitHub operations](</docs/en/cloud-environments#github-proxy>) and MCP connector traffic use separate channels, which is why they can keep working while other hosts are blocked. The **Default** environment uses **Trusted** access, which permits the [default allowlist](</docs/en/cloud-environments#default-allowed-domains>) of package registries, cloud provider APIs, container registries, and common development domains and blocks other domains on that path. **What to do:** These steps change one of your own environments. An [organization-shared environment](</docs/en/cloud-environments#organization-shared-environments>) opens read-only in the selector, so ask an Owner to change its network access from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>).
 
   * Open your environment for editing, either from the [routine’s form](</docs/en/routines#environments-and-network-access>) or from the [environment selector](</docs/en/cloud-environments#configure-your-environment>) where you start cloud sessions.
-  * In the **Edit environment** dialog, change **Network access** from **Trusted** to **Custom** , then add the blocked domain to **Allowed domains**. Enter one domain per line. Check **Also include default list of common package managers** to keep the [default allowlist](</docs/en/cloud-environments#default-allowed-domains>) alongside your custom domains. Select **Full** instead if you want unrestricted access.
+  * In the **Edit cloud environment** dialog, change **Network access** from **Trusted** to **Custom** , then add the blocked domain to **Allowed domains**. Enter one domain per line. Check **Also include default list of common package managers** to keep the [default allowlist](</docs/en/cloud-environments#default-allowed-domains>) alongside your custom domains. Select **Full** instead if you want unrestricted access.
   * Click **Save changes**. The next run uses the updated allowlist. For a cloud session that’s already open, see [when a network access change reaches existing sessions](</docs/en/cloud-environments#network-access>).
 
 See [Network access](</docs/en/cloud-environments#network-access>) for access levels and the default allowlist. Local CLI sessions are not affected by this policy.
@@ -4811,6 +4813,20 @@ Claude Code shows this warning as a startup notice in the conversation view rath
 
 ​
 
+Hook needs quotes around a path with a space
+
+This notification in the conversation view means a hook’s script didn’t run because its path has a space and isn’t quoted. That hook is an [`asyncRewake`](</docs/en/hooks#run-hooks-in-the-background>) hook in shell form. In its `command`, an interpreter such as `python3` is followed by an unquoted path placeholder, and the resolved path contains a space. The notification starts with the hook’s event name and names the script:
+
+    Stop hook needs quotes around a path with a space (check.py)
+
+**What to do:**
+
+  * In the `command` of the hook that runs the script the notification names, wrap the path in double quotes. In a JSON file, write it as `"command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/check.py\""`.
+
+###
+
+​
+
 A skill, command, or workflow wasn’t loaded because its name is reserved
 
 A skill folder, a frontmatter `name`, a file or subfolder in `.claude/commands/`, or a [saved workflow](</docs/en/workflows#save-the-workflow-for-reuse>) uses the name `anthropic-skills` or a name that starts with `anthropic-skills:`. Claude Code [reserves that name for skills synced from claude.ai](</docs/en/skills#names-reserved-for-synced-skills>) and doesn’t load that item. Claude Code shows this warning as a startup notice in the conversation view rather than on stderr:
@@ -4822,6 +4838,24 @@ The notice names what to change for the first item it refused: a folder or file 
   * Rename the item the notice names, or edit the `name:` line it points to, then restart the session.
 
 Before v2.1.282, Claude Code loaded skills and commands with these names.
+
+###
+
+​
+
+Skill or command name refused
+
+This startup notice means Claude Code refused the name of at least one [skill or custom command](</docs/en/skills>), so it didn’t load or loaded without its `name` field:
+
+    1 skill or command name refused: run with --debug to see which ([names]), rename, then restart — a name may not hold hidden, direction-changing or blank-like characters, < or >, or be over 256 characters
+
+  * **Not loaded** : Claude Code refused the name a skill or command goes by, such as its directory name or a command file’s name or subfolder. It’s missing from the `/` menu and Claude can’t invoke it. Its line in the debug log reads `<name> is not offered`.
+  * **`name` field ignored**: Claude Code refused a skill’s frontmatter `name`. The skill still loads, but the `/` menu doesn’t show the `name` value and typing it doesn’t invoke the skill. Its line in the debug log reads `<name value> is not shown for <skill>`.
+
+**What to do:**
+
+  * Start Claude Code with `claude --debug` from your shell and search the [debug log](</docs/en/debug-your-config>) for `[names]`. Each name the notice counts has one line there. The line spells out some hidden characters as codes, such as `\u{200B}` for a zero-width space, so you can see where they are.
+  * Remove the [characters a skill name can’t hold](</docs/en/skills#characters-a-skill-name-cant-hold>) by renaming the folder or file or editing the `name:` line, or shorten a name that is over 256 characters. Then restart the session, unless the file is in a directory Claude Code [watches for changes](</docs/en/skills#live-change-detection>). For a skill from a plugin you didn’t write, ask the plugin’s author to rename it.
 
 ###
 

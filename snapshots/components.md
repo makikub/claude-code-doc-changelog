@@ -144,7 +144,7 @@ Frontmatter fields in plugin agents
 
 A plugin agent’s frontmatter follows these rules:
 
-  * **Supported fields** : `name`, `description`, `model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, `omitClaudeMd`, `isolation`, `color`, and the `cacheTtl` key of `experimental`. The only valid `isolation` value is `"worktree"`. See [supported frontmatter fields](</docs/en/sub-agents#supported-frontmatter-fields>) for what each one does
+  * **Supported fields** : `name`, `description`, `model`, `effort`, `maxTurns`, `autoCompactWindow`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, `omitClaudeMd`, `isolation`, `color`, and the `cacheTtl` key of `experimental`. The only valid `isolation` value is `"worktree"`. See [supported frontmatter fields](</docs/en/sub-agents#supported-frontmatter-fields>) for what each one does
   * **Ignored fields** : `permissionMode`, `hooks`, `mcpServers`, and `initialPrompt`. An agent file can’t add hooks or MCP servers on its own, so add those as plugin hooks and MCP servers instead
   * **Frontmatter that doesn’t parse** : the agent still loads with every field ignored. It’s named after the file, and its description reads `Agent from my-plugin plugin`. Run [`claude plugin validate`](</docs/en/plugins/cli-reference#plugin-validate>) in your shell to find these files
 

@@ -158,7 +158,7 @@ Text you paste stays visible in the prompt box, rather than collapsing to a plac
 
 Resume past conversations
 
-Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time. Click any conversation to resume it with the full message history. If the conversation is already open in another tab of the current window, clicking it switches to that tab. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
+Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time. Click any conversation to resume it with the full message history. If the conversation is already open in another tab of the current window, clicking it switches to that tab. If the messages stay blank at first, see why they’re blank and when they appear. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
 
   * **Session titles** : new sessions receive AI-generated titles based on your first message.
   * **Rename and archive** : hover over a session to reveal these actions. Rename to give it a descriptive title, or archive to move it to the **Archived sessions** group at the bottom of the list.
@@ -247,7 +247,7 @@ After you run **Developer: Reload Window** or restart VS Code, whether a chat co
   * **Editor tab** : the conversation comes back with its tab.
   * **Sidebar** : the conversation comes back if you sent a message or Claude responded in it within the last 10 minutes. If it doesn’t come back, resume the conversation from Session history.
 
-If another Claude Code process still has the conversation open, you’re asked before it opens here, with the same **Open here anyway** notice as when you resume it from session history. If the reload interrupted Claude mid-step, Claude continues that step when the conversation comes back, and a notice in the chat marks the continuation. Requires Claude Code v2.1.274 or later. If the step was interrupted more than an hour ago or the session is open elsewhere, the conversation comes back idle instead. To turn continuation off, open the [Continue After Reload setting](<vscode://settings/claudeCode.continueAfterReload>) and uncheck it. Setting [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](</docs/en/env-vars#variables>) or any other `CLAUDE_CODE_RESUME_` variable in VS Code’s environment or in the `environmentVariables` setting has no effect in the panel, because the extension removes those variables before it starts the panel’s sessions.
+If another Claude Code process still has the conversation open, you’re asked before it opens here, with the same **Open here anyway** notice as when you resume it from session history. If the messages stay blank at first, see why they’re blank and when they appear. If the reload interrupted Claude mid-step, Claude continues that step when the conversation comes back, and a notice in the chat marks the continuation. Requires Claude Code v2.1.274 or later. If the step was interrupted more than an hour ago or the session is open elsewhere, the conversation comes back idle instead. To turn continuation off, open the [Continue After Reload setting](<vscode://settings/claudeCode.continueAfterReload>) and uncheck it. Setting [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](</docs/en/env-vars#variables>) or any other `CLAUDE_CODE_RESUME_` variable in VS Code’s environment or in the `environmentVariables` setting has no effect in the panel, because the extension removes those variables before it starts the panel’s sessions.
 
 ###
 
@@ -775,6 +775,14 @@ On macOS Tahoe and later, the system Game Overlay shortcut is bound to `Cmd+Esc`
   3. Clear the Game Overlay checkbox
 
 Alternatively, rebind the extension to a different key: open the VS Code [Keyboard Shortcuts editor](<https://code.visualstudio.com/docs/configure/keybindings>) (`Cmd+K Cmd+S`), search for `Claude Code: Focus input`, and assign a new binding.
+
+###
+
+​
+
+A resumed conversation is blank at first
+
+When you resume a past conversation or one comes back after a reload, its messages can stay blank while the conversation’s Claude Code process starts. After about a second, `Waiting for your plugins…` appears in the empty space. You don’t need to do anything. The messages appear once the process has started and confirmed that no plugin needs to check them first, or after 20 seconds if starting takes longer.
 
 ###
 

@@ -95,7 +95,7 @@ Mode| Settings key| Behavior
 **Accept edits**| `acceptEdits`| Claude auto-accepts file edits and common filesystem commands like `mkdir`, `touch`, and `mv`, but still asks before running other terminal commands. Use this when you trust file changes and want faster iteration.
 **Plan**| `plan`| Claude reads files and runs commands to explore, then proposes a plan without editing your source code. Good for complex tasks where you want to review the approach first.
 **Auto**| `auto`| Claude runs without routine prompts; before actions such as shell commands and network requests run, a background classifier checks that they align with your request. Appears when auto mode is available; there is no separate Settings toggle for it.
-**Bypass permissions**| `bypassPermissions`| Claude runs without permission prompts, except for the [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>), safety classifiers when Claude acts on external sites, or desktop actions where Claude always asks first, such as archiving a session. Equivalent to `--dangerously-skip-permissions` in the CLI. On Pro and Max plans, enable it in your Settings → Claude Code under “Allow bypass permissions mode”; on Team and Enterprise plans there is no Settings toggle, and organization policy controls it instead. Only use this in sandboxed containers or VMs.
+**Bypass permissions**| `bypassPermissions`| Claude runs without permission prompts, except for the [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>), safety classifiers when Claude acts on external sites, or desktop actions such as deleting a session, though not archiving one. Equivalent to `--dangerously-skip-permissions` in the CLI. On Pro and Max plans, enable it in your Settings → Claude Code under “Allow bypass permissions mode”; on Team and Enterprise plans there is no Settings toggle, and organization policy controls it instead. Only use this in sandboxed containers or VMs.
 
 Earlier versions of the Code tab labeled these modes Ask permissions, Auto accept edits, and Plan mode. The `dontAsk` permission mode is available only in the [CLI](</docs/en/permission-modes#allow-only-pre-approved-tools-with-dontask-mode>).
 
@@ -117,7 +117,11 @@ Auto mode is available to all users on the Anthropic API and requires Claude Opu
 
 Preview your app
 
-Claude can start a dev server and open it in the Browser pane to verify its changes. This works for frontend web apps as well as backend servers: Claude can test API endpoints, view server logs, and iterate on issues it finds. In most cases, Claude starts the server automatically after editing project files. You can also ask Claude to preview at any time. By default, Claude auto-verifies changes after every edit. The Browser pane can also open static HTML files, PDFs, images, and videos from your project. Click an HTML, PDF, image, or video path in the chat to open it there. From the Browser pane, you can:
+Claude can start a dev server and open it in the Browser pane to verify its changes. This works for frontend web apps as well as backend servers: Claude can test API endpoints, view server logs, and iterate on issues it finds. In most cases, Claude starts the server automatically after editing project files. You can also ask Claude to preview at any time. By default, Claude auto-verifies changes after every edit. The Browser pane can also open static HTML files, PDFs, images, and videos from your project. Click an HTML, PDF, image, or video path in the chat to open it there.
+
+In an SSH session, Claude can’t open your app in the Browser pane, because it doesn’t have the pane’s tools there. To look at the app yourself, forward its port to your computer.
+
+From the Browser pane, you can:
 
   * Interact with your running app directly in the Browser pane
   * Watch Claude verify its own changes automatically: it takes screenshots, inspects the DOM, clicks elements, fills forms, and fixes issues it finds
@@ -200,7 +204,7 @@ After you open a pull request, a CI status bar appears in the session. Claude Co
 
 To turn these on, click **CI** in the status bar. To archive the session automatically once the PR merges or closes, turn on auto-archive in **Settings > Claude Code**.
 
-PR monitoring requires the [GitHub CLI (`gh`)](<https://cli.github.com/>) to be installed and authenticated on your machine. If `gh` is not installed, Desktop prompts you to install it the first time you try to create a PR.
+PR monitoring requires the [GitHub CLI (`gh`)](<https://cli.github.com/>) to be installed and authenticated on your machine. If `gh` is not installed, Desktop prompts you to install it the first time you try to create a PR.In an SSH session, set up `git` and `gh` on the remote machine before you click **Create PR** , because Claude pushes the branch and runs `gh pr create` there. Install `gh` there yourself, because Desktop doesn’t prompt you to in an SSH session. Then check there that `git push` works and that `gh auth status` reports that you are logged in.
 
 ##
 
@@ -425,7 +429,7 @@ Work across sessions
 
 Claude can list your other Code tab sessions, read what each has been doing, and send messages between them. Ask in plain language: “which session touched the auth refactor?”, “what did the API session conclude?”, or “tell the payments session the schema changed”. You can also ask Claude to rename or archive a session. Claude archives a session the same way the sidebar’s archive icon does, so ask it to clean up sessions whose PRs have merged. Through this surface, Claude sees only the sessions the desktop app runs itself: local, SSH, and [WSL](</docs/en/desktop-wsl>) sessions in the Code tab. Claude doesn’t see cloud sessions, or sessions you started from the terminal CLI or the VS Code extension, even in worktrees of the same project, so with nine terminal worktrees open and two desktop sessions, Claude answering in one of them reports the one other desktop session. Claude never lists the session you’re asking from. By default it sees the 20 most recently active sessions and skips archived sessions unless you ask for them. [Cross-session messaging](</docs/en/cross-session-messaging>) separately lets Claude message [your other Claude Code sessions](</docs/en/cross-session-messaging#see-which-sessions-claude-can-reach>), including terminal sessions. When Claude messages another session through this surface, Claude Code shows it there as a card labeled with the sending session’s title and a link back, so you can always tell where a message came from. If the receiving session is mid-task, Claude Code holds the message and Claude reads it once the current work finishes. The receiving Claude can reply, and Claude Code delivers the reply back through this surface. Claude can’t deliver to an archived session, and tells you when a message doesn’t go through. Claude Code applies four safety behaviors across sessions:
 
-  * Before archiving any session, Claude asks you first. You see the approval card in every permission mode, including Auto and Bypass permissions.
+  * You get an approval card before Claude archives a session, except in Auto mode and Bypass permissions mode, where Claude can archive a session without one. To be asked, switch to Manual.
   * Through this surface, Claude can’t send cross-session messages from a session nobody is watching, such as a scheduled-task run, and can’t deliver messages into one.
   * Claude Code checks each message from this surface against the receiving session’s [inbound controls](</docs/en/cross-session-messaging#control-inbound-messages>), even when the receiving session doesn’t have [cross-session messaging](</docs/en/cross-session-messaging#availability>) itself. If you set [`crossSessionInbound`](</docs/en/settings-reference#crosssessioninbound>) to `refuse` in the receiving session, Claude Code drops messages from this surface. Claude Code reports the refusal to the Claude desktop app. Before v2.1.234, Claude Code dropped every message from this surface to a receiving session without cross-session messaging.
   * Claude Code quotes each incoming message and attributes it to the session that sent it, and Claude still follows the receiving session’s own permission settings when acting on one.
@@ -623,9 +627,15 @@ The `autoPort` field controls what happens when your preferred port is already i
 
   * **`true`** : Claude finds and uses a free port automatically. Suitable for most dev servers.
   * **`false`** : Claude fails with an error. Use this when your server must use a specific port, such as for OAuth callbacks or CORS allowlists.
-  * **Not set (default)** : Claude asks whether the server needs that exact port, then saves your answer.
+  * **Not set (default)** : your server gets the next free port, as with `true`, except in the one case below. Before Claude Desktop v2.37337.0, Claude asks whether the server needs that exact port instead, then saves your answer in `launch.json`.
 
-When Claude picks a different port, it passes the assigned port to your server via the `PORT` environment variable.
+If your preferred port is in use and `autoPort` is unset, your server stays stopped when all of these hold:
+
+  * You start the server through an `npm`, `yarn`, `pnpm`, or `bun` script.
+  * Your preferred port is hardcoded in that script, or Claude can’t inspect the script.
+  * You don’t pass the port in `runtimeArgs`.
+
+In that case, free the port, remove the hardcoded value, or change `port` to match the script. Setting `"autoPort": true` instead works only for a script that reads `PORT`. Have your server read its port from the `PORT` environment variable, which carries the assigned port. When Claude moves your server to a different port, it also rewrites a `--port` or `-p` value in `runtimeArgs` to match.
 
 ####
 
@@ -713,7 +723,7 @@ The environment you pick when starting a session determines where Claude execute
 
 Local sessions
 
-The desktop app does not always inherit your full shell environment. On macOS, when you launch the app from the Dock or Finder, it reads your shell profile, such as `~/.zshrc` or `~/.bashrc`, to extract `PATH` and a fixed set of Claude Code variables, but other variables you export there are not picked up. On Windows, the app inherits user and system environment variables but does not read PowerShell profiles. To set environment variables for local sessions and dev servers on any platform, open the environment dropdown in the prompt box, hover over **Local** , and click the gear icon to open the local environment editor. Variables you save here are stored encrypted on your machine and apply to every local session and preview server you start. You can also add variables to the `env` key in your `~/.claude/settings.json` file, though these reach Claude sessions only and not dev servers. See [environment variables](</docs/en/env-vars>) for the full list of supported variables. [Extended thinking](</docs/en/model-config#extended-thinking>) is enabled by default, which improves performance on complex reasoning tasks but uses additional tokens. On the Anthropic API, set `MAX_THINKING_TOKENS` to `0` in the local environment editor to turn thinking off; this has no effect on Opus 5.5, Sonnet 5.5, Haiku 5.5, or the Fable models, which always use extended thinking. With thinking turned off on the Anthropic API, Claude Code sends effort `high` instead of a higher level to models it knows [don’t accept that combination](</docs/en/errors#effort-isnt-available-with-thinking-turned-off>), such as Opus 5. On models with [adaptive reasoning](</docs/en/model-config#adjust-effort-level>), Claude Code ignores the number itself in a positive `MAX_THINKING_TOKENS` value because adaptive reasoning controls thinking depth instead. On Opus 4.6 and Sonnet 4.6, set `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` to `1` to use a fixed thinking budget; Fable models, Sonnet 5 and later, Haiku 5.5, and Opus 4.7 and later always use adaptive reasoning and have no fixed-budget mode.
+The desktop app does not always inherit your full shell environment. On macOS, when you launch the app from the Dock or Finder, it reads your shell profile, such as `~/.zshrc` or `~/.bashrc`, to give Claude Code `PATH` and a fixed set of Claude Code variables, but not other variables you export there. On Windows, the app inherits user and system environment variables but does not read PowerShell profiles. To set environment variables for local sessions and dev servers on any platform, open the environment dropdown in the prompt box, hover over **Local** , and click the gear icon to open the local environment editor. Variables you save here are stored encrypted on your machine and apply to every local session and preview server you start. You can also add variables to the `env` key in your `~/.claude/settings.json` file, though these reach Claude sessions only and not dev servers. See [environment variables](</docs/en/env-vars>) for the full list of supported variables. [Extended thinking](</docs/en/model-config#extended-thinking>) is enabled by default, which improves performance on complex reasoning tasks but uses additional tokens. On the Anthropic API, set `MAX_THINKING_TOKENS` to `0` in the local environment editor to turn thinking off; this has no effect on Opus 5.5, Sonnet 5.5, Haiku 5.5, or the Fable models, which always use extended thinking. With thinking turned off on the Anthropic API, Claude Code sends effort `high` instead of a higher level to models it knows [don’t accept that combination](</docs/en/errors#effort-isnt-available-with-thinking-turned-off>), such as Opus 5. On models with [adaptive reasoning](</docs/en/model-config#adjust-effort-level>), Claude Code ignores the number itself in a positive `MAX_THINKING_TOKENS` value because adaptive reasoning controls thinking depth instead. On Opus 4.6 and Sonnet 4.6, set `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` to `1` to use a fixed thinking budget; Fable models, Sonnet 5 and later, Haiku 5.5, and Opus 4.7 and later always use adaptive reasoning and have no fixed-budget mode.
 
 ####
 
@@ -764,12 +774,63 @@ Remote machine requirements for SSH sessions
 
 A Linux or macOS remote machine needs a supported processor, an SSH server with SFTP, an install folder that isn’t mounted `noexec`, a working shell, and network access. Check each requirement before you connect, or when a connection fails after you log in:
 
-  * **System** : an x86_64 or arm64 processor. The machine also has to meet Claude Code’s [system requirements](</docs/en/setup#system-requirements>).
+  * **System** : an x86_64 or arm64 processor. The machine also has to meet Claude Code’s [system requirements](</docs/en/setup#system-requirements>). On Linux, Claude Code needs glibc 2.17 or later, or musl. To see which one the machine has, run `ldd --version` there. On a musl-based distribution such as Alpine Linux, also install the [packages that Claude Code needs](</docs/en/setup#alpine-linux-and-musl-based-distributions>).
   * **SFTP** : the SSH server has to offer the SFTP subsystem, which a `Subsystem sftp` line in its `sshd_config` turns on. To check, connect to the same host and port with `sftp` in a terminal on your computer. A working server shows the `sftp>` prompt.
   * **Sessions per connection** : Desktop on macOS and Linux opens several sessions on one SSH connection. If the server’s `sshd_config` sets `MaxSessions 1`, raise it, for example to OpenSSH’s default of 10.
-  * **Install folder** : Desktop installs a helper program and Claude Code under `~/.claude/remote/` in your home directory. It runs them from there, so that folder can’t be on a file system mounted `noexec`. Allow about 1 GB of disk space in the home directory of each user who connects.
+  * **Install folder** : Desktop installs a helper program and Claude Code under `~/.claude/remote/` in your home directory. It runs them from there, so that folder can’t be on a file system mounted `noexec`. Allow about 1 GB of disk space in the home directory of each user who connects. For what that folder holds, see Files and processes on the remote machine.
   * **Shell** : the shell set for your account on the remote machine has to run commands sent over SSH, as Bash, Zsh, and `sh` do
-  * **Network** : Claude Code runs on the remote machine and makes its network requests from there, so the machine needs the [network access that Claude Code requires](</docs/en/network-config#network-access-requirements>). If the machine can’t download Claude Code, Desktop downloads it on your computer and uploads it. Claude Code’s other requests still go out from the remote machine.
+  * **Network** : Claude Code runs on the remote machine and makes its network requests from there, so the machine needs the [network access that Claude Code requires](</docs/en/network-config#network-access-requirements>). If the machine can’t download Claude Code, Desktop downloads it on your computer and uploads it. Claude Code’s other requests still go out from the remote machine. On a Linux remote machine, if those requests need a proxy, set it for SSH sessions.
+
+####
+
+​
+
+Set a proxy or a CA certificate for SSH sessions
+
+If a Linux remote machine reaches the internet through a proxy or needs a CA certificate, add the [proxy and CA variables](</docs/en/network-config>) under `env` in `~/.claude/settings.json` there. Add them even if you already export them in `~/.profile`, `~/.bash_profile`, `~/.zprofile`, or `~/.zshrc` on that machine. An SSH session doesn’t get them from those files, even when `claude` in a terminal on that machine does. The session can then hang, or show **The connection from … to the API failed** or **Authentication failed** , and signing in again doesn’t help.
+
+1
+
+Add the variables
+
+For the CA file, use [`NODE_EXTRA_CA_CERTS`](</docs/en/network-config#custom-ca-certificates>), because Claude Code doesn’t trust a CA from `SSL_CERT_FILE` in `~/.claude/settings.json`. This example sets a proxy and a CA file:
+
+~/.claude/settings.json
+
+    {
+      "env": {
+        "HTTPS_PROXY": "http://proxy.example.com:8080",
+        "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/example-ca.pem"
+      }
+    }
+
+2
+
+Send your message again
+
+Send your message again, because a variable that you add or change in that file takes effect within seconds. Start a new session if it still fails.
+
+##### Find a proxy or CA variable set elsewhere on the remote machine
+
+Check whether the Linux remote machine sets the proxy or CA variable elsewhere, because sessions use that value and [ignore the one in any settings file](</docs/en/settings-reference#how-env-values-interact-with-your-shell>):
+
+1
+
+List the variables that the remote machine sets
+
+In a terminal on your computer, run `ssh devbox env`, with your own host.
+
+2
+
+Change the variable where it is set
+
+If the list has the variable, change it in the file that sets it, such as `~/.zshenv`, `/etc/environment`, or `~/.bashrc` on the remote machine.
+
+3
+
+Give sessions the new value
+
+Restart the remote machine, or quit Desktop and end the helper’s processes, as in the first two steps to remove the helper. Do this when no task is running, because either way interrupts Claude’s work.
 
 ####
 
@@ -800,6 +861,93 @@ To reach a machine behind a jump host, also called a bastion, set `ProxyJump` or
 
 Enter `devbox` in the **SSH host** field.
 
+##### Reach a container on a remote machine
+
+To run a session inside a container that publishes no SSH port, reach it with a `ProxyCommand`, because Desktop doesn’t run the `RemoteCommand` of the entry you connect to. If your entry uses `RemoteCommand` to step into the container, the session runs on the machine that the entry logs in to, not in the container.
+
+1
+
+Add the entry
+
+Add the following entry at the end of your `~/.ssh/config`, or directly above your first `Host *` entry if you have one. Replace the Docker container `devbox`, its user `dev`, and the machine `build.example.com` with your own. The entry’s command starts an SSH server inside the container for each connection:
+
+~/.ssh/config
+
+    Host devbox-container
+      User dev
+      ProxyCommand ssh build.example.com docker exec -i devbox /usr/sbin/sshd -i
+
+2
+
+Prepare the container
+
+  * Install the OpenSSH server, with a host key that stays the same when you rebuild the image or recreate the container
+  * Give the account named in `User` a way to log in, such as an `authorized_keys` file
+  * Check that the container meets the remote machine requirements
+
+3
+
+Check the allowlist
+
+If your administrator restricts SSH hosts, run `ssh -G devbox-container` in a terminal on your computer. Ask them to allow the `hostname` that it prints, here `devbox-container`, in `sshHostAllowlist`. When they allow that name, they allow whatever your entry’s `ProxyCommand` connects to.
+
+4
+
+Test the entry, then connect
+
+Run `ssh devbox-container` in a terminal on your computer. Fix what it reports, and run it again until it opens a shell in the container without asking you anything:
+
+  * **If`ssh` asks for a password, passphrase, or code**: switch to a login that works without a prompt, such as a key that your SSH agent holds
+  * **If`ssh` reports `Cannot execute command-line and remote command.` or `Bad packet length`**: take `RemoteCommand` and `RequestTTY` out of your entry for `build.example.com`. After that, `ssh build.example.com` in a terminal on your computer opens a shell on that machine, not in the container.
+  * **If`ssh` reports `Connection closed by UNKNOWN port 65535`**: run `ssh build.example.com docker exec devbox /usr/sbin/sshd -t` in the same terminal.
+    * If it prints `Missing privilege separation directory: /run/sshd`, create that folder in the container.
+    * If it prints `no hostkeys available` and the container has host keys, add `-u root` after `exec` in this command and in the entry.
+
+Then enter `devbox-container` in the **SSH host** field.
+
+##### Use variables from your shell in a `ProxyCommand`
+
+To use an environment variable of your own in a `ProxyCommand` or `Match exec` command, export it in a shell startup file, such as `~/.zshrc`, then quit and reopen Desktop. When Desktop starts, it reads what your login shell exports, and it keeps those values until you quit. This requires Claude Desktop v2.37337.0 or later and an `env` command that accepts `-0`, which you can check by running `env -0` in a terminal on your computer.
+
+If your shell sets temporary AWS credentials, give the AWS CLI a profile instead of exporting `AWS_*` variables.
+
+##### Use AWS credentials in a `ProxyCommand`
+
+If you set temporary AWS credentials in a shell startup file, a `ProxyCommand` that runs the AWS CLI can connect in a terminal and fail in Desktop. When your shell exports `AWS_SESSION_TOKEN`, `AWS_SECURITY_TOKEN`, or `AWS_CREDENTIAL_EXPIRATION`, `ssh` and your `ProxyCommand` in Desktop don’t get the shell’s AWS credentials, `AWS_REGION`, or `AWS_PROFILE`. If the AWS CLI has no other source for a region or credentials, it fails with `You must specify a region` or `Unable to locate credentials`. To connect from Desktop, give the AWS CLI a profile that it reads from `~/.aws/config`:
+
+1
+
+Add a profile with a region and a source of credentials
+
+This example adds a profile named `corp` that gets its credentials from a helper program:
+
+~/.aws/config
+
+    [profile corp]
+    region = us-east-1
+    credential_process = /full/path/to/your-credential-helper
+
+  * **`region`** : give the AWS Region of the machines you connect to
+  * **`credential_process`** : give the full path of a program that prints credentials in the [JSON form that AWS documents](<https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sourcing-external.html>). Choose a program that needs no input from you, because the AWS CLI runs it at every connection, including reconnects while you’re away.
+  * **IAM Identity Center** : add the profile’s [IAM Identity Center settings](<https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html>) in place of `credential_process`. Run `aws sso login --profile corp` in a terminal before you connect, and again when that sign-in lapses.
+
+2
+
+Name the profile in the ProxyCommand
+
+This example adds `--profile` to the [command that AWS documents for Session Manager](<https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-enable-ssh-connections.html>):
+
+~/.ssh/config
+
+    Host i-*
+      ProxyCommand sh -c "aws ssm start-session --profile corp --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+
+3
+
+Connect again
+
+Run `ssh` with the host in a terminal to confirm that the entry still connects there, then connect from Desktop.
+
 ##### Raise the SSH connection timeout
 
 If your SSH configuration sets no `ConnectTimeout` for the host, Desktop gives `ssh` 30 seconds to connect. Through a jump host or a `ProxyCommand`, that time includes the time the route takes to connect. If your route needs longer, add a higher value to the entry:
@@ -812,7 +960,42 @@ If your SSH configuration sets no `ConnectTimeout` for the host, Desktop gives `
       ProxyJump bastion.example.com
       ConnectTimeout 120
 
-`ssh` uses the first value it finds for a host, so keep the entry above any `Host *` entry that sets `ConnectTimeout`. To confirm, run `ssh -G devbox` in a terminal on your computer. Its output includes `connecttimeout 120`. After you change the value, quit and reopen Desktop.
+`ssh` uses the first value it finds for a host, so keep the entry above any `Host *` entry that sets `ConnectTimeout`. To confirm, run `ssh -G devbox` in a terminal on your computer. Its output includes `connecttimeout 120`. After you change the value, quit and reopen Desktop. If the remote machine itself waits for an approval on your phone, approve within 45 seconds, whatever `ConnectTimeout` you set. You can’t raise this limit, because Desktop sets `ServerAliveInterval` and `ServerAliveCountMax` itself, and `ssh` then closes a login in which the remote machine sends nothing for that long. If a jump host or a `ProxyCommand` waits for you instead, raise `ConnectTimeout` in the remote machine’s entry to cover that time.
+
+##### Fix a `Match host` block that only Desktop applies
+
+If Desktop uses a setting that `ssh devbox` in a terminal doesn’t, look for a `Match host` block above the entry’s `HostName` line. In a terminal, `ssh` reads a block there before the `HostName` line, so it compares the block with `devbox`. Desktop gives `ssh` the `HostName` value on the command line, so `ssh` compares the block with that value. To check, run `ssh -G` in a terminal on your computer with the entry’s `HostName` and `User` values on the command line, as Desktop does:
+
+    ssh -G -o HostName=devbox.internal.example.com -l alice devbox
+
+Compare the output with that of `ssh -G devbox`. If the block’s settings, such as `proxycommand`, show only in the first output, the block takes effect only in Desktop. To have Desktop skip it too, add `!originalhost devbox` to its `Match` line:
+
+~/.ssh/config
+
+    Match host *.internal.example.com !originalhost devbox
+
+To confirm, run the first command again. The block’s settings no longer show in its output.
+
+##### Forwarding settings that Desktop leaves off
+
+On its connection to the remote machine, Desktop leaves `ForwardAgent`, `ForwardX11`, `LocalForward`, `RemoteForward`, `DynamicForward`, and `Tunnel` off, even where your SSH configuration turns them on. In the terminal or a `!` command, expect your forwarding settings to apply only sometimes, because Desktop can start a separate `ssh` there that follows them.
+
+  * **To reach a port on the remote machine** : forward it yourself
+  * **To use your own keys from the remote machine** : set up a credential on the remote machine itself, for example for `git push`
+
+To keep Desktop from forwarding your SSH agent or a port, run `ssh -G devbox` in a terminal on your computer. Then run it again as Desktop can run it, with the `hostname` and `user` values that it prints, as in `ssh -G -o HostName=devbox.internal.example.com -l alice devbox`. The second output can show settings from a `Match` block that the first skips. Look in both outputs for a `forwardagent` line that says anything but `no`, and for lines that begin with `localforward`, `remoteforward`, or `dynamicforward`. If you find one, remove that setting from your SSH configuration. Do the same for a host that your `ProxyCommand` reaches with `ssh`.
+
+####
+
+​
+
+Reach a port on the remote machine
+
+To open a server that runs on the remote machine, such as a dev server on port 3000, forward the port yourself. In a terminal on your computer, run `ssh` with `-L` and the host you connect to, such as `devbox`:
+
+    ssh -N -L 3000:localhost:3000 devbox
+
+If you filled in **SSH port** or **SSH key (optional)** on the connection, add `-p` or `-i` with the same value. Leave that command running, and open `http://localhost:3000` in a browser on your computer to reach port 3000 of the remote machine. If `ssh` prints `open failed: administratively prohibited`, ask the machine’s administrator to allow TCP forwarding, which `AllowTcpForwarding` in the SSH server’s `sshd_config` controls.
 
 ####
 
@@ -840,7 +1023,7 @@ Keep a task running while Desktop is disconnected
 
 If your computer sleeps, you lose your network, or you quit Desktop, the task goes on until it finishes, needs you, or reaches one of the limits. Closing the lid counts as sleep. A restart of Desktop or of your computer, including for an update, counts as a quit. Claude Code runs as a process on the remote machine, under a background helper that Desktop installs there, so it doesn’t need your SSH connection to keep running. The behavior in this section requires Claude Desktop v2.31226.0 or later.
 
-If you sign in to Desktop with a Claude account, don’t count on a task to run overnight. Desktop renews that sign-in for the task only while Desktop is running and connected, so the task’s sign-in can expire after you disconnect, and the task then stops. How much time is left when you disconnect varies.The work done so far stays on the remote machine, and you can continue with a message when you return.If the task must run through the night:
+If you sign in to Desktop with a Claude account, don’t count on a task to run overnight. Desktop renews that sign-in for the task only while Desktop is running and connected, so the task’s sign-in can expire after you disconnect, and the task then stops. How much time is left when you disconnect varies, and it can be only a few minutes.The work done so far stays on the remote machine, and you can continue with a message when you return.If the task must run through the night:
 
   * [Keep your computer awake](</docs/en/desktop-scheduled-tasks#how-scheduled-tasks-run>) and online, with the lid open and Desktop running
   * Use a login that works without a prompt, such as a key that your SSH agent holds, for the remote machine and for any jump host on the way. Desktop can then reconnect on its own after a drop.
@@ -954,6 +1137,117 @@ Each project gets its own subfolder in the folder you set, so with `~/worktrees`
 
 ​
 
+Files and processes on the remote machine
+
+Desktop installs a helper program and Claude Code under `~/.claude/remote/` in the home directory of each user who connects to a Linux or macOS remote machine. The helper listens on no network port, but Claude Code and the programs it starts, such as MCP servers and development servers, can.
+
+Folder| Contents
+---|---
+`~/.claude/remote/srv/`| The helper, in one folder per version
+`~/.claude/remote/ccd-cli/`| Claude Code, in one file per version
+`~/.claude/remote/run/`| The helper’s runtime files, such as its socket and log, in one folder per computer that connects
+`~/.claude/remote/plugins/`| Plugins that Desktop copies from the user’s computer
+[`~/.claude/uploads/`](</docs/en/claude-directory#clear-local-data>)| Files that the user attaches to messages, in one folder per session
+
+To list one user’s processes, run `pgrep -fl "$HOME/.claude/remote/"` on the remote machine as that user, or with the user’s home directory in place of `$HOME`:
+
+  * **Helper** : one or more `server` processes for each computer that connects
+  * **Claude Code** : the processes that the helper starts for the user’s sessions, each from a file named after its version, such as `2.1.295-…`
+
+Desktop reaches the helper through the user’s SSH connection, over the Unix socket `rpc.sock` in the helper’s folder under `~/.claude/remote/run/`. Apart from root, other users on the machine can’t connect to that socket, because it has mode 600 and its folder has mode 700. For when the helper stops on its own, see Limits while Desktop is disconnected. To remove the helper and Claude Code for one user:
+
+1
+
+Quit Desktop
+
+Quit Desktop on each computer that the user connects from. It installs both programs again the next time it connects, and it can reconnect on its own.
+
+2
+
+End the processes
+
+Logged in as that user on the remote machine, run `kill` with the ID of each Claude Code process that `pgrep` lists. Once those are gone from the list, run `kill` with the ID of each `server` process. If you end a `server` process first, a command that Claude Code is running can keep running.Then list the user’s remaining processes, for example with `ps -u "$(id -un)" -f`, and end any that you recognize as started by Claude Code. Programs that it left in the background can keep running after it ends, without being in the `pgrep` list.
+
+3
+
+Delete the folder
+
+Delete `~/.claude/remote/`. To remove Claude Code’s own files in `~/.claude/` and `~/.claude.json`, see [Remove configuration files](</docs/en/setup#remove-configuration-files>).
+
+##### End one session’s process
+
+To end one session’s Claude Code process, archive the session in Desktop while Desktop is connected to the remote machine. The process keeps running after its task is done and after you quit Desktop. Before you archive a session that has a worktree, see Work in parallel with sessions.
+
+##### See which user the processes run as
+
+The helper and Claude Code run as the user that Desktop logs in as over SSH. Installing and starting them takes no `sudo`. To check the user, run `ps -o user= -p` on the remote machine with a process ID that `pgrep` lists. Programs that Claude Code starts, such as shell commands and MCP servers, start as that user too. Review that user’s rights on the remote machine, its `sudo` rules included, as you would for a person who runs commands there.
+
+##### See who connected to the remote machine
+
+To find out who connected to a remote machine, read the SSH server’s log on that machine, where a login from Desktop looks like one from a terminal. With Desktop on macOS or Linux, expect an entry each time Desktop connects, not one for each session. You won’t find Desktop’s SSH connections in Claude Code’s [metrics and events](</docs/en/monitoring-usage#available-metrics-and-events>). To find out from them which remote machine an SSH session ran on, see [Attribute telemetry to Desktop SSH sessions](</docs/en/monitoring-usage#attribute-telemetry-to-desktop-ssh-sessions>). For Desktop’s own record of its connections, see Get Desktop’s logs for an SSH problem.
+
+####
+
+​
+
+Connections that close before login
+
+If the SSH server’s log shows connections that close before any login, they can be Desktop’s tests of the SSH port. Desktop tests whether a machine answers, for example after a connection to it failed. It opens a connection to the port and closes it at once, without sending anything. Expect one test or several in a row, for example eight in about two minutes. If nothing bans or refuses addresses for such connections, you don’t have to do anything about Desktop’s tests. If an address that Desktop connects from is refused or banned, check whether the SSH server itself refuses the address and whether fail2ban counts Desktop’s tests.
+
+##### Recognize a test in the SSH server’s log
+
+Compare the lines in your log with those that an OpenSSH server on Linux writes for a test at the default `LogLevel`, in the row for your server’s version. You can see the lines in the last column instead if the server’s greeting arrives before Desktop closes the connection:
+
+OpenSSH version| Lines for a test| Lines if the greeting arrives first
+---|---|---
+6.6 to 7.9| A line with `Did not receive identification string from 203.0.113.7`| The same line
+8.0 to 8.2| `error: kex_exchange_identification: Connection closed by remote host`| `error: kex_exchange_identification: read: Connection reset by peer`
+8.3 to 9.4| `error: kex_exchange_identification: Connection closed by remote host`, then `Connection closed by 203.0.113.7 port 51234`| `error: kex_exchange_identification: read: Connection reset by peer`, then `Connection reset by 203.0.113.7 port 51234`
+9.5 to 10.2| `Connection closed by 203.0.113.7 port 51234`| `error: kex_exchange_identification: read: Connection reset by peer`, then `Connection reset by 203.0.113.7 port 51234`
+10.3 to 10.5| `Connection closed by 203.0.113.7 port 51234 [preauth]`| `error: kex_exchange_identification: read: Connection reset by peer [preauth]`, then `Connection reset by 203.0.113.7 port 51234 [preauth]`
+
+Other programs that open the port and close it can leave the same lines. Where a line has an address, check that it is one that a computer with Desktop connects from. The lines of 8.0 to 8.2 have no address. To get one, set `LogLevel VERBOSE` in `sshd_config` and run `sshd -T | grep -i loglevel` as root. If it prints `loglevel VERBOSE`, reload the SSH server. Then look for a line with `Connection from 203.0.113.7 port 51234` before the test’s line.
+
+##### Check whether the SSH server itself refuses the address
+
+If connections are refused from an address that many computers with Desktop share, look in the SSH server’s log for a line that ends like this one:
+
+    drop connection #0 from [203.0.113.7]:51234 on [192.0.2.10]:22 penalty: connections without attempting authentication
+
+With the default `LogLevel`, OpenSSH 9.8 and later can write such a line when refusing an address for connections that closed without trying to log in, as Desktop’s tests do. With the default settings, you don’t see such a line after a few tests alone. To prevent the refusal, set `PerSourcePenaltyExemptList` in `sshd_config` to the addresses that people connect from, for example `PerSourcePenaltyExemptList 203.0.113.7`. The server then applies none of its penalties to those addresses, including those for failed logins. To check the file, run `sshd -T | grep -i persourcepenalt` as root. If it prints your list, reload the SSH server.
+
+##### Check whether fail2ban counts Desktop’s tests
+
+If fail2ban 0.10.5 or later banned an address that Desktop connects from, find your jail’s mode in `jail.conf`, `jail.local` or under `jail.d/`:
+
+  * **A`filter` line that names a mode in brackets**, such as `filter = sshd[mode=aggressive]`: use that mode.
+  * **Only the stock`filter` line**, with `[mode=%(mode)s]`: use the `mode` line, or `normal` if there is none.
+
+If the mode is `normal`, fail2ban doesn’t count the lines of Desktop’s tests, so look for another cause of the ban. For another mode, copy the lines from your own log to a file on the remote machine. Copy each line whole, from its date to its end, and both lines where a test leaves two. Run `fail2ban-regex` there with the file and your jail’s mode, for example `aggressive`:
+
+    fail2ban-regex -o ip lines.log "sshd[mode=aggressive]"
+
+For each failure that fail2ban counts, the command prints the address on a line of its own, such as `203.0.113.7`. In that case, prevent a ban. If it prints nothing, fail2ban counts none of those lines in that mode, so look for another cause of the ban.
+
+##### Prevent a ban by fail2ban
+
+To keep fail2ban from banning an address for Desktop’s tests, change one of two settings of the jail, each at a cost:
+
+  * **`mode`** : set it to `normal` wherever your jail sets it, in a `mode` line or in the brackets of a line such as `filter = sshd[mode=aggressive]`. You give up every count that only the other modes make, for example of clients that connect and leave without trying to log in.
+  * **`ignoreip`** : set it to the addresses that people connect from, for example `ignoreip = 203.0.113.7`. fail2ban then counts nothing from those addresses, failed logins included.
+
+####
+
+​
+
+Use MCP servers set up on the remote machine
+
+To use an [MCP server](</docs/en/mcp>) from `~/.claude.json` or a project’s `.mcp.json` in an SSH session, set it up in those files on the remote machine. Claude Code starts their stdio servers there, so install the commands those servers run on the remote machine. For servers from `claude_desktop_config.json`, see Limits while Desktop is disconnected.
+
+####
+
+​
+
 Open an SSH session from a link
 
 A `claude://code/new` link opens Desktop’s new-session page, and it can name an SSH connection. Put such a link in a runbook, dashboard, or wiki page to open Desktop set up for the right machine and folder. For platforms that strip such links, see [The link renders as plain text instead of being clickable](</docs/en/deep-links#the-link-renders-as-plain-text-instead-of-being-clickable>). SSH links require Claude Desktop v2.110.0 or later. The following link names the user `dev` on `build.example.com`, port 2222, and the folder `/srv/payments`, and fills in a prompt:
@@ -1057,10 +1351,11 @@ The keys apply to the desktop app. They leave other ways to run Claude Code as t
   * **Cowork** : none of the keys applies to [Cowork](<https://claude.com/docs/cowork/overview>) sessions or Cowork scheduled tasks
   * **Cloud sessions** : none of the keys changes whether cloud sessions are available. To turn them off, use the **Cloud sessions** setting under Admin console controls.
 
-When you adapt the example, check the hostnames and the Desktop version:
+When you adapt the example, check the hostnames, the Desktop version, and the file’s permissions:
 
   * **Hostnames** : make sure that a pattern in `sshHostAllowlist` matches the hostname of each `sshConfigs` entry, without `user@`, or developers can’t connect to it. For how Desktop matches a hostname, see Restrict which SSH hosts users can connect to.
   * **Version** : `disableDesktopLocalSessions` requires Claude Desktop v1.37937.0 or later
+  * **File permissions** : make sure that each developer’s account on the computer can read the managed settings file. Desktop doesn’t apply the keys in a file that the account can’t read, and Claude Code [starts without them](</docs/en/managed-settings#find-entries-claude-code-dropped>) too.
 
 Put the three keys in one [managed source](</docs/en/managed-settings#how-claude-code-combines-managed-sources>), the highest-ranked one that you deliver. If you deliver [server-managed settings](</docs/en/server-managed-settings>), also keep a copy of the three keys in the highest-ranked MDM policy or managed settings file on each computer. Desktop fetches server-managed settings at launch, and the copy on the computer applies until a fetch succeeds. To confirm that the settings apply, check a developer’s computer:
 
@@ -1403,6 +1698,39 @@ Sessions that run in their own worktree need Git. If you see “Git is required,
 MCP servers not working on Windows
 
 If MCP server toggles don’t respond or servers fail to connect on Windows, check that the server is properly configured in your settings, restart the app, verify the server process is running in Task Manager, and review server logs for connection errors.
+
+###
+
+​
+
+SSH connection fails after you log in
+
+Find the card’s title, or the code that ends the error message, in this table, then do what the last column says. To see the message, select **View details** on the failure card.
+
+Title on the card| Code| What to do
+---|---|---
+`<host>'s SSH server has SFTP turned off`| `[SFTP_UNAVAILABLE]`| Turn on SFTP in the server’s `sshd_config`, as described under remote machine requirements
+`SFTP doesn't start on <host>`| `[SFTP_NOT_STARTED]`| Connect to the same host with `sftp` in a terminal on your computer to see what stops it, then check the settings and files that Desktop’s message names
+`<host> allows too few SSH sessions per connection`| `[SESSION_LIMIT]`| Raise `MaxSessions` in the server’s `sshd_config`, for example to OpenSSH’s default of 10
+`<host> is out of disk space`| `[ENOSPC]` or `[EDQUOT]`| Free space or quota on the remote machine, in your home directory or `/tmp`
+`This computer is out of disk space`| `[ENOSPC]` or `[EDQUOT]`, in a message that starts with `Couldn't prepare the deploy locally`| Free space on your computer
+`Claude Code won't start on <host>`| `[CLI_UNRESPONSIVE]`| Wait a minute, then try again. If it keeps failing, run the command that the message names on the remote machine to see whether Claude Code answers there.
+
+For any other message, check the remote machine requirements.
+
+###
+
+​
+
+Get Desktop’s logs for an SSH problem
+
+You get `ssh.log`, Desktop’s record of its SSH connections, in a zip file of Desktop’s logs that you save from the **Help** menu. To save it, open **Help > Troubleshooting** and select the item for your system:
+
+  * **macOS** : **Show Logs in Finder**
+  * **Windows** : **Show Logs in File Explorer**
+  * **Linux** : **Show Logs in File Manager**
+
+Look through the files before you send them, because they can include names and other details from your environment. `<host>` and `<user>` stand for names that Desktop replaced. Desktop doesn’t replace every name, and an SSH host or user name can still appear as written. If you send the zip file to someone, tell them which host failed and when, because the logs may not name it. The zip file doesn’t hold the log of the helper program that Desktop installs on the remote machine. To get that log as well, copy `remote-server.log` from the helper’s folder under `~/.claude/remote/run/` in the home directory of the user who connected. Look through that file too before you send it.
 
 ###
 

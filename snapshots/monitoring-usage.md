@@ -1,4 +1,6 @@
-Track Claude Code usage, costs, and tool activity across your organization by exporting telemetry data through OpenTelemetry (OTel). Claude Code exports metrics as time series data via the standard metrics protocol, events via the logs/events protocol, and optionally distributed traces via the traces protocol.
+Track Claude Code usage, costs, and tool activity across your organization by exporting telemetry data through OpenTelemetry (OTel). Claude Code exports metrics as time series data via the standard metrics protocol, events via the logs/events protocol, and optionally distributed traces via OpenTelemetry.
+
+For the Claude API or Managed Agents, see [OpenTelemetry for the Claude API](<https://platform.claude.com/docs/en/manage-claude/opentelemetry>).
 
 ##
 
