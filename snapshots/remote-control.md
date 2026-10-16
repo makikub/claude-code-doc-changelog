@@ -70,6 +70,7 @@ Press `w` at runtime to toggle between `same-dir` and `worktree`.
 `-d`, `--debug[=<filter>]`| Turn on debug logging for the server, optionally filtered by category. Pass a filter only in the `=` form, such as `--debug=api,hooks`. Requires Claude Code v2.1.282 or later.
 `--debug-file <path>`| Write debug logs to the given file.
 `--verbose`| Show detailed connection and session logs.
+`--sandbox`, `--no-sandbox`| Removed in v2.1.300. If you pass either flag, the server [exits with an error](</docs/en/errors#sandbox-is-not-supported-by-claude-remote-control>) instead of starting.
 
 If you pass a global `claude` flag before `remote-control`, or a wrapper script adds one, Claude Code doesn’t carry the flag over to the sessions the server creates. Claude Code lets the flag through only when dropping it is known not to change what those sessions can do, such as `--verbose` or `--model`. For any other flag, such as `--settings`, Claude Code [refuses to start](</docs/en/errors#not-carried-over-to-the-sessions-remote-control-starts>) and names the flag to remove.To sandbox the sessions the server starts, turn on [sandboxing](</docs/en/sandboxing>) in a settings file.Claude Code checks Remote Control eligibility before printing help, so `claude remote-control --help` returns an error instead of this flag list when you aren’t signed in with an eligible account.
 

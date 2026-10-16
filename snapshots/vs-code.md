@@ -156,6 +156,19 @@ Text you paste stays visible in the prompt box, rather than collapsing to a plac
 
 ​
 
+LaTeX math in responses
+
+The chat panel shows LaTeX math in Claude’s responses as typeset formulas. Math rendering requires Claude Code v2.1.301 or later. In terminal mode, math isn’t typeset. The panel typesets both display math and inline math:
+
+  * **Display math** : a `$$ … $$` or `\[ … \]` block on a line or lines of its own, and a fenced code block with `math` as its language
+  * **Inline math** : `$…$` or `\(…\)` that opens and closes on the same line, such as `$E = mc^2$` or `\(a^2 + b^2 = c^2\)`
+
+The panel tries to tell math apart from other uses of the same characters, so text such as `$HOME`, a price like `$5`, or `sed 's/\(foo\)/\1/'` isn’t typeset. Neither is text inside a code span or inside any code block other than a fenced `math` block. If a formula shows as written when you expected it typeset, see A formula shows as raw LaTeX. When you select and copy text that includes a typeset formula, you get the formula’s TeX source in `$…$` or `$$…$$` delimiters rather than the drawn symbols. **Copy response** and `/copy` give you the response as Claude wrote it, TeX source included.
+
+###
+
+​
+
 Resume past conversations
 
 Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time. Click any conversation to resume it with the full message history. If the conversation is already open in another tab of the current window, clicking it switches to that tab. If the messages stay blank at first, see why they’re blank and when they appear. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
@@ -248,6 +261,21 @@ After you run **Developer: Reload Window** or restart VS Code, whether a chat co
   * **Sidebar** : the conversation comes back if you sent a message or Claude responded in it within the last 10 minutes. If it doesn’t come back, resume the conversation from Session history.
 
 If another Claude Code process still has the conversation open, you’re asked before it opens here, with the same **Open here anyway** notice as when you resume it from session history. If the messages stay blank at first, see why they’re blank and when they appear. If the reload interrupted Claude mid-step, Claude continues that step when the conversation comes back, and a notice in the chat marks the continuation. Requires Claude Code v2.1.274 or later. If the step was interrupted more than an hour ago or the session is open elsewhere, the conversation comes back idle instead. To turn continuation off, open the [Continue After Reload setting](<vscode://settings/claudeCode.continueAfterReload>) and uncheck it. Setting [`CLAUDE_CODE_RESUME_INTERRUPTED_TURN`](</docs/en/env-vars#variables>) or any other `CLAUDE_CODE_RESUME_` variable in VS Code’s environment or in the `environmentVariables` setting has no effect in the panel, because the extension removes those variables before it starts the panel’s sessions.
+
+####
+
+​
+
+A conversation was not reopened
+
+After a reload, a new chat with a notice like this above its prompt box means the panel left your conversation closed because the conversation’s last two opens didn’t finish:
+
+    “Fix the login bug” was not reopened. It did not finish opening the last 2 times, and opening it again may stop Claude Code from responding here.
+
+An open doesn’t finish when the panel crashes or stops responding while loading the conversation, or when you reload or close the window within about three seconds of it opening. Nothing is lost: the conversation is unchanged and stays in Session history.
+
+  * **To open it anyway** : click **Open it anyway** or pick the conversation from Session history. If it opens and the panel keeps working, it comes back after later reloads as usual. If the panel stops responding again, reload the window to return to a new chat with the notice.
+  * **To leave it closed** : keep working in the new chat. The notice disappears once you send a prompt.
 
 ###
 
@@ -383,6 +411,26 @@ Plugin changes you make in the dialog apply right away to the Claude Code sessio
 Plugin management in VS Code uses the same CLI commands under the hood. Plugins and marketplaces you configure in the extension are also available in the CLI, and vice versa.
 
 For more about the plugin system, see [Plugins](</docs/en/plugins/overview>) and [Plugin marketplaces](</docs/en/plugins/overview>).
+
+###
+
+​
+
+Plugins that draw in the panel
+
+A plugin that contains a [mod](</docs/en/plugins/mods/overview>) can draw in the chat panel. Drawing requires extension version 2.1.299 or later and a session that [fetches feature flags](</docs/en/env-vars#features-that-need-feature-flag-fetching>). From such a plugin you can see:
+
+  * A pane beside the conversation or above the prompt box
+  * A toast or a status line above the prompt box
+  * A message or a tool call drawn the plugin’s own way
+
+When a plugin you installed adds or changes something in the panel, a label names it, in phrases such as these:
+
+  * **From the token-chart plugin** : the plugin drew or printed this, or this card is the plugin asking you something
+  * **Edited by the token-chart plugin** : the plugin changed something Claude Code draws, such as a tool call
+  * **Prompt from the token-chart plugin** : the plugin sent this message on your behalf
+
+To stop a plugin from drawing, turn the plugin off in the plugin dialog.
 
 ##
 
@@ -783,6 +831,28 @@ Alternatively, rebind the extension to a different key: open the VS Code [Keyboa
 A resumed conversation is blank at first
 
 When you resume a past conversation or one comes back after a reload, its messages can stay blank while the conversation’s Claude Code process starts. After about a second, `Waiting for your plugins…` appears in the empty space. You don’t need to do anything. The messages appear once the process has started and confirmed that no plugin needs to check them first, or after 20 seconds if starting takes longer.
+
+###
+
+​
+
+The panel stops responding each time a reload reopens a conversation
+
+If the whole panel crashes, freezes, or shows only `Something went wrong` each time you reload and your conversation comes back, update the extension to v2.1.301 or later. Then reload the window or restart VS Code again. After the conversation fails to finish opening twice in a row, you get a new chat in its place, with a notice that it was not reopened.
+
+###
+
+​
+
+A formula shows as raw LaTeX
+
+If none of the math in Claude’s responses is typeset, check the extension’s version in the Extensions view, because math rendering requires version 2.1.301 or later. If you use terminal mode, which doesn’t typeset math whatever the version, uncheck the [Use Terminal setting](<vscode://settings/claudeCode.useTerminal>) so that Claude Code opens in the chat panel instead. If one formula shows as written while others near it are typeset, check it for these causes:
+
+  * **It reads as something other than math** : `$…$` text that reads as a word stays as written, such as `$O(n log n)$`. `$…$` text that starts with a digit, such as `$30$` or `$1/N$`, also stays as written unless a character such as `=`, `+`, or `^` marks it as math. Ask Claude for a `$$` block on its own lines instead, which the panel typesets without this check.
+  * **It’s padded, long, or split across lines** : `$ x^2 $` with spaces inside the dollars, `$…$` content over 60 characters, and `$…$` or `\(…\)` split across two lines aren’t typeset. Ask Claude for a `$$` block on its own lines instead, which has none of these limits.
+  * **The TeX can’t be typeset** : a formula with a syntax error, a macro definition such as `\newcommand` or `\def`, or an unescaped `%` shows as written. Ask Claude to rewrite it with the error corrected, without the macro, or with `\%` for a percent sign.
+  * **It’s too large** : a formula longer than 8,192 characters, or one that would draw far larger than its source, shows as written. Ask Claude to split it into smaller formulas or to write it more compactly.
+  * **It follows a large amount of math** : within one block of text in a response, the panel typesets formulas in order up to a limit. A later formula that would go past the limit shows as written. Ask Claude to send the formula you need again by itself.
 
 ###
 

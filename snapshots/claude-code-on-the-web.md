@@ -49,7 +49,7 @@ These features depend on the Claude GitHub App being installed on the repository
 
 In Anthropic-hosted environments, your GitHub credentials stay encrypted on Anthropic’s servers and never enter a session’s VM. GitHub operations from the VM go through the [GitHub proxy](</docs/en/cloud-environments#github-proxy>), which attaches the credential on the server side. See [Connect from your terminal](</docs/en/web-quickstart#connect-from-your-terminal>) for the `/web-setup` walkthrough, including what `/web-setup` stores and how to remove it.
 
-Organizations with [Zero Data Retention](</docs/en/zero-data-retention>) enabled, or with the [HIPAA configuration](</docs/en/hipaa-setup>) applied, can’t use `/web-setup` or other cloud session features.
+Organizations with [Zero Data Retention](</docs/en/zero-data-retention>) enabled, or with the [HIPAA configuration](</docs/en/hipaa-setup>) applied, can’t use `/web-setup` or other cloud session features. Organizations that use [customer-managed encryption keys](<https://platform.claude.com/docs/en/manage-claude/cmek>) (CMEK) can’t start cloud sessions either.
 
 ###
 
