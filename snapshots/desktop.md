@@ -1031,8 +1031,7 @@ If you sign in to Desktop with a Claude account, don’t count on a task to run 
 For a task that must run while your computer is asleep or off, start a cloud session instead.
 
   * **After sleep or a network loss** : you get the running task back if the process still runs and Desktop can log in without a prompt. If it can’t, send a message.
-  * **After a quit, with Desktop on macOS or Linux and a Claude account** : you get the running task back if Desktop can rejoin the process. If it can’t, the task stops. If it stays stopped, send a message.
-  * **After a quit, with Desktop on Windows or a[third-party provider](</docs/en/third-party-integrations>)**: you lose the running task, because Desktop ends the process when the session opens. Send a message to continue.
+  * **After a quit** : the task keeps running, but you lose it when the session opens again unless Desktop can rejoin its process. Check when Desktop can rejoin before you quit. If you lost the task, send a message to continue.
 
 When you come back and the task isn’t done, check for word that Desktop can’t reconnect, an authentication error, or a waiting request:
 
@@ -1044,7 +1043,7 @@ When you come back and the task isn’t done, check for word that Desktop can’
 ##### Prepare a long task
 
   * **Update first** : update Desktop before you start a long task. On macOS and Windows, Desktop can restart on its own to install an update that it has downloaded. That restart waits while Claude is working on an SSH task. On macOS with a Claude account, by default the restart can go ahead anyway once the update has waited 72 hours.
-  * **Don’t quit Desktop** : if Desktop runs on Windows or uses a third-party provider, leave it open while the long task runs. After a quit, it ends the running task when the session opens. Leaving it open doesn’t protect a request that waits for you.
+  * **Don’t quit on Windows, or before v2.42304.0 with a third-party provider** : after a quit there you lose the running task, so leave Desktop open during the task. In any other case, see what you get back before you quit.
   * **Reduce requests** : choose a permission mode, rules, or hooks that make the task wait for you less often
   * **Check the jump host** : if your jump host asks for a sign-in, for example a push to a phone, switch to a login that works without a prompt. Otherwise Desktop can send another push each time it tries to reconnect.
   * **Test the remote machine** : start a short task, quit Desktop while the task is still running, and open the session again well after the task should be done. If the task isn’t finished and the session shows no authentication error, check the remote machine for what can end a task.
@@ -1082,7 +1081,7 @@ A session without a worktree has no such check, unless your organization restric
 
 ##### Handle requests that arrive while you are away
 
-If Claude needs your approval or asks you a question while Desktop is disconnected, Claude waits on the remote machine. The wait has no time limit of its own. When Desktop rejoins the process, it shows you the request. If Desktop starts a new process instead, you lose the request. While a task waits for you, Desktop can restart on its own, for example to install an update. If Desktop runs on Windows or uses a third-party provider, you lose the request after that restart. If you lose a request, send a message to continue. To reduce how often a task stops to wait for you, and to hear from it while you are away, set up any of these before you leave:
+If Claude needs your approval or asks you a question while Desktop is disconnected, Claude waits on the remote machine. The wait has no time limit of its own. When Desktop rejoins the process, it shows you the request. If Desktop starts a new process instead, you lose the request. If a request that waited for you is gone when you come back, one cause is that Desktop restarted on its own, for example to install an update. You keep a request through a restart only if Desktop can rejoin the process, so check when Desktop can rejoin before you leave a task running. If you lose a request, send a message to continue. To reduce how often a task stops to wait for you, and to hear from it while you are away, set up any of these before you leave:
 
   * **Auto mode** : choose Auto mode if it is available to you. After repeated blocks, you are [asked again](</docs/en/permission-modes#when-auto-mode-falls-back>).
   * **Allow rules** : in your user settings file on the remote machine, `~/.claude/settings.json`, add [allow rules](</docs/en/permissions#manage-permissions>) for the commands the task needs. If your organization [accepts permission rules from managed settings only](</docs/en/settings-reference#allowmanagedpermissionrulesonly>), ask your administrator to add them to the managed settings that reach the remote machine. For allow rules in a project’s `.claude/settings.json`, see [Project allow rules and workspace trust](</docs/en/permissions#project-allow-rules-and-workspace-trust>).
@@ -1105,17 +1104,17 @@ If a jump host asks for a sign-in, the outage is long, output is missing, or the
   * **Jump host, pushes keep coming** : where Desktop can’t tell that nobody answers, as with Desktop on Windows, it keeps trying while it has a process to rejoin, whether or not that process still runs. You can get another push with each attempt. To end the attempts, quit Desktop, which can cost you the running task.
   * **Long outage** : Desktop slows to about one attempt every five minutes. To reconnect sooner, retry in the session or send a message, which Desktop delivers once it is connected.
   * **Missing output** : while Desktop is disconnected, the helper keeps each session’s most recent Claude Code output in a 16 MiB buffer and drops older output. After Desktop reconnects, the session can show `Loading recent output from <host>…`. If Desktop can’t load all of the output, you see the row `Some output produced while you were disconnected may be missing here.` The row doesn’t mean that the task stopped.
-  * **Process gone** : if the process is gone when Desktop reconnects, Desktop can start a new one from the conversation’s saved history and tell Claude to continue the task. Desktop doesn’t continue the task on its own if the process keeps ending, or if Desktop uses a third-party provider. Send a message to continue.
+  * **Process gone** : the process ended while Desktop was disconnected, as when the remote machine restarts. Desktop can then start a new one from the conversation’s saved history and tell Claude to continue the task. If the task stays stopped, send a message. With a third-party provider, update to Claude Desktop v2.42304.0 or later, because earlier versions never continue the task on their own.
 
 ##### Reopen a session after you quit Desktop
 
-After you quit Desktop, the task keeps running on the remote machine until it finishes, needs you, or reaches one of the limits.
+After you quit Desktop, the task keeps running on the remote machine, but it stops when the session opens again unless Desktop can rejoin its process. While Desktop is closed, the task runs until it finishes, needs you, or reaches one of the limits.
 
-  * **Desktop on macOS or Linux, with a Claude account** : start Desktop and open the session. You get the running task back when Desktop can rejoin the process. It can’t always rejoin, for example after some Desktop updates or after your organization changes its managed settings.
-  * **On macOS or Linux, when Desktop can’t rejoin** : Desktop ends the process and starts a new one from the conversation’s saved history. Your running task stops, and you lose any approval or question that was waiting for you. After an update, Desktop can then tell Claude to continue. If the task stays stopped, send a message.
-  * **Desktop on Windows, or with a third-party provider on any platform** : start Desktop again only when you expect the task to be done. You don’t get the running task back, because Desktop never rejoins after a quit. It ends the process when the session opens, which can happen as Desktop starts. Send a message to continue.
+  * **Desktop on Windows** : you don’t get the running task back, because Desktop never rejoins after a quit. Start Desktop again only when you expect the task to be done, because the session can open as Desktop starts.
+  * **Third-party provider, task from an earlier version** : if you started the task in a Desktop version before v2.42304.0, you don’t get it back on macOS or Linux either. Start Desktop again only when you expect the task to be done.
+  * **Any other task, with Desktop on macOS or Linux** : start Desktop and open the session, and the task goes on if Desktop rejoins. It can’t always rejoin, for example after some Desktop updates, so update before a long task.
 
-For third-party deployments, see [SSH remote sessions in Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions>).
+When Desktop can’t rejoin, you also lose any approval or question that was waiting for you. If the task doesn’t continue on its own, send a message, and Claude continues from the conversation’s saved history. For third-party deployments, see [SSH remote sessions in Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions>).
 
 While a conversation’s Claude Code process is still running, don’t run [`claude --resume`](</docs/en/cli-reference#cli-flags>) for it on the remote machine. Claude Code doesn’t stop you, and both processes then write to the same conversation. If you aren’t sure, add `--fork-session`, which continues in a copy of the conversation, but both processes still work on the same files.
 

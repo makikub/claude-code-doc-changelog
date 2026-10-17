@@ -378,7 +378,15 @@ Subagents inherit the [built-in tools](</docs/en/tools-reference>) and MCP tools
   * `WaitForMcpServers`
   * `Workflow`
 
-The second filter applies to subagents running in the background. Apart from `Agent` and `ExitPlanMode`, which follow the first filter’s conditions wherever the subagent runs, a background subagent keeps every MCP tool but only these built-in tools: `Read`, `Grep`, `Glob`, `LSP`, `Bash`, `PowerShell`, `Edit`, `Write`, `NotebookEdit`, `WebFetch`, `WebSearch`, `TodoWrite`, `Skill`, `ToolSearch`, `EnterWorktree`, `ExitWorktree`, `Monitor`, `TaskStop`, `SendMessage`, and `Artifact`, plus [`SubagentHandback`](</docs/en/tools-reference>) for a subagent that reports through it. Claude Code removes every other built-in tool from a background subagent, whether inherited or listed in the `tools` field, so the same definition can resolve to different tools in the foreground and the background. The removal reports no error unless it leaves the `tools` list [resolving to nothing](</docs/en/errors#agent-would-be-spawned-with-zero-tools>). Before v2.1.280, background subagents couldn’t use `LSP`. [`ListAgents`](</docs/en/cross-session-messaging>) follows these filters like any built-in tool: a foreground subagent inherits it in sessions where cross-session messaging is enabled, and a background subagent doesn’t keep it. Teammates in [agent teams](</docs/en/agent-teams>) additionally keep the task tools and cron tools: `TaskCreate`, `TaskGet`, `TaskList`, `TaskUpdate`, `CronCreate`, `CronDelete`, and `CronList`. In a [session without the Task tools](</docs/en/tools-reference#task-tool-availability>), Claude Code doesn’t provide the task tools to subagents either, even when the subagent runs a different model. An in-process teammate follows your session the same way, while a teammate in its own [split pane](</docs/en/agent-teams#choose-a-display-mode>) runs as a separate Claude Code process, so its own model decides. To restrict tools, use the `tools` field as an allowlist or the `disallowedTools` field as a denylist. This example uses `tools` to allow only Read, Grep, Glob, and Bash. The subagent can’t edit files, write files, or use any MCP tools:
+The second filter applies to subagents running in the background. Apart from `Agent` and `ExitPlanMode`, which follow the first filter’s conditions wherever the subagent runs, a background subagent keeps every MCP tool but only these built-in tools: `Read`, `Grep`, `Glob`, `LSP`, `Bash`, `PowerShell`, `Edit`, `Write`, `NotebookEdit`, `WebFetch`, `WebSearch`, `TodoWrite`, `Skill`, `ToolSearch`, `EnterWorktree`, `ExitWorktree`, `Monitor`, `TaskStop`, `SendMessage`, and `Artifact`, plus [`SubagentHandback`](</docs/en/tools-reference>) for a subagent that reports through it. Claude Code removes every other built-in tool from a background subagent, whether inherited or listed in the `tools` field, so the same definition can resolve to different tools in the foreground and the background. The removal reports no error unless it leaves the `tools` list [resolving to nothing](</docs/en/errors#agent-would-be-spawned-with-zero-tools>). Before v2.1.280, background subagents couldn’t use `LSP`. [`ListAgents`](</docs/en/cross-session-messaging>) follows these filters like any built-in tool: a foreground subagent inherits it in sessions where cross-session messaging is enabled, and a background subagent doesn’t keep it. Teammates in [agent teams](</docs/en/agent-teams>) additionally keep the task tools and cron tools: `TaskCreate`, `TaskGet`, `TaskList`, `TaskUpdate`, `CronCreate`, `CronDelete`, and `CronList`. In a [session without the Task tools](</docs/en/tools-reference#task-tool-availability>), Claude Code doesn’t provide the task tools to subagents either, even when the subagent runs a different model. An in-process teammate follows your session the same way, while a teammate in its own [split pane](</docs/en/agent-teams#choose-a-display-mode>) runs as a separate Claude Code process, so its own model decides.
+
+####
+
+​
+
+Restrict which tools a subagent can use
+
+To restrict tools, use the `tools` field as an allowlist or the `disallowedTools` field as a denylist. If both are set, `disallowedTools` is applied first, then `tools` is resolved against the remaining pool. A tool listed in both is removed. This example uses `tools` to allow only Read, Grep, Glob, and Bash. The subagent can’t edit files, write files, or use any MCP tools:
 
     ---
     name: safe-researcher
@@ -394,7 +402,15 @@ This example uses `disallowedTools` to inherit the subagent’s tool pool except
     disallowedTools: Write, Edit
     ---
 
-If both are set, `disallowedTools` is applied first, then `tools` is resolved against the remaining pool. A tool listed in both is removed. When nothing in the `tools` list resolves to a tool, for example because every entry is misspelled or names a tool that isn’t available to subagents, Claude Code usually refuses to launch the subagent and the Agent tool returns an error naming the unresolved entries; see [Agent would be spawned with zero tools](</docs/en/errors#agent-would-be-spawned-with-zero-tools>) for the message and how to fix each entry. Before v2.1.208, that subagent launched with no tools and could return an empty or confusing result. Both fields accept MCP server-level patterns in addition to exact tool names: `mcp__<server>` or `mcp__<server>__*` grants or removes every tool from the named server. In `disallowedTools`, `mcp__*` also removes every MCP tool from any server. This example removes every tool from the `github` MCP server while keeping tools from other servers and the built-in tools in its pool:
+When nothing in the `tools` list resolves to a tool, for example because every entry is misspelled or names a tool that isn’t available to subagents, Claude Code usually refuses to launch the subagent and the Agent tool returns an error naming the unresolved entries; see [Agent would be spawned with zero tools](</docs/en/errors#agent-would-be-spawned-with-zero-tools>) for the message and how to fix each entry. Before v2.1.208, that subagent launched with no tools and could return an empty or confusing result. The `tools` and `disallowedTools` fields also take entries for a whole MCP server:
+
+Goal| Field| Example entry
+---|---|---
+Give the subagent every tool from one server| `tools`| `mcp__github__*`
+Withhold one server’s tools| `disallowedTools`| `mcp__github` or `mcp__github__*`
+Withhold every MCP tool from any server| `disallowedTools`| `mcp__*`
+
+This example removes every tool from the `github` MCP server while keeping tools from other servers and the built-in tools in the subagent’s pool:
 
     ---
     name: local-only

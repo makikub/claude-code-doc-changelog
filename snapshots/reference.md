@@ -314,7 +314,7 @@ Elements are the building blocks of a tree a `ui.render` hook returns, and you g
 Element| Main props| Terminal| Desktop| VS Code
 ---|---|---|---|---
 [`Box`](</docs/en/plugins/mods/interface#build-a-tree-from-elements>)| `key`, flex layout, `gap`, `padding`, `margin`, `width`, `height`, `borderStyle`, `backgroundColor`, `position`, `hover`| ✓| ✓| ✓
-[`Text`](</docs/en/plugins/mods/interface#build-a-tree-from-elements>)| `color`, `backgroundColor`, `bold`, `italic`, `underline`, `dimColor`, `inverse`, `wrap`| ✓| ✓| ✓
+[`Text`](</docs/en/plugins/mods/interface#build-a-tree-from-elements>)| `color`, `backgroundColor`, `bold`, `italic`, `underline`, `dimColor`, `inverse`, `wrap`, `size`, `weight`, `mono`, `tabular`| ✓| ✓| ✓
 [`Button`](</docs/en/plugins/mods/interface#respond-to-presses-and-typing>)| `key`, `label`, `onPress`, `hotkey`, `plain`, `dimColor`, `autoFocus`, `action`| ✓| ✓| ✓
 [`Link`](</docs/en/plugins/mods/interface#link-in-the-desktop-app>)| `href`, `label`. See Limits.| ✓| ✓| ✓
 [`Code`](</docs/en/plugins/mods/gallery#show-code-and-changes>)| `source`, `language`, `path`, `startLine`, `format`, `wrap`| ✓| ✓| ✓
@@ -329,6 +329,7 @@ Element| Main props| Terminal| Desktop| VS Code
 More `Button` rules: `action` names one of Claude Code’s own [keybinding actions](</docs/en/keybindings>), and the user’s binding for it presses the button when that binding is a chord or a modified key. A digit `hotkey` on a button in the band also fires when the user types that digit alone into an empty prompt and pauses. When two buttons in one drawing name the same `hotkey`, the later one gets it. `autoFocus` accepts only `true` on any control, so omit the prop to leave it off. The VS Code extension ignores some element props and draws the element as if you had left them out:
 
   * **`Box`** : `position` and `hover`
+  * **`Text`** : `size`, `mono`, and `tabular`
   * **`Button`** : `hotkey`, `plain`, `autoFocus`, and `action`, so the user presses a button there with a click, or with Enter once it has focus
   * **`Code`** : `language`, `path`, `startLine`, `format`, and `wrap`, so code draws without colors or line numbers, and a `format: 'diff'` block shows the diff’s raw text
   * **`Input` and `Select`**: `autoFocus`
@@ -355,6 +356,49 @@ To draw a border around a `Box`, set its `borderStyle` to one of these names, as
 `'quote'`| A bar, `▎`, down the left side and blank cells on the other three sides| Blank
 
 A `Box` whose `borderStyle` names anything else, such as `'rounded'`, draws with no border.
+
+###
+
+​
+
+`Box` spacing steps
+
+The `Box` spacing props are `gap`, `columnGap`, `rowGap`, `padding`, `margin`, and the one-side and one-axis forms of `padding` and `margin`, such as `paddingX` and `marginTop`. Each takes a number of terminal cells such as `gap: 1`, or a step name such as `gap: 'md'`. In the terminal and the VS Code extension, each step is this many cells:
+
+Step| Cells across| Cells down
+---|---|---
+`'xs'`| 1| 0
+`'sm'`| 1| 0
+`'md'`| 2| 1
+`'lg'`| 3| 1
+`'xl'`| 4| 2
+
+If you set `gap`, `padding`, or `margin` to a step, the step applies across and down at once. For example, in the terminal and the VS Code extension, `padding: 'md'` is two cells at each side and one row above and below. Step names require Claude Code v2.1.299 or later. On an earlier release, Claude Code [draws its own version of the site](</docs/en/plugins/mods/interface#build-a-tree-from-elements>) in place of a tree that uses a step name.
+
+###
+
+​
+
+`Text` typography props
+
+Set `size`, `weight`, `mono`, or `tabular` on a `Text` to ask the app drawing your tree for a text size, a weight, a monospaced typeface, or equal-width digits. Before you rely on a prop, check what the terminal and the VS Code extension do with it. If an app ignores a prop you set, your tree still draws there, with the text as if you’d left that prop out.
+
+Prop| Values| In the terminal| In the VS Code extension
+---|---|---|---
+`size`| `'caption'`, `'footnote'`, `'body'`, `'heading'`, or `'title'`| Ignored: the terminal has one text size| Ignored
+`weight`| `'regular'`, `'medium'`, `'semibold'`, or `'bold'`| `semibold` and `bold` draw as bold text| `semibold` and `bold` draw as bold text
+`mono`| `true` to ask for the app’s monospaced typeface| Ignored: the terminal is always monospaced| Ignored, so text keeps the extension’s own typeface
+`tabular`| `true` to ask for digits of equal width, so that a number that updates in place or a column of numbers stays aligned| Ignored: the terminal’s digits are already one cell wide| Ignored
+
+These four props require Claude Code v2.1.299 or later. On an earlier release, Claude Code [draws its own version of the site](</docs/en/plugins/mods/interface#build-a-tree-from-elements>) in place of a tree that sets `size`, `weight`, `mono`, or `tabular`.
+
+####
+
+​
+
+Replace `bold` with `weight`
+
+`bold` on a `Text` is deprecated in favor of `weight` and still works. To replace it on a `Text` with no `weight`, change `bold: true` to `weight: 'semibold'` for the same result on Claude Code v2.1.299 or later. On a release earlier than v2.1.299, a tree that sets `weight` doesn’t draw, and Claude Code [draws its own version of the site](</docs/en/plugins/mods/interface#build-a-tree-from-elements>) instead. If you set both `bold` and `weight` on a `Text`, `bold` has no effect.
 
 ##
 
