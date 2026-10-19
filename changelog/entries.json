@@ -89727,5 +89727,19 @@
       ]
     },
     "diff": "--- a/zero-data-retention.md\n+++ b/zero-data-retention.md\n@@ -64,6 +64,7 @@\n Feature| Reason\n ---|---\n [Cloud sessions](</docs/en/claude-code-on-the-web>), including those started from the [Desktop app](</docs/en/desktop#cloud-sessions>)| Requires server-side storage of session data, including conversation history with prompts and completions.\n+[Chat and Cowork unified](<https://support.claude.com/en/articles/17444462-set-up-and-manage-the-new-unified-claude-experience-for-your-enterprise-organization>)| Requires cloud sessions.\n [Claude Tag](<https://claude.com/docs/claude-tag>)| Retains channel memory and session transcripts.\n [Artifacts](</docs/en/artifacts>)| Requires storing published page content on Anthropic-operated infrastructure.\n Feedback submission (`/feedback`, `/bug`, `/share`)| Submitting feedback sends conversation data to Anthropic.\n"
+  },
+  {
+    "date": "2026-10-19",
+    "slug": "changelog",
+    "title": "Claude Code changelog",
+    "change_type": "modified",
+    "summary": {
+      "lines_added": 8,
+      "lines_removed": 0,
+      "sections_changed": [
+        "(top)"
+      ]
+    },
+    "diff": "--- a/changelog.md\n+++ b/changelog.md\n@@ -1,4 +1,12 @@\n This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md>). Longer releases are grouped by type of change, with long lists of improvements and bug fixes collapsed. Run `claude --version` to check your installed version.\n+\n+​\n+\n+2.1.303\n+\n+October 18, 2026\n+\n+  * Bug fixes and reliability improvements\n \n ​\n \n"
   }
 ]
