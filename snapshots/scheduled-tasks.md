@@ -1,4 +1,11 @@
-Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](</docs/en/channels>): your CI can push the failure into the session directly. To keep the session working turn after turn toward a condition rather than on an interval, see [`/goal`](</docs/en/goal>). Tasks are session-scoped. When you resume with `--resume` or `--continue`, Claude Code restores tasks that haven’t expired, except those listed under Limitations. For scheduling that survives independently of any session, use [Routines](</docs/en/routines>) to create a routine on the cloud, set up a [Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), or use [GitHub Actions](</docs/en/github-actions>).
+Session-scoped scheduled tasks let Claude re-run a prompt automatically on an interval within a Claude Code session. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session.
+
+These cases are covered on other pages:
+
+  * **Reacting to events as they happen instead of polling** : see [Channels](</docs/en/channels>). Your CI can push the failure into the session directly.
+  * **Keeping the session working turn after turn toward a condition rather than on an interval** : see [`/goal`](</docs/en/goal>).
+
+Tasks are session-scoped. When you resume with `--resume` or `--continue`, Claude Code restores tasks that haven’t expired, except those listed under Limitations. For scheduling that survives independently of any session, create a [cloud scheduled task](</docs/en/routines>), set up a [Desktop scheduled task](</docs/en/desktop-scheduled-tasks>), or use [GitHub Actions](</docs/en/github-actions>).
 
 ##
 
@@ -137,7 +144,7 @@ Claude pins the fire time to a specific minute and hour using a cron expression 
 
 ​
 
-Manage scheduled tasks
+Manage session-scoped scheduled tasks
 
 Ask Claude in natural language to list or cancel tasks, or reference the underlying tools directly.
 
@@ -159,7 +166,7 @@ Each scheduled task has an 8-character ID you can pass to `CronDelete`. A sessio
 
 ​
 
-How scheduled tasks run
+How session-scoped scheduled tasks run
 
 The scheduler checks every second for due tasks and enqueues them at low priority. A scheduled prompt fires between your turns, not while Claude is mid-response. If Claude is busy when a task comes due, the prompt waits until the current turn ends. All times are interpreted in your local timezone. A cron expression like `0 9 * * *` means 9am wherever you’re running Claude Code, not UTC.
 
@@ -208,7 +215,7 @@ A one-shot task scheduled for `:00` or `:30` runs up to 90 seconds early. Claude
 
 Seven-day expiry
 
-Recurring tasks automatically expire 7 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [Routines](</docs/en/routines>) or [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>) for durable scheduling.
+Recurring tasks automatically expire 7 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [cloud scheduled tasks](</docs/en/routines>) or [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>) for durable scheduling.
 
 ##
 
@@ -233,7 +240,7 @@ Day-of-week uses `0` or `7` for Sunday through `6` for Saturday. Extended syntax
 
 ​
 
-Disable scheduled tasks
+Disable session-scoped scheduled tasks
 
 Set `CLAUDE_CODE_DISABLE_CRON=1` in your environment to disable the scheduler entirely. The cron tools and `/loop` become unavailable, and any already-scheduled tasks stop firing. See [Environment variables](</docs/en/env-vars>) for the full list of disable flags.
 
@@ -252,6 +259,6 @@ Session-scoped scheduling has inherent constraints:
 
 For cron-driven automation that needs to run unattended:
 
-  * [Routines](</docs/en/routines>): run in the cloud on a schedule, via API call, or on GitHub events
+  * [Cloud scheduled tasks](</docs/en/routines>): run in the cloud on a schedule, via API call, or on GitHub events
   * [GitHub Actions](</docs/en/github-actions>): use a `schedule` trigger in CI
   * [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>): run locally on your machine

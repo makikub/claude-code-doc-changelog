@@ -26,6 +26,7 @@ Mechanism| After compaction
 System prompt and output style| Both still apply
 Project-root CLAUDE.md and unscoped rules| Re-injected from disk
 Auto memory| Re-injected from disk
+Skill descriptions| Rebuilt from your current [skills](</docs/en/skills>) and re-injected. Requires Claude Code v2.1.304 or later
 [Git status snapshot](</docs/en/settings-reference#includegitinstructions>)| If the session started with one, Claude Code reads a fresh one from your repository
 The plan Claude wrote in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>)| Re-injected from disk
 Rules with `paths:` frontmatter| Claude Code reloads them [on demand](</docs/en/memory#path-specific-rules>)

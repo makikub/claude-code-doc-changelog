@@ -183,7 +183,7 @@ Command| Action| From mode
 
 Remap INSERT-mode key sequences
 
-The [`vimInsertModeRemaps`](</docs/en/settings-reference#viminsertmoderemaps>) setting maps a two-key INSERT-mode sequence to Escape, so a mapping like `jj` returns you to NORMAL mode. Requires Claude Code v2.1.208 or later. The following `~/.claude/settings.json` example turns on vim mode and maps `jj` to Escape:
+The [`vimInsertModeRemaps`](</docs/en/settings-reference#viminsertmoderemaps>) setting maps a two-key INSERT-mode sequence to Escape, so a mapping like `jj` returns you to NORMAL mode. The following `~/.claude/settings.json` example turns on vim mode and maps `jj` to Escape:
 
     {
       "editorMode": "vim",
@@ -242,8 +242,8 @@ Command| Action
 `cc`| Change line
 `C`| Change to end of line
 `cw`/`ce`/`cb`| Change word/to end/back
-`s`| Substitute character: delete the character under the cursor and enter INSERT mode. Requires Claude Code v2.1.211 or later
-`S`| Substitute line: clear the line and enter INSERT mode. Requires Claude Code v2.1.211 or later
+`s`| Substitute character: delete the character under the cursor and enter INSERT mode
+`S`| Substitute line: clear the line and enter INSERT mode
 `yy`/`Y`| Yank (copy) line
 `yw`/`ye`/`yb`| Yank word/to end/back
 `p`| Paste after cursor
@@ -459,7 +459,7 @@ In interactive mode, Claude Code leaves prompt suggestions off by default and hi
   * After the first turn of a conversation, in some sessions
   * The previous response ended in an error
   * While you’re in plan mode
-  * Your account is close to or at its usage limit. To keep suggestions on until you reach the limit, set [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](</docs/en/env-vars>) to `true`. Before v2.1.238, Claude Code skipped them near the limit even with the variable set to `true`
+  * Your account is close to or at its usage limit. To keep this skip from applying until you reach the limit, set [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](</docs/en/env-vars>) to `true`. Before v2.1.238, Claude Code skipped suggestions near the limit even with the variable set to `true`
   * In an [agent team](</docs/en/agent-teams>), in teammates’ sessions by default. The lead’s session shows suggestions
 
 The notice `Showing fewer prompt suggestions · use one to bring them back` means Claude Code is showing suggestions less often because you left many in a row unused. To return to the usual frequency, use a suggestion or set [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](</docs/en/env-vars>) to `true`. In print mode, Claude Code doesn’t generate suggestions by default. Pass [`--prompt-suggestions`](</docs/en/cli-reference#cli-flags>) with `-p "<prompt>" --output-format stream-json --verbose` to have Claude Code emit a `prompt_suggestion` message after each turn that generates one. The generator skips very short conversations and cold prompt caches here too, so a single short `-p` query can emit none.
@@ -724,7 +724,7 @@ Claude answers a side question from what’s already in the conversation: your m
   * **Single response** : there are no follow-up turns in the overlay. To continue the thread, ask another `/btw` question. To continue with full tool access in a local session, press `f` to fork this question and answer into a [background subagent](</docs/en/sub-agents#fork-the-current-conversation>).
   * **Low cost** : while the conversation’s [prompt cache](</docs/en/prompt-caching>) is warm, a side question costs little beyond the answer itself.
 
-Your five newest earlier side questions appear as a dimmed list above the current answer, with a count of any older ones. They stay out of the conversation history. To return to the overlay after dismissing it, run `/btw` with no question. The overlay reopens on your most recent exchange. Before v2.1.212, `/btw` without a question printed a usage message instead. Once the answer appears, the overlay accepts these keys.
+Your five newest earlier side questions appear as a dimmed list above the current answer, with a count of any older ones. They stay out of the conversation history. To return to the overlay after dismissing it, run `/btw` with no question. The overlay reopens on your most recent exchange. Once the answer appears, the overlay accepts these keys.
 
 Key| Action
 ---|---
@@ -757,7 +757,7 @@ The task list is Claude’s to-do checklist: items Claude created to plan multi-
 
 Session recap
 
-When you return to the terminal after stepping away, Claude Code shows a one-line recap of what happened in the session so far. The recap generates in the background once at least three minutes have passed since the last completed turn and the terminal is unfocused, so it’s ready when you switch back. Recaps only appear once the session has at least three turns, and never twice in a row. Run `/recap` to generate a summary on demand. It runs only when you ask for it yourself. When it arrives in a message relayed from a Slack, Teams, or project thread, or in a prompt a routine sent, you get a [notice](</docs/en/errors#recap-only-runs-when-you-ask-for-it-yourself>) instead of a recap. Session recap is on by default for every plan and provider. To turn automatic recaps off, open `/config` and turn off **Session recap**. The automatic recap never appears in non-interactive mode. Claude Code caps both automatic recaps and `/recap` output at 400 characters.
+When you return to the terminal after stepping away, Claude Code shows a one-line recap of what happened in the session so far. The recap generates in the background once at least three minutes have passed since the last completed turn and the terminal is unfocused, so it’s ready when you switch back. Recaps only appear once the session has at least three turns, and never twice in a row. Run `/recap` to generate a summary on demand. It runs only when you ask for it yourself. When it arrives in a message relayed from a Slack, Teams, or project thread, you get a [notice](</docs/en/errors#recap-only-runs-when-you-ask-for-it-yourself>) instead of a recap. You also get the notice when `/recap` arrives in a prompt a cloud scheduled task sent. Session recap is on by default for every plan and provider. To turn automatic recaps off, open `/config` and turn off **Session recap**. The automatic recap never appears in non-interactive mode. Claude Code caps both automatic recaps and `/recap` output at 400 characters.
 
 ##
 

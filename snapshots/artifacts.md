@@ -61,7 +61,7 @@ When| What Claude Code does
 The session is in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>)| Asks before the first publish of each artifact
 The publish declares runtime capabilities for the page, such as connector calls or file downloads| Asks before that publish
 You shared the artifact publicly| Asks once per conversation before changing it
-Claude publishes in a turn that a [scheduled task](</docs/en/scheduled-tasks>) firing in your session started, rather than a prompt you typed| Asks before the first publish of each artifact
+Claude publishes in a turn that a [session-scoped scheduled task](</docs/en/scheduled-tasks>) firing in your session started, rather than a prompt you typed| Asks before the first publish of each artifact
 Claude can’t read the file without your approval| Asks before publishing it. An allow rule for the `Artifact` tool doesn’t skip this prompt
 In [Manual](</docs/en/permission-modes>) or `acceptEdits` mode, Claude makes a small change to an artifact’s file it can’t edit without your approval, such as a project file in Manual mode| Asks before publishing the change. You’re asked even if an allow rule covers the `Artifact` tool, because the edit to the file needs your approval
 
@@ -87,7 +87,7 @@ Anyone with the page open sees the update in place. Each publish becomes a versi
 
 Find an artifact again
 
-Run `/artifacts` in Claude Code to list the artifacts you own and the ones shared with you. The current session’s artifacts come first, under **This session**. Requires Claude Code v2.1.208 or later. Select an artifact, then press one of these keys:
+Run `/artifacts` in Claude Code to list the artifacts you own and the ones shared with you. The current session’s artifacts come first, under **This session**. Select an artifact, then press one of these keys:
 
   * **`Enter`** : opens it in your browser when it’s already attached to the current session, and attaches it when it isn’t. Before v2.1.216, `Enter` opened it in your browser
   * **`o`** : opens it in your browser

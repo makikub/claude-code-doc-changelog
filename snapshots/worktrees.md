@@ -1,6 +1,9 @@
 A [git worktree](<https://git-scm.com/docs/git-worktree>) is a separate working directory with its own files and branch, sharing the same repository history and remote as your main checkout. Running each Claude Code session in its own worktree gives it a separate copy of the files to edit, so one session can build a feature while a second fixes a bug.
 
-Worktrees require a git repository; for other version control systems, configure hooks to replace the git logic. In the [desktop app](</docs/en/desktop#work-in-parallel-with-sessions>), select the **worktree** option when you start a session to give it its own worktree.
+If you use another version control system or the desktop app, follow the instructions for your setup:
+
+  * **Other version control systems** : worktrees require a git repository; configure hooks to replace the git logic
+  * **Desktop app** : see [Run a session in its own worktree](</docs/en/desktop#run-a-session-in-its-own-worktree>)
 
 Worktrees are one of several ways to run Claude in parallel. They isolate file edits. [Subagents](</docs/en/sub-agents>) split work up inside one session, and [cross-session messaging](</docs/en/cross-session-messaging>) lets Claude pass findings between the sessions in your worktrees. See [Run agents in parallel](</docs/en/agents>) to compare the approaches, or skip ahead to Isolate subagents with worktrees to use worktrees and subagents together. Most sessions need only the first two sections: start Claude in a worktree, then clean up when you exit. Return to the rest of the page when you need to resume a session, change how worktrees are created, or debug a failure.
 
@@ -222,7 +225,7 @@ A worktree gets its own files and branch, but it shares the following with the m
   * **Permission approvals** : choosing “Yes, and don’t ask again” for a Bash command in a worktree session saves the rule to the main checkout’s `.claude/settings.local.json`, so it applies in the main checkout and in every other worktree of the repository, and it survives the worktree’s removal. On Windows and in the other cases where Claude Code [doesn’t use the repository root](</docs/en/settings#where-claude-code-looks-for-each-file>), the rule stays with that worktree. Before v2.1.211, an approval granted in a worktree was saved inside that worktree, didn’t apply elsewhere, and was lost when the worktree was removed. See [where approvals are saved](</docs/en/permissions#permission-system>).
   * **Untracked skills, agents, and commands** : when the worktree checkout has no `.claude/skills` directory at its root, for example because your `.claude/skills` is gitignored, Claude Code loads the main checkout’s [project skills](</docs/en/skills#where-skills-live>) in the worktree session. In a worktree with its own `.claude/skills` directory, only that copy loads. The same read-through covers `.claude/agents` and `.claude/commands`. For skills, the read-through requires Claude Code v2.1.277 or later.
 
-All of these apply whether you create the worktree with `--worktree` or with `git worktree add`. In a worktree session that you start from the [desktop app](</docs/en/desktop#work-in-parallel-with-sessions>), Claude Code reads project configuration such as settings, hooks, skills, agents, commands, and [`.mcp.json`](</docs/en/mcp#project-scope>) servers from the main checkout’s root rather than from the worktree. Hook commands run in that root, and `${CLAUDE_PROJECT_DIR}` points at it. To reach the files Claude is working on, read the worktree’s path from the hook’s [`cwd` input field](</docs/en/hooks#common-input-fields>). `CLAUDE.md` files and `.claude/rules/` still load from the worktree.
+All of these apply whether you create the worktree with `--worktree` or with `git worktree add`. In a worktree session you start from the [desktop app](</docs/en/desktop#run-a-session-in-its-own-worktree>), Claude Code reads project configuration such as settings, hooks, skills, agents, commands, and [`.mcp.json`](</docs/en/mcp#project-scope>) servers from the main checkout’s root. Hook commands run in that root, and `${CLAUDE_PROJECT_DIR}` points at it. To reach the files Claude is working on, read the worktree’s path from the hook’s [`cwd` input field](</docs/en/hooks#common-input-fields>). `CLAUDE.md` files and `.claude/rules/` still load from the worktree.
 
 ##
 
@@ -366,4 +369,4 @@ Worktrees handle file isolation. The related pages below cover delegating work i
   * [Cross-session messaging](</docs/en/cross-session-messaging>): let the sessions in your worktrees pass findings to each other
   * [Agent teams](</docs/en/agent-teams>): coordinate multiple Claude sessions automatically
   * [Manage sessions](</docs/en/sessions>): name, resume, and switch between conversations
-  * [Desktop parallel sessions](</docs/en/desktop#work-in-parallel-with-sessions>): worktree-backed sessions in the desktop app
+  * [Run a Desktop session in its own worktree](</docs/en/desktop#run-a-session-in-its-own-worktree>): worktree-backed sessions in the desktop app

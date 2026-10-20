@@ -163,7 +163,18 @@ Field| Type| Required| Description
 `effort`| `'low' | 'medium' | 'high' | 'xhigh' | 'max' | number`| No| Reasoning effort level for this agent
 `permissionMode`| `PermissionMode`| No| Permission mode for tool execution within this agent. The [subagent inheritance rules](</docs/en/agent-sdk/permissions#available-modes>) decide when it applies
 
-In the Python SDK, multi-word field names such as `disallowedTools` and `mcpServers` keep their camelCase spelling to match the wire format rather than following Python’s snake_case convention. See the [`AgentDefinition` reference](</docs/en/agent-sdk/python#agentdefinition>) for details. Subagents run in the background by default. An Agent tool call that omits the [`run_in_background`](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) input launches a background subagent, and Claude sets `run_in_background: false` when it needs the result before continuing. Set the `background` field to `true` to force background execution for a specific agent regardless of what Claude requests. Before Claude Code v2.1.198, the background default was rolling out gradually, and an Agent tool call that omitted `run_in_background` could run the subagent synchronously. Subagents can also spawn subagents of their own. To limit how deep that nesting goes, how many subagents run at once, and how much a query spends, see Cap subagent depth, concurrency, and spend.
+In the Python SDK, multi-word field names such as `disallowedTools` and `mcpServers` keep their camelCase spelling to match the wire format rather than following Python’s snake_case convention. See the [`AgentDefinition` reference](</docs/en/agent-sdk/python#agentdefinition>) for details.
+
+####
+
+​
+
+Choose whether Claude waits for subagents
+
+By default, a subagent your main agent spawns [runs in the background](</docs/en/sub-agents#run-subagents-in-foreground-or-background>). The Agent tool result has `status: "async_launched"`, and the report arrives in a later turn. Claude waits when its next action needs the report: the call blocks and returns `status: "completed"`. To make that choice yourself:
+
+  * **In your prompt** : ask Claude to wait, such as “run the test-runner agent and wait for it”
+  * **In the definition** : set `background` to `true` to keep that agent in the background
 
 ###
 
@@ -224,6 +235,28 @@ To guarantee Claude uses a specific subagent, mention it by name in your prompt:
     "Use the code-reviewer agent to check the authentication module"
 
 This bypasses automatic matching and directly invokes the named subagent.
+
+###
+
+​
+
+Forked subagents
+
+A [fork](</docs/en/sub-agents#fork-the-current-conversation>) is a subagent that copies the conversation so far instead of starting fresh. From Claude Code v2.1.302, Claude can start forks in your application with nothing configured, by calling the Agent tool with `subagent_type: "fork"`. To stop Claude from starting forks, add an [`Agent(fork)` deny rule](</docs/en/agent-sdk/permissions#allow-and-deny-rules>):
+
+Python
+
+TypeScript
+
+    options = ClaudeAgentOptions(
+        # Deny only the fork subagent type; other subagents still run
+        disallowed_tools=["Agent(fork)"],
+    )
+
+    const options = {
+      // Deny only the fork subagent type; other subagents still run
+      disallowedTools: ["Agent(fork)"]
+    };
 
 ###
 

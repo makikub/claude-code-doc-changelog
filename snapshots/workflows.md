@@ -143,8 +143,6 @@ The keyword is an opt-in only in a prompt you type yourself: at the interactive 
   * a scheduled task prompt
   * a webhook payload or pull request comment relayed into the conversation
 
-Before v2.1.210, the keyword started a workflow from any of these routes too, including a webhook payload or pull request comment relayed into the conversation.
-
 ###
 
 ​

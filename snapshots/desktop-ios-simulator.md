@@ -152,7 +152,7 @@ Claude may not have recognized that you wanted to run or test the app, or the si
   * Confirm Xcode and the iOS simulators are installed and that you’re using a recommended Xcode version.
   * If your organization manages Claude Code, the simulator tools may be disabled by policy.
   * If you’re in an Enterprise organization that has a HIPAA configuration enabled, the simulator pane isn’t available to you.
-  * The simulator pane requires Claude Desktop v1.24012.0 or later. Open **Claude → Check for Updates** , then restart the app.
+  * The simulator pane requires Claude Desktop v1.24012.0 or later. Open **Claude > Check for Updates…**, then restart the app.
 
 ###
 
@@ -170,5 +170,5 @@ See also
 
   * [Computer use in Desktop](</docs/en/desktop#let-claude-use-your-computer>): screen control for apps without a dedicated pane
   * [Computer use from the CLI](</docs/en/computer-use>): how the CLI reaches the iOS Simulator
-  * [Work in parallel with sessions](</docs/en/desktop#work-in-parallel-with-sessions>): how sessions isolate changes
+  * [Run a session in its own worktree](</docs/en/desktop#run-a-session-in-its-own-worktree>): how sessions isolate changes
   * [Get started with Claude Code Desktop](</docs/en/desktop-quickstart>)

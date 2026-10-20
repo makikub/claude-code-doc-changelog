@@ -91,7 +91,7 @@ Two managed MCP policies turn the prompt off:
 
 Enable Chrome by default
 
-To connect Chrome without passing `--chrome` each time, run `/chrome` in a CLI session and select **Enabled by default**. In the [VS Code extension](</docs/en/vs-code#automate-browser-tasks-with-chrome>), type `/chrome` in the prompt box and turn on the **Enabled by default** switch. The two share one setting, so turning it on in either place turns it on for both the CLI and VS Code. With the setting on and Claude Code v2.1.287 or later, each VS Code session connects to your browser as it starts, so Claude can use it before you type `@browser`. On earlier versions, or with the setting off, a VS Code session connects when you type `@browser`. Claude Code starts normally when Chrome isn’t running. Before v2.1.211, startup could hang when Chrome integration was enabled but Chrome wasn’t running.
+To connect Chrome without passing `--chrome` each time, run `/chrome` in a CLI session and select **Enabled by default**. In the [VS Code extension](</docs/en/vs-code#automate-browser-tasks-with-chrome>), type `/chrome` in the prompt box and turn on the **Enabled by default** switch. The two share one setting, so turning it on in either place turns it on for both the CLI and VS Code. With the setting on and Claude Code v2.1.287 or later, each VS Code session connects to your browser as it starts, so Claude can use it before you type `@browser`. On earlier versions, or with the setting off, a VS Code session connects when you type `@browser`. Claude Code starts normally when Chrome isn’t running.
 
 Enabling Chrome by default increases context usage since the browser tools and their instructions are always loaded. If you notice increased context consumption, turn the setting off and connect only when needed, with `--chrome` in the CLI or by typing [`@browser`](</docs/en/vs-code#automate-browser-tasks-with-chrome>) in the VS Code prompt box.
 
@@ -174,7 +174,7 @@ Claude reads your local file, navigates the web interface, and enters the data f
 
 Upload files to web pages
 
-Claude can attach files from your machine to upload fields on a page. Claude Code reads the file and sends its contents to the browser, so uploads work in both local and remote sessions. Requires Claude Code v2.1.211 or later. This example attaches a log file to a form:
+Claude can attach files from your machine to upload fields on a page. Claude Code reads the file and sends its contents to the browser, so uploads work in both local and remote sessions. This example attaches a log file to a form:
 
     Open the bug tracker at bugs.example.com, create a new issue,
     and attach logs/session.log to it
@@ -249,7 +249,7 @@ Ask Claude to keep a screenshot as a file:
 
     Take a screenshot of the checkout page and save it to disk
 
-Claude saves the image to disk and reports the file path. Before v2.1.211, the screenshot tool’s `save_to_disk` option didn’t write a file.
+Claude saves the image to disk and reports the file path.
 
 ##
 
