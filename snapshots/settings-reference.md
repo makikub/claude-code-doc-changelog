@@ -775,7 +775,7 @@ For what each lifetime costs, see [Cache lifetime](</docs/en/prompt-caching#cach
 
 `showThinkingSummaries`
 
-See summaries of Claude’s [extended thinking](</docs/en/model-config#extended-thinking>) in interactive sessions. Set it if you want the full summaries when you expand thinking with `Ctrl+O`. When unset or `false`, the Anthropic API redacts thinking blocks and Claude Code shows a collapsed stub; third-party providers don’t redact.
+See summaries of Claude’s [extended thinking](</docs/en/model-config#extended-thinking>) in interactive sessions. Set it if you want the full summaries when you expand thinking with `Ctrl+O`. When unset or `false`, the Anthropic API redacts thinking blocks and Claude Code shows a collapsed stub.
 
   * **Scope** : `Any file`
   * **Type** : Boolean
@@ -1491,6 +1491,8 @@ The `//path` prefix for absolute paths also works. If you use single-slash `/pat
 
   * **`allowWrite` and `denyWrite`**: on macOS, wildcards work. On Linux and WSL2, the sandbox mounts concrete paths, so Claude Code skips an entry that contains `*`, `?`, or `[` once the trailing `/**` is removed, and that entry has no effect. Claude Code adds the paths from your `Edit` permission rules to these lists, so the same limit applies to them, and the **Config** tab of `/sandbox` warns about `Edit` and `Read` permission rules that contain wildcards.
   * **`denyRead` and `allowRead`**: wildcards work on every platform. On Linux and WSL2, Claude Code expands a read entry to the concrete paths it matches, which it doesn’t do for the write lists.
+
+Braces match as ordinary characters in a name, so `~/data/{keys,tokens}` covers a directory literally named `{keys,tokens}`, not two alternatives. To cover `~/data/keys` and `~/data/tokens`, add each as its own entry.
 
 ###
 
@@ -2612,7 +2614,7 @@ Variables Claude Code ignores in `env`
       * `OTEL_EXPORTER_PROMETHEUS_HOST` and `OTEL_EXPORTER_PROMETHEUS_PORT`
 Only these values still apply from project and local settings, because they turn something off: `none` for the three exporter selectors, and an off value such as `0` for `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_CONTENT`, and `OTEL_LOG_TOOL_DETAILS`. Such a value overrides the same variable in your user settings, but not one that the environment you start Claude Code from, a `--settings` file, or managed settings sets. When a project or local settings file sets a variable in this group, a local interactive session shows a notice at startup. Run `/status` or `claude doctor` to see which ones Claude Code ignored and which turned telemetry off; both list names, never values. A non-interactive run with `-p` or an Agent SDK session shows no notice, so check that your collector still receives data after you upgrade. If it doesn’t, set the variables in your user settings, managed settings, the job’s environment, or a file you pass with `--settings`. Ignoring this group in project and local settings requires Claude Code v2.1.282 or later.
     * Variables that change how Claude Code starts or syncs, such as `CLAUDE_CODE_PROCESS_WRAPPER`, `CLAUDE_CODE_SYNC_SKILLS`, `CLAUDE_CODE_SYNC_PLUGINS`, `CLAUDE_CODE_PLUGIN_CACHE_DIR`, and `CLAUDE_CODE_PLUGIN_SEED_DIR`.
-    * Variables that set the timers on an unanswered dialog: [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`, `CLAUDE_AFK_TIMEOUT_MS`, and `CLAUDE_AFK_COUNTDOWN_MS`](</docs/en/env-vars#variables>).
+    * [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](</docs/en/env-vars#variables>), which sets the timer on an unanswered dialog.
     * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](</docs/en/env-vars#variables>), which turns off attachment processing.
     * [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](</docs/en/env-vars#variables>), which stops Claude Code from expanding `@` mentions of files and directories.
 Before v2.1.251, project and local settings could also set the variables in this list that choose where Claude Code writes its files or that export session content, except `HOME` and `XDG_CONFIG_HOME`. Before v2.1.290, they could also set the dialog timer variables and `CLAUDE_CODE_DISABLE_ATTACHMENTS`.
@@ -2652,7 +2654,7 @@ In a `-p` run or an Agent SDK session, Claude Code ignores this key. The SDK tur
 
 `idleCompaction`
 
-Idle compaction [compacts](</docs/en/context-window#what-survives-compaction>) a long conversation that you’ve stepped away from, shortly before its prompt cache expires. Your next message then sends a summary instead of the whole conversation. When you come back, the conversation shows `Compacted while idle, before the prompt cache expired`. Idle compaction is on by default for conversations that meet all of these conditions:
+Idle compaction [compacts](</docs/en/context-window#what-survives-compaction>) a long conversation that you’ve stepped away from, shortly before its prompt cache expires. Your next message then sends a summary instead of the whole conversation. When you come back, the conversation shows a line that starts with `Compacted while idle, before the prompt cache expired`. Idle compaction is on by default for conversations that meet all of these conditions:
 
   * **Session** : you’re in an interactive terminal session
   * **Prompt cache** : the conversation is on the [one-hour prompt cache TTL](</docs/en/prompt-caching#which-ttl-each-request-gets>)
@@ -2674,6 +2676,11 @@ settings.json
     {
       "idleCompaction": false
     }
+
+To turn idle compaction off or on from inside a session, run `/config` and change the **Idle compaction** row. Your choice is saved to your user settings and applies right away. The row requires Claude Code v2.1.302 or later. If you run one of those versions and `/config` doesn’t show the row, check for these causes:
+
+  * **Another settings source sets the key** : a value in managed settings, the `--settings` flag, or a project or local settings file overrides your user settings. Change the key in that source instead
+  * **Feature flags are unavailable** : where Claude Code can’t [fetch feature flags from Anthropic](</docs/en/env-vars#features-that-need-feature-flag-fetching>), idle compaction doesn’t run, so there is nothing to turn off
 
 The key requires Claude Code v2.1.290 or later. On an earlier version, which ignores this key, turn off `autoCompactEnabled` to stop idle compaction.
 
@@ -2785,7 +2792,6 @@ Let an unanswered [`AskUserQuestion`](</docs/en/tools-reference>) dialog auto-co
   * **Scope** : `User or managed`
   * **Type** : string, one of `"60s"`, `"5m"`, `"10m"`, or `"never"`
   * **Default** : `"never"`
-  * **Per-session overrides** : [`CLAUDE_AFK_TIMEOUT_MS`](</docs/en/env-vars>) takes precedence over this key for one session
 
 settings.json
 
@@ -4617,7 +4623,14 @@ managed-settings.json
 
 `strictPluginOnlyCustomization.hooks`
 
-Lock the `hooks` surface. Claude Code stops running hooks from user, project, and local `settings.json`, and keeps running plugin hooks and hooks in managed settings.
+Lock the `hooks` surface:
+
+  * **Stops running** :
+    * Hooks from user, project, and local `settings.json`
+    * Frontmatter hooks in skills, custom commands, and agents, from the sources that a `skills` or `agents` lock would block
+  * **Keeps running** : plugin hooks and hooks in managed settings
+
+Skills, custom commands, and agents whose frontmatter hooks stop running still load while their own surface isn’t locked.
 
   * **Scope** : `Managed`
   * **Type** : the string `"hooks"` in the `strictPluginOnlyCustomization` array
@@ -5570,7 +5583,7 @@ See [Mobile push notifications](</docs/en/remote-control#mobile-push-notificatio
 
 `preferredNotifChannel`
 
-Choose how Claude Code notifies you when a task completes or a permission prompt is waiting. Appears in `/config` as **Local notifications**.
+Choose how Claude Code notifies you when a task completes or a permission prompt is waiting. A [mod’s notifications](</docs/en/plugins/mods/api#show-something-without-starting-a-turn>) use the same setting. Appears in `/config` as **Local notifications**.
 
   * **Scope** : `Any file`. Claude Code also reads a value left in `~/.claude.json` by older versions.
   * **Type** : string, one of:

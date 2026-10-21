@@ -2,6 +2,71 @@ This page is generated from the [CHANGELOG.md on GitHub](<https://github.com/ant
 
 ​
 
+2.1.306
+
+October 21, 2026
+
+  * Fixed `claude -p` inside cloud sessions reporting “Not logged in” when started without the session’s environment variables
+  * Fixed an API error being replaced by “prompt is too long”, and an unneeded compaction, in sessions with many MCP tools
+
+​
+
+2.1.305
+
+October 20, 2026
+
+**Added**
+
+  * Added `sandbox.allowNestedUserNamespaces` so sandboxed commands on Linux can create user namespaces (Chromium, rootless podman); this lets them get around the sandbox’s file protections
+  * Added `CLAUDE_CODE_RETRY_WATCHDOG_USAGE_LIMIT_RECHECK_MS` so unattended retry mode (`CLAUDE_CODE_RETRY_WATCHDOG`) notices a usage limit that was lifted before its reset
+  * [VSCode] Added a “Running start-up hooks” spinner status, with a screen reader announcement, while SessionStart or Setup hooks run
+  * [Claude Tag] Added public Slack channels Claude hasn’t joined to the Claude Tag admin Add place search, so admins can set one up from there
+
+**Changed**
+
+  * Changed `allowedMcpServers` to stop filtering `managed-mcp.json` stdio servers that use `${VAR}` only in `env`: one your allowlist left out now loads on upgrade; use `deniedMcpServers` to keep it off
+  * Changed plugins that Claude Desktop mounts by path to no longer keep their `allowed-tools` when your organization’s managed settings set `allowManagedPermissionRulesOnly`
+  * Changed the `/artifacts` delete confirmation to take 1 or Enter to keep, 2 to delete, and Esc to cancel; `y` and `n` no longer answer it
+  * Changed a mod’s docked pane to stay within 45% of the terminal’s width, including a width kept from a wider terminal
+  * [VSCode] Changed the message shown when a session does not start in time and no hook is running: it now leads with the output logs and lists causes instead of pointing to sign-in and network first
+  * [Code Review] Changed Code Review re-reviews so they no longer open with LGTM while earlier blocking findings are still open
+
+Show 6 improvements
+
+  * Improved `/usage`: each warning is now a one-line fix that names its source, and `f` applies the fixes; the same fixes appear in VS Code and `/doctor`
+  * Improved MCP consent dialogs so an Enter meant for the prompt is less likely to be taken as Accept
+  * Improved a mod’s `Image` to draw its picture in iTerm2 3.5 and later with fullscreen rendering, where it showed only its `alt` text
+  * Remote Control: Improved the spawn-mode messages: pressing `w` now says the new mode is saved for the folder, and a later `claude remote-control` start that uses the saved mode says where it came from
+  * [Cloud sessions] Improved deleting a self-hosted environment so the dialog and error messages say what blocks the delete and what it will affect
+  * [Claude Tag] Improved Claude Tag admin pages in large organizations so plugin, skill and bundle edits work while the channel list is still loading
+
+Show 22 bug fixes
+
+  * Fixed every request failing on Vertex, Bedrock and other providers when the endpoint or a gateway rejects tool search, and behind gateways with ToolSearch disallowed or left out of `--tools` (a 2.1.304 regression): Claude Code now retries without it
+  * Fixed `/effort` and `/autocompact` settings not applying when the model name differed from a `modelOverrides` value by letter case or a `[1m]` tag
+  * Fixed new worktrees in a bare repository sometimes starting from local HEAD instead of the default branch, and unchanged subagent worktrees sometimes not being cleaned up
+  * Fixed Bash commands on a full disk failing with a raw `ENOSPC` file path: the error now says the disk is full and that nothing ran
+  * Fixed an MCP server passed by a cloud session or by the SDK’s `setMcpServers` being replaced later in the session by a same-named server from your own settings
+  * Fixed Claude naming the wrong model for a subagent’s work after the subagent switched to a fallback model
+  * Fixed cloud sessions and teammates not telling Claude when a compaction had to leave the oldest messages out of its summary to fit
+  * Fixed more cases of scheduled Cowork cloud sessions waiting five minutes for each subagent whose WebFetch needed a URL approval that nobody was there to give
+  * Fixed Workflow resume re-running already-completed `pipeline()` and `parallel()` agents instead of serving them from the run’s journal
+  * Fixed Remote Control leaving empty “(session)” entries in `/resume` after switching conversations with `/resume`
+  * Fixed `/usage` rows being cut off in narrow terminals
+  * Fixed startup warnings printing as raw text above the logo: they now go to the debug log, and permission rules that restrict nothing show as warning rows under the banner
+  * Fixed screen reader mode: search boxes now say “Search:” instead of a symbol VoiceOver read as “telephone recorder”, and highlighted prompt text, such as Ctrl+R search matches and “ultrathink”, no longer has spaces inside words
+  * Self-hosted runner: Fixed a start script that shares only its stdout with the runner or orchestrator failing with `Resource temporarily unavailable` when `TERM` is set (a 2.1.300 regression)
+  * Self-hosted runner: Fixed repository access failing since 2.1.296 when a git credential helper or askpass program reads its settings through `GIT_CONFIG`
+  * Self-hosted runner: Fixed the orchestrator reporting a spawn-runner hook as timed out when a runner it started in the background kept its output open
+  * [VSCode] Fixed the spinner cutting off “Compacting…” when your `spinnerVerbs` setting replaces the built-in verbs with short ones
+  * [Cloud sessions] Fixed the Cloud environments admin page wrongly refusing to save an existing environment with an “installs packages” error
+  * [Claude Tag] Fixed Claude Tag access bundles so a repository that moved to another GitHub account can be added again
+  * [Claude Tag] Fixed a routine set up in a Slack DM thread no longer posting after another routine in that thread restarted the conversation; both now keep posting there
+  * [Claude Tag] Fixed routines set up in a Slack thread reporting success without posting after the conversation ended; those runs are now skipped and the creator is told
+  * [Code Review] Fixed Code Review sometimes not reviewing the newest commit when several pushes landed on a pull request during a review
+
+​
+
 2.1.304
 
 October 19, 2026
@@ -585,7 +650,7 @@ October 9, 2026
 
 **Changed**
 
-  * Updated `/cost`, the status line, `--max-budget-usd` and the SDK’s cost figures to price Sonnet 5.5 cache reads at 0.10permilliontokens(was0.10 per million tokens (was 0.10permilliontokens(was0.20)
+  * Updated `/cost`, the status line, `--max-budget-usd` and the SDK’s cost figures to price Sonnet 5.5 cache reads at $0.10 per million tokens (was $0.20)
   * Updated the bundled dataviz skill: lighter violet for the seventh series in light mode, softer primary text in dark mode, and compact y-axis labels like 1K
   * Changed the default limit on MCP tool descriptions sent up front and on MCP server instructions from 2,048 to 4,096 characters
   * Changed `←`: a turn or `!` command started while the session moves to the background is now stopped instead of finishing out of sight
@@ -841,7 +906,7 @@ October 7, 2026
 
 **Added**
 
-  * Added Claude Haiku 5.5 (`claude-haiku-5-5`), now the default Haiku model on the Anthropic API — 1M context, 0.10/0.10/0.10/0.50 per Mtok (0.50/0.50/0.50/2.50 for prompts over 100K)
+  * Added Claude Haiku 5.5 (`claude-haiku-5-5`), now the default Haiku model on the Anthropic API — 1M context, $0.10/$0.50 per Mtok ($0.50/$2.50 for prompts over 100K)
   * Added `agentType` to the `subagentStatusLine` payload, so scripts can tell custom subagent types apart
   * Added `isDeferred` to `$.tool.register` for mods: `false` lists the tool’s schema in the prompt from the start instead of behind tool search
 
@@ -1778,9 +1843,9 @@ September 28, 2026
 
 **Added**
 
-  * Added Claude Sonnet 5.5 (`claude-sonnet-5-5`), now the default Sonnet model on the Anthropic API — 1M context, 2/2/2/10 per Mtok with $0.20/Mtok cache reads
+  * Added Claude Sonnet 5.5 (`claude-sonnet-5-5`), now the default Sonnet model on the Anthropic API — 1M context, $2/$10 per Mtok with $0.20/Mtok cache reads
   * Added a “Yes, but ask again next time” answer to auto mode’s prompt before a read outside the working directories, so you can allow that one read and still be asked about later ones
-  * Added dollar amounts to the Claude apps gateway spend limit in `/usage` and the status line (for example “271.40/271.40 / 271.40/500.00 spent this month”) when the gateway runs this version or later; the status line’s `rate_limits.spend_limit` also gains `used_usd`, `limit_usd` and `period`
+  * Added dollar amounts to the Claude apps gateway spend limit in `/usage` and the status line (for example “$271.40 / $500.00 spent this month”) when the gateway runs this version or later; the status line’s `rate_limits.spend_limit` also gains `used_usd`, `limit_usd` and `period`
   * Added `effortSlider:decreaseEffort`, `increaseEffort` and `toggleUltracode` keybinding actions, so the `/effort` slider’s arrow and Tab keys can be rebound in `keybindings.json`
   * Added `/rate-limit-options` to `/help` and the command menu for claude.ai subscribers, so the usage-limit notices that mention it point to a command you can find
   * Added `/mcp reconnect all` in the interactive terminal to retry every MCP server that failed to connect or needs authentication at once
@@ -2307,7 +2372,7 @@ September 22, 2026
 
 **Added**
 
-  * Added Claude Opus 5.5 (`claude-opus-5-5`), now the default Opus model — 1M context, 4/4/4/20 per Mtok with $0.20/Mtok cache reads
+  * Added Claude Opus 5.5 (`claude-opus-5-5`), now the default Opus model — 1M context, $4/$20 per Mtok with $0.20/Mtok cache reads
   * Added mouse support to more lists in fullscreen mode: the wheel scrolls the `/skills` list, and a skill’s state options in `/plugin` can be clicked
   * Added `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` to change the 2,048-character cap on MCP tool descriptions and server instructions for every MCP server in the session
   * Added hook output sizes and the number of oversized outputs saved to a file to the `hook_execution_complete` OpenTelemetry event
@@ -3630,7 +3695,7 @@ September 1, 2026
 
 **Added**
 
-  * Added Claude Fable 5.1 (`claude-fable-5-1`), now the default Fable model — 1M context, 10/10/10/50 per Mtok with $0.25/Mtok cache reads
+  * Added Claude Fable 5.1 (`claude-fable-5-1`), now the default Fable model — 1M context, $10/$50 per Mtok with $0.25/Mtok cache reads
   * Added “Time format” (`timeFormat`) and `timeZone` settings: 12-hour, 24-hour, 24-hour UTC, or a strftime pattern for the turn-end clock and transcript-view timestamps
   * Added a Containment Escape rule to auto mode so cloud metadata-credential fetches, egress evasion, and cross-tenant reach are no longer auto-approved unless your environment marks them expected
   * Added `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` to apply `CLAUDE_CODE_SUBAGENT_MODEL` (or the main model) to every subagent, ignoring per-spawn and agent-definition model overrides
@@ -4079,7 +4144,7 @@ August 25, 2026
 **Changed**
 
   * Changed the sandboxed Bash tool prompt to no longer list allowed network hosts, so Claude attempts requests (and you can approve new hosts) instead of assuming unlisted hosts are blocked
-  * Updated the `/model` picker and the bundled `claude-api` skill to show Sonnet 5’s 2/2/2/10 per Mtok pricing as its standard list price rather than a limited-time promo
+  * Updated the `/model` picker and the bundled `claude-api` skill to show Sonnet 5’s $2/$10 per Mtok pricing as its standard list price rather than a limited-time promo
   * Changed computer use on macOS so clicking the desktop, Dock, or a Finder window requires granting Finder via the access dialog, like any other app
   * Changed `/model`, `/fast`, and `/effort` to also run immediately instead of queueing until the turn ends on Bedrock, Vertex, and Foundry and when telemetry is disabled
   * Changed the cross-session messaging inbox socket to close connections that send no complete line within 30 seconds; scripts posting to it should connect once their data is ready
@@ -4891,7 +4956,7 @@ July 24, 2026
 
 **Added**
 
-  * Added Claude Opus 5 (`claude-opus-5`), now the default Opus model — 1M context, fast mode at 10/10/10/50 per Mtok
+  * Added Claude Opus 5 (`claude-opus-5`), now the default Opus model — 1M context, fast mode at $10/$50 per Mtok
   * Added `sandbox.network.strictAllowlist` setting to deny non-allowlisted hosts for sandboxed commands without prompting
   * Added `DirectoryAdded` hook that fires after `/add-dir` or the SDK `register_repo_root` control request registers a new working directory mid-session
   * Added `mcp_server_errors` to the headless stream-json init event, listing `--mcp-config` entries skipped by config validation; terminal runs print a startup warning
@@ -5749,7 +5814,7 @@ Show 18 bug fixes
 
 June 30, 2026
 
-  * Introducing Claude Sonnet 5: now the default model in Claude Code, with a native 1M-token context window and promotional pricing of 2/2/2/10 per Mtok through August 31. Update to version 2.1.197 for access. <https://www.anthropic.com/news/claude-sonnet-5>
+  * Introducing Claude Sonnet 5: now the default model in Claude Code, with a native 1M-token context window and promotional pricing of $2/$10 per Mtok through August 31. Update to version 2.1.197 for access. <https://www.anthropic.com/news/claude-sonnet-5>
 
 ​
 

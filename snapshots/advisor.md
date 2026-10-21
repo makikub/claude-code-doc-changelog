@@ -71,7 +71,7 @@ Claude Code uses the flag instead of the `advisorModel` setting for that session
   * Your organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist excludes the requested model
   * You requested Fable and your account still requires the usage-credits consent
 
-If you start a [background session](</docs/en/agent-view>) with `--advisor` and one of these applies, Claude Code starts the session without the advisor instead of exiting. If the requested model can act as an advisor but ranks below the session’s main model, Claude Code starts the session anyway. Outside background sessions, it also warns at launch that the model `cannot advise` the main model.
+If you start a [background session](</docs/en/agent-view>) with `--advisor` and one of these applies, Claude Code starts the session without the advisor instead of exiting. If the model you pass can act as an advisor but ranks below your main model, the session starts whether or not it’s a background session. Your main model then runs without the advisor.
 
 ##
 

@@ -59,7 +59,7 @@ The receiving session checks each arriving message against its own inbound contr
   * **Held** : Claude Code sets the message aside undelivered. A held message reaches Claude only when you approve it or a later mode or settings change allows it.
   * **Refused** : Claude Code drops the message without delivering it.
 
-Once delivered, the message counts toward [usage](</docs/en/costs>) like a prompt you type, and the receiving Claude can reply to the sender the same way, except in the one-way cross-machine case. Permission boundaries stay per-session. Claude is instructed never to ask another session for an action that was denied or blocked in its own session, or that its own permission settings would block, and to route that work back to you instead. On the receiving side, the receiving session’s own permission prompts and rules still apply to anything the message asks for.
+Once delivered, the message counts toward [usage](</docs/en/costs>) like a prompt you type. The receiving Claude can reply to the sender with `SendMessage`, except in the cases under Replies from other machines and cloud sessions and Turn off cross-session messaging. Permission boundaries stay per-session. Claude is instructed never to ask another session for an action that was denied or blocked in its own session, or that its own permission settings would block, and to route that work back to you instead. On the receiving side, the receiving session’s own permission prompts and rules still apply to anything the message asks for.
 
 ###
 
@@ -146,7 +146,15 @@ Starting a conversation with a session on another of your machines requires Clau
   * **`offline`** : that session’s Remote Control connection has dropped. The message goes through, but arrives only after that session’s machine reconnects.
   * **`can't receive cross-session messages (off in that session)`** : messaging isn’t available in that session, or its [`crossSessionInbound`](</docs/en/settings-reference#crosssessioninbound>) value is `refuse`. Claude Code refuses a message to that session before the message leaves this machine. The result under Claude’s `SendMessage` call begins `Not sent` and names the reason. Once the cause is fixed in that session, a later listing no longer shows this condition, and Claude can message that session.
 
-A session inside a container and a session on the host can’t reach each other. Two sessions inside the same container can still message each other, including on a [self-hosted runner](</docs/en/self-hosted-environments>). A session inside WSL 2 and a native Windows session on the same computer can’t reach each other either. If this session isn’t connected to Remote Control when Claude sends to a session beyond this machine, the message still goes through, but without a reply address, so the receiving Claude can’t answer it. To require your approval before any message goes beyond this machine, set `isolatePeerMachines`.
+A session inside a container and a session on the host can’t reach each other. Two sessions inside the same container can still message each other, including on a [self-hosted runner](</docs/en/self-hosted-environments>). A session inside WSL 2 and a native Windows session on the same computer can’t reach each other either. To require your approval before any message goes beyond this machine, set `isolatePeerMachines`.
+
+####
+
+​
+
+Replies from other machines and cloud sessions
+
+A [cloud session](</docs/en/claude-code-on-the-web>), including one on a [self-hosted runner](</docs/en/self-hosted-environments>), can’t use `SendMessage` to answer a message from another machine, even when the message carries a reply address. The message still arrives. Read the cloud session’s response in its transcript at [claude.ai/code](<https://claude.ai/code>). If this session isn’t connected to Remote Control when Claude sends to a session beyond this machine, the message still goes through, but without a reply address. The receiving Claude can’t answer it.
 
 ##
 
@@ -218,7 +226,7 @@ Claude Code binds an inbox socket for a [`claude -p`](</docs/en/headless>) sessi
   * **Before the deadline** : if a mode or settings change allows the message, Claude Code delivers it.
   * **Past the deadline** : Claude Code drops the message and reports it as expired to a sender it can reach.
 
-Set `dialogExpiry` to `"never"` to keep default-held messages until the session ends. A message held by an explicit `hold` setting doesn’t expire; Claude Code delivers it only when an `accept` later applies. To let a `-p` worker take messages unattended, start it with `crossSessionInbound` set to `accept` in its `--settings` value. An `accept` in your user settings also works but applies to every session you run.
+Set `dialogExpiry` to `"never"` to keep default-held messages until the session ends. A message held by an explicit `hold` setting doesn’t expire; Claude Code delivers it when an `accept` later applies. To let a `-p` worker take messages unattended, start it with `crossSessionInbound` set to `accept` in its `--settings` value. An `accept` in your user settings also works but applies to every session you run.
 
 ###
 

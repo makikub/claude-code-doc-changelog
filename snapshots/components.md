@@ -295,7 +295,7 @@ The `lspServers` manifest key takes the same map inline, a path to a JSON file, 
 
 Executables
 
-Files in `bin/` at the plugin root are on the `PATH` of the Bash tool’s shell while the plugin is enabled, so Claude can run them as bare commands. Add an executable script:
+Files in `bin/` at the plugin root are on the `PATH` of the Bash tool’s shell while the plugin is enabled, so Claude can run them as bare commands. A command that Claude runs with the [PowerShell tool](</docs/en/tools-reference#powershell-tool>) outside the [sandbox](</docs/en/sandboxing>) finds them on its `PATH` too, and a sandboxed PowerShell command doesn’t. Add an executable script:
 
 bin/hello-plugin
 

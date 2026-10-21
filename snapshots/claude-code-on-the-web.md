@@ -85,7 +85,7 @@ Start a cloud session from the command line with the `--cloud` flag:
 
     claude --cloud "Fix the authentication bug in src/auth/login.ts"
 
-This creates a new cloud session on claude.ai. The cloud VM clones your current directory’s GitHub remote at your current branch, not your local checkout, so push first if you have local commits. See Send local repositories without GitHub for the cases where Claude Code uploads your local repository instead of cloning. `--cloud` works with a single repository at a time. The task runs in the cloud while you continue working locally. The older `--remote` spelling still works as a deprecated alias for `--cloud`. While the cloud container starts, the CLI shows a live checklist of setup steps, such as cloning the repository and running your [setup script](</docs/en/cloud-environments#setup-scripts>). It queues messages you type during provisioning and sends them once the session is ready.
+This creates a new cloud session on claude.ai. The cloud VM clones your current directory’s GitHub remote at your current branch, not your local checkout, so push first if you have local commits. See Send local repositories without GitHub for the cases where Claude Code uploads your local repository instead of cloning. If the terminal prints `Branch <name> is not on GitHub`, see Branch is not on GitHub. `--cloud` works with a single repository at a time. The task runs in the cloud while you continue working locally. The older `--remote` spelling still works as a deprecated alias for `--cloud`. While the cloud container starts, the CLI shows a live checklist of setup steps, such as cloning the repository and running your [setup script](</docs/en/cloud-environments#setup-scripts>). It queues messages you type during provisioning and sends them once the session is ready.
 
 `--cloud` creates cloud sessions. `--remote-control` is unrelated: it lets you monitor and steer a local CLI session from claude.ai or the Claude app. See [Remote Control](</docs/en/remote-control>).
 
@@ -258,7 +258,7 @@ Cloud sessions support [built-in commands](</docs/en/commands>) that produce tex
 
   * **`/model`, `/effort`, `/color`, and `/rename`**: pass the value as an argument, for example `/model sonnet`, instead of opening the terminal picker or slider. The argument forms follow each command’s [availability notes](</docs/en/commands#all-commands>).
   * **`/fast`** : toggles [fast mode](</docs/en/fast-mode#use-fast-mode-in-cloud-sessions>) for the session when fast mode is [available on your account](</docs/en/fast-mode#requirements>). Requires Claude Code v2.1.271 or later in the session’s environment.
-  * **`/config`** : in your browser at claude.ai/code, opens the Claude Code section of your settings instead of setting a value, and text after the command, including `key=value`, is ignored. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment, or in a session with one repository, commit the key to that repository’s `.claude/settings.json`. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
+  * **`/config`** : in your browser at claude.ai/code, opens the Claude Code section of your settings instead of setting a value, and text after the command, including `key=value`, is ignored. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a [project](</docs/en/claude-projects>), commit the key to that repository’s `.claude/settings.json` instead. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
 
 For context management specifically:
 
@@ -268,7 +268,7 @@ Command| Works in cloud sessions| Notes
 `/context`| Yes| Shows what’s currently in the context window
 `/clear`| No| Start a new session from the sidebar instead
 
-Auto-compaction runs automatically when the context window approaches capacity. Cloud sessions set [`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](</docs/en/env-vars>) themselves, so compaction triggers partway through the [auto-compact window](</docs/en/model-config#set-the-auto-compact-window>) rather than when the window fills. That value overrides one you add in your [environment variables](</docs/en/cloud-environments#set-environment-variables>), so adding the variable there doesn’t change when compaction triggers. To change the auto-compact window instead, set [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/env-vars>) in your environment variables, or run [`/autocompact`](</docs/en/commands#all-commands>) with a token count in a session where the variable isn’t set. [Subagents](</docs/en/sub-agents>) work the same way they do locally. Claude can spawn them with the Agent tool to offload research or parallel work into a separate context window, keeping the main conversation lighter. Subagents defined in your repo’s `.claude/agents/` are picked up automatically. [Agent teams](</docs/en/agent-teams>) are off by default but can be enabled by adding `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` to your [environment variables](</docs/en/cloud-environments#set-environment-variables>).
+Auto-compaction runs automatically when the context window approaches capacity. Cloud sessions set [`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](</docs/en/env-vars>) themselves, so compaction triggers partway through the [auto-compact window](</docs/en/model-config#set-the-auto-compact-window>) rather than when the window fills. That value overrides one you add in your [environment variables](</docs/en/cloud-environments#set-environment-variables>), so adding the variable there doesn’t change when compaction triggers. To change the auto-compact window instead, set [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/env-vars>) in your environment variables, or run [`/autocompact`](</docs/en/commands#all-commands>) with a token count in a session where the variable isn’t set. [Subagents](</docs/en/sub-agents>) work the same way they do locally. Claude can spawn them with the Agent tool to offload research or parallel work into a separate context window, keeping the main conversation lighter. Outside a [project](</docs/en/claude-projects#what-threads-pick-up-from-your-repositories>)’s threads, subagents defined in your repo’s `.claude/agents/` load automatically. [Agent teams](</docs/en/agent-teams>) are off by default but can be enabled by adding `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` to your [environment variables](</docs/en/cloud-environments#set-environment-variables>).
 
 ###
 
@@ -416,6 +416,14 @@ Unable to get organization UUID
   * `Error loading Claude Code sessions` in the session picker, when you run `claude --teleport` without a session ID
 
 Run [`claude auth login`](</docs/en/cli-reference#cli-commands>) in your shell to sign in with your claude.ai account, then retry the command. Inside a running session, `/login` does the same. If the error names your provider instead, see the error table: cloud sessions aren’t available through third-party providers. From v2.1.274 through v2.1.289, the sign-in message read `Claude Code cloud sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.`
+
+###
+
+​
+
+Branch is not on GitHub
+
+When `claude --cloud` prints a line starting with `Branch <name> is not on GitHub`, the cloud session still starts, but not from your branch. The line names where the session starts instead: a pushed commit from your branch’s history, or the repository’s default branch. Commits that exist only on your machine and uncommitted changes aren’t in the session. You see this line when, for example, you never pushed the branch, or GitHub deleted it after its pull request merged. If the starting point the line names has what your task needs, use the session as it is. Otherwise, push the branch and start a new session so that it clones your branch.
 
 ###
 

@@ -545,7 +545,7 @@ Each action goes through a fixed decision order. The first matching step wins:
   3. Everything else goes to the classifier, apart from critical-path removals under their default handling. The connector tools and `requiresUserInteraction` MCP tools that prompt you directly in step 1 never reach the classifier either, so neither an org-required approval nor a consent step is auto-approved
   4. If the classifier blocks, Claude receives the reason. In most sessions the reason names the rule the classifier matched, such as `[Data Exfiltration]`, rather than giving a written explanation; see [Review denials](</docs/en/auto-mode-config#review-denials>)
 
-A [mod](</docs/en/plugins/mods/overview>) you install that handles `tool.check` can also approve an action. For the cases where its approval doesn’t get past your rules and hooks, see [Extend permissions with hooks](</docs/en/permissions#precedence-among-rules-hooks-and-mods>).In the VS Code extension, how [Claude in Chrome](</docs/en/chrome>) browser actions get approved depends on how the session connected to the browser: see [Permission prompts in VS Code sessions](</docs/en/chrome#permission-prompts-in-vs-code-sessions>).On entering auto mode, broad allow rules that grant arbitrary code execution are dropped:
+A [mod](</docs/en/plugins/mods/overview>) you install that handles `tool.check` can also approve an action. For the cases where its approval doesn’t get past your rules and hooks, see [Extend permissions with hooks](</docs/en/permissions#precedence-among-rules-hooks-and-mods>).For how [Claude in Chrome](</docs/en/chrome>) browser actions get approved in the VS Code extension, see [Permission prompts in VS Code sessions](</docs/en/chrome#permission-prompts-in-vs-code-sessions>).On entering auto mode, broad allow rules that grant arbitrary code execution are dropped:
 
   * Blanket `Bash(*)` or `PowerShell(*)`
   * Wildcarded interpreters like `Bash(python*)`
@@ -603,10 +603,11 @@ The `--dangerously-skip-permissions` flag is equivalent. Claude Code refuses `by
 
 In [non-interactive mode](</docs/en/headless>) no dialog is shown. A [background session](</docs/en/agent-view>) honors your acceptance when it’s recorded in user or managed settings:
 
-  * With no acceptance recorded, `claude --bg --permission-mode bypassPermissions` is refused until you accept the dialog in an interactive session.
-  * With `skipDangerousModePermissionPrompt` set only in `.claude/settings.local.json`, the background session starts with the bypass request ignored and pins the notice `Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true`. Add that key to `~/.claude/settings.json`, then start a new background session. The session showing the notice still runs:
+  * With no acceptance recorded, `claude --bg --permission-mode bypassPermissions` is refused. Accept the dialog in an interactive session first.
+  * With `skipDangerousModePermissionPrompt` set only in `.claude/settings.local.json`, the background session starts with the bypass request ignored:
     * With `--allow-dangerously-skip-permissions` ignored, `bypassPermissions` is left out of its `Shift+Tab` cycle.
     * With `--permission-mode bypassPermissions` or `--dangerously-skip-permissions` ignored, the session starts in Manual mode instead.
+Add `"skipDangerousModePermissionPrompt": true` to `~/.claude/settings.json`, then start a new background session.
 
 On Linux and macOS, Claude Code refuses to start in `bypassPermissions` mode when running as root or under `sudo`:
 
@@ -615,6 +616,18 @@ On Linux and macOS, Claude Code refuses to start in `bypassPermissions` mode whe
 The check is skipped automatically inside a recognized sandbox. To run autonomously in a container, use the [dev container](</docs/en/devcontainer>) configuration, which runs Claude Code as a non-root user. [Cloud sessions](</docs/en/claude-code-on-the-web>) don’t honor `defaultMode: "bypassPermissions"` or `"dontAsk"` from your settings files, so a repository’s checked-in settings can’t start a cloud session in bypass-permissions mode. The setting is ignored silently and the session starts in the permission mode shown in the mode dropdown instead. See Switch permission modes for which modes cloud sessions offer.
 
 `bypassPermissions` offers no protection against prompt injection or unintended actions. For background safety checks with far fewer permission prompts, use auto mode instead. Administrators can block this mode by setting `permissions.disableBypassPermissionsMode` to `"disable"` in [managed settings](</docs/en/managed-settings>).
+
+###
+
+​
+
+Bypass permissions ignored in a background session
+
+This notice means the [background session](</docs/en/agent-view>) didn’t find your acceptance of the bypass permissions warning in user or managed settings, so it ignored the bypass request made at launch:
+
+    Bypass permissions was requested at launch and ignored · if that was you, ~/.claude/settings.json needs "skipDangerousModePermissionPrompt": true
+
+Add `"skipDangerousModePermissionPrompt": true` to `~/.claude/settings.json`, then start a new background session.
 
 ##
 

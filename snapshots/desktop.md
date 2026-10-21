@@ -1782,6 +1782,7 @@ Traffic is HTTPS on port 443 unless you configure a custom port for [OTLP](</doc
     *.livepreview.claude.ai
     claude.com
     platform.claude.com
+    sso.claude.com
     *.livepreview.claude.app
     *.claudeusercontent.com
     *.claudemcpcontent.com

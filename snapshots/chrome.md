@@ -358,7 +358,8 @@ Error| Cause| Fix
 ”Browser extension is not connected”| The extension isn’t installed and running in Chrome, the extension is signed in to a different claude.ai account or organization than Claude Code, or your organization’s IP allowlist rejects the connection to `bridge.claudeusercontent.com`| Check that the extension is signed in to the same claude.ai account and organization as Claude Code, restart Chrome and Claude Code, then run `/chrome` to reconnect. If your organization uses IP allowlisting and the error persists, see [Organization IP allowlists and proxy egress](</docs/en/network-config#organization-ip-allowlists-and-proxy-egress>)
 Extension shows “Not detected” in `/chrome`| Chrome extension is not installed or is disabled| Install or enable the extension in `chrome://extensions`
 ”No tab available”| Claude tried to act before a tab was ready| Ask Claude to create a new tab and retry
-”Receiving end does not exist”| Extension service worker went idle| Run `/chrome` and select “Reconnect extension”
+”Receiving end does not exist”| Extension service worker went idle| Run `/chrome` and select “Reconnect extension"
+"No browsers are connected”| Chrome isn’t open with the extension signed in to the same claude.ai account and organization as Claude Code, or Claude Code can’t reach `bridge.claudeusercontent.com`| Confirm Chrome is open and the extension is signed in to the same claude.ai account and organization as Claude Code. If so, check that your network lets Claude Code reach `bridge.claudeusercontent.com`, listed under [Network access requirements](</docs/en/network-config#network-access-requirements>)
 
 ##
 

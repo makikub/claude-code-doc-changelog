@@ -60,7 +60,7 @@ Tool events fire around each tool call Claude makes, from the description Claude
 Event| Fires when| A hook can return
 ---|---|---
 [`tool.call`](</docs/en/plugins/mods/events#guard-or-change-a-tool-call>)| A tool is about to run| `next(e)`, `{ deny: reason }`, or `{ result }`
-[`tool.check`](</docs/en/plugins/mods/events#where-settings-hooks-run-in-the-order>)| Claude Code decides whether a tool call may run, after the `tool.call` and `PreToolUse` hooks. `next(e)` resolves to the decision the rules, the permission mode, and those hooks reached.| `{ decision }`, which is `allow`, `ask`, or `deny`
+[`tool.check`](</docs/en/plugins/mods/events#where-settings-hooks-run-in-the-order>)| Claude Code decides whether a tool call may run, after the `tool.call` and `PreToolUse` hooks. `next(e)` resolves to the decision the rules, the permission mode, and those hooks reached.| `next(e)` or `{ decision }`, with `decision` set to `allow`, `ask`, or `deny` and an optional `reason`
 `tool.describe`| Once for each tool, when its description is first sent to Claude. A second time for an MCP tool when Claude loads it through [tool search](</docs/en/mcp#scale-with-mcp-tool-search>), with `e.description` set to the text Claude reads for the loaded tool.| `{ description }`, optionally with `isDeferred` set to `true` to put the tool behind tool search or `false` to load it upfront
 
 ####
@@ -75,6 +75,14 @@ In a `tool.check` hook, read these fields to tell a subagent’s call from the m
   * **`e.ceiling`** : `ask` for a connector tool your organization set to `ask`, in [sessions where that setting reaches Claude Code](</docs/en/mcp#organization-controls-on-connector-tools>)
 
 On `tool.check`, `e.agentId` and `e.ceiling` require Claude Code v2.1.290 or later.
+
+####
+
+​
+
+The `e.isReadOnly` field on `tool.check`
+
+In a `tool.check` hook, `e.isReadOnly` is `true` when the tool reports this call as read-only. Otherwise the field is absent, not `false`. The value is the tool’s own report, so read [Check whether a tool call is read-only](</docs/en/plugins/mods/events#check-whether-a-tool-call-is-read-only>) before you approve a call on this field alone. On `tool.check`, `e.isReadOnly` requires Claude Code v2.1.304 or later.
 
 ###
 
@@ -250,7 +258,7 @@ The mods API is the `$` argument every hook receives. Its methods are grouped in
 Namespace| Methods
 ---|---
 `$.plugin`| `name`, `root`: this plugin’s name and directory
-[`$.ui`](</docs/en/plugins/mods/interface#pick-where-to-draw>)| `resolve`, `invalidate`, `open`, `close`, `panes`, `focus`, `scroll`, `toast`, `status`, `log`, `notice`, `ask`, `copy`, `selection`, `blit`
+[`$.ui`](</docs/en/plugins/mods/interface#pick-where-to-draw>)| `resolve`, `invalidate`, `open`, `close`, `panes`, `focus`, `scroll`, `toast`, `notify`, `status`, `log`, `notice`, `ask`, `copy`, `selection`, `blit`
 [`$.command`](</docs/en/plugins/mods/api#add-a-command>)| `register`, `run`, `list`
 [`$.tool`](</docs/en/plugins/mods/api#add-a-tool>)| `register`, `call`, `check`, `list`
 `$.agent`| `register`, `spawn`, `list`. `list()` returns this session’s subagents and teammates, each with a `status` of `pending`, `running`, `waiting`, `idle`, `completed`, `failed`, or `killed`, where `idle` and `waiting` require Claude Code v2.1.289 or later.
@@ -324,7 +332,7 @@ Element| Main props| Terminal| Desktop| VS Code
 `Svg`| An SVG document, up to 131,072 characters| | ✓| ✓
 [`Client`](</docs/en/plugins/mods/interface#build-a-tree-from-elements>)| `module`, `key`| ✓| ✓|
 [`Raster`](</docs/en/plugins/mods/interface#draw-a-grid-of-colored-cells>)| `key`, `columns` up to 512, `rows` up to 256, `cells`. See [Draw a grid of colored cells](</docs/en/plugins/mods/interface#draw-a-grid-of-colored-cells>).| ✓| |
-`Image`| PNG or RGBA bytes up to 2 MiB, or a file path, `columns` and `rows` up to 255, and `alt` text.| ✓| |
+`Image`| PNG or RGBA bytes up to 2 MiB, or a file path, `columns` and `rows` up to 255, and `alt` text. See [which terminals draw it](</docs/en/plugins/mods/gallery#image-and-client>).| ✓| |
 
 More `Button` rules: `action` names one of Claude Code’s own [keybinding actions](</docs/en/keybindings>), and the user’s binding for it presses the button when that binding is a chord or a modified key. A digit `hotkey` on a button in the band also fires when the user types that digit alone into an empty prompt and pauses. When two buttons in one drawing name the same `hotkey`, the later one gets it. `autoFocus` accepts only `true` on any control, so omit the prop to leave it off. The VS Code extension ignores some element props and draws the element as if you had left them out:
 

@@ -75,6 +75,8 @@ Message| Section
 `Your account does not have access to Claude. Please login again or contact your administrator.`| Authentication
 `API Error: 401 Invalid authentication credentials`| Authentication
 `Login expired · Please run /login`| Authentication
+`The browser can't return the sign-in to Claude Code automatically`| Authentication
+`Couldn't start the local listener that receives the browser sign-in. Try again.`| Authentication
 `Failed to start OAuth callback server`| Authentication
 `Claude login not accepted · Run /login, then try again`| Authentication
 `Artifacts need a claude.ai login`| Authentication
@@ -92,6 +94,7 @@ Message| Section
 `claude.ai rejected the session token` / `session token rejected`| Authentication
 `MCP server "<name>" needs you to sign in again (run /mcp to re-authenticate)`| Authentication
 `rejected the credential from its headersHelper` / `rejected the Authorization header in its config`| Authentication
+`(check the helper, then start a new task or chat)` / `(update it, then start a new task or chat)`| Authentication
 `MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp to re-authenticate`| Authentication
 `MCP server "<name>" requires re-authorization (token expired)`| Authentication
 `This server's URL is missing or not a valid URL, so sign-in can't start`| Authentication
@@ -192,6 +195,8 @@ Message| Section
 `Installation was killed before it could finish (exit code 137)`| [Troubleshoot installation and login](</docs/en/troubleshoot-install#installation-was-killed-before-it-could-finish>)
 `The connection dropped while downloading the update`| [Troubleshoot installation and login](</docs/en/troubleshoot-install#the-connection-dropped-while-downloading-the-update>)
 `Download timed out: exceeded the total deadline`| [Troubleshoot installation and login](</docs/en/troubleshoot-install#the-connection-dropped-while-downloading-the-update>)
+`Release verification failed for Claude Code <version> (<reason>). The update was not installed.`| [Troubleshoot installation and login](</docs/en/troubleshoot-install#release-verification-failed>)
+`Auto-update failed · Run claude doctor`| [Troubleshoot installation and login](</docs/en/troubleshoot-install#auto-update-failed>)
 `--bg and --print conflict`| Command-line errors
 `Couldn't tell whether --bg is a flag or text here, so nothing was started`| Command-line errors
 `Error: Cannot use both --append-subagent-system-prompt and --append-subagent-system-prompt-file. Please use only one.`| Command-line errors
@@ -262,6 +267,7 @@ Message| Section
 `Custom output styles can't be selected over Remote Control or from a relayed message`| Command-line errors
 `Output styles are saved to local settings (.claude/settings.local.json), which this session doesn't load`| Command-line errors
 `/recap only runs when you ask for it yourself in this session`| Command-line errors
+`/feedback is disabled by your organization's policy`, or the same for `/bug` or `/share`| Command-line errors
 ``plugin eval` is currently in early access` / ``plugin eval` is currently unavailable`| Plugin errors
 `cannot be evaluated where sessions load it`| [Test plugins with evals](</docs/en/plugin-evals#cannot-be-evaluated-where-sessions-load-it>)
 `Marketplace "<name>" is registered from an untrusted source`| Plugin errors
@@ -281,6 +287,7 @@ Message| Section
 `The packages it lists are not installed` / `The packages it lists were not installed, because`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#the-packages-it-lists-are-not-installed>)
 `does not load (...), so Claude Code ignores the whole file`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#does-not-load-so-claude-code-ignores-the-whole-file>)
 `path escapes plugin directory`| Plugin errors
+`Plugin not loaded: its manifest <path> was not read`| Plugin errors
 `path could not be checked`| Plugin errors
 `its marketplace entry path does not stay inside the marketplace directory`| Plugin errors
 `Plugin source path refused`| Plugin errors
@@ -296,12 +303,15 @@ Message| Section
 `File is covered by a Read deny rule in your permission settings`| Tool errors
 `cannot contain null bytes (\0)`| Tool errors
 `Path contains null bytes`| Tool errors
+`File is too large to read as an image (the limit is 128MB)`| Tool errors
+`Cannot read this as an image: <path> is a pipe or a device`| Tool errors
 `subagent_type is required: the general-purpose agent is not available in this session`| Tool errors
 `Error: this write left the memory index at MEMORY.md at ..., over its ... read limit`| Tool errors
 `pkill: refusing to run`| Tool errors
 `Failed to write to <name>'s inbox — nothing was sent`| Tool errors
 `Failed to write the plan approval request to the lead's inbox — plan not submitted`| Tool errors
 `Its agent definition was not restored: the folder its definition file came from is not trusted`| Tool errors
+`Only a teammate can approve a shutdown request`| Tool errors
 `Message too large for cross-session delivery`| Tool errors
 `Too many messages to this session just now`| Tool errors
 `Cross-session message was dropped at the recipient session's inbox`| Tool errors
@@ -317,10 +327,12 @@ Message| Section
 `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)`| Tool errors
 `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)`| Tool errors
 `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes`| Tool errors
+`The command was not started: this computer's disk is full (ENOSPC)` / `(EDQUOT)`| Tool errors
 `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary`| Tool errors
 `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text`| Tool errors
 `the source file has the replacement character U+FFFD`| Tool errors
 `Not published: that file is on a network share`| Tool errors
+`Not published: Claude sent the same content again after a newer version of the artifact turned it away` / `Not published: Claude sent its changes again over the same file after a newer version of the artifact turned them away`| Tool errors
 `Reading a local file from outside this session's connected folders, or through a link, needs the approval card`| Tool errors
 `cannot read file_path (...) — the file could not be examined, and no one can answer the approval card`| Tool errors
 `WebFetch cannot fetch localhost or other hostnames without a dot`| Tool errors
@@ -337,7 +349,7 @@ Message| Section
 `Can't open — this session is running in another terminal`| Background session errors
 `This conversation is already open in another running Claude session`| Background session errors
 `This session's saved conversation is no longer on disk`| Background session errors
-`Bypass permissions was requested at launch and ignored`| [Skip all checks with bypassPermissions mode](</docs/en/permission-modes#bypass-permissions-acceptance>)
+`Bypass permissions was requested at launch and ignored`| [Bypass permissions ignored in a background session](</docs/en/permission-modes#bypass-permissions-ignored-in-a-background-session>)
 `kept <id> — its worktree is still at <path>`| Background session errors
 `kept <id> — <n> unpushed commits on <branch>`| Background session errors
 `kept <id> — worktree has commits that are not pushed anywhere`| Background session errors
@@ -346,6 +358,8 @@ Message| Section
 `Session <id> was stopped while the respawn was in flight`| Background session errors
 `This session was running agent '<name>', which is no longer available`| Background session errors
 `This session restarted <time> after its next /loop wakeup was due, so that wakeup will not fire`| Background session errors
+`No LLM gateway: a gateway set in your shell isn't passed to a session opened from another folder`| Background session errors
+`No LLM gateway: opened from another folder · respawn from <folder>`| Background session errors
 `CLAUDE_CODE_PROCESS_WRAPPER: launcher ...`| Background session errors
 `EUNKNOWN: unknown error, uv_spawn`| Background session errors
 `EACCES: permission denied, posix_spawn`| Background session errors
@@ -386,10 +400,16 @@ Message| Section
 `API Error: ANTHROPIC_FOUNDRY_RESOURCE must be a Foundry resource name`| Configuration warnings
 `headersHelper not run — this workspace has no persisted trust`| Configuration warnings
 `Invalid permission rule "..." was skipped: Malformed Tool(content) rule`| Configuration warnings
+`matches no tool · check for typos` / `matches no known tool — check for typos`| Configuration warnings
 `... is not matched by file permission checks`| Configuration warnings
+`Write(<path>) never matches · use Edit(<path>)` / `Glob(<path>) never matches · use Read(<path>)`| Configuration warnings
 `... has a wildcard before the rest of the command`| Configuration warnings
+`allows any option at its * · use an exact value`| Configuration warnings
 `Denying Bash also turns off the PowerShell tool, so Claude has neither`| Configuration warnings
 `CLAUDE_CODE_DISABLE_1M_CONTEXT is set, but the 200K limit isn't enforced`| Configuration warnings
+`CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" reads as <N> tokens, so Claude Code treats it as the 100k minimum`| [Values and warnings for `CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/model-config#claude_code_auto_compact_window-values>)
+`CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" is too large, so Claude Code treats it as the 1M maximum`| [Values and warnings for `CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/model-config#claude_code_auto_compact_window-values>)
+`CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" isn't a usable size, so Claude Code ignores it`| [Values and warnings for `CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/model-config#claude_code_auto_compact_window-values>)
 `Model "<model>" isn't recognized · context assumed to be 200k tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
 `Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
 `[claude-code:unrecognized_model]`| Configuration warnings
@@ -456,6 +476,7 @@ Variable| Default| Effect
 [`CLAUDE_CODE_MAX_RETRIES`](</docs/en/env-vars>)| 10| Number of retry attempts. Capped at 15 as of v2.1.186; as of v2.1.199 `CLAUDE_CODE_RETRY_WATCHDOG` raises the default and removes the cap. Lower it to surface failures faster in scripts.
 [`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>)| unset| Set to `1` in unattended sessions such as CI jobs to retry `429` and `529` capacity errors indefinitely instead of failing after `CLAUDE_CODE_MAX_RETRIES` attempts. Claude Code fails at once when a standard-speed request gets a `429` that reports a spend limit or exhausted usage credits, even one from a gateway spend cap that resets on a schedule. Before v2.1.239, the watchdog retried these indefinitely. For fast mode requests, see [Handle rate limits](</docs/en/fast-mode#handle-rate-limits>). On v2.1.199 or later it also raises the default retry count for other transient errors, such as server errors, timeouts, and dropped connections, to 300, roughly three hours of backoff, and removes the cap of 15 on `CLAUDE_CODE_MAX_RETRIES` if you set that variable explicitly.
 [`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS`](</docs/en/env-vars>)| unset| Maximum time in milliseconds that each API request spends waiting out `429` and `529` errors when `CLAUDE_CODE_RETRY_WATCHDOG` is set. When unset, the wait has no limit. Requires Claude Code v2.1.295 or later.
+[`CLAUDE_CODE_RETRY_WATCHDOG_USAGE_LIMIT_RECHECK_MS`](</docs/en/env-vars>)| unset| Minimum interval in milliseconds between checks of whether a usage limit was already lifted, while a request waits for that limit to reset with `CLAUDE_CODE_RETRY_WATCHDOG` set. When a check finds the limit lifted, the request goes out at once. Give plain digits from `60000` to `10800000`. When unset or outside that range, no checks are made. For when Claude Code skips these checks, see the [environment variables reference](</docs/en/env-vars>). Requires Claude Code v2.1.305 or later.
 [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](</docs/en/env-vars>)| 500| Starting delay in milliseconds of the backoff between retries of a request that the API rejects with a `529` overloaded error. Raise it, up to 32000, to spread the retries over a longer window when the API is at capacity. Has no effect when `CLAUDE_CODE_RETRY_WATCHDOG` is set to `1`, or when the rejected request was sent in [fast mode](</docs/en/fast-mode#handle-rate-limits>). Requires Claude Code v2.1.292 or later.
 [`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](</docs/en/env-vars>)| 32000| Ceiling in milliseconds on the backoff between retries of a request that the API rejects with a `529` overloaded error. Raise it, up to 64000, so that later retries keep spreading apart when the API is at capacity. Has no effect when `CLAUDE_CODE_RETRY_WATCHDOG` is set to `1`, or when the rejected request was sent in [fast mode](</docs/en/fast-mode#handle-rate-limits>). Requires Claude Code v2.1.296 or later.
 [`API_TIMEOUT_MS`](</docs/en/env-vars>)| 600000| Time in milliseconds that each request attempt has to receive its response headers. It doesn’t limit how long a streaming response runs after that. Raise it for slow networks or proxies. For how it caps the first-byte deadline, see No response from API.
@@ -484,6 +505,7 @@ The trailing sentence names where to check service health and varies by provider
 
   * Check [status.claude.com](<https://status.claude.com>), or the provider status page named in the message, for active incidents
   * Wait a minute, then send your message again. Your original message is still in the conversation, so for a long prompt you can type `try again` instead of pasting the whole thing.
+  * If [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at an [LLM gateway](</docs/en/llm-gateway>) and every request fails this way, check whether your gateway is rejecting the tool search fields Claude Code sends by default. To check, set `ENABLE_TOOL_SEARCH=false` as [Tool search through an LLM gateway](</docs/en/mcp#tool-search-through-a-gateway>) describes, then try again. Before v2.1.304, tool search was off behind a gateway unless you turned it on with `ENABLE_TOOL_SEARCH`.
   * If the error persists with no posted incident, run `/feedback` so Anthropic can investigate with your request details. See Report an error if `/feedback` is unavailable in your environment.
 
 ###
@@ -512,8 +534,9 @@ The API didn’t respond before the connection deadline.
 
     Request timed out
 
-The default request timeout is 10 minutes. **What to do:**
+The default request timeout is 10 minutes. If you set [`API_TIMEOUT_MS`](</docs/en/env-vars>) to `0`, this request timeout is off. The first-byte deadline and the body idle timeout don’t turn off when you set `0`, so a streaming request still runs under [whichever of them apply to your connection](</docs/en/network-config#streaming-idle-watchdogs>). A non-streaming attempt keeps its 300-second limit in a local session and can still end with this message. **What to do:**
 
+  * If every request fails with this message and you set `API_TIMEOUT_MS` to `0`, check `claude --version`. On a version before v2.1.305, update Claude Code or set a positive value.
   * Retry the request
   * If a slow network or proxy is the cause, raise `API_TIMEOUT_MS` as described in Automatic retries
   * If timeouts are frequent and your network is otherwise healthy, see Network and connection errors below
@@ -531,7 +554,7 @@ Claude Code sent a streaming request and the API returned no response headers wi
 Claude Code sets the first attempt’s wait for response headers and the retry’s wait separately:
 
   * **First attempt** : [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](</docs/en/env-vars>) when you set it to 1 or more, clamped to between 10 seconds and 30 minutes. Otherwise Claude Code uses the byte-level watchdog timeout listed in [Streaming idle watchdogs](</docs/en/network-config#streaming-idle-watchdogs>), so the variables that change that timeout change this wait too. Either way, Claude Code adds one second for every 32KB of request body.
-  * **Retry** : one second less than `API_TIMEOUT_MS`, just under 10 minutes by default, so that the retry can outlast a proxy or gateway that holds the response until generation completes. On Amazon Bedrock, the retry uses the same deadline as the first attempt, and the message shows one duration instead of two.
+  * **Retry** : one second less than `API_TIMEOUT_MS`, just under 10 minutes by default, so that the retry can outlast a proxy or gateway that holds the response until generation completes. On Amazon Bedrock, the retry uses the same deadline as the first attempt, and the message shows one duration instead of two. Except on Amazon Bedrock, if you set `API_TIMEOUT_MS` to `0`, the retry waits 10 minutes plus one second per 32KB, or as long as the first attempt if that’s longer.
 
 Neither wait exceeds one second less than a positive `API_TIMEOUT_MS`, and a positive `API_TIMEOUT_MS` under 11 seconds turns the deadline off. The byte-level watchdog starts only once the response headers arrive, so a response that stops sending bytes after that follows the stalled-stream rules instead of this deadline. **What to do:**
 
@@ -809,7 +832,7 @@ The trailing sentence names where to check service health and varies by provider
   * Run `/status` and confirm the active credential is the one you expect. A stray `ANTHROPIC_API_KEY` in your environment can route requests through a low-tier key instead of your subscription.
   * Check your provider console for the active limits and request a higher tier if needed
   * For Anthropic API keys, see the [rate limits reference](<https://platform.claude.com/docs/en/api/rate-limits>) for how tiers work and how to set per-workspace caps
-  * Reduce concurrency: lower [`CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY`](</docs/en/env-vars>), avoid running many parallel subagents, or switch to a smaller model with `/model` for high-volume scripted runs
+  * Reduce concurrency: avoid running many parallel subagents, or switch to a smaller model with `/model` for high-volume scripted runs
 
 ###
 
@@ -1209,6 +1232,7 @@ The API recognized the format of your credential but rejected the account or org
   * If `/status` shows only your login, run `/login` once. If the credential was revoked, a fresh login replaces it.
   * If the same message returns for the same login account, the account or organization is no longer active. Check the account and organization that `/status` reports, and ask your organization admin to restore access.
   * If [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at an [LLM gateway](</docs/en/llm-gateway>), the text after `401` is your gateway’s message rather than Anthropic’s, and `/login` doesn’t change it. Fix the credential your gateway expects instead.
+  * If every request fails with a `401` once your gateway has the credential it expects, check whether the gateway is rejecting the tool search fields Claude Code sends by default. To check, set `ENABLE_TOOL_SEARCH=false` as [Tool search through an LLM gateway](</docs/en/mcp#tool-search-through-a-gateway>) describes, then try again. Before v2.1.304, tool search was off behind a gateway unless you turned it on with `ENABLE_TOOL_SEARCH`.
 
 ###
 
@@ -1272,16 +1296,24 @@ The first form appears on macOS and the second everywhere else. A transient cred
 
 ​
 
-Failed to start OAuth callback server
+Couldn’t start the local listener that receives the browser sign-in
 
-When `/login`, `claude auth login`, or `claude setup-token` signs you in through the browser, Claude Code opens a listening port on `127.0.0.1` so your browser can return the sign-in result to it. This message means Claude Code couldn’t open that port, and the sign-in stops before a browser window or login URL appears:
+Each of these messages from `/login`, `claude auth login`, or `claude setup-token` means Claude Code couldn’t open the port on `127.0.0.1` where your browser returns the sign-in result. With the notice that begins `The browser can't return the sign-in to Claude Code automatically`, the sign-in continues without that port. No browser opens, and the notice appears above a URL where you sign in instead:
 
-    Failed to start OAuth callback server: Failed to start server. Is port 0 in use?
+    The browser can't return the sign-in to Claude Code automatically. After you sign in, paste the code shown.
 
-If your message ends with `Is port 0 in use?`, the attempt to listen on the IPv4 loopback address `127.0.0.1` failed outright. Because the failure happens before a login URL exists, the `Paste code here if prompted` flow isn’t available as a workaround. **What to do:**
+With the message that includes `Couldn't start the local listener`, the sign-in stopped. That happens, for example, when you pipe input into `claude auth login`:
 
-  * To sign in right away without the local listener: if you use a claude.ai subscription, run [`claude setup-token`](</docs/en/authentication#generate-a-long-lived-token>) on a machine where sign-in works and set the token it prints as `CLAUDE_CODE_OAUTH_TOKEN` on this machine. Otherwise set `ANTHROPIC_API_KEY` to a key from the [Claude Console](<https://platform.claude.com/settings/keys>). [Authentication precedence](</docs/en/authentication#authentication-precedence>) explains how Claude Code chooses between credentials.
-  * To use browser sign-in on this machine instead, Claude Code must be able to listen on `127.0.0.1`. If it runs inside a sandbox, check that the sandbox’s policy allows listening on local ports, then run `/login` again. If it should be able to and still fails, run `/feedback` so the report includes your environment details.
+    Couldn't start the local listener that receives the browser sign-in. Try again.
+
+**What to do:**
+
+  * **`The browser can't return the sign-in to Claude Code automatically`** : you don’t need to fix anything first. Open the URL shown under the notice in a browser and sign in. The browser then shows a code: paste it into Claude Code at the `Paste code here >` prompt, and the sign-in continues from there.
+  * **`Couldn't start the local listener that receives the browser sign-in`** : run the same command again. If it stops the same way, sign in with a token or API key instead of the browser. Or, if you piped input into `claude auth login`, run it in a terminal so it can take a pasted code.
+  * **To sign in with a token or API key instead of the browser** : if you use a claude.ai subscription, run [`claude setup-token`](</docs/en/authentication#generate-a-long-lived-token>) on a machine where sign-in works. Then set the token it prints as the [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>) environment variable on this machine. Otherwise set the `ANTHROPIC_API_KEY` environment variable to a key from the [Claude Console](<https://platform.claude.com/settings/keys>). [Authentication precedence](</docs/en/authentication#authentication-precedence>) explains how Claude Code chooses between credentials.
+  * **To get the automatic browser return back** : Claude Code must be able to listen on `127.0.0.1`. If it runs inside a sandbox, check that the sandbox’s policy allows listening on local ports, then sign in again. If listening should work there and the notice still appears, run `/feedback` so the report includes your environment details.
+
+Before v2.1.305, the sign-in stopped as soon as the port couldn’t be opened and showed no URL to sign in at. The message read, for example, `Failed to start OAuth callback server: Failed to start server. Is port 0 in use?`. On those versions, update Claude Code and sign in again, or sign in with a token or API key instead of the browser.
 
 ###
 
@@ -1431,7 +1463,15 @@ Check that the helper returns a credential the server accepts, then reconnect fr
 
     MCP server "<name>" rejected the Authorization header in its config (update it, then run /mcp to reconnect)
 
-Update the header value where the server is configured, then reconnect from `/mcp`. Before v2.1.273, the expired sign-in, `headersHelper`, and `Authorization` header cases all showed `MCP server "<name>" requires re-authorization (token expired)`. A server can also refuse a tool call with HTTP 403 `insufficient_scope` to ask you to authorize a scope, sometimes one your token already lists. The message names that scope:
+Update the header value where the server is configured, then reconnect from `/mcp`. In a [Cowork](<https://claude.com/docs/cowork/overview>) session on your machine in the Claude Desktop app, these messages mean the MCP server rejected a credential it was given. Fix the one the message names, then start a new task or chat in Cowork:
+
+    MCP server "<name>" rejected the credential from its headersHelper (check the helper, then start a new task or chat)
+    MCP server "<name>" rejected the Authorization header in its config (update it, then start a new task or chat)
+
+  * **`headersHelper` credential rejected**: check that the helper returns a credential the server accepts, then start a new task or chat in Cowork
+  * **`Authorization` header rejected**: update the `Authorization` value under `headers` in that server’s configuration, then start a new task or chat in Cowork
+
+Before v2.1.302, a Cowork session showed the `run /mcp to reconnect` endings instead, although `/mcp` isn’t available there. If you see such an ending in Cowork, still check the helper or update the header, then start a new task or chat. Before v2.1.273, the expired sign-in, `headersHelper`, and `Authorization` header cases all showed `MCP server "<name>" requires re-authorization (token expired)`. A server can also refuse a tool call with HTTP 403 `insufficient_scope` to ask you to authorize a scope, sometimes one your token already lists. The message names that scope:
 
     MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp to re-authenticate
 
@@ -1705,8 +1745,9 @@ A code Claude Code doesn’t recognize appears as `Unable to connect to API` fol
   * Confirm you can reach the API host from the same shell by running `curl -I https://api.anthropic.com`. On Windows PowerShell use `curl.exe -I https://api.anthropic.com` so the built-in `Invoke-WebRequest` alias is not used.
   * If you are behind a corporate proxy, set `HTTPS_PROXY` before launching Claude Code and see [Network configuration](</docs/en/network-config>)
   * If you route through an LLM gateway or relay, set [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) to its address. See [Connect Claude Code to an LLM gateway](</docs/en/llm-gateway-connect>) for setup.
+  * If `ANTHROPIC_BASE_URL` already points at your gateway and every request ends in `Connection dropped`, check whether your gateway is rejecting the tool search fields Claude Code sends by default. To check, set `ENABLE_TOOL_SEARCH=false` as [Tool search through an LLM gateway](</docs/en/mcp#tool-search-through-a-gateway>) describes, then try again. Before v2.1.304, tool search was off behind a gateway unless you turned it on with `ENABLE_TOOL_SEARCH`.
   * Ensure your firewall allows the hosts listed in [Network access requirements](</docs/en/network-config#network-access-requirements>)
-  * Intermittent failures are retried automatically; persistent failures point to a local network issue
+  * Intermittent failures are retried automatically
 
 If `curl` succeeds but Claude Code still fails, the cause is usually something between the runtime and the network rather than the network itself:
 
@@ -2027,6 +2068,7 @@ Before v2.1.162, Claude Code attempted the compaction anyway and surfaced the ba
   * Trim large `CLAUDE.md` memory files, or move instructions into [path-scoped rules](</docs/en/memory#path-specific-rules>) that load only when relevant
   * Auto-compact is on by default and normally prevents this error. If you turned it off in `/config` or with [`DISABLE_AUTO_COMPACT`](</docs/en/env-vars>), turn it back on. If you keep it off, run `/compact` yourself before the window fills.
   * If the error appears near 200K tokens on a model that accepts more, one cause is a model ID that Claude Code doesn’t recognize. Claude Code assumes a 200K window for such an ID, so to keep working past that point, [give it the model’s real context window](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>).
+  * If the error appeared right after you stopped Claude while it was compacting the conversation, your conversation is unchanged and still large enough to need compacting. Run `/compact` and send your message again. To keep the error from recurring, [update Claude Code](</docs/en/setup#update-claude-code>) to v2.1.304 or later. Before v2.1.304, stopping at that moment could end the turn with this error.
 
 See [Explore the context window](</docs/en/context-window>) for an interactive view of how context fills up.
 
@@ -2161,14 +2203,20 @@ Page-range reads render pages with `pdftoppm`. Install poppler-utils with the co
 
 Extra inputs are not permitted
 
-A proxy or LLM gateway between Claude Code and the API stripped the `anthropic-beta` request header, so the API rejected fields that depend on it.
+The endpoint that received the request rejected one of the request’s fields as an input it doesn’t accept, and the endpoint’s message names that field.
 
-    API Error: 400 ... Extra inputs are not permitted ... context_management
+    API Error: 400 ... context_management: Extra inputs are not permitted
 
-Claude Code sends beta-only fields such as `context_management` alongside an `anthropic-beta` header that enables them. When a gateway forwards the body but drops the header, the API sees fields it doesn’t recognize. **What to do:**
+Claude Code sends beta-only fields such as `context_management` and tool search’s `defer_loading` alongside an `anthropic-beta` header that enables them. When a gateway forwards the body but drops the header, the API sees fields it doesn’t recognize. When a gateway forwards an Anthropic-format body to an upstream with a different schema, that upstream rejects such fields. [Beta header and body field pairs](</docs/en/llm-gateway-protocol#beta-header-and-body-field-pairs>) covers both cases. **What to do:**
 
-  * Configure your gateway to forward the `anthropic-beta` header. See [feature pass-through](</docs/en/llm-gateway-protocol#feature-pass-through>) for what gateways must forward.
+  * If the message contains `context_management: Extra inputs are not permitted`, [update Claude Code](</docs/en/setup#update-claude-code>) to v2.1.304 or later. After you update, Claude Code answers this rejection by sending the request once more without the field. Before v2.1.304, Claude Code didn’t retry this rejection.
+  * If the message names `defer_loading` or `tool_reference`, update Claude Code or turn [tool search](</docs/en/mcp#tool-search-through-a-gateway>) off:
+    * [Update Claude Code](</docs/en/setup#update-claude-code>) to v2.1.305 or later. Claude Code then answers this rejection by sending the request once more without tool search fields.
+    * If you can’t update, or the message still appears after you do, set `ENABLE_TOOL_SEARCH=false` in your shell or your [settings `env`](</docs/en/settings-reference#env>). If a settings file already sets the variable, change it there, since that value [can override a shell export](</docs/en/settings-reference#how-env-values-interact-with-your-shell>). Claude Code then loads MCP tools upfront.
+  * If your gateway drops the header, configure it to forward the `anthropic-beta` header. See [feature pass-through](</docs/en/llm-gateway-protocol#feature-pass-through>) for what gateways must forward.
   * As a fallback, set [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](</docs/en/env-vars>) before launching. [Disable pre-release capabilities](</docs/en/llm-gateway-protocol#disable-pre-release-capabilities>) covers the exact scope.
+
+Before v2.1.302, this error could also name the field `diagnostics` with no gateway involved. It appeared when a session that had already used the Anthropic API moved to Amazon Bedrock or Google Cloud’s Agent Platform without a restart. For example, a session you left open moves to Bedrock when you run [`/setup-bedrock`](</docs/en/commands>) in another Claude Code window. On those versions, run `/clear` in that session or restart it.
 
 ###
 
@@ -2239,6 +2287,7 @@ The configured model name was not recognized or your account lacks access to it.
   * Use an alias such as `sonnet` or `opus` instead of a full versioned ID. Aliases resolve to a maintained default so they don’t go stale. See [Model configuration](</docs/en/model-config>).
   * If the wrong model keeps coming back in the CLI, a stale ID is set somewhere. Check the places you can set a model in [priority order](</docs/en/model-config#setting-your-model>) and remove the stale value.
   * Claude Code reports an expired claude.ai login as Login expired, not as this error. Before v2.1.206, an expired login that could no longer be refreshed failed every model with this error; run `/login` if you see that on an older version.
+  * If [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at an [LLM gateway](</docs/en/llm-gateway>) and every model fails this way, check whether your gateway is rejecting the tool search fields Claude Code sends by default. To check, set `ENABLE_TOOL_SEARCH=false` as [Tool search through an LLM gateway](</docs/en/mcp#tool-search-through-a-gateway>) describes, then try again. Before v2.1.304, tool search was off behind a gateway unless you turned it on with `ENABLE_TOOL_SEARCH`.
   * For Google Cloud’s Agent Platform deployments, see [Google Cloud’s Agent Platform troubleshooting](</docs/en/google-vertex-ai#troubleshooting>).
 
 ###
@@ -2439,7 +2488,7 @@ Your [advisor model](</docs/en/advisor>) ranks below your session’s main model
 Other messages report the same condition:
 
   * In an interactive session, a notification reads `Advisor will not activate on the main model (advisor is less capable); subagents may still use it and may use more tokens · /advisor`.
-  * At launch with the `--advisor` flag, a warning reads `"<advisor>" cannot advise "<main model>" (the advisor must be at least as capable as the main model). The advisor will not be used for the main model.` and the session starts anyway.
+  * When you launch with the `--advisor` flag in [non-interactive mode](</docs/en/headless>), and the run isn’t a [background session](</docs/en/agent-view>), a warning goes to stderr and the run starts anyway. It reads `"<advisor>" cannot advise "<main model>" (the advisor must be at least as capable as the main model). The advisor will not be used for the main model.` An interactive session writes that warning only to the debug log.
 
 **What to do:**
 
@@ -3303,7 +3352,7 @@ In an interactive terminal session, you submitted a `/` name that doesn’t matc
 Claude Code suggests the closest command name or alias that the menu lists in this session. When nothing is close, the message ends after the name. The cause is usually one of the following:
 
   * A typo, such as `/hepl` for `/help`. [How the command menu matches what you type](</docs/en/commands#how-the-command-menu-matches-what-you-type>) covers picking a close match before you submit
-  * A command that exists but isn’t available in this session because a requirement isn’t met, such as your platform, plan, or authentication method. The troubleshooting entries for [`/web-setup`](</docs/en/web-quickstart#web-setup-shows-no-commands-match-or-unknown-command>) and [`/schedule`](</docs/en/routines#schedule-returns-unknown-command>) walk through two common cases. Some commands answer with their own message when your organization’s policy disables them, such as `Cloud sessions are disabled by your organization's policy`
+  * A command that exists but isn’t available in this session because a requirement isn’t met, such as your platform, plan, or authentication method. See the entry for [`/web-setup`](</docs/en/web-quickstart#web-setup-shows-no-commands-match-or-unknown-command>), [`/schedule`](</docs/en/routines#schedule-returns-unknown-command>), or [`/auto-mode-setup`](</docs/en/auto-mode-config#auto-mode-setup-returns-unknown-command>). Some commands answer with their own message when your organization’s policy disables them, such as `Cloud sessions are disabled by your organization's policy`
   * A command from a [plugin](</docs/en/plugins/overview>) or [MCP server](</docs/en/mcp#use-mcp-prompts-as-commands>) that isn’t installed or connected in this session
 
 Claude Code answers an unmatched `/` name this way only in an interactive terminal session. In every other session, it sends the prompt to Claude as a normal message instead, with a note that the command didn’t run and a list of commands Claude can run in the session. Those sessions include:
@@ -3695,6 +3744,22 @@ A `/recap` you pass to `claude -p`, or that your own [Agent SDK](</docs/en/agent
   * Open the session yourself and run `/recap` there: in its terminal, in the [Desktop app](</docs/en/desktop>) or the [mobile app](</docs/en/mobile>), at [claude.ai/code](<https://claude.ai/code>), or over [Remote Control](</docs/en/remote-control>)
   * If a cloud scheduled task or another program sent it, remove `/recap` from that prompt
 
+###
+
+​
+
+/feedback is disabled by your organization’s policy
+
+This message means your organization’s policy doesn’t allow product feedback from Claude Code, so `/feedback`, `/bug`, and `/share` don’t open the feedback dialog. The message names the command you typed at the Claude Code prompt:
+
+    /feedback is disabled by your organization's policy. To report a bug, open an issue at https://github.com/anthropics/claude-code/issues. Issues are public, so leave out anything confidential.
+
+The message can also be its first sentence alone. **What to do:**
+
+  * To report a bug, open an issue at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>). Anyone can read issues there, so leave out code, transcripts, and anything else confidential.
+
+Before v2.1.302, the full message read `/feedback is disabled by your organization's policy. Contact your organization admin to enable it.`
+
 ##
 
 ​
@@ -3840,7 +3905,7 @@ The plugin’s marketplace entry uses an [`archive` source](</docs/en/plugins/ma
 
 Path escapes plugin directory
 
-A plugin component path, declared in the plugin’s `plugin.json` or in its [marketplace entry](</docs/en/plugins/marketplace-reference#plugin-entries>), resolves outside the plugin’s own directory. Claude Code drops that path and loads the rest of the plugin. The component name in the message, such as `commands` or `hooks`, names the field that declared the path.
+One of the plugin’s component paths leads outside the plugin directory or couldn’t be confirmed inside it, so Claude Code drops that path and loads the rest of the plugin. For a path the plugin declares in `plugin.json` or its [marketplace entry](</docs/en/plugins/marketplace-reference#plugin-entries>), the component name in the message, such as `commands` or `hooks`, names the field that declared the path.
 
     commands path escapes plugin directory: ./../shared.md
 
@@ -3848,16 +3913,45 @@ In `claude plugin` command output, the same error reads `Path escapes plugin dir
 
     commands path escapes plugin directory: ./commands/deploy.md — it resolves to /home/user/shared/deploy.md, outside the plugin directory
 
+A message that gives the full path of one of a marketplace plugin’s own files, such as `hooks/hooks.json`, means Claude Code skipped that file. That happens when Claude Code can’t confirm the file is inside the plugin or, for a plugin in a [local marketplace](</docs/en/plugins/loading#in-place-and-copied-plugins>), inside that marketplace. The message reports each of these files under the component name shown:
+
+  * `hooks/hooks.json`: `hooks`
+  * `monitors/monitors.json`: `monitors`
+  * `settings.json`: `settings`
+  * `SKILL.md` at the plugin root: `skills`
+
+For example, this message is for a `hooks/hooks.json` that resolves outside both the plugin and its local marketplace:
+
+    hooks path escapes plugin directory: /home/user/my-marketplace/my-plugin/hooks/hooks.json — it resolves to /home/user/dotfiles/hooks.json, outside the plugin directory and its marketplace directory
+
 On macOS and Linux, Claude Code also rejects a component path that contains a backslash anywhere in it, even when the path stays inside the plugin. A plugin whose component paths use Windows-style separators loads on Windows and triggers this rejection on the other platforms:
 
     commands path escapes plugin directory: ./commands\deploy.md — its path contains a backslash, which is not resolved reliably on this platform
 
-Before v2.1.251, Claude Code loaded a `commands` path declared in a marketplace entry even when it pointed outside the plugin directory. Before v2.1.257, the check looked only at the path’s spelling, not at where a symlink leads. **What to do:**
+Before v2.1.251, Claude Code loaded a `commands` path declared in a marketplace entry even when it pointed outside the plugin directory. Before v2.1.257, the check on paths the plugin declares looked only at the path’s spelling, not at where a symlink leads. **What to do:**
 
-  * Move the referenced file inside the plugin directory and point the path at it with a `./` relative path
-  * If the path is a symlink to a file outside the plugin, replace the symlink with a copy of the file
-  * If the message says the path contains a backslash, write the path with forward slashes, for example `./commands/deploy.md`
+  * If you installed the plugin and don’t maintain it, report the message to its author
+  * For a path the plugin declares, move the referenced file inside the plugin directory and point the path at it with a `./` relative path
+  * If the path, or a folder above it inside the plugin, is a symlink leading outside the plugin, replace the symlink with a copy of what it points to
+  * If the message says a path the plugin declares contains a backslash, write the path with forward slashes, for example `./commands/deploy.md`
+  * If the message ends with `EACCES`, restore your execute permission on every directory leading to the file or folder the path names. Check the directories above the path, then follow each symlink you reach and check the directories leading to where it points. For any other error code, look it up in the causes and steps for a path that couldn’t be checked.
   * To share files with other plugins in the same marketplace, link them with a symlink inside the plugin directory, following the [symlink rules](</docs/en/plugins/host-marketplace#share-files-within-a-marketplace-with-symlinks>)
+
+###
+
+​
+
+Plugin not loaded: its manifest was not read
+
+Claude Code couldn’t confirm that a marketplace plugin’s [manifest](</docs/en/plugins/manifest-reference>) at `.claude-plugin/plugin.json` is inside the plugin, so it loads nothing from that plugin. For a plugin in a [local marketplace](</docs/en/plugins/loading#in-place-and-copied-plugins>), Claude Code also couldn’t confirm that the manifest is inside that marketplace. The message appears in the `/plugin` **Errors** tab, and the reason at its end says what Claude Code found. For example, this message is for a plugin in a local marketplace whose `.claude-plugin` folder is a symlink leading outside the marketplace:
+
+    Plugin not loaded: its manifest /home/user/my-marketplace/my-plugin/.claude-plugin/plugin.json was not read, because it resolves to /home/user/dotfiles/my-plugin/.claude-plugin/plugin.json, outside the plugin directory and its marketplace directory
+
+**What to do:**
+
+  * If the reason ends with `EACCES`, restore your execute permission on every directory leading to the manifest. Check the directories above the manifest, then follow each symlink you reach and check the directories leading to where it points. For any other error code, look it up in the causes and steps for a path that couldn’t be checked.
+  * If you maintain the plugin and the reason says where the manifest resolves, the `.claude-plugin` folder or `plugin.json` itself is a symlink that leads there. Replace that link with a copy of what it points to.
+  * If you installed the plugin and don’t maintain it, report the message to its author
 
 ###
 
@@ -4055,6 +4149,26 @@ Before v2.1.281, a null byte in a Read, Write, Edit, or NotebookEdit path ended 
 
 ​
 
+File is too large to read as an image
+
+Claude tried to read a file as an image with the [Read tool](</docs/en/tools-reference#read-tool-behavior>), and the file is larger than 128 MB, the most Read loads from an image file. Nothing was read, and Claude receives this error as the tool result:
+
+    File is too large to read as an image (the limit is 128MB): <path>. If it is an image, resize it or export a smaller copy, then read that.
+
+When the path is a pipe or a device rather than a regular file, Read stops once more than 128 MB has arrived and returns this error instead:
+
+    Cannot read this as an image: <path> is a pipe or a device, not a regular file, and it sent more than 128MB without ending.
+
+**What to do:**
+
+  * If Claude followed the `File is too large` message and went on to resize the image or read a smaller copy, do nothing
+  * If Claude stopped at the error, export a copy under 128 MB yourself, for example at a lower resolution, and point Claude at that file
+  * If the path was a pipe or a device, point Claude at a regular image file instead
+
+###
+
+​
+
 subagent_type is required
 
     subagent_type is required: the general-purpose agent is not available in this session. Available agents: ...
@@ -4136,6 +4250,22 @@ The check applies to a definition in the `.claude/agents/` directory of the proj
 
   * Run `claude` in the folder the [debug log](</docs/en/debug-your-config>) names and accept the trust dialog. The definition is re-applied the next time Claude Code brings the teammate back; you don’t need to restart the lead session
   * Or set the `hasTrustDialogAccepted` entry to `true` in `~/.claude.json`, using the exact `projects["<path>"]` key the debug log prints
+
+###
+
+​
+
+Only a teammate can approve a shutdown request
+
+Claude Code refused an [agent team](</docs/en/agent-teams>) shutdown approval because the session that sent it isn’t running as a teammate. Nothing was sent and nothing shut down. The refusal appears in the sending session’s tool result:
+
+    Only a teammate can approve a shutdown request, and this session is not running as one. Nothing was sent. To shut down a teammate, send that teammate a shutdown_request message. The teammate is the one that approves it.
+
+**What to do:**
+
+  * If the refusal appeared in your lead session, first check whether the teammate has since shut down. The refusal goes back to Claude with the instruction to send a `shutdown_request` instead, and the turn continues. In an interactive lead session, `<name> has shut down.` appears when the teammate approves a shutdown request.
+  * If the teammate is still running, ask the lead at its prompt to shut the teammate down, for example `Ask the researcher teammate to shut down`. See [Shut down teammates](</docs/en/agent-teams#shut-down-teammates>).
+  * If a former teammate you resumed yourself with `claude --resume` got this refusal, nothing was sent. To end that session, run `/exit` at its prompt.
 
 ###
 
@@ -4276,7 +4406,11 @@ The parenthesized text names the check that failed. Reasons such as `output syml
 
 Disk quota or temp filesystem is full
 
-Claude Code saves each Bash and PowerShell command’s output to a file under its temp directory. When a command exits with a nonzero code and no output at all, Claude Code checks whether the filesystem holding that file is out of space or inodes, or whether your disk quota on it is used up. If so, a diagnostic appears in the command’s result in place of the empty output:
+Claude Code saves each Bash and PowerShell command’s output to a file under its temp directory. These messages in a command’s result mean that the filesystem holding that directory, or your disk quota on it, is full. If Claude Code can’t create that file because the filesystem or your quota on it is full, your command doesn’t start, and the result reads:
+
+    The command was not started: this computer's disk is full (ENOSPC), so the file that captures command output could not be created. Nothing ran. If this is the user's own computer, tell them before deleting anything to make room.
+
+When a command exits with a nonzero code and no output at all, Claude Code checks the filesystem holding the output file. If that filesystem is out of space or inodes, or your disk quota on it is used up, a diagnostic replaces the empty output in the command’s result:
 
     Your disk quota is full on the filesystem with Claude Code's temp directory /private/tmp/claude-501/-Users-you-my-project/1f0e62dc-4b0a-4f5e-9c2d-8a7b6c5d4e3f/tasks (EDQUOT), so any output this command printed was lost, and it may have failed because it could not write. Delete files you no longer need there, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another filesystem.
 
@@ -4285,12 +4419,15 @@ The message names what ran out:
   * `Your disk quota is full ... (EDQUOT)`: your own quota on that filesystem is used up. A quota can be full while the filesystem still shows free space
   * `The filesystem with Claude Code's temp directory ..., or your disk quota on it, is full (ENOSPC)`: the filesystem, or your quota on it, has no space left
   * `Command output was lost: the temp filesystem at ... is full` or `... is out of inodes`: the filesystem has almost no free space left, or is running out of inodes
+  * `The command was not started: this computer's disk is full (ENOSPC)` or `... (EDQUOT)`: the filesystem has no space left for the output file, or with `EDQUOT` your own quota on it is used up
 
 **What to do:**
 
-  * Delete files you no longer need on the filesystem that holds Claude Code’s temp directory. For `EDQUOT`, delete files that count against your own quota. For `out of inodes`, delete many files rather than a few large ones, since each file takes one inode whatever its size
+  * Delete files you no longer need on the filesystem that holds Claude Code’s temp directory. If your message doesn’t name that directory, look up its default location in the [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>) reference. For `EDQUOT`, delete files that count against your own quota. For `out of inodes`, delete many files rather than a few large ones, since each file takes one inode whatever its size
   * Or restart Claude Code with [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>) set to a directory on a filesystem with room
-  * Then have Claude run the command again. The output it printed was lost, not truncated
+  * Then have Claude run the command again
+
+Before v2.1.305, a command that Claude Code couldn’t start because the disk was full returned only the operating system’s error text. That text read, for example, `ENOSPC: no space left on device, open <path>.output`.
 
 ###
 
@@ -4350,6 +4487,24 @@ Looking up such a path contacts the host it names, and on Windows that contact c
   * To publish that exact file, copy it into a folder on a local disk and ask again
   * On Windows, to let Claude publish directly from the share, map it to a drive letter and pass the drive when you start Claude Code. In PowerShell, for example, run `net use Z: \\server\share` and then `claude --add-dir Z:\`. Claude can then publish files from that drive. Adding the drive mid-session with `/add-dir` isn’t enough.
   * On macOS or Linux, mount the share at a directory such as one under `/mnt` or `/Volumes`, and publish from that path instead of the automount path
+
+###
+
+​
+
+Not published: Claude sent the same content again after a newer version of the artifact turned it away
+
+This red line under an Artifact call means Claude Code stopped a repeated publish: the [artifact](</docs/en/artifacts>) wasn’t updated, and nothing was written to the file Claude publishes from. You don’t need to do anything unless Claude stops without publishing. Earlier in the session, Claude Code turned a publish away because the artifact had a newer version, for example one that an [editor](</docs/en/artifacts#let-someone-edit-with-you>) or another of your sessions published. The line’s ending says what Claude has to do next:
+
+    Not published: Claude sent the same content again after a newer version of the artifact turned it away. Claude needs to work from that newer version first.
+    Not published: Claude sent the same content again after a newer version of the artifact turned it away. The artifact hasn't changed since, so publishing it once more should go through.
+    Not published: Claude sent its changes again over the same file after a newer version of the artifact turned them away. Claude needs to work from that newer version first.
+    Not published: Claude sent its changes again over the same file after a newer version of the artifact turned them away. The artifact hasn't changed since, so publishing once more should go through.
+
+**What to do:**
+
+  * **Ends with`Claude needs to work from that newer version first`**: if Claude stopped there, ask it to fetch the artifact’s current version, merge its changes in, and publish again
+  * **Ends with`should go through`**: if Claude stopped there, ask it to publish again
 
 ###
 
@@ -4638,6 +4793,24 @@ Before v2.1.295, the loop stopped in this situation without a notice. **What to 
 
 ​
 
+No LLM gateway: a gateway set in your shell isn’t passed to a session opened from another folder
+
+The [background session](</docs/en/agent-view>) showing this message isn’t using your [LLM gateway](</docs/en/llm-gateway>): it didn’t get the gateway’s address, so its requests fail. The message appears in the conversation in place of Claude’s reply, with your session’s ID and folder filled in:
+
+    No LLM gateway: a gateway set in your shell isn't passed to a session opened from another folder. To fix, run `claude respawn abc12345` from ~/project in another terminal where your gateway is set, or set ANTHROPIC_BASE_URL and its API key or token in a settings file's env block.
+
+While you’re attached to the session, the notice under its prompt shows the short form `No LLM gateway: opened from another folder · respawn from ~/project`. You dispatched, woke, or restarted the session from a folder other than the one the message names, while `ANTHROPIC_BASE_URL` was set to your gateway. For the cases where a shell-exported gateway does reach a background session, see [LLM gateway](</docs/en/agent-view#llm-gateway>). **What to do:**
+
+  * **You used agent view in a project whose settings set the gateway** : put `ANTHROPIC_BASE_URL` and its API key or token in [a settings file’s `env` block](</docs/en/llm-gateway-connect#set-in-a-settings-file>). Use `~/.claude/settings.json`, or `.claude/settings.local.json` in the session’s own project, both of which a respawned session reads. Then run `claude respawn <id>` in your shell from any folder.
+  * **You exported the gateway in your terminal** : in a terminal where you’ve exported the gateway variables, `cd` to the folder the message names and run the message’s `claude respawn <id>` command. The session restarts from its saved conversation.
+    * The gateway reaches the session only when the [supervisor](</docs/en/agent-view#the-supervisor-process>) was itself started from a shell that exported the same gateway. If the supervisor wasn’t, restart it from that terminal as [Dispatch fails with `Could not resolve authentication method`](</docs/en/agent-view#dispatch-fails-with-could-not-resolve-authentication-method>) describes, then run the respawn command again.
+
+Before v2.1.302, a background session in this situation showed a sign-in error such as `Not logged in · Please run /login` instead, without naming the folder.
+
+###
+
+​
+
 CLAUDE_CODE_PROCESS_WRAPPER launcher errors
 
 [`CLAUDE_CODE_PROCESS_WRAPPER`](</docs/en/corporate-launcher>) is set, and its value can’t be used, so Claude Code refuses to start the affected process rather than run it without the launcher. Configuration problems are reported with a message that starts with the variable name and states the reason, for example:
@@ -4912,7 +5085,12 @@ The notice is expected when you ran `claude` from inside another Claude Code ses
 
 Configuration warnings
 
-Claude Code writes most of these messages to stderr, not into the conversation, and writes most of them at startup. An entry says so when its message appears somewhere else, such as in the debug log or as a startup notice in the conversation view, or at another time, such as the unrecognized-model diagnostic line at request time.
+To find a warning that Claude Code gave at startup in an interactive session, look below the startup banner first, then in the debug log:
+
+  * **Row below the startup banner** : some warnings about [permission rules](</docs/en/permissions>), such as `⚠ Deny rule Bsh matches no tool · check for typos`
+  * **Debug log** : Claude Code keeps this log only in debug mode. To read the warnings in it, start Claude Code from your shell with `claude --debug-file <path>`, then open the file at that path.
+
+In [non-interactive mode](</docs/en/headless>) with text output, outside a [background session](</docs/en/agent-view>), look for startup warnings on stderr. Before v2.1.305, look on stderr in an interactive session as well, including for the permission-rule warnings that now show as rows below the banner.
 
 ###
 
@@ -5042,11 +5220,11 @@ Claude Code found `permissions.allow` rules or `permissions.additionalDirectorie
 
 Working directory is a network path
 
-Claude Code doesn’t add network paths as working directories. Looking up a network path can contact the host it names, and on Windows that contact can send the host your credentials, so Claude Code refuses the path without looking it up. You see this message when you run `/add-dir` with such a path, or as a warning at startup. When it appears at startup, Claude Code starts without that directory.
+Claude Code doesn’t add network paths as working directories. Looking up a network path can contact the host it names, and on Windows that contact can send the host your credentials. Claude Code therefore refuses the path without looking it up. You see this message when you run `/add-dir` with a network path:
 
     \\server\share is a network path, which cannot be added as a working directory. On Windows, map the share to a drive letter and pass it at launch with --add-dir (a drive letter added mid-session does not yet carry remote-read trust).
 
-Paths that Claude Code refuses this way include:
+When you pass one at startup instead, with `--add-dir` or in `permissions.additionalDirectories`, Claude Code starts without that directory. In an interactive session you don’t see the message at startup, because it goes to the debug log with the other startup warnings. Paths that Claude Code refuses this way include:
 
   * UNC shares such as `\\server\share`
   * Automount paths such as `/net/<host>`, unless you launched Claude Code from a directory under that host’s automount. Reads under that automount still go through the [network path check](</docs/en/permissions#network-paths>).
@@ -5287,21 +5465,52 @@ Before v2.1.260, Claude Code reported a rule with unmatched parentheses as `Mism
 
 ​
 
+Matches no tool · check for typos
+
+This row below the startup banner names a deny or ask [permission rule](</docs/en/permissions>) whose tool name Claude Code doesn’t recognize, so the rule doesn’t apply to the tool you meant. A deny rule written as `Bsh` isn’t applied to Bash, and neither is one that uses the label a tool shows in the transcript instead of its canonical name. The row repeats the rule as you wrote it:
+
+    ⚠ Deny rule Bsh matches no tool · check for typos
+
+In [non-interactive mode](</docs/en/headless>) with text output, Claude Code prints the warning on stderr in its longer form instead:
+
+    Permission deny rule "Bsh" matches no known tool — check for typos.
+
+**What to do:**
+
+  * Correct the tool name in the rule, for example `Bash` in place of `Bsh`. Look up canonical names in the [tools reference](</docs/en/tools-reference>).
+  * To find where the rule is defined, run `/permissions` in the session and select the rule. Its details say where it comes from, such as `From project local settings`, or `From CLI argument` for a `--disallowedTools` value.
+  * If the details read `From enterprise managed settings`, forward the row to whoever maintains your [managed settings](</docs/en/managed-settings>), since you can’t change that rule yourself.
+
+In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.305, an interactive session printed the longer form on stderr at startup instead of showing the row.
+
+###
+
+​
+
 Is not matched by file permission checks
 
-Claude Code found a `Write`, `NotebookEdit`, `MultiEdit`, or `Glob` [permission rule](</docs/en/permissions#read-and-edit>) with a path in one of your [settings files](</docs/en/settings#where-settings-live>), in [managed settings](</docs/en/managed-settings>), or in a `--allowedTools`, `--disallowedTools`, or `--settings` flag value. It checks file permissions against `Edit` and `Read` rules only, so it never consults a path rule that names one of the other file tools. It keeps the rule and changes nothing else; the warning names the rule, its source in parentheses, and the replacement to write:
+Claude Code found a `Write`, `NotebookEdit`, `MultiEdit`, or `Glob` [permission rule](</docs/en/permissions#read-and-edit>) with a path in one of your [settings files](</docs/en/settings#where-settings-live>), in [managed settings](</docs/en/managed-settings>), or in a `--allowedTools`, `--disallowedTools`, or `--settings` flag value. It checks file permissions against `Edit` and `Read` rules only, so it never consults a path rule that names one of the other file tools. It keeps the rule and changes nothing else.
 
-    Permission deny rule (.claude/settings.json): Write(docs/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(docs/**) instead (Edit rules cover all file-editing tools).
+  * **Interactive session** : the full warning goes to the debug log, and a deny or ask rule of this shape also shows as this row below the startup banner:
+
+        ⚠ Deny rule Write(docs/**) never matches · use Edit(docs/**)
+
+An allow rule of this shape gets no row. To find where the rule is defined, run `/permissions` in the session and select the rule.
+  * **[Non-interactive mode](</docs/en/headless>) with text output**: the full warning on stderr names the rule, its source in parentheses, and the replacement to write:
+
+        Permission deny rule (.claude/settings.json): Write(docs/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(docs/**) instead (Edit rules cover all file-editing tools).
+
+  * **[Background session](</docs/en/agent-view>), or `--output-format json` or `stream-json`**: the full warning goes to the debug log instead of stderr, so machine-read output stays clean. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`.
 
 **What to do:**
 
   * Replace `Write(path)`, `NotebookEdit(path)`, and legacy `MultiEdit(path)` rules with `Edit(path)`. `Edit` rules cover all file-editing tools.
   * Except in `--allowedTools`, where Claude Code accepts a `Glob` rule without warning, replace `Glob(path)` rules with `Read(path)`.
-  * Fix the rule at the source the warning names in parentheses: a settings file path, or the flag itself for `--allowed-tools` and `--disallowed-tools`. A `claude-settings-<hash>.json` path that doesn’t exist on disk stands for an inline `--settings` value. Fix the JSON you pass to that flag.
+  * Fix the rule at its source, which the full warning names in parentheses: a settings file path, or the flag itself for `--allowed-tools` and `--disallowed-tools`. A `claude-settings-<hash>.json` path that doesn’t exist on disk stands for an inline `--settings` value. Fix the JSON you pass to that flag.
   * Leave bare tool-name rules such as `Write` or `Glob` alone. Claude Code matches them at the [tool level](</docs/en/permissions#match-all-uses-of-a-tool>) and doesn’t warn about them.
-  * If the source reads `managed policy settings`, forward the warning to whoever maintains your managed settings, since you can’t clear it yourself.
+  * For a rule from managed settings, the full warning’s parentheses read `managed policy settings` and the rule’s details in `/permissions` read `From enterprise managed settings`. Forward that warning to whoever maintains your managed settings, since you can’t clear it yourself.
 
-In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr, so machine-read output stays clean. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.210, Claude Code accepted these rules without a warning.
+Before v2.1.210, Claude Code accepted these rules without a warning. Before v2.1.305, an interactive session printed the full warning on stderr.
 
 ###
 
@@ -5309,18 +5518,22 @@ In a [background session](</docs/en/agent-view>) or with `--output-format json` 
 
 Has a wildcard before the rest of the command
 
-Claude Code found a `Bash` allow rule whose `*` comes before a later word that determines which command it is, such as `Bash(git * main)` or `Bash(git -C * status *)`, in one of your [settings files](</docs/en/settings#where-settings-live>), in [managed settings](</docs/en/managed-settings>), or in an `--allowedTools` or `--settings` flag value. The `*` matches any text, including options inserted at that position: `Bash(git * main)` also approves `git -c core.fsmonitor=<script> diff main`, where `-c` makes git run a program the command names. [Wildcard patterns](</docs/en/permissions#wildcard-patterns>) shows the matching rules. The warning exists so you can narrow a rule whose wildcard is broader than you intended. Claude Code keeps the rule and changes nothing about how it matches; the warning names the rule and its source in parentheses:
+Claude Code found a `Bash` allow rule whose `*` comes before a later word that determines which command it is, such as `Bash(git * main)` or `Bash(git -C * status *)`, in one of your [settings files](</docs/en/settings#where-settings-live>), in [managed settings](</docs/en/managed-settings>), or in an `--allowedTools` or `--settings` flag value. The `*` matches any text, including options inserted at that position: `Bash(git * main)` also approves `git -c core.fsmonitor=<script> diff main`, where `-c` makes git run a program the command names. [Wildcard patterns](</docs/en/permissions#wildcard-patterns>) shows the matching rules. The warning exists so you can narrow a rule whose wildcard is broader than you intended. Claude Code keeps the rule and changes nothing about how it matches. In [non-interactive mode](</docs/en/headless>) with text output, the warning on stderr names the rule and its source in parentheses:
 
     Permission allow rule (.claude/settings.json): Bash(git -C * status *) has a wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt. For git, options such as -c and --exec-path can run arbitrary commands. Replace that * with the exact value you mean, or only use * after the subcommand (for example Bash(git status *)).
 
-**What to do:**
+In an interactive session, the full warning goes to the debug log and the rule shows as this row below the startup banner:
+
+    ⚠ Allow rule Bash(git -C * status *) allows any option at its * · use an exact value
+
+To find where the rule is defined, run `/permissions` in the session and select the rule. **What to do:**
 
   * Replace the `*` before the subcommand with the exact value you mean: `Bash(git checkout main)` in place of `Bash(git * main)`.
   * Move every `*` after the subcommand: `Bash(git status *)` in place of `Bash(git -C * status *)`. Write one rule per subcommand you want to allow.
-  * Fix the rule at the source the warning names in parentheses: a settings file path, or the `--allowed-tools` flag itself. A `claude-settings-<hash>.json` path that doesn’t exist on disk stands for an inline `--settings` value. Fix the JSON you pass to that flag.
-  * If the source reads `managed policy settings`, forward the warning to whoever maintains your managed settings, since you can’t clear it yourself.
+  * Fix the rule at its source, which the full warning names in parentheses: a settings file path, or the `--allowed-tools` flag itself. A `claude-settings-<hash>.json` path that doesn’t exist on disk stands for an inline `--settings` value. Fix the JSON you pass to that flag.
+  * For a rule from managed settings, the full warning’s parentheses read `managed policy settings` and the rule’s details in `/permissions` read `From enterprise managed settings`. Forward that warning to whoever maintains your managed settings, since you can’t clear it yourself.
 
-In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr, so machine-read output stays clean. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.246, Claude Code accepted these rules without a warning.
+In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr, so machine-read output stays clean. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.246, Claude Code accepted these rules without a warning. Before v2.1.305, an interactive session printed the full warning on stderr instead of showing a row.
 
 ###
 
@@ -5328,7 +5541,7 @@ In a [background session](</docs/en/agent-view>) or with `--output-format json` 
 
 Denying Bash also turns off the PowerShell tool
 
-You removed the whole Bash tool, for example with `--disallowedTools Bash` or with a bare `Bash` or `Bash(*)` [deny rule](</docs/en/permissions#match-all-uses-of-a-tool>) in one of your settings files. On Windows with Git Bash installed, [denying Bash also turns the PowerShell tool off](</docs/en/tools-reference#bash-deny-rules-also-turn-off-the-powershell-tool>), so the session starts with no shell tool. Claude Code prints this warning at startup:
+You removed the whole Bash tool, for example with `--disallowedTools Bash` or with a bare `Bash` or `Bash(*)` [deny rule](</docs/en/permissions#match-all-uses-of-a-tool>) in one of your settings files. On Windows with Git Bash installed, [denying Bash also turns the PowerShell tool off](</docs/en/tools-reference#bash-deny-rules-also-turn-off-the-powershell-tool>), so the session starts with no shell tool. In [non-interactive mode](</docs/en/headless>) with text output, Claude Code prints this warning on stderr at startup, and an interactive session writes it only to the debug log:
 
     Denying Bash also turns off the PowerShell tool, so Claude has neither. To use PowerShell, set CLAUDE_CODE_USE_POWERSHELL_TOOL=1.
 
@@ -5337,7 +5550,7 @@ You removed the whole Bash tool, for example with `--disallowedTools Bash` or wi
   * To have Claude use PowerShell, set [`CLAUDE_CODE_USE_POWERSHELL_TOOL`](</docs/en/env-vars>) to `1` in your environment or in the `env` block of a settings file, as [Enable the PowerShell tool](</docs/en/tools-reference#enable-the-powershell-tool>) shows. The PowerShell tool then stays on alongside your Bash deny rule.
   * To block particular commands instead of the whole tool, replace the bare `Bash` entry with scoped rules such as `Bash(git push *)` in the same settings file or flag. Claude keeps the Bash tool, and the PowerShell tool stays off until you also set the variable or add a scoped [`PowerShell` permission rule](</docs/en/permissions#powershell>).
 
-In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.287, Claude Code turned the PowerShell tool off the same way without printing a warning.
+In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.287, Claude Code turned the PowerShell tool off the same way without printing a warning. Before v2.1.305, an interactive session printed the warning on stderr at startup too.
 
 ###
 
@@ -5392,7 +5605,7 @@ Claude Code enforces the 200K limit on its own for every model it recognizes as 
   * If the message names a model ID this version doesn’t recognize, run `claude update`. A version that recognizes the ID as a 1M-context model enforces the limit without further configuration.
   * If you want the session to use the model’s full window instead, unset `CLAUDE_CODE_DISABLE_1M_CONTEXT`; the warning reports only that the 200K limit isn’t enforced
 
-In a [background session](</docs/en/agent-view>) or with `--output-format json` or `stream-json`, Claude Code writes the warning to the debug log instead of stderr.
+In [non-interactive mode](</docs/en/headless>) with text output, this warning appears on stderr. In an interactive session, a [background session](</docs/en/agent-view>), or with `--output-format json` or `stream-json`, it goes to the debug log instead. Run with `--debug` to capture it at `~/.claude/debug/<session-id>.txt`. Before v2.1.305, an interactive session printed the warning on stderr at startup.
 
 ###
 
@@ -5500,6 +5713,7 @@ For errors from components this page doesn’t cover, see the relevant guide:
 If an error is not listed here or the suggested fix does not help:
 
   * Run `/feedback` inside Claude Code to send the transcript and a description to Anthropic. The command also offers to open a prefilled GitHub issue. Sending to Anthropic requires [authentication](</docs/en/authentication>). On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and other third-party providers, or when no Anthropic credentials are configured, `/feedback` saves a local archive you can send to your Anthropic account representative instead.
+  * If `/feedback` answers that it’s disabled by your organization’s policy, see that message’s entry
   * Run `claude doctor` from your shell for a read-only diagnostic of your installation, or run the `/doctor` checkup inside Claude Code to find and fix setup problems
   * Check [status.claude.com](<https://status.claude.com>) for active incidents
   * Search [existing issues](<https://github.com/anthropics/claude-code/issues>) on GitHub
