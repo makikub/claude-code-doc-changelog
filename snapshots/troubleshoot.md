@@ -106,7 +106,7 @@ Message contains| What it means| Where it appears
 
 `hooks module did not load`
 
-The line starts with the mod’s name, then `hooks module did not load:` and a reason, which gives the file and line when the problem is in your code. Claude Code couldn’t load the module, for example because its top-level code threw. Fix the error the reason names.
+The line starts with the mod’s name, then `hooks module did not load:` and a reason, which gives the file and line when the problem is in your code. Claude Code couldn’t load the module, for example because its top-level code threw. Fix the error the reason names. If the reason ends with `; the version loaded before is unloaded`, no version of the mod is running now. Once you fix the error, run [`/reload-plugins`](</docs/en/plugins/cli-reference#reload-plugins>) in the session to load the mod again. If you installed the mod and didn’t write it, ask its author to fix the error.
 
 ###
 
@@ -123,6 +123,19 @@ The line starts with the mod’s name, then `hooks module did not load: options 
 `code nested too deep to scan: more than 2000 scopes`
 
 The line starts with the mod’s name, then `hooks module did not load:`, the file, and `code nested too deep to scan: more than 2000 scopes`. A file in a hooks module can’t nest scopes, such as functions, blocks, and loops, more than [2,000 deep](</docs/en/plugins/mods/reference#limits>). [`claude plugin validate`](</docs/en/plugins/mods/create#check-what-claude-code-reads-from-your-mod>) reports the same reason. Rewrite the code so its scopes nest less deeply.
+
+###
+
+​
+
+`the parser stopped` or `the engine ran out of stack loading the file`
+
+Code in one file of the hooks module is nested so deeply that Claude Code ran out of stack reading it. The line starts with the mod’s name and `hooks module did not load:`, then gives that file’s name and one of these reasons:
+
+  * `code nested too deep to scan (the parser stopped: <message>)`
+  * `the engine ran out of stack loading the file (code nested too deep): <message>`
+
+The reason gives no line number and doesn’t say what kind of code is nested, so look through the file yourself for its most deeply nested part. Rewrite that part to nest less. If you installed the mod and didn’t write it, ask its author to.
 
 ###
 

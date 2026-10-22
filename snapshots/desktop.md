@@ -1,4 +1,4 @@
-The Claude Desktop app has three tabs: **Chat** for conversations, **Cowork** for [Dispatch and longer agentic work](<https://claude.com/product/cowork>), and **Code** for software development. This page is the reference for the Code tab.
+In the Claude Desktop app, Claude Code is the **Code** tab. The app also has chat and [Cowork](<https://claude.com/product/cowork>), which handles Dispatch and longer agentic work. This page is the reference for the Code tab.
 
 ## Download for macOS
 
@@ -220,7 +220,12 @@ PR monitoring requires the [GitHub CLI (`gh`)](<https://cli.github.com/>) to be 
 
 Arrange your workspace
 
-The Code tab is built around panes you can arrange in any layout: chat, diff, browser, terminal, file, plan, tasks, and subagent, along with the [iOS Simulator](</docs/en/desktop-ios-simulator>) on macOS. Drag a pane by its header to reposition it, or drag a pane edge to resize it. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane. Click **Terminal** , **Changes** , or **Browser** in the session’s title bar to open the terminal, diff, or Browser pane. The **⋮** menu beside them opens more panes, such as **Files** , and holds those buttons when the window is too narrow to show them. To work across screens, pop a pane such as the diff or terminal out into its own window, and dock it back when you’re done. Claude keeps working in the main window.
+The Code tab is built around panes you can arrange in any layout: chat, diff, browser, terminal, file, plan, tasks, and subagent, along with the [iOS Simulator](</docs/en/desktop-ios-simulator>) on macOS. Drag a pane by its header to reposition it, or drag a pane edge to resize it. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane. To open another pane, click its icon button in the session’s title bar. Hover to see each button’s name, such as **Terminal** , **Changes** for the diff view, **Browser** , and **Files**. If the pane you want has no button in the title bar, select it from the **⋮** menu beside the buttons:
+
+  * **When the window is narrow** : buttons that don’t fit move into the menu
+  * **For panes with no button** : panes such as **Background tasks** and **Plan** are listed once the session has something to show in those panes
+
+To work across screens, pop a pane such as the diff or terminal out into its own window, and dock it back when you’re done. Claude keeps working in the main window.
 
 The pane layout, terminal, file editor, and view modes in this section require Claude Desktop v1.2581.0 or later. Open **Claude > Check for Updates…** on macOS or **Help > Check for Updates…** on Windows to update.
 
@@ -230,7 +235,7 @@ The pane layout, terminal, file editor, and view modes in this section require C
 
 See session details
 
-The session details panel is a set of cards beside the chat that show where the session runs, what it changed, and what it’s running. The panel appears after you start a session, while the chat is wide enough for it.
+The session details panel is a set of cards beside the chat that show where the session runs, what it changed, what it’s running, and its context usage. The panel appears after you start a session, while the chat is wide enough for it.
 
 ####
 
@@ -278,7 +283,7 @@ Right-click any file path in the chat, diff viewer, or file pane to open a conte
   * **Attach as context** : add the file to your next prompt
   * **Open in** : open the file in an installed editor such as VS Code, Cursor, or Zed
   * **Show in Finder** on macOS, **Show in Explorer** on Windows: open the containing folder
-  * **Copy path** : copy the absolute path to your clipboard
+  * **Copy** : a submenu that copies the file’s **Absolute path** , **Relative path** , or **Filename**
 
 ###
 
@@ -305,6 +310,7 @@ Keyboard shortcuts
 Press **Cmd+/** on macOS or **Ctrl+/** on Windows to see all shortcuts available in the Code tab. The table in this section shows the macOS keys. On Windows and Linux, change these keys:
 
   * **Cmd+Option** : press **Alt**
+  * **Cmd+Ctrl** : press **Ctrl+Alt**
   * **Cmd** : press **Ctrl**
 
 Session cycling, the terminal toggle, and the view-mode toggle use **Ctrl** on every platform.
@@ -325,6 +331,7 @@ Shortcut| Action
 `Cmd` `Shift` `S`| Select an element in the Browser
 `Ctrl` ```| Toggle terminal pane
 `Cmd` `\`| Close focused pane
+`Cmd` `Ctrl` `W`| Take focused session out of split view
 `Cmd` `;`| Open side chat
 `Ctrl` `O`| Cycle view modes
 `Cmd` `Shift` `M`| Open permission mode menu
@@ -340,7 +347,12 @@ These shortcuts apply to the Code tab. In Desktop, `Shift+Tab` doesn’t cycle p
 
 Check usage
 
-Click the usage ring next to the model picker to see your current context window usage and your plan usage for the period. Context usage is per session; plan usage is shared across all your Claude Code surfaces.
+To see how full this session’s context window is, find your Code tab layout:
+
+  * **Current layout** : the header of the **Context** card in the session details panel shows it as a percentage. Open the card to see what is using the window by category.
+  * **Earlier layout** : click the usage ring next to the model picker. Its popover shows your context window usage.
+
+In either layout, type `/context` in the prompt box to print a per-category breakdown of this session’s context window in the chat. Both layouts have the usage ring next to the model picker. Click it to see your plan usage, which is shared across all your Claude Code surfaces.
 
 ##
 
@@ -350,7 +362,7 @@ Let Claude use your computer
 
 Computer use lets Claude open your apps, control your screen, and work directly on your machine the way you would. Ask Claude to interact with a desktop tool that has no CLI, or automate something that only works through a GUI. For running and testing iOS apps, Desktop opens the dedicated [iOS Simulator pane](</docs/en/desktop-ios-simulator>) instead of controlling your screen; the pane works without enabling computer use.
 
-Computer use is a research preview on macOS and Windows that requires a Pro or Max plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running.
+Computer use is a research preview on macOS and Windows that requires a Pro or Max plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running. On macOS, computer use requires macOS 14 or later.
 
 Computer use is off by default. Enable it in Settings before Claude can control your screen. On macOS, you also need to grant Accessibility and Screen Recording permissions. On macOS, computer use can also run in the background: Claude works in the apps you’ve approved while you keep working.
 
@@ -436,7 +448,12 @@ Each session is an independent conversation with its own context and changes. Yo
 
 Work in parallel with sessions
 
-Click **\+ New** in the sidebar, or press **Cmd+N** on macOS or **Ctrl+N** on Windows, to work on multiple tasks in parallel. Press **Ctrl+Tab** and **Ctrl+Shift+Tab** to cycle through sessions in the sidebar. To view two sessions at once, hold **Cmd** on macOS or **Ctrl** on Windows and click a session in the sidebar. The session opens in a second pane alongside the one you already have open. While the split is active, clicking another sidebar session replaces whichever pane has focus. Press **Cmd+\** on macOS or **Ctrl+\** on Windows to close the focused pane and return to a single session.
+Click **\+ New** in the sidebar, or press **Cmd+N** on macOS or **Ctrl+N** on Windows, to work on multiple tasks in parallel. Press **Ctrl+Tab** and **Ctrl+Shift+Tab** to cycle through sessions in the sidebar. You can also open a second session next to the current session or in a window of its own:
+
+  * **Side by side** : hold **Option** on macOS or **Alt** on Windows and click a session in the sidebar, or right-click the session and select **Open in** , then **Split view**
+  * **In its own window** : hold **Cmd** on macOS or **Ctrl** on Windows and click a session, or right-click the session and select **Open in** , then **New window**
+
+In the split view, the pane you opened or clicked last has focus, and the other pane is dimmed. To change which session a pane shows, click in that pane to give it focus, then click a session in the sidebar. To take the focused session out of the split view, press **Cmd+Ctrl+W** on macOS or **Ctrl+Alt+W** on Windows.
 
 ####
 
@@ -456,7 +473,7 @@ Worktrees are stored in `<project-root>/.claude/worktrees/` by default. To store
 
 You can also set a **Branch prefix** in **Settings > Claude Code**. Desktop prepends it to every worktree branch name, which is useful for keeping Claude-created branches organized. To include gitignored files like `.env` in new worktrees, create a [`.worktreeinclude` file](</docs/en/worktrees#copy-gitignored-files-into-worktrees>) in your project root. See [What worktrees share with the main checkout](</docs/en/worktrees#what-worktrees-share-with-the-main-checkout>) for where a worktree session reads project settings, hooks, and skills.
 
-Session isolation requires [Git](<https://git-scm.com/downloads>). Most Macs include Git by default. Run `git --version` in Terminal to check; if it prints a version number, Git is installed. If you run into Git errors, ask Claude in the [Cowork tab](<https://claude.com/product/cowork>) to help troubleshoot your setup.
+Session isolation requires [Git](<https://git-scm.com/downloads>). Most Macs include Git by default. Run `git --version` in Terminal to check; if it prints a version number, Git is installed. If you run into Git errors, ask Claude in [Cowork](<https://claude.com/product/cowork>) to help troubleshoot your setup.
 
 ###
 
@@ -540,14 +557,26 @@ The tasks pane shows the background work running inside the current session: sub
 
 Work across sessions
 
-Claude can list your other Code tab sessions, read what each has been doing, and send messages between them. Ask in plain language: “which session touched the auth refactor?”, “what did the API session conclude?”, or “tell the payments session the schema changed”. You can also ask Claude to rename or archive a session. For example, ask it to archive the sessions whose PRs have merged. Through this surface, Claude sees only the sessions the desktop app runs itself: local, SSH, and [WSL](</docs/en/desktop-wsl>) sessions in the Code tab. Claude doesn’t see cloud sessions, or sessions you started from the terminal CLI or the VS Code extension, even in worktrees of the same project, so with nine terminal worktrees open and two desktop sessions, Claude answering in one of them reports the one other desktop session. Claude never lists the session you’re asking from. By default it sees the 20 most recently active sessions and skips archived sessions unless you ask for them. [Cross-session messaging](</docs/en/cross-session-messaging>) separately lets Claude message [your other Claude Code sessions](</docs/en/cross-session-messaging#see-which-sessions-claude-can-reach>), including terminal sessions. When Claude messages another session through this surface, Claude Code shows it there as a card labeled with the sending session’s title and a link back, so you can always tell where a message came from. If the receiving session is mid-task, Claude Code holds the message and Claude reads it once the current work finishes. The receiving Claude can reply, and Claude Code delivers the reply back through this surface. Claude can’t deliver to an archived session, and tells you when a message doesn’t go through. Claude Code applies four safety behaviors across sessions:
+Claude can list your other Code tab sessions, read what each has been doing, and send messages between them. Ask in plain language: “which session touched the auth refactor?”, “what did the API session conclude?”, or “tell the payments session the schema changed”. You can also ask Claude to rename or archive a session. For example, ask it to archive the sessions whose PRs have merged. Through this surface, Claude sees only the sessions the desktop app runs itself: local, SSH, and [WSL](</docs/en/desktop-wsl>) sessions in the Code tab. Claude doesn’t see cloud sessions, or sessions you started from the terminal CLI or the VS Code extension, even in worktrees of the same project, so with nine terminal worktrees open and two desktop sessions, Claude answering in one of them reports the one other desktop session. Claude never lists the session you’re asking from. By default it sees the 20 most recently active sessions and skips archived sessions unless you ask for them. [Cross-session messaging](</docs/en/cross-session-messaging>) separately lets Claude message [your other Claude Code sessions](</docs/en/cross-session-messaging#see-which-sessions-claude-can-reach>), including terminal sessions. When Claude messages another session through this surface, Claude Code shows it there as a card labeled with the sending session’s title and a link back, so you can always tell where a message came from. If the receiving session is mid-task, Claude Code holds the message and Claude reads it once the current work finishes. The receiving Claude can reply, and Claude Code delivers the reply back through this surface. Claude can’t deliver to an archived session, and tells you when a message doesn’t go through. Claude Code applies three safety behaviors across sessions:
 
   * You get an approval card before Claude archives a session, except in Auto mode and Bypass permissions mode, where Claude can archive a session without one. To be asked, switch to Manual.
-  * Through this surface, Claude can’t send cross-session messages from a session nobody is watching, such as a scheduled-task run, and can’t deliver messages into one.
   * Claude Code checks each message from this surface against the receiving session’s [inbound controls](</docs/en/cross-session-messaging#control-inbound-messages>), even when the receiving session doesn’t have [cross-session messaging](</docs/en/cross-session-messaging#availability>) itself. If you set [`crossSessionInbound`](</docs/en/settings-reference#crosssessioninbound>) to `refuse` in the receiving session, Claude Code drops messages from this surface. Claude Code reports the refusal to the Claude desktop app. Before v2.1.234, Claude Code dropped every message from this surface to a receiving session without cross-session messaging.
   * Claude Code quotes each incoming message and attributes it to the session that sent it, and Claude still follows the receiving session’s own permission settings when acting on one.
 
-Claude can also suggest new sessions. When it notices something worth fixing that’s out of scope for the current task, it offers the work as a task chip in the chat. Click the chip to start that work in a new session with its own worktree; Claude continues your current session uninterrupted.
+###
+
+​
+
+Start a task that Claude suggests
+
+When Claude notices something worth fixing outside your current task, it suggests that work as a task. In local and SSH sessions on the current layout, the suggestion is a card in the chat, and its buttons either start the task or keep it in this session:
+
+  * **Start** : starts the task in another session. By default the task runs in the current session’s environment. The card then shows the started session’s state, and the sidebar lists the started session under the current session.
+  * **Do it here** : sends the task to the current session as a message
+  * **Options** : review or change settings such as the environment, model, worktree, and permissions before you click **Start**
+  * **Start all** : when the card lists several tasks, starts each task in its own session without waiting for one task to finish before starting the next
+
+In cloud sessions, and in local and SSH sessions on the earlier layout, the suggestion is a **Suggested task** card. To start the task where the card’s main button says, for example **Send to cloud** or **Start with worktree** , click that button. Click the caret beside the main button for other ways to start the task, including **Do it here**.
 
 ###
 
@@ -600,7 +629,23 @@ To hide a session that already appears on your other devices, archive it in Desk
 
 Sessions from Dispatch
 
-[Dispatch](<https://support.claude.com/en/articles/13947068>) is a persistent conversation with Claude that lives in the [Cowork](<https://claude.com/product/cowork>) tab. You message Dispatch a task, and it decides how to handle it. A task can end up as a Code session in two ways: you ask for one directly, such as “open a Claude Code session and fix the login bug”, or Dispatch decides the task is development work and spawns one on its own. Tasks that typically route to Code include fixing bugs, updating dependencies, running tests, or opening pull requests. Research, document editing, and spreadsheet work stay in Cowork. Either way, the Code session appears in the Code tab’s sidebar with a **Dispatch** badge. You get a push notification on your phone when it finishes or needs your approval. If you have computer use enabled, Dispatch-spawned Code sessions can use it too. App approvals in those sessions expire after 30 minutes and re-prompt, rather than lasting the full session like regular Code sessions. For setup, pairing, and Dispatch settings, see the [Dispatch help article](<https://support.claude.com/en/articles/13947068>). Dispatch requires a Pro or Max plan and is not available on Team or Enterprise plans. Dispatch is one of several ways to work with Claude when you’re away from your terminal. For a comparison with the other options, see [Platforms and integrations](</docs/en/platforms#work-when-you-are-away-from-your-terminal>).
+[Dispatch](<https://support.claude.com/en/articles/13947068>) is a persistent conversation with Claude that lives in [Cowork](<https://claude.com/product/cowork>). You message Dispatch a task, and it decides how to handle it. A task can end up as a Code session in two ways: you ask for one directly, such as “open a Claude Code session and fix the login bug”, or Dispatch decides the task is development work and spawns one on its own. Tasks that typically route to Code include fixing bugs, updating dependencies, running tests, or opening pull requests. Research, document editing, and spreadsheet work stay in Cowork.
+
+####
+
+​
+
+Follow a session that Dispatch started
+
+The session that Dispatch starts appears in the Code tab’s sidebar with your other sessions. With the sidebar’s default grouping and sorting, look for the newest session in the group for the folder it runs in. You get a push notification on your phone when it finishes or needs your approval. If you have computer use enabled, Dispatch-spawned Code sessions can use it too. App approvals in those sessions expire after 30 minutes and re-prompt, rather than lasting the full session like regular Code sessions.
+
+####
+
+​
+
+Set up Dispatch
+
+For setup, pairing, and Dispatch settings, see the [Dispatch help article](<https://support.claude.com/en/articles/13947068>). Dispatch requires a Pro or Max plan and is not available on Team or Enterprise plans. Dispatch is one of several ways to work with Claude when you’re away from your terminal. For a comparison with the other options, see [Platforms and integrations](</docs/en/platforms#work-when-you-are-away-from-your-terminal>).
 
 ##
 
@@ -608,7 +653,7 @@ Sessions from Dispatch
 
 Extend Claude Code
 
-Connect external services, add reusable workflows, customize Claude’s behavior, and configure preview servers. To manage connectors, skills, and plugins in one place, click **Customize** in the sidebar. The [Cowork](<https://claude.com/product/cowork>) tab in the Desktop app sources its skills, plugins, and connectors from this Customize configuration, which syncs through your claude.ai account, not from the CLI’s `~/.claude` directory. Claude Code also loads the skills and plugins enabled for your claude.ai account in terminal sessions where you sign in with the same account. See [Skills synced from claude.ai](</docs/en/skills#how-synced-skills-behave>) and [Plugins synced from claude.ai](</docs/en/plugins/loading#synced-plugins>).
+Connect external services, add reusable workflows, customize Claude’s behavior, and configure preview servers. To manage connectors, skills, and plugins in one place, click **Customize** in the sidebar. [Cowork](<https://claude.com/product/cowork>) in the Desktop app sources its skills, plugins, and connectors from this Customize configuration, which syncs through your claude.ai account, not from the CLI’s `~/.claude` directory. Claude Code also loads the skills and plugins enabled for your claude.ai account in terminal sessions where you sign in with the same account. See [Skills synced from claude.ai](</docs/en/skills#how-synced-skills-behave>) and [Plugins synced from claude.ai](</docs/en/plugins/loading#synced-plugins>).
 
 ###
 
@@ -848,7 +893,7 @@ The environment you pick when starting a session determines where Claude execute
 
 Create a saved environment
 
-A saved environment is an entry in the environment selector that records where Claude runs, so you can start later sessions there. A local or SSH environment also holds the folders Claude works in. Saved local and SSH environments require Claude Desktop v2.37337.0 or later.
+A saved environment is an entry in the environment selector that records where Claude runs, so you can start later sessions there. A local or SSH environment also holds the folders Claude works in. Saved local and SSH environments are part of the current layout, so if you don’t see them, check which layout you have and how to get the current one.
 
 1
 
@@ -1961,7 +2006,8 @@ Check which layout you have
 If a new session has no environment selector under the prompt box, you have the earlier layout:
 
   * **Desktop older than v2.37337.0** : update to get the current layout. Select **Claude > Check for Updates…** on macOS or **Help > Check for Updates…** on Windows.
-  * **[Third-party provider](</docs/en/third-party-integrations>)** : you keep the earlier layout, so there is nothing to do.
+  * **[Third-party provider](</docs/en/third-party-integrations>) with sessions on your computer**: the current layout requires Claude Desktop v3.1623.0 or later, so check your version. To update, select **Claude > Check for Updates…** on macOS or **Help > Check for Updates…** on Windows. If your organization turns off auto-updates, **Check for Updates…** is hidden, so ask your administrator for v3.1623.0 or later.
+  * **Third-party provider with sessions on your organization’s infrastructure** : when your organization runs sessions on its own infrastructure rather than on your computer, Desktop keeps the earlier layout, and updating doesn’t change the layout. If you don’t know where your sessions run, ask your administrator.
 
 In the earlier layout, choose the environment and project folder above the prompt box, and the permission mode and model in the row under it. The earlier layout lacks the session details panel and saved local and SSH environments.
 

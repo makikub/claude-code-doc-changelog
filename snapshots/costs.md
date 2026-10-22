@@ -363,10 +363,11 @@ The hook calls this script. Create the folder with `mkdir -p ~/.claude/hooks`, s
     cmd=$(echo "$input" | jq -r '.tool_input.command')
 
     # If running tests, filter to show only failures
-    if [[ "$cmd" =~ ^(npm test|pytest|go test) ]]; then
+    pattern='^(npm test|pytest|go test)( [^;&|<>`$#\\[:cntrl:]]*)?$'
+    if [[ "$cmd" =~ $pattern ]]; then
       filtered_cmd="$cmd 2>&1 | grep -A 5 -E '(FAIL|ERROR|error:)' | head -100"
       echo "$input" | jq --arg filtered "$filtered_cmd" \
-        '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "allow", updatedInput: (.tool_input + {command: $filtered})}}'
+        '{hookSpecificOutput: {hookEventName: "PreToolUse", updatedInput: (.tool_input + {command: $filtered})}}'
     else
       echo "{}"
     fi

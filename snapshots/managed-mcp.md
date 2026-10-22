@@ -23,7 +23,7 @@ Pattern| What it does| Configure
 **Fixed deployment**|  Every user gets the same servers and can’t add others| `managed-mcp.json` with the servers you want
 **Provided servers**|  Every user gets the remote servers you list and keeps their own| `managedMcpServers` in managed settings
 **Approved catalog**|  Publish a list of approved servers; users add the ones they want, anything else is blocked| `allowedMcpServers` \+ `allowManagedMcpServersOnly: true`
-**Plugin servers only**|  Users can’t add servers through `~/.claude.json` or `.mcp.json`; plugin servers still load| [`strictPluginOnlyCustomization`](</docs/en/settings-reference#strictpluginonlycustomization>) with `mcp` in the list
+**Plugin servers only**|  Users can’t add servers through `~/.claude.json` or `.mcp.json`; [skills-directory plugins](</docs/en/plugins/loading#skills-directory-plugins-blocked-by-managed-settings>) stop loading as plugins, and servers from other plugins still load| [`strictPluginOnlyCustomization`](</docs/en/settings-reference#strictpluginonlycustomization>) with `mcp` in the list
 **Soft allowlist**|  Enforce an allowlist that users can broaden in their own settings| `allowedMcpServers` without `allowManagedMcpServersOnly`
 **Denylist only**|  Block known-bad servers, allow everything else| `deniedMcpServers`
 **No restrictions**|  Users add anything| Don’t deploy any managed MCP configuration

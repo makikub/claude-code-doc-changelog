@@ -111,6 +111,18 @@ A new artifact is visible only to you. To share it, open the artifact in your br
 
 ​
 
+Link to a specific view
+
+If a page has several views, such as tabs or sections, you can link to one of them directly. Ask Claude for the links:
+
+    Give me a link to each tab of the deploy failures dashboard.
+
+Each link is the artifact’s link with an anchor on the end, such as `#overview`.
+
+###
+
+​
+
 Let someone edit with you
 
 People you share with are viewers by default: they see each version you publish but can’t change the page. On Team and Enterprise plans, you can also make someone an editor. In the share dialog, add a person and switch their role from **viewer** to **editor**. An editor publishes new versions the same way you update the artifact from another session: they give Claude the artifact’s URL, or attach it from `/artifacts`, and Claude pulls the current content and republishes with their changes. Everyone with the page open sees each update live. If an editor publishes while Claude holds an older copy of the page, Claude Code refuses a publish built on that copy. Claude then merges its changes onto the newer version and publishes again.

@@ -155,7 +155,7 @@ You don’t need a [marketplace](</docs/en/plugins/overview#get-plugins-from-a-m
 
   * `--plugin-dir`: loads a directory or `.zip` archive for one session.
   * `--plugin-url`: fetches a `.zip` archive from a URL for one session.
-  * `claude plugin init`: scaffolds a plugin under `~/.claude/skills/` that loads every session.
+  * `claude plugin init`: scaffolds a plugin under `~/.claude/skills/` that loads across sessions.
 
 If two plugins loaded in different ways share a name, see [Name conflicts](</docs/en/plugins/loading#name-conflicts>) for which one Claude Code keeps.
 
@@ -216,7 +216,7 @@ To load plugins in a session where you can’t add the `--plugin-dir` flag, list
 
 Make a plugin load in every session
 
-Your personal skills directory is `~/.claude/skills/`. Claude Code loads any folder there that contains a `.claude-plugin/plugin.json` as a plugin in every session, with no flag and no install step. `claude plugin init` scaffolds one of these plugins for you.
+Your personal skills directory is `~/.claude/skills/`, and a folder there that contains a `.claude-plugin/plugin.json` is a skills-directory plugin. Unless your administrator has [blocked skills-directory plugins](</docs/en/plugins/loading#skills-directory-plugins-blocked-by-managed-settings>), Claude Code loads each one when a session starts, with no flag and no install step. `claude plugin init` scaffolds one for you.
 
 ####
 
@@ -252,7 +252,7 @@ To stop loading a scaffolded plugin, delete its directory, or run `claude plugin
 
 Share the plugin through a repository
 
-`claude plugin init` writes the plugin to your personal skills directory at `~/.claude/skills/`, so it loads for you in every project. To make a plugin load for everyone in one repository, create the same layout yourself at `<project>/.claude/skills/<name>/`, including its `.claude-plugin/plugin.json`. See [Plugins shared through a repository](</docs/en/plugins/loading#plugins-shared-through-a-repository>) for the conditions under which Claude Code loads it.
+`claude plugin init` writes the plugin to your personal skills directory at `~/.claude/skills/`, which all your projects on this machine share. To make a plugin load for everyone in one repository, create the same layout yourself at `<project>/.claude/skills/<name>/`, including its `.claude-plugin/plugin.json`. See [Plugins shared through a repository](</docs/en/plugins/loading#plugins-shared-through-a-repository>) for the conditions under which Claude Code loads it.
 
 ##
 
@@ -266,6 +266,7 @@ When a change to your plugin doesn’t show up, work through these checks in ord
   2. In the running session, run `/reload-plugins` to apply edits you made on disk. It prints one `Reloaded:` line with counts. Then confirm a skill loaded by typing its `/plugin-name:skill` command, or by finding the plugin in the `/plugin` **Installed** tab.
   3. In the same session, run `/plugin`. The **Installed** tab lists your plugin and, in the plugin’s details, the components Claude Code found. The **Errors** tab lists what failed to load and why, such as a path in your manifest that doesn’t exist.
   4. Back in your shell, run `claude plugin list`. It prints session-only and skills-directory plugins in their own sections with `Status: ✔ loaded` or the load error. To include the plugin you’re developing, pass `--plugin-dir` with its path before `plugin list`.
+  5. If your plugin is in a skills directory and `claude plugin list` doesn’t print it, with no error there or in `/plugin`, see [Skills-directory plugins blocked by managed settings](</docs/en/plugins/loading#skills-directory-plugins-blocked-by-managed-settings>).
 
 To check an MCP server, run `/mcp` in the session to see the server’s status. When the server is healthy, `/mcp` lists it as connected. If it isn’t, see [MCP servers that don’t start](</docs/en/plugins/troubleshooting#invalid-mcp-server-config-for-and-mcp-servers-that-dont-start>). To check a hook, trigger the event it matches. For example, ask Claude to edit a file to trigger a `PostToolUse` hook. Then read the [debug log](</docs/en/hooks#debug-hooks>), which shows which hooks matched, their exit codes, and their output. The next sections cover the failures you’re most likely to hit while developing, and the [troubleshooting page](</docs/en/plugins/troubleshooting#build-a-plugin>) has the full entry for each.
 
