@@ -414,6 +414,24 @@ These parent-supplied settings pass the filter even with all five locks set:
 
 Under the default first-wins setting, an admin value blocks the parent’s only when it sits in the highest-priority admin source, except for `allowedMcpServers` while the MCP server lock is on. Under the `managedSourcesBehavior` merge opt-in, [how Claude Code combines managed sources](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) says which source’s value applies instead.
 
+####
+
+​
+
+How hook and skill keys in parent settings take effect
+
+If you pass `disableAllHooks: true` as a parent setting through the Agent SDK’s `managedSettings` option, not every hook stops. Your [SDK hook callbacks](</docs/en/agent-sdk/hooks>) still run, and so do the administrator’s hooks, which your application can’t switch off. On a machine where an administrator deploys managed settings, Claude Code ignores parent settings unless the administrator [lets an embedding host add policy](</docs/en/managed-settings#let-an-embedding-host-add-policy>).
+
+What you pass| What happens
+---|---
+`disableAllHooks: true`| Treated as `allowManagedHooksOnly: true`, so the hooks listed as [blocked under `allowManagedHooksOnly`](</docs/en/settings-reference#what-runs-under-allowmanagedhooksonly>) stop, and so do hooks in the SDK’s [`settings` option](</docs/en/agent-sdk/typescript#options>).
+[`disableSkillShellExecution: true`](</docs/en/settings-reference#disableskillshellexecution>)| Takes effect.
+`allowedHttpHookUrls: []`| Takes effect unless the administrator defines `hooks` or enables a plugin. No HTTP hook runs, except for URLs another settings source lists.
+`httpHookAllowedEnvVars: []`| Takes effect unless the administrator defines `hooks` or enables a plugin. HTTP hook headers can include only environment variables another settings source lists.
+`allowedHttpHookUrls` or `httpHookAllowedEnvVars` with entries| Claude Code ignores it, since merging would widen an administrator’s list. Use the SDK `settings` option instead.
+
+Passing these keys in `managedSettings` requires Claude Code v2.1.309 or later, or TypeScript Agent SDK v0.3.309 or later.
+
 ###
 
 ​

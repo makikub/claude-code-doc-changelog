@@ -192,12 +192,24 @@ Every open request holds memory in the gateway process while it streams and whil
 
 Keep `API_TIMEOUT_MS` above the gateway’s time to first byte
 
-If you lower [`API_TIMEOUT_MS`](</docs/en/network-config#streaming-idle-watchdogs>) to retry an unanswered request sooner, keep it above the time the gateway takes to send the first bytes of a streaming response. A request that waits longer times out, and so does each retry that waits as long, until the turn ends with `Request timed out`.
+If you lower [`API_TIMEOUT_MS`](</docs/en/network-config#streaming-idle-watchdogs>) to retry an unanswered request sooner, keep it above the time the gateway takes to send the first bytes of a streaming response. A request that waits longer times out, and so does each retry that waits as long, until the turn ends with `Request timed out` unless the first-byte deadline ends it.
 
   * **`provider: anthropic`** : set `API_TIMEOUT_MS` above the longest time your upstream takes to send its first event.
   * **Every other upstream** : set it more than 20 seconds above the longest time your upstream takes to return response headers. The gateway sends its first keepalive `ping` about 15 seconds after those headers, unless the upstream’s first event comes sooner. A gateway older than v2.1.229 sends no pings, so use the `provider: anthropic` rule there.
 
 On top of that time, allow for any wait for a free slot and for the wait on a down upstream before [failover](</docs/en/claude-apps-gateway-config#multiple-upstreams>). Keep the value above the longest [non-streaming request](</docs/en/network-config#streaming-idle-watchdogs>) too.
+
+###
+
+​
+
+Retry an unanswered request sooner with the first-byte deadline
+
+To make Claude Code retry an unanswered streaming request sooner, give it a first-byte deadline by setting [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](</docs/en/env-vars>) on your developers’ machines. The deadline limits how long the first attempt waits for response headers. Without it, that attempt can wait 5 to 6 minutes. Requires Claude Code v2.1.307 or later on the developer’s machine. Set the variable to a positive whole number of milliseconds, in a gateway policy’s `env` block or a developer’s shell. Keep the value above your gateway’s longest time to first byte, or Claude Code can abort and re-send healthy requests whose headers take longer. This example sets 60 seconds in a developer’s shell:
+
+    export CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS=60000
+
+An unanswered re-send can wait 5 to 6 minutes, until the [body idle timeout](</docs/en/network-config#streaming-idle-watchdogs>) ends it and Claude Code retries it within the [retry budget](</docs/en/errors#tune-retry-behavior>). If you lowered `API_TIMEOUT_MS` only to retry sooner, remove that value, or one unanswered re-send can end the turn with [No response from API](</docs/en/errors#no-response-from-api>). To confirm the deadline fired, have a developer start Claude Code with [debug logging](</docs/en/network-config#verify-your-configuration>), then search the log for `[first-byte] no response headers`.
 
 ###
 

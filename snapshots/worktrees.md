@@ -323,6 +323,14 @@ If you set up [Git LFS](<https://git-lfs.com>) with `git lfs install --local`, a
 
 ​
 
+Worktree creation fails in a partial clone
+
+An error containing `This repository is a partial clone` means Claude Code couldn’t fetch every git object the worktree’s starting commit needs. Take the step in the message’s sentence ending in `try again`. Then retry from the shell where you took it: run `claude --worktree`, or start `claude` there and ask again.
+
+###
+
+​
+
 Claude Code refuses to use a worktree
 
 An error starting `Refusing to use <path> as an isolation worktree` means Claude Code checked the directory’s git identity before adopting it as a session’s or subagent’s isolated checkout, and declined it. The check runs whether Claude Code is creating the worktree, entering an existing one, or reusing one from an earlier run. In most cases the rest of the message says the directory’s git metadata resolves into the main checkout: for example, its `.git` file points at the main repository’s own `.git` directory, or git resolves its working tree to the main checkout through a `core.worktree` redirect. From such a directory, an ordinary git command such as `git reset --hard` would act on the main checkout instead of the worktree. Claude Code also refuses when the directory has a `.git` entry it can’t read, rather than assuming the worktree is safe. A directory with no git metadata at all, such as one your `WorktreeCreate` hook creates, passes the check only when no git repository contains it. If the hook creates the directory inside a repository, git resolves it to that repository’s checkout and Claude Code refuses it with the `git resolves its working tree to` message, so have the hook create its directories outside any repository. Claude Code leaves the refused directory in place, since it may hold work. Match the message to its recovery, whether it follows `Refusing to use <path>` or appears in a resume message; some endings occur only in resume messages:

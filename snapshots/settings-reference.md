@@ -46,7 +46,7 @@ Key| Description| Topic| Scope
 `awaySummaryEnabled`| Turn off the [session recap](</docs/en/interactive-mode#session-recap>) shown when you come back to the terminal| Remote, desktop, and notifications| Any file
 `awsAuthRefresh`| Refresh expired [Bedrock credentials](</docs/en/amazon-bedrock#advanced-credential-configuration>) in `.aws` with your own command| Authentication and providers| Any file
 `awsCredentialExport`| Supply [Bedrock credentials](</docs/en/amazon-bedrock#advanced-credential-configuration>) as JSON from your own command| Authentication and providers| Any file
-`axScreenReader`| Render [screen-reader friendly output](</docs/en/accessibility>)| Interface and terminal| Any file
+`axScreenReader`| Render [screen-reader friendly output](</docs/en/accessibility>)| Interface and terminal| User or managed
 `bashEditDiffEnabled`| Record the [files that changed while a Bash command ran](</docs/en/hooks#bash>) in every permission mode| Interface and terminal| User or managed
 `bashOutputMaxChars`| Set how much of a successful command’s [output](</docs/en/tools-reference#output-limits>) Claude receives inline| Memory and context| Any file
 `blockedMarketplaces`| Block [plugin marketplace](</docs/en/plugins/overview>) sources for your organization| Plugins and skills| Managed
@@ -882,8 +882,12 @@ Make managed settings the only settings source of permission rules. Claude Code 
   * Your `~/.claude/skills/` and `~/.claude/commands/` directories, including [skills synced from claude.ai](</docs/en/skills#where-synced-skills-load>)
   * An `--add-dir` directory
   * [Plugins declared with a `.claude-plugin` manifest](</docs/en/plugins/loading#plugins-shared-through-a-repository>) inside `~/.claude/skills/` or the project’s `.claude/skills/`
+  * Plugins loaded for one session only, whose ids end in [`@inline`](</docs/en/plugins/loading#find-where-a-plugin-came-from>), when all of these hold:
+    * The session is a [Code session](</docs/en/desktop#environment-configuration>) or [Cowork session](</docs/en/managed-settings#where-and-when-a-policy-applies>), other than a cloud session, for which the Claude Desktop app itself starts Claude Code
+    * Your managed settings set the key, not only an embedding host’s [parent settings](</docs/en/managed-settings#let-an-embedding-host-add-policy>)
+    * The session runs Claude Code v2.1.305 or later
 
-Skills from managed settings and bundled skills keep their `allowed-tools`. A skill’s `disallowed-tools` still applies. For what a developer sees when Claude Code ignores the field, see [When only managed permission rules apply](</docs/en/skills#when-only-managed-permission-rules-apply>).
+Skills from managed settings and bundled skills keep their `allowed-tools`. `@inline` plugins outside those Desktop sessions keep theirs too, except one named [`anthropic-skills`](</docs/en/skills#names-reserved-for-synced-skills>). A skill’s `disallowed-tools` still applies. For what a developer sees when Claude Code ignores the field, see [When only managed permission rules apply](</docs/en/skills#when-only-managed-permission-rules-apply>).
 
   * **Scope** : `Managed`
   * **Type** : Boolean
@@ -2180,7 +2184,7 @@ Let sandboxed commands connect to every Unix socket. On Linux and WSL2, the sand
 
   * **Scope** : `Any file`, with [limits on project and local settings](</docs/en/sandboxing#repository-settings-under-an-admin-required-sandbox>)
   * **Type** : Boolean
-    * `true`: sandboxed commands can connect to every Unix socket
+    * `true`: sandboxed commands can connect to every Unix socket. On Linux and WSL2 they can also connect to VM sockets, the `AF_VSOCK` address family
     * `false`: the sandbox blocks Unix-socket connections: on macOS except the paths in `allowUnixSockets`, and on Linux and WSL2 through the seccomp filter when it’s present
   * **Default** : `false`
 
@@ -2640,6 +2644,7 @@ Variables Claude Code ignores in `env`
       * `OTEL_EXPORTER_PROMETHEUS_HOST` and `OTEL_EXPORTER_PROMETHEUS_PORT`
 Only these values still apply from project and local settings, because they turn something off: `none` for the three exporter selectors, and an off value such as `0` for `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_CONTENT`, and `OTEL_LOG_TOOL_DETAILS`. Such a value overrides the same variable in your user settings, but not one that the environment you start Claude Code from, a `--settings` file, or managed settings sets. When a project or local settings file sets a variable in this group, a local interactive session shows a notice at startup. Run `/status` or `claude doctor` to see which ones Claude Code ignored and which turned telemetry off; both list names, never values. A non-interactive run with `-p` or an Agent SDK session shows no notice, so check that your collector still receives data after you upgrade. If it doesn’t, set the variables in your user settings, managed settings, the job’s environment, or a file you pass with `--settings`. Ignoring this group in project and local settings requires Claude Code v2.1.282 or later.
     * Variables that change how Claude Code starts or syncs, such as `CLAUDE_CODE_PROCESS_WRAPPER`, `CLAUDE_CODE_SYNC_SKILLS`, `CLAUDE_CODE_SYNC_PLUGINS`, `CLAUDE_CODE_PLUGIN_CACHE_DIR`, and `CLAUDE_CODE_PLUGIN_SEED_DIR`.
+    * The [screen reader mode](</docs/en/accessibility>) variable `CLAUDE_AX_SCREEN_READER` and the other variables whose names start with `CLAUDE_AX_`, such as [`CLAUDE_AX_STARTUP_QUIET_MS`](</docs/en/env-vars#variables>).
     * [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](</docs/en/env-vars#variables>), which sets the timer on an unanswered dialog.
     * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](</docs/en/env-vars#variables>), which turns off attachment processing.
     * [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](</docs/en/env-vars#variables>), which stops Claude Code from expanding `@` mentions of files and directories.
@@ -2650,6 +2655,7 @@ Before v2.1.251, project and local settings could also set the variables in this
   * [`CLAUDE_CODE_RESTRICTED`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file.
   * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file. The variable requires Claude Code v2.1.283 or later.
   * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`, `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`, `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT`, and `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file.
+  * [`CLAUDE_CODE_WARN_DISK_FREE_GIB` and `CLAUDE_CODE_WARN_MEMORY_FREE_GIB`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file. The variables require Claude Code v2.1.304 or later.
 
 ###
 
@@ -2683,6 +2689,7 @@ In a `-p` run or an Agent SDK session, Claude Code ignores this key. The SDK tur
 Idle compaction [compacts](</docs/en/context-window#what-survives-compaction>) a long conversation that you’ve stepped away from, shortly before its prompt cache expires. Your next message then sends a summary instead of the whole conversation. When you come back, the conversation shows a line that starts with `Compacted while idle, before the prompt cache expired`. Idle compaction is on by default for conversations that meet all of these conditions:
 
   * **Session** : you’re in an interactive terminal session
+  * **Auto-compaction** : `autoCompactEnabled` is on
   * **Prompt cache** : the conversation is on the [one-hour prompt cache TTL](</docs/en/prompt-caching#which-ttl-each-request-gets>)
   * **Feature flags** : Claude Code can [fetch feature flags from Anthropic](</docs/en/env-vars#features-that-need-feature-flag-fetching>)
   * **Size** : the conversation’s context has reached the token threshold, which you can change from its default of 200,000
@@ -2879,7 +2886,7 @@ Appears in `/config` as **Auto-scroll** when fullscreen rendering is on, which w
 
 Render screen-reader friendly output: flat text without decorative borders or animations. Screen-reader mode uses the classic renderer, so the `tui` setting has no effect while it is active; attached [background sessions](</docs/en/agent-view>) still render fullscreen.
 
-  * **Scope** : `Any file`
+  * **Scope** : `User or managed`. You can also set the key in a file you pass with `--settings`. Claude Code ignores the key in project and local settings, so neither a repository nor your own `.claude/settings.local.json` can turn screen-reader mode on or off.
   * **Type** : Boolean
     * `true`: Claude Code renders flat text without decorative borders or animations, using the classic renderer
     * `false`: Claude Code renders normally
@@ -3944,7 +3951,7 @@ settings.json
       "allowedHttpHookUrls": ["https://hooks.example.com/*", "http://localhost:*"]
     }
 
-Hostname matching is case-insensitive and treats `hooks.example.com.`, with the trailing dot that marks a fully qualified domain name, the same as `hooks.example.com`, which is how DNS treats them. The allowlist applies to hooks from every source, including managed settings.
+Hostname matching is case-insensitive and treats `hooks.example.com.`, with the trailing dot that marks a fully qualified domain name, the same as `hooks.example.com`, which is how DNS treats them. The allowlist applies to hooks from every source, including managed settings. In the Agent SDK’s `managedSettings` option, Claude Code ignores this key when its list has entries, so pass the list in the SDK’s `settings` option instead. See [what each value does in parent settings](</docs/en/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect>).
 
 ###
 
@@ -4006,6 +4013,7 @@ settings.json
 The reach depends on which file carries the key:
 
   * **In managed settings** : Claude Code disables every configured hook, including managed ones, and keeps running the hooks the [Agent SDK](</docs/en/agent-sdk/overview>) registers in process
+  * **In the Agent SDK’s`managedSettings` option**: Claude Code treats the key as `allowManagedHooksOnly: true`, so see what runs under `allowManagedHooksOnly` for which hooks stop. On a machine where an administrator deploys managed settings, Claude Code ignores this key unless the administrator [lets an embedding host add policy](</docs/en/managed-settings#let-an-embedding-host-add-policy>). Requires Claude Code v2.1.309 or later.
   * **In any other settings file** : Claude Code disables user, project, local, and plugin hooks; managed hooks, Agent SDK hooks, and hooks from plugins force-enabled in managed `enabledPlugins` keep running
 
 The key also stops [mods](</docs/en/plugins/mods/overview>), which are plugins whose code registers hooks:
@@ -4123,7 +4131,7 @@ settings.json
       "httpHookAllowedEnvVars": ["MY_TOKEN", "HOOK_SECRET"]
     }
 
-The allowlist applies to hooks from every source, including managed settings.
+The allowlist applies to hooks from every source, including managed settings. In the Agent SDK’s `managedSettings` option, Claude Code ignores this key when its list has entries, so pass the list in the SDK’s `settings` option instead. See [what each value does in parent settings](</docs/en/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect>).
 
 ###
 
@@ -4344,7 +4352,7 @@ managed-settings.json
       ]
     }
 
-A `github` entry may use the owner-wildcard form `"owner/*"` to block every repository under that GitHub owner, which requires Claude Code v2.1.223 or later. Add `{ "source": "skills-dir" }` to stop Claude Code loading [`@skills-dir` plugins](</docs/en/plugins/loading#plugins-shared-through-a-repository>) from `~/.claude/skills/` without restricting any marketplace. See [Managed marketplace restrictions](</docs/en/plugins/org#restrict-what-users-can-install>).
+A `github` entry may use the owner-wildcard form `"owner/*"` to block every repository under that GitHub owner, which requires Claude Code v2.1.223 or later. Add `{ "source": "skills-dir" }` to stop Claude Code loading [`@skills-dir` plugins](</docs/en/plugins/loading#plugins-shared-through-a-repository>) from both `~/.claude/skills/` and a project’s `.claude/skills/`, without restricting any marketplace. See [Managed marketplace restrictions](</docs/en/plugins/org#restrict-what-users-can-install>).
 
 ###
 
@@ -4473,7 +4481,7 @@ Source| Example entry| Fields
 `pathPattern`| `{ "source": "pathPattern", "pathPattern": "^/opt/approved/" }`| `pathPattern` required, a regex matched anywhere in the `path` of `file` and `directory` sources; start it with `^` to pin a prefix
 `skills-dir`| `{ "source": "skills-dir" }`| No fields
 
-Three source types carry rules beyond the table:
+Some source types carry rules beyond the table:
 
   * **`url`** : a URL marketplace downloads only the `marketplace.json` file, and Claude Code doesn’t fetch plugin files by relative path from that server, so its plugins must use a [plugin source](</docs/en/plugins/marketplace-reference#plugin-sources>) other than a relative path, such as an archive URL, which can be on the same host. For plugins with relative paths, use a Git-based marketplace instead. See [Plugins with relative paths fail in URL-based marketplaces](</docs/en/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces>).
   * **`hostPattern`** : use it to allow every marketplace on an internal GitHub Enterprise or GitLab server without listing each repository. Claude Code matches `github` sources against `github.com`, takes the hostname from `url` sources, and takes it from `git` sources depending on the [git URL](<https://git-scm.com/docs/git-clone#_git_urls>)’s form:
@@ -4482,8 +4490,7 @@ Three source types carry rules beyond the table:
     * Any other form without a scheme: no host, so no `strictKnownMarketplaces` `hostPattern` entry matches it. For a `blockedMarketplaces` `hostPattern`, Claude Code takes a host from a wider set of forms, so a blocklist entry can still match such a form. Before v2.1.234, a `strictKnownMarketplaces` `hostPattern` also matched some forms that git doesn’t treat as SSH addresses.
 `file` and `directory` sources have no host and never match a `hostPattern` entry.
   * **`pathPattern`** : use it to allow filesystem marketplaces alongside `hostPattern` entries for network sources. `".*"` allows every local path; a narrower pattern such as `"^/opt/approved/"` restricts to a directory.
-
-Any allowlist, even an empty one, also stops Claude Code loading [`@skills-dir` plugins](</docs/en/plugins/loading#plugins-shared-through-a-repository>) from `~/.claude/skills/`. To keep loading them, add the `{ "source": "skills-dir" }` entry and leave `strictPluginOnlyCustomization` unset. The entry has no meaning outside this key and `blockedMarketplaces`.
+  * **`skills-dir`** : any allowlist, even an empty one, stops Claude Code loading [`@skills-dir` plugins](</docs/en/plugins/loading#plugins-shared-through-a-repository>) from both `~/.claude/skills/` and a project’s `.claude/skills/`. To keep loading them, add the `{ "source": "skills-dir" }` entry and leave `strictPluginOnlyCustomization` unset. The entry has no meaning outside this key and `blockedMarketplaces`.
 
 ####
 
@@ -4656,7 +4663,7 @@ Lock the `hooks` surface:
     * Frontmatter hooks in skills, custom commands, and agents, from the sources that a `skills` or `agents` lock would block
   * **Keeps running** : hooks in managed settings, and hooks from plugins other than [skills-directory plugins](</docs/en/plugins/loading#skills-directory-plugins-blocked-by-managed-settings>)
 
-Skills, custom commands, and agents whose frontmatter hooks stop running still load while their own surface isn’t locked.
+Skills, custom commands, and agents whose frontmatter hooks stop running still load while their own surface isn’t locked. A personal or project [skill](</docs/en/skills#where-skills-live>) that declares `hooks` in its frontmatter also loses its [`allowed-tools`](</docs/en/skills#pre-approve-tools-for-a-skill>) pre-approval, so your users get permission prompts for the tools that field lists. When such a skill runs in a subagent through [`context: fork`](</docs/en/skills#run-skills-in-a-subagent>), it keeps the pre-approval. A skill that declares no `hooks` keeps its pre-approval too.
 
   * **Scope** : `Managed`
   * **Type** : the string `"hooks"` in the `strictPluginOnlyCustomization` array
@@ -4951,7 +4958,7 @@ A `deniedMcpServers` entry for `claude-in-chrome` still blocks the server with t
 
 `allowedMcpServers`
 
-Allowlist the MCP servers people can add. Claude Code blocks any server that doesn’t match an entry wherever it’s defined, including plugin servers, servers a user passes with `--mcp-config`, and servers from claude.ai. Built-in servers such as Claude in Chrome, the `ide` server Claude Code connects to in a running [VS Code](</docs/en/vs-code#the-built-in-ide-mcp-server>) or [JetBrains](</docs/en/jetbrains#the-built-in-ide-mcp-server>) IDE, and servers the CLI itself configures are exempt from the allowlist, and the denylist still applies to them. On Claude Code v2.1.268 or later, a [Claude Tag](</docs/en/claude-tag>) session’s Slack tools are also exempt from the allowlist, and the denylist still applies to them. In-process `type: "sdk"` servers are exempt from both lists; the [app that started the session](</docs/en/mcp#how-connectors-reach-claude-code>) registers them. Servers your organization delivers are also exempt from the allowlist, and the denylist still applies to them. The exemption covers every `managedMcpServers` entry, and any [`managed-mcp.json`](</docs/en/managed-mcp#exclusive-control-with-managed-mcp-json>) entry whose values use no `${VAR}` expansion. See [How a server is evaluated](</docs/en/managed-mcp#how-a-server-is-evaluated>) for the full check order. Before v2.1.259, servers from `managed-mcp.json` had to match too.
+Allowlist the MCP servers people can add. Claude Code blocks any server that doesn’t match an entry wherever it’s defined, including plugin servers, servers a user passes with `--mcp-config`, and servers from claude.ai. Built-in servers such as Claude in Chrome, the `ide` server Claude Code connects to in a running [VS Code](</docs/en/vs-code#the-built-in-ide-mcp-server>) or [JetBrains](</docs/en/jetbrains#the-built-in-ide-mcp-server>) IDE, and servers the CLI itself configures are exempt from the allowlist, and the denylist still applies to them. On Claude Code v2.1.268 or later, a [Claude Tag](</docs/en/claude-tag>) session’s Slack tools are also exempt from the allowlist, and the denylist still applies to them. In-process `type: "sdk"` servers are exempt from both lists; the [app that started the session](</docs/en/mcp#how-connectors-reach-claude-code>) registers them. Servers your organization delivers are also exempt from the allowlist, and the denylist still applies to them. The exemption covers every `managedMcpServers` entry, and any [`managed-mcp.json`](</docs/en/managed-mcp#exclusive-control-with-managed-mcp-json>) entry whose values use [no `${VAR}` expansion outside `env`](</docs/en/managed-mcp#how-allowlists-and-denylists-apply-to-the-managed-set>). See [How a server is evaluated](</docs/en/managed-mcp#how-a-server-is-evaluated>) for the full check order. Before v2.1.259, servers from `managed-mcp.json` had to match too.
 
   * **Scope** : `Any file`. Entries from every file merge into one allowlist unless `allowManagedMcpServersOnly` is set. Deploy it in managed settings to enforce it.
   * **Type** : array of objects, each with exactly one key. Use `serverName`, a string limited to letters, numbers, hyphens, and underscores; `serverCommand`, an array of the command and its arguments matched exactly; or `serverUrl`, a URL pattern with `*` wildcards
@@ -5708,7 +5715,7 @@ settings.json
 
 `sshHostAllowlist`
 
-Limit the hosts a [Desktop SSH session](</docs/en/desktop#restrict-which-ssh-hosts-users-can-connect-to>) can connect to. Only the Desktop app reads this key; the CLI doesn’t. Patterns are case-insensitive: `*` matches any host, `*.example.com` matches `example.com` and every subdomain, and anything else is an exact match against the hostname after `~/.ssh/config` resolution. An empty array turns SSH sessions off.
+Limit the hosts a [Desktop SSH session](</docs/en/desktop#restrict-which-ssh-hosts-users-can-connect-to>) can connect to. Only the Desktop app reads this key; the CLI doesn’t. Patterns are case-insensitive: `*` matches any host, `*.example.com` matches `example.com` and every subdomain, and anything else is an exact match against the hostname after `~/.ssh/config` resolution. An empty array turns SSH sessions off. With Claude Desktop v3.1623.0 or later, a session’s [jump hosts](</docs/en/desktop#allow-jump-hosts>) have to match a pattern too.
 
   * **Scope** : `Managed`. By default, Desktop reads the key from [one managed source](</docs/en/managed-settings#how-claude-code-combines-managed-sources>).
   * **Type** : array of hostname patterns

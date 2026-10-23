@@ -95,7 +95,7 @@ Claude treats CLAUDE.md files as context, not enforced configuration, so how you
 
 Keep your files short, organized, and consistent:
 
-  * **Size** : target under 200 lines per CLAUDE.md file. Longer files consume more context and reduce adherence. Move instructions that matter for only part of the codebase into path-scoped rules, which load only when Claude works with matching files. Imports help you organize a long file but don’t reduce its context cost, because imported files also load at launch.
+  * **Size** : target under 200 lines per CLAUDE.md file. Longer files consume more context and reduce adherence. Move instructions that matter for only part of the codebase into path-scoped rules, which load only when Claude works with matching files. Imports help you organize a long file but don’t reduce its context cost, because imported files load together with the CLAUDE.md that imports them.
   * **Structure** : group related instructions under markdown headers and bullets. Organized sections are easier for Claude to follow than dense paragraphs.
   * **Consistency** : if two instructions contradict each other, Claude may pick one arbitrarily. Review your CLAUDE.md files, nested CLAUDE.md files in subdirectories, and `.claude/rules/` periodically to remove outdated or conflicting instructions. To have Claude find them for you, run a prompt audit.
 
@@ -113,7 +113,7 @@ To have Claude check your instruction files for outdated or conflicting content,
 
 Import additional files
 
-CLAUDE.md files can import additional files using `@path/to/import` syntax. Imported files are expanded and loaded into context at launch alongside the CLAUDE.md that references them. Both relative and absolute paths are allowed. Relative paths resolve relative to the file containing the import, not the working directory. Imported files can recursively import other files, with a maximum depth of four hops. To import a file whose path contains spaces, put a backslash before each space. Without the backslashes, the path ends at the first space, even when the import is on a line of its own. A path wrapped in quotes isn’t imported at all, with or without the backslashes. This import loads a file from a folder named `Design Docs`:
+CLAUDE.md files can import additional files using `@path/to/import` syntax. Imported files are expanded and loaded into context alongside the CLAUDE.md that references them. Both relative and absolute paths are allowed. Relative paths resolve relative to the file containing the import, not the working directory. Imported files can recursively import other files, with a maximum depth of four hops. To import a file whose path contains spaces, put a backslash before each space. Without the backslashes, the path ends at the first space, even when the import is on a line of its own. A path wrapped in quotes isn’t imported at all, with or without the backslashes. This import loads a file from a folder named `Design Docs`:
 
     - API conventions @Design\ Docs/api-conventions.md
 
@@ -542,7 +542,11 @@ The value must be an absolute path or start with `~/`. When you set it in a proj
 
 How it works
 
-The first 200 lines of `MEMORY.md`, or the first 25KB, whichever comes first, are loaded at the start of every conversation. Content beyond that threshold is not loaded at session start. Claude keeps `MEMORY.md` concise by moving detailed notes into separate topic files. After Claude writes to `MEMORY.md`, Claude Code measures the file against the 200-line and 25KB read limits. If the file is near a limit, Claude Code reminds Claude to shorten it: keep one line per entry, move detail into topic files, and merge or drop stale entries. If the file is over a limit, the write still succeeds, but Claude Code returns an [error telling Claude to rewrite the index](</docs/en/errors#memory-index-is-over-its-read-limit>), because everything past the limit is dropped on the next load. This limit applies only to `MEMORY.md`. Claude Code loads a CLAUDE.md file of up to 4 MiB in full and skips a larger file. Shorter files produce better adherence. Claude Code doesn’t load topic files such as `user_role.md` or `feedback_testing.md` at startup. Claude reads them on demand using its standard file tools when it needs the information. The main conversation’s auto memory isn’t loaded into [subagents](</docs/en/sub-agents#what-loads-at-startup>); the exception is a [fork](</docs/en/sub-agents#fork-the-current-conversation>), which inherits the parent conversation and system prompt. A subagent’s own auto memory, enabled with the subagent `memory` field, is a separate directory. Claude reads and writes memory files during your session. When you see messages like “Saved 2 memories” or “Recalled 2 memories” in the Claude Code interface, Claude is actively updating or reading from `~/.claude/projects/<project>/memory/`. When Claude writes a memory file that begins with YAML frontmatter, Claude Code records the write time in a `modified` frontmatter field as an ISO 8601 timestamp. The timestamp shows how current the fact is, both to you and to Claude when it reads the memory back.
+The first 200 lines of `MEMORY.md`, or the first 25KB, whichever comes first, are loaded at the start of every conversation. Content beyond that threshold is not loaded at session start. Claude keeps `MEMORY.md` concise by moving detailed notes into separate topic files. After Claude writes to `MEMORY.md`, Claude Code measures the file against the 200-line and 25KB read limits. If the file is near a limit, Claude Code reminds Claude to shorten it: keep one line per entry, move detail into topic files, and merge or drop stale entries. If the file is over a limit, the write still succeeds, but Claude Code returns an [error telling Claude to rewrite the index](</docs/en/errors#memory-index-is-over-its-read-limit>), because everything past the limit is dropped on the next load.
+
+This limit applies only to `MEMORY.md`. Claude gets the whole of each CLAUDE.md file that loads at launch, as long as the file is 4 MiB or smaller. Claude Code skips a file over 4 MiB and loads none of it. Path-scoped rules and CLAUDE.md files in subdirectories have a smaller per-file limit of their own.
+
+Claude Code doesn’t load topic files such as `user_role.md` or `feedback_testing.md` at startup. Claude reads them on demand using its standard file tools when it needs the information. The main conversation’s auto memory isn’t loaded into [subagents](</docs/en/sub-agents#what-loads-at-startup>); the exception is a [fork](</docs/en/sub-agents#fork-the-current-conversation>), which inherits the parent conversation and system prompt. A subagent’s own auto memory, enabled with the subagent `memory` field, is a separate directory. Claude reads and writes memory files during your session. When you see messages like “Saved 2 memories” or “Recalled 2 memories” in the Claude Code interface, Claude is actively updating or reading from `~/.claude/projects/<project>/memory/`. When Claude writes a memory file that begins with YAML frontmatter, Claude Code records the write time in a `modified` frontmatter field as an ISO 8601 timestamp. The timestamp shows how current the fact is, both to you and to Claude when it reads the memory back.
 
 ###
 
@@ -616,7 +620,31 @@ Run `/memory` and select the auto memory folder to browse what Claude has saved.
 
 My CLAUDE.md is too large
 
-Files over 200 lines consume more context and may reduce adherence. Claude Code skips a file over 4 MiB. Use path-scoped rules to load instructions only when Claude works with matching files, or trim content that isn’t needed in every session. Splitting into `@path` imports helps organization but doesn’t reduce context, since imported files load at launch. If one of your instruction files is over the recommended length, you see a warning at startup and when you run `/status`. You also see a warning when files that are each within that length add up past a combined limit at session start. Each CLAUDE.md, rules file, and `@path` import counts as a separate file. The [`/doctor`](</docs/en/commands#all-commands>) checkup proposes trims for a checked-in CLAUDE.md: it cuts content Claude can derive from the codebase, such as directory layouts, dependency lists, and architecture overviews, and keeps pitfalls, rationale, and conventions that differ from tool defaults.
+Files over 200 lines consume more context and may reduce adherence. Claude Code skips a file over 4 MiB. Use path-scoped rules to load instructions only when Claude works with matching files, or trim content that isn’t needed in every session. Splitting into `@path` imports helps organization but doesn’t reduce context, since imported files load with the CLAUDE.md importing them. If one of your instruction files is over the recommended length, you see a warning at startup and when you run `/status`. You also see a warning when files that are each within that length add up past a combined limit at session start. Each CLAUDE.md, rules file, and `@path` import counts as a separate file. The [`/doctor`](</docs/en/commands#all-commands>) checkup proposes trims for a checked-in CLAUDE.md: it cuts content Claude can derive from the codebase, such as directory layouts, dependency lists, and architecture overviews, and keeps pitfalls, rationale, and conventions that differ from tool defaults.
+
+Keep each path-scoped rules file within its own per-file size limit, because Claude receives only the start of a file that’s over it.
+
+###
+
+​
+
+Claude ignores the end of my subdirectory CLAUDE.md
+
+When a subdirectory `CLAUDE.md` or a rules file that loads on demand is over a per-file size limit, Claude receives only the start of it. That part ends with a note telling Claude to read the rest with the Read tool, and until Claude chooses to, the later instructions aren’t in its context. Check whether your file is over the limit, and shrink it if it is:
+
+  1. Confirm that the limit applies to your file. The limit applies to these files, which load on demand:
+     * `CLAUDE.md` and `CLAUDE.local.md` in a subdirectory of the directory where you started Claude Code, and the files they import with `@path`
+     * Rules files in a subdirectory’s `.claude/rules/`
+     * Path-scoped rules in your project’s `.claude/rules/` or in `~/.claude/rules/`
+  2. Find the limit for your session’s [context window](</docs/en/model-config#extended-context>):
+     * **200K context window** : 40,000 characters
+     * **1M context window** : 200,000 characters on Claude Opus 4.6 and Claude Sonnet 4.6, and 150,000 characters on later models
+  3. In Bash or Zsh, run `wc -m path/to/CLAUDE.md` to print your file’s character count.
+  4. Compare the count with your limit:
+     * **Over the limit** : trim the file, or move part of it into one or more rules files, which each count against the limit on their own
+     * **Under the limit** : look for another cause under Claude isn’t following my CLAUDE.md
+
+Before v2.1.309, Claude Code didn’t apply this limit to files that load on demand.
 
 ###
 

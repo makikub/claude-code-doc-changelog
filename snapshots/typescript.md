@@ -6126,6 +6126,7 @@ Configuration for sandbox behavior. Use this to enable command sandboxing and co
       filesystem?: SandboxFilesystemConfig;
       ignoreViolations?: Record<string, string[]>;
       enableWeakerNestedSandbox?: boolean;
+      allowNestedUserNamespaces?: boolean;
       ripgrep?: { command: string; args?: string[] };
     };
 
@@ -6140,6 +6141,7 @@ Property| Type| Default| Description
 `filesystem`| `SandboxFilesystemConfig`| `undefined`| Filesystem-specific sandbox configuration for read/write restrictions
 `ignoreViolations`| `Record<string, string[]>`| `undefined`| Map of command substrings, or `*` for every command, to substrings of the violation text to ignore, such as `{ "*": ['/etc/hosts'] }`; see [`sandbox.ignoreViolations`](</docs/en/settings-reference#sandbox-ignoreviolations>)
 `enableWeakerNestedSandbox`| `boolean`| `false`| Enable a weaker nested sandbox for compatibility
+`allowNestedUserNamespaces`| `boolean`| `false`| Let sandboxed commands on Linux and WSL2 create user namespaces. Before you set it to `true`, read [`sandbox.allowNestedUserNamespaces`](</docs/en/settings-reference#sandbox-allownestedusernamespaces>), which covers the tools that need it and the security boundary you turn off. Requires Claude Code v2.1.305 or later
 `ripgrep`| `{ command: string; args?: string[] }`| `undefined`| Custom ripgrep binary configuration for sandbox environments
 
 The sandbox depends on platform support and, on Linux, tools like `bubblewrap` and `socat`. When `enabled` is `true` and the sandbox can’t start, `query()` reports a `result` message with `subtype: "error_during_execution"` and the reason in `errors`. For a single message `query()` call, the SDK throws after yielding that error result, so wrap the loop in a try block to continue past it. See [Handle the result](</docs/en/agent-sdk/agent-loop#handle-the-result>) for the error contract.To run unsandboxed instead, set `failIfUnavailable: false`.

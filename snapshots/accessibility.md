@@ -14,13 +14,24 @@ Pick the method that matches how often you use a screen reader:
 
 If you combine methods, Claude Code applies the [`--ax-screen-reader`](</docs/en/cli-reference#cli-flags>) flag over the [`CLAUDE_AX_SCREEN_READER`](</docs/en/env-vars#variables>) environment variable, and the variable over the [`axScreenReader`](</docs/en/settings-reference#axscreenreader>) setting. If you use Claude Code over SSH, set the environment variable or setting on the remote machine where Claude Code runs. The first line Claude Code prints confirms the mode: `[Screen Reader Mode: on via flag]`, `[Screen Reader Mode: on via env]`, or `[Screen Reader Mode: on via settings]`.
 
+###
+
+​
+
+Project settings can’t turn on screen reader mode
+
+The startup line `Screen reader mode is off: project settings can't turn it on` means the project asked for screen reader mode and nothing else turns it on. Claude Code ignores both the `axScreenReader` key and a `CLAUDE_AX_SCREEN_READER` value under `env` in the project’s `.claude/settings.json` and `.claude/settings.local.json`, whatever their value.
+
+  * **To turn the mode on** : start Claude Code with `--ax-screen-reader`, set `CLAUDE_AX_SCREEN_READER` to `1` in your shell, or add `"axScreenReader": true` to your user [settings file](</docs/en/settings>) and restart Claude Code. You don’t need to change the project’s files. Once you turn the mode on, the confirmation line appears at startup instead.
+  * **If you don’t use a screen reader** : you don’t need to do anything. To stop the line from appearing, add `"axScreenReader": false` to your user settings file, or remove the `axScreenReader` key and the `CLAUDE_AX_SCREEN_READER` variable from the project’s settings files.
+
 ##
 
 ​
 
 Turn off screen reader mode
 
-Reverse whichever method turned the mode on: start without the flag, unset the environment variable, or set `axScreenReader` to `false`. If you set `CLAUDE_AX_SCREEN_READER` to `0`, Claude Code keeps the mode off even when the setting is `true`.
+Reverse whichever method turned the mode on: start without the flag, unset the environment variable, or set `axScreenReader` to `false` in your user settings file. If you set `CLAUDE_AX_SCREEN_READER` to `0`, Claude Code keeps the mode off even when the setting is `true`.
 
 ##
 

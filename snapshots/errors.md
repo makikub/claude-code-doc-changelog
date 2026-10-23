@@ -99,6 +99,8 @@ Message| Section
 `(check the helper, then start a new task or chat)` / `(update it, then start a new task or chat)`| Authentication
 `MCP server "<name>" needs additional permissions (scope: "<scope>") — run /mcp to re-authenticate`| Authentication
 `MCP server "<name>" requires re-authorization (token expired)`| Authentication
+`Couldn't read the stored credentials for MCP server "<name>", so the request didn't run`| Authentication
+`A request to MCP server "<name>" was sent without your stored credentials`| Authentication
 `This server's URL is missing or not a valid URL, so sign-in can't start`| Authentication
 `Issuer mismatch in authorization response (RFC 9207)`| Authentication
 `Refusing to send credentials to non-https token endpoint` / `<short-name> from the MCP SDK for <server-url>`| Authentication
@@ -136,6 +138,7 @@ Message| Section
 `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.`| Network
 `Couldn't share the transcript.`| Network
 `Couldn't send feedback`| Network
+`MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.`| Network
 `Prompt is too long` / `Input is too long for requested model`| Request errors
 `Prompt is too long · automatic compaction failed:`| Request errors
 `Prompt is too long · this conversation is a single exchange` / `A single-exchange conversation cannot be compacted`| Request errors
@@ -215,9 +218,12 @@ Message| Section
 `Error: --agents file not found`| Command-line errors
 `Error: Settings file exceeds the 2MiB limit`| Command-line errors
 `The current directory no longer exists (it was deleted or moved)` / `Can't read the current directory`| Command-line errors
-`Temp directory <dir> ... Refusing to use it` / `ENOSPC: no space left on device, mkdir '<dir>'`| Command-line errors
+`Temp directory <dir> ... Refusing to use it` / `Claude Code's temporary directory <dir> could not be created`| Command-line errors
+`ENOSPC: no space left on device, mkdir '<dir>'`| Command-line errors
 `couldn't be resolved to a real location, so its skills, commands, and agents weren't loaded`| Command-line errors
 `Error: Workspace not trusted` when starting Remote Control| Command-line errors
+`Error: Workspace not trusted` when running `claude ultrareview`| Command-line errors
+`Ultrareview did not start`| Command-line errors
 ``<flag>` before `remote-control` is not carried over to the sessions Remote Control starts`| Command-line errors
 `--sandbox is not supported by claude remote-control` / `--no-sandbox is not supported by claude remote-control`| Command-line errors
 ``claude import` is not yet available in this build`| Command-line errors
@@ -300,7 +306,9 @@ Message| Section
 `"<plugin>" was not uninstalled: <file> is there and could not be read`| Plugin errors
 `Plugin "<plugin>" was not uninstalled: installed_plugins.json`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read>)
 `Plugin directory does not exist: <path>`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#plugin-directory-does-not-exist>)
+`Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)`| Plugin errors
 `Error: No such tool available: <tool name>`| Tool errors
+`MCP server "<name>" connection closed before the tool call was answered`| Tool errors
 `would be spawned with zero tools — refusing`| Tool errors
 `File is covered by a Read deny rule in your permission settings`| Tool errors
 `cannot contain null bytes (\0)`| Tool errors
@@ -326,10 +334,11 @@ Message| Section
 `its permission check expired before it ran (too many concurrent file operations)` / `ripgrep was found only by name on PATH`| Tool errors
 `task output swap refused (tasks dir moved or linked)`| Tool errors
 `Command killed: its output file was replaced or could no longer be verified`| Tool errors
-`Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)`| Tool errors
-`The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)`| Tool errors
+`Disk full: this computer's volume holding <dir> (Claude Code's temporary directory) has <n> MB free` / `Nearly out of inodes: this computer's volume holding <dir>`| Tool errors
+`Disk full: a test write beside this command's output file` / `Disk quota used up: a test write beside this command's output file`| Tool errors
+`The command was not started: this computer's disk is full (ENOSPC)` / `the user's disk quota is used up (EDQUOT)`| Tool errors
+`Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)` / `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)`| Tool errors
 `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes`| Tool errors
-`The command was not started: this computer's disk is full (ENOSPC)` / `(EDQUOT)`| Tool errors
 `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary`| Tool errors
 `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text`| Tool errors
 `the source file has the replacement character U+FFFD`| Tool errors
@@ -417,6 +426,7 @@ Message| Section
 `Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
 `[claude-code:unrecognized_model]`| Configuration warnings
 `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly`| Configuration warnings
+`Sandbox mask files left behind at write-deny paths`| Configuration warnings
 `Stale sandbox mask files left by a killed session`| Configuration warnings
 Responses seem lower quality than usual| Response quality
 
@@ -433,7 +443,7 @@ Claude Code retries transient failures up to 10 times with exponential backoff b
   * Dropped connections. When a connection drops partway through a request before Claude has completed any part of its response, including its thinking, Claude Code re-issues the request with the same backoff and the turn continues, even if some text had already started streaming. When it drops after Claude has finished thinking but before it has started any text or tool call, Claude Code instead re-issues the request up to two times in quick succession, and ends the turn with `Connection lost before a response was produced` if the connection keeps dropping at that point.
   * A connection that Claude Code detects was broken by your computer going to sleep partway through a request. Claude Code counts it as a dropped connection under the rules above; once the retry label names the specific reason, it reads `Connection lost while your computer was asleep`, and if the turn ends after Claude has finished thinking but before any text or tool call, the message reads `Your computer went to sleep before a response was produced`.
   * A stalled response stream, when the response headers have arrived but none of Claude’s response has arrived, or when Claude has finished thinking but hasn’t started any text or tool call: Claude Code aborts the stalled connection and streams the request again at most once. If the response stalls a second time after Claude has finished thinking but before any text or tool call, Claude Code ends the turn with `The response stalled before a response was produced`.
-  * A streaming request the API never answers with response headers, on a connection where the [first-byte deadline runs](</docs/en/network-config#streaming-idle-watchdogs>): Claude Code aborts it at the deadline and re-sends it at most once per model request, within the retry budget, then ends the turn with No response from API if that attempt goes unanswered too. When you set `CLAUDE_CODE_RETRY_WATCHDOG`, the one-retry cap doesn’t apply.
+  * A streaming request the API never answers with response headers, on a connection where the [first-byte deadline runs](</docs/en/network-config#streaming-idle-watchdogs>). At the deadline, Claude Code aborts the request and re-sends it within the retry budget. If the deadline fires for a re-send too, the turn ends with No response from API. When you set `CLAUDE_CODE_RETRY_WATCHDOG`, Claude Code keeps re-sending within the budget instead.
   * A streaming response that the API’s output content filter stops before Claude has either finished thinking or started any text or tool call. Claude Code re-sends the request once, within the retry budget, and shows Output blocked by content filtering policy if the filter stops the second response too.
   * Temporary 429 throttles, but not a gateway’s spend-limit `429`, which isn’t a throttle; see Spend limit reached.
     * When you’re signed in with a claude.ai subscription, this includes 429 throttles that don’t carry your plan’s quota headers. Before v2.1.199, Claude Code retried those throttles only for API key and Enterprise sign-ins.
@@ -551,7 +561,7 @@ The default request timeout is 10 minutes. If you set [`API_TIMEOUT_MS`](</docs/
 
 No response from API
 
-Claude Code sent a streaming request and the API returned no response headers within the deadline for the first byte, so Claude Code aborted the request instead of waiting for the full `API_TIMEOUT_MS` request timeout, 10 minutes by default. Claude Code sends the request again at most once, if the retry budget allows. When the retry goes unanswered too, the turn ends with this message, which shows how long each attempt waited. When you set [`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>), the one-retry cap doesn’t apply and Claude Code retries under the budget described in Tune retry behavior.
+Claude Code sent a streaming request, and the API returned no response headers within the deadline for the first byte. Claude Code aborts such a request rather than wait for the full `API_TIMEOUT_MS` request timeout, and sends it again if the retry budget allows. When the deadline passes for the retry too, the turn ends with this message, which shows how long each attempt waited. If you set [`CLAUDE_CODE_RETRY_WATCHDOG`](</docs/en/env-vars>), Claude Code keeps retrying under the budget described in Tune retry behavior instead of ending the turn.
 
     API Error: No response from API (waited 3m, then 10m on the retry). If a proxy or gateway on your network holds responses until they complete, raise API_TIMEOUT_MS or CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS to wait longer.
 
@@ -560,14 +570,14 @@ Claude Code sets the first attempt’s wait for response headers and the retry�
   * **First attempt** : [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](</docs/en/env-vars>) when you set it to 1 or more, clamped to between 10 seconds and 30 minutes. Otherwise Claude Code uses the byte-level watchdog timeout listed in [Streaming idle watchdogs](</docs/en/network-config#streaming-idle-watchdogs>), so the variables that change that timeout change this wait too. Either way, Claude Code adds one second for every 32KB of request body.
   * **Retry** : one second less than `API_TIMEOUT_MS`, just under 10 minutes by default, so that the retry can outlast a proxy or gateway that holds the response until generation completes. On Amazon Bedrock, the retry uses the same deadline as the first attempt, and the message shows one duration instead of two. Except on Amazon Bedrock, if you set `API_TIMEOUT_MS` to `0`, the retry waits 10 minutes plus one second per 32KB, or as long as the first attempt if that’s longer.
 
-Neither wait exceeds one second less than a positive `API_TIMEOUT_MS`, and a positive `API_TIMEOUT_MS` under 11 seconds turns the deadline off. The byte-level watchdog starts only once the response headers arrive, so a response that stops sending bytes after that follows the stalled-stream rules instead of this deadline. **What to do:**
+Neither wait exceeds one second less than a positive `API_TIMEOUT_MS`, and a positive `API_TIMEOUT_MS` under 11 seconds turns the deadline off. The byte-level watchdog starts only once the response headers arrive, so a response that stops sending bytes after that follows the stalled-stream rules instead of this deadline. In a [Claude apps gateway](</docs/en/claude-apps-gateway>) session, this deadline runs only when you [turn it on](</docs/en/claude-apps-gateway-deploy#retry-an-unanswered-request-sooner-with-the-first-byte-deadline>) by setting `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` to `1` or more. **What to do:**
 
   * Send your message again. Your original message is still in the conversation, so for a long prompt you can type `try again` instead of pasting the whole thing.
   * If it repeats, treat it as a network or proxy problem.
   * If a proxy or gateway on your network holds responses until they complete, raise `API_TIMEOUT_MS` so the retry waits longer. On Amazon Bedrock, raise `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` as well.
   * If the first attempt keeps timing out and the retry then succeeds, raise `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` so the first attempt waits long enough too.
 
-Before v2.1.242, Claude Code waited for the full `API_TIMEOUT_MS` request timeout, 10 minutes by default, before failing an unanswered streaming request. Before v2.1.261, the retry waited the same deadline as the first attempt and the message showed no durations.
+Before v2.1.242, Claude Code waited for the full `API_TIMEOUT_MS` request timeout, 10 minutes by default, before failing an unanswered streaming request. Before v2.1.261, the retry waited the same deadline as the first attempt and the message showed no durations. Before v2.1.307, Claude Code ignored `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` in a Claude apps gateway session.
 
 ###
 
@@ -1485,6 +1495,37 @@ Run `/mcp`, select the server, and authenticate again from its menu. When the se
 
 ​
 
+Couldn’t read the stored credentials for MCP server
+
+Claude Code keeps your sign-ins for OAuth [MCP servers](</docs/en/mcp>) in a credential store. This message means Claude Code couldn’t read that store, so a request to the server didn’t run:
+
+    Couldn't read the stored credentials for MCP server "<name>", so the request didn't run. If your Mac's keychain is locked, unlock it, then try again.
+    Couldn't read the stored credentials for MCP server "<name>", so the request didn't run. Try again.
+
+Your stored sign-ins are unchanged: try again once the store can be read, and sign in again only if the server then asks you to. In a [`claude -p`](</docs/en/headless>) or [Agent SDK](</docs/en/agent-sdk/overview>) run on macOS, the keychain can become readable after a request has already gone out without the stored sign-in. That request fails with:
+
+    A request to MCP server "<name>" was sent without your stored credentials, so the server rejected it. The credentials are available now. Try again.
+
+**What to do:**
+
+  * If the message asks you to unlock your Mac’s keychain, run [`claude doctor`](</docs/en/cli-reference#cli-commands>) in the shell session you run Claude Code from, and check its report for a keychain warning:
+    * If the report lists a warning that starts with `macOS Keychain is not writable`, or your shell has no `claude` command, run this unlock command in that shell session:
+
+          security unlock-keychain ~/Library/Keychains/login.keychain-db
+
+    * If the report lists no keychain warning, skip the unlock command
+  * Try again where you saw the message:
+    * For `claude -p`, run the command again
+    * In an interactive session, reconnect the server from `/mcp` if it shows as failed there, then ask Claude to try again
+    * In an Agent SDK application that keeps running, call [`reconnectMcpServer()`](</docs/en/agent-sdk/typescript#methods>) in TypeScript or [`ClaudeSDKClient.reconnect_mcp_server()`](</docs/en/agent-sdk/python#methods>) in Python, or start a new session
+  * If the server then reports that it needs authentication, Claude Code found no sign-in it can use for that server. Sign in interactively: run `/mcp` in a Claude Code session, or [`claude mcp login <name>`](</docs/en/mcp#authenticate-from-the-command-line>) in your shell. In an Agent SDK application, see [OAuth2 authentication in the Agent SDK](</docs/en/agent-sdk/mcp#oauth2-authentication>).
+
+Before v2.1.307, a `claude -p` or Agent SDK run on a Mac with a locked login keychain reported the server as needing authentication instead of showing either message.
+
+###
+
+​
+
 MCP server URL is missing or not a valid URL
 
 Claude Code refused to start an OAuth sign-in for a remote MCP server because the server’s configured `url` doesn’t parse as a URL. Unless Claude Code has a more specific configuration problem to report for the server, running [`claude mcp login <name>`](</docs/en/mcp#authenticate-from-the-command-line>) in your shell prints the refusal as:
@@ -2000,22 +2041,40 @@ The upload must fit an 8 MiB limit. On a long session, Claude Code progressively
 
 Couldn’t send feedback
 
-You sent a report from the [`/feedback`, `/bug`, or `/share` dialog](</docs/en/commands#all-commands>) and the upload to Anthropic failed. The dialog keeps your text so you can retry.
+A message starting `Couldn't send feedback` means the report you submitted from the [`/feedback`, `/bug`, or `/share` dialog](</docs/en/commands#all-commands>), or a queued [feedback draft](</docs/en/tools-reference#sendfeedback-tool-behavior>), wasn’t sent. When a sentence about your organization follows the colon, your organization refuses feedback and the same report gets the same answer. The first of these two examples is a network failure and the second is an organization’s refusal:
 
     Couldn't send feedback (couldn't reach the service). If it keeps failing, you can file at https://github.com/anthropics/claude-code/issues instead.
 
-The text after the prefix names what failed:
+    Couldn't send feedback: Feedback has not been enabled for your organization. To report a bug, open an issue at https://github.com/anthropics/claude-code/issues. Issues are public, so leave out anything confidential.
 
-  * **`: not signed in. Run /login, then retry.`** : the dialog uploads only when Claude Code found Anthropic credentials as it opened, and none were usable by the time you sent. For example, you signed out on this machine in the meantime, or your login could no longer be refreshed.
-  * **A parenthetical** : `(server returned <status>)` is the service’s response code; `(request timed out)` and `(couldn't reach the service)` are network failures. When Claude Code can’t name a reason, the parenthetical is absent.
+**What to do:**
 
-In the [feedback drafts queue](</docs/en/tools-reference#sendfeedback-tool-behavior>), the same failure ends with `The draft is still queued. Try again later.` instead, and the draft stays in the queue for another attempt. **What to do:**
+  * **Not signed in** : the message continues `: not signed in. Run /login, then retry.` Run `/login`, then send again
+  * **Your organization’s refusal** : for example `: Feedback has not been enabled for your organization.` or `: Feedback collection is not available for organizations with custom data retention policies.` If the message adds `To report a bug, open an issue`, do so at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>). A queued draft stays queued, and you can [discard it](</docs/en/tools-reference#discard-or-keep-a-draft>)
+  * **Refused credentials** : the message continues `: the sign-in this session uses is not allowed to send feedback` or `: the server did not accept the credentials this session uses`. Run `/status` at the Claude Code prompt to see which login, token, or API key this session sends
+  * **`(request timed out)` or `(couldn't reach the service)` straight after `Couldn't send feedback`**: these are network failures. Send the report or the queued draft again. The dialog keeps your text, and a queued draft’s message says `The draft is still queued.` If other requests are failing too, check your network connection and see Unable to connect to API. If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>)
+  * **`(server returned<status>)`, or no reason, straight after `Couldn't send feedback`**: the status is the service’s response code. The service’s own message follows it when one was sent, as in `(server returned 403: Access Forbidden)`. If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>)
 
-  * For the not-signed-in wording, run `/login` and send again
-  * Otherwise, send again; if other requests are failing too, check your network connection and see Unable to connect to API
-  * If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>), as the message says
+Issues at github.com/anthropics/claude-code are public, so leave out code, transcripts, and anything else confidential when you open one. Before v2.1.281, every send failed with this message once a Remote Control **Stop** or an urgent cross-session message had arrived while the dialog was open. On those versions, close the dialog, reopen it, and send again.
 
-Before v2.1.281, every send failed with this message once a Remote Control **Stop** or an urgent cross-session message had arrived while the dialog was open. On those versions, close the dialog, reopen it, and send again.
+###
+
+​
+
+MCP server connection timed out during a sleep or clock change
+
+This message means a connection to an [MCP server](</docs/en/mcp>) timed out, and Claude Code found that your system clock jumped forward during the attempt:
+
+    MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.
+
+Claude Code can’t tell whether your computer slept or its clock was set forward, so the message names both. **What to do:** Connect to the server again, and keep your computer awake until the attempt finishes. If the server connects, you have nothing to fix.
+
+  * **In an interactive session** : run `/mcp`, select the server, and select **Reconnect**
+  * **In your shell** : run the [`claude -p`](</docs/en/headless>), [`claude mcp list`](</docs/en/mcp#managing-your-servers>), or `claude mcp get` command again. If the server then fails with a message that starts `Skipping connection (recent failure cached`, wait 15 minutes and run the command again.
+  * **In an[Agent SDK](</docs/en/agent-sdk/overview>) application**: call [`reconnectMcpServer()`](</docs/en/agent-sdk/typescript#methods>) in TypeScript or [`ClaudeSDKClient.reconnect_mcp_server()`](</docs/en/agent-sdk/python#methods>) in Python
+  * **If the server fails again** : if the message differs from this one, see [what to check when an MCP server doesn’t connect](</docs/en/mcp-quickstart#troubleshooting>). If this message comes back although your computer stayed awake and nothing changed its clock, see Report an error.
+
+Before v2.1.307, Claude Code showed a timeout message such as `MCP server "<name>" connection timed out after <N>ms` instead of this one.
 
 ##
 
@@ -2336,7 +2395,7 @@ On providers with provider-specific model IDs, the message may add a `Try '...' 
 
 Couldn’t confirm model with the API
 
-You switched models through the [Agent SDK](</docs/en/agent-sdk/typescript>) `setModel()` method or an app that runs the Claude Code CLI for you, such as the [Desktop app](</docs/en/desktop>), and the request that confirms the model ID with your API endpoint got no answer within five seconds. The session keeps its current model.
+You switched models through the [Agent SDK](</docs/en/agent-sdk/typescript>) `setModel()` method or an app that runs the Claude Code CLI for you, such as the [Desktop app](</docs/en/desktop>), and the request that confirms the model ID with your API endpoint got no answer within 15 seconds. The session keeps its current model.
 
     Couldn't confirm model "claude-sonnet-5" with the API. Try again, or run /model to see available models.
 
@@ -2939,7 +2998,7 @@ Temp directory refused or cannot be created
 
 On macOS and Linux, Claude Code creates a private temp directory at startup, `claude-<uid>` under the system temp directory or the [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>) override. When the directory can’t be created, or an entry already at that path fails the safety checks, Claude Code prints the failure to stderr and exits with code 1 rather than start the session:
 
-    ENOSPC: no space left on device, mkdir '/tmp/claude-501'
+    Claude Code's temporary directory /tmp/claude-501 could not be created: the volume holding /tmp is full (ENOSPC). Free space on that volume, or set CLAUDE_CODE_TMPDIR to a directory on another one, then try again.
 
     Temp directory /tmp/claude-501 is not a directory (may be an attacker-planted symlink). Refusing to use it. Set CLAUDE_CODE_TMPDIR to a directory you control, or ask an administrator to remove it.
 
@@ -2949,10 +3008,12 @@ On macOS and Linux, Claude Code creates a private temp directory at startup, `cl
 
 **What to do:**
 
-  * For `ENOSPC`, free disk space on the volume that holds the temp directory
+  * For `could not be created` followed by `is full (ENOSPC)`, free disk space on the volume the message names. When it says `your disk quota on the volume holding /tmp is used up (EDQUOT)` instead, delete your own files on that volume that you no longer need
   * For the `Refusing to use it` forms, remove the named entry itself, not what a link points to, and start Claude Code again; for the `owned by uid` form, only an administrator or that user can remove it
   * For `is not readable`, run `chmod 0700` on the named directory, or remove it and start again
   * In any of these cases, set [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>) to a directory you control and start Claude Code again, leaving the refused path alone
+
+Before v2.1.309, Claude Code printed only the operating system’s error text when the volume was full or your quota was used up. An example is `ENOSPC: no space left on device, mkdir '/tmp/claude-501'`, and the same steps apply.
 
 ###
 
@@ -2977,6 +3038,8 @@ Before v2.1.261, this message also appeared for every `/add-dir <subdirectory>` 
 
 Workspace not trusted when starting Remote Control
 
+If `claude ultrareview` printed `Error: Workspace not trusted`, see Workspace not trusted when running claude ultrareview instead.
+
 You started [Remote Control](</docs/en/remote-control>) server mode with `claude remote-control` or its `claude rc` alias in a directory you haven’t trusted, and the command couldn’t ask you whether to trust it. For example, the command’s standard input or standard output isn’t a terminal because one of them is redirected or piped. The command exits with code 1:
 
     Error: Workspace not trusted. Please run `claude` in /Users/you/project first to review and accept the workspace trust dialog.
@@ -2991,6 +3054,31 @@ If you answer `n` or press Enter at the [`Trust <directory>?` question](</docs/e
   * In your home directory, change to a project directory and start Remote Control there
 
 Before v2.1.284, the command never asked, even in a terminal.
+
+###
+
+​
+
+Workspace not trusted when running claude ultrareview
+
+In a folder you haven’t trusted, when [`claude ultrareview`](</docs/en/ultrareview#trust-the-folder-before-the-review-runs>) can’t ask whether you trust it, the run exits with code 1 before the review starts:
+
+    Error: Workspace not trusted. Please run `claude` in /Users/you/project first to review and accept the workspace trust dialog. Or, in a script or CI job, pass `--trust-workspace` to trust the folder for this run only.
+
+For example, the subcommand can’t ask when its standard input or standard output isn’t a terminal. Sending the output to a file, as in `claude ultrareview --json > findings.json`, means standard output isn’t a terminal. **What to do:**
+
+  * In a script or CI job, append `--trust-workspace` to trust the checkout for that run only: `claude ultrareview --trust-workspace`. Append it only for code you trust, because the checkout’s git configuration and Claude Code project settings can then run programs. To review a pull request whose code you don’t trust, see [how to review it from a checkout you do trust](</docs/en/ultrareview#trust-the-folder-before-the-review-runs>).
+  * On your own machine, run `claude` in that folder and accept the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>), then run your original command again
+
+Each of these messages from `claude ultrareview` means that no review started and the exit code is 1:
+
+  * **`Error: Workspace not trusted. This terminal ...`** : the terminal reported no row and column count, or can’t fit the trust question and its warnings. Enlarge it or use a terminal that reports its size, then run `claude ultrareview` again. Outside your home directory, you can also run `claude` in that folder once and accept the trust dialog, so later runs there don’t ask.
+  * **`Error: Workspace not trusted.<folder> is your home directory`**: because trust for your home directory is never saved, running `claude` there first can’t help. Run `claude ultrareview` from a project directory instead, after running `claude` there once to accept the trust dialog, or append `--trust-workspace`.
+  * **`No answer in time.` followed by `Error: Workspace not trusted`**: the `Trust <folder>? [y/N]` question went unanswered for 5 minutes. Run `claude ultrareview` again and answer it.
+  * **`Ultrareview did not start:<folder> is not trusted`**: you declined at the `Trust <folder>? [y/N]` question, for example by answering `n` or pressing Enter. To start the review, run `claude ultrareview` again and answer `y`.
+  * **`Ultrareview did not start: `--trust-workspace` takes no value`** : something other than a flag follows `--trust-workspace`, such as a PR number or `false`. If you don’t trust the folder, leave the flag out. To trust it for this run, put the PR number or base branch before the flag: `claude ultrareview 1234 --trust-workspace`.
+
+Before v2.1.309, `claude ultrareview` didn’t accept `--trust-workspace`.
 
 ###
 
@@ -4070,6 +4158,25 @@ The middle of the message names the file and the cause:
 
   * Follow the last sentence of the message: repair or replace the settings file it names, or remove the plugin’s entry from `enabledPlugins` in that file yourself, then run the uninstall again
 
+###
+
+​
+
+Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)
+
+This message means Claude Code didn’t start a stdio [MCP server that a plugin provides](</docs/en/mcp#plugin-provided-mcp-servers>), because a connection to that server failed less than 15 minutes earlier:
+
+    Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)
+
+The session continues without the server’s tools, and Claude Code doesn’t try the server again in that session when the 15 minutes end. When you start a new session or [`claude -p`](</docs/en/headless>) run at least 15 minutes after the most recent failed connection, Claude Code tries the server again. **What to do:** To have Claude Code try the server again without waiting:
+
+  * **In an interactive session** : run `/mcp`, select the server, and select **Reconnect**
+  * **In an[Agent SDK](</docs/en/agent-sdk/overview>) application**: call [`reconnectMcpServer()`](</docs/en/agent-sdk/typescript#methods>) in TypeScript or [`ClaudeSDKClient.reconnect_mcp_server()`](</docs/en/agent-sdk/python#methods>) in Python with the server’s name
+  * **In`claude -p`**: start an interactive session that loads the same plugin, on the same machine and with the same operating system account and [`CLAUDE_CONFIG_DIR`](</docs/en/env-vars>) value as your runs. Reconnect the server there from `/mcp`. Once it connects, Claude Code tries the connection in your next run.
+  * **If you’re developing the plugin** : change the server’s `command`, `args`, or `env` in the plugin’s `.mcp.json` or `plugin.json`. Claude Code tries the connection in the next session or `claude -p` run that loads the changed entry.
+
+The message replaces the error from the failed connection. If the new attempt fails too, Claude Code reports that attempt’s error instead of this message.
+
 ##
 
 ​
@@ -4093,6 +4200,23 @@ Right after you resume a session, an MCP server can still be on its first connec
 
   * If it happens once, you don’t need to do anything. Claude reads the error and the turn continues.
   * If calls to an MCP server’s tools keep failing with this error, run `/mcp` in the session or `claude mcp list` in your shell to check the server’s [status](</docs/en/mcp#server-status>), and reconnect a failed server from `/mcp`. In the Agent SDK, see [Error handling](</docs/en/agent-sdk/mcp#error-handling>).
+
+###
+
+​
+
+MCP server connection closed before the tool call was answered
+
+A tool call to an HTTP [MCP server](</docs/en/mcp>) or a [claude.ai connector](</docs/en/mcp#use-mcp-servers-from-claude-ai>) lost its connection before the server answered, so Claude Code can’t tell whether the tool ran:
+
+    MCP server "<name>" connection closed before the tool call was answered. The tool may have run: check whether it did before running it again.
+
+Repeating the call could repeat the tool’s action, such as creating a second issue. Claude Code therefore repeats the call on its own, once, when the server marks the tool as safe to repeat. **What to do:**
+
+  * Check in the service the tool acts on whether the action happened, for example whether the issue or record it was meant to create is there
+  * If the action happened, don’t run the tool again. Claude received this message in place of the tool’s result, so tell Claude the outcome.
+  * If the action didn’t happen, ask Claude to run the tool again. You don’t need to reconnect the server first, because Claude Code connects to it again for the next call to one of its tools. If that connection fails too, see [Mid-session drops of a remote server](</docs/en/mcp#mid-session-drops-of-a-remote-server>).
+  * If you build the server and the tool is safe to call twice, [mark it as safe to repeat](</docs/en/mcp#tool-calls-pending-when-a-connection-closes>) so that Claude Code can repeat a lost call
 
 ###
 
@@ -4410,28 +4534,32 @@ The parenthesized text names the check that failed. Reasons such as `output syml
 
 ​
 
-Disk quota or temp filesystem is full
+Disk full or disk quota used up
 
-Claude Code saves each Bash and PowerShell command’s output to a file under its temp directory. These messages in a command’s result mean that the filesystem holding that directory, or your disk quota on it, is full. If Claude Code can’t create that file because the filesystem or your quota on it is full, your command doesn’t start, and the result reads:
+Free up space, inodes, or disk quota on the volume that holds Claude Code’s temporary directory. A line in a command’s result starting `Disk full:`, `Disk quota used up:`, or `Nearly out of inodes:` names that directory. Claude Code saves each Bash and PowerShell command’s output to a file under that directory. If it can’t create that file because the volume or your quota on it is full, your command doesn’t start, and the result Claude reads is:
 
-    The command was not started: this computer's disk is full (ENOSPC), so the file that captures command output could not be created. Nothing ran. If this is the user's own computer, tell them before deleting anything to make room.
+    The command was not started: this computer's disk is full (ENOSPC) on the volume holding /tmp/claude-501 (Claude Code's temporary directory), so the file that captures command output could not be created there and nothing ran. Free space on that volume, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another one, then retry. If this is the user's own computer, tell them before deleting anything to make room.
 
-When a command exits with a nonzero code and no output at all, Claude Code checks the filesystem holding the output file. If that filesystem is out of space or inodes, or your disk quota on it is used up, a diagnostic replaces the empty output in the command’s result:
+The other three messages follow a command that ran and exited with a nonzero code. This example is the `Disk full:` form:
 
-    Your disk quota is full on the filesystem with Claude Code's temp directory /private/tmp/claude-501/-Users-you-my-project/1f0e62dc-4b0a-4f5e-9c2d-8a7b6c5d4e3f/tasks (EDQUOT), so any output this command printed was lost, and it may have failed because it could not write. Delete files you no longer need there, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another filesystem.
-
-The message names what ran out:
-
-  * `Your disk quota is full ... (EDQUOT)`: your own quota on that filesystem is used up. A quota can be full while the filesystem still shows free space
-  * `The filesystem with Claude Code's temp directory ..., or your disk quota on it, is full (ENOSPC)`: the filesystem, or your quota on it, has no space left
-  * `Command output was lost: the temp filesystem at ... is full` or `... is out of inodes`: the filesystem has almost no free space left, or is running out of inodes
-  * `The command was not started: this computer's disk is full (ENOSPC)` or `... (EDQUOT)`: the filesystem has no space left for the output file, or with `EDQUOT` your own quota on it is used up
+    Disk full: this computer's volume holding /tmp/claude-501 (Claude Code's temporary directory) has 3 MB free, so whatever this command printed was lost and its own writes may have failed with "No space left on device". Free space on that volume, or restart Claude Code with CLAUDE_CODE_TMPDIR set to a directory on another one, then retry. If this is the user's own computer, tell them before deleting anything to make room.
 
 **What to do:**
 
-  * Delete files you no longer need on the filesystem that holds Claude Code’s temp directory. If your message doesn’t name that directory, look up its default location in the [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>) reference. For `EDQUOT`, delete files that count against your own quota. For `out of inodes`, delete many files rather than a few large ones, since each file takes one inode whatever its size
-  * Or restart Claude Code with [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>) set to a directory on a filesystem with room
+  * On macOS and Linux, run `df -h <dir>` in your shell to see which volume holds the directory and how full it is. `df -i <dir>` shows how many inodes are free. `<dir>` is the directory your message names, as in `df -i /tmp/claude-501`
+  * **`Disk full: this computer's volume` or `disk is full (ENOSPC)`**: anywhere on that volume, delete files you don’t need
+  * **`Disk quota used up:` or `Disk full: a test write`**: delete your own files on that volume, even if it still shows free space
+  * **`disk quota is used up (EDQUOT)`** : delete your own files on that volume
+  * **`Nearly out of inodes:`** : delete many files on that volume. Each takes one inode whatever its size, so their number matters, not their size
+  * Or restart Claude Code with [`CLAUDE_CODE_TMPDIR`](</docs/en/env-vars>) set to a directory on a volume with room
   * Then have Claude run the command again
+
+Before v2.1.309, the messages read as follows, and the same steps apply:
+
+  * `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)`
+  * `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)`
+  * `Command output was lost: the temp filesystem at <dir> is full` or `... is out of inodes`
+  * `The command was not started: this computer's disk is full (ENOSPC), so the file that captures command output could not be created. Nothing ran.`, or the same with `(EDQUOT)`. This form names no directory: look on the volume holding your system temp directory, such as `/tmp`, or the directory set in `CLAUDE_CODE_TMPDIR`
 
 Before v2.1.305, a command that Claude Code couldn’t start because the disk was full returned only the operating system’s error text. That text read, for example, `ENOSPC: no space left on device, open <path>.output`.
 
@@ -5683,19 +5811,25 @@ For the network lock, the warning names `sandbox.network.allowedDomains` and `al
 
 ​
 
-Stale sandbox mask files left by a killed session
+Sandbox mask files left behind at write-deny paths
 
-`claude doctor` prints this warning in its diagnostics, and `/status` lists the same line. It appears on Linux and WSL2 when [sandboxing](</docs/en/sandboxing>) is enabled with filesystem isolation on. While a sandboxed command runs, the sandbox holds a write denial on a file that doesn’t exist yet by creating a 0-byte read-only placeholder there, and removes it afterward. A session killed before that cleanup runs, for example by SIGKILL, leaves the placeholders behind. Later sessions bind them read-only again on every start, so a settings write such as saving “Yes, and don’t ask again” fails where one sits.
+This warning in `claude doctor` and `/status` lists mask files: 0-byte read-only placeholder files at paths the [sandbox](</docs/en/sandboxing>) denies writes to. It appears on Linux and WSL2 when sandboxing is enabled with filesystem isolation on. Delete them from your shell once no Claude Code session is open in the project that holds them. The sandbox creates a placeholder while a sandboxed command runs and removes it when the command ends. One stays behind in cases such as these:
 
-    - Stale sandbox mask files left by a killed session: /home/you/project/.claude/settings.local.json
-      Fix: Remove each with `rm <path>` while no other Claude Code session is running in that project — a 0-byte read-only file where a settings file belongs makes "Yes, and don't ask again" fail to save, and the sandbox binds it read-only again on every start
+  * The session is killed before the command ends, for example by SIGKILL
+  * You quit the session while a sandboxed command is still running, such as one in the background
+
+In `claude doctor`, the warning reads:
+
+    - Sandbox mask files left behind at write-deny paths: /home/you/project/.claude/settings.local.json
+      Fix: A session leaves one where it was killed, or where it exited while a sandboxed command was still running. Remove each with `rm <path>` while no other Claude Code session is running in that project — a 0-byte read-only file where a settings file belongs makes "Yes, and don't ask again" fail to save, and the sandbox binds it read-only again on every start
 
 **What to do:**
 
-  * Quit any other Claude Code session running in that project, then delete each listed file with `rm`. The warning names up to three files and counts the rest, so rerun `claude doctor` after deleting until the warning no longer appears. A placeholder that another session’s sandbox is still using is a live part of that session’s write protection
+  * Quit every Claude Code session open in the project that holds the listed files, including any session where `/status` showed the warning, then work from your shell. A placeholder that another session’s sandbox is still using is a live part of that session’s write protection
+  * In your shell, delete each listed file with `rm`, and confirm if `rm` asks about a write-protected file. The warning names up to three files and counts the rest, so run `claude doctor` again after deleting until the warning no longer appears
   * If a permission choice you saved with “Yes, and don’t ask again” didn’t stick, save it again after deleting the placeholder
 
-Before v2.1.257, `claude doctor` didn’t flag these files; earlier versions leave the same placeholders behind when a session is killed.
+Before v2.1.309, the warning read `Stale sandbox mask files left by a killed session`. Before v2.1.257, `claude doctor` didn’t flag these files; earlier versions leave the same placeholders behind when a session is killed.
 
 ##
 

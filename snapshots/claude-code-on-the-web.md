@@ -258,15 +258,15 @@ Cloud sessions support [built-in commands](</docs/en/commands>) that produce tex
 
   * **`/model`, `/effort`, `/color`, and `/rename`**: pass the value as an argument, for example `/model sonnet`, instead of opening the terminal picker or slider. The argument forms follow each command’s [availability notes](</docs/en/commands#all-commands>).
   * **`/fast`** : toggles [fast mode](</docs/en/fast-mode#use-fast-mode-in-cloud-sessions>) for the session when fast mode is [available on your account](</docs/en/fast-mode#requirements>). Requires Claude Code v2.1.271 or later in the session’s environment.
-  * **`/config`** : in your browser at claude.ai/code, opens the Claude Code section of your settings instead of setting a value, and text after the command, including `key=value`, is ignored. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a [project](</docs/en/claude-projects>)’s threads, commit the key to that repository’s `.claude/settings.json` instead. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
+  * **`/config`** : in your browser at claude.ai/code, opens the Claude Code section of your settings instead of setting a value. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a [project](</docs/en/claude-projects>)’s threads, commit the key to that repository’s `.claude/settings.json` instead. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
 
-For context management specifically:
+For context management in a cloud session outside a [project’s threads](</docs/en/claude-projects#choose-models-and-let-claude-manage-context>):
 
 Command| Works in cloud sessions| Notes
 ---|---|---
 `/compact`| Yes| Summarizes the conversation to free up context. Accepts optional focus instructions like `/compact keep the test output`
 `/context`| Yes| Shows what’s currently in the context window
-`/clear`| No| Start a new session from the sidebar instead
+`/clear`| Yes| Starts a fresh conversation with empty context in the same cloud session
 
 Auto-compaction runs automatically when the context window approaches capacity. Cloud sessions set [`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`](</docs/en/env-vars>) themselves, so compaction triggers partway through the [auto-compact window](</docs/en/model-config#set-the-auto-compact-window>) rather than when the window fills. That value overrides one you add in your [environment variables](</docs/en/cloud-environments#set-environment-variables>), so adding the variable there doesn’t change when compaction triggers. To change the auto-compact window instead, set [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/env-vars>) in your environment variables, or run [`/autocompact`](</docs/en/commands#all-commands>) with a token count in a session where the variable isn’t set. [Subagents](</docs/en/sub-agents>) work the same way they do locally. Claude can spawn them with the Agent tool to offload research or parallel work into a separate context window, keeping the main conversation lighter. Outside a [project](</docs/en/claude-projects#what-threads-pick-up-from-your-repositories>)’s threads, subagents defined in your repo’s `.claude/agents/` load automatically. [Agent teams](</docs/en/agent-teams>) are off by default but can be enabled by adding `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` to your [environment variables](</docs/en/cloud-environments#set-environment-variables>).
 

@@ -194,17 +194,13 @@ The panel tries to tell math apart from other uses of the same characters, so te
 
 Resume past conversations
 
-Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time. Click any conversation to resume it. If the conversation is already open in another tab of the current window, clicking it switches to that tab. If the conversation opens with no messages showing, see why a resumed conversation is blank at first. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
+Click the **Session history** button at the top of the Claude Code panel to access your conversation history. You can search by keyword or browse by time. Click any conversation to resume it. If the conversation is already open in another tab of the current window, clicking it switches to that tab. When a notice says the conversation is still open somewhere else, see how to continue it in this window. If the conversation opens with no messages showing, see why a resumed conversation is blank at first. For more on resuming sessions, see [Manage sessions](</docs/en/sessions>).
 
   * **Session titles** : new sessions receive AI-generated titles based on your first message.
   * **Rename and archive** : hover over a session to reveal these actions. Rename to give it a descriptive title, or archive to move it to the **Archived sessions** group at the bottom of the list.
   * **Conversations missing with`claudeProcessWrapper` set**: update the extension to version 2.1.304 or later. The list then includes the conversations that were missing, along with sessions that `claude -p` or the [Agent SDK](</docs/en/agent-sdk/overview>) started in this workspace.
 
-If the conversation is open in another Claude Code process, such as `claude` in a terminal or another VS Code window, this notice appears in place of the prompt box:
-
-    This conversation is still open somewhere else. Using it in two places at once can mix up its messages.
-
-To continue here, close the conversation in the other place and then click **Open here anyway**. If you click without closing it, the conversation is open in both places. With `claudeProcessWrapper` set, the extension skips this check and opens the conversation directly. By default, a session with no activity for 14 days moves to **Archived sessions** automatically, unless it is open, unread, or in a group. Automatic archiving requires Claude Code v2.1.265 or later. To change the period or turn it off, open the [Archive Inactive Sessions setting](<vscode://settings/claudeCode.archiveInactiveSessions>) and select a number of days or **Never**. To restore archived sessions:
+By default, a session with no activity for 14 days moves to **Archived sessions** automatically, unless it is open, unread, or in a group. Automatic archiving requires Claude Code v2.1.265 or later. To change the period or turn it off, open the [Archive Inactive Sessions setting](<vscode://settings/claudeCode.archiveInactiveSessions>) and select a number of days or **Never**. To restore archived sessions:
 
   * **One session** : expand **Archived sessions** and click **Unarchive session**.
   * **Every archived session at once** : hover over the **Archived sessions** header in the sessions list in the Activity Bar and click its unarchive icon. Requires Claude Code v2.1.277 or later.
@@ -214,6 +210,23 @@ Before v2.1.257, the action was **Delete session** , which hid a session with no
   * The extension [chooses the starting permission mode](</docs/en/permission-modes#switch-permission-modes>) from `claudeCode.initialPermissionMode` or a pick that carries over from an earlier conversation
   * You have `claudeCode.claudeProcessWrapper` configured
   * A [deny rule](</docs/en/permissions#manage-permissions>) removes the [`ExitPlanMode`](</docs/en/tools-reference>) tool
+
+####
+
+​
+
+The conversation is still open somewhere else
+
+To continue in this window when a notice says the conversation is still open somewhere else, click **Open here anyway** after the step for your case:
+
+  * **You have nothing else open** : a Claude process from before the extension restarted may still have the conversation open. That process usually ends on its own within about 10 minutes, so wait that long and then click. If you click before it ends, the conversation is open in two places until it does.
+  * **You have the conversation open somewhere else** : close it there first, for example by exiting `claude` in a terminal or closing its tab in another VS Code window
+
+When the conversation is still open in another Claude Code process, this notice appears in place of the prompt box:
+
+    This conversation is still open somewhere else. Using it in two places at once can mix up its messages. If the extension restarted recently, a Claude process from before the restart may still be finishing. It usually ends on its own within about 10 minutes. This notice stays until you choose Open here anyway.
+
+With `claudeProcessWrapper` set, the extension skips this check and opens the conversation directly.
 
 ###
 
@@ -254,7 +267,7 @@ Check account and usage
 Run `/usage` to open the Account & usage dialog, which shows your signed-in account and your usage. The usage figures match how you signed in:
 
   * **claude.ai plan** : usage bars for your plan’s limits, such as the current session and the week. Each bar shows how long until its limit resets. The dialog also breaks down what is contributing to your plan limits:
-    * **Recommendations** : changes that lower your usage, one per row with the share of recent usage it addresses, such as `Trim ~/code/api/CLAUDE.md · 49k tokens per request`
+    * **Recommendations** : suggested changes, one per row, such as `Trim ~/code/api/CLAUDE.md · 49k tokens per request`
     * **Fix button** : to have Claude Code apply the recommendations it can, click the button under them, such as **Fix both**. To learn which rows the button acts on and what then happens in your session, see [Apply recommendations with the fix shortcut](</docs/en/costs#apply-recommendations-with-the-fix-shortcut>). Requires Claude Code v2.1.305 or later. The button isn’t shown while [Remote Control](</docs/en/remote-control>) is connected. If a warning reads `The usage fix wasn’t fully sent. Open usage and try again.` after Remote Control connected, [disconnect Remote Control](</docs/en/remote-control#check-connection-status>) before you try again.
     * **Attribution** : tables of how much usage came from each skill, subagent, plugin, and MCP server
 Use the Day and Week toggle to switch between the last 24 hours and the last 7 days. The figures are approximate and computed from local sessions on this machine, so usage from other devices or claude.ai is not included.
@@ -311,7 +324,7 @@ After you run **Developer: Reload Window** or restart VS Code, check where the c
   * **Editor tab** : the conversation comes back with its tab.
   * **Sidebar** : the conversation comes back if you sent a message or Claude responded in it within the last 10 minutes. If it doesn’t come back, resume the conversation from Session history.
 
-If another Claude Code process still has the conversation open, you’re asked before it opens here, with the same **Open here anyway** notice as when you resume it from session history. If the messages stay blank at first, see why they’re blank and when they appear.
+If a notice in place of the prompt box says the conversation is still open somewhere else, see how to continue the conversation here. If the messages stay blank at first, see why they’re blank and when they appear.
 
 ####
 
@@ -886,6 +899,7 @@ What you see| Where to go
 You’re asked to sign in again after you already signed in| [Not logged in or token expired](</docs/en/troubleshoot-install#not-logged-in-or-token-expired>)
 Cloud provider credentials work in your terminal but not in the extension| [Bedrock, Agent Platform, or Foundry credentials not loading](</docs/en/troubleshoot-install#bedrock-agent-platform-or-foundry-credentials-not-loading>)
 `SSL certificate verification failed` or `Self-signed certificate detected`| [SSL certificate errors](</docs/en/errors#ssl-certificate-errors>)
+`Dictation error: WebSocket error:` followed by a certificate error such as `unable to get local issuer certificate`, or `Remote server is not connected` on the Web tab| Dictation or the Web tab fails behind a TLS-inspecting proxy
 `Claude Code process exited with code 1`, or another code| [Claude Code process exited with code N](</docs/en/errors#claude-code-process-exited-with-code-n>)
 `Could not locate the Claude CLI on PATH`| [Could not locate the Claude CLI on PATH](</docs/en/errors#could-not-locate-the-claude-cli-on-path>)
 `The connection to Claude Code ended before this message completed`| [The connection to Claude Code ended before this message completed](</docs/en/errors#the-connection-to-claude-code-ended-before-this-message-completed>)
@@ -935,6 +949,50 @@ Alternatively, rebind the extension to a different key: open the VS Code [Keyboa
 
 ​
 
+Ctrl+J adds a new line in the prompt box
+
+To stop `Ctrl+J` from adding a new line in the prompt box, [unbind the key](</docs/en/keybindings#unbind-default-shortcuts>) in Claude Code’s `keybindings.json` file. The extension reads this file in version 2.1.309 or later, so update an older extension in the Extensions view first. This example is the whole file with the one entry that unbinds the key, `"ctrl+j": null` in a `Chat` block:
+
+    {
+      "bindings": [
+        {
+          "context": "Chat",
+          "bindings": {
+            "ctrl+j": null
+          }
+        }
+      ]
+    }
+
+The file goes in your Claude Code configuration directory, which is `~/.claude` unless you moved it with `CLAUDE_CONFIG_DIR`. Look in that directory and take the step that matches what you find:
+
+  * **No`keybindings.json` yet**: create it with exactly the content of the example
+  * **A`keybindings.json` with no `Chat` block**: add the example’s `Chat` block to the top-level `bindings` array, at any position
+  * **A`Chat` block with no `"ctrl+j"` line**: add `"ctrl+j": null` to that block’s `bindings`
+  * **A`Chat` block that already has a `"ctrl+j"` line**: change that line’s value to `null`
+
+After you save the file, pressing `Ctrl+J` in the prompt box adds no new line. If `Ctrl+J` still adds a line in the prompt box, run these two commands from the Command Palette in order:
+
+  1. **Developer: Reload Window** , then press `Ctrl+J` in the prompt box again
+  2. **Claude Code: Show Logs** , then look for a warning that includes `Ctrl+J in the chat input still inserts a newline`. Correct the problem it reports in the file it names, save the file, and press `Ctrl+J` again.
+
+If the log has no such warning, check that the file is in your Claude Code configuration directory and that its `Chat` block sets `"ctrl+j"` to `null`. [Report the issue](<https://github.com/anthropics/claude-code/issues>) if `Ctrl+J` still adds a line.
+
+###
+
+​
+
+The Claude Code panel is blank or couldn’t load
+
+If the Claude Code panel opens but shows nothing at all, not even the prompt box, update the extension to v2.1.309 or later in the Extensions view. Then run **Developer: Reload Window** from the Command Palette. If you then see a `Claude Code couldn’t load` notice, work through the steps it lists in order. If the panel still doesn’t load, open the extension’s log and [report the issue](<https://github.com/anthropics/claude-code/issues>) with a copy of it:
+
+  * **Still blank on v2.1.309 or later** : open the log with **Claude Code: Show Logs** from the Command Palette
+  * **The notice’s steps didn’t help** : click **Show logs** in the notice to open the log
+
+###
+
+​
+
 A resumed conversation is blank at first
 
 When you resume a past conversation or one comes back after a reload, its messages can stay blank while the conversation’s Claude Code process starts. After about a second, `Waiting for your plugins…` appears in the empty space. You don’t need to do anything. The messages appear once the process has started and confirmed that no plugin needs to check them first, or after 20 seconds if starting takes longer.
@@ -966,6 +1024,38 @@ If none of the math in Claude’s responses is typeset, check the extension’s 
   * **The formula contains an unescaped`%`**: ask Claude to rewrite it with `\%` for a percent sign.
   * **The formula is too large** : a formula longer than 8,192 characters, or one whose typeset output would be far larger than its TeX source, shows as written. Ask Claude to split it into smaller formulas or to write it more compactly.
   * **The formula follows a large amount of math** : within one block of text in a response, the panel typesets formulas in order up to a limit. A later formula that would go past the limit shows as written. Ask Claude to send the formula you need again by itself.
+
+###
+
+​
+
+Dictation or the Web tab fails behind a TLS-inspecting proxy
+
+When dictation or the Web tab fails with a certificate error such as `unable to get local issuer certificate`, set [`NODE_EXTRA_CA_CERTS`](</docs/en/network-config#custom-ca-certificates>) in the `env` block of `~/.claude/settings.json`. Set it to the path of a PEM file with your proxy’s root CA certificate, which your IT team can give you. That error text is on the microphone button or in the extension’s logs:
+
+  * **Dictation** : the microphone button shows the error text after `Dictation error: WebSocket error:`.
+  * **Web tab** : the tab that lists cloud sessions shows `Remote server is not connected` without the error text. To read it in the logs:
+    1. Run **Claude Code: Show Logs** from the Command Palette to open the `Claude VSCode` output channel.
+    2. Click **Reconnect** on the tab and wait until it stops showing `Connecting…`.
+    3. Search the channel for `Error fetching remote sessions:` or `Failed to fetch organization UUID:`, then read the error text after that prefix on the newest matching line.
+
+This fix requires extension version 2.1.307 or later, so update the extension first. Then set `NODE_EXTRA_CA_CERTS` to the certificate file’s full path, written without `~`. For a Windows path, write each backslash twice in `settings.json`, as in `C:\\certs\\example-ca.pem`. This example names a certificate file at the Linux or macOS path `/etc/ssl/certs/example-ca.pem`:
+
+~/.claude/settings.json
+
+    {
+      "env": {
+        "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/example-ca.pem"
+      }
+    }
+
+Save `settings.json`, then start a recording or click **Reconnect** again. If the error comes back, open the output channel with **Claude Code: Show Logs** and search it for `use the CA certificates file`. Such a warning gives the reason the extension can’t use your file and says where it read the path. Then find each place you set `NODE_EXTRA_CA_CERTS` in this table and do what its row says:
+
+Where you set it| What to do
+---|---
+The environment VS Code was started with| A value set here takes precedence over one in `~/.claude/settings.json`, even when the file it names can’t be used. Correct or remove it, then restart VS Code
+`env` in `~/.claude/settings.json`| Correct the value or the file it names, then start a recording or click **Reconnect** again
+VS Code’s `claudeCode.environmentVariables` setting, `~/.claude.json`, a project’s `.claude/settings.json` or `.claude/settings.local.json`, or managed settings| A value set here doesn’t apply to dictation or the Web tab. Set the variable in `env` in `~/.claude/settings.json` as well
 
 ###
 
