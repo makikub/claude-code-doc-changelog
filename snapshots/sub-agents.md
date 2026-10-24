@@ -842,7 +842,7 @@ Let Claude wait for a subagent
   2. Run `claude` again from your shell, or open a new VS Code conversation.
   3. Ask Claude to wait when you need a result first, for example “run the reviewer subagent and wait for its report”.
 
-To keep working while Claude waits, press **Ctrl+B** in the terminal or click [**Run in background**](</docs/en/vs-code#move-a-running-command-or-subagent-to-the-background>) in VS Code. If you set the [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](</docs/en/env-vars>) environment variable to `1` instead of turning fork mode off, Claude waits for every subagent and background tasks are off, **Ctrl+B** included.
+To keep working while Claude waits, press **Ctrl+B** in the terminal or click [**Run in background**](</docs/en/vs-code#move-a-running-command-or-subagent-to-the-background>) in VS Code. If you set the [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](</docs/en/env-vars>) environment variable to `1` instead of turning fork mode off, Claude waits for every subagent. Background commands are off too, and **Ctrl+B** doesn’t move anything to the background.
 
 ####
 

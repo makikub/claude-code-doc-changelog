@@ -46,7 +46,7 @@ Bare mode also limits what happens while the session runs:
 
   * **MCP servers** : only servers supplied on the command line connect, for example with `--mcp-config`. In an interactive session, Claude Code also skips the automatic IDE connection unless you pass `--ide`.
   * **System reminders** : Claude gets your prompts and the tool results without the [system reminders](</docs/en/glossary#system-reminder>) Claude Code would add alongside them. For example, Claude isn’t told when a file it read earlier changes on disk, and it doesn’t get the list of available skills, including skills from an `--add-dir` folder.
-  * **Background tasks** : none run. A command that reaches its [timeout](</docs/en/tools-reference#timeout-and-output-limits>) stops instead of [moving to the background](</docs/en/tools-reference#background-commands>).
+  * **Background tasks** : Claude can’t run background commands or background subagents, and the other features that [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](</docs/en/env-vars>) turns off are off too. A command that reaches its [timeout](</docs/en/tools-reference#timeout-and-output-limits>) stops instead of [moving to the background](</docs/en/tools-reference#background-commands>).
 
 Before v2.1.286, these limits held only partly: an interactive `--bare` session connected the MCP servers that a normal session would, every `--bare` session sent system reminders, and background tasks stayed available.
 
@@ -66,6 +66,17 @@ After Claude finishes its turn and stdin has closed, a `claude -p` run can stay 
   * **Pending wakeups** : in a run whose prompt you passed as text rather than with `--input-format stream-json`, when Claude has scheduled a [self-paced `/loop` wakeup](</docs/en/scheduled-tasks#let-claude-choose-the-interval>), the run waits for each wakeup to fire and runs its iteration until the [loop ends](</docs/en/scheduled-tasks#stop-a-loop>), even past the 10-minute cap.
 
 When stderr is a terminal and the run has waited five seconds, Claude Code prints a line to stderr that starts with `Waiting for background work to finish` and names the work. With `json` or `stream-json` output, the line prints only when stdout isn’t a terminal, so the JSON your script reads never carries it. If the run reaches its [`--max-budget-usd`](</docs/en/cli-reference#cli-flags>) cap, Claude Code stops the remaining background work instead of waiting. When background work starts another turn, the run prints each turn’s result with the default `text` output and the last turn’s result with `json` output. Before v2.1.295, the run printed only the last turn’s result with `text` output too.
+
+####
+
+​
+
+MCP work when a non-interactive run ends
+
+A `claude -p` run doesn’t wait for MCP work in the background:
+
+  * **[MCP tasks](</docs/en/mcp#mcp-tasks-that-run-on-the-server>)** : on a remote server the job goes on. To follow it again, [resume that session](</docs/en/mcp#exit-clear-or-resume-while-an-mcp-task-runs>), not as a one-shot `claude -p "<prompt>"` run.
+  * **MCP calls that[automatic backgrounding](</docs/en/mcp#automatic-backgrounding-of-long-tool-calls>) moved**: the call’s result is lost.
 
 ###
 

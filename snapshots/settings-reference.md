@@ -217,6 +217,7 @@ Key| Description| Topic| Scope
 `spinnerVerbs`| Add or replace the verbs shown while a turn runs| Interface and terminal| Any file
 `sshConfigs`| Add [SSH connections](</docs/en/desktop#pre-configure-ssh-connections-for-your-team>) to the Desktop environment selector| Remote, desktop, and notifications| User or managed
 `sshHostAllowlist`| Limit which hosts [Desktop SSH sessions](</docs/en/desktop#restrict-which-ssh-hosts-users-can-connect-to>) can reach| Remote, desktop, and notifications| Managed
+`sshHostCommands`| Add [SSH connections whose host comes from a command](</docs/en/desktop#create-an-ssh-connection-from-a-command>) to the Desktop environment selector| Remote, desktop, and notifications| User or managed
 `statusLine`| Run your own command to render a [status line](</docs/en/statusline>) below the prompt| Interface and terminal| Any file
 `strictKnownMarketplaces`| Allowlist the [marketplace](</docs/en/plugins/overview>) sources users can add and install from| Plugins and skills| Managed
 `strictPluginOnlyCustomization`| Block [skills](</docs/en/skills>), [agents](</docs/en/sub-agents>), [hooks](</docs/en/hooks>), and [MCP servers](</docs/en/mcp>) from user and project sources| Plugins and skills| Managed
@@ -5730,6 +5731,34 @@ managed-settings.json
     }
 
 A value that Desktop can’t read as a list of hosts, such as `true` or an object, counts as an empty array until you correct it, except `null`, which counts as unset. Requires Claude Desktop v2.26454.0 or later. If you set `managedSourcesBehavior` to `"merge"` in your highest-ranked source, Desktop combines the lists from every [admin source](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) and allows a host that matches any of them. If you set an empty array in one source, SSH sessions stay on for the hosts another source lists.
+
+###
+
+​
+
+`sshHostCommands`
+
+Add SSH connections whose host comes from a command to the [Desktop](</docs/en/desktop#create-an-ssh-connection-from-a-command>) environment selector. When you create a connection or replace its host, Desktop runs the entry’s command on your computer and connects to the host that the command prints. Requires Claude Desktop v3.6556.0 or later on macOS or Linux, signed in with a Claude account.
+
+  * **Scope** : `User or managed`. Only the desktop app reads this key. It reads managed entries from [one managed settings file or MDM policy](</docs/en/desktop#distribute-commands-to-your-team>) on the computer, and ignores the key in [server-managed settings](</docs/en/server-managed-settings>).
+  * **Type** : array of objects, each with required `id`, `name`, and `command` and optional `sshIdentityFile` and `startDirectory`. Desktop starts `command` without a shell, so [write it as a program and plain arguments](</docs/en/desktop#write-the-command>).
+  * **Default** : unset
+
+This example adds one connection named `Dev box`, where `acme-dev create` stands for your own tool:
+
+settings.json
+
+    {
+      "sshHostCommands": [
+        {
+          "id": "devbox",
+          "name": "Dev box",
+          "command": "acme-dev create"
+        }
+      ]
+    }
+
+Before Claude Code v2.1.307, the Edit tool refused a change that added this key to a valid settings file, with the error `Unrecognized field: sshHostCommands`. On those versions, add the key in a text editor instead; Claude Code loads a file that holds the key. In Desktop, the version that counts is the [Code tab’s Claude Code version](</docs/en/desktop#claude-code-version-in-the-code-tab>), not your terminal’s.
 
 ##
 
