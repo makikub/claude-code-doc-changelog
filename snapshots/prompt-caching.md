@@ -186,7 +186,7 @@ To produce the summary, Claude Code sends a separate request. The request repeat
 
 Compaction works in your favor when the context you discard is content you no longer need. To choose when its overhead happens, run `/compact` at a natural break in your work, such as between tasks, instead of waiting for auto-compaction to trigger mid-task. If you’ve gone down a path you want to abandon entirely, `/rewind` to an earlier turn instead. Rewinding truncates back to a prefix that is already cached, rather than building a new one as compaction does.
 
-If you leave a long conversation idle in a terminal session while it is on the one-hour TTL, Claude Code can compact it shortly before the cache expires. To turn idle compaction off, set [`idleCompaction`](</docs/en/settings-reference#idlecompaction>) to `false`, which requires Claude Code v2.1.290 or later.
+If you leave a long conversation idle while it is on the one-hour TTL, Claude Code can compact it. To turn idle compaction off, set [`idleCompaction`](</docs/en/settings-reference#idlecompaction>) to `false`, which requires Claude Code v2.1.290 or later.
 
 ###
 

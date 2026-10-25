@@ -722,7 +722,7 @@ The panel also opens on its own once Claude starts editing files, if your termin
   * **Show the files the panel leaves out** : the list skips test files and generated files, and collapses changes from before this session into one line at the bottom. Click either count line to expand it.
   * **Change what the panel compares against** : press `Ctrl+X B` to cycle from this session’s changes, to your uncommitted changes as one list, to everything since your branch split from the default branch. Claude Code remembers the choice for each repository.
 
-To rebind the keys that scroll the file list or change the comparison, see [Diff panel actions](</docs/en/keybindings#diff-panel-actions>).
+To rebind the keys that scroll the file list or change the comparison, see [Diff panel actions](</docs/en/keybindings#diff-panel-actions>). During an unfinished merge, rebase, cherry-pick, or revert, the panel keeps showing the changes it last read from git, so it doesn’t fill with the operation’s incoming changes. It updates at its first refresh after the operation ends, for example when Claude next edits a file.
 
 ###
 

@@ -121,7 +121,7 @@ When a user adds, installs from, or updates your marketplace, Claude Code runs `
 Tell users what each protocol needs on their machine:
 
   * **SSH** : the key must work without a passphrase prompt, for example because it’s loaded in `ssh-agent`. The host must already be in `known_hosts`.
-  * **HTTPS** : Claude Code leaves the user’s git credential helper enabled but forbids it from prompting. A credential the helper already stores works; one it would have to ask for fails. On GitHub, `gh auth login` followed by `gh auth setup-git` stores one.
+  * **HTTPS** : Claude Code leaves the user’s git credential helper enabled but forbids it from prompting, and doesn’t run askpass programs such as one set in `GIT_ASKPASS`. A credential the helper already stores works; one it would have to ask for fails. On GitHub, `gh auth login` followed by `gh auth setup-git` stores one.
 
 For a GitHub Enterprise Server host, users need git access to that host from their machine. See [Plugin marketplaces on GHES](</docs/en/github-enterprise-server#plugin-marketplaces-on-ghes>) for what each Claude Code surface needs to reach a GHES-hosted marketplace. If you distribute through **Organization settings > Plugins & skills** on claude.ai instead, your users’ git credentials aren’t involved. See Distribute through organization settings.
 

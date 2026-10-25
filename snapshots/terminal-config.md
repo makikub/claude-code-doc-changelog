@@ -117,6 +117,8 @@ If your terminal implements the OSC 7501 Program Status Protocol, it can show wh
   * **Background session** : a [background session](</docs/en/agent-view>) doesn’t report its status to your terminal, even while you’re attached to it. Agent view shows its status instead.
   * **[`CLAUDE_CODE_DISABLE_TERMINAL_TITLE`](</docs/en/env-vars#variables>)** : if you set this variable to `1`, Claude Code doesn’t check for support or report status. Unset it.
 
+The tab title doesn’t start with a status glyph in a terminal that reports support for the protocol. The terminal shows the session’s state itself, so Claude Code leaves out the glyph it puts in front of the title in other terminals.
+
 ##
 
 ​
@@ -128,10 +130,11 @@ When Claude Code runs inside tmux, by default Shift+Enter submits instead of ins
 ~/.tmux.conf
 
     set -g allow-passthrough on
+    set -g focus-events on
     set -s extended-keys on
     set -as terminal-features 'xterm*:extkeys'
 
-The `allow-passthrough` line lets notifications and progress updates reach the outer terminal instead of being swallowed by tmux. The `extended-keys` lines let tmux distinguish Shift+Enter from plain Enter so the newline shortcut works.
+The `allow-passthrough` line lets notifications and progress updates reach the outer terminal instead of being swallowed by tmux. The `extended-keys` lines let tmux distinguish Shift+Enter from plain Enter so the newline shortcut works. A [mod’s `Image`](</docs/en/plugins/mods/reference#elements>) needs the `allow-passthrough` and `focus-events` lines, along with the other [requirements for drawing inside tmux](</docs/en/plugins/mods/gallery#draw-an-image-inside-tmux>). After you add the lines, also detach from tmux, attach again, and restart Claude Code.
 
 ##
 
