@@ -319,6 +319,8 @@ Message| Section
 `Cannot read this as an image: <path> is a pipe or a device`| Tool errors
 `subagent_type is required: the general-purpose agent is not available in this session`| Tool errors
 `Error: this write left the memory index at MEMORY.md at ..., over its ... read limit`| Tool errors
+`Sandbox is required but failed to initialize: <reason>`| [Sandboxing troubleshooting](</docs/en/sandboxing#commands-refused-with-sandbox-is-required>)
+`Sandbox is required (sandbox.failIfUnavailable) and stopped being available in this session: <reason>`| [Sandboxing troubleshooting](</docs/en/sandboxing#commands-refused-with-sandbox-is-required>)
 `pkill: refusing to run`| Tool errors
 `Failed to write to <name>'s inbox — nothing was sent`| Tool errors
 `Failed to write the plan approval request to the lead's inbox — plan not submitted`| Tool errors

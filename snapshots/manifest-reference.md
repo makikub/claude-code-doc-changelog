@@ -640,7 +640,7 @@ If you leave one of these variables outside quotes in a shell-form command in a 
       }
     }
 
-On Windows, the substituted paths use forward slashes so a shell doesn’t read backslashes as escapes.
+On Windows, most substituted paths use forward slashes, as in `C:/Users/you/...`. They keep their native backslashes in an [exec-form hook](</docs/en/hooks#exec-form-and-shell-form>) and in a hook that runs through PowerShell, which is the default shell on Windows when Git Bash isn’t installed.
 
 ##
 

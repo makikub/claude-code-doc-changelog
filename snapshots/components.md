@@ -469,7 +469,7 @@ You don’t know where your plugin will be installed, so refer to its files and 
   * **`${CLAUDE_PLUGIN_DATA}`** : a directory that survives updates, for `node_modules`, virtual environments, and caches. It resolves to `~/.claude/plugins/data/<id>/` and is created when first referenced
   * **`${CLAUDE_PROJECT_DIR}`** : the project root, the same value hooks receive
 
-In the data directory path, `<id>` is the plugin identifier with every character other than letters, digits, `_`, and `-` replaced by `-`, so `my-plugin@my-marketplace` becomes `my-plugin-my-marketplace`. On Windows, the substituted paths use forward slashes so a shell doesn’t read backslashes as escapes.
+In the data directory path, `<id>` is the plugin identifier with every character other than letters, digits, `_`, and `-` replaced by `-`, so `my-plugin@my-marketplace` becomes `my-plugin-my-marketplace`. On Windows, most substituted paths use forward slashes, as in `C:/Users/you/...`. They keep their native backslashes in an [exec-form hook](</docs/en/hooks#exec-form-and-shell-form>) and in a hook that runs through PowerShell, which is the default shell on Windows when Git Bash isn’t installed.
 
 ###
 
