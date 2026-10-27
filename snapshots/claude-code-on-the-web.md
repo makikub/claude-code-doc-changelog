@@ -284,6 +284,38 @@ Auto-compaction runs automatically when the context window approaches capacity. 
 
 ​
 
+Plugin suggestions in the conversation
+
+A card in the conversation that lists one or more [plugins](</docs/en/plugins/overview>), with an **Add** button, means Claude is suggesting plugins for your task. Claude can make these suggestions without you asking. You don’t have to respond, and Claude carries on with the task either way.
+
+####
+
+​
+
+Add or remove a suggested plugin
+
+Select **Add** on a plugin to turn it on for your claude.ai account, where it stays on after the session ends. To undo, open the added plugin from the card, select **Manage** to reach the plugin’s page on claude.ai, and remove the plugin from that page.
+
+####
+
+​
+
+Turn off plugin suggestions
+
+To stop Claude from suggesting plugins, deny the `SearchPlugins` and `SuggestPluginInstall` tools with [permission rules](</docs/en/permissions#manage-permissions>). In a session with one repository outside a [project](</docs/en/claude-projects>), commit the rules to that repository’s `.claude/settings.json`, listing both tool names under `permissions.deny`:
+
+    {
+      "permissions": {
+        "deny": ["SearchPlugins", "SuggestPluginInstall"]
+      }
+    }
+
+Claude Code ignores permission rules in the repository’s `.claude/settings.json`, including these deny rules, when the [managed settings](</docs/en/managed-settings>) that apply to the session set [`allowManagedPermissionRulesOnly`](</docs/en/settings-reference#allowmanagedpermissionrulesonly>). In that case, put the rules in those managed settings instead. For other setups, such as a session with several repositories or a cloud thread in a project, see which [settings reach a cloud session](</docs/en/settings#settings-in-cloud-sessions>).
+
+###
+
+​
+
 Take back a queued message
 
 If you send a message while Claude is working, the message queues until Claude reads it. To take a queued message back, click the ✕ on it. The text returns to the message box so you can edit it or send something else. If Claude has already read the message, it stays in the conversation.

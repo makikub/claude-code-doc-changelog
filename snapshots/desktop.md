@@ -104,7 +104,7 @@ Mode| Settings key| Behavior
 
 Earlier versions of the Code tab labeled these modes Ask permissions, Auto accept edits, and Plan mode. The `dontAsk` permission mode is available only in the [CLI](</docs/en/permission-modes#allow-only-pre-approved-tools-with-dontask-mode>).
 
-Start complex tasks in Plan so Claude maps out an approach before making changes. Once you approve the plan, switch to Accept edits or Manual to execute it. See [explore first, then plan, then code](</docs/en/best-practices#explore-first-then-plan-then-code>) for more on this workflow.
+Start complex tasks in Plan so Claude maps out an approach before making changes. Once you approve the plan, switch to Accept edits or Manual to execute it. See [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) for more on this workflow.
 
 Cloud sessions support Accept edits, Plan, and Auto. Accept edits corresponds to `default` mode: cloud sessions pre-approve file edits, so the selector shows Accept edits instead of Manual. Bypass permissions isn’t available in cloud sessions, including sessions in a [self-hosted environment](</docs/en/self-hosted-environments>). Enterprise admins can restrict which permission modes are available. See enterprise configuration for details.
 
@@ -176,7 +176,7 @@ The Browser follows the same [site allowlist and blocklist controls](<https://su
 
 Review changes with diff view
 
-After Claude makes changes to your code, the diff view lets you review modifications file by file before creating a pull request. To open the diff view, click the line counts, such as `+12 -1`, in the **Changes** card of the session details panel. You can also click **Changes** in the session’s title bar. To comment on specific lines, click any line in the diff to open a comment box. Type your feedback and press **Enter** to add the comment. After adding comments to multiple lines, submit all comments at once:
+After Claude makes changes to your code, the diff view lets you review modifications file by file before creating a pull request. To open the diff view, click the line counts, such as `+12 -1`, in the **Changes** card of the session details panel. You can also click **Changes** in the session’s title bar. To comment on specific lines, hover over a line and click the **+** that appears beside its line number to open a comment box. Type your feedback and press **Enter** to add the comment. After adding comments to multiple lines, submit all comments at once:
 
   * **macOS** : press **Cmd+Enter**
   * **Windows** : press **Ctrl+Enter**
@@ -313,7 +313,7 @@ Press **Cmd+/** on macOS or **Ctrl+/** on Windows to see all shortcuts available
   * **Cmd+Ctrl** : press **Ctrl+Alt**
   * **Cmd** : press **Ctrl**
 
-Session cycling, the terminal toggle, and the view-mode toggle use **Ctrl** on every platform.
+Shortcuts that start with `Ctrl` stay the same on every platform.
 
 Shortcut| Action
 ---|---
@@ -322,7 +322,7 @@ Shortcut| Action
 `Cmd` `Option` `1`–`9`| On the new session screen in the current layout, select an environment
 `Cmd` `Option` `0`| On the new session screen in the current layout, open the **New environment** dialog
 `Cmd` `W`| Close session
-`Ctrl` `Tab` / `Ctrl` `Shift` `Tab`| Next or previous session
+`Ctrl` `Tab` / `Ctrl` `Shift` `Tab`| Switch between sessions
 `Cmd` `Shift` `]` / `Cmd` `Shift` `[`| Next or previous session
 `Esc`| Stop Claude’s response
 `Tab` / `Right arrow`| Accept the suggested prompt in an empty prompt box
@@ -448,7 +448,7 @@ Each session is an independent conversation with its own context and changes. Yo
 
 Work in parallel with sessions
 
-Click **\+ New** in the sidebar, or press **Cmd+N** on macOS or **Ctrl+N** on Windows, to work on multiple tasks in parallel. Press **Ctrl+Tab** and **Ctrl+Shift+Tab** to cycle through sessions in the sidebar. You can also open a second session next to the current session or in a window of its own:
+Click **\+ New** in the sidebar, or press **Cmd+N** on macOS or **Ctrl+N** on Windows, to work on multiple tasks in parallel. Press **Ctrl+Tab** and **Ctrl+Shift+Tab** to switch between sessions. You can also open a second session next to the current session or in a window of its own:
 
   * **Side by side** : hold **Option** on macOS or **Alt** on Windows and click a session in the sidebar, or right-click the session and select **Open in** , then **Split view**
   * **In its own window** : hold **Cmd** on macOS or **Ctrl** on Windows and click a session, or right-click the session and select **Open in** , then **New window**
@@ -461,9 +461,10 @@ In the split view, the pane you opened or clicked last has focus, and the other 
 
 Run a session in its own worktree
 
-In a project that’s a Git repository, turn on **Worktree** before you start a session to run it in its own [Git worktree](</docs/en/worktrees>), an isolated copy of the project. By default, **Worktree** is off and Claude works in the project folder itself. Click the project folder control in the row under the prompt box and turn on **Worktree**.
+In a project that’s a Git repository, turn on **Worktree** before you start a session to run it in its own [Git worktree](</docs/en/worktrees>), an isolated copy of the project. By default, **Worktree** is off and Claude works in the project folder itself. On the current layout, turn on the **Worktree** button in the row under the prompt box.
 
-  * **With asaved environment**: set **Worktree** when you create or edit the environment
+  * **With a[third-party provider](</docs/en/third-party-integrations>)**: if the row under the prompt box shows the project folder control but no **Worktree** button, click that control and turn on **Worktree**
+  * **As the default for asaved local or SSH environment**: set **Worktree** when you create or edit the environment
   * **Earlier layout** : select the **worktree** checkbox beside the branch name, above the prompt box
 
 Worktrees are stored in `<project-root>/.claude/worktrees/` by default. To store them in a custom directory instead:

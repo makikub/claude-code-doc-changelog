@@ -27,7 +27,7 @@ Read and edit a sibling package or another repository from the same session| `--
 Give Claude procedures specific to one area that load only when relevant| Per-directory skills
 Replace many per-directory CLAUDE.md files with one set of conventions everyone installs| A plugin in an internal marketplace
 
-For workflow techniques that keep context small in any repository, such as [running exploration in a subagent](</docs/en/best-practices#use-subagents-for-investigation>) so file reads stay out of the main conversation, see [Best practices for Claude Code](</docs/en/best-practices>). To roll out a baseline configuration to every developer in your organization, see [Set up Claude Code for your organization](</docs/en/admin-setup>).
+For workflow techniques that keep context small in any repository, see [Best practices for Claude Code](</docs/en/best-practices>). One example is [running exploration in a subagent](</docs/en/best-practices#know-what-subagents-cost>) so file reads stay out of the main conversation. To roll out a baseline configuration to every developer in your organization, see [Set up Claude Code for your organization](</docs/en/admin-setup>).
 
 ###
 
@@ -439,7 +439,7 @@ Scope and plan changes that span packages
 The configuration above controls what Claude sees. When a single change touches several packages, such as updating a shared type along with every call site that uses it, how you scope and sequence the task also affects the result. Two techniques help keep a cross-package change consistent:
 
   * **Give Claude the whole change in one session** : handing over the shared edit and its call sites together keeps the decisions behind each edit consistent, rather than re-deriving them per package
-  * **Plan before editing** : [plan first](</docs/en/best-practices#explore-first-then-plan-then-code>) in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>), and Claude writes the plan to a file. A long cross-package session [compacts its context](</docs/en/context-window#what-survives-compaction>) along the way. Claude Code re-injects the plan file after each compaction, so the plan survives where conversation history may not
+  * **Plan before editing** : plan first in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>), and Claude writes the plan to a file. A long cross-package session [compacts its context](</docs/en/context-window#what-survives-compaction>) as it goes. Claude Code re-injects the plan file after each compaction, so the plan survives where conversation history may not
 
 ##
 

@@ -12,6 +12,7 @@ Define a tool| Use [`@tool`](</docs/en/agent-sdk/python#tool>) (Python) or [`too
 Make a parameter optional| Declare it optional in the schema and apply the default in the handler. See Make a parameter optional.
 Register a tool with Claude| Wrap in `create_sdk_mcp_server` / `createSdkMcpServer` and pass to `mcpServers` in `query()`. See Call a custom tool.
 Pre-approve a tool| Add to your allowed tools. See Configure allowed tools.
+Require approval for calls to a tool, or block the tool| In the TypeScript SDK, add a `permission_policy` for the tool to the config object that `createSdkMcpServer()` returns. See Require approval for specific tools.
 Remove a built-in tool from Claude’s context| Pass a `tools` array listing only the built-ins you want. See Configure allowed tools.
 Let Claude call tools in parallel| Set `readOnlyHint: true` on tools with no side effects. See Add tool annotations.
 Control the error message Claude reads| Return `isError: true` to compose the message instead of surfacing the raw exception. See Handle errors.
@@ -326,7 +327,7 @@ Add tool annotations
 Field| Default| Meaning
 ---|---|---
 `readOnlyHint`| `false`| Tool does not modify its environment. Controls whether the tool can be called in parallel with other read-only tools.
-`destructiveHint`| `true`| Tool may perform destructive updates. Informational only.
+`destructiveHint`| `true`| Tool may perform destructive updates. Set it to `true` explicitly on any tool you mark `always_ask`.
 `idempotentHint`| `false`| Repeated calls with the same arguments have no additional effect. Informational only.
 `openWorldHint`| `true`| Tool reaches systems outside your process. Informational only.
 
@@ -386,6 +387,33 @@ allowed tools| Permission| Listed tools run without a permission prompt. Other u
 disallowed tools| Both| A bare tool name such as `"Bash"` removes the tool from Claude’s context, the same as omitting it from `tools`. A scoped rule such as `"Bash(rm *)"` leaves the tool in context and denies only calls that match [as written](</docs/en/permissions#bash-rule-limits>).
 
 To remove a built-in entirely, omit it from `tools` or list its bare name in `disallowedTools` (Python: `disallowed_tools`); both keep the tool out of context so Claude never attempts it. A scoped `disallowedTools` rule blocks matching calls but leaves the tool visible, so Claude may waste a turn trying it. See [Configure permissions](</docs/en/agent-sdk/permissions>) for the full evaluation order.
+
+###
+
+​
+
+Require approval for specific tools
+
+Set a tool’s `permission_policy` to `always_ask`, and `allowedTools` stops approving that tool’s calls, so they can reach your [`canUseTool`](</docs/en/agent-sdk/user-input>) callback even though the tool is listed. Set `always_deny` instead, and [a call to the tool is denied](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>), but a [mod](</docs/en/plugins/mods/overview>) in a plugin you load [can still approve it](</docs/en/permissions#precedence-among-rules-hooks-and-mods>). The field is TypeScript-only and requires Agent SDK v0.3.301 or later. Put the policy entry in a `tools` array on the config object `createSdkMcpServer()` returns, not in the `tools` option you pass into that function. This example spreads `weatherServer` from the weather tool example and adds a `tools` array giving `get_temperature` the `always_ask` policy:
+
+TypeScript
+
+    options: {
+      mcpServers: {
+        weather: {
+          ...weatherServer,
+          tools: [{ name: "get_temperature", permission_policy: "always_ask" as const }]
+        }
+      },
+      allowedTools: ["mcp__weather__get_temperature"],
+      permissionMode: "default",
+      canUseTool: async (toolName, input) => {
+        console.log(`Approval requested for ${toolName}`);
+        return { behavior: "allow", updatedInput: input };
+      }
+    }
+
+To try the policy, replace the `options` in the Call a custom tool script with this example’s `options`, then run that script from your terminal. The script prints `Approval requested for mcp__weather__get_temperature`, followed by Claude’s answer about the temperature. For a complete script, see the [TypeScript reference](</docs/en/agent-sdk/typescript#mcpsdkserverconfigwithinstance>). If you use `auto` or `plan` [permission mode](</docs/en/agent-sdk/permissions#permission-modes>), set `destructiveHint: true` in the tool’s annotations so calls to the tool still reach your callback. Otherwise the [auto mode classifier](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) can approve some `always_ask` calls, under [conditions listed in the TypeScript reference](</docs/en/agent-sdk/typescript#permission-modes-that-can-approve-an-always_ask-call>), and a call it approves doesn’t reach your callback. Set the hint explicitly, because an unset `destructiveHint` counts as `false` for `always_ask` calls rather than defaulting to `true`.
 
 ##
 

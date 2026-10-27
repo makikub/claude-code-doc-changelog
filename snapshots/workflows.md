@@ -159,7 +159,7 @@ To start a session with ultracode already on, launch with `claude --effort ultra
   * The session’s [concurrent subagent limit](</docs/en/sub-agents#concurrent-subagent-limit>) isn’t enforced for the subagents Claude spawns with the Agent tool
   * In auto permission mode, you aren’t asked to approve the first workflow launch
 
-`/effort ultracode` lasts for the current session; to have every session start with it, set the [`ultracode`](</docs/en/settings-reference#ultracode>) setting. Turn it off with `/effort ultracode off` when you return to routine work. The `/effort` slider offers the toggle only [when ultracode is available](</docs/en/model-config#when-ultracode-is-available>).
+`/effort ultracode` lasts for the current session; to have every session start with it, set the [`ultracode`](</docs/en/settings-reference#ultracode>) setting. Turn it off with `/effort ultracode off` when you return to routine work. The `/effort` slider offers the toggle only [when ultracode is available](</docs/en/model-config#when-ultracode-is-available>). Before v2.1.284, `/effort ultracode` set the session to `xhigh`, and `/effort ultracode off` failed with `Invalid argument`.
 
 ###
 
@@ -345,7 +345,7 @@ You can also edit the script of a single run rather than the saved copy. Resume 
 
 How a workflow runs
 
-The workflow runtime executes the script in an isolated environment, separate from your conversation. Intermediate results stay in script variables instead of landing in Claude’s context. Every run writes its script to a file under your session’s directory in `~/.claude/projects/`. Claude receives the path when the run starts, so you can ask for it. You can open that file to read the orchestration Claude wrote, diff it against a previous run’s script, or edit it and ask Claude to relaunch from the edited version. Claude can start a workflow only from a script file the session is already allowed to read. To run a script kept outside your working directory, add its directory with [`/add-dir`](</docs/en/permissions#working-directories>) or a [Read allow rule](</docs/en/permissions#read-and-edit>) first. The runtime tracks each agent’s result as the run progresses, which is what makes a run resumable within the same session.
+The workflow runtime executes the script in an isolated environment, separate from your conversation. Intermediate results stay in script variables instead of landing in Claude’s context. Unless Claude starts a run from a script file’s path, Claude Code writes the run’s script to a file under your session’s directory in `~/.claude/projects/`. Claude receives the script’s path when the run starts, so you can ask for it. You can open that file to read the orchestration Claude wrote, diff it against a previous run’s script, or edit it and ask Claude to relaunch from the edited version. Claude can start a workflow only from a script file the session is already allowed to read. To run a script kept outside your working directory, add its directory with [`/add-dir`](</docs/en/permissions#working-directories>) or a [Read allow rule](</docs/en/permissions#read-and-edit>) first. The runtime tracks each agent’s result as the run progresses, which is what makes a run resumable within the same session.
 
 ###
 
@@ -409,10 +409,11 @@ That last case means a failure in the middle of a fan-out reruns work that alrea
 
 Resume after you leave the session
 
-You can resume a run within the same Claude Code session. What happens to a running workflow when you leave the session depends on how you leave:
+If you background your session or exit Claude Code while a workflow run is in progress, the run doesn’t continue on its own. The run continues only when Claude relaunches it with a `Workflow` call, which replays the run from its saved results.
 
-  * If you [background the session](</docs/en/agent-view#what-carries-over-when-you-background>), Claude Code replays the run the same way in the background session and continues it.
-  * If you exit Claude Code while a workflow is running and [agent view is on](</docs/en/agent-view#from-inside-a-session>), the exit dialog offers `Move to background and exit`, which carries the run over the same way. If you choose `Exit and stop tasks` instead, or the option isn’t offered, the run stops with the session. Claude Code keeps the run’s saved results under that session’s directory in `~/.claude/projects/`, so a session you resume with `claude --resume` can replay them when you ask Claude to relaunch the workflow. In a session you start fresh, Claude has no earlier run to relaunch and starts the workflow over as a new run.
+  * **You backgrounded the session or chose[`Move to background and exit`](</docs/en/agent-view#from-inside-a-session>)**: if the run hasn’t continued when you check the [background session](</docs/en/agent-view#what-carries-over-when-you-background>), ask Claude there to relaunch the workflow. Depending on your permission mode, Claude Code asks you to approve the relaunch first. If the session shows under `Needs input` in agent view, [attach to it](</docs/en/agent-view#attach-to-a-session>) to answer the approval prompt.
+  * **The relaunch in the background session failed with`nothing to resume`**: ask Claude to start the workflow over as a new run. If Claude started the run from the path of a script file outside `~/.claude/projects/`, such as one in your working directory, Claude can’t relaunch it in the background session.
+  * **You chose`Exit and stop tasks`, or weren’t offered `Move to background and exit`**: the run stopped with the session, and Claude Code keeps the run’s saved results under that session’s directory in `~/.claude/projects/`. Resume the session with `claude --resume` in your shell, then ask Claude to relaunch the workflow. In a fresh session, Claude has no earlier run to relaunch and starts the workflow over.
 
 In a [cloud session](</docs/en/claude-code-on-the-web>), Claude Code also saves the run’s results with the session’s conversation history, which survives when the session’s VM is reclaimed. When you [reopen such a session](</docs/en/claude-code-on-the-web#environment-expired>) and ask Claude to relaunch the workflow, completed agents still return their saved results. In local and cloud sessions alike, when Claude relaunches an earlier run and Claude Code can’t find that run’s saved results at all, the relaunch fails with a `nothing to resume` error instead of starting the run over on its own. Ask Claude to start the workflow over as a new run.
 

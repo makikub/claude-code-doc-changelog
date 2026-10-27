@@ -443,7 +443,7 @@ An entry can declare dependencies on other plugins.
   * **Version ranges** : a dependency can carry a semver range.
   * **Cross-marketplace dependencies** : a dependency from another marketplace installs only when your marketplace lists that marketplace in `allowCrossMarketplaceDependenciesOn`.
 
-For version ranges, the `<plugin>--v<version>` git-tag convention they resolve against, and cross-marketplace trust, see [Plugin dependencies](</docs/en/plugins/dependencies>). To have Claude Code suggest a plugin when a project matches it, add a `relevance` block to the entry with the signals that identify the project. Users see suggestions from your marketplace only when an admin lists it in `pluginSuggestionMarketplaces`. For the signals and the enablement step, see [Plugin relevance](</docs/en/plugins/relevance>).
+For version ranges, the `<plugin>--v<version>` git-tag convention they resolve against, and cross-marketplace trust, see [Plugin dependencies](</docs/en/plugins/dependencies>). To have Claude Code suggest a plugin when a project matches it, add a `relevance` block to the entry with the signals that identify the project. Users see these suggestions only when an admin lists your marketplace in `pluginSuggestionMarketplaces`. For the signals and the enablement step, see [Plugin relevance](</docs/en/plugins/relevance>).
 
 ##
 

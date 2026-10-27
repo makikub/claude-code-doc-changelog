@@ -371,6 +371,8 @@ What a `ui.render` hook returns is an element tree: a description of what to dra
 
     Note: Type a note and press Enter
 
+Add `rows` to let the field hold several lines. Enter still submits, and a backslash before Enter starts a new line, as does Shift+Enter where [the terminal supports it](</docs/en/terminal-config#enter-multiline-prompts>). The gallery shows [a field with `rows`](</docs/en/plugins/mods/gallery#input>).
+
 The [interface gallery](</docs/en/plugins/mods/gallery>) has samples and screenshots of most elements. This table lists every element:
 
 Element| What it draws| Where
@@ -384,7 +386,9 @@ Element| What it draws| Where
 `Client`| A region drawn by a second file of yours, for animation and pointer input. That file gets no mods API. It reaches your hooks by posting data, which arrives as a `ui.message` event. If it fails to load, draw, or run, your hooks receive a [`ui.fault`](</docs/en/plugins/mods/reference#interface>) event.| Terminal, Desktop
 `Raster`, `Image`| A grid of colored cells, and a picture| Terminal
 
-If your module is a `.tsx` or `.jsx` file, you can write the tree as JSX. Destructure the elements from `$.ui.resolve(e)` first. If a tree uses an element the app doesn’t have, a prop an element doesn’t take, or a child where none goes, Claude Code draws its own version of the site. In a session started with `--plugin-dir`, a transcript line says so, such as `ui.render (Pane) refused: Text prop "bogusProp" is not allowed; the engine drew its own`. The [debug log](</docs/en/plugins/mods/troubleshoot#read-the-debug-log>) records it as `ui.render (Pane): a hook returned a tree that does not validate` with the same reason. Nothing else appears in the session, so when a drawing doesn’t show up, check that line or the log.
+If your module is a `.tsx` or `.jsx` file, you can write the tree as JSX. Destructure the elements from `$.ui.resolve(e)` first. If your drawing doesn’t show up, check its tree for a prop an element doesn’t take or a child where none goes. A hook that returns such a tree [fails](</docs/en/plugins/mods/events#handle-a-hook-that-fails>), and a [`hook skipped` line](</docs/en/plugins/mods/troubleshoot#a-pane-or-band-is-empty>) names your mod and the rule the tree broke. For a `Text` in a pane with a prop named `bogusProp`, that line reads:
+
+    my-mod: ui.render hook skipped: returned the wrong shape (a tree Pane refuses: Text prop "bogusProp" is not allowed)
 
 ###
 
@@ -504,7 +508,7 @@ This table lists what a key does while your pane or band has keyboard focus:
 Key| What it does
 ---|---
 Tab| Moves to the next control
-Up and Down| Move between controls while your drawing fits. When the pane or band has more rows than it can show, they scroll it.
+Up and Down| Move between controls while your drawing fits. When the pane or band has more rows than it can show, they scroll it. In an `Input`, they [move between the field’s rows](</docs/en/plugins/mods/gallery#input>) first.
 Enter| Presses the focused `Button`, submits the focused `Input`, or picks in a `Select`
 A button’s hotkey| Presses that button. While an `Input` has the focus, every printable key goes to the field.
 Page Up, Page Down, Home, and End| Scroll your pane or band when it has more rows than it can show

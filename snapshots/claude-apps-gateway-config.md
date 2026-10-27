@@ -873,7 +873,10 @@ A file that uses `cli` works as it did, and a gateway that finds `cli` in a poli
             permissions: { deny: ["Read(./.env)"] }
           desktop: {}
 
-When you switch, delete any `serve_to_desktop` line in the same edit that renames the blocks. Where an instruction names the `cli` block, use your `code` block.
+When you switch, delete any `serve_to_desktop` line in the same edit that renames the blocks. Where an instruction names the `cli` block, use your `code` block. `serve_to_desktop: true` is a legacy way to offer a policy’s `cli` settings to the Code tab. It has no effect when Claude Desktop connects through `bootstrapUrl`. While your policies use `cli`, a boot warning that names this key means those settings aren’t reaching the Code tab:
+
+  * **To cover the Code tab** : switch to `code`, once users’ machines meet the conditions in Apply `code` settings in the Code tab
+  * **To stay on`cli`**: set `serve_to_desktop: false` beside `cli` in a policy to silence the warning
 
 ####
 
@@ -918,7 +921,7 @@ Key| Enforced by| Effect
 ---|---|---
 `availableModels`| Gateway + CLI| Model allowlist. Also checked at `/v1/messages`, so a patched client can’t bypass it.
 [`deniedModels`](</docs/en/settings-reference#deniedmodels>), [`availableModelsMatch`](</docs/en/settings-reference#availablemodelsmatch>)| Gateway + CLI| [Block specific models or versions](</docs/en/model-config#block-specific-models-or-versions>) that `availableModels` would otherwise permit. A blocked model is rejected with a `400` at `/v1/messages` and is left out of `/v1/models`. The gateway’s own check requires Claude Code v2.1.299 or later on the gateway server. The CLI’s check requires v2.1.283 or later on clients, and earlier clients ignore both keys.
-`permissions.allow` / `.deny`| CLI| Tool and command rules. See [Permissions](</docs/en/permissions>).
+`permissions.allow` / `.deny`| CLI| Tool and command rules. See [Permissions](</docs/en/permissions>) and [what a Bash rule doesn’t match](</docs/en/permissions#bash-rule-limits>).
 `permissions.disableBypassPermissionsMode`| CLI| Set to `disable` to block [`bypassPermissions`](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>), the mode that skips permission prompts, and the `--dangerously-skip-permissions` flag
 `allowManagedPermissionRulesOnly`| CLI| When `true`, managed settings become the only settings source of permission rules. The [`allowManagedPermissionRulesOnly`](</docs/en/settings-reference#allowmanagedpermissionrulesonly>) entry lists every source Claude Code then ignores.
 `env`| CLI| Environment variables merged into the CLI process. Use for telemetry, auto-update, and model-name overrides.
@@ -934,6 +937,14 @@ Because these settings arrive over the network, the CLI shows each developer a s
   * Sandbox settings that intercept traffic, inject credentials, or weaken isolation, such as `sandbox.network.tlsTerminate` and the proxy port settings. [Security approval dialogs](</docs/en/server-managed-settings#security-approval-dialogs>) lists them all.
 
 [Approval memory](</docs/en/server-managed-settings#approval-memory>) covers how long an approval lasts and when the dialog appears again. Claude Code applies some delivered `env` variables without showing the developer the approval dialog, such as model selection settings and numeric limits. Other delivered variables can require the developer’s approval before they take effect; a non-empty proxy, base-URL, or `OTEL_EXPORTER_OTLP_ENDPOINT` value always does. When a delivered variable needs approval, the dialog names it. [Environment variables and the approval dialog](</docs/en/server-managed-settings#environment-variables-and-the-approval-dialog>) has the details, including four privacy toggles whose delivered value decides whether they need approval. Before v2.1.218, Claude Code applied fewer variables without asking the developer, so more delivered variables triggered the dialog. The gateway’s telemetry configuration pushes `OTEL_EXPORTER_OTLP_ENDPOINT`, so setting `telemetry.forward_to` triggers the dialog on each interactive client. The dialog protects the developer’s machine from a compromised or hostile gateway, not the organization from the developer. A [non-interactive run](</docs/en/server-managed-settings#security-approval-dialogs>), such as `claude -p`, an Agent SDK session, or a session in Claude Desktop’s Code tab, can’t show the dialog. It applies the pushed settings for that run only and doesn’t record them as approved, so the developer’s next interactive session still shows the dialog. If a developer declines, Claude Code exits that session rather than applying the policy. When you push a new hook, or any env var that triggers the dialog, to a broad policy, every matching developer therefore sees the dialog in their interactive sessions. A running interactive session shows it on the next hourly poll, and otherwise it appears at the developer’s next interactive startup. The `cli` key was named `settings` in earlier releases, and the gateway still accepts that spelling as an alias. For new deployments, use `code`.
+
+####
+
+​
+
+Test a policy before deployment
+
+To test a policy change, start the gateway against a throwaway Postgres database. The gateway connects to Postgres and applies its schema migrations before it checks the contents of `cli`, `code`, and `desktop` blocks. When it can’t reach the database, the start stops at `could not connect to Postgres` and reports nothing about their contents.
 
 ####
 
@@ -1448,7 +1459,7 @@ gateway.yaml
             # The contractors policy inherits this key.
             enforceAvailableModels: true
             permissions:
-              allow: [Read, Grep, Bash, Edit]
+              allow: [Read, Grep, Edit]
               deny: ["WebFetch"]
             env: { HTTP_PROXY: http://proxy.example.com:8080 }
 

@@ -30,7 +30,7 @@ Claude Code doesn’t auto-approve the following in any mode, including `bypassP
   * Tools matched by an explicit [ask rule](</docs/en/permissions#manage-permissions>)
   * Connector tools your organization [set to `ask`](</docs/en/mcp#organization-controls-on-connector-tools>), in sessions where that setting reaches Claude Code
   * Tools that require user interaction: the built-in `AskUserQuestion` tool and MCP tools marked [`requiresUserInteraction`](</docs/en/mcp#require-approval-for-a-specific-tool>)
-  * Recognized `rm` and `rmdir` critical-path removals, which no allow rule or `PreToolUse` hook `"allow"` approves
+  * Recognized `rm` and `rmdir` critical-path removals, which no allow rule or `PreToolUse` hook `"allow"` approves, and Bash commands flagged `Dangerous rm operation not ruled out`
   * The cross-session messaging safeguards
   * Reads outside the working directories while [`permissions.blockReadsOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockreadsoutsideworkingdirectories>) is on: recognized file-reading Bash commands prompt even in auto mode and `bypassPermissions` mode, and so does any [unsandboxed retry](</docs/en/sandboxing#the-unsandboxed-retry-escape-hatch>) that needs approval to run outside the sandbox. Requires Claude Code v2.1.257 or later. A command the shell parser can’t trace, such as one that changes directory more than once or runs a subshell, prompts the same way even when it names no outside path. This prompt doesn’t apply when the command runs in the [sandbox](</docs/en/sandboxing>) and the sandbox enforces the block.
 
@@ -229,11 +229,12 @@ For Remote Control, the local machine running the session must be signed in with
 
 Auto-approve file edits with acceptEdits mode
 
-`acceptEdits` mode lets Claude create and edit files in your working directory without prompting. The status bar shows `⏵⏵ accept edits on` while this mode is active. In addition to file edits, `acceptEdits` mode auto-approves common filesystem Bash commands: `mkdir`, `touch`, `rm`, `rmdir`, `mv`, `cp`, and `sed`. These commands are also auto-approved when prefixed with safe environment variables such as `LANG=C` or `NO_COLOR=1`, or process wrappers such as `timeout`, `nice`, or `nohup`. Like file edits, auto-approval applies only to paths inside your working directory or `additionalDirectories`. These still prompt:
+`acceptEdits` mode lets Claude create and edit files in your working directory without prompting. The status bar shows `⏵⏵ accept edits on` while this mode is active. In addition to file edits, `acceptEdits` mode auto-approves common filesystem Bash commands: `mkdir`, `touch`, `rm`, `rmdir`, `mv`, `cp`, and `sed`. Except for `touch`, these commands are also auto-approved when prefixed with safe environment variables such as `LANG=C` or `NO_COLOR=1`, or process wrappers such as `timeout`, `nice`, or `nohup`. Like file edits, auto-approval applies only to paths inside your working directory or `additionalDirectories`. These still prompt:
 
   * Paths outside that scope
   * Writes to protected paths
   * Recognized `rm` and `rmdir` critical-path removals
+  * `touch` with anything beyond plain file paths, for example an option, a glob, or a prefix such as `timeout 5` or `LANG=C`
   * All other Bash commands except the [built-in read-only set](</docs/en/permissions#read-only-commands>)
 
 Each path also goes through the [symlink check](</docs/en/permissions#symlinks>), so a write that resolves outside that scope isn’t auto-approved either. When the [PowerShell tool](</docs/en/tools-reference#powershell-tool>) is enabled, `acceptEdits` mode also auto-approves `Set-Content`, `Add-Content`, `Clear-Content`, and `Remove-Item` on in-scope paths, along with their common aliases. The same scope and protected-path rules apply, and `Remove-Item` gets its own check. A positional argument that contains a quote character, such as the apostrophe in `Set-Content .\notes.txt "It's done"`, still prompts even on in-scope paths, because Claude Code can’t statically validate an argument whose quoted and unquoted readings differ. Pass the content through a named parameter such as `-Value` to avoid the prompt. Use `acceptEdits` when you want to review changes in your editor or via `git diff` after the fact rather than approving each edit inline. Press `Shift+Tab` once from Manual mode to enter it, or start with it directly:
@@ -323,6 +324,7 @@ In auto mode, Claude Code can ask the server to check the actions that the decis
   * **A direct connection to the Anthropic API** : in interactive terminal sessions and in `-p`, Agent SDK, [VS Code extension](</docs/en/vs-code>), and [desktop app](</docs/en/desktop>) sessions, whatever your plan or account type, as Anthropic rolls it out. In interactive terminal sessions, this requires Claude Code v2.1.271 or later on Pro, Max, and Team plans, and v2.1.278 or later on Enterprise plans and Claude API accounts. In `-p`, Agent SDK, VS Code extension, and desktop app sessions, this requires Claude Code v2.1.281 or later. From v2.1.282, a session that [doesn’t fetch feature flags](</docs/en/env-vars#features-that-need-feature-flag-fetching>), for example because you turned telemetry off, asks the server by default in any kind of session.
   * **A cloud provider, or an LLM gateway or proxy** : on [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry, and whenever you point `ANTHROPIC_BASE_URL` at an [LLM gateway or proxy](</docs/en/llm-gateway>), whatever your plan. Asking by default requires Claude Code v2.1.278 or later.
   * **A signed-in[Claude apps gateway](</docs/en/claude-apps-gateway>) session**: requires Claude Code v2.1.280 or later
+  * **A[cloud session](</docs/en/claude-code-on-the-web>) in an Anthropic-hosted environment**: whatever your plan, when you start it from the web, the mobile app, or the desktop app with **Cloud** selected. Sessions started by a [cloud scheduled task](</docs/en/routines>) ask the server as Anthropic rolls it out.
 
 Where the server reviews the actions, its verdicts decide them. Two other outcomes are possible:
 
@@ -595,7 +597,7 @@ If you set `dontAsk` mode, Claude Code auto-denies every tool call that would ot
 
 Skip all checks with bypassPermissions mode
 
-`bypassPermissions` mode disables permission prompts and safety checks so tool calls execute immediately, including writes to protected paths. The actions no mode auto-approves still prompt in this mode. Reading [another organization’s public artifact](</docs/en/artifacts#read-an-artifact-shared-with-you>) needs your approval, and this mode doesn’t ask for it, so Claude can’t read one. The Remove-Item in PowerShell denies also apply in this mode. Two [cross-session messaging](</docs/en/cross-session-messaging>) safeguards still apply in this mode, and in interactive terminal plan-mode sessions where bypass permissions are available:
+`bypassPermissions` mode disables permission prompts and safety checks so tool calls execute immediately, including writes to protected paths. Even in `bypassPermissions` mode, each of the actions no mode auto-approves gets a prompt or a denial instead of running on its own. Reading [another organization’s public artifact](</docs/en/artifacts#read-an-artifact-shared-with-you>) needs your approval, and this mode doesn’t ask for it, so Claude can’t read one. The Remove-Item in PowerShell denies also apply in this mode. Two [cross-session messaging](</docs/en/cross-session-messaging>) safeguards still apply in this mode, and in interactive terminal plan-mode sessions where bypass permissions are available:
 
   * The [`isolatePeerMachines`](</docs/en/settings-reference#isolatepeermachines>) approval prompt for messages to your sessions beyond this machine still appears.
   * When no [`crossSessionInbound`](</docs/en/cross-session-messaging#control-inbound-messages>) value applies, Claude Code holds an inbound message from another of your sessions for your approval, and delivers without asking only when the sending session identifies itself as also bypassing permission prompts. If you leave the permission mode while messages are held, Claude Code re-applies the inbound rules and delivers any held message they now accept.
@@ -701,6 +703,7 @@ Protected files:
   * `.devcontainer.json`
   * `.ripgreprc`, `pyrightconfig.json`
   * `.mcp.json`, `.claude.json`
+  * A file you passed to [`--settings`](</docs/en/cli-reference#cli-flags>), `--mcp-config`, or `--agents` when you started the session
   * The file that your user, project, or local [settings file](</docs/en/settings#settings-files-and-who-they-affect>) points to when the settings file is itself a symbolic link, for example into a dotfiles repository. In the modes that route protected-path writes to the classifier, a write to this file prompts you instead, even when an allow rule matches. If the file’s own path is also that of a settings file, such as `.claude/settings.json` in another folder, the write goes to the classifier as other protected-path writes do
 
 ##
@@ -794,6 +797,22 @@ For a glob or trailing slash under a variable, the prompt names the flagged `rm`
 
 ​
 
+The `Dangerous rm operation not ruled out` prompt
+
+The full reason reads:
+
+    Dangerous rm operation not ruled out — the shell may read this command differently than it was parsed
+
+This reason means the shell may read the command differently than Claude Code did, so a removal could sit in an unchecked part, even with no `rm` present. In `auto` or `bypassPermissions` mode, a denial with this sentence comes from the same check:
+
+    This command could not be checked for dangerous rm operations: the shell may read it differently than it was parsed.
+
+You get the prompt or denial a critical-path removal gets in your permission mode, `bypassPermissions` included. You can’t approve the command with a `Bash` or `Bash(*)` allow rule, sandbox [auto-allow mode](</docs/en/sandboxing#auto-allow-mode>), or a `PreToolUse` hook returning `"allow"`. Read the command, then approve the prompt or, after a denial, run it in your shell.
+
+###
+
+​
+
 The mounted drive prompt
 
 The mounted drive prompt appears on macOS, Linux, and WSL when a recursive `rm` targets a listed mounted drive path, such as `/mnt/c` or `/Volumes/USB/build`. Its reason reads `Dangerous rm operation on mounted drive path: <path>`. A `/*` target gets the prompt without the recursive flag, since Claude Code reads `rm /Volumes/USB/build/*` as a removal of `/Volumes/USB/build`. Even with an allow rule for `rm`, Claude Code handles the command as a critical-path removal: a prompt or a denial depending on your permission mode. Approve the prompt to let the `rm` run, or turn the prompt off.
@@ -858,7 +877,7 @@ Mode| Outcome
 `plan`| Asks you to approve it. When the classifier reviews commands during planning and no bypass permissions are available, handles it as in `auto` mode
 `auto`| Asks you to approve it in the terminal, with a time limit. Elsewhere, denies it
 `dontAsk`| Denies it
-`bypassPermissions`| Asks you to approve it, with a time limit in the terminal
+`bypassPermissions`| In the terminal, asks you to approve it before a time limit runs out. Elsewhere, see what happens in each place
 
 If an explicit [ask rule](</docs/en/permissions#manage-permissions>) matches the command, Claude Code asks you instead, even in `auto` mode and without a time limit. In modes that ask, a [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) can answer the prompt.
 
@@ -874,7 +893,26 @@ In `auto` and `bypassPermissions` modes, the terminal prompt for a critical-path
   * Press any key while the prompt is open to stop the countdown and keep the prompt waiting for your answer.
   * After three of these prompts run out unanswered in a session, Claude Code stops showing them and denies further critical-path removals immediately. Sending a new message starts the count over.
 
-In `auto` mode, wherever Claude Code can’t show you a terminal prompt, it denies the command immediately, for example in [non-interactive runs](</docs/en/headless>) with `-p`, in [Agent SDK](</docs/en/agent-sdk/permissions>) sessions, and in the VS Code extension’s chat panel and the Desktop app. The denial tells Claude to report what it wanted to delete and leave the removal to you. The `auto` and `bypassPermissions` handling requires Claude Code v2.1.281 or later. To turn it off, set [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT=1`](</docs/en/env-vars#variables>) in the environment that launches Claude Code. In `auto` mode, critical-path removals then go to the classifier instead, and in `bypassPermissions` mode the prompt has no time limit.
+The time limit applies in Claude Code v2.1.281 and later, and so does the `auto` mode denial outside the terminal. Away from the terminal, you don’t get that prompt:
+
+Where| `auto`| `bypassPermissions`
+---|---|---
+[VS Code extension](</docs/en/vs-code>)’s chat panel| Denies it| Denies it unless a [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) allows it
+[Desktop app](</docs/en/desktop>)| Denies it| Denies it unless a `PermissionRequest` hook allows it
+[`-p` run](</docs/en/headless>) or [Agent SDK session](</docs/en/agent-sdk/permissions>)| Denies it| Your [`--permission-prompt-tool`](</docs/en/cli-reference#cli-flags>) or [`canUseTool` callback](</docs/en/agent-sdk/user-input#handle-tool-approval-requests>) decides. With neither, or under [`--permission-prompts none`](</docs/en/headless#turn-off-permission-prompts-in-unattended-runs>), denies it unless a `PermissionRequest` hook allows it
+
+Wherever the removal is denied, you can read the whole command and run it in your shell. To change what you get in each mode, set [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`](</docs/en/env-vars#variables>) to `1`:
+
+  * **`bypassPermissions`** : the terminal prompt has no time limit, and the VS Code chat panel asks you
+  * **`auto`** : the classifier decides, in the terminal, the VS Code chat panel, `-p` runs and Agent SDK sessions
+
+Set it in the environment that starts Claude Code, such as your shell or the SDK’s `env` option, not in a Claude Code settings file. For the chat panel, add it to [`claudeCode.environmentVariables`](</docs/en/vs-code#extension-settings>) in VS Code’s own user `settings.json`, then start a new conversation:
+
+    {
+      "claudeCode.environmentVariables": [
+        { "name": "CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT", "value": "1" }
+      ]
+    }
 
 ###
 
