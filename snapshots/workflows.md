@@ -204,12 +204,12 @@ When Claude writes a workflow for a task you’ll repeat, you can save that run�
   * `.claude/workflows/` in your project: shared with everyone who clones the repo
   * `~/.claude/workflows/` in your home directory: available in every project, visible only to you. If you set [`CLAUDE_CONFIG_DIR`](</docs/en/env-vars>), this location is the `workflows/` directory under that path.
 
-The save dialog shows the resolved path for the personal location. Press Enter to save. The workflow runs as `/<name>` in future sessions from either location. Claude Code checks the save location for symlinks before writing, and shows an error instead of writing through one. What it checks depends on where you save:
+The save dialog shows the resolved path for the personal location. Press Enter to save. The workflow runs as `/<name>` in future sessions from either location. Claude Code checks the save location for symlinks before writing, and shows an error instead of writing through one:
 
   * Project location: Claude Code refuses if `.claude`, `.claude/workflows`, or the target file is a symlink.
   * Personal location: Claude Code refuses only if the target file itself is a symlink, so a `~/.claude` directory managed by a dotfiles tool still works.
 
-Before v2.1.216, Claude Code followed the link, which could place the file outside the location you chose. In a monorepo with several `.claude/` directories, you can keep workflows alongside the package they apply to. Saving to the project location writes to the closest `.claude/workflows/` directory that already exists between your working directory and the repository root, or to the repository root if none exists yet. Project workflows also load from every `.claude/workflows/` along that path, and when more than one defines the same name Claude Code runs the one closest to the working directory. If a project workflow and a personal workflow share a name, the project one runs.
+In a monorepo with several `.claude/` directories, you can keep workflows alongside the package they apply to. Saving to the project location writes to the closest `.claude/workflows/` directory that already exists between your working directory and the repository root, or to the repository root if none exists yet. Project workflows also load from every `.claude/workflows/` along that path, and when more than one defines the same name Claude Code runs the one closest to the working directory. If a project workflow and a personal workflow share a name, the project one runs.
 
 ###
 
@@ -487,7 +487,7 @@ Value| Agent count Claude aims for
 `medium`| Fewer than 10 agents
 `large`| Fewer than 50 agents
 
-The default is `medium`, or `small` when you’re signed in on a Pro plan with Claude Code v2.1.271 or later. Until you choose a value, the `/config` row marks the value as the default, and the workflow’s `Running in background` line names the size in force. Requires Claude Code v2.1.219 or later; earlier versions default to `unrestricted`. To change the guideline, pick a value for the Dynamic workflow size setting in `/config`, or run `/config workflowSizeGuideline=small`. On v2.1.219 and later, you can also set the [`workflowSizeGuideline` key](</docs/en/settings-reference#workflowsizeguideline>) in any settings file; that value takes precedence over `/config`, and Claude Code hides the `/config` row while a settings file provides one. Changes take effect on the next prompt. The runtime agent caps still apply regardless of the setting.
+The default is `medium`, or `small` when you’re signed in on a Pro plan with Claude Code v2.1.271 or later. Until you choose a value, the `/config` row marks the value as the default, and the workflow’s `Running in background` line names the size in force. To change the guideline, pick a value for the Dynamic workflow size setting in `/config`, or run `/config workflowSizeGuideline=small`. You can also set the [`workflowSizeGuideline` key](</docs/en/settings-reference#workflowsizeguideline>) in any settings file; that value takes precedence over `/config`, and Claude Code hides the `/config` row while a settings file provides one. Changes take effect on the next prompt. The runtime agent caps still apply regardless of the setting.
 
 ###
 

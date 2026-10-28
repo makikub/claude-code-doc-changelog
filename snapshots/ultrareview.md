@@ -67,7 +67,7 @@ Claude Code doesn’t post from your machine. It sends the review’s session ID
 
 Pass a request in plain words
 
-On Claude Code v2.1.218 or later, you can also describe what you’re working on in plain words:
+You can also describe what you’re working on in plain words:
 
     /code-review ultra check my auth changes
 
@@ -133,7 +133,9 @@ Use the `claude ultrareview` subcommand to start an ultrareview from CI or a scr
     claude ultrareview 1234
     claude ultrareview origin/main
 
-Without arguments, the subcommand reviews the diff between your current branch and the default branch, with the same whole-repository fallback as `/code-review ultra` when no merge base exists. Pass a PR number to review a pull request on `github.com`, or a base branch to review against it; base-branch handling matches the interactive command. You consent to the whole-repository fallback and to the billing and terms prompt when you run the subcommand, so the run doesn’t stop to confirm them. Running it yourself is what counts as consent. When Claude runs the subcommand for you instead, for example through the Bash tool, Claude Code refuses the whole-repository review. `claude -p '/code-review ultra'` doesn’t get you the findings, so use `claude ultrareview` in scripts. The `-p` run launches the cloud review and exits without waiting for it. When the review would bill usage credits, the `-p` run stops without launching it. Before v2.1.218, `/code-review ultra` in a non-interactive session ran a local review.
+Without arguments, the subcommand reviews the diff between your current branch and the default branch, with the same whole-repository fallback as `/code-review ultra` when no merge base exists. Pass a PR number to review a pull request on `github.com`, or a base branch to review against it; base-branch handling matches the interactive command. You consent to the whole-repository fallback and to the billing and terms prompt when you run the subcommand, so the run doesn’t stop to confirm them. Running it yourself is what counts as consent. When Claude runs the subcommand for you instead, for example through the Bash tool, Claude Code refuses the whole-repository review.
+
+`claude -p '/code-review ultra'` doesn’t get you the findings, so use `claude ultrareview` in scripts. The `-p` run launches the cloud review and exits without waiting for it. When the review would bill usage credits, the `-p` run stops without launching it.
 
 Flag| Description
 ---|---

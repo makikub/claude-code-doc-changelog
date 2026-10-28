@@ -307,7 +307,7 @@ Check account and usage
 
 Run `/usage` to open the Account & usage dialog, which shows your signed-in account and your usage. The usage figures match how you signed in:
 
-  * **claude.ai plan** : usage bars for your plan’s limits, such as the current session and the week. Each bar shows how long until its limit resets. The dialog also breaks down what is contributing to your plan limits:
+  * **claude.ai plan** : usage bars for your plan’s limits, such as the current session and the week. The dialog also breaks down what is contributing to your plan limits:
     * **Recommendations** : suggested changes, one per row, such as `Trim ~/code/api/CLAUDE.md · 49k tokens per request`
     * **Fix button** : to have Claude Code apply the recommendations it can, click the button under them, such as **Fix both**. To learn which rows the button acts on and what then happens in your session, see [Apply recommendations with the fix shortcut](</docs/en/costs#apply-recommendations-with-the-fix-shortcut>). Requires Claude Code v2.1.305 or later. The button isn’t shown while [Remote Control](</docs/en/remote-control>) is connected. If a warning reads `The usage fix wasn’t fully sent. Open usage and try again.` after Remote Control connected, [disconnect Remote Control](</docs/en/remote-control#check-connection-status>) before you try again.
     * **Attribution** : tables of how much usage came from each skill, subagent, plugin, and MCP server

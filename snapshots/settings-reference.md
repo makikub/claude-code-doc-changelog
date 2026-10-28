@@ -1419,7 +1419,7 @@ Claude Code keeps a Bash call sandboxed when it has one of these shapes, among o
   * A command starting with `sudo`, `eval`, or `xargs`
   * A `cd`, `pushd`, or `popd`, wherever it appears in the call
   * A command substitution, a subshell, or a control-flow block such as `if` or `for`
-  * A redirection, such as `docker build . > build.log`, other than one that only duplicates a file descriptor, as `2>&1` does
+  * A redirection, such as `docker build . > build.log` or a `<<EOF` heredoc, other than one that only duplicates a file descriptor, as `2>&1` does
   * A command name that comes from a variable
   * A `git clone`, `git init`, `git worktree add`, `git worktree move`, or `git bundle create` with a path argument that is absolute, starts with `~`, or contains a `..` segment
 
@@ -1665,7 +1665,7 @@ See [Keep developers from widening the policy](</docs/en/sandboxing#keep-develop
 
 `sandbox.filesystem.disabled`
 
-Skip filesystem isolation while keeping network isolation. Sandboxed commands get unrestricted read and write access to the host filesystem, and their network egress stays confined to `network.allowedDomains`. Use it when you sandbox to control where commands connect rather than what they write. Requires Claude Code v2.1.216 or later.
+Skip filesystem isolation while keeping network isolation. Sandboxed commands get unrestricted read and write access to the host filesystem, and their network egress stays confined to `network.allowedDomains`. Use it when you sandbox to control where commands connect rather than what they write.
 
   * **Scope** : `User or managed`. When managed settings configure `sandbox.filesystem` at all, or list a `sandbox.credentials.files` entry with `"mode": "deny"`, only managed settings can set it.
   * **Type** : Boolean
@@ -1689,7 +1689,7 @@ settings.json
       }
     }
 
-With the layer off, Claude Code doesn’t enforce `denyRead` or `credentials.files` `deny` entries, while `credentials.envVars` entries and applied `mask` entries keep working. `autoAllowBashIfSandboxed` still defaults to `true`, so set it to `false` to keep prompting. See [Disable filesystem isolation](</docs/en/sandboxing#disable-filesystem-isolation>) for the full list of sources that can set it and what changes when isolation is off. Requires Claude Code v2.1.216 or later.
+With the layer off, Claude Code doesn’t enforce `denyRead` or `credentials.files` `deny` entries, while `credentials.envVars` entries and applied `mask` entries keep working. `autoAllowBashIfSandboxed` still defaults to `true`, so set it to `false` to keep prompting. See [Disable filesystem isolation](</docs/en/sandboxing#disable-filesystem-isolation>) for the full list of sources that can set it and what changes when isolation is off.
 
 ###
 
@@ -2682,6 +2682,7 @@ Before v2.1.251, project and local settings could also set the variables in this
   * [`CLAUDE_CODE_RESTRICTED`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file.
   * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file. The variable requires Claude Code v2.1.283 or later.
   * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`, `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`, `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT`, and `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file.
+  * [`CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file.
   * [`CLAUDE_CODE_WARN_DISK_FREE_GIB` and `CLAUDE_CODE_WARN_MEMORY_FREE_GIB`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file. The variables require Claude Code v2.1.304 or later.
 
 ###
@@ -3068,7 +3069,7 @@ settings.json
       "emojiCompletionEnabled": false
     }
 
-See [Emoji shortcodes](</docs/en/interactive-mode#emoji-shortcodes>). Requires Claude Code v2.1.217 or later.
+See [Emoji shortcodes](</docs/en/interactive-mode#emoji-shortcodes>).
 
 ###
 
@@ -4207,7 +4208,7 @@ The `ultracode` effort setting, `/workflows`, and saved workflow commands are un
 
 `workflowSizeGuideline`
 
-Set the [agent count Claude aims for](</docs/en/workflows#set-a-size-guideline>) in the dynamic workflows it writes. Claude Code sends the value to Claude as advice, not an enforced cap: `"small"` asks for fewer than 5 agents, `"medium"` fewer than 10, and `"large"` fewer than 50. Choose `"small"` when you want to bound what a workflow spends. Requires Claude Code v2.1.219 or later.
+Set the [agent count Claude aims for](</docs/en/workflows#set-a-size-guideline>) in the dynamic workflows it writes. Claude Code sends the value to Claude as advice, not an enforced cap: `"small"` asks for fewer than 5 agents, `"medium"` fewer than 10, and `"large"` fewer than 50. Choose `"small"` when you want to bound what a workflow spends.
 
   * **Scope** : `Any file`. A value there takes precedence over the **Dynamic workflow size** choice in `/config`, which Claude Code stores in `~/.claude.json`, and Claude Code hides that row while a settings file sets the key.
   * **Type** : string, one of:
@@ -4222,8 +4223,6 @@ settings.json
     {
       "workflowSizeGuideline": "small"
     }
-
-Requires Claude Code v2.1.219 or later; on v2.1.202 through v2.1.218, set the guideline in `/config` instead.
 
 ##
 

@@ -138,6 +138,7 @@ Message| Section
 `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.`| Network
 `Couldn't share the transcript.`| Network
 `Couldn't send feedback`| Network
+`Feedback payload too large. Try again without the transcript, or shorten the details.`| Network
 `MCP server "<name>" connection timed out. Your computer went to sleep or its clock changed while connecting.`| Network
 `Prompt is too long` / `Input is too long for requested model`| Request errors
 `Prompt is too long · automatic compaction failed:`| Request errors
@@ -327,6 +328,7 @@ Message| Section
 `Failed to write the plan approval request to the lead's inbox — plan not submitted`| Tool errors
 `Its agent definition was not restored: the folder its definition file came from is not trusted`| Tool errors
 `Only a teammate can approve a shutdown request`| Tool errors
+`A command-line deny rule cannot be handed to a teammate intact`| Tool errors
 `Message too large for cross-session delivery`| Tool errors
 `Too many messages to this session just now`| Tool errors
 `Cross-session message was dropped at the recipient session's inbox`| Tool errors
@@ -2061,7 +2063,7 @@ The upload must fit an 8 MiB limit. On a long session, Claude Code progressively
 
 Couldn’t send feedback
 
-A message starting `Couldn't send feedback` means the report you submitted from the [`/feedback`, `/bug`, or `/share` dialog](</docs/en/commands#all-commands>), or a queued [feedback draft](</docs/en/tools-reference#sendfeedback-tool-behavior>), wasn’t sent. When a sentence about your organization follows the colon, your organization refuses feedback and the same report gets the same answer. The first of these two examples is a network failure and the second is an organization’s refusal:
+A message starting `Couldn't send feedback` means the feedback service didn’t confirm the report you submitted from the [`/feedback`, `/bug`, or `/share` dialog](</docs/en/commands#all-commands>), or a queued [feedback draft](</docs/en/tools-reference#sendfeedback-tool-behavior>). Treat it as not received. When a sentence about your organization follows the colon, your organization refuses feedback and the same report gets the same answer. The second of these two examples is an organization’s refusal:
 
     Couldn't send feedback (couldn't reach the service). If it keeps failing, you can file at https://github.com/anthropics/claude-code/issues instead.
 
@@ -2072,10 +2074,24 @@ A message starting `Couldn't send feedback` means the report you submitted from 
   * **Not signed in** : the message continues `: not signed in. Run /login, then retry.` Run `/login`, then send again
   * **Your organization’s refusal** : for example `: Feedback has not been enabled for your organization.` or `: Feedback collection is not available for organizations with custom data retention policies.` If the message adds `To report a bug, open an issue`, do so at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>). A queued draft stays queued, and you can [discard it](</docs/en/tools-reference#discard-or-keep-a-draft>)
   * **Refused credentials** : the message continues `: the sign-in this session uses is not allowed to send feedback` or `: the server did not accept the credentials this session uses`. Run `/status` at the Claude Code prompt to see which login, token, or API key this session sends
-  * **`(request timed out)` or `(couldn't reach the service)` straight after `Couldn't send feedback`**: these are network failures. Send the report or the queued draft again. The dialog keeps your text, and a queued draft’s message says `The draft is still queued.` If other requests are failing too, check your network connection and see Unable to connect to API. If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>)
+  * **`(request timed out)` or `(couldn't reach the service)` straight after `Couldn't send feedback`**: send the report or the queued draft again. The dialog keeps your text, and a queued draft’s message says `The draft is still queued.` If other requests are failing too, check your network connection and see Unable to connect to API. If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>)
   * **`(server returned<status>)`, or no reason, straight after `Couldn't send feedback`**: the status is the service’s response code. The service’s own message follows it when one was sent, as in `(server returned 403: Access Forbidden)`. If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>)
 
 Issues at github.com/anthropics/claude-code are public, so leave out code, transcripts, and anything else confidential when you open one. Before v2.1.281, every send failed with this message once a Remote Control **Stop** or an urgent cross-session message had arrived while the dialog was open. On those versions, close the dialog, reopen it, and send again.
+
+###
+
+​
+
+Feedback payload too large
+
+This message in the [review screen](</docs/en/tools-reference#review-and-edit-a-draft>) for a [feedback draft](</docs/en/tools-reference#sendfeedback-tool-behavior>) means Claude Code has no confirmation that the service accepted the draft. Treat it as not received. The draft stays in your `/feedback` queue, so you can send it again.
+
+    Feedback payload too large. Try again without the transcript, or shorten the details.
+
+**What to do:**
+
+  * In the review screen, set **Send transcript** to `no`, then send the draft again. Shortening the details removes at most 10 KB of text, which is all a draft’s details can hold.
 
 ###
 
@@ -3297,7 +3313,7 @@ Before v2.1.248, Claude Code ran OAuth discovery for a server whose helper suppl
 
 MCP server rejected the elicitation capability
 
-An MCP server built on Java MCP SDK 0.11.0 through 0.17.0 refused the connection. Those SDK versions can’t parse the `form` and `url` [elicitation modes](</docs/en/mcp#elicitation-modes-claude-code-declares>) that Claude Code declares in its handshake. `claude mcp list` shows the server as failed with this message in place of the server’s own error:
+An MCP server built on Java MCP SDK 0.11.0 through 0.17.0 refused the connection. Those SDK versions can’t parse the `form` and `url` [elicitation modes](</docs/en/mcp#elicitation-modes-claude-code-declares>) that Claude Code declares in its handshake. The message reads:
 
     This server (Java MCP SDK 0.17.0 or older) rejected Claude Code's elicitation capability. Set "bareElicitationCapability": true for it, or upgrade to Java MCP SDK 0.17.1+ (Spring AI 1.0.7+ or 1.1.6+).
 
@@ -4478,6 +4494,21 @@ Claude Code refused an [agent team](</docs/en/agent-teams>) shutdown approval be
   * If the refusal appeared in your lead session, first check whether the teammate has since shut down. The refusal goes back to Claude with the instruction to send a `shutdown_request` instead, and the turn continues. In an interactive lead session, `<name> has shut down.` appears when the teammate approves a shutdown request.
   * If the teammate is still running, ask the lead at its prompt to shut the teammate down, for example `Ask the researcher teammate to shut down`. See [Shut down teammates](</docs/en/agent-teams#shut-down-teammates>).
   * If a former teammate you resumed yourself with `claude --resume` got this refusal, nothing was sent. To end that session, run `/exit` at its prompt.
+
+###
+
+​
+
+A command-line deny rule cannot be handed to a teammate intact
+
+This message means Claude Code didn’t start a [split-pane](</docs/en/agent-teams#choose-a-display-mode>) teammate in your [agent team](</docs/en/agent-teams>). Claude Code passes the lead’s command-line deny rules to a split-pane teammate on the teammate’s own command line, and stops when the teammate would read one of them differently:
+
+    A command-line deny rule cannot be handed to a teammate intact, so the teammate would not enforce it — spawn aborted
+
+**What to do:**
+
+  * Run `/config` in the lead session and set **Teammate mode** to `in-process`, then ask Claude to start the teammate again. You don’t need to find the rule or restart the lead. An in-process teammate [runs under the lead’s live deny rules](</docs/en/agent-teams#permissions>).
+  * Later sessions that take [`teammateMode`](</docs/en/settings-reference#teammatemode>) from your user settings start teammates in-process too, because `/config` saves the choice there. To go back to split panes in a later session, set **Teammate mode** to `auto`, `tmux`, or `iterm2`, whichever you used before.
 
 ###
 

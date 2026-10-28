@@ -113,7 +113,7 @@ Parameter| Type| Description
 
 Returns
 
-Returns a `Promise<``WarmQuery``>` that resolves once the subprocess has spawned and completed its initialize handshake.
+Returns a `Promise<``WarmQuery``>` that resolves once the subprocess has spawned and completed its initialize handshake. Of the `hook_progress` messages a `SessionStart` or `Setup` hook emits before the handshake completes, you get only the newest, which carries all of the hook’s output so far. `startup()` holds that message, the hook’s `hook_started` message, and anything else the subprocess emits before the handshake completes. The held messages reach you once you call `.query()` on the `WarmQuery` and iterate the result.
 
 ####
 
@@ -616,7 +616,7 @@ Property| Type| Default| Description
 `managedSettings`| `Settings`| `undefined`| Policy-tier settings your host process supplies to the spawned session. On machines with admin-deployed managed settings, Claude Code ignores these unless the admin’s highest-priority managed source sets `parentSettingsBehavior: 'merge'`, and never merges them while a [`policyHelper`](</docs/en/settings-reference#policyhelper>) supplies managed settings. Merged values pass through a restrictive-only filter; [Restrict parent settings](</docs/en/claude-apps-gateway#restrict-parent-settings>) covers what the filter admits and the `allowManaged*Only` locks. A host that sets [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](</docs/en/env-vars>) has three keys read straight from this payload instead: its [model configuration](</docs/en/model-config#restrict-model-selection>) on Claude Code v2.1.222 or later, [`modelPricing`](</docs/en/settings-reference#modelpricing>) when no managed source sets it on v2.1.246 or later, and its `ENABLE_TOOL_SEARCH` env entry on v2.1.247 or later
 `maxBudgetUsd`| `number`| `undefined`| Stop the query when the client-side cost estimate reaches this USD value. The estimate can pass this value, so [leave headroom](</docs/en/agent-sdk/agent-loop#budget-headroom>). Counts only the call’s own spend; totals restored from a resumed session don’t count. For accuracy caveats and reset behavior, see [Track cost and usage](</docs/en/agent-sdk/cost-tracking>)
 `maxThinkingTokens`| `number`| `undefined`|  _Deprecated:_ Use `thinking` instead. Maximum tokens for thinking process
-`maxTurns`| `number`| `undefined`| Maximum agentic turns (tool-use round trips)
+`maxTurns`| `number`| `undefined`| Maximum agentic [turns](</docs/en/agent-sdk/agent-loop#turns-and-messages>)
 `mcpServers`| `Record<string, [`McpServerConfig`](#mcpserverconfig)>`| `{}`| MCP server configurations
 `model`| `string`| Default from CLI| Claude model alias or full model name. See [accepted values and provider-specific IDs](</docs/en/model-config#available-models>)
 `onElicitation`| `(request: ElicitationRequest, options: { signal: AbortSignal }) => Promise<ElicitationResult>`| `undefined`| Callback for handling MCP elicitation requests. Called when an MCP server requests user input and no hook handles it first. When not provided, unhandled elicitation requests are declined automatically
@@ -1497,6 +1497,8 @@ Result of a permission check.
           toolUseID?: string;
         };
 
+If you return `allow` with more than 4,096 items in `updatedPermissions`, Claude Code treats the result as invalid and denies the tool call. Each update counts as one item, and so does each entry in its `rules` or `directories` list. The denial message ends with `updatedPermissions may hold at most 4096 updates, rules and directories in all`. To have the call allowed, return 4,096 items or fewer.
+
 ###
 
 ​
@@ -1794,7 +1796,7 @@ The `message` field is a [`BetaMessage`](<https://platform.claude.com/docs/en/ap
   * `'account_on_hold'`: [your account is on hold](</docs/en/errors#your-account-is-on-hold>)
   * `'cloud_credential_error'`: Claude Code couldn’t obtain usable AWS or Google Cloud credentials on the machine it runs on, so no request reached the cloud provider. The usual cause is a cloud sign-in that expired or was never completed on that machine, though a briefly unreachable credential service reports the same value. See [Could not load AWS or Google Cloud credentials](</docs/en/errors#could-not-load-aws-or-google-cloud-credentials>). Requires TypeScript Agent SDK v0.3.267 or later, which bundles Claude Code v2.1.267
 
-`aborted` is `true` when an interrupt or abort truncated the assistant message before the stream completed: the message has no `stop_reason` and the content may end mid-word. The field is absent on normally completed messages. It requires Agent SDK v0.3.214 or later. `agent_id` identifies the subagent that produced the message and is absent on main-thread messages. The value equals the `task_id` on that subagent’s `task_started` and other task events, and is unchanged when the subagent is [resumed](</docs/en/agent-sdk/subagents#resume-subagents>). The field requires Agent SDK v0.3.292 or later. Match a subagent’s messages to its task events on `agent_id` rather than pairing a message’s `parent_tool_use_id` with a task event’s `tool_use_id`. When a tool call resumes the subagent, the task events carry that call’s `tool_use_id`, while the messages keep the `parent_tool_use_id` of the tool call that first started the subagent, so the two no longer match. Claude Code sets `user_message_uuid` and `user_message_uuids` on the turn’s first assistant message, under the conditions in `user_message_uuid`. When the turn continues one that a restart interrupted, the assistant messages that carry those fields also carry `resume_reason`. `timestamp` is the ISO 8601 time when the message’s content finished generating on the process that produced it. The value comes from that machine’s clock, so use it for display only and don’t order messages by it. One API turn can produce several assistant messages that share a `message.id`, each with its own `timestamp`. When the field is absent, fall back to the time you received the message. `context_usage` is a structured copy of the `/context` report, typed as `SDKContextUsage`, and requires Agent SDK v0.3.232 or later. When you send `/context` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the markdown table, and attaches `context_usage` to that same message. Claude Code doesn’t set the field on any other assistant message, and earlier versions deliver the `/context` table without it, so read the breakdown from the field when it’s present and fall back to the markdown text when it isn’t. `usage_report` is a structured copy of the `/usage` report, typed as `SDKUsageReport`, and requires Agent SDK v0.3.273 or later. When you send `/usage` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the text. It attaches `usage_report` to that same message only when the session meets all of these conditions:
+`aborted` is `true` when an interrupt or abort truncated the assistant message before the stream completed: the message has no `stop_reason` and the content may end mid-word. The field is absent on normally completed messages. It requires Agent SDK v0.3.214 or later. `agent_id` identifies the subagent that produced the message and is absent on main-thread messages. The value equals the `task_id` on that subagent’s `task_started` and other task events, and is unchanged when the subagent is [resumed](</docs/en/agent-sdk/subagents#resume-subagents>). On messages from a [nested subagent](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>), it names the nested subagent, not the subagent that spawned it. The field requires Agent SDK v0.3.292 or later. Match a subagent’s messages to its task events on `agent_id` rather than pairing a message’s `parent_tool_use_id` with a task event’s `tool_use_id`. When a tool call resumes the subagent, the task events carry that call’s `tool_use_id`, while the messages keep the `parent_tool_use_id` of the tool call that first started the subagent, so the two no longer match. Claude Code sets `user_message_uuid` and `user_message_uuids` on the turn’s first assistant message, under the conditions in `user_message_uuid`. When the turn continues one that a restart interrupted, the assistant messages that carry those fields also carry `resume_reason`. `timestamp` is the ISO 8601 time when the message’s content finished generating on the process that produced it. The value comes from that machine’s clock, so use it for display only and don’t order messages by it. One API turn can produce several assistant messages that share a `message.id`, each with its own `timestamp`. When the field is absent, fall back to the time you received the message. `context_usage` is a structured copy of the `/context` report, typed as `SDKContextUsage`, and requires Agent SDK v0.3.232 or later. When you send `/context` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the markdown table, and attaches `context_usage` to that same message. Claude Code doesn’t set the field on any other assistant message, and earlier versions deliver the `/context` table without it, so read the breakdown from the field when it’s present and fall back to the markdown text when it isn’t. `usage_report` is a structured copy of the `/usage` report, typed as `SDKUsageReport`, and requires Agent SDK v0.3.273 or later. When you send `/usage` as a prompt, Claude Code delivers the report as an assistant message whose `message.content` holds the text. It attaches `usage_report` to that same message only when the session meets all of these conditions:
 
   * The session authenticates with a claude.ai credential
   * The credential shows a known plan type or carries the `user:profile` scope
@@ -3467,7 +3469,7 @@ Union of tool input types exported from `@anthropic-ai/claude-agent-sdk/sdk-tool
 
 Agent
 
-**Tool name:** `Agent`. The previous name `Task` is still accepted as an alias, and the `tools` array in the `SDKSystemMessage` init message currently lists this tool as `Task` for backward compatibility.
+**Tool name:** `Agent`. The previous name `Task` is still accepted as an alias when this tool is available to the session. The `tools` array in the `SDKSystemMessage` init message lists this tool as `Task` for backward compatibility.
 
 The `mode` field is deprecated and ignored on Claude Code v2.1.212 or later. A subagent runs in either the parent session’s permission mode or its definition’s `permissionMode`, and the [subagent inheritance rules](</docs/en/agent-sdk/permissions#available-modes>) decide which.
 
@@ -4264,7 +4266,7 @@ Union of tool output types exported from `@anthropic-ai/claude-agent-sdk/sdk-too
 
 Agent
 
-**Tool name:** `Agent`. The previous name `Task` is still accepted as an alias, and the `tools` array in the `SDKSystemMessage` init message currently lists this tool as `Task` for backward compatibility.
+**Tool name:** `Agent`. The previous name `Task` is still accepted as an alias when this tool is available to the session.
 
     type AgentOutput =
       | {
@@ -5889,7 +5891,7 @@ Summary of tool usage in a conversation.
 
 `SDKHookStartedMessage`
 
-Emitted when a hook begins executing. Claude Code delivers this message, `SDKHookProgressMessage`, and `SDKHookResponseMessage` to the message stream immediately, including while a `SessionStart` or `Setup` hook is still running during session startup. Claude Code v2.1.169 through v2.1.203 delivered these messages in one batch after a `SessionStart` or `Setup` hook completed; v2.1.204 restored live delivery.
+Emitted when a hook begins executing. Claude Code delivers this message, `SDKHookProgressMessage`, and `SDKHookResponseMessage` to the message stream immediately, including while a `SessionStart` or `Setup` hook is still running during session startup. Claude Code v2.1.169 through v2.1.203 delivered these messages in one batch after a `SessionStart` or `Setup` hook completed; v2.1.204 restored live delivery. If you start the session with `startup()`, these messages reach you once you call `.query()` and iterate the result.
 
     type SDKHookStartedMessage = {
       type: "system";
@@ -6410,7 +6412,7 @@ Property| Type| Default| Description
 `allowManagedDomainsOnly`| `boolean`| `false`| Managed-settings only. When set in [managed settings](</docs/en/managed-settings>), only `allowedDomains` entries and `WebFetch(domain:...)` allow rules from managed settings are honored, and allow entries from user, project, or local settings are ignored. From the SDK, pass it through the `managedSettings` option
 `allowLocalBinding`| `boolean`| `false`| Allow processes to bind to local ports (for example, for dev servers)
 `allowUnixSockets`| `string[]`| `[]`| Unix socket paths that processes can access (for example, Docker socket)
-`allowAllUnixSockets`| `boolean`| `false`| Allow access to all Unix sockets
+`allowAllUnixSockets`| `boolean`| `false`| Allow access to all Unix sockets, and on Linux to VM sockets (`AF_VSOCK`)
 `httpProxyPort`| `number`| `undefined`| HTTP proxy port for network requests
 `socksProxyPort`| `number`| `undefined`| SOCKS proxy port for network requests
 

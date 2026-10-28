@@ -260,7 +260,7 @@ A button that has the focus draws in inverse video. Here the user has pressed Ta
 
 `Input`
 
-An `Input` is a text field that runs `onSubmit` when the user presses Enter. It holds one line unless you give it `rows`:
+An `Input` is a text field that holds one line by default and runs `onSubmit` when the user presses Enter:
 
     Input({
       key: 'title',
@@ -271,7 +271,7 @@ An `Input` is a text field that runs `onSubmit` when the user presses Enter. It 
       onSubmit: noop,
     })
 
-Without the focus, the field shows its label and its placeholder: With the focus, the label turns bold, a cursor appears, and the `submitLabel` shows after `⏎`: Typing replaces the placeholder: Add `rows` for a field that holds several lines, such as a note or a commit message:
+Without the focus, the field shows its label and its placeholder: With the focus, the label turns bold, a cursor appears, and the `submitLabel` shows after `⏎`: Typing replaces the placeholder: Set `rows` to 2 or more for a field that holds several lines, such as a note or a commit message:
 
     Input({
       key: 'note',
@@ -281,13 +281,11 @@ Without the focus, the field shows its label and its placeholder: With the focus
       onSubmit: noop,
     })
 
-Whatever the field holds, it takes that many rows, up to the height of the pane or band it’s drawn in. Longer text scrolls inside it.
+The terminal and the Desktop app draw the rows. In the VS Code extension, the field holds one line. `rows` requires Claude Code v2.1.301 or later. On earlier versions the field holds one line. The field takes up the number of rows you set, even when it’s empty, up to the height of the pane or band it’s drawn in. While the field has focus, longer text scrolls inside it.
 
-  * Enter still submits. In the terminal, the user starts a new line by typing a backslash and then pressing Enter, or by pressing Shift+Enter where [the terminal emulator supports it](</docs/en/terminal-config#enter-multiline-prompts>). Those are the same keys as in the prompt.
-  * Up and Down move between the field’s rows. From its first and last row they move to the control before or after.
+  * In the terminal, Enter still submits. There, the user starts a new line by typing a backslash and then pressing Enter, or by pressing Shift+Enter where [the terminal emulator supports it](</docs/en/terminal-config#enter-multiline-prompts>). Those are the same keys as in the prompt.
+  * In the terminal, Up and Down move between the field’s rows. From its first and last row they move to the control before or after.
   * `onSubmit` and `onInput` receive the whole text with its lines joined by `\n`.
-
-The terminal and the Desktop app draw the rows. In the VS Code extension, the field holds one line.
 
 ###
 

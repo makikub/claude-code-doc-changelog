@@ -449,16 +449,16 @@ A value resets, or a saved value is replaced by its default. Each of those comma
 
 A key your `settings.read` hook returns doesn’t take effect
 
-Returned `env` entries don’t become environment variables. Returned `allow`, `ask`, and `deny` rules aren’t checked on tool calls. Set those in a [settings file](</docs/en/settings>), or call [`$.env.set`](</docs/en/plugins/mods/api#reach-files-processes-and-the-network>) for environment variables. For another key, check [which mods get `settings.read` and from which version](</docs/en/plugins/mods/events#settings-read-hook>), then search the debug log for `settings.read` and look for one of these lines:
+If you return permission rules or `env` on [Claude Code’s own read](</docs/en/plugins/mods/events#settings-read-hook>), the rules aren’t checked on tool calls and the `env` entries don’t become environment variables. Use a [settings file](</docs/en/settings>) for both, or [`$.env.set`](</docs/en/plugins/mods/api#reach-files-processes-and-the-network>) for `env`. For another key, check [which mods get `settings.read` and from which version](</docs/en/plugins/mods/events#settings-read-hook>), then search the debug log for `settings.read` and look for one of these lines:
 
 Log line| Meaning and step
 ---|---
 `settings.read hook skipped`, after your mod’s name| Your hook failed. Fix the error the line reports.
 `settings.read bypassed by cc-plugin-sec-default`, on a line that names your mod ahead of it| The [built-in guard](</docs/en/plugins/mods/admin#know-what-happens-by-default>) skipped your hook. Ask your organization’s administrator to [install the mod as one of the organization’s mods](</docs/en/plugins/mods/admin#install-your-organizations-mods>).
-`settings.read: the answer for <key> is no value the key can hold`| The returned value doesn’t fit the key’s schema. Return one it allows.
+`settings.read: the answer for <key> is no value the key can hold`| Claude Code refused the value a hook returned for that key. The hook may be yours or another mod’s. Follow the step for your case.
 `settings.read: the merge never settles for <key>`| The keys the line names keep the settings sources’ values. Set them in a settings file.
-`answered settings.read without next()`, after a mod’s name| Relevant only if that mod [runs before yours](</docs/en/plugins/mods/events#the-order-mods-run-in>). Then your hook didn’t run on that read. [Turn that mod off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>), or if your organization deployed it, ask its administrator to.
-`settings.read: refused to the engine`| The read was refused, so no hook’s `{ value }` applied. Find what refused it.
+`answered settings.read without next()`, after a mod’s name| Your hook is affected if the named mod [runs before yours](</docs/en/plugins/mods/events#the-order-mods-run-in>). Then your hook didn’t run on that read. [Turn that mod off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>), or if your organization deployed it, ask its administrator to.
+`settings.read: refused to the engine`| Your value didn’t apply because Claude Code’s own read was refused. Find what refused it.
 
 If no line explains the key, check the mods that run before yours for a `settings.read` hook that [changes the key](</docs/en/plugins/mods/events#settings-read-example>). Turn that mod off, or ask your organization’s administrator to. If no hook does, set the key in a settings file.
 
@@ -468,11 +468,16 @@ If no line explains the key, check the mods that run before yours for a `setting
 
 `the answer for <key> is no value the key can hold`
 
-This debug log line means Claude Code refused the value your [`settings.read`](</docs/en/plugins/mods/events#settings-read-hook>) hook returned for the named key, and that key alone:
+This debug log line means Claude Code refused the value a [`settings.read`](</docs/en/plugins/mods/events#settings-read-hook>) hook returned for the named key, and that key alone:
 
     settings.read: the answer for <key> is no value the key can hold; the settings' own value stands
 
-The value you returned for the named key didn’t fit that key’s schema, for example by type or by range. Return a value that the key’s [settings reference](</docs/en/settings-reference>) entry allows. While your value doesn’t fit, the key keeps the value merged from the settings sources before any hook answered. The line calls it the settings’ own value.
+The value returned for the named key didn’t fit that key’s schema, for example by type or by range.
+
+  * **Your value doesn’t fit the key’s schema** : return one the key’s [settings reference](</docs/en/settings-reference>) entry allows.
+  * **Your value fits** : the value that doesn’t fit came from another mod’s `settings.read` hook. To find that mod, follow the steps to turn off mods one at a time. Search each new log for this line instead of `refused to the engine`.
+
+While the value doesn’t fit, the key keeps the value merged from the settings sources before any hook answered. The line calls it the settings’ own value.
 
 ###
 
@@ -480,16 +485,18 @@ The value you returned for the named key didn’t fit that key’s schema, for e
 
 `settings.read: refused to the engine`
 
-This debug log line means [Claude Code’s own read](</docs/en/plugins/mods/events#settings-read-hook>) was refused, so no hook’s `{ value }` applied, yours included. When a `settings.read` hook refuses that read with [`{ deny: reason }`](</docs/en/plugins/mods/events#settings-read-returns>), the line carries that hook’s reason:
+You see this line in the debug log when [Claude Code’s own read](</docs/en/plugins/mods/events#settings-read-hook>) is refused, and Claude Code drops every hook’s value. When a `settings.read` hook refuses that read with [`{ deny: reason }`](</docs/en/plugins/mods/events#settings-read-returns>), the line carries that hook’s reason:
 
     settings.read: refused to the engine (engine: $.settings.read: <reason>); the settings' own values stand
 
-Search your own hook’s code for the `<reason>` text:
+Search your code for the reason in the parentheses:
 
   * **Your code has it** : your hook refused the read. Make it return `{ value }` when [`next.origin`](</docs/en/plugins/mods/events#settings-read-origin>) shows Claude Code’s own read.
-  * **Your code doesn’t have it** : [turn off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>) your other mods one at a time. After each, rerun this session’s command from your shell with one `--debug-file` on a new path, and search that file for `refused to the engine`. If the line is there, turn off the next mod. If not, the last mod you turned off refused the read, so keep it off.
+  * **Your code doesn’t have it** : [turn off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>) your other mods one at a time. If your organization deployed a mod, ask its administrator to turn it off. After each:
+    1. Start the session from your shell with `claude --debug-file ./settings-read-2.log`, followed by the flags it started with. Use a new path each time.
+    2. Search that file for `refused to the engine`. If the line is there, turn off the next mod. If not, the last mod you turned off refused the read, so keep it off.
 
-With no other mod left, use a [settings file](</docs/en/settings>) for the keys your hook returns. Its values hold while the read is refused.
+If the line stays with no other mod left, set the keys your hook returns in a [settings file](</docs/en/settings>). Its values hold while the read is refused.
 
 ##
 

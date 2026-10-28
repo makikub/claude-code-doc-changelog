@@ -258,6 +258,19 @@ Claude Code computes these diffs from raw git blob content, so diff drivers and 
   * **The full walkthrough, including PR creation** : see [Review and iterate](</docs/en/web-quickstart#review-and-iterate>)
   * **Having Claude monitor the PR for CI failures and review comments automatically** : see Auto-fix pull requests
 
+####
+
+​
+
+Troubleshoot a missing file in the diff view
+
+A file you expected can be missing from the diff view’s file list when it compares against the base branch, whether or not the session has pushed changes:
+
+  * **No changes pushed yet** : the list has Claude’s own edits, but not changes made by commands Claude ran, such as a formatter
+  * **Changes pushed** : the list has pushed commits, but not changes made after the last push
+
+To add a missing change to the list, ask Claude to commit and push.
+
 ###
 
 ​
@@ -268,7 +281,7 @@ Cloud sessions support [built-in commands](</docs/en/commands>) that produce tex
 
   * **`/model`, `/effort`, `/color`, and `/rename`**: pass the value as an argument, for example `/model sonnet`, instead of opening the terminal picker or slider. The argument forms follow each command’s [availability notes](</docs/en/commands#all-commands>).
   * **`/fast`** : toggles [fast mode](</docs/en/fast-mode#use-fast-mode-in-cloud-sessions>) for the session when fast mode is [available on your account](</docs/en/fast-mode#requirements>). Requires Claude Code v2.1.271 or later in the session’s environment.
-  * **`/config`** : in your browser at claude.ai/code, opens the Claude Code section of your settings instead of setting a value. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a [project](</docs/en/claude-projects>)’s threads, commit the key to that repository’s `.claude/settings.json` instead. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
+  * **`/config`** : in your browser at claude.ai/code, opens **Settings > Code** or **Settings > Claude Code** instead of setting a value. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a [project](</docs/en/claude-projects>)’s threads, commit the key to that repository’s `.claude/settings.json` instead. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
 
 For context management in a cloud session outside a [project’s threads](</docs/en/claude-projects#choose-models-and-let-claude-manage-context>):
 
@@ -353,7 +366,10 @@ Sharing works as follows for Max and Pro accounts:
   * **Repository access** : verification isn’t enabled by default
   * **Sensitive content** : check your session before sharing. Sessions may contain code and credentials from private GitHub repositories
 
-To require recipients to have repository access, or to hide your name from shared sessions, go to [**Settings > Claude Code > Sharing settings**](<https://claude.ai/settings/claude-code>).
+To require recipients to have repository access, or to hide your name from shared sessions, open Settings on claude.ai, then:
+
+  * **If the Settings menu shows Code instead of Claude Code** : go to [**Privacy**](<https://claude.ai/settings/data-privacy-controls>), which has these settings
+  * **Otherwise** : go to [**Claude Code > Sharing settings**](<https://claude.ai/settings/claude-code>)
 
 ###
 

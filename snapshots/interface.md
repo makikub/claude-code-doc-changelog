@@ -371,7 +371,7 @@ What a `ui.render` hook returns is an element tree: a description of what to dra
 
     Note: Type a note and press Enter
 
-Add `rows` to let the field hold several lines. Enter still submits, and a backslash before Enter starts a new line, as does Shift+Enter where [the terminal supports it](</docs/en/terminal-config#enter-multiline-prompts>). The gallery shows [a field with `rows`](</docs/en/plugins/mods/gallery#input>).
+Set `rows` to 2 or more for [a field that holds several lines](</docs/en/plugins/mods/gallery#input>).
 
 The [interface gallery](</docs/en/plugins/mods/gallery>) has samples and screenshots of most elements. This table lists every element:
 
@@ -508,7 +508,7 @@ This table lists what a key does while your pane or band has keyboard focus:
 Key| What it does
 ---|---
 Tab| Moves to the next control
-Up and Down| Move between controls while your drawing fits. When the pane or band has more rows than it can show, they scroll it. In an `Input`, they [move between the field’s rows](</docs/en/plugins/mods/gallery#input>) first.
+Up and Down| Move between controls while your drawing fits. When the pane or band has more rows than it can show, they scroll it. In an `Input` in the terminal, they [move between the field’s rows](</docs/en/plugins/mods/gallery#input>), and from its first or last row they move to the control before or after it.
 Enter| Presses the focused `Button`, submits the focused `Input`, or picks in a `Select`
 A button’s hotkey| Presses that button. While an `Input` has the focus, every printable key goes to the field.
 Page Up, Page Down, Home, and End| Scroll your pane or band when it has more rows than it can show

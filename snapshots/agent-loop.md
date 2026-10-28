@@ -29,7 +29,7 @@ A turn is one round trip inside the loop: Claude produces output that includes t
   3. **Turn 3:** Claude calls `Edit` to fix `auth.ts`, then calls `Bash` to re-run `npm test`. All three tests pass. The SDK yields an `AssistantMessage` for each call.
   4. **Final turn:** Claude produces a text-only response with no tool calls: “Fixed the auth bug, all three tests pass now.” The SDK yields a final `AssistantMessage` with this text, then a `ResultMessage` with the same text plus cost and usage.
 
-That was four turns: three with tool calls, one final text-only response. You can cap the loop with `max_turns` / `maxTurns`, which counts tool-use turns only. For example, `max_turns=2` in the loop above would have stopped before the edit step. You can also use `max_budget_usd` / `maxBudgetUsd` to cap turns based on a spend threshold. Without limits, the loop runs until Claude finishes on its own, which is fine for well-scoped tasks but can run long on open-ended prompts (“improve this codebase”). Setting a budget is a good default for production agents. See Turns and budget below for the option reference.
+That was four turns: three with tool calls, one final text-only response. You can cap the loop with `max_turns` / `maxTurns`. Count each turn with tool calls, plus one for the final text-only response. Without that extra turn, the run ends with a `ResultMessage` of subtype `error_max_turns` and no final response. For example, `max_turns=2` in the loop above would have stopped before the edit step. You can also use `max_budget_usd` / `maxBudgetUsd` to cap turns based on a spend threshold. Without limits, the loop runs until Claude finishes on its own, which is fine for well-scoped tasks but can run long on open-ended prompts (“improve this codebase”). Setting a budget is a good default for production agents. See Turns and budget below for the option reference.
 
 ##
 
@@ -199,7 +199,7 @@ Turns and budget
 
 Option| What it controls| Default
 ---|---|---
-Max turns (`max_turns` / `maxTurns`)| Maximum tool-use round trips| No limit
+Max turns (`max_turns` / `maxTurns`)| Maximum number of turns| No limit
 Max budget (`max_budget_usd` / `maxBudgetUsd`)| Estimated spend at which the loop stops| No limit
 
 When either limit is hit, the SDK returns a `ResultMessage` with a corresponding error subtype (`error_max_turns` or `error_max_budget_usd`). See Handle the result for how to check these subtypes and [`ClaudeAgentOptions`](</docs/en/agent-sdk/python#claudeagentoptions>) / [`Options`](</docs/en/agent-sdk/typescript#options>) for syntax. The budget cap covers [subagents](</docs/en/agent-sdk/subagents>): their spend counts toward the total. Once spend reaches the cap, spawning another subagent fails with `Budget limit reached`, and Claude Code stops any background subagents still running. The cap-enforcement behaviors require Claude Code v2.1.217 or later. With [streaming input](</docs/en/agent-sdk/streaming-vs-single-mode>), a message that is still queued when a turn ends at the max-turns limit stays queued. Claude Code doesn’t add it to that turn’s last model call. It starts a new turn for the message, and the max-turns count starts over for that turn. The budget total keeps accumulating across messages, and once spend reaches `maxBudgetUsd`, later messages in the same conversation end with the `error_max_budget_usd` result. A [`/clear`](</docs/en/agent-sdk/cost-tracking>) starts the budget over.
