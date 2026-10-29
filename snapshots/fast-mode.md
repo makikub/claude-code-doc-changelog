@@ -1,10 +1,10 @@
-Fast mode is in research preview. The feature, pricing, and availability may change based on feedback.
+Fast mode for Claude Opus 5.5 is available, and fast mode for Claude Opus 5 and Claude Opus 4.8 is in research preview.
 
 Fast mode is a high-speed configuration for Claude Opus, making the model up to 2.5x faster at a higher cost per token. Toggle it on with `/fast` when you need speed for interactive work like rapid iteration or live debugging, and toggle it off when cost matters more than latency. Fast mode is not a different model. It uses Claude Opus with a different API configuration that prioritizes speed over cost efficiency. You get identical quality and capabilities with faster responses. Fast mode is supported on Opus 5.5, Opus 5, and Opus 4.8. It is not available on Sonnet, Haiku, or other models. Opus 4.7 doesn’t support fast mode, so switching to it turns fast mode off. Fast mode for Opus 4.7 was deprecated on June 25, 2026, and removed on July 24, 2026. What to know:
 
   * Use `/fast` to toggle on fast mode in the Claude Code CLI. The [VS Code extension](</docs/en/vs-code>) offers a **Toggle fast mode** command when the selected model supports fast mode. Claude Code saves that toggle to your `fastMode` setting.
   * Fast mode pricing per MTok input/output is $8/$40 on Opus 5.5 and $10/$50 on Opus 5 and Opus 4.8.
-  * Available to Claude Code users on subscription plans (Pro/Max/Team/Enterprise) and on Claude Console. Team and Enterprise organizations need an Owner to enable it first, and Console organizations need access provisioned first, both described under Requirements.
+  * Available to Claude Code users on subscription plans (Pro/Max/Team/Enterprise) and on Claude Console. Team and Enterprise organizations need an Owner to enable it first, and Console organizations need access provisioned first to use it with Opus 5 or Opus 4.8. Requirements describes both.
   * For Claude Code users on subscription plans (Pro/Max/Team/Enterprise), fast mode is available via usage credits only and not included in the subscription rate limits.
 
 ##
@@ -117,14 +117,14 @@ Requirements
 
 Fast mode requires all of the following:
 
-  * **Anthropic API or subscription only** : fast mode is available through the Anthropic Console API and for Claude subscription plans using usage credits. It is not available on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or Claude Platform on AWS. Console organizations must also have fast mode access provisioned.
+  * **Anthropic API or subscription only** : fast mode is available through the Anthropic Console API and for Claude subscription plans using usage credits. It is not available on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or Claude Platform on AWS. Console organizations must also have fast mode access provisioned to use it with Opus 5 or Opus 4.8.
   * **Usage credits turned on for subscription plans** : on a Pro, Max, Team, or Enterprise plan, your account must have [usage credits](</docs/en/costs#add-usage-credits-to-your-subscription>) turned on, which allows billing beyond your plan’s included usage. Until they’re on, `/fast` reports “Fast mode requires usage credits”. How you turn them on depends on your plan:
     * On Pro and Max, turn them on in the **Usage credits** section of [**Settings > Usage**](<https://claude.ai/settings/usage>) on claude.ai, or run `/usage-credits` to open that page.
     * On Team and Enterprise, a member with billing access turns them on for the organization at [**Organization settings > Usage**](<https://claude.ai/admin-settings/usage>), and a member without it runs `/usage-credits` to send the organization’s admins a request.
 
 Fast mode usage draws directly from usage credits, even if you have remaining usage on your plan.
 
-  * **Paid Console organization** : Claude Console accounts don’t use usage credits, and your organization pays for fast mode per token with the rest of its API usage. On the Console’s free Evaluation plan, `/fast` shows “Fast mode unavailable during evaluation. Please purchase credits.” To clear it, purchase credits in your [Console billing settings](<https://platform.claude.com/settings/billing>).
+  * **Paid Console organization** : Claude Console accounts don’t use usage credits, and your organization pays for fast mode per token with the rest of its API usage. On the Console’s free Evaluation plan, `/fast` shows “Fast mode unavailable during evaluation. Please purchase credits.” To clear it, purchase credits in your [Console billing settings](<https://platform.claude.com/settings/billing>). Fast mode with Opus 5.5 also depends on your organization’s [usage tier](<https://platform.claude.com/docs/en/api/rate-limits>).
   * **Owner enablement for Team and Enterprise** : fast mode is disabled by default for Team and Enterprise organizations. An Owner must explicitly enable fast mode before users can access it.
 
 Four organization settings can block turning fast mode on with `/fast`:
@@ -142,10 +142,10 @@ Enable fast mode for your organization
 
 Where you enable fast mode depends on which product your organization uses:
 
-  * **Console** (API customers): an admin enables it in [Claude Code preferences](<https://platform.claude.com/claude-code/preferences>). Fast mode is in research preview, so your organization must also have fast mode access provisioned before fast mode requests succeed. To get access, contact your account manager or join the waitlist, as described in [fast mode on the Claude API](<https://platform.claude.com/docs/en/build-with-claude/fast-mode>). Without provisioned access, the API rejects each fast mode request with a 429, and Claude Code treats each rejection as a fast mode rate limit. Unlike a rate limit’s cooldown, the rejections continue until access is provisioned.
+  * **Console** (API customers): an admin enables it in [Claude Code preferences](<https://platform.claude.com/claude-code/preferences>)
   * **Claude AI** (Team and Enterprise): an Owner enables it at [**Organization settings > Claude Code**](<https://claude.ai/admin-settings/claude-code>)
 
-Another option to disable fast mode entirely is to set `CLAUDE_CODE_DISABLE_FAST_MODE=1`. See [Environment variables](</docs/en/env-vars>).
+Console organizations that use Claude Opus 5 or Claude Opus 4.8 also need provisioned access, as described in [fast mode on the Claude API](<https://platform.claude.com/docs/en/build-with-claude/fast-mode>). Without that access, fast mode requests on those models hit the fast mode rate limit and fall back to standard speed until access is provisioned. Another option to disable fast mode entirely is to set `CLAUDE_CODE_DISABLE_FAST_MODE=1`. See [Environment variables](</docs/en/env-vars>).
 
 ###
 
@@ -211,7 +211,7 @@ This is useful for controlling costs in organizations where users run multiple c
 
 Handle rate limits
 
-Fast mode has separate rate limits from standard Opus. All supported Opus models share one fast mode rate limit pool: usage on any of them draws from the same limits. When you hit the fast mode rate limit:
+Fast mode has separate rate limits from standard Opus; for Console organizations, the Claude Platform’s [rate limits](<https://platform.claude.com/docs/en/api/rate-limits>) page describes them. When you hit the fast mode rate limit:
 
   1. Fast mode automatically falls back to standard speed
   2. The `↯` icon turns gray to indicate cooldown
@@ -229,7 +229,7 @@ To disable fast mode manually instead of waiting for cooldown, run `/fast` again
 
 Research preview
 
-Fast mode is a research preview feature. This means:
+Fast mode for Claude Opus 5 and Claude Opus 4.8 is a research preview feature, which means:
 
   * The feature may change based on feedback
   * Availability and pricing are subject to change

@@ -35,7 +35,7 @@ Start a session
 Before you send your first message, choose the environment, project folder, permission mode, and model in the row under the prompt box:
 
   * **Environment** : use the environment selector, the first control in the row, to choose where Claude runs. See environment configuration.
-    * If a new session has no environment selector under the prompt box, follow the earlier layout’s steps.
+    * If a new session shows no environment under the prompt box, follow the earlier layout’s steps.
   * **Project folder** : click the project folder control, next to the environment selector, to choose the folder Claude works in.
     * **Cloud session** : select repositories instead of a folder
     * **Saved local or SSH environment** : the environment already holds its folders, so the row shows no project folder control. To change the folders, edit the environment.
@@ -969,7 +969,7 @@ Set environment variables for local sessions
 
 Add the variables to a saved local environment and start your sessions from it. Desktop sets some variables itself, such as `API_TIMEOUT_MS`, and your sessions get its value for those instead of yours.
 
-If your environment selector is above the prompt box, you have the earlier layout, which has no saved local environments. Use the local environment editor instead.
+If a new session shows no environment under the prompt box, you have the earlier layout, which has no saved local environments. Use the local environment editor instead.
 
 1
 
@@ -1111,7 +1111,7 @@ SSH sessions let you run Claude Code on a remote machine while using the desktop
 
 If you use Desktop with a [third-party provider](</docs/en/third-party-integrations>), SSH sessions need their own setup. See [SSH remote sessions in Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions>).
 
-Add an SSH connection in the **New environment** dialog, then start a session on that connection. If a new session has no environment selector under the prompt box, you have the earlier layout. See Check which layout you have.
+Add an SSH connection in the **New environment** dialog, then start a session on that connection. If a new session shows no environment under the prompt box, you have the earlier layout. See Check which layout you have.
 
 1
 
@@ -2278,13 +2278,13 @@ To see which version of Claude Code a session runs, type `/status` in a local se
 
 Check which layout you have
 
-If a new session has no environment selector under the prompt box, you have the earlier layout:
+If a new session shows the environment above the prompt box instead of under it, you have the earlier layout:
 
   * **Desktop older than v2.37337.0** : update to get the current layout. Select **Claude > Check for Updates…** on macOS or **Help > Check for Updates…** on Windows.
   * **[Third-party provider](</docs/en/third-party-integrations>) with sessions on your computer**: the current layout requires Claude Desktop v3.1623.0 or later, so check your version. To update, select **Claude > Check for Updates…** on macOS or **Help > Check for Updates…** on Windows. If your organization turns off auto-updates, **Check for Updates…** is hidden, so ask your administrator for v3.1623.0 or later.
-  * **Third-party provider with sessions on your organization’s infrastructure** : when your organization runs sessions on its own infrastructure rather than on your computer, Desktop keeps the earlier layout, and updating doesn’t change the layout. If you don’t know where your sessions run, ask your administrator.
+  * **Third-party provider with sessions on your organization’s infrastructure** : the current layout requires Claude Desktop v4.29.0 or later, so check your version. If you’re on an older version, ask your administrator for v4.29.0 or later. If you don’t know where your sessions run, ask your administrator.
 
-In the earlier layout, choose the environment and project folder above the prompt box, and the permission mode and model in the row under it. The earlier layout lacks the session details panel and saved local and SSH environments.
+In the earlier layout, choose the environment and any project folder or repository above the prompt box, and the permission mode and model in the row under it. The earlier layout lacks the session details panel and saved local and SSH environments.
 
 ###
 

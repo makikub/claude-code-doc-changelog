@@ -259,6 +259,19 @@ If reviews or Anthropic-hosted cloud sessions time out, your GHES instance may n
 
 ​
 
+Connection test passes but a second test fails
+
+The second test connects to your GHES instance the way Anthropic-hosted cloud sessions do. Find your message to see whether to check your firewall or try again:
+
+  * **`Connection test passed, but a second test failed.`** : if your instance is behind a firewall, allow all of Anthropic’s [outbound IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses>), because a connection test can pass even when your firewall blocks some of them. You can also try again in a few minutes.
+  * **`Connection test passed, but a second test could not run.`** : try again in a few minutes.
+
+To test again, open the connection’s **More options** menu in [**Organization settings > Git providers**](<https://claude.ai/admin-settings/source-control#github-enterprise>) and select **Test connection**.
+
+###
+
+​
+
 Session start fails with `Unable to get organization UUID`
 
 Claude Code couldn’t read a claude.ai organization from your credentials. Sign in with `/login` using an account in your Team or Enterprise organization, since GitHub Enterprise Server support is limited to those plans. See [Unable to get organization UUID](</docs/en/claude-code-on-the-web#unable-to-get-organization-uuid>) for the causes and the other messages this state produces.

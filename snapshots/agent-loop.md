@@ -11,10 +11,10 @@ Every agent session follows the same cycle:
   1. **Receive prompt.** Claude receives your prompt, along with the system prompt, tool definitions, and conversation history. The SDK yields a `SystemMessage` with subtype `"init"` containing session metadata.
   2. **Evaluate and respond.** Claude evaluates the current state and determines how to proceed. It may respond with text, request one or more tool calls, or both. The SDK yields one or more `AssistantMessage` objects, one for each content block, such as a text block or a tool call request.
   3. **Execute tools.** The SDK runs each requested tool and collects the results. Each set of tool results feeds back to Claude for the next decision. You can use [hooks](</docs/en/agent-sdk/hooks>) to intercept, modify, or block tool calls before they run.
-  4. **Repeat.** Steps 2 and 3 repeat as a cycle. Each full cycle is one turn. Claude continues calling tools and processing results until it produces a response with no tool calls.
+  4. **Repeat.** Steps 2 and 3 repeat as a cycle. Claude continues calling tools and processing results until it produces a response with no tool calls.
   5. **Return result.** The SDK yields a final `AssistantMessage` with the text response (no tool calls), followed by a `ResultMessage` with the final text, token usage, cost, and session ID.
 
-A quick question (“what files are here?”) might take one or two turns of calling `Glob` and responding with the results. A complex task (“refactor the auth module and update the tests”) can chain dozens of tool calls across many turns, reading files, editing code, and running tests, with Claude adjusting its approach based on each result.
+A quick question such as “what files are here?” might take two or three turns: one or two calling `Glob`, then one responding with the results. A complex task such as “refactor the auth module and update the tests” can chain dozens of tool calls across many turns as Claude adjusts after each result.
 
 ##
 
@@ -22,7 +22,7 @@ A quick question (“what files are here?”) might take one or two turns of cal
 
 Turns and messages
 
-A turn is one round trip inside the loop: Claude produces output that includes tool calls, the SDK executes those tools, and the results feed back to Claude automatically. This happens without yielding control back to your code. Turns continue until Claude produces output with no tool calls, at which point the loop ends and the final result is delivered. Consider what a full session might look like for the prompt “Fix the failing tests in auth.ts”. First, the SDK sends your prompt to Claude and yields a `SystemMessage` with the session metadata. Then the loop begins:
+A turn is one pass through the loop: Claude produces output, and if it includes tool calls, the SDK executes them and the results feed back to Claude automatically. This happens without yielding control back to your code. Turns continue until Claude produces output with no tool calls, at which point the loop ends and the final result is delivered. Consider what a full session might look like for the prompt “Fix the failing tests in auth.ts”. First, the SDK sends your prompt to Claude and yields a `SystemMessage` with the session metadata. Then the loop begins:
 
   1. **Turn 1:** Claude calls `Bash` to run `npm test`. The SDK yields an `AssistantMessage` with the tool call, executes the command, then yields a `UserMessage` with the output (three failures).
   2. **Turn 2:** Claude calls `Read` on `auth.ts` and `auth.test.ts`. The SDK yields an `AssistantMessage` for each call and returns the file contents.

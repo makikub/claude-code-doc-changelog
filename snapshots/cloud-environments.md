@@ -95,10 +95,9 @@ Requirements
 
 These requirements decide whether you can add a secret and whether the agent proxy can use it once added:
 
-  * **Role** : on Pro, Max, and Team plans, you can add and delete secrets on your own environments whatever your role. On Team and Enterprise, Owners hold an organization admin role in your claude.ai organization and Admins don’t, which changes what you see in these cases:
-    * **Your own environment on Enterprise** : with an organization admin role, you add and delete secrets. Without it, the **Network secrets** row opens the secrets list with the note “Only an organization admin can add or delete network secrets” and no **Add secret** or delete button. Ask an Owner to add the secret to a shared environment, then run your sessions there
+  * **Role** : on every plan, you can add and delete secrets on your own environments whatever your role. On Team and Enterprise, Owners hold an organization admin role in your claude.ai organization and Admins don’t, which changes what you see in these cases:
+    * **Your own environment** : without an organization admin role, **Add secret** opens a shorter form
     * **A shared environment** : Owners add and delete its secrets from admin settings. Without an organization admin role, ask an Owner to add the secret, because the environment’s dialog has no **Network secrets** section
-    * **Your own environment on Team** : without an organization admin role, **Add secret** opens a shorter form that takes one host
   * **Environment type** : an Anthropic-hosted cloud environment that already exists. A [self-hosted environment](</docs/en/self-hosted-environments>) doesn’t have network secrets
   * **API reachability** : the API accepts connections from the internet, because requests leave from Anthropic’s network
   * **Encryption keys** : if your organization uses customer-managed encryption keys, you can’t save network secrets
@@ -109,7 +108,7 @@ These requirements decide whether you can add a secret and whether the agent pro
 
 Add a secret
 
-You add secrets one at a time. To change a secret’s hosts or value, delete it and add it again. To add a secret to a shared environment, open it for editing from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>), then continue from step 2 in its **Network secrets** section. If you’re on a Team plan and don’t hold an organization admin role, follow step 1 on your own environment, then fill in the shorter form.
+You add secrets one at a time. To change a secret’s hosts or value, delete it and add it again. To add a secret to a shared environment, open it for editing from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>), then continue from step 2 in its **Network secrets** section. If you’re on a Team or Enterprise plan and don’t hold an organization admin role, follow step 1 on your own environment, then fill in the shorter form.
 
 1
 
@@ -141,9 +140,9 @@ To confirm the secret works, start a session in the environment and ask Claude t
 
 ​
 
-Add a secret on a Team plan without an organization admin role
+Add a secret without an organization admin role
 
-If you’re on a Team plan and don’t hold an organization admin role, the **Add secret** form takes one secret for one host. Select your environment’s **Network secrets** row and then **Add secret**. Fill in these fields and select the form’s **Add secret** button:
+If you’re on a Team or Enterprise plan and don’t hold an organization admin role, the **Add secret** form takes one secret for one host. Select your environment’s **Network secrets** row and then **Add secret**. Fill in these fields and select the form’s **Add secret** button:
 
   * **Host** : the one host that gets the secret, such as `api.example.com`. The form doesn’t accept a `*.` wildcard
   * **Name** : an optional label for the secret

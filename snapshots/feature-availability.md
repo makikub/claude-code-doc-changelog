@@ -70,7 +70,7 @@ CLI capabilities that vary by provider
 These features work in the local CLI but depend on a server-side capability that not every provider exposes. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud’s Agent Platform| Microsoft Foundry
 ---|---|---|---|---|---|---
 [Web search](</docs/en/tools-reference#websearch-tool-behavior>)| ✓| ✓| ✗| ✓| See note 1| ✓
-[Fast mode](</docs/en/fast-mode>)| ✓ ([Owner-enabled](</docs/en/fast-mode#enable-fast-mode-for-your-organization>) on Team and Enterprise)| ✓ (provisioned organizations)| ✗| ✗| ✗| ✗
+[Fast mode](</docs/en/fast-mode>)| ✓ ([Owner-enabled](</docs/en/fast-mode#enable-fast-mode-for-your-organization>) on Team and Enterprise)| ✓ (Opus 5 and 4.8 need provisioning)| ✗| ✗| ✗| ✗
 [Auto mode](</docs/en/auto-mode-config>)| ✓| ✓| See note 2| ✓| See note 2| See note 2
 [Advisor](</docs/en/advisor>)| ✓| ✓| ✗| ✗| ✗| ✗
 [Cross-session messaging](</docs/en/cross-session-messaging>)| ✓ 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5
@@ -149,7 +149,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>).
 
-**Not available:** all features that require a Claude subscription.Everything in CLI capabilities that vary by provider is available, except that [fast mode](</docs/en/fast-mode>) requires [provisioned access](</docs/en/fast-mode#enable-fast-mode-for-your-organization>). [Server-managed settings](</docs/en/server-managed-settings>) that you configure in a claude.ai Team or Enterprise organization don’t reach a session that authenticates with a Console API key. See [Platform availability](</docs/en/server-managed-settings#platform-availability>) for how to cover those sessions.**Partial support:**
+**Not available:** all features that require a Claude subscription.Everything in CLI capabilities that vary by provider is available, except that [fast mode](</docs/en/fast-mode>) with Claude Opus 5 or Claude Opus 4.8 requires [provisioned access](</docs/en/fast-mode#enable-fast-mode-for-your-organization>). [Server-managed settings](</docs/en/server-managed-settings>) that you configure in a claude.ai Team or Enterprise organization don’t reach a session that authenticates with a Console API key. See [Platform availability](</docs/en/server-managed-settings#platform-availability>) for how to cover those sessions.**Partial support:**
 
   * [Desktop](</docs/en/desktop>): via [Claude Desktop on 3P with the Claude API](<https://claude.com/docs/third-party/claude-desktop/claude-api>)
 

@@ -57,7 +57,7 @@ With the Code tab open, choose a project and give Claude something to do.
 
 Choose an environment and folder
 
-In the [row under the prompt box](</docs/en/desktop#start-a-session>), click the first control, the environment selector, and select the top entry in the **Local** group. Then click the project folder control beside the environment selector, select **Open folder…** , and choose your project’s directory.If no environment selector appears under your prompt box, you have the earlier layout. See [Check which layout you have](</docs/en/desktop#check-which-layout-you-have>).
+In the [row under the prompt box](</docs/en/desktop#start-a-session>), click the first control, the environment selector, and select the top entry in the **Local** group. Then click the project folder control beside the environment selector, select **Open folder…** , and choose your project’s directory.If a new session shows no environment under your prompt box, you have the earlier layout. See [Check which layout you have](</docs/en/desktop#check-which-layout-you-have>).
 
 Start with a small project you know well. It’s the fastest way to see what Claude Code can do.
 

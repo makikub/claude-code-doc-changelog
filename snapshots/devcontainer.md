@@ -52,7 +52,7 @@ What you see at the authentication prompt depends on your provider:
 
 For cloud providers, pass credentials into the container as environment variables through `containerEnv`, a Codespaces secret, or your cloud’s workload identity rather than mounting credential files from the host. See [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>) for the credential chain Claude Code reads. See [Choose your API provider](</docs/en/admin-setup#choose-your-api-provider>) to decide which path fits your organization.
 
-If the browser sign-in completes but the callback never reaches the container, copy the code shown in the browser and paste it at the `Paste code here if prompted` prompt in the terminal. This can happen when the editor’s port forwarding doesn’t route the localhost callback.
+For the Anthropic sign-in: if no browser opens, or it signs you in and then shows a `localhost` connection error, use the login URL shown above the terminal’s paste prompt. Copy it into your browser, sign in there, then paste the code the browser shows into that prompt. If pasting does nothing, see [OAuth login fails in WSL2, SSH, or containers](</docs/en/troubleshoot-install#oauth-login-fails-in-wsl2-ssh-or-containers>).
 
 ##
 

@@ -1236,7 +1236,11 @@ To load plugin folders that weren’t in the `plugins` option at startup, pass t
 
     console.log(result.plugins.map((plugin) => plugin.path));
 
-If the folder loaded, the printed list includes `/opt/my-app/plugins/reports`, and the plugin’s commands and subagents appear in `result.commands` and `result.agents`. An added folder stays part of the session. When you call `reloadPlugins()` again, Claude Code reloads it with the other plugins, and you don’t pass it in `addPlugins` again. If `reloadPlugins()` rejects, none of the `addPlugins` folders are added, so pass them in `addPlugins` again when you retry. When the rejection has one of the following causes, the session keeps the plugins it already had:
+If the folder loaded, the printed list includes `/opt/my-app/plugins/reports`, and the plugin’s commands and subagents appear in `result.commands` and `result.agents`. An added folder stays part of the session. When you call `reloadPlugins()` again, Claude Code reloads it with the other plugins, and you don’t pass it in `addPlugins` again.
+
+##### When `reloadPlugins()` doesn’t load the `addPlugins` folders
+
+If `reloadPlugins()` rejects, none of the `addPlugins` folders are added, so pass them in `addPlugins` again when you retry. When the rejection has one of the following causes, the session keeps the plugins it already had:
 
   * **A relative`path` or a malformed entry**: the error message says `add_plugins must be a list of { type: "local", path } entries with absolute paths`. Claude Code refuses the whole list over one bad entry, so pass every entry as `{ type: "local", path }` with an absolute `path`
   * **An administrator has turned on[`disableSideloadFlags`](</docs/en/settings-reference#disablesideloadflags>) in your managed settings**: the message says `reload_plugins add_plugins is disabled by managed settings (disableSideloadFlags)`. To load the folder, ask that administrator to remove the setting
@@ -1497,7 +1501,7 @@ Result of a permission check.
           toolUseID?: string;
         };
 
-If you return `allow` with more than 4,096 items in `updatedPermissions`, Claude Code treats the result as invalid and denies the tool call. Each update counts as one item, and so does each entry in its `rules` or `directories` list. The denial message ends with `updatedPermissions may hold at most 4096 updates, rules and directories in all`. To have the call allowed, return 4,096 items or fewer.
+If you return `allow` with more than 4,096 items in `updatedPermissions`, Claude Code treats the result as invalid and denies the tool call. Each update counts as one item, and so does each entry in its `rules` or `directories` list. The denial message ends with `updatedPermissions may hold at most 4096 updates, rules and directories in all.` To have the call allowed, return 4,096 items or fewer.
 
 ###
 
@@ -1649,12 +1653,18 @@ Field| Type| Description
 `permission_policy`| `'always_allow' | 'always_ask' | 'always_deny'`| The approval policy for the tool’s calls, `always_ask` or `always_deny`. `always_allow` is ignored on an in-process server: to pre-approve a tool, list it in `allowedTools` instead
 `org_max_permission`| `'allow' | 'ask' | 'blocked'`| A per-tool ceiling that an organization admin sets. Ignored on an in-process server, so leave it unset
 
+##### `permission_policy` values
+
 Choose `always_ask` to approve each call yourself, or `always_deny` to block the tool outright:
 
   * **`always_ask`** : each call to the tool [needs approval](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>), even if an `allowedTools` entry or allow rule covers it. The call goes to your `canUseTool` callback or `permissionPromptToolName` tool, unless it’s settled first. A [mod](</docs/en/plugins/mods/overview>) in a plugin you load [can approve it first](</docs/en/permissions#precedence-among-rules-hooks-and-mods>). Otherwise, in `dontAsk` mode it’s denied, and in `auto`, `plan`, and `bypassPermissions` mode it can be approved before it reaches your callback
   * **`always_deny`** : a call to the tool [is denied](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) in every permission mode, including `bypassPermissions`, but a mod in a plugin you load [can still approve it](</docs/en/permissions#precedence-among-rules-hooks-and-mods>)
 
-If you pass neither `canUseTool` nor `permissionPromptToolName`, or set `permissionPrompts` to `'none'`, an `always_ask` call that isn’t settled first is denied unless a [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) allows it. In `auto`, `plan`, and `bypassPermissions` mode, a call to a tool marked `always_ask` can be approved before it reaches your `canUseTool` callback.
+If you pass neither `canUseTool` nor `permissionPromptToolName`, or set `permissionPrompts` to `'none'`, an `always_ask` call that isn’t settled first is denied unless a [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) allows it.
+
+##### Permission modes that can approve an `always_ask` call
+
+In `auto`, `plan`, and `bypassPermissions` mode, a call to a tool marked `always_ask` can be approved before it reaches your `canUseTool` callback.
 
   * **`auto`** : the auto mode [classifier](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) reviews the call and can allow it. To make every call reach your callback in `auto` mode, set `destructiveHint: true` in the tool’s annotations
   * **`plan`** : while [auto mode is available](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) to the session, calls to an `always_ask` tool annotated `readOnlyHint: true` go to the auto mode classifier, which can allow them. Calls to other `always_ask` tools reach your callback. To make a read-only tool’s calls reach your callback too, add `destructiveHint: true` to that tool’s annotations alongside `readOnlyHint: true`. Alternatively, set [`useAutoModeDuringPlan`](</docs/en/settings-reference#useautomodeduringplan>) to `false`, which turns the classifier off during planning
@@ -4977,9 +4987,10 @@ CronCreate
       humanSchedule: string;
       recurring: boolean;
       durable?: boolean; // true when persisted to .claude/scheduled_tasks.json; false when session-only
+      nextFireAt?: number;
     };
 
-Returns the job ID and a human-readable description of the schedule.
+Returns the job ID, a human-readable schedule, and the next run time. `nextFireAt` gives it in epoch milliseconds, with [jitter](</docs/en/scheduled-tasks#jitter>) already applied, so it’s when the job is set to run. The field requires TypeScript Agent SDK v0.3.299 or later and Claude Code v2.1.299 or later.
 
 ###
 
@@ -5011,10 +5022,11 @@ CronList
         prompt: string;
         recurring?: boolean;
         durable?: boolean;
+        nextFireAt?: number;
       }[];
     };
 
-Returns the scheduled cron jobs: durable jobs from `.claude/scheduled_tasks.json` and session-only jobs from the current session. A session-only job carries `durable: false`; jobs read from disk omit the field.
+Returns the scheduled cron jobs: durable jobs from `.claude/scheduled_tasks.json` and session-only jobs from the current session. A session-only job carries `durable: false`; jobs read from disk omit the field. `nextFireAt` is the job’s next run time in epoch milliseconds, [jitter](</docs/en/scheduled-tasks#jitter>) included. No value is earlier than the `CronList` call: a job whose time [passed without a run](</docs/en/scheduled-tasks#how-scheduled-tasks-run>) carries the call’s time. The field requires TypeScript Agent SDK v0.3.299 or later and Claude Code v2.1.299 or later.
 
 ###
 
@@ -5791,7 +5803,7 @@ Result of a `setMcpServers()` operation.
       errors: Record<string, string>;
     };
 
-When you call `setMcpServers()`, Claude Code applies these rules:
+The `setMcpServers()` promise resolves after newly added stdio, HTTP, and SSE servers connect or fail, so tools from servers that connected are available on the next turn. When you call `setMcpServers()`, Claude Code applies these rules:
 
   * **Servers the call doesn’t name** : outside a [cloud session](</docs/en/claude-code-on-the-web>), Claude Code disconnects the servers an earlier `setMcpServers()` call added and the in-process SDK servers, and lists them in `removed`. Other servers keep running and aren’t listed in `removed`, among them the stdio, HTTP, and SSE servers from the `mcpServers` option, servers from settings files, and plugin-provided servers.
   * **Stdio, HTTP, and SSE servers that an earlier`setMcpServers()` call added**: outside a cloud session, a server you name again with an identical config keeps its connection and tools. It appears in neither `added` nor `removed`. If you pass a changed config, Claude Code reconnects the server using that config and lists it in `added`, not in `removed`.
@@ -5800,7 +5812,10 @@ When you call `setMcpServers()`, Claude Code applies these rules:
   * **Built-in servers the CLI started at startup** : if the call names one, Claude Code drops that entry and reports it in `errors`.
   * **Stdio, HTTP, or SSE servers that share a name with one from an MCP installation scope such as`.mcp.json`**: under that name the session uses your server’s tools rather than the [installation-scope server’s](</docs/en/mcp#mcp-installation-scopes>). Before Claude Code v2.1.305, Claude Code could disconnect your server and connect the installation-scope server when your app reloaded plugins.
 
-The promise resolves after newly added stdio, HTTP, and SSE servers connect or fail, so tools from servers that connected are available on the next turn. `added` lists the servers Claude Code added or replaced, whether or not they connected. A server that failed to connect appears in both `added` and `errors`, with the failure text under `errors` and a `failed` row in `mcpServerStatus()`. Before Claude Code v2.1.257, a server whose connection attempt threw was reported only under `errors`.
+`added` lists the servers Claude Code added or replaced, whether or not they connected. A server that failed to connect appears in both `added` and `errors`, with the failure text under `errors` and a `failed` row in `mcpServerStatus()`. Before Claude Code v2.1.257, a server whose connection attempt threw was reported only under `errors`. An `errors` value starting `Blocked by enterprise` means policy refused the server, not that connecting failed:
+
+  * `Blocked by enterprise policy (allowedMcpServers/deniedMcpServers)`: the server isn’t in `added`. A [`deniedMcpServers`](</docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists>) entry matches it, or an `allowedMcpServers` list is set and omits it. If that list is in a settings file you load through `settingSources`, edit the file. If it’s in managed settings, ask your administrators to change it.
+  * `Blocked by enterprise managed policy`: the server is in `added`, with a `failed` row in `mcpServerStatus()`. Ask an administrator which policy blocks it.
 
 ###
 

@@ -2722,12 +2722,12 @@ Idle compaction [compacts](</docs/en/context-window#what-survives-compaction>) a
 
 Idle compaction is on by default for conversations that meet all of these conditions:
 
-  * **Session** : you’re in an interactive terminal session, or in the VS Code extension’s chat panel or the desktop app’s Code tab on an account that Anthropic selects
+  * **Session** : you’re in an interactive terminal session, in the VS Code extension’s chat panel, or in the desktop app’s Code tab when the session runs on your machine or over SSH
   * **Auto-compaction** : `autoCompactEnabled` is on
   * **Prompt cache** : the conversation is on the [one-hour prompt cache TTL](</docs/en/prompt-caching#which-ttl-each-request-gets>)
   * **Feature flags** : Claude Code can [fetch feature flags from Anthropic](</docs/en/env-vars#features-that-need-feature-flag-fetching>)
   * **Size** : the conversation’s context has reached the token threshold, which you can change from its default of 200,000
-  * **Idle time** : about 54 minutes have passed since the last request, and your computer is awake at that point
+  * **Idle time** : about an hour has passed since the last request, and your computer stays awake until then
 
 To turn idle compaction off, set this key to `false`.
 
@@ -2777,7 +2777,7 @@ A notice like this one means Claude Code [replaced your earlier conversation wit
 
     Compacted using a summary written while you were away · turn off with "idleCompaction": false in settings.json
 
-You don’t need to do anything. To turn idle compaction off, set `idleCompaction` to `false` in `~/.claude/settings.json` or another [settings file](</docs/en/settings#settings-files-and-who-they-affect>). In the VS Code extension’s chat panel and the desktop app’s Code tab, idle compaction runs for accounts that Anthropic selects. Claude Code writes the summary while you’re away, then compacts with it only if your next message comes an hour or more after the last request.
+You don’t need to do anything. To turn idle compaction off, set `idleCompaction` to `false` in `~/.claude/settings.json` on the machine or WSL distribution where the session runs, or in another [settings file](</docs/en/settings#settings-files-and-who-they-affect>).
 
 ###
 
@@ -5931,7 +5931,7 @@ Unlike `awsAuthRefresh`, Claude Code always runs this command when it’s set, w
 
 `forceLoginMethod`
 
-Restrict which kind of account people can log in with. Set `"claudeai"` to allow only claude.ai accounts, `"console"` to allow only Claude Console accounts, or `"gateway"` to send people to a [cloud gateway](</docs/en/claude-apps-gateway>) instead of a first-party login. Administrators set it in managed settings and pair it with `forceLoginOrgUUID` to keep developers’ claude.ai logins inside one organization. If you set it to `"claudeai"` or `"console"` in any settings file, Claude Code also stops offering the [keyless Console sign-in](</docs/en/authentication#sign-in-without-an-api-key>) in the sessions that file applies to.
+Restrict which kind of account people can log in with. Set `"claudeai"` to allow only claude.ai accounts, `"console"` to allow only Claude Console accounts, or `"gateway"` to send people to a [cloud gateway](</docs/en/claude-apps-gateway>) instead of a first-party login. Administrators set it in managed settings and pair it with `forceLoginOrgUUID` to keep developers’ claude.ai logins inside one organization. If you set it to `"claudeai"` in any settings file, Claude Code also stops offering the [keyless Console sign-in](</docs/en/authentication#sign-in-without-an-api-key>) in the sessions that file applies to. With `"console"` alone, people can still reach the keyless sign-in after a failed login. To stop Claude Code offering it, see [Stop offering the keyless sign-in on managed machines](</docs/en/authentication#stop-offering-the-keyless-sign-in-on-managed-machines>), which also lists what else `forceLoginOrgUUID` changes.
 
   * **Scope** : `Any file`. Claude Code honors `"gateway"` from the same sources as `forceLoginGatewayUrl` and treats it as unset everywhere else.
   * **Type** : string, one of:
@@ -6417,7 +6417,7 @@ Locks| Applies the strictest value any source sets. When no source sets a strict
 Restriction allowlists| Takes the list whole from the highest source that sets it, without adding entries from lower sources. When the highest source doesn’t set one, takes it whole from the next source down| `availableModels`, `allowedMcpServers`, `allowedProviders`, `strictKnownMarketplaces`, `allowedChannelPlugins`, and the `fallbackModel` chain
 Values taken whole| Takes the value whole from the highest source that sets it, without combining entries or fields from lower sources. When the highest source doesn’t set it, takes it whole from the next source down| `sandbox.credentials.awsPairs`, `sandbox.ripgrep`
 Provided MCP servers| Combines the server names from every source. When two sources set the same name, applies the higher source’s whole entry| `managedMcpServers`
-Read from the highest-priority source only| Reads the key only from the highest-priority source that carries a policy key, so a lower source’s value is ignored even when the highest source sets none| `apiKeyHelper`, `awsAuthRefresh`, `awsCredentialExport`, `gcpAuthRefresh`, `otelHeadersHelper`, `proxyAuthHelper`, `forceLoginOrgUUID`, the `"claudeai"` and `"console"` values of `forceLoginMethod`, `parentSettingsBehavior`, `modelPicker`, `policyHelper`, `permissions.defaultMode`
+Read from the highest-priority source only| Reads the key only from the highest-priority source that carries a policy key, so a lower source’s value is ignored even when the highest source sets none| `apiKeyHelper`, `awsAuthRefresh`, `awsCredentialExport`, `gcpAuthRefresh`, `otelHeadersHelper`, `proxyAuthHelper`, `parentSettingsBehavior`, `modelPicker`, `policyHelper`, `permissions.defaultMode`
 `env`| [Merges per variable across admin sources](</docs/en/managed-settings#keys-read-from-every-admin-source>), under both `"first-wins"` and `"merge"`| `env`
 Every other key| Takes the value from the highest source that sets it| `cleanupPeriodDays`, `model`
 
@@ -6426,6 +6426,7 @@ Taking `sandbox.credentials.awsPairs` and `sandbox.ripgrep` whole requires Claud
   * **`policyHelper`** : Claude Code honors it only when the highest source that carries a policy key is an MDM policy or a managed settings file, so under server-managed settings it doesn’t apply.
   * **`modelOverrides`** : pairs with `availableModels`. Claude Code takes `modelOverrides` from the highest source that sets it, unless a higher source sets `availableModels` without `modelOverrides`. In that case it ignores `modelOverrides` from every source.
   * **`forceLoginGatewayUrl`, `gatewayInternalNetworks`, and the `"gateway"` value of `forceLoginMethod`**: Claude Code never reads any of them from server-managed settings, so a value there neither applies nor hides one set in an MDM policy or managed settings file. Among the admin sources on the machine, only the highest-ranked one that carries a policy key supplies them, whether or not server-managed settings are also present.
+  * **`forceLoginOrgUUID` and the `"claudeai"` and `"console"` values of `forceLoginMethod`**: look up which value applies in [Which managed source supplies login keys](</docs/en/managed-settings#which-managed-source-supplies-login-keys>) rather than in the table.
   * **`allowedProviders`** : after the table’s rule, the machine’s own list still limits the result, as its entry’s Scope note states.
 
 To confirm which sources combined on a machine, run `/status` and [read the `Setting sources` line](</docs/en/managed-settings#read-the-source-in-/status>).
