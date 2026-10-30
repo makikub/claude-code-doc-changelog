@@ -51,6 +51,7 @@ A runner that uses `--use-anthropic-git-proxy` routes its `github.com` git traff
 
 Host| Port| When required
 ---|---|---
+`api.github.com`| 443| With or without `--use-anthropic-git-proxy`, when the runner image includes the GitHub CLI and you give sessions a github.com credential, such as a `GH_TOKEN`
 `downloads.claude.ai`| 443| At install time, when you install or update Claude Code on the host with the native installer; the `install.sh` script itself is served from `claude.ai`. At session runtime, only when sessions install plugins from the official Anthropic marketplace.
 `storage.googleapis.com`| 443| At session runtime, for the plugin install counts and metadata shown in `/plugin`.
 `code.claude.com` and `claude.com`| 443| Documentation lookups by the built-in claude-code-guide agent and pre-approved WebFetch requests during sessions. Blocking these hosts only affects documentation lookups.
@@ -173,7 +174,7 @@ Whichever mechanism you configure must work without a prompt, because the runner
 
   * The runner sets `GIT_TERMINAL_PROMPT=0`, so git doesn’t ask for a username or password.
   * The runner runs SSH with `BatchMode=yes`, appended to your `GIT_SSH_COMMAND` if you set one, so SSH doesn’t ask for a passphrase or host confirmation.
-  * The runner sets `GCM_INTERACTIVE=never`, so Git Credential Manager doesn’t open a sign-in dialog.
+  * The runner sets `GCM_INTERACTIVE=never`, so Git Credential Manager doesn’t open a sign-in dialog. Before v2.1.229, repository preparation could hang on a Git Credential Manager prompt.
   * The runner clears `core.askPass`, so if you use an askpass helper, set it through the `GIT_ASKPASS` environment variable instead.
 
 If your git host rejects the credential, or you didn’t configure one, the runner retries a few times and then fails repository preparation when the repository is the one the session pushes results to. For a repository the session only reads from, Troubleshooting covers when the runner skips it instead. The runner doesn’t pass these settings into the session’s environment. Keep any program you name in `GIT_SSH_COMMAND` or `GIT_ASKPASS` where sessions can’t write to it, the way the hardening checklist asks for the hooks directory and the wrapper script. The same goes for any key or file on that program’s command line. The runner’s own git runs that program when it clones or fetches. If checkout directories are owned by a different uid than the runner process, git refuses to operate on them; add `safe.directory`:
@@ -299,7 +300,13 @@ If your runner image doesn’t include the GitHub CLI, Claude Code can provide a
   * **`jq`** : install `jq` in the image if you want `--jq` to work
   * **[`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](</docs/en/env-vars>)** : if the session environment sets it, Claude Code doesn’t provide the built-in `gh`, and the session has no `gh`
 
-When the image includes the GitHub CLI, sessions use it.
+####
+
+​
+
+GitHub API access with the GitHub CLI
+
+If your runner image includes the GitHub CLI for sessions to use, have your [wrapper script](</docs/en/self-hosted-environments-configuration#provision-credentials-scoped-to-the-session-creator>) mint a short-lived, least-scoped `GH_TOKEN` per session for the session’s creator. When `gh` is on the `PATH` that Claude Code starts with, the session has that `gh` and no built-in `gh`. With the token, that `gh` reaches GitHub with whatever access the token grants and outside Anthropic-managed git, so allow `api.github.com`. With Anthropic-managed git, leave the GitHub CLI out of the image to use the built-in `gh` instead.
 
 ####
 
@@ -366,6 +373,25 @@ Repository URLs arrive from the control plane as HTTPS, with the hostname of you
   * `--git-ssh-rewrite <host>`: for git hosts that only accept SSH, or a runner host that has only an SSH key. For example, to clone github.com repositories over SSH, add `--git-ssh-rewrite github.com` to the runner command. The runner then rewrites `https://github.com/owner/repo` to `git@github.com:owner/repo`. SSH must connect without a prompt.
 
 Host rewriting runs first, so list the internal hostname in `--git-ssh-rewrite` if you need both. For full control over checkout, use a [`checkout` lifecycle hook](</docs/en/self-hosted-environments-configuration#checkout>).
+
+###
+
+​
+
+Start a session on a repository outside GitHub
+
+To run a session on a repository from a git host other than GitHub, start the session from your terminal, in a checkout of that repository. First check the runner’s git credentials, network and git proxy, the repository’s address, and your branch:
+
+  * **Git credentials and network** : supply credentials that work without a prompt for `https://<host>/<owner>/<name>`, the address the runner clones, and let the runner reach your git host, as Network requirements lists. For a git host that only accepts SSH, see `--git-ssh-rewrite`.
+  * **Git proxy** : if the environment’s runners use the Anthropic git proxy, turn it off.
+  * **Repository address** : check the checkout’s `origin` remote. Its host must be a domain name such as `git.example.com`, and its path must have the form `<owner>/<name>`. A nested path such as `group/subgroup/name` doesn’t pass.
+  * **Branch** : push the branch you’re on to your git host, because the runner clones that branch.
+
+In the checkout, signed in to claude.ai as [Authenticate from CI](</docs/en/self-hosted-environments-testing#authenticate-from-ci>) describes, run `claude -p` with [`--environment`](</docs/en/self-hosted-environments-testing#run-the-test-loop>) and your environment’s `ccpool_...` ID:
+
+    claude -p "Fix the login bug" --environment ccpool_abc123 --output-format json
+
+When the session is created, the command prints one line of JSON that starts with `{"ok":true`. If the `origin` remote doesn’t fit, the command fails with `requires a git source, but no GitHub remote was detected`. Review and merge on your git host the branches that sessions [push](</docs/en/self-hosted-environments-configuration#prompt-sessions-to-push-their-work>).
 
 ##
 
@@ -893,18 +919,28 @@ A released session resumes from a fresh clone, so work it hadn’t pushed is gon
 
 ​
 
+Resumed sessions lose unpushed work
+
+A session that resumes on a fresh runner loses the work it hadn’t pushed, because that runner clones the repository again from its starting branch. To keep committed work, set [`--push-outcome-on-release`](</docs/en/self-hosted-environments-reference#runner-cli-flags>) on every runner in the environment. A runner with the flag makes a best-effort push of the session’s outcome branches before it releases, and the resumed session starts from those commits. A runner without it resumes the session from its starting branch. The push uses the runner host’s own git credentials, including on a runner that uses Anthropic-managed git.
+
+Before you set the flag, restrict who can push to `claude/*` refs on the source remote. On resume, the runner fetches the previously pushed branch without verifying who pushed it.
+
+Even with the flag set, save this work another way:
+
+  * **Uncommitted changes** : these are still lost. See [Prompt sessions to push their work](</docs/en/self-hosted-environments-configuration#prompt-sessions-to-push-their-work>).
+  * **Repositories checked out via a[`checkout` lifecycle hook](</docs/en/self-hosted-environments-configuration#checkout>)**: these aren’t pushed. Snapshot them from the [`post-session` hook](</docs/en/self-hosted-environments-configuration#post-session>).
+  * **Commits in a session that someone archives or deletes, or whose runner they release from the session’s menu** : don’t count on the flag’s push. To save them, push `HEAD` to a rescue branch from a [`post-session` hook](</docs/en/self-hosted-environments-configuration#post-session>). The example there pushes only after a snapshot commit, so make yours push even when nothing is uncommitted.
+
+###
+
+​
+
 Additional limitations
 
-  * **Resumed sessions lose unpushed work** : a fresh runner clones the repository again from its starting branch, so work the session hadn’t pushed is gone.
-    * **To keep committed work** : set [`--push-outcome-on-release`](</docs/en/self-hosted-environments-reference#runner-cli-flags>) on every runner in the environment, because a runner without the flag resumes the session from its starting branch. A runner with the flag makes a best-effort push of the session’s outcome branches before it releases, and the resumed session starts from those commits. The push uses the runner host’s own git credentials, including on a runner that uses Anthropic-managed git.
-    * **With a`checkout` hook**: repositories checked out via a [`checkout` lifecycle hook](</docs/en/self-hosted-environments-configuration#checkout>) aren’t pushed. Snapshot those from the [`post-session` hook](</docs/en/self-hosted-environments-configuration#post-session>) instead.
-    * **Before enabling the flag** : restrict who can push to `claude/*` refs on the source remote. On resume, the runner fetches the previously pushed branch without verifying who pushed it.
-    * **Uncommitted changes are still lost** : to prompt Claude to commit and push when it finishes responding, see [Prompt sessions to push their work](</docs/en/self-hosted-environments-configuration#prompt-sessions-to-push-their-work>)
   * **A command cut off by a lost runner can run again** : when the session resumes on another runner, Claude sees the interrupted tool call with a result saying its outcome is unknown.
   * **A repository added mid-session can fail to clone** : Claude clones it with `git clone` over HTTPS. On a runner without `--use-anthropic-git-proxy`, the clone fails with a git authentication error if nothing on the host can read the repository. Where you can, select every repository the session needs when you create it.
     * **When the session resumes** : a [`checkout` hook](</docs/en/self-hosted-environments-configuration#checkout>) runs for the added repository too, with [`CLAUDE_RUNNER_REPO_REF`](</docs/en/self-hosted-environments-configuration#checkout>) empty, so make your hook handle that.
   * **Some connectors don’t appear in self-hosted sessions** : a connector you haven’t yet connected in claude.ai Settings isn’t listed in a self-hosted session, and the session won’t prompt you to connect it. Connect it in Settings first, then start a fresh session. Adding a connector to an already-running session also doesn’t make its tools available to Claude; start a fresh session to pick up a newly added connector.
-  * **When someone archives or deletes a session, or releases its runner from the session’s menu** : don’t count on the [`--push-outcome-on-release`](</docs/en/self-hosted-environments-reference#runner-cli-flags>) push. To save commits in those cases, push `HEAD` to a rescue branch from a [`post-session` hook](</docs/en/self-hosted-environments-configuration#post-session>). If you start from the example there, make it push even when nothing is uncommitted, because it pushes only after a snapshot commit.
 
 ###
 

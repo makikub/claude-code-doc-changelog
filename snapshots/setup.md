@@ -380,6 +380,8 @@ Verify the downloaded key with `sha256sum /etc/apk/keys/claude-code.rsa.pub`, wh
 
 Install with npm
 
+If `npm --version` prints a version starting with `12` in your shell, follow [Fix an npm 12 install](</docs/en/troubleshoot-install#fix-an-npm-12-install>) instead. Don’t install with `sudo`. Claude Code runs npm without `sudo` when it updates itself, so an install that needs `sudo` can’t update automatically.
+
 You can also install Claude Code as a global npm package. The npm package requires [Node.js 22 or later](<https://nodejs.org/en/download>). On an older Node.js version, npm prints an `EBADENGINE` warning during install rather than failing; the install completes and `claude` still runs, since the package downloads a native binary that doesn’t use your Node.js at runtime.
 
     npm install -g @anthropic-ai/claude-code

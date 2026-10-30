@@ -11,7 +11,7 @@ Each [cloud session](</docs/en/claude-code-on-the-web>) runs in a cloud environm
 
 Each of these surfaces can also route to a [self-hosted environment](</docs/en/self-hosted-environments>). [Availability and limitations](</docs/en/self-hosted-environments#availability-and-limitations>) covers what Claude can’t use yet when a Claude Tag session runs in one.
 
-[Remote Control](</docs/en/remote-control>) sessions connect the web and mobile interfaces to a session on your own machine, which uses your machine’s network and files, not a cloud environment. Claude Tag channel sessions use organization-level environments only, either shared environments or [self-hosted environments](</docs/en/self-hosted-environments>).
+[Remote Control](</docs/en/remote-control>) sessions connect the web and mobile interfaces to a session on your own machine, which uses your machine’s network and files, not a cloud environment. To choose the environment a Claude Tag channel uses, see Set the environment a Claude Tag channel uses.
 
 ##
 

@@ -3454,7 +3454,7 @@ Removed in Claude Code v2.1.277. Previously retrieved output from a running or c
 
 TaskStop
 
-**Tool name:** `TaskStop`. The previous names `KillShell` and `KillBash` are still accepted as aliases. **Input:**
+**Tool name:** `TaskStop`. You can still use the previous names `KillShell` and `KillBash` in permission rules, in hook matchers, and in the `tools`, `allowed_tools`, and `disallowed_tools` options. **Input:**
 
     {
         "task_id": str | None,  # The ID of the background task to stop

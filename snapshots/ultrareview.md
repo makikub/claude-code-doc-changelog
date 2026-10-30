@@ -113,7 +113,7 @@ Because ultrareview always bills as usage credits outside the free runs, your ac
 
 Track a running review
 
-A review typically takes 15 to 25 minutes. The review runs as a background task, so you can keep working in your session or start other commands. If you chose to post the findings to the pull request, keep the session open until the review finishes; if the session ends first, Claude Code posts nothing. Use `/tasks` to see running and completed reviews, open the detail view for a review, or stop a review that is in progress. If you stop a review, Claude Code archives the cloud session and doesn’t return partial findings. Claude can also tell you that a review was stopped or that its session wasn’t found:
+A review typically takes 5 to 15 minutes. The review runs as a background task, so you can keep working in your session or start other commands. If you chose to post the findings to the pull request, keep the session open until the review finishes; if the session ends first, Claude Code posts nothing. Use `/tasks` to see running and completed reviews, open the detail view for a review, or stop a review that is in progress. If you stop a review, Claude Code archives the cloud session and doesn’t return partial findings. Claude can also tell you that a review was stopped or that its session wasn’t found:
 
   * If the review’s cloud session is stopped or [archived](</docs/en/claude-code-on-the-web#archive-sessions>) on claude.ai before the review finishes, Claude tells you it was stopped.
   * If the review’s cloud session was deleted, or you’ve signed in to a different Claude account or organization since launching it, Claude tells you the session wasn’t found.
@@ -183,7 +183,7 @@ Both reviews examine code, but you use them at different stages of your workflow
 Target| your working diff, a pull request, a branch, or a path| your working diff or a pull request
 Runs| locally in your session| in a cloud sandbox
 Depth| scales with the effort argument| multi-agent fleet with independent verification
-Duration| seconds to a few minutes| roughly 15 to 25 minutes
+Duration| seconds to a few minutes| roughly 5 to 15 minutes
 Cost| counts toward normal usage| free runs, then roughly $5 to $25 per review as usage credits
 Best for| quick feedback while iterating| pre-merge confidence on substantial changes
 
