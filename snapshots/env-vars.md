@@ -112,7 +112,7 @@ One other variable has its own rule: `FORCE_HYPERLINK` reads a number, so only `
 
 Variable| Purpose
 ---|---
-`ANTHROPIC_API_KEY`| API key sent as `X-Api-Key` header. When set, this key is used instead of your Claude Pro, Max, Team, or Enterprise subscription even if you are logged in. In non-interactive mode (`-p`), the key is always used when present. In interactive mode, you are prompted to approve the key once before it overrides your subscription. To use your subscription instead, run `unset ANTHROPIC_API_KEY`
+`ANTHROPIC_API_KEY`| API key sent as `X-Api-Key` header. When set, this key is used instead of your Claude Pro, Max, Ultra, Team, or Enterprise subscription even if you are logged in. In non-interactive mode (`-p`), the key is always used when present. In interactive mode, you are prompted to approve the key once before it overrides your subscription. To use your subscription instead, run `unset ANTHROPIC_API_KEY`
 `ANTHROPIC_AUTH_TOKEN`| Custom value for the `Authorization` header (the value you set here will be prefixed with `Bearer `)
 `ANTHROPIC_AWS_API_KEY`| Workspace API key for [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), generated in the AWS Console. Sent as `x-api-key` and takes precedence over AWS SigV4
 `ANTHROPIC_AWS_BASE_URL`| Override the [Claude Platform on AWS](</docs/en/claude-platform-on-aws>) endpoint URL. Use for custom regions or when routing through an [LLM gateway](</docs/en/llm-gateway>). Defaults to `https://aws-external-anthropic.{region}.api.aws`. Claude Code resolves the region with the [same precedence as on Amazon Bedrock](</docs/en/amazon-bedrock#3-configure-claude-code>)
@@ -553,7 +553,7 @@ With fetching off, you can’t:
   * [Message sessions beyond this machine](</docs/en/cross-session-messaging#message-sessions-on-other-machines>) when [Remote Control](</docs/en/remote-control#requirements>) is unavailable. Messaging between sessions on this machine works with fetching off
   * Run [`claude import` or the `/import` command](</docs/en/cli-reference#cli-commands>)
   * Run [`/skill-doctor`](</docs/en/skills#find-unused-skills>) or open its report in the `/plugin` **Stats** tab
-  * Run [`/restart`](</docs/en/commands>) on Pro and Max plans
+  * Run [`/restart`](</docs/en/commands>) on Pro, Max, and Ultra plans
   * Sync the [skills](</docs/en/skills#where-synced-skills-load>) and [plugins](</docs/en/plugins/loading#synced-plugins>) enabled for your claude.ai account into your terminal sessions
   * Turn on the [You should know mod](</docs/en/interactive-mode#you-should-know-suggestions>)
   * Use [the advisor tool](</docs/en/advisor#requirements>)

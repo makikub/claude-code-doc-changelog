@@ -10,7 +10,7 @@ Data policies
 
 Data training policy
 
-**Consumer users (Free, Pro, and Max plans)** : We give you the choice to allow your data to be used to improve future Claude models. We will train new models using data from Free, Pro, and Max accounts when this setting is on (including when you use Claude Code from these accounts). **Commercial users** : (Team and Enterprise plans, API, 3rd-party platforms, and Claude Gov) maintain existing policies: Anthropic does not train generative models using code or prompts sent to Claude Code under commercial terms, unless the customer has chosen to provide their data to us for model improvement (for example, the [Developer Partner Program](<https://support.claude.com/en/articles/11174108-about-the-development-partner-program>)).
+**Consumer users (Free, Pro, Max, and Ultra plans)** : We give you the choice to allow your data to be used to improve future Claude models. We will train new models using data from Free, Pro, Max, and Ultra accounts when this setting is on (including when you use Claude Code from these accounts). **Commercial users** : (Team and Enterprise plans, API, 3rd-party platforms, and Claude Gov) maintain existing policies: Anthropic does not train generative models using code or prompts sent to Claude Code under commercial terms, unless the customer has chosen to provide their data to us for model improvement (for example, the [Developer Partner Program](<https://support.claude.com/en/articles/11174108-about-the-development-partner-program>)).
 
 ###
 
@@ -48,7 +48,7 @@ Nothing is uploaded unless you explicitly select **Yes**. Organizations with [ze
 
 Data retention
 
-Anthropic retains Claude Code data based on your account type and preferences. **Consumer users (Free, Pro, and Max plans)** :
+Anthropic retains Claude Code data based on your account type and preferences. **Consumer users (Free, Pro, Max, and Ultra plans)** :
 
   * Users who allow data use for model improvement: 5-year retention period to support model development and safety improvements
   * Users who don’t allow data use for model improvement: 30-day retention period
@@ -60,7 +60,7 @@ Anthropic retains Claude Code data based on your account type and preferences. *
   * [Zero data retention](</docs/en/zero-data-retention>): available to qualified accounts for Claude Code on Claude for Enterprise. ZDR is not included in the standard Enterprise plan; it is enabled on a per-organization basis by your account team after confirming eligibility
   * Local caching: Claude Code clients store session transcripts locally in plaintext under `~/.claude/projects/` for 30 days by default to enable session resumption. Adjust the period with `cleanupPeriodDays`. See [application data](</docs/en/claude-directory#application-data>) for what’s stored and how to clear it. Transcripts of sessions started or most recently continued in Claude Desktop or Cowork are [exempt from that limit by default](</docs/en/claude-directory#cleaned-up-automatically>).
 
-You can delete individual cloud sessions at any time. Deleting a session permanently removes the session’s event data. For instructions on how to delete sessions, see [Delete sessions](</docs/en/claude-code-on-the-web#delete-sessions>). Learn more about data retention practices in our [Privacy Center](<https://privacy.anthropic.com/>). For full details, please review our [Commercial Terms of Service](<https://www.anthropic.com/legal/commercial-terms>) (for Team, Enterprise, and API users) or [Consumer Terms](<https://www.anthropic.com/legal/consumer-terms>) (for Free, Pro, and Max users) and [Privacy Policy](<https://www.anthropic.com/legal/privacy>).
+You can delete individual cloud sessions at any time. Deleting a session permanently removes the session’s event data. For instructions on how to delete sessions, see [Delete sessions](</docs/en/claude-code-on-the-web#delete-sessions>). Learn more about data retention practices in our [Privacy Center](<https://privacy.anthropic.com/>). For full details, please review our [Commercial Terms of Service](<https://www.anthropic.com/legal/commercial-terms>) (for Team, Enterprise, and API users) or [Consumer Terms](<https://www.anthropic.com/legal/consumer-terms>) (for Free, Pro, Max, and Ultra users) and [Privacy Policy](<https://www.anthropic.com/legal/privacy>).
 
 ##
 
@@ -110,7 +110,7 @@ Telemetry services
 
 Claude Code sends two kinds of operational telemetry: usage metrics and error reports. You can turn each off individually with the environment variables below, or disable all non-essential traffic at once by setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`. Setting `DISABLE_TELEMETRY` or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` also disables feature-flag evaluation, which can make [Remote Control](</docs/en/remote-control#requirements>) unavailable; `DISABLE_ERROR_REPORTING` doesn’t. **Metrics** : latency, reliability, and usage patterns, sent to Anthropic and to third-party logging infrastructure over TLS. Metrics never include your code, prompts, or file paths. Set `DISABLE_TELEMETRY=1` to opt out. **Error reports** : error messages and stack traces from Claude Code’s own internals, sent to a third-party error tracking service over TLS. Claude Code redacts known patterns of secrets, file paths, email addresses, and other personal information before anything leaves your machine. Set `DISABLE_ERROR_REPORTING=1` to opt out. Error reporting is on only when all of these apply:
 
-  * you sign in with a Claude Pro or Max subscription
+  * you sign in with a Claude Pro, Max, or Ultra subscription
   * you’re running Claude Code v2.1.198 or later
   * you’re connecting directly to the Claude API
   * your organization doesn’t have a zero data retention or HIPAA agreement
@@ -133,7 +133,7 @@ Service| Claude API| Google Cloud’s Agent Platform API| Amazon Bedrock API| Mi
 `CLAUDE_CODE_USE_BEDROCK` must be 1.| Default off.
 `CLAUDE_CODE_USE_FOUNDRY` must be 1.| Default off.
 `CLAUDE_CODE_USE_ANTHROPIC_AWS` must be 1.
-**Error reports**|  On for Pro and Max sign-ins on v2.1.198+, otherwise off.
+**Error reports**|  On for Pro, Max, and Ultra sign-ins on v2.1.198+, otherwise off.
 `DISABLE_ERROR_REPORTING=1` to disable.| Default off.
 `CLAUDE_CODE_USE_VERTEX` must be 1.| Default off.
 `CLAUDE_CODE_USE_BEDROCK` must be 1.| Default off.

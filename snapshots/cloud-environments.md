@@ -1,4 +1,4 @@
-Cloud environments apply to [cloud sessions](</docs/en/claude-code-on-the-web>), which are available on Pro, Max, and Team plans, and for Enterprise users with [premium seats or Chat + Claude Code seats](<https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan>).
+Cloud environments apply to [cloud sessions](</docs/en/claude-code-on-the-web>), which are available on Pro, Max, Ultra, and Team plans, and for Enterprise users with [premium seats or Chat + Claude Code seats](<https://support.claude.com/en/articles/11845131-use-claude-code-with-your-team-or-enterprise-plan>).
 
 Each [cloud session](</docs/en/claude-code-on-the-web>) runs in a cloud environment. You can configure an environment to allow or deny network access, set environment variables for the session, store network secrets that sessions use without seeing them, and run a setup script before Claude starts working. The same environments apply wherever you start a cloud session:
 
@@ -22,7 +22,7 @@ The Default environment
 If you don’t have an environment yet, onboarding sets up the **Default** environment. How depends on where you onboard:
 
   * **CLI flows such as`/web-setup`**: create **Default** for you
-  * **Web onboarding on Pro and Max** : creates **Default** for you
+  * **Web onboarding on Pro, Max, and Ultra** : you get **Default** automatically
   * **Web onboarding on Team and Enterprise** : shows a **Create your first cloud environment** form unless an Owner has turned on [Quick setup](</docs/en/claude-code-on-the-web#quick-setup-for-team-and-enterprise>); keep the form’s defaults and click **Create & finish** to get the same **Default** environment
 
 **Default** carries no configuration of its own:
@@ -85,7 +85,7 @@ After you edit, add, or remove a variable, an existing session in an Anthropic-h
 
 Add network secrets
 
-A network secret is an API key or token you store on a cloud environment so Claude can call that API from any session in the environment without seeing the key. Anthropic’s agent proxy adds the key to requests for the hosts you list, after each request leaves the session’s VM, so the key itself stays outside the VM. Network secrets are available on Pro, Max, Team, and Enterprise plans. To check whether you can add one yourself, see Requirements.
+A network secret is an API key or token you store on a cloud environment so Claude can call that API from any session in the environment without seeing the key. Anthropic’s agent proxy adds the key to requests for the hosts you list, after each request leaves the session’s VM, so the key itself stays outside the VM. Network secrets are available on Pro, Max, Ultra, Team, and Enterprise plans. To check whether you can add one yourself, see Requirements.
 
 ####
 

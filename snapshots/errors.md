@@ -808,7 +808,7 @@ Claude Code blocks further requests until the reset time shown in the message. T
   * In the Code tab of the [Desktop app](</docs/en/desktop>), the session-limit card offers an **Auto-continue when limits reset** checkbox. The weekly-limit card doesn’t. When it’s checked, the Desktop app retries the interrupted turn after the reset and shows the retry time on the card. The Desktop checkbox and the CLI’s **Continue automatically at usage limit** setting in `/config` are separate, so turn each off on its own.
   * For the Opus or Sonnet limit, run `/model` and switch to a model outside that family to keep working. Each model has its own prompt cache, so the next request re-reads the whole conversation with no cache hits; see [Switching models](</docs/en/prompt-caching#switching-models>)
   * Run `/usage` to see your plan limits and when they reset
-  * Run `/usage-credits` to buy additional usage on Pro and Max, or to request it from your admin on Team and Enterprise. See [usage credits for paid plans](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) for how this is billed.
+  * Run `/usage-credits` to buy additional usage on Pro, Max, and Ultra, or to request it from your admin on Team and Enterprise. See [usage credits for paid plans](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) for how this is billed.
   * To upgrade your plan for higher base limits, see [claude.com/pricing](<https://claude.com/pricing>)
 
 Before a window runs out, Claude Code can warn you that you’ve used most of it, with a message such as `You've used 85% of your session limit · resets 3:45pm`. To watch your remaining allowance continuously, add the `rate_limits` fields to a [custom status line](</docs/en/statusline#rate-limit-usage>), or in the Desktop app click the [usage ring](</docs/en/desktop#check-usage>) next to the model picker.
@@ -826,7 +826,7 @@ The selected model uses the 1M-token extended context window, and your plan only
 In a session the Claude Desktop app runs, the hint names no commands: it points at the claude.ai usage settings page, or on Team and Enterprise plans says to turn on usage credits at claude.ai/admin-settings/usage or to ask your admin. This is an entitlement check, not a quota exhaustion. It fires even when your session and weekly allowances have capacity remaining. See [Extended context](</docs/en/model-config#extended-context>) for which plans include 1M context directly and which require usage credits. When this error appears mid-conversation because the context grew past 200K tokens, Claude Code automatically compacts the conversation back under the standard context limit and keeps the session at that limit afterward, so no action is needed. On versions before v2.1.172, the error repeated on every subsequent request including `/compact`; run `/clear` on those versions to recover. The steps below apply when you explicitly selected a `[1m]` model. **What to do:**
 
   * Run `/model` and select the variant without the `[1m]` suffix to fall back to the standard context window
-  * Where the message names `/usage-credits`, run it to turn on metered billing for the 1M variant on Pro and Max, or to request usage credits from your admin on Team and Enterprise. Once usage credits are on, restart Claude Code or start a new session, whichever the message says. Until then, the session stays at the standard context limit.
+  * Where the message names `/usage-credits`, run it to turn on metered billing for the 1M variant on Pro, Max, and Ultra, or to request usage credits from your admin on Team and Enterprise. Once usage credits are on, restart Claude Code or start a new session, whichever the message says. Until then, the session stays at the standard context limit.
   * If the error persists after `/model`, a 1M model ID may be set elsewhere. See [Setting your model](</docs/en/model-config#setting-your-model>) for the configuration locations to check in priority order.
   * To remove 1M variants from the model picker entirely, set [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](</docs/en/env-vars>)
 
@@ -899,7 +899,7 @@ Your plan’s included usage can’t cover this request, and the [usage credits]
 
 `team's shared budget` is a pooled budget an admin assigned to a group you belong to; the message doesn’t name the group. `channel's monthly spend limit` is the budget of the one Slack channel the session runs in, so your organization may still have budget outside it. When one of your plan’s windows is what ran out, the message also says when that window resets, for example `· your session limit resets 3:45pm`, and access returns then without anyone raising the limit. On organizations with usage-based billing, the message says `usage limit` in place of `spend limit`, as in `You've hit your individual usage limit`. If you connect through a Claude apps gateway and see lowercase `spend limit reached`, that is your gateway operator’s cap instead; see Spend limit reached. **What to do:**
 
-  * On Pro and Max, increase your monthly spend limit in [**Settings > Usage**](<https://claude.ai/settings/usage>) on claude.ai, or run `/usage-credits`
+  * On Pro, Max, and Ultra, increase your monthly spend limit in [**Settings > Usage**](<https://claude.ai/settings/usage>) on claude.ai, or run `/usage-credits`
   * On Team and Enterprise, increase the limit in [**Organization settings > Usage**](<https://claude.ai/admin-settings/usage>) if you manage billing, or ask an admin to. `/usage-credits` sends that request to your admin for you
   * For a channel’s limit, ask an org owner or the channel’s manager to raise it on claude.ai. See [Per-channel limits](<https://claude.com/docs/claude-tag/admins/set-spend-limit#per-channel-limits>) in the Claude Tag documentation
   * If the message names a reset time for your plan’s window, you can wait for it instead
@@ -934,7 +934,7 @@ Your Console organization has run out of prepaid credits, or Claude Code is send
 
 **What to do:**
 
-  * If you have a Pro, Max, Team, or Enterprise plan and see this, run `/status` and check the `API key` row. An approved `ANTHROPIC_API_KEY` in your environment routes requests through that key instead of your subscription. Unset it in the current shell and remove it from your shell profile, then relaunch `claude`. Run `/login` if you haven’t signed in with your subscription yet.
+  * If you have a Pro, Max, Ultra, Team, or Enterprise plan and see this, run `/status` and check the `API key` row. An approved `ANTHROPIC_API_KEY` in your environment routes requests through that key instead of your subscription. Unset it in the current shell and remove it from your shell profile, then relaunch `claude`. Run `/login` if you haven’t signed in with your subscription yet.
   * Add credits at [platform.claude.com/settings/billing](<https://platform.claude.com/settings/billing>), and consider enabling auto-reload there so the balance refills before it hits zero
   * Set per-workspace spend caps in the Console to prevent a single project from draining the org balance. See [Manage costs effectively](</docs/en/costs>).
 
@@ -1078,7 +1078,7 @@ Claude Code is using a stale `ANTHROPIC_API_KEY` from a disabled Console organiz
     Your ANTHROPIC_API_KEY belongs to a disabled organization · Update or unset the environment variable
     API Error: 400 ... This organization has been disabled.
 
-The hint after the `·` depends on your saved credentials: the first form appears when a stored `/login` can take over after you unset the key, and the second when the key is your only credential. Environment variables take precedence over `/login`, so a key exported in your shell profile or loaded from a `.env` file is used even when you have a working Pro or Max subscription. In non-interactive mode (`-p`), the key is always used when present. **What to do:**
+The hint after the `·` depends on your saved credentials: the first form appears when a stored `/login` can take over after you unset the key, and the second when the key is your only credential. If you export a key in your shell profile or load one from `.env`, Claude Code uses it instead of `/login`, even with a working Pro, Max, or Ultra subscription. In non-interactive mode (`-p`), the key is always used when present. **What to do:**
 
   * Unset `ANTHROPIC_API_KEY` in the current shell and remove it from your shell profile, then relaunch `claude`
   * If the message says `Update or unset`, you have no saved login to fall back to. Unset the key and run `/login`, or replace the key with one from an active Console organization.

@@ -168,7 +168,7 @@ Submit to Anthropic’s directory
 
 Confirm you can submit
 
-Submitting requires a paid claude.ai plan. On Pro and Max you submit from your own account. On Team and Enterprise, an Owner can submit, and on Enterprise an Owner can also grant the **Directory** permission to other members through a custom role under **Organization settings > Roles**. See [Confirm you can submit to the directory](<https://claude.com/docs/directory/publish#confirm-you-can-submit-to-the-directory>).
+Submitting requires a paid claude.ai plan. On Pro, Max, and Ultra you submit from your own account. On Team and Enterprise, an Owner can submit, and on Enterprise an Owner can also grant the **Directory** permission to other members through a custom role under **Organization settings > Roles**. See [Confirm you can submit to the directory](<https://claude.com/docs/directory/publish#confirm-you-can-submit-to-the-directory>).
 
 2
 

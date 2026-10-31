@@ -11,7 +11,7 @@ A single scheduled task can combine triggers. For example, a PR review task can 
   * A task with only an API trigger runs when you call its endpoint.
   * A task with only a GitHub trigger runs when a matching repository event occurs.
 
-Scheduled tasks are available on Pro, Max, Team, and Enterprise plans. Create and manage them at [claude.ai/code/routines](<https://claude.ai/code/routines>), or from the CLI with `/schedule`. The earlier name, routines, still appears.
+Scheduled tasks are available on Pro, Max, Ultra, Team, and Enterprise plans. Create and manage them at [claude.ai/code/routines](<https://claude.ai/code/routines>), or from the CLI with `/schedule`. The earlier name, routines, still appears.
 
 Two other features schedule work on your machine instead of in the cloud: [Desktop scheduled tasks](</docs/en/desktop-scheduled-tasks>) and [`/loop`](</docs/en/scheduled-tasks>). To choose among all three, see [Compare scheduling options](</docs/en/scheduled-tasks#compare-scheduling-options>).
 
@@ -550,7 +550,7 @@ The CLI hides `/schedule` when one of its requirements isn’t met: the command 
   * An Owner turned off scheduled tasks for your Team or Enterprise organization. Before v2.1.227, the command still appeared in this case, and claude.ai rejected the task when Claude tried to create or run it
   * Your Enterprise organization manages your access with [custom roles](<https://support.claude.com/en/articles/13930452>), and none of your roles includes the scheduled tasks permission under **Remote sessions**. Ask an Owner to add it to one of your roles
 
-If the cause is your CLI sign-in or being inside a cloud session, you can still create and manage scheduled tasks at [claude.ai/code/routines](<https://claude.ai/code/routines>). You need a Pro, Max, Team, or Enterprise account there. If scheduled tasks or cloud sessions are off for your organization or missing from your roles, you can’t create them on the web either.
+If the cause is your CLI sign-in or being inside a cloud session, you can still create and manage scheduled tasks at [claude.ai/code/routines](<https://claude.ai/code/routines>). You need a Pro, Max, Ultra, Team, or Enterprise account there. If scheduled tasks or cloud sessions are off for your organization or missing from your roles, you can’t create them on the web either.
 
 ###
 

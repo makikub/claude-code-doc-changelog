@@ -15,7 +15,7 @@ Prerequisites
 Before installing, make sure you have:
 
   * VS Code 1.94.0 or later
-  * An Anthropic account: any paid Claude subscription (Pro, Max, Team, or Enterprise) or a Claude Console account works, and no API key is required. You’ll [sign in](</docs/en/authentication#log-in-to-claude-code>) with this account when you first open the extension. If you access Claude through a third-party provider like Amazon Bedrock or Google Cloud’s Agent Platform, see Use third-party providers for setup instructions.
+  * An Anthropic account: any paid Claude subscription (Pro, Max, Ultra, Team, or Enterprise) or a Claude Console account works, and no API key is required. You’ll [sign in](</docs/en/authentication#log-in-to-claude-code>) with this account when you first open the extension. If you access Claude through a third-party provider like Amazon Bedrock or Google Cloud’s Agent Platform, see Use third-party providers for setup instructions.
 
 The extension bundles its own copy of the CLI (command-line interface) for the chat panel. To run `claude` in VS Code’s integrated terminal, you also need the [standalone CLI install](</docs/en/setup>). See VS Code extension vs. Claude Code CLI for details.
 
@@ -30,9 +30,13 @@ Click the link for your IDE to install directly:
   * [Install for VS Code](<vscode:extension/anthropic.claude-code>)
   * [Install for Cursor](<cursor:extension/anthropic.claude-code>)
 
-Or in VS Code, press `Cmd+Shift+X` (Mac) or `Ctrl+Shift+X` (Windows/Linux) to open the Extensions view, search for “Claude Code”, and click **Install**. The extension’s version number is the Claude Code version it bundles. For example, a feature that requires Claude Code v2.1.286 or later needs version 2.1.286 or later of the extension, which the Extensions view shows. Claude Code also runs in other editors and containers:
+Or in VS Code, press `Cmd+Shift+X` (Mac) or `Ctrl+Shift+X` (Windows/Linux) to open the Extensions view, search for “Claude Code”, and click **Install**.
 
-  * **Other VS Code forks** : the extension also installs in forks like Devin Desktop or Kiro. Search for “Claude Code” in the editor’s Extensions view, or install from the [Open VSX registry](<https://open-vsx.org/extension/Anthropic/claude-code>).
+Extension marketplaces are third-party software, which Anthropic doesn’t endorse, maintain, or audit. Anthropic submits extensions for publication to the Visual Studio Marketplace and Open VSX Registry.
+
+The extension’s version number is the Claude Code version it bundles. For example, a feature that requires Claude Code v2.1.286 or later needs version 2.1.286 or later of the extension, which the Extensions view shows. Claude Code also runs in other editors and containers:
+
+  * **Other VS Code forks** : the extension also installs in forks like Devin Desktop or Kiro. Search for “Claude Code” in the editor’s Extensions view, or install from the [Open VSX Registry](<https://open-vsx.org/extension/Anthropic/claude-code>).
   * **Editors that can’t install the extension** : [install the CLI](</docs/en/quickstart>) and run `claude` in the editor’s integrated terminal instead. The CLI works in any terminal.
   * **Dev containers** : to run Claude Code inside a dev container, see [Development containers](</docs/en/devcontainer>).
 
@@ -97,7 +101,7 @@ Use the prompt box
 
 The prompt box supports several features:
 
-  * **Permission modes** : click the mode indicator at the bottom of the prompt box to switch permission modes. With Claude Code v2.1.283 or later, Auto is the built-in starting permission mode, and on earlier versions only on Pro, Max, and Team plans. See [how the extension chooses the starting permission mode](</docs/en/permission-modes#switch-permission-modes>) for what changes that, and every permission mode the indicator offers.
+  * **Permission modes** : click the mode indicator at the bottom of the prompt box to switch permission modes. With Claude Code v2.1.283 or later, Auto is the built-in starting permission mode, and on earlier versions only on Pro, Max, Ultra, and Team plans. See [how the extension chooses the starting permission mode](</docs/en/permission-modes#switch-permission-modes>) for what changes that, and every permission mode the indicator offers.
     * **Auto** : a classifier reviews most actions instead of asking you. See [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) for what it reviews and blocks.
     * **Manual** : Claude asks permission before file edits and most shell commands.
     * **Plan** : Claude describes what it will do and waits for approval before making changes. VS Code automatically opens the plan as a full Markdown document where you can add inline comments to give feedback before Claude begins. You can also type `/plan` in the prompt box. Requires Claude Code v2.1.280 or later.
@@ -728,7 +732,7 @@ Configure settings
 You configure the extension in two places, VS Code’s extension settings and the Claude Code settings file:
 
   * **Extension settings** in VS Code: control the extension’s behavior within VS Code. Open with `Cmd+,` (Mac) or `Ctrl+,` (Windows/Linux), then go to **Extensions > Claude Code**. You can also type `/` and select **General config…** to open settings.
-  * **Claude Code settings** in `~/.claude/settings.json`: shared between the extension and CLI. Use it for allowed commands, environment variables, hooks, and MCP servers. With Claude Code v2.1.283 or later, it’s also one input to the permission mode conversations start in, and on earlier versions only on Pro, Max, and Team plans. [Switch permission modes](</docs/en/permission-modes#switch-permission-modes>) lists the order. See [Settings](</docs/en/settings>) for details.
+  * **Claude Code settings** in `~/.claude/settings.json`: shared between the extension and CLI. Use it for allowed commands, environment variables, hooks, and MCP servers. With Claude Code v2.1.283 or later, you can also use it as one input to the permission mode conversations start in. On earlier versions, you can do this only on Pro, Max, Ultra, and Team plans. [Switch permission modes](</docs/en/permission-modes#switch-permission-modes>) lists the order. See [Settings](</docs/en/settings>) for details.
 
 Add `"$schema": "https://json.schemastore.org/claude-code-settings.json"` to your `settings.json` to get autocomplete and inline validation for all available settings directly in VS Code.
 
@@ -965,7 +969,7 @@ Extension won’t install
 
   * Ensure you have a compatible version of VS Code (1.94.0 or later)
   * Check that VS Code has permission to install extensions
-  * Try installing directly from the [VS Code Marketplace](<https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code>)
+  * Try installing directly from the [Visual Studio Marketplace](<https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code>)
 
 ###
 

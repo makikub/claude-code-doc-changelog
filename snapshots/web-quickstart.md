@@ -1,4 +1,4 @@
-Cloud sessions are available on Pro, Max, and Team plans, and for Enterprise users with premium seats or Chat + Claude Code seats.
+Cloud sessions are available on Pro, Max, Ultra, and Team plans, and for Enterprise users with premium seats or Chat + Claude Code seats.
 
 A cloud session runs Claude Code on cloud infrastructure instead of your machine, Anthropic-managed by default. This quickstart starts one from [claude.ai/code](<https://claude.ai/code>) in your browser. You can also start one from the Claude mobile app, the Desktop app, or your terminal with `claude --cloud`. You’ll need a GitHub repository to get started. Claude clones it into an isolated virtual machine, makes changes, and pushes a branch for you to review. Sessions persist across devices, so a task you start on your laptop is ready to review from your phone later. Each session counts toward your plan’s usage limits alongside the rest of your Claude and Claude Code usage, and there’s no separate charge for the cloud VM. Cloud sessions work well for:
 
@@ -73,7 +73,7 @@ Set up your Default environment
 
 A [cloud environment](</docs/en/cloud-environments>) is the saved configuration that controls what network access Claude has during sessions and what runs when a session starts. What happens after you connect GitHub depends on your plan:
 
-  * **Pro and Max** : onboarding creates an environment named **Default** for you.
+  * **Pro, Max, and Ultra** : you get an environment named **Default** automatically.
   * **Team and Enterprise** : onboarding shows a **Create your first cloud environment** form. Leave the prefilled name and network access unchanged and click **Create & finish** to create the **Default** environment. If an Owner has turned on [Quick setup](</docs/en/claude-code-on-the-web#quick-setup-for-team-and-enterprise>), onboarding creates **Default** for you instead.
 
 **Default** uses [`Trusted` network access](</docs/en/cloud-environments#access-levels>): sessions reach [common package registries](</docs/en/cloud-environments#default-allowed-domains>) and other allowlisted domains, and nothing else through the session’s network. See [Installed tools](</docs/en/cloud-environments#installed-tools>) for what’s available without any configuration.For a first project, the **Default** environment works as is. To change its network access, add environment variables, or run a [setup script](</docs/en/cloud-environments#setup-scripts>) before sessions start, [edit it or create additional environments](</docs/en/cloud-environments#configure-your-environment>).

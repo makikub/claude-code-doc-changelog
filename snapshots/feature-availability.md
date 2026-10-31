@@ -8,7 +8,7 @@ Availability by model provider
 
 How you authenticate determines which features Claude Code can reach. For a single list of what is missing on your provider, see the summary by provider tabs. To find your column in the tables:
 
-  * **Claude subscription** : you sign in with a claude.ai account on the Pro, Max, Team, or Enterprise plan
+  * **Claude subscription** : you sign in with a claude.ai account on the Pro, Max, Ultra, Team, or Enterprise plan
   * **Anthropic Console** : you authenticate with an Anthropic API key or by [signing in to a Console account without one](</docs/en/authentication#sign-in-without-an-api-key>)
   * **Amazon Bedrock** : you use Claude models from the Amazon Bedrock model catalog and set `CLAUDE_CODE_USE_BEDROCK`. The [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>) (`CLAUDE_CODE_USE_MANTLE`) is covered by this column
   * **Claude Platform on AWS** : you bought Claude through AWS Marketplace but call the Anthropic API, and set `CLAUDE_CODE_USE_ANTHROPIC_AWS`
@@ -48,15 +48,15 @@ Features that require a Claude subscription
 These require signing in with a claude.ai account and are not reachable with an Anthropic Console API key or from a third-party provider:
 
   * [Cloud sessions](</docs/en/claude-code-on-the-web>) and Claude Code on mobile
-  * [Claude Code in Slack](</docs/en/slack>): Pro and Max plans
+  * [Claude Code in Slack](</docs/en/slack>): Pro, Max, and Ultra plans
   * [Claude Code Desktop](</docs/en/desktop>)
   * [Cloud scheduled tasks](</docs/en/routines>) (`/schedule`)
   * [Ultrareview](</docs/en/ultrareview>)
   * [Code Review](</docs/en/code-review>): Team and Enterprise plans
   * [Remote Control](</docs/en/remote-control>)
   * [Chrome extension](</docs/en/chrome>)
-  * [Computer use](</docs/en/computer-use>): Pro and Max plans
-  * [Artifacts](</docs/en/artifacts>): Pro, Max, Team, and Enterprise plans
+  * [Computer use](</docs/en/computer-use>): Pro, Max, and Ultra plans
+  * [Artifacts](</docs/en/artifacts>): Pro, Max, Ultra, Team, and Enterprise plans
   * [Voice dictation](</docs/en/voice-dictation>)
 
 Desktop is the partial exception: [gateway routing can be configured in the app or by an administrator](</docs/en/llm-gateway-connect#desktop-app>). [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>) also runs the Code tab on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or a self-hosted LLM gateway. It also runs the Code tab on the [Claude API](<https://claude.com/docs/third-party/claude-desktop/claude-api>) with an Anthropic Console API key. For per-plan availability of these features, see Availability by subscription plan.
@@ -161,26 +161,34 @@ Availability by subscription plan
 
 If you authenticate through Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or an Anthropic Console API key, this section does not apply to you. When you sign in with a claude.ai account, your plan determines which of the features below are available. In Enterprise organizations with the [HIPAA configuration](</docs/en/hipaa-setup>) applied, some features in this table are turned off.
 
-Feature| Pro| Max| Team| Enterprise
----|---|---|---|---
-[Cloud sessions](</docs/en/claude-code-on-the-web>)| ✓| ✓| ✓| ✓ 6
-[Cloud scheduled tasks](</docs/en/routines>)| ✓| ✓| ✓| ✓
-[Remote Control](</docs/en/remote-control>)| ✓| ✓| Admin-enabled| Admin-enabled
-[Channels](</docs/en/channels>)| ✓| ✓| Admin-enabled| Admin-enabled
-[Computer use](</docs/en/computer-use>)| ✓| ✓| ✗| ✗
-Dispatch ([Desktop](</docs/en/desktop#sessions-from-dispatch>))| ✓| ✓| ✗| ✗
-[Code Review](</docs/en/code-review>)| ✗| ✗| ✓| ✓
-[Artifacts](</docs/en/artifacts>)| ✓| ✓| ✓| ✓
-[Analytics dashboard and contribution metrics](</docs/en/analytics>)| ✗| ✗| ✓| ✓
-[Enterprise Analytics API](</docs/en/analytics#access-data-programmatically>)| ✗| ✗| ✗| ✓
-[Server-managed settings](</docs/en/server-managed-settings>)| ✗| ✗| ✓| ✓
-[SSO](<https://support.claude.com/en/articles/9266767-what-is-the-team-plan>)| ✗| ✗| ✓| ✓
-SCIM| ✗| ✗| ✗| ✓
-[Compliance API](<https://platform.claude.com/docs/en/api/compliance>)| ✗| ✗| ✗| ✓
-[Zero Data Retention](</docs/en/zero-data-retention>)| ✗| ✗| ✗| ✓ 7
+Feature| Pro| Max| Ultra| Team| Enterprise
+---|---|---|---|---|---
+[Cloud sessions](</docs/en/claude-code-on-the-web>)| ✓| ✓| ✓| ✓| ✓ 6
+[Cloud scheduled tasks](</docs/en/routines>)| ✓| ✓| ✓| ✓| ✓
+[Remote Control](</docs/en/remote-control>)| ✓| ✓| ✓| Admin-enabled| Admin-enabled
+[Channels](</docs/en/channels>)| ✓| ✓| ✓| Admin-enabled| Admin-enabled
+[Computer use](</docs/en/computer-use>)| ✓| ✓| ✓| ✗| ✗
+Dispatch ([Desktop](</docs/en/desktop#sessions-from-dispatch>))| ✓| ✓| ✓| ✗| ✗
+[Code Review](</docs/en/code-review>)| ✗| ✗| ✗| ✓| ✓
+[Artifacts](</docs/en/artifacts>)| ✓| ✓| ✓| ✓| ✓
+[Analytics dashboard and contribution metrics](</docs/en/analytics>)| ✗| ✗| ✗| ✓| ✓
+[Enterprise Analytics API](</docs/en/analytics#access-data-programmatically>)| ✗| ✗| ✗| ✗| ✓
+[Server-managed settings](</docs/en/server-managed-settings>)| ✗| ✗| ✗| ✓| ✓
+[SSO](<https://support.claude.com/en/articles/9266767-what-is-the-team-plan>)| ✗| ✗| ✗| ✓| ✓
+SCIM| ✗| ✗| ✗| ✗| ✓
+[Compliance API](<https://platform.claude.com/docs/en/api/compliance>)| ✗| ✗| ✗| ✗| ✓
+[Zero Data Retention](</docs/en/zero-data-retention>)| ✗| ✗| ✗| ✗| ✓ 7
 
 6 On Enterprise, requires a premium seat or a Chat + Claude Code seat. See [Use Claude Code in the cloud](</docs/en/claude-code-on-the-web>).
 7 Not included in the standard Enterprise plan. Requires separate enablement by Anthropic for qualified accounts. See [Zero Data Retention](</docs/en/zero-data-retention>). For pricing and the full plan comparison, see [Team plans](<https://support.claude.com/en/articles/9266767-what-is-the-team-plan>) and [Enterprise plans](<https://support.claude.com/en/articles/9797531-what-is-the-enterprise-plan>).
+
+###
+
+​
+
+Ultra plan
+
+Ultra is the new name for the Max 20x plan, and Max is the new name for Max 5x. To check which plan you’re on, see your subscription on claude.ai. In Claude Code, Max and Ultra have the same features, listed in the Max and Ultra columns of the availability table. For usage limits and pricing, see the [Claude pricing page](<https://claude.com/pricing>).
 
 ##
 

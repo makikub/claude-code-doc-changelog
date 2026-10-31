@@ -141,7 +141,7 @@ Generate environment entries with `/auto-mode-setup`
 
 Run `/auto-mode-setup` to have Claude Code draft `autoMode.environment` entries, and sometimes rule entries too, from your project and your recent sessions in it. If you accept the draft, Claude Code writes it to `~/.claude/settings.json`.
 
-`/auto-mode-setup` is available on Pro, Max, Team, and Enterprise plans and with a Claude Console API key. On a Pro, Max, or Team plan, you need v2.1.228 or later, or v2.1.233 or later on native Windows. On an Enterprise plan or with a Claude Console API key, you need v2.1.283 or later. If the command is missing from your session, see `/auto-mode-setup` returns “Unknown command”.
+`/auto-mode-setup` is available on Pro, Max, Ultra, Team, and Enterprise plans and with a Claude Console API key. On a Pro, Max, Ultra, or Team plan, you need v2.1.228 or later, or v2.1.233 or later on native Windows. On an Enterprise plan or with a Claude Console API key, you need v2.1.283 or later. If the command is missing from your session, see `/auto-mode-setup` returns “Unknown command”.
 
 ###
 
