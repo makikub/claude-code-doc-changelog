@@ -26,6 +26,7 @@ Claude Code runs on the following platforms and configurations:
 Additional dependencies
 
   * **ripgrep** : usually included with Claude Code. If search fails, see [search troubleshooting](</docs/en/troubleshooting#search-and-discovery-issues>).
+  * **Git** : optional. If git is installed, [`claude plugin eval`](</docs/en/plugin-evals#requirements>) requires 2.31 or later. [Uploads of a local repository to a cloud session](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>) from macOS, Linux, or WSL need git 2.31 or later. Run `git --version` to see your version.
 
 ##
 

@@ -35,12 +35,28 @@ A worktree is a fresh checkout, so initialize your development environment there
 
 Ask Claude to create a worktree
 
-You can also ask Claude to “work in a worktree” during a session, and it creates one with the [`EnterWorktree`](</docs/en/tools-reference>) tool. Once in a worktree, Claude can switch directly to another one under `.claude/worktrees/` by calling `EnterWorktree` with the target path; the previous worktree stays on disk untouched. When Claude enters a path outside the repository’s `.claude/worktrees/` directory, Claude Code asks for your approval first. The move takes the session’s working directory, write access, and project configuration such as `CLAUDE.md` and settings to that location. An `EnterWorktree` [permission rule](</docs/en/permissions>) or choosing “don’t ask again” doesn’t suppress this prompt; only `bypassPermissions` mode skips it.
+You can also ask Claude to “work in a worktree” during a session, and it creates one with the [`EnterWorktree`](</docs/en/tools-reference#enterworktree-tool-behavior>) tool. Once in a worktree, Claude can switch directly to another one under `.claude/worktrees/` by calling `EnterWorktree` with the target path; the previous worktree stays on disk untouched. When Claude enters a path outside the repository’s `.claude/worktrees/` directory, Claude Code asks for your approval first. The move takes the session’s working directory, write access, and project configuration such as `CLAUDE.md` and settings to that location. An `EnterWorktree` [permission rule](</docs/en/permissions>) or choosing “don’t ask again” doesn’t suppress this prompt; only `bypassPermissions` mode skips it.
 
 **Hook paths don’t follow the worktree.** After Claude enters a worktree, Claude Code keeps `${CLAUDE_PROJECT_DIR}` in your [hooks](</docs/en/hooks#reference-scripts-by-path>) where it was and passes the worktree path to them a different way:
 
   * **`${CLAUDE_PROJECT_DIR}` stays put**: it still points at the project root where the session started, so a hook command such as `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh` still runs the script in the main checkout.
   * **`cwd` follows Claude**: the `cwd` field in the hook’s [input JSON](</docs/en/hooks#common-input-fields>) is the worktree root, and it moves again when Claude runs `cd`. Read it when a hook needs the worktree path.
+
+####
+
+​
+
+Claude has no `EnterWorktree` tool
+
+If you ask Claude to work in a worktree and it has no `EnterWorktree` or `ExitWorktree` tool, check whether [`permissions.blockWritesOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockwritesoutsideworkingdirectories>) is on. Once the key is on, Claude Code removes both worktree tools or refuses calls to them. You can keep working in worktrees while the key is on:
+
+  * **Interactive sessions** : start the session in a worktree with `claude --worktree`.
+  * **[Background sessions](</docs/en/agent-view#how-file-edits-are-isolated>)** : Claude Code refuses a background session’s edits in your main checkout until the session calls `EnterWorktree`, which it doesn’t have. Any of these lets the session edit:
+    * Start it with `claude --bg --worktree`
+    * Set [`worktree.bgIsolation`](</docs/en/settings-reference#worktree-bgisolation>) to `"none"`
+    * Have Claude edit in a worktree made with `git worktree add` under the directory the session started in
+
+To get the tools back, run `/status` in the session to list the [setting sources it loaded](</docs/en/settings#check-what-loaded>), and remove the key from every file that sets it. Then restart Claude Code. If managed settings set the key, ask your administrator whether the policy should change.
 
 ##
 
@@ -63,7 +79,7 @@ Non-interactive runs with `-p` have no exit prompt, so Claude doesn’t clean up
 
 Resume a worktree session
 
-When you resume a session that ended inside a worktree without exiting it, Claude Code returns the session to that worktree. This holds for interactive resumes, for `--continue` and `--resume` in [non-interactive mode](</docs/en/headless>) with `-p`, and for the Agent SDK. `--continue` picks the most recent session recorded under the directory you launch from. Back inside the worktree, Claude can still exit it with the [`ExitWorktree`](</docs/en/tools-reference>) tool. Before returning the session to its worktree, Claude Code verifies that the worktree is still a checkout separate from the main one, and declines to re-enter a worktree that fails the check. For a git worktree, the check reads its git metadata. A worktree without git metadata, such as one a `WorktreeCreate` hook created, can pass the check; the cases Claude Code still refuses are listed with their recoveries under Claude Code refuses to use a worktree. For the messages and how to recover from each, see The session resumes outside its worktree. Where you launch from, and how you resume, change what Claude Code re-enters:
+When you resume a session that ended inside a worktree without exiting it, Claude Code returns the session to that worktree. This holds for interactive resumes, for `--continue` and `--resume` in [non-interactive mode](</docs/en/headless>) with `-p`, and for the Agent SDK. `--continue` picks the most recent session recorded under the directory you launch from. Back inside the worktree, Claude can leave with the [`ExitWorktree`](</docs/en/tools-reference>) tool when the session has that tool. Before returning the session to its worktree, Claude Code verifies that the worktree is still a checkout separate from the main one, and declines to re-enter a worktree that fails the check. For a git worktree, the check reads its git metadata. A worktree without git metadata, such as one a `WorktreeCreate` hook created, can pass the check; the cases Claude Code still refuses are listed with their recoveries under Claude Code refuses to use a worktree. For the messages and how to recover from each, see The session resumes outside its worktree. Where you launch from, and how you resume, change what Claude Code re-enters:
 
   * **Launch directory** : resume with `--resume` from the main checkout or another directory of the repository. Claude Code re-enters a worktree it created with git under `.claude/worktrees/` even when you launch from inside it. When you launch from inside any other worktree, Claude Code re-enters it only if it can vouch for it from there: a worktree that is its own repository, one without git metadata, or a launch from a subdirectory of a worktree you created with `git worktree add` declines, so launch those from the main checkout.
   * **`--fork-session`** : the forked session starts in the directory you launched Claude from, and Claude Code leaves the original session’s worktree untouched.
@@ -81,7 +97,7 @@ How Claude Code enforces isolation
 
 While a session is isolated in a worktree, Claude Code blocks the tool calls the checks below define. The same rules apply whether you started the session with `--worktree`, Claude entered a worktree with `EnterWorktree`, or you resumed a worktree session. The same enforcement covers every subagent Claude spawns from the isolated session. It applies whether the session is interactive or runs in the [background](</docs/en/agent-view#how-file-edits-are-isolated>). Subagents that run in their own worktree carry the same checks. Their version history is under [Write subagent files](</docs/en/sub-agents#write-subagent-files>). Claude Code applies four checks:
 
-  * **File edits** : Claude Code blocks an `Edit`, `Write`, or `NotebookEdit` that targets a path in the main checkout.
+  * **File edits** : Claude Code blocks an `Edit`, `Write`, or `NotebookEdit` that targets a path in the main checkout. To change a file in the main checkout, edit it yourself or start an interactive session there.
   * **Command working directory** : Claude Code blocks a Bash, PowerShell, or Monitor command whose working directory resolves to the main checkout, or whose working directory it can’t verify stays outside it.
   * **Git redirects** : Claude Code blocks a Bash or Monitor command that redirects git into the main checkout. The redirect can come through `git -C`, `--git-dir`, a `GIT_DIR` or `GIT_WORK_TREE` variable, or a `cd` into the main checkout before running git.
   * **Command shape** : Claude Code blocks a Bash or Monitor command when it can’t verify from the command text that any git the command runs stays inside the worktree. That happens, for example, when the command name is computed at runtime, when the syntax can’t be parsed, or when an expansion such as `${!name}` or `${ command; }` could run a command the text doesn’t spell out. Claude Code tells Claude how to rewrite the refused command, such as splitting it into plain, separate commands. You can’t turn this check off.
