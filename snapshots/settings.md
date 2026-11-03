@@ -176,6 +176,8 @@ Claude Code watches your settings files and reloads them when they change, so it
   * [`model`](</docs/en/settings-reference#model>): use [`/model`](</docs/en/model-config#setting-your-model>) to switch mid-session. Each model has its own prompt cache, so the first request after a switch re-reads the whole conversation uncached; see [Switching models](</docs/en/prompt-caching#switching-models>)
   * [`effortLevel`](</docs/en/settings-reference#effortlevel>) and [`modelSettings`](</docs/en/settings-reference#modelsettings>): use [`/effort`](</docs/en/model-config#adjust-effort-level>) to change effort mid-session
 
+If you remove [`permissions.blockReadsOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockreadsoutsideworkingdirectories>) mid-session, the file tools keep the block in the running session. To lift it, remove the key from every settings file that sets it, then restart each running session.
+
 ###
 
 ​
@@ -343,7 +345,7 @@ Key| Value Claude Code honors| Notes
 [`autoMode.classifyAllShell`](</docs/en/settings-reference#automode-classifyallshell>)| `true` from `~/.claude/settings.json` or `--settings`| Honored even when a managed source sets `false`
 [`remoteControlAtStartup`](</docs/en/settings-reference#remotecontrolatstartup>)| `false` from `.claude/settings.json` or `.claude/settings.local.json`| Honored even when a managed source sets `true`; a project or local `true` is ignored
 [`crossSessionInbound`](</docs/en/settings-reference#crosssessioninbound>)| A stricter value from `.claude/settings.json` or `.claude/settings.local.json`, on the `accept` < `hold` < `refuse` ladder| Honored over managed, `--settings`, and user values; a project or local value that isn’t stricter is ignored
-[`useAutoModeDuringPlan`](</docs/en/settings-reference#useautomodeduringplan>)| `false` from any managed source, `--settings`, `~/.claude/settings.json`, or `.claude/settings.local.json`| Honored even when the winning managed source sets `true`; a `false` in `.claude/settings.json` is ignored
+[`useAutoModeDuringPlan`](</docs/en/settings-reference#useautomodeduringplan>)| `false` from any managed source, `--settings`, `~/.claude/settings.json`, or `.claude/settings.local.json`| Honored even when the winning managed source sets `true`; a `false` in `.claude/settings.json` is ignored. See [the key’s entry](</docs/en/settings-reference#useautomodeduringplan>) for a file you leave out at launch
 [`syncClaudeAiSkills`](</docs/en/settings-reference#syncclaudeaiskills>)| `false` from any managed source, `--settings`, `~/.claude/settings.json`, or `.claude/settings.local.json`| Honored even when the winning managed source sets `true`; a `false` in `.claude/settings.json` is ignored
 [`syncClaudeAiPlugins`](</docs/en/settings-reference#syncclaudeaiplugins>)| `false` from any managed source, `--settings`, `~/.claude/settings.json`, or `.claude/settings.local.json`| Honored even when the winning managed source sets `true`; a `false` in `.claude/settings.json` is ignored
 [`maxEffortLevel`](</docs/en/settings-reference#maxeffortlevel>)| A lower cap from any scope, including `--settings`| Honored even when the managed settings Claude Code applies set a higher cap; the lowest cap applies. Requires Claude Code v2.1.267 or later

@@ -371,6 +371,7 @@ Category| Included
 **C/C++**|  GCC, Clang, cmake, ninja, conan
 **Docker**|  docker, dockerd, docker compose
 **Databases**|  PostgreSQL 16, Redis 7.0
+**Browser**|  Chrome for Testing at `/usr/bin/google-chrome`, with the `CHROME_PATH` environment variable set to that path
 **Utilities**|  git, gh, jq, yq, ripgrep, tmux, vim, nano
 
 ¹ Bun is installed but has known proxy compatibility issues for package fetching. To get the versions of most of the tools in this table, ask Claude to run `check-tools` in a cloud session. It’s a shell command installed on the session VM, not a command you type with `/`; you ask Claude because Claude runs all VM commands for you. For a tool it doesn’t report, such as Ruby, PHP, bun, PostgreSQL, or Redis, ask Claude to run the tool’s own version command, for example `psql --version`. Node.js versions are installed at `/opt/node20`, `/opt/node21`, and `/opt/node22`, with 22 on `PATH` by default. To work with a different version, ask Claude to prepend that version’s `bin` directory, such as `/opt/node20/bin`, to `PATH`. Toolchains outside this list, such as the .NET SDK, aren’t pre-installed even when their package registries are on the default allowlist. Install them with a setup script.

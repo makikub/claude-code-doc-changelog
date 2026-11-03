@@ -47,6 +47,8 @@ Install the JetBrains plugin
 
 Install the [Claude Code plugin](<https://plugins.jetbrains.com/plugin/27310-claude-code-beta->) from the JetBrains Marketplace and restart your IDE.
 
+The JetBrains Marketplace is third-party software, which Anthropic doesn’t endorse, maintain, or audit. Anthropic submits the Claude Code plugin for publication to the JetBrains Marketplace.
+
 If `claude` is installed somewhere your IDE can’t find, set the full path in the plugin’s Claude command setting. Claude Code works with any paid Claude subscription (Pro, Max, Ultra, Team, or Enterprise) or a Claude Console account, and no API key is required. You’ll be prompted to [log in](</docs/en/authentication#log-in-to-claude-code>) the first time you run `claude`.
 
 ##

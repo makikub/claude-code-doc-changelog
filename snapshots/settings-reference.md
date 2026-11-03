@@ -1007,8 +1007,9 @@ The three rule arrays share one syntax; see Permission rule syntax under `permis
 Choose whether Claude Code uses the auto mode classifier to review shell commands in plan mode. With the default `true`, the classifier reviews each command during planning when auto mode is available and you see no prompt, except for [critical-path removals](</docs/en/permission-modes#critical-paths>). Set `false` to get a permission prompt for every command outside the built-in read-only set. Appears in `/config` as **Use auto mode during plan**.
 
   * **Scope** : `User, local, or managed`. A repository can’t turn it off for you.
+    * A `false` in any of these files or in `--settings` turns it off, unless you leave that user or local file out with an option such as [`--setting-sources`](</docs/en/cli-reference#cli-flags>). Ignoring a left-out file requires Claude Code v2.1.314 or later
   * **Type** : Boolean
-    * `true`: the same as unset; when auto mode is available, the classifier reviews each shell command during planning instead of prompting you for it, except [critical-path removals](</docs/en/permission-modes#critical-paths>). A `false` in any of these files still turns it off
+    * `true`: the same as unset; when auto mode is available, the classifier reviews shell commands during planning
     * `false`: you get a permission prompt for every command outside the built-in read-only set
   * **Default** : `true`
 
@@ -1161,7 +1162,7 @@ settings.json
       }
     }
 
-Directories you add with `--add-dir`, `/add-dir`, or `additionalDirectories` in your user or managed settings count as working directories for the block. Directories added only in repository settings don’t count: those in `.claude/settings.json`, and those in `.claude/settings.local.json` unless git reports that file as untracked. In a directory that isn’t a git repository, or when git tracks the file, Claude Code treats `.claude/settings.local.json` as repository settings, so put directories you want to keep readable in your user settings instead. When `autoMemoryDirectory` comes from the project’s `.claude/settings.json`, or from a `.claude/settings.local.json` [treated as repository-supplied](</docs/en/permissions#when-your-local-settings-file-needs-trust>), Claude Code loads no [auto memory](</docs/en/memory#storage-location>) from that directory and saves none to it. To lift the block, remove the key from every settings file that sets it, then start a new session.
+To lift the block, remove the key from every settings file that sets it, then restart each running session. Directories you add with `--add-dir`, `/add-dir`, or `additionalDirectories` in your user or managed settings count as working directories for the block. Directories added only in repository settings don’t count: those in `.claude/settings.json`, and those in `.claude/settings.local.json` unless git reports that file as untracked. In a directory that isn’t a git repository, or when git tracks the file, Claude Code treats `.claude/settings.local.json` as repository settings, so put directories you want to keep readable in your user settings instead. When `autoMemoryDirectory` comes from the project’s `.claude/settings.json`, or from a `.claude/settings.local.json` [treated as repository-supplied](</docs/en/permissions#when-your-local-settings-file-needs-trust>), Claude Code loads no [auto memory](</docs/en/memory#storage-location>) from that directory and saves none to it.
 
 ####
 
@@ -2305,7 +2306,7 @@ settings.json
 
 `sandbox.network.allowMachLookup`
 
-List additional XPC and Mach service names the macOS sandbox may look up. Tools that communicate over XPC, such as the iOS Simulator or Playwright, need their services listed here.
+List additional XPC and Mach service names the macOS sandbox may look up. Tools that communicate over XPC, such as the iOS Simulator or Playwright, need their services listed here. Sandboxed commands can reach outside the sandbox to each service that you list, and the sandbox [doesn’t confine what those services do for those commands](</docs/en/sandboxing#security-limitations>).
 
   * **Scope** : `Any file`, with [limits on project and local settings](</docs/en/sandboxing#repository-settings-under-an-admin-required-sandbox>)
   * **Type** : array of strings, each a service name; a single trailing `*` matches a prefix, and `"*"` alone matches every service
@@ -2719,6 +2720,7 @@ Variables Claude Code ignores in `env`
       * `OTEL_EXPORTER_PROMETHEUS_HOST` and `OTEL_EXPORTER_PROMETHEUS_PORT`
 Only these values still apply from project and local settings, because they turn something off: `none` for the three exporter selectors, and an off value such as `0` for `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_CONTENT`, and `OTEL_LOG_TOOL_DETAILS`. Such a value overrides the same variable in your user settings, but not one that the environment you start Claude Code from, a `--settings` file, or managed settings sets. When a project or local settings file sets a variable in this group, a local interactive session shows a notice at startup. Run `/status` or `claude doctor` to see which ones Claude Code ignored and which turned telemetry off; both list names, never values. A non-interactive run with `-p` or an Agent SDK session shows no notice, so check that your collector still receives data after you upgrade. If it doesn’t, set the variables in your user settings, managed settings, the job’s environment, or a file you pass with `--settings`. Ignoring this group in project and local settings requires Claude Code v2.1.282 or later.
     * Variables that change how Claude Code starts or syncs, such as `CLAUDE_CODE_PROCESS_WRAPPER`, `CLAUDE_CODE_SYNC_SKILLS`, `CLAUDE_CODE_SYNC_PLUGINS`, `CLAUDE_CODE_PLUGIN_CACHE_DIR`, and `CLAUDE_CODE_PLUGIN_SEED_DIR`.
+    * Variables that set your claude.ai sign-in, such as [`CLAUDE_CODE_OAUTH_TOKEN`, `CLAUDE_CODE_OAUTH_REFRESH_TOKEN`, and `CLAUDE_CODE_OAUTH_SCOPES`](</docs/en/env-vars#variables>).
     * The [screen reader mode](</docs/en/accessibility>) variable `CLAUDE_AX_SCREEN_READER` and the other variables whose names start with `CLAUDE_AX_`, such as [`CLAUDE_AX_STARTUP_QUIET_MS`](</docs/en/env-vars#variables>).
     * [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](</docs/en/env-vars#variables>), which sets the timer on an unanswered dialog.
     * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](</docs/en/env-vars#variables>), which turns off attachment processing.
@@ -2773,7 +2775,6 @@ Idle compaction is on by default for conversations that meet all of these condit
   * **Session** : you’re in an interactive terminal session, in the VS Code extension’s chat panel, or in the desktop app’s Code tab when the session runs on your machine or over SSH
   * **Auto-compaction** : `autoCompactEnabled` is on
   * **Prompt cache** : the conversation is on the [one-hour prompt cache TTL](</docs/en/prompt-caching#which-ttl-each-request-gets>)
-  * **Feature flags** : Claude Code can [fetch feature flags from Anthropic](</docs/en/env-vars#features-that-need-feature-flag-fetching>)
   * **Size** : the conversation’s context has reached the token threshold, which you can change from its default of 200,000
   * **Idle time** : about an hour has passed since the last request, and your computer stays awake until then
 
@@ -2795,7 +2796,7 @@ settings.json
 To turn idle compaction off or on from inside a terminal session, run `/config` and change the **Idle compaction** row. Your choice is saved to your user settings and applies right away. The row requires Claude Code v2.1.302 or later. If you run one of those versions and `/config` doesn’t show the row, check for these causes:
 
   * **Another settings source sets the key** : a value in managed settings, the `--settings` flag, or a project or local settings file overrides your user settings. Change the key in that source instead
-  * **Feature flags are unavailable** : where Claude Code can’t [fetch feature flags from Anthropic](</docs/en/env-vars#features-that-need-feature-flag-fetching>), idle compaction doesn’t run, so there is nothing to turn off
+  * **Feature flags are unavailable on a version before v2.1.314** : where Claude Code can’t [fetch feature flags from Anthropic](</docs/en/env-vars#features-that-need-feature-flag-fetching>), idle compaction doesn’t run, so there is nothing to turn off
 
 The key requires Claude Code v2.1.290 or later. On an earlier version, which ignores this key, turn off `autoCompactEnabled` to stop idle compaction.
 

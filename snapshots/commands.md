@@ -17,7 +17,7 @@ All commands
 The table below lists all the commands included in Claude Code. Most are built-in commands whose behavior is coded into the CLI. Two kinds of entries are marked:
 
   * **[Skill](</docs/en/skills#bundled-skills>)** : a bundled skill. It works like skills you write yourself: a prompt handed to Claude.
-    * `/verify` runs only when you invoke it. Before v2.1.215, Claude could also run `/verify` on its own.
+    * `/verify` runs only when you invoke it.
   * **[Workflow](</docs/en/workflows#bundled-workflows>)** : a bundled [dynamic workflow](</docs/en/workflows>) that fans work out across many subagents and runs in the background.
     * `/deep-research` runs only when you invoke it.
 
