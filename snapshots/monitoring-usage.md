@@ -298,6 +298,8 @@ Attribute| Description| Gated by
 
 **`claude_code.hook`** This span appears only when detailed beta tracing is active, which requires `ENABLE_BETA_TRACING_DETAILED=1` and `BETA_TRACING_ENDPOINT`, a pair that also [changes where your logs and traces go](</docs/en/env-vars#variables>). Set the pair in your shell, user settings, or managed settings; both variables are ignored in [project and local settings](</docs/en/settings-reference#variables-claude-code-ignores-in-env>). `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` alone doesn’t produce it. In interactive CLI sessions, detailed beta tracing also requires your organization to be allowlisted for the feature. Agent SDK and non-interactive `-p` sessions don’t require allowlisting.
 
+Set `ENABLE_BETA_TRACING_DETAILED` only for debugging, not in production. Detailed beta tracing has a high export volume, and its content attributes aren’t part of the stable span schema.
+
 Attribute| Description| Gated by
 ---|---|---
 `hook_event`| Hook event type, such as `PreToolUse`|

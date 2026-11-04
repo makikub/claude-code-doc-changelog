@@ -94,7 +94,7 @@ packages/api/CLAUDE.md
     Write database queries with the Knex query builder. Never put raw SQL strings in route handlers.
     Never edit a migration after it has merged. Add a new migration instead.
 
-When you start Claude from `packages/api/`, it loads both `packages/api/CLAUDE.md` and the root `CLAUDE.md`. Claude sees the local instructions alongside the repository-wide rules, with no instructions from `packages/web/` in context. The same holds for any subdirectory in a non-monorepo tree. To confirm which files loaded, run `/context` and check the list under **Memory files**. A few ways to keep the files current as the codebase and models change:
+When you start Claude from `packages/api/`, it loads both `packages/api/CLAUDE.md` and the root `CLAUDE.md`. Claude sees the local instructions alongside the repository-wide rules, with no instructions from `packages/web/` in context. The same holds for any subdirectory in a non-monorepo tree. To confirm which files loaded, run [`/context all`](</docs/en/commands#all-commands>) and check the list under **Memory files**. A few ways to keep the files current as the codebase and models change:
 
   * **Review in pull requests** : treat CLAUDE.md edits like any other documentation change so conventions track the code
   * **Revisit after major model releases** : instructions that worked around an older model’s limitation may become overhead once a newer model handles the case on its own. For example, a rule that forces single-file refactors can be deleted once the limitation is gone

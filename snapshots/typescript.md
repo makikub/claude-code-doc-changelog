@@ -2274,6 +2274,7 @@ Generic text banner emitted by the loop. Carries warnings, notices, and other no
       level: "info" | "notice" | "suggestion" | "warning";
       tool_use_id?: string;
       prevent_continuation?: boolean;
+      tag?: string;
       uuid: UUID;
       session_id: string;
     };
@@ -2679,7 +2680,10 @@ Hook configuration with optional matcher.
       matcher?: string;
       hooks: HookCallback[];
       timeout?: number; // Timeout in seconds for all hooks in this matcher
+      onFailure?: "continue" | "block"; // "block" blocks the action when a callback fails
     }
+
+To decide what `onFailure` covers, see [Block the action when a callback fails](</docs/en/agent-sdk/hooks#block-the-action-when-a-callback-fails>).
 
 ###
 

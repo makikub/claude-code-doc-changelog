@@ -58,7 +58,8 @@ Message| Section
 `This organization has been disabled`| Authentication
 `Your organization has disabled API key authentication`| Authentication
 `Your organization has disabled Claude subscription access`| Authentication
-`Routines are disabled by your organization's policy`| Authentication
+`Scheduled tasks are off for your organization`| Authentication
+`Routines are off for your organization`| Authentication
 `Remote Control is only available when using Claude via api.anthropic.com`| Authentication
 `OAuth token refresh failed — run /login to re-authenticate`| Authentication
 `JWT refresh failed: no OAuth token — run /login`| Authentication
@@ -413,6 +414,9 @@ Message| Section
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
 `is a network path, which cannot be added as a working directory`| Configuration warnings
 `Remote managed settings failed to load (<cause>)`| Configuration warnings
+`Your organization requires remote managed settings to load, but they could not be loaded`| [Enforce fail-closed startup](</docs/en/server-managed-settings#enforce-fail-closed-startup>)
+`Remote managed settings are still loading`| Configuration warnings
+`Remote managed settings did not load`| Configuration warnings
 `Managed settings were not approved; exiting without applying them.`| Configuration warnings
 `Your organization's managed settings need your approval, which couldn't be asked for here.`| Configuration warnings
 `Claude Code can't start: your organization's managed settings block the default model` / `Claude Code can't start: your organization allows only the models listed in "availableModels"`| Configuration warnings
@@ -445,6 +449,8 @@ Message| Section
 `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly`| Configuration warnings
 `Sandbox mask files left behind at write-deny paths`| Configuration warnings
 `Stale sandbox mask files left by a killed session`| Configuration warnings
+`Ubuntu's AppArmor restriction on user namespaces stops bubblewrap here`| [Sandboxing troubleshooting](</docs/en/sandboxing#apparmor-restriction-stops-bubblewrap>)
+`bwrap: setting up uid map: Permission denied` / `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`| [Sandboxing troubleshooting](</docs/en/sandboxing#bwrap-uid-map-permission-denied>)
 Responses seem lower quality than usual| Response quality
 
 ##
@@ -731,7 +737,7 @@ The rest of the message tells Claude whether one retry can help. Before some of 
 
     Auto mode is unavailable — the server returned no safety verdict for the last 10 responses, so Claude stopped. Send a message to try again, or switch out of auto mode.
 
-The stop message appears in a different place in each kind of session:
+Some denials don’t count toward the ten, including a denial from a hook or mod’s change. The stop message appears in a different place in each kind of session:
 
   * In an interactive session, the message appears as a warning in the transcript and the turn ends
   * In a [non-interactive](</docs/en/headless>) `-p` run, the run ends and reports an execution error. With the default text output, the message prints on stderr.
@@ -747,6 +753,21 @@ The stop message appears in a different place in each kind of session:
   * To approve the actions yourself instead, [switch out of auto mode](</docs/en/permission-modes#switch-permission-modes>)
 
 Before v2.1.280, Claude Code denied each action from a response without a verdict immediately and never stopped the turn. Before v2.1.302, on a direct connection to the Anthropic API, Claude Code didn’t compact a conversation that had grown too long for the server’s check.
+
+####
+
+​
+
+`a hook changed this call's input after auto mode reviewed it`
+
+This denial means a hook or mod [changed the call’s input](</docs/en/hooks#pretooluse-updatedinput-in-auto-mode>) after the server reviewed it, so the review doesn’t cover what would run. It isn’t a judgment that the action is unsafe. Later calls in the same Claude response can be denied with this reason:
+
+    another call in this response was changed by a hook after auto mode reviewed it, or could not be confirmed unchanged
+
+Claude can then issue each denied call again so the server reviews it. If a permission prompt opens, answer it. You don’t need to do anything else unless Claude says in its reply that auto mode couldn’t check the call. Then stop the change or approve the call yourself, and ask Claude to try the call again:
+
+  * **Stop the change** : turn off the [hook](</docs/en/hooks#disable-or-remove-hooks>) or [mod](</docs/en/plugins/mods/overview#turn-mods-on-or-off>) that changed the call or an earlier call in the same Claude response, or ask your administrator to turn it off. To look for a hook, run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) at the Claude Code prompt. In a terminal session, run `/plugin` to see the active mods.
+  * **Approve the call yourself** : [switch to Manual mode](</docs/en/permission-modes#switch-permission-modes>)
 
 ###
 
@@ -1146,15 +1167,16 @@ This is a server-side organization setting, so it can’t be overridden from loc
 
 ​
 
-Routines are disabled by your organization’s policy
+Scheduled tasks are off for your organization
 
-An Owner in your Team or Enterprise organization has turned off [cloud scheduled tasks](</docs/en/routines>), formerly routines, at the organization level. The error appears when you try to create or run one, for example at [claude.ai/code/routines](<https://claude.ai/code/routines>). On Claude Code v2.1.227 or later, the same setting also [hides `/schedule`](</docs/en/routines#troubleshooting>) in the CLI.
+[Cloud scheduled tasks](</docs/en/routines>) are off for your organization, so you can’t create or run them. The message from claude.ai calls them scheduled tasks or routines, and a sentence about your admin follows:
 
-    Routines are disabled by your organization's policy.
+    Scheduled tasks are off for your organization. …
+    Routines are off for your organization. …
 
-This is a server-side setting, so it can’t be overridden from local settings, environment variables, or CLI flags. **What to do:**
+You can’t turn them on with local settings, environment variables, or CLI flags. **What to do:**
 
-  * Ask an Owner in your organization to turn on the **Scheduled tasks (Was Routines)** toggle at [**Organization settings > Capabilities > Remote sessions**](<https://claude.ai/admin-settings/capabilities>)
+  * Ask your Team or Enterprise Owner whether they can turn on the toggle labeled **Scheduled tasks (Was Routines)** or **Routines** at [**Organization settings > Capabilities > Remote sessions**](<https://claude.ai/admin-settings/capabilities>)
 
 ###
 
@@ -5621,10 +5643,16 @@ Before v2.1.257, Claude Code accepted a reachable network path as a working dire
 
 Remote managed settings failed to load
 
-Your session is eligible for [server-managed settings](</docs/en/server-managed-settings>), but Claude Code couldn’t fetch them or couldn’t apply what the server returned, so it shows this warning in interactive sessions. The parenthesized cause names what failed, such as `network error`, `request timed out`, or `authentication rejected (401)`. The cause `no setting in the server response could be applied as written` means the server answered but none of the settings it returned passed [validation](</docs/en/server-managed-settings#invalid-entries-in-delivered-settings>). Before v2.1.282, this cause read `server returned invalid settings`. The rest of the line says which policy the session runs on:
+Your session is eligible for [server-managed settings](</docs/en/server-managed-settings>), but Claude Code couldn’t fetch them or couldn’t apply what the server returned, so it shows this warning in interactive sessions and in Claude Desktop’s Code tab. The parenthesized cause names what failed, such as `network error`, `request timed out`, or `authentication rejected (401)`. The cause `no setting in the server response could be applied as written` means the server answered but none of the settings it returned passed [validation](</docs/en/server-managed-settings#invalid-entries-in-delivered-settings>). Before v2.1.282, this cause read `server returned invalid settings`. The rest of the line says which policy the session runs on:
 
   * **Settings cached from an earlier successful fetch** : Claude Code runs the session on that cached policy, except the [withheld environment variables](</docs/en/server-managed-settings#fetch-and-caching-behavior>), and the line reads `using cached policy`.
   * **No cache** : Claude Code runs the session without server-managed settings, and the line reads `no remote policy applied`.
+
+In the Code tab, the warning appears as a line in the conversation when you send a message, and a new line appears when the state of the fetch changes. Three related messages appear the same way:
+
+  * `Remote managed settings are still loading`: the fetch was still running when the session went ahead
+  * `Remote managed settings did not load`: the fetch ended without an answer
+  * `Remote managed settings have now loaded`: the settings loaded after one of these warnings, and the rest of the line says whether a remote policy applies
 
 **What to do:**
 

@@ -537,7 +537,7 @@ If you set a level the active model does not support, Claude Code falls back to 
   4. Your settings: the level you saved for the model or an [`effortLevel`](</docs/en/settings-reference#effortlevel>) key, with the precedence between them and across settings files stated at [`modelSettings`](</docs/en/settings-reference#modelsettings>)
   5. The model’s default effort: `high` on every model that supports effort, except that Opus 5.5, Sonnet 5.5, and Haiku 5.5 default to `medium` and Opus 4.7 defaults to `xhigh`. If your organization sets a default effort level for its organization default model, that level is the default when you run that model.
 
-After an automatic model fallback, see Effort level after a fallback for the level that applies. Opus 5.5 starts at `medium` unless one of the sources above sets a level for it, and a top-level `effortLevel` in your user settings file doesn’t count for Opus 5.5. That key is the older form `/effort` wrote before Claude Code saved levels per model: it keeps applying where it applied before, on Opus 5, Fable 5.1, and earlier models, while Opus 5.5 and models released after it start at their own default until you choose a level for them with `/effort` or the `/model` picker. A top-level `effortLevel` in project, local, or managed settings, or one passed with `--settings`, applies to every model. When you set `low`, `medium`, `high`, or `xhigh` in an interactive session on your machine, you choose how long it lasts by how you confirm it:
+After an automatic model fallback, see Effort level after a fallback for the level that applies. For subagents and teammates, see Effort level of subagents and teammates. Opus 5.5 starts at `medium` unless one of the sources above sets a level for it, and a top-level `effortLevel` in your user settings file doesn’t count for Opus 5.5. That key is the older form `/effort` wrote before Claude Code saved levels per model: it keeps applying where it applied before, on Opus 5, Fable 5.1, and earlier models, while Opus 5.5 and models released after it start at their own default until you choose a level for them with `/effort` or the `/model` picker. A top-level `effortLevel` in project, local, or managed settings, or one passed with `--settings`, applies to every model. When you set `low`, `medium`, `high`, or `xhigh` in an interactive session on your machine, you choose how long it lasts by how you confirm it:
 
   * `Enter` in the `/effort` slider or the `/model` picker, or a level typed after `/effort`: save the level as your default and apply it in later sessions
   * `s` in the `/effort` slider or the `/model` picker: apply the level to this session only. Requires Claude Code v2.1.257 or later
@@ -607,6 +607,14 @@ You can change effort through any of the following:
   * **Skill and subagent frontmatter** : set `effort` in a [skill](</docs/en/skills#frontmatter-reference>) or [subagent](</docs/en/sub-agents#supported-frontmatter-fields>) markdown file to override the effort level when that skill or subagent runs
 
 A skill’s `effort` applies until the end of the turn it runs in, or for the forked subagent’s run with `context: fork`. A subagent’s `effort` applies while the subagent runs, unless [its invocation overrides it](</docs/en/sub-agents#choose-an-effort-level>). While either one applies, the skill or subagent runs at its level, whatever level you launch with, save, or pick. If `CLAUDE_CODE_EFFORT_LEVEL` is set, that level applies instead. A [`maxEffortLevel`](</docs/en/settings-reference#maxeffortlevel>) or organization effort cap still limits the level the skill or subagent runs at. If you set `effortLevel` in [managed settings](</docs/en/managed-settings>), Claude Code applies it at the settings step of the effort resolution order, and users can still change the level with `/effort` or `--effort`. To keep users at or below a level, set [`maxEffortLevel`](</docs/en/settings-reference#maxeffortlevel>).
+
+####
+
+​
+
+Effort level of subagents and teammates
+
+On the main conversation’s model, a [subagent](</docs/en/sub-agents#choose-an-effort-level>) or [teammate](</docs/en/agent-teams#specify-teammates-and-models>) with no `effort` of its own runs at the level you pick in the session or set with `--effort`. On another model, that level doesn’t apply. To pick a subagent’s level, set `effort` in its definition.
 
 ####
 

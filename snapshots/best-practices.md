@@ -139,7 +139,7 @@ CLAUDE.md
     # Gotchas
     - Integration tests need DATABASE_URL set, see .env.example
 
-In a session, run `/context` to confirm that Claude loaded the file. Notice that the typecheck line is only the command. Claude needs to know the command so it can check its own work as it goes. If you also want Claude Code to _enforce_ a passing typecheck before Claude finishes, that’s a job for a `Stop` hook. A line like `Always typecheck before you finish` in this file works most of the time, not every time. You don’t have to write the file from scratch:
+In a session, run [`/context all`](</docs/en/commands#all-commands>) to confirm that Claude loaded the file. Notice that the typecheck line is only the command. Claude needs to know the command so it can check its own work as it goes. If you also want Claude Code to _enforce_ a passing typecheck before Claude finishes, that’s a job for a `Stop` hook. A line like `Always typecheck before you finish` in this file works most of the time, not every time. You don’t have to write the file from scratch:
 
   * `/init` generates a starting version from your codebase. From there the work is mostly removing lines. The [memory guide](</docs/en/memory#write-effective-instructions>) recommends staying under 200.
   * `/doctor` suggests cuts for anything Claude can [already work out from the code](</docs/en/memory#my-claude-md-is-too-large>).
@@ -579,7 +579,7 @@ Keep it to small files: it copies rather than links, so `node_modules` in there 
 
 A `claude -p --worktree` run is one you clean up yourself, since it exits without asking. Remove those with `git worktree remove <path>`, and if git refuses because the worktree is locked, `git worktree unlock <path>` first.
 
-For one big mechanical change across many files, [`/batch migrate every handler to the v2 response helpers`](</docs/en/commands>) splits the work into 5 to 30 units and shows you the plan. Then it runs each unit in its own worktree and opens a PR for it. From your shell, [`claude agents`](</docs/en/agent-view>) (still a research preview) gives you one screen for everything running in the background on your machine. A second session is also the easiest independent reviewer you can get. One session writes the rate limiter, another reviews `@src/middleware/rateLimiter.ts` without having watched it being written, and you paste the findings back into the first. Same idea as `/code-review`, with you carrying the messages.
+For one big mechanical change across many files, [`/batch migrate every handler to the v2 response helpers`](</docs/en/commands>) splits the work into 5 to 30 units and shows you the plan. Once you approve it, each unit gets its own worktree and opens a PR or reports what happened. From your shell, [`claude agents`](</docs/en/agent-view>) (still a research preview) gives you one screen for everything running in the background on your machine. A second session is also the easiest independent reviewer you can get. One session writes the rate limiter, another reviews `@src/middleware/rateLimiter.ts` without having watched it being written, and you paste the findings back into the first. Same idea as `/code-review`, with you carrying the messages.
 
 ##
 

@@ -21,7 +21,7 @@ With no target, the review covers the changes on your current branch. To point t
 
 Keep working
 
-The review runs as a background [subagent](</docs/en/sub-agents>) with its own context window, so it doesn’t fill your conversation. The findings arrive in your conversation when the review completes.
+In a terminal session, the review runs as a background [subagent](</docs/en/sub-agents>) with its own context window, so it doesn’t fill your conversation. The findings arrive in your conversation when the review completes.
 
 3
 

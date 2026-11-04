@@ -259,6 +259,8 @@ The mod loaded and its hooks run, and a tool call it touched is refused.
 
 In auto mode, a denied tool call gives this reason. A hook changed the tool call’s input after the [server-side classifier](</docs/en/permission-modes#server-side-classifier-review>) reviewed it, so that review doesn’t cover what would run. The hook can be a mod’s [`tool.call`](</docs/en/plugins/mods/reference#tools>) or [`turn.step`](</docs/en/plugins/mods/reference#turns>) hook, or a [`PreToolUse`](</docs/en/hooks#pretooluse>) settings hook. The message doesn’t say which. The message tells Claude to issue the call once more as recorded. If that’s denied too, the hook changes the input every time, so turn off the mod or hook, or leave auto mode and approve the call yourself.
 
+In [some interactive terminal sessions and VS Code sessions](</docs/en/hooks#pretooluse-updatedinput-in-auto-mode>), the same denial gives the reason `a hook changed this call's input after auto mode reviewed it`. The repeated call there carries the mod’s first change, and a `tool.call` hook still runs on it, but a further change is dropped. You don’t need to change your mod unless Claude tells you in its reply that [auto mode couldn’t check the call](</docs/en/errors#hook-changed-input-after-review>).
+
 ###
 
 ​
