@@ -450,7 +450,7 @@ Service tiers
 
     export ANTHROPIC_BEDROCK_SERVICE_TIER=priority
 
-Claude Code sends this as the `X-Amzn-Bedrock-Service-Tier` header on each request. Tier availability varies by model and region. Reserved capacity uses a [provisioned throughput](<https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html>) ARN as the model ID instead of this setting.
+Claude Code sends this as the `X-Amzn-Bedrock-Service-Tier` header on every [Invoke API](<https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html>) request from a session that has the variable, except its model access checks. Setting it has no effect on requests to the Mantle endpoint or through a [Claude apps gateway](</docs/en/claude-apps-gateway>). Tier availability varies by model and region. Reserved capacity uses a [provisioned throughput](<https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html>) ARN as the model ID instead of this setting. To cover [background sessions](</docs/en/agent-view#settings-and-provider>) you start from a terminal, set `ANTHROPIC_BEDROCK_SERVICE_TIER` in the [`env`](</docs/en/settings-reference#env>) block of your settings. Those sessions get the value you export only when the shell that started the [supervisor](</docs/en/agent-view#the-supervisor-process>) exported it.
 
 ##
 
@@ -482,7 +482,7 @@ Mantle is an Amazon Bedrock endpoint that serves Claude models through the nativ
 
 Enable Mantle
 
-With AWS credentials already configured, set `CLAUDE_CODE_USE_MANTLE` to route requests to the Mantle endpoint:
+With AWS credentials already configured, set `CLAUDE_CODE_USE_MANTLE` and your AWS region:
 
     export CLAUDE_CODE_USE_MANTLE=1
     export AWS_REGION=us-east-1
@@ -590,8 +590,6 @@ If you receive an error “on-demand throughput isn’t supported”:
 
   * Specify the model as an [inference profile](<https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html>) ID
 
-Claude Code uses the Amazon Bedrock [Invoke API](<https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html>) and does not support the Converse API.
-
 ###
 
 ​
@@ -619,7 +617,7 @@ If `/status` does not show `Amazon Bedrock (Mantle)` after you set `CLAUDE_CODE_
   * If the error names a `bedrock-mantle:` action, grant your IAM identity that action.
   * If the error names no action and your credentials are valid, your AWS account has not been granted access to the model you requested. Contact your AWS account team to request access.
 
-A `400` that names the model ID means that model is not served on Mantle. Mantle has its own model lineup separate from the standard Amazon Bedrock catalog, so inference profile IDs such as `us.anthropic.claude-sonnet-4-6` will not work. Use a Mantle-format ID, or enable both endpoints so Claude Code routes each request to the endpoint where the model is available.
+A `400` that names the model ID means that model isn’t served on Mantle. Mantle has its own model lineup separate from the standard Amazon Bedrock catalog, so inference profile IDs such as `us.anthropic.claude-sonnet-4-6` don’t work. Use a Mantle-format ID, or enable both endpoints so Claude Code sends inference profile IDs to the Invoke API.
 
 ##
 

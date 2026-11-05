@@ -32,7 +32,7 @@ Add `--bare` to reduce startup time by skipping auto-discovery of hooks, skills,
 
     claude --bare -p "Summarize README.md" --allowedTools "Read"
 
-In bare mode, Claude Code never reads OAuth credentials or the system keychain. For the Anthropic API, set `ANTHROPIC_API_KEY` in the environment, with a key created in the [Claude Console](<https://platform.claude.com>), or supply an `apiKeyHelper` in the `--settings` JSON. Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry continue to read their own provider credentials as usual. In bare mode Claude has access to the Bash, file read, and file edit tools. Pass any context you need with a flag:
+In bare mode, Claude Code never reads OAuth credentials or the system keychain. For the Anthropic API, set `ANTHROPIC_API_KEY` in the environment, with a key created in the [Claude Console](<https://platform.claude.com>), or supply an `apiKeyHelper` in the `--settings` JSON. Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry continue to read their own provider credentials as usual. In bare mode Claude has access to the Bash, file read, and file edit tools. Pass the context you need with a flag:
 
 To load| Use
 ---|---
@@ -42,7 +42,7 @@ MCP servers| `--mcp-config <file-or-json>`
 [Custom agents](</docs/en/sub-agents#choose-the-subagent-scope>)| `--agents <file-or-json>`
 A plugin| `--plugin-dir <path>`, `--plugin-url <url>`
 
-Bare mode also limits what happens while the session runs:
+Hooks still don’t run in bare mode when you pass them with `--settings`, or in the [`hooks/hooks.json`](</docs/en/plugins/components#hooks>) or [`hooks` manifest key](</docs/en/plugins/manifest-reference#hooks>) of a plugin you load with a flag. Don’t use bare mode for a run that needs them. Bare mode also limits what happens while the session runs:
 
   * **MCP servers** : only servers supplied on the command line connect, for example with `--mcp-config`. In an interactive session, Claude Code also skips the automatic IDE connection unless you pass `--ide`.
   * **System reminders** : Claude gets your prompts and the tool results without the [system reminders](</docs/en/glossary#system-reminder>) Claude Code would add alongside them. For example, Claude isn’t told when a file it read earlier changes on disk, and it doesn’t get the list of available skills, including skills from an `--add-dir` folder.

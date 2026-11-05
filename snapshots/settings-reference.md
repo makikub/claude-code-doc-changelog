@@ -133,13 +133,13 @@ Key| Description| Topic| Scope
 `outputStyle`| Change Claude’s role, tone, and output format with an [output style](</docs/en/output-styles>)| Model and responses| Any file
 `parentSettingsBehavior`| Apply or drop restrictions an [SDK or IDE host](</docs/en/managed-settings#let-an-embedding-host-add-policy>) passes when you deploy [managed settings](</docs/en/managed-settings>)| Enterprise and managed settings| Managed
 `permissionExplainerEnabled`| Removed in v2.1.257, together with the `Ctrl+E` command explanation on shell permission prompts| Global config settings| Global config
-`permissions`| Set allow, ask, and deny rules and the starting [permission mode](</docs/en/permission-modes>)| Permission settings| Any file
+`permissions`| Set allow, ask, and deny rules and the default [permission mode](</docs/en/permission-modes>)| Permission settings| Any file
 `permissions.additionalDirectories`| Give Claude file access to [directories outside the current one](</docs/en/permissions#working-directories>)| Permission settings| Any file
 `permissions.allow`| Approve listed [tool uses](</docs/en/permissions#permission-rule-syntax>) without a prompt| Permission settings| Any file
 `permissions.ask`| Always prompt before listed [tool uses](</docs/en/permissions#permission-rule-syntax>)| Permission settings| Any file
 `permissions.blockReadsOutsideWorkingDirectories`| Make the file tools refuse reads outside the [working directories](</docs/en/permissions#working-directories>) in every permission mode| Permission settings| Any file
 `permissions.blockWritesOutsideWorkingDirectories`| Make the `Write`, `Edit`, and `NotebookEdit` tools refuse paths outside the [working directories](</docs/en/permissions#working-directories>) in every permission mode, apart from some of Claude Code’s own files| Permission settings| Any file
-`permissions.defaultMode`| Set the [permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) new sessions start in| Permission settings| Any file
+`permissions.defaultMode`| Set the default [permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) for new sessions| Permission settings| Any file
 `permissions.deny`| Block listed [tool uses](</docs/en/permissions#permission-rule-syntax>), including reads of files that hold secrets| Permission settings| Any file
 `permissions.disableBypassPermissionsMode`| Prevent anyone from entering [bypassPermissions mode](</docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode>)| Permission settings| Any file
 `plansDirectory`| Choose where [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) writes plan files| Memory and context| Any file
@@ -870,7 +870,7 @@ The session’s effort level comes from `effortLevel`, `modelSettings`, and the 
 
 Permission settings
 
-Decide what Claude can do without asking, which permission mode a session starts in, and what auto mode’s classifier allows. For rule syntax and the permission model, see [Configure permissions](</docs/en/permissions>).
+Decide what Claude can do without asking, the default permission mode for new sessions, and what auto mode’s classifier allows. For rule syntax and the permission model, see [Configure permissions](</docs/en/permissions>).
 
 ###
 
@@ -977,7 +977,7 @@ settings.json
 
 `permissions`
 
-Control which tools Claude can use without asking, which ones always prompt, and which ones are blocked, and set the [permission mode](</docs/en/permission-modes>) a session starts in. Every `permissions.*` key below nests under this object.
+Control which tools Claude can use without asking, which ones prompt, and which ones are blocked. Also set the default [permission mode](</docs/en/permission-modes>) for new sessions. Every `permissions.*` key below nests under this object.
 
   * **Scope** : `Any file`
   * **Type** : object with `allow`, `ask`, `deny`, `additionalDirectories`, `blockReadsOutsideWorkingDirectories`, `blockWritesOutsideWorkingDirectories`, `defaultMode`, `disableBypassPermissionsMode`, and `disableAutoMode`
@@ -1237,7 +1237,7 @@ To let Claude reach one directory outside the project while `blockReadsOutsideWo
 
 `permissions.defaultMode`
 
-Set the [permission mode](</docs/en/permission-modes>) new sessions start in. When you leave it unset, sessions start in the [built-in default](</docs/en/permission-modes#which-mode-a-session-starts-in>) for your surface.
+Set the default [permission mode](</docs/en/permission-modes>) for new sessions. When you leave it unset, the [built-in default](</docs/en/permission-modes#which-mode-a-session-starts-in>) for your surface applies.
 
   * **Scope** : `Any file`. `auto` and `bypassPermissions` don’t take effect from project or local settings, so set them in `~/.claude/settings.json` instead. Before v2.1.257, `bypassPermissions` took effect from any file. For conversations the VS Code extension starts, Claude Code reads only user, managed, and `--settings` values.
   * **Type** : string, one of:
@@ -6421,12 +6421,12 @@ In cloud sessions, Claude Code also ignores server-delivered mid-session MCP upd
 
 `forceRemoteSettingsRefresh`
 
-Block CLI startup until Claude Code has freshly fetched [server-managed settings](</docs/en/server-managed-settings>). If the fetch fails, Claude Code exits instead of continuing with cached or no settings. Set it when your environment can’t accept even a brief window in which a session runs without its managed policy. When the key is unset, Claude Code doesn’t block startup on the fetch, though when the developer signs in at startup it waits up to five seconds for the fetch. A Cloud gateway session always waits, and exits if the gateway can’t be reached.
+Block CLI startup until Claude Code has freshly fetched [server-managed settings](</docs/en/server-managed-settings>). If the fetch fails, Claude Code exits instead of continuing with cached or no settings. Set it when your environment can’t accept even a brief window in which a session runs without its managed policy. When the key is unset, Claude Code doesn’t block startup on the fetch, though when the developer signs in at startup it waits up to five seconds for the fetch. [Anthropic can require the settings](</docs/en/server-managed-settings#fetch-and-caching-behavior>), which does block a start without them. A Cloud gateway session waits, and exits if the gateway can’t be reached.
 
   * **Scope** : `Managed`. Claude Code honors a `true` from any admin-controlled managed source, even one that isn’t the highest-priority source.
   * **Type** : Boolean
     * `true`: Claude Code blocks startup until it has freshly fetched server-managed settings, and exits if the fetch fails
-    * `false`: Claude Code doesn’t block startup on the fetch, though at a sign-in startup it waits up to five seconds for the fetch
+    * `false`: unless Anthropic requires the settings, Claude Code doesn’t block startup on the fetch, though at a sign-in startup it waits up to five seconds for the fetch
   * **Default** : `false`
 
 managed-settings.json

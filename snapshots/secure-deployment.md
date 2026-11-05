@@ -16,8 +16,8 @@ Built-in security features
 
 Claude Code includes several security features that address common concerns. See the [security documentation](</docs/en/security>) for full details.
 
-  * **Permissions system** : Every tool and bash command can be configured to allow, block, or prompt the user for approval. Use glob patterns to create rules like “allow all npm commands” or “block any command with sudo”. Organizations can set policies that apply across all users. See [permissions](</docs/en/permissions>).
-  * **Command parsing for permissions** : Before executing bash commands, Claude Code parses them into an AST and matches the result against your permission rules. Commands that cannot be parsed cleanly, or that do not match an allow rule, require explicit approval. A small set of constructs such as `eval` always require approval regardless of allow rules. This is a permission gate, not a sandbox; apart from built-in safety checks such as the [critical-path check](</docs/en/permission-modes#critical-paths>) on `rm` and `rmdir` and the [protected paths](</docs/en/permission-modes#protected-paths>) list, it does not infer whether a command is dangerous from its target path or effects.
+  * **Permissions system** : Permission rules decide whether a tool call runs, is blocked, or asks for approval first. For the forms a Bash rule misses and how rules combine with permission modes, see [What a Bash rule doesn’t match](</docs/en/permissions#bash-rule-limits>) and [Configure permissions](</docs/en/agent-sdk/permissions>). Administrators can also set rules in [managed settings](</docs/en/permissions#managed-settings>).
+  * **Critical-path removals** : With the permission mode set to `default`, an `rm` or `rmdir` command recognized as removing your working directory or another [critical path](</docs/en/permission-modes#critical-paths>) needs approval. A matching allow rule doesn’t skip that approval. This is a permission gate, not a sandbox. To control what the agent can write, use filesystem controls.
   * **Web search summarization** : Search results are summarized rather than passing raw content directly into the context, reducing the risk of prompt injection from malicious web content.
   * **Sandbox mode** : Bash commands can run in a sandboxed environment that restricts filesystem and network access. See the [sandboxing documentation](</docs/en/sandboxing>) for details.
 
@@ -93,17 +93,14 @@ Sandbox runtime
 For lightweight isolation without containers, [sandbox-runtime](<https://github.com/anthropics/sandbox-runtime>) enforces filesystem and network restrictions at the OS level. The main advantage is simplicity: no Docker configuration, container images, or networking setup required. The proxy and filesystem restrictions are built in. **How it works:**
 
   * **Filesystem** : Uses OS primitives (`bubblewrap` on Linux, `sandbox-exec` on macOS) to restrict read/write access to configured paths
-  * **Network** : Removes network namespace (Linux) or uses Seatbelt profiles (macOS) to route network traffic through a built-in proxy
+  * **Network** : Runs commands in their own network namespace (Linux) or under a Seatbelt profile (macOS) and routes their traffic through a built-in proxy that allows the configured domains. A connection to an outside host that skips the proxy fails.
   * **Configuration** : JSON-based allowlists for domains and filesystem paths
 
-**Setup:**
-
-    npm install @anthropic-ai/sandbox-runtime
-
-Then create a configuration file specifying allowed paths and domains. **Security considerations:**
+**Setup:** For the install, configuration, and launch steps, see [Set up and launch the runtime](</docs/en/sandbox-environments#set-up-and-launch-the-runtime>). **Security considerations:**
 
   1. **Same-host kernel** : Unlike VMs, sandboxed processes share the host kernel. A kernel vulnerability could theoretically enable escape. For some threat models this is acceptable, but if you need kernel-level isolation, use gVisor or a separate VM.
-  2. **No TLS inspection** : The proxy allowlists domains based on the client-supplied hostname and does not terminate or inspect encrypted traffic. Code running inside the sandbox can potentially use [domain fronting](<https://en.wikipedia.org/wiki/Domain_fronting>) or similar techniques to reach hosts outside the allowlist. If your threat model requires stronger guarantees, configure a TLS-terminating proxy. See the [sandboxing security limitations](</docs/en/sandboxing#security-limitations>) for more detail. Separately, if the agent has permissive credentials for an allowed domain, ensure it cannot use that domain to trigger other network requests or to exfiltrate data.
+  2. **No TLS inspection** : By default, the proxy allowlists domains based on the client-supplied hostname and doesn’t terminate or inspect encrypted traffic. Code running inside the sandbox can potentially use [domain fronting](<https://en.wikipedia.org/wiki/Domain_fronting>) or similar techniques to reach hosts outside the allowlist. If your threat model requires stronger guarantees, use a TLS-terminating proxy that inspects traffic, as Traffic forwarding describes. For more information, see the [sandboxing security limitations](</docs/en/sandboxing#security-limitations>).
+  3. **Credentials for allowed domains** : If the agent has permissive credentials for an allowed domain, ensure it cannot use that domain to trigger other network requests or to exfiltrate data.
 
 For many single-developer and CI/CD use cases, sandbox-runtime raises the bar significantly with minimal setup. The sections below cover containers and VMs for deployments requiring stronger isolation.
 
@@ -140,14 +137,18 @@ Option| Purpose
 `--security-opt seccomp=...`| Restricts available syscalls; Docker’s default blocks ~44, custom profiles can block more
 `--read-only`| Makes the container’s root filesystem immutable, preventing the agent from persisting changes
 `--tmpfs /tmp:...`| Provides a writable temporary directory that’s cleared when the container stops
-`--network none`| Removes all network interfaces; the agent communicates through the mounted Unix socket below
+`--network none`| Cuts the container off from external networks
 `--memory 2g`| Limits memory usage to prevent resource exhaustion
 `--pids-limit 100`| Limits process count to prevent fork bombs
 `--user 1000:1000`| Runs as a non-root user
 `-v ...:/workspace:ro`| Mounts code read-only so the agent can analyze but not modify it. **Avoid mounting sensitive host directories like`~/.ssh`, `~/.aws`, or `~/.config`**
 `-v .../proxy.sock:...`| Mounts a Unix socket connected to a proxy running outside the container (see below)
 
-**Unix socket architecture:** With `--network none`, the container has no network interfaces at all. The only way for the agent to reach the outside world is through the mounted Unix socket, which connects to a proxy running on the host. This proxy can enforce domain allowlists, inject credentials, and log all traffic. This is the same architecture used by [sandbox-runtime](<https://github.com/anthropics/sandbox-runtime>). Even if the agent is compromised via prompt injection, it cannot exfiltrate data to arbitrary servers. It can only communicate through the proxy, which controls what domains are reachable. For more details, see the [Claude Code sandboxing blog post](<https://www.anthropic.com/engineering/claude-code-sandboxing>). **Additional hardening options:**
+**Unix socket architecture:** With `--network none`, a DNS lookup or a direct connection to another host fails inside the container. To let code in the container reach other hosts, run a proxy on the host and mount its Unix socket into the container. If you point `ANTHROPIC_BASE_URL` or `HTTP_PROXY` at a port on `localhost`, as Configuring Claude Code to use a proxy shows, relay that port inside the container to the socket. You can set up this proxy to enforce domain allowlists, inject credentials, and log all traffic.
+
+Within your proxy’s allowlist, the agent can send data to any allowed domain. Allow only the domains the agent needs.
+
+**Additional hardening options:**
 
 Option| Purpose
 ---|---
