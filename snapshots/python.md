@@ -2721,7 +2721,7 @@ Use `async_` (with underscore) in Python code. It is automatically converted to 
 
 Hook Usage Example
 
-This example registers two hooks: one that blocks dangerous Bash commands like `rm -rf /`, and another that logs all tool usage for auditing. The security hook only runs on Bash commands (via the `matcher`), while the logging hook runs on all tools.
+This example registers two hooks: one that blocks dangerous Bash commands like `rm -rf /`, and another that logs all tool usage for auditing. With its [`Bash` matcher](</docs/en/agent-sdk/hooks#matchers>), the security hook runs on Bash tool calls. The logging hook has no matcher, so it runs on every tool call.
 
     import asyncio
     from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, HookContext
@@ -3787,16 +3787,9 @@ The built-in sandbox proxy enforces the network allowlist based on the requested
 
 `SandboxIgnoreViolations`
 
-Configuration for ignoring specific sandbox violations.
+Violations to leave out of the sandbox’s violation report. Each key matches part of a command, or `*` for every command, and each value lists text to match in a violation line: `{"*": ["/etc/hosts"]}` hides violations that mention `/etc/hosts`. A matching access is still blocked. See [`sandbox.ignoreViolations`](</docs/en/settings-reference#sandbox-ignoreviolations>).
 
-    class SandboxIgnoreViolations(TypedDict, total=False):
-        file: list[str]
-        network: list[str]
-
-Property| Type| Default| Description
----|---|---|---
-`file`| `list[str]`| `[]`| File path patterns to ignore violations for
-`network`| `list[str]`| `[]`| Network patterns to ignore violations for
+    SandboxIgnoreViolations = dict[str, list[str]]
 
 ###
 

@@ -94,7 +94,7 @@ A deep link in a runbook gives whoever is triaging a one-click way to start inve
     2. [Open Claude Code in the gateway repo](claude-cli://open?repo=acme/web-gateway&q=5xx%20rate%20is%20elevated%20on%20web-gateway.%20Check%20recent%20deploys%2C%20error%20logs%20from%20the%20last%2030%20minutes%2C%20and%20open%20incidents%20in%20Linear.)
     3. Post initial findings in #incident.
 
-To use this in your own runbook, replace `acme/web-gateway` with your service’s repository slug. Before engineers click step 2, they must have sent a prompt in an interactive Claude Code session on their machine and opened Claude Code in their local clone.
+To use this in your own runbook, replace `acme/web-gateway` with your service’s repository slug. Before engineers click step 2, their machine must have the `claude-cli://` handler registered, and they must have run `claude` in their local clone or worktree.
 
 ###
 

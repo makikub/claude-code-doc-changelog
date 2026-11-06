@@ -2029,12 +2029,17 @@ Reason code| Meaning
 `sdk_opt_in_required`| The session hasn’t opted in to fast mode: pass `fastMode: true` in the `settings` option or through `applyFlagSettings()`
 `pending`| The availability check hasn’t completed yet
 
-The same pair of fields appears on `SDKSystemMessage` and on the `SDKControlInitializeResponse`, so you can read the fast mode state before the first turn. The `origin` field forwards the `SDKMessageOrigin` of the user message that triggered this result. Results that carry `origin: { kind: "task-notification" }` include:
+The same pair of fields appears on `SDKSystemMessage` and on the `SDKControlInitializeResponse`, so you can read the fast mode state before the first turn. The `origin` field holds the `SDKMessageOrigin` that Claude Code assigned to the user message that triggered this result, not a copy of the `origin` you sent. Results that carry `origin: { kind: "task-notification" }` include:
 
   * **Synthetic follow-up turns** : when the SDK injects a synthetic follow-up turn, such as for a finished background task, the resulting `SDKResultMessage` carries this kind
   * **Fired scheduled tasks and messages from other sessions** : cloud scheduled tasks whose trigger fired and server-verified messages from your other sessions arrive with this kind too, each with the `subkind` described in Task-notification subkinds
 
-Check `kind` to distinguish results that answer your prompt from injected follow-ups before routing or suppressing them. If your application declares scheduled runs, their results carry `kind: "task-notification"` too, so don’t suppress on `kind` alone. When several background-task completions are queued together, Claude Code can answer them in one turn rather than one turn each. Each completion still produces its own result with this origin. All but the last of the completions Claude Code answers together produce empty results with `num_turns: 0`, in order, and the last one’s result carries the turn that answers them all. The field is absent for results emitted before any user turn, such as startup errors. When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](</docs/en/hooks#defer-a-tool-call-for-later>) for the full round trip.
+Check `kind` to distinguish results that answer your prompt from injected follow-ups before routing or suppressing them. If your application declares scheduled runs, their results carry `kind: "task-notification"` too, so don’t suppress on `kind` alone. When several background-task completions are queued together, Claude Code can answer them in one turn rather than one turn each. Each completion still produces its own result with this origin. All but the last of the completions Claude Code answers together produce empty results with `num_turns: 0`, in order, and the last one’s result carries the turn that answers them all. `origin` is absent when Claude Code assigned none, such as:
+
+  * On a turn you start with a message that has neither `origin` nor `isSynthetic`
+  * On results emitted before any user turn, such as startup errors
+
+When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](</docs/en/hooks#defer-a-tool-call-for-later>) for the full round trip.
 
 ####
 
@@ -2539,7 +2544,7 @@ Before Agent SDK v0.3.277, the type declared `severity` and `is_active` as optio
 
 `SDKMessageOrigin`
 
-Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` and is forwarded onto the corresponding `SDKResultMessage` so you can tell what triggered a given turn.
+Provenance of a user-role message. This appears as `origin` on `SDKUserMessage`. The `SDKResultMessage` for a turn carries the `origin` that Claude Code assigned, so you can tell what triggered that turn.
 
     type SDKMessageOrigin =
       | { kind: "human" }
@@ -2564,15 +2569,22 @@ Provenance of a user-role message. This appears as `origin` on `SDKUserMessage` 
       | { kind: "auto-continuation" }
       | { kind: "unclassified" };
 
+Your application can set these kinds of `origin` on a message it sends:
+
+  * `{ kind: "human" }`: what the user typed
+  * `{ kind: "task-notification", subkind: "scheduled-trigger" }`: a scheduled run you declare
+
+Leave the other kinds to Claude Code and Anthropic servers. If you set one of those kinds, Claude reads the message as the user’s by default. To send text the user didn’t write, such as a fetched page or another agent’s output, send it as its own message with `isSynthetic` set to `true` and `origin` unset. Also set `client_composed` to `true`, so that text starting with `/` doesn’t run as a command.
+
 `kind`| Meaning
 ---|---
-`human`| Direct input from the end user. If your application forwards what the user typed as a user message, set its `origin` to `{ kind: "human" }` explicitly: Claude Code treats a user message with no `origin` as unattributed, and checks that require a human-typed prompt, such as the [`ultracode` workflow keyword](</docs/en/workflows#ask-for-a-workflow-in-your-prompt>), don’t accept it. Before v2.1.210, Claude Code treated an absent `origin` on a user message as human input.
+`human`| Direct input from the end user. If your application forwards what the user typed as a user message, set its `origin` to `{ kind: "human" }`. Without that `origin`, Claude still reads the message as the user’s, but checks that require a human-typed prompt, such as the [`ultracode` workflow keyword](</docs/en/workflows#ask-for-a-workflow-in-your-prompt>), don’t accept the message.
 `channel`| Message arriving on a [channel](</docs/en/channels>). `server` is the source MCP server name.
-`peer`| Message from another agent: an in-process [teammate](</docs/en/agent-teams>) or a [cross-session peer](</docs/en/cross-session-messaging>), another of your Claude Code sessions. See Peer origin fields for the per-field semantics and the trust model.
+`peer`| Message from another Claude Code agent: an in-process [teammate](</docs/en/agent-teams>) or a [cross-session peer](</docs/en/cross-session-messaging>), another of your Claude Code sessions. The [desktop app](</docs/en/desktop#work-across-sessions>), which relays such messages between your sessions, declares this kind with `fromMode`. To relay another agent’s output from your own application, set `isSynthetic` and `client_composed` instead. See Peer origin fields for the per-field semantics and the trust model.
 `task-notification`| Synthetic turn injected for a delivery that arrives without a fresh user prompt, such as a finished background task; see `SDKTaskNotificationMessage` for that arm. A prompt your application declares as a scheduled run carries this kind too. The optional `subkind` marks what raised the notification. See Task-notification subkinds.
 `coordinator`| Message from a team coordinator in an [agent team](</docs/en/agent-teams>).
 `auto-continuation`| Synthetic turn injected when the session continues without fresh user input, such as a command result that triggers a follow-up prompt.
-`unclassified`| Injected turn whose origin couldn’t be determined. Requires Claude Code v2.1.223 or later. When Claude Code receives an `SDKUserMessage` with `isSynthetic: true` and can’t classify it as any other `kind`, it sets this kind as the message arrives and frames the turn to the model as a non-user source rather than treating it as human input. Your application shouldn’t set this value.
+`unclassified`| Message marked as not coming from the user, such as an `SDKUserMessage` you send with `isSynthetic: true`. Requires Claude Code v2.1.223 or later.
 
 ###
 
@@ -2604,7 +2616,7 @@ Peer origin fields
 A `peer` origin identifies which agent sent the message: an in-process [teammate](</docs/en/agent-teams>) sending to `main` with `SendMessage`, or a [cross-session peer](</docs/en/cross-session-messaging>), another of your Claude Code sessions. Cross-session peers require Claude Code v2.1.224 or later on macOS and Linux; see [cross-session messaging availability](</docs/en/cross-session-messaging#availability>) for the native Windows requirement. A cross-session peer can run on the same machine, or on [another of your machines](</docs/en/cross-session-messaging#message-sessions-on-other-machines>) when its message arrives through [Remote Control](</docs/en/remote-control>).
 
   * `from`: the teammate’s name, or the sender address for a cross-session peer. For a [one-way cross-machine message](</docs/en/cross-session-messaging#message-sessions-on-other-machines>), the sender has no reply address and `from` is `"unknown"`. The value is sender-authored; `verifiedPeerPid` is the verified identity.
-  * `fromMode`: the sending session’s permission class, `bypass` or `prompting`, declared by a host that relays a peer message between your sessions, such as the [desktop app](</docs/en/desktop#work-across-sessions>). Claude Code reads it in the receiving session when it applies the [inbound controls](</docs/en/cross-session-messaging#control-inbound-messages>). Requires Agent SDK v0.3.234 or later.
+  * `fromMode`: the sending session’s permission class, `bypass` or `prompting`. Claude Code reads it in the receiving session when it applies the [inbound controls](</docs/en/cross-session-messaging#control-inbound-messages>). Requires Agent SDK v0.3.234 or later.
   * `senderTaskId`: the teammate’s task ID. Absent for a cross-session peer.
   * `name`: the sender’s display name, normalized by Claude Code: it strips Unicode control, format, surrogate, and line or paragraph separator code points, then trims the result and caps it at 64 code points with an ellipsis. Requires Claude Code v2.1.205 or later.
   * `body`: the decoded message body with the peer envelope stripped, byte-exact with what the model sees. Present for a single teammate message, absent when several are merged; for a cross-session peer, present only when the turn is exactly one peer envelope formed by Claude Code. Render `name` and `body` instead of re-parsing the message text. Before v2.1.299, merged messages kept the first message’s `body`. Requires Claude Code v2.1.205 or later.
@@ -6384,7 +6396,7 @@ Property| Type| Default| Description
 `allowUnsandboxedCommands`| `boolean`| `true`| Allow the model to request running commands outside the sandbox. When `true`, the model can set `dangerouslyDisableSandbox` in tool input, which falls back to the permissions system
 `network`| `SandboxNetworkConfig`| `undefined`| Network-specific sandbox configuration
 `filesystem`| `SandboxFilesystemConfig`| `undefined`| Filesystem-specific sandbox configuration for read/write restrictions
-`ignoreViolations`| `Record<string, string[]>`| `undefined`| Map of command substrings, or `*` for every command, to substrings of the violation text to ignore, such as `{ "*": ['/etc/hosts'] }`; see [`sandbox.ignoreViolations`](</docs/en/settings-reference#sandbox-ignoreviolations>)
+`ignoreViolations`| `Record<string, string[]>`| `undefined`| Violations to leave out of the sandbox’s violation report. Each key matches part of a command, or `*` for every command, and each value lists text to match in a violation line: `{ "*": ['/etc/hosts'] }` hides violations that mention `/etc/hosts`. See [`sandbox.ignoreViolations`](</docs/en/settings-reference#sandbox-ignoreviolations>)
 `enableWeakerNestedSandbox`| `boolean`| `false`| Enable a weaker nested sandbox for compatibility
 `allowNestedUserNamespaces`| `boolean`| `false`| Let sandboxed commands on Linux and WSL2 create user namespaces. Before you set it to `true`, read [`sandbox.allowNestedUserNamespaces`](</docs/en/settings-reference#sandbox-allownestedusernamespaces>), which covers the tools that need it and the security boundary you turn off. Requires Claude Code v2.1.305 or later
 `ripgrep`| `{ command: string; args?: string[] }`| `undefined`| Custom ripgrep binary configuration for sandbox environments

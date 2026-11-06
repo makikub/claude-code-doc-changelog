@@ -12,9 +12,8 @@ Claude Code in Slack brings the power of Claude Code directly into your Slack wo
 
 Use cases
 
-  * **Bug investigation and fixes** : Ask Claude to investigate and fix bugs as soon as they’re reported in Slack channels.
-  * **Quick code reviews and modifications** : Have Claude implement small features or refactor code based on team feedback.
-  * **Collaborative debugging** : When team discussions provide crucial context (for example, error reproductions or user reports), Claude can use that information to inform its debugging approach.
+  * **Bug investigation and fixes** : Describe a bug and ask Claude to investigate and fix it.
+  * **Quick code reviews and modifications** : Have Claude implement small features or refactor code.
   * **Parallel task execution** : Kick off coding tasks in Slack while you continue other work, receiving notifications when complete.
 
 ##
@@ -107,7 +106,10 @@ Claude Code in Slack only works in channels (public or private). It does not wor
 
 Context gathering
 
-**From threads** : When you @mention Claude in a thread, it gathers context from all messages in that thread to understand the full conversation. **From channels** : When mentioned directly in a channel, Claude looks at recent channel messages for relevant context. This context helps Claude understand the problem, select the appropriate repository, and inform its approach to the task.
+  * **From threads** : when you first @mention Claude in a thread, it gathers context from your messages and its own in that thread.
+  * **From channels** : when you @mention Claude directly in a channel, it looks at your recent messages and its own in that channel, and at the channel’s name, topic, and description.
+
+This context helps Claude understand the problem, select the appropriate repository, and inform its approach to the task. To give Claude something a teammate wrote, such as an error report, paste its text into the message where you @mention Claude.
 
 When @Claude is invoked in Slack, Claude is given access to the conversation context to better understand your request. Claude may follow directions from other messages in the context, so users should make sure to only use Claude in trusted Slack conversations.
 
@@ -210,9 +212,8 @@ Best practices
 Writing effective requests
 
   * **Be specific** : Include file names, function names, or error messages when relevant.
-  * **Provide context** : Mention the repository or project if it’s not clear from the conversation.
+  * **Provide context** : Mention the repository or project.
   * **Define success** : Explain what “done” looks like. Should Claude write tests? Update documentation? Create a PR?
-  * **Use threads** : Reply in threads when discussing bugs or features so Claude can gather the full context.
 
 ###
 
@@ -220,7 +221,7 @@ Writing effective requests
 
 When to use Slack vs. web
 
-**Use Slack when** : Context already exists in a Slack discussion, you want to start a task asynchronously, or you’re collaborating with teammates who need visibility. **Use the web directly when** : You need to upload files, want real-time interaction during development, or are working on longer, more complex tasks.
+**Use Slack when** : You want to start a task asynchronously, or you’re collaborating with teammates who need visibility. **Use the web directly when** : You need to upload files, want real-time interaction during development, or are working on longer, more complex tasks.
 
 ##
 

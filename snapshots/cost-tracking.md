@@ -289,7 +289,7 @@ For accurate cost tracking, account for the placeholder output count on assistan
 
 Read output tokens from the result message
 
-Claude Code builds each assistant message from the usage the API reported when the response began, so the message’s `output_tokens` is only the count the API had reported at `message_start`, before the response was generated. One API response can produce several assistant messages, and every one of them carries that same placeholder. The API reports the real output count at the end of the response, and Claude Code adds it to the result message. Read output tokens from the result’s `usage`, or from `modelUsage` for a per-model breakdown. To watch a response’s output count grow while it streams, set `includePartialMessages`, or `include_partial_messages` in Python, and read `usage` from each `message_delta` stream event, typed as [`SDKPartialAssistantMessage`](</docs/en/agent-sdk/typescript#sdkpartialassistantmessage>) in TypeScript and [`StreamEvent`](</docs/en/agent-sdk/python#streamevent>) in Python.
+Claude Code builds each assistant message from the usage the API reported when the response began, so the message’s `output_tokens` is only the count the API had reported at `message_start`, before the response was generated. One API response can produce several assistant messages, and every one of them carries that same placeholder. The API reports the real output count at the end of the response, and Claude Code adds it to the result message. Read output tokens from the result’s `usage`, or from `modelUsage` for a per-model breakdown.
 
 ###
 

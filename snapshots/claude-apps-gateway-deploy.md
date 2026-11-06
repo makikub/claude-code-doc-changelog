@@ -187,6 +187,8 @@ A replica fills its limit at a request rate of about the limit divided by the av
 
 Every open request holds memory in the gateway process while it streams and while it waits for a slot. If you keep the limit at 256, memory on an overloaded replica still grows, because waiting requests keep their request bodies. Size the container’s memory for the number of requests open at peak, and watch memory when you change the limit. A replica that runs out of memory is killed and drops every stream it holds.
 
+In a load test with [`load_test_mode`](</docs/en/claude-apps-gateway-config#load_test_mode>), requests don’t wait at this limit, but a replica still logs the `client requests are open` warning.
+
 ###
 
 ​
