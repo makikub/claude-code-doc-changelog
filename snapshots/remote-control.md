@@ -119,6 +119,8 @@ In an interactive session, while Remote Control is connected, the terminal shows
   * **This session was ended or archived from another device or app** : run `/remote-control` only if you want the session back. Claude Code reopens an archived session.
   * **The server no longer reports this session** : it may have been deleted from another device or app.
 
+If `/remote-control` opens a dialog that says `Remote Control isn't connected.`, follow the step the dialog gives, such as running `/login` or selecting **Continue** and trying again.
+
 ###
 
 ​
@@ -306,7 +308,7 @@ Remote Control and [cloud sessions](</docs/en/claude-code-on-the-web>) both use 
 
 Mobile push notifications
 
-When Remote Control is active, Claude can send push notifications to your phone. Claude decides when to push. It typically sends one when a long-running task finishes or when it needs a decision from you to continue. You can also request a push in your prompt, for example `notify me when the tests finish`. Beyond the two on/off toggles below, there is no per-event configuration. To set up mobile push notifications:
+When Remote Control is active, Claude can send push notifications to your phone. A push can arrive when a long-running task finishes or when Claude needs a decision from you. You can also request a push in your prompt, for example `notify me when the tests finish`. Beyond the two on/off toggles below, there is no per-event configuration. To set up mobile push notifications:
 
 1
 

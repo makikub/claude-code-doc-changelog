@@ -59,7 +59,7 @@ Watch the app in the simulator pane
 
 When the app launches in a simulator, the iOS Simulator pane opens next to the conversation. The first time Claude uses a device, the desktop app asks you to allow it; see Grant Claude access to a device. Claude installs the app, taps through it, and reads the screen to verify its own changes while you watch.
 
-The simulator pane opens whenever Claude launches the app in a simulator, at any point in the session. When your request is about seeing the app, for example “does the new screen look right?”, Claude starts a simulator before it begins the work. After Claude fixes a bug or changes a screen, ask it to verify the change: relaunching the app reopens the pane if it isn’t open. The simulator pane shows whichever device the app actually launched in. To test on a specific device, name it in your request, for example “run it on the iPhone SE simulator”, and Claude targets that device when it builds and launches. A device Claude boots also appears in Apple’s Simulator app, or in Device Hub on Xcode 27. Claude can install the app on a device you already have booted. You can also open the simulator pane yourself. Once the session has a simulator attached or Claude Code detects iOS app work, an **iOS Simulator** button appears in the session’s title bar. If the pane isn’t showing a device yet, click **Attach simulator** , or pick a specific device from the device menu next to it; picking a shut-down device boots it. If Xcode or its simulators are missing, the pane shows the setup steps instead and checks them off as you complete them.
+When your request is about seeing the app, for example “does the new screen look right?”, Claude starts a simulator before it begins the work. After Claude fixes a bug or changes a screen, ask it to verify the change. The simulator pane shows whichever device the app actually launched in. To test on a specific device, name it in your request, for example “run it on the iPhone SE simulator”, and Claude targets that device when it builds and launches. A device Claude boots also appears in Apple’s Simulator app, or in Device Hub on Xcode 27. Claude can install the app on a device you already have booted. You can also open the simulator pane yourself. Once the session has a simulator attached or Claude Code detects iOS app work, an **iOS Simulator** button appears in the session’s title bar. If the pane isn’t showing a device yet, click **Attach simulator** , or pick a specific device from the device menu next to it; picking a shut-down device boots it. If Xcode or its simulators are missing, the pane shows the setup steps instead and checks them off as you complete them.
 
 ##
 
@@ -77,6 +77,17 @@ The simulator pane is interactive, not only a viewer. While Claude works, or bet
   * Stop streaming a device without shutting it down by clicking **Detach simulator** , which returns the pane to its **Attach simulator** state
 
 If the pane shows a **Display** menu, use it to tune the video stream from the simulator. Lower **Frame rate** or **Resolution** if the pane strains your Mac. Both settings change how the pane displays the device, not how the app runs. You and Claude drive the same device, so your taps change the app state Claude sees. To have Claude check a specific screen, tap through to it, then ask. While Claude is driving the device, the pane shows a **Claude is using this device** badge above the screen; hold off tapping until the badge clears, so the result reflects the app rather than your input.
+
+###
+
+​
+
+Minimize or close the simulator pane
+
+You can minimize or close the simulator pane, and Claude can still use the device either way.
+
+  * If you minimize the pane, the device stays in view at a small size. To minimize the pane or expand it again, see [Minimize a pane](</docs/en/desktop#minimize-a-pane>).
+  * If you close the full-size or minimized pane, the device stays attached and running. To show the device again, click **iOS Simulator** in the session’s title bar.
 
 ##
 

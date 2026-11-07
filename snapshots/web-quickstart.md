@@ -1,6 +1,6 @@
 Cloud sessions are available on Pro, Max, Ultra, and Team plans, and for Enterprise users with premium seats or Chat + Claude Code seats.
 
-A cloud session runs Claude Code on cloud infrastructure instead of your machine, Anthropic-managed by default. This quickstart starts one from [claude.ai/code](<https://claude.ai/code>) in your browser. You can also start one from the Claude mobile app, the Desktop app, or your terminal with `claude --cloud`. You’ll need a GitHub repository to get started. Claude clones it into an isolated virtual machine, makes changes, and pushes a branch for you to review. Sessions persist across devices, so a task you start on your laptop is ready to review from your phone later. Each session counts toward your plan’s usage limits alongside the rest of your Claude and Claude Code usage, and there’s no separate charge for the cloud VM. Cloud sessions work well for:
+A cloud session runs Claude Code on cloud infrastructure instead of your machine, Anthropic-managed by default. This quickstart starts one from [claude.ai/code](<https://claude.ai/code>) in your browser. You can also start one from the Claude mobile app, the Desktop app, or your terminal with `claude --cloud`. Claude clones the GitHub repository you select into an isolated virtual machine, makes changes, and pushes a branch for you to review. Sessions persist across devices, so a task you start on your laptop is ready to review from your phone later. Each session counts toward your plan’s usage limits alongside the rest of your Claude and Claude Code usage, and there’s no separate charge for the cloud VM. Cloud sessions work well for:
 
   * **Parallel tasks** : run several independent tasks at once, each in its own session and branch, without managing multiple worktrees
   * **Repos you don’t have locally** : Claude clones the repo fresh every session, so you don’t need it checked out
@@ -38,7 +38,7 @@ Claude Code behaves the same everywhere. What changes is where the session runs 
 **You start it from**|  claude.ai/code, the Claude mobile app, the Desktop app with **Cloud** selected, or `claude --cloud`| Your terminal, your IDE, or the Desktop app with **Local** selected| Your terminal, the VS Code extension, or the Desktop app
 **You chat from**|  claude.ai, the mobile app, or the Desktop app| Where you started it| claude.ai or the mobile app, as well as where you started it
 **Uses your local config**|  No, repo only| Yes| Yes
-**Requires GitHub**|  Yes, or [bundle a local repo](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>) via `--cloud`| No| No
+**Requires GitHub**|  Yes for a GitHub repository, unless `--cloud` [bundles your local repo](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>)| No| No
 **Keeps running if you disconnect**|  Yes| No| While the session stays open on your machine
 **[Permission modes](</docs/en/permission-modes>)**|  Accept edits, Plan, Auto| All modes in the terminal; see [Switch permission modes](</docs/en/permission-modes#switch-permission-modes>) for the IDE and Desktop app| Manual, Accept edits, Plan, or Auto from claude.ai and the mobile app
 **Network access**|  Configurable per environment| Your machine’s network| Your machine’s network
@@ -237,7 +237,7 @@ If you connected GitHub in the browser, sessions can clone any public repository
 
 The page only shows a GitHub login button
 
-Cloud sessions require a connected GitHub account. Connect via the browser flow above, or run `/web-setup` from your terminal if you use the GitHub CLI. If you’d rather not connect GitHub at all, see [Remote Control](</docs/en/remote-control>) to run Claude Code on your own machine and monitor it from your browser or phone.
+To work in a GitHub repository in a cloud session, connect your GitHub account, or run `/web-setup` from your terminal if you use the GitHub CLI. If you’d rather not connect GitHub at all, see [Remote Control](</docs/en/remote-control>) to run Claude Code on your own machine and monitor it from your browser or phone.
 
 ###
 
