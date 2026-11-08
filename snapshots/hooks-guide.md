@@ -385,7 +385,7 @@ See the [CwdChanged](</docs/en/hooks#cwdchanged>) and [FileChanged](</docs/en/ho
 
 Auto-approve specific permission prompts
 
-Skip the approval dialog for tool calls you always allow. This example auto-approves `ExitPlanMode`, the tool Claude calls when it finishes presenting a plan and asks to proceed, so you aren’t prompted every time a plan is ready. Unlike the exit-code examples above, auto-approval requires your hook to write a JSON decision to stdout. Claude Code runs `PermissionRequest` hooks when it’s about to ask you for permission, and if your hook returns `"behavior": "allow"`, Claude Code answers the request on your behalf. The matcher scopes the hook to `ExitPlanMode` only, so no other prompts are affected. Add this to `~/.claude/settings.json`:
+Skip the approval dialog for tool calls you always allow. This example auto-approves `ExitPlanMode`, the tool Claude calls when it finishes presenting a plan and asks to proceed, so you aren’t prompted every time a plan is ready. Unlike the exit-code examples above, auto-approval requires your hook to write a JSON decision to stdout. Claude Code runs `PermissionRequest` hooks when it’s about to ask you for permission, and if your hook returns `"behavior": "allow"`, Claude Code answers the request on your behalf. For a tool that [requires user interaction](</docs/en/hooks#allow-with-updatedinput>), such as `ExitPlanMode`, the allow also needs `updatedInput`, or Claude Code ignores it and still shows the prompt. The matcher scopes the hook to `ExitPlanMode` only, so no other prompts are affected. Add this to `~/.claude/settings.json`:
 
     {
       "hooks": {
@@ -395,7 +395,7 @@ Skip the approval dialog for tool calls you always allow. This example auto-appr
             "hooks": [
               {
                 "type": "command",
-                "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow\"}}}'"
+                "command": "jq -c '{hookSpecificOutput: {hookEventName: \"PermissionRequest\", decision: {behavior: \"allow\", updatedInput: .tool_input}}}'"
               }
             ]
           }
@@ -407,19 +407,9 @@ When the hook approves, Claude Code exits plan mode and restores whatever permis
 
 `bypassPermissions` only applies if you started the session with bypass mode already available: `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`, `--allow-dangerously-skip-permissions`, or `permissions.defaultMode: "bypassPermissions"` in [user, `--settings`, or managed settings](</docs/en/settings-reference#permissions-defaultmode>). It doesn’t apply if bypass mode is disabled by [`permissions.disableBypassPermissionsMode`](</docs/en/permissions#managed-settings>), or if you started the session in [restricted mode](</docs/en/cli-reference#cli-flags>).Claude Code never saves it as `defaultMode`.
 
-To switch the session to `acceptEdits`, your hook writes this JSON to stdout:
+To switch the session to `acceptEdits`, replace the `command` line in that hook with this one:
 
-    {
-      "hookSpecificOutput": {
-        "hookEventName": "PermissionRequest",
-        "decision": {
-          "behavior": "allow",
-          "updatedPermissions": [
-            { "type": "setMode", "mode": "acceptEdits", "destination": "session" }
-          ]
-        }
-      }
-    }
+    "command": "jq -c '{hookSpecificOutput: {hookEventName: \"PermissionRequest\", decision: {behavior: \"allow\", updatedInput: .tool_input, updatedPermissions: [{type: \"setMode\", mode: \"acceptEdits\", destination: \"session\"}]}}}'"
 
 Keep the matcher as narrow as possible. Matching on `.*` or leaving the matcher empty would auto-approve every tool permission prompt, including file writes and shell commands. See the [PermissionRequest reference](</docs/en/hooks#permissionrequest-decision-control>) for the full set of decision fields.
 
