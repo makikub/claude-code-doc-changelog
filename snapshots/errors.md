@@ -883,7 +883,7 @@ When the [Fable usage-credits consent prompt](</docs/en/model-config#fable-and-u
     Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
     Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
 
-The messages name the session’s Fable model, so on Fable 5 they read `continuing on Fable 5` and `Fable 5 now uses usage credits`. Before v2.1.257, the first message began `Fable 5 limit reached`. This happens in [Remote Control](</docs/en/remote-control>) sessions, [background sessions](</docs/en/agent-view>), [agent team](</docs/en/agent-teams>) teammate sessions, and sessions that another application hosts through the Agent SDK. For when Claude Code closes the prompt, see [Fable and usage credits](</docs/en/model-config#fable-and-usage-credits>). **What to do:**
+The messages name the session’s Fable model, so on Fable 5.2 they read `continuing on Fable 5.2` and `Fable 5.2 now uses usage credits`. Before v2.1.257, the first message began `Fable 5 limit reached`. This happens in [Remote Control](</docs/en/remote-control>) sessions, [background sessions](</docs/en/agent-view>), [agent team](</docs/en/agent-teams>) teammate sessions, and sessions that another application hosts through the Agent SDK. For when Claude Code closes the prompt, see [Fable and usage credits](</docs/en/model-config#fable-and-usage-credits>). **What to do:**
 
   * Where the session runs, at the terminal or in the application hosting it, send another prompt and answer the consent prompt when it reappears. For a background session, attach to it from the [agents view](</docs/en/agent-view>) first. Resending from a Remote Control client shows this message again, because the client can’t display the prompt.
   * Run `/model` to switch to a model that doesn’t bill usage credits
@@ -6255,7 +6255,7 @@ If Claude’s answers seem less capable than you expect but no error is shown, t
 
   * A configured [`--fallback-model`](</docs/en/cli-reference#cli-flags>) takes over after an availability error, for that turn only, with a notice in the transcript
   * An Amazon Bedrock or Google Cloud’s Agent Platform startup check finds your default model unavailable, or your account [loses access to it mid-session](</docs/en/amazon-bedrock#when-a-model-is-disabled-mid-session>)
-  * [Automatic model fallback](</docs/en/model-config#automatic-model-fallback>) on Fable 5.1, Fable 5, Opus 5.5, Sonnet 5.5, and Opus 5 moves the session to the flagged category’s fallback model, when that category has one, and shows a notice in the transcript
+  * [Automatic model fallback](</docs/en/model-config#automatic-model-fallback>) on Fable models, Opus 5.5, Sonnet 5.5, and Opus 5 moves the session to the flagged category’s fallback model, when that category has one. A notice appears in the transcript
 
 The Model selection check below catches the second and third cases; the first appears as a transcript notice rather than a `/model` change. [Model configuration](</docs/en/model-config>) explains when each fallback applies. Check these first:
 

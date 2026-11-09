@@ -462,11 +462,11 @@ Unlike most array settings, this key doesn’t merge across settings files: the 
 
 `fastMode`
 
-Turn [fast mode](</docs/en/fast-mode>) on for sessions where it’s available, for interactive work such as rapid iteration or live debugging where you want speed at a higher cost per token. You don’t usually edit this key yourself. Running `/fast` writes `fastMode: true` to `~/.claude/settings.json`, and running it again to turn fast mode off removes the key. Only Opus 5.5, Opus 5, and Opus 4.8 support fast mode. Running `/fast` from another model switches you to Opus, and switching to an unsupported model turns fast mode off. See [Switch models while fast mode is on](</docs/en/fast-mode#switch-models-while-fast-mode-is-on>).
+Turn [fast mode](</docs/en/fast-mode>) on for sessions where it’s available, for interactive work such as rapid iteration or live debugging where you want speed at a higher cost per token. You don’t usually edit this key yourself. Running `/fast` writes `fastMode: true` to `~/.claude/settings.json`, and running it again to turn fast mode off removes the key. Only Fable 5.2, Opus 5.5, Opus 5, and Opus 4.8 support fast mode. Running `/fast` from another model switches you to Opus, and switching to an unsupported model turns fast mode off. See [Switch models while fast mode is on](</docs/en/fast-mode#switch-models-while-fast-mode-is-on>).
 
   * **Scope** : `Any file`
   * **Type** : Boolean
-    * `true`: Claude Code turns fast mode on for sessions where it’s available
+    * `true`: Claude Code turns fast mode on for sessions where it’s available. On Fable 5.2, you must also [run `/fast` while using Fable 5.2](</docs/en/fast-mode#switch-models-while-fast-mode-is-on>)
     * `false`: fast mode stays off
   * **Default** : unset, so fast mode is off
   * **Per-session overrides** : [`CLAUDE_CODE_DISABLE_FAST_MODE`](</docs/en/env-vars>) turns fast mode off for one session, and this key can’t turn it back on
@@ -483,12 +483,12 @@ settings.json
 
 `fastModePerSessionOptIn`
 
-Normally, running `/fast` saves `fastMode` to a person’s user settings, so new sessions on a supported model start with fast mode on. Set this key to `true` to stop that: a saved `fastMode: true` no longer turns fast mode on at session start, and each person runs `/fast` in each session they want it. Claude Code leaves `fastMode` in their file, so turning this key off restores the old behavior. Owners on Team or Enterprise plans can deploy it organization-wide through [server-managed settings](</docs/en/server-managed-settings>). When managed settings set the key, `/fast on` is refused outside interactive terminal sessions and reports that your organization has disabled fast mode. That covers [non-interactive mode](</docs/en/headless>), the [VS Code extension](</docs/en/vs-code>), and [cloud sessions](</docs/en/claude-code-on-the-web>).
+Normally, running `/fast` saves `fastMode` to a person’s user settings, so new sessions on a supported model start with fast mode on. On Fable 5.2, that happens only if they [turned it on while using Fable 5.2](</docs/en/fast-mode#switch-models-while-fast-mode-is-on>). To make each person run `/fast` in each session they want it, set this key to `true`. Claude Code leaves `fastMode` in their file, so turning this key off restores the old behavior. Owners on Team or Enterprise plans can deploy it organization-wide through [server-managed settings](</docs/en/server-managed-settings>). When managed settings set the key, `/fast on` is refused outside interactive terminal sessions and reports that your organization has disabled fast mode. That covers [non-interactive mode](</docs/en/headless>), the [VS Code extension](</docs/en/vs-code>), and [cloud sessions](</docs/en/claude-code-on-the-web>).
 
   * **Scope** : `Any file`
   * **Type** : Boolean
     * `true`: a saved `fastMode: true` no longer turns fast mode on at session start, so each person runs `/fast` in each session they want it; a `fastMode: true` passed with `--settings` still counts for that session unless managed settings set this key
-    * `false`: a saved `fastMode: true` turns fast mode on at the start of each new session on a supported model
+    * `false`: a saved `fastMode: true` works as `fastMode` describes
   * **Default** : `false`
 
 settings.json
@@ -6225,7 +6225,7 @@ Any other value leaves Claude’s tools on, and a non-empty string that isn’t 
 
 `disableBrowserExternalNavigation`
 
-Turn off external browsing in the desktop app’s [Browser pane](</docs/en/desktop#browse-external-sites>) for people and Claude alike. Localhost dev server previews keep working. The desktop app reads this key; the terminal CLI ignores it.
+Turn off external browsing in the desktop app’s [Browser pane](</docs/en/desktop#browse-external-sites>) for people and Claude alike. Localhost dev server previews keep working. HTML previews in SSH and WSL sessions still open, but they [don’t run scripts](</docs/en/desktop#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization>). The desktop app reads this key; the terminal CLI ignores it.
 
   * **Scope** : `Managed`
   * **Type** : Boolean; only the JSON Boolean `true` takes effect
@@ -6239,7 +6239,7 @@ managed-settings.json
       "disableBrowserExternalNavigation": true
     }
 
-The desktop app ignores any other value, and a value that isn’t a Boolean, such as the string `"true"` or `1`, also logs a warning. To leave external browsing on but keep Claude’s tools off external pages, set `browserExternalPageTools` instead. See [Restrict external browsing for your organization](</docs/en/desktop#restrict-external-browsing-for-your-organization>).
+The desktop app ignores any other value, and a value that isn’t a Boolean, such as the string `"true"` or `1`, also logs a warning. To leave external browsing on but keep Claude’s tools off external pages, set `browserExternalPageTools` instead. See [Restrict external browsing for your organization](</docs/en/desktop#restrict-external-browsing-for-your-organization>). If the computer that runs the desktop app receives no other Claude Code managed settings, also set `parentSettingsBehavior` to `"merge"` in the managed settings that you create. On Windows, if you create a managed settings file, users also lose WSL sessions until you [allow them](</docs/en/admin-setup#wsl-sessions-in-claude-code-desktop>). See [Turn off scripts in SSH and WSL previews for your organization](</docs/en/desktop#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization>) for the reasons.
 
 ###
 

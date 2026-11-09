@@ -90,10 +90,11 @@ Sonnet 5 or Haiku 5.5| Fable, Opus 4.7 or later, Sonnet 5 or later, Haiku 5.5
 Opus 4.7 or Opus 4.8| Fable, Opus 4.7 or later, Sonnet 5.5
 Sonnet 5.5| Fable, Opus 5 or later, Sonnet 5.5
 Opus 5 or Opus 5.5| Fable, Opus 5 or later
-Fable 5| Fable 5.1 or Fable 5
-Fable 5.1| Fable 5.1
+Fable 5| Fable 5.2, Fable 5.1, or Fable 5
+Fable 5.1| Fable 5.2 or Fable 5.1
+Fable 5.2| Fable 5.2
 
-Fable 5.1 requires Claude Code v2.1.257 or later. Fable models require [Fable access](</docs/en/model-config#work-with-fable>). Sonnet 5.5 as the advisor for an Opus 4.7 or Opus 4.8 main model requires Claude Code v2.1.287 or later. Haiku 5.5 as the main model or as the advisor requires Claude Code v2.1.293 or later. Set the advisor as `fable`, `opus`, or `sonnet`. These aliases resolve to Claude Code’s [built-in default version](</docs/en/model-config#model-aliases>) for each model family, which advances with new Claude Code releases. You can also pass a full model ID such as `claude-opus-5-5` or `claude-haiku-5-5`. Haiku 4.5 can call the advisor but can’t act as one. Subagents inherit the configured advisor and apply the same pairing check against their own model. Claude Code validates the pairing before sending a request, and the API validates it again:
+Fable 5.2 requires Claude Code v2.1.321 or later, and Fable 5.1 requires v2.1.257 or later. Fable models require [Fable access](</docs/en/model-config#work-with-fable>). Sonnet 5.5 as the advisor for an Opus 4.7 or Opus 4.8 main model requires Claude Code v2.1.287 or later. Haiku 5.5 as the main model or as the advisor requires Claude Code v2.1.293 or later. Set the advisor as `fable`, `opus`, or `sonnet`. These aliases resolve to Claude Code’s [built-in default version](</docs/en/model-config#model-aliases>) for each model family, which advances with new Claude Code releases. You can also pass a full model ID such as `claude-opus-5-5` or `claude-haiku-5-5`. Haiku 4.5 can call the advisor but can’t act as one. Subagents inherit the configured advisor and apply the same pairing check against their own model. Claude Code validates the pairing before sending a request, and the API validates it again:
 
   * For an advisor that ranks below the main model, Claude Code doesn’t attach it to the main model’s requests. The `/advisor` command output and a notification show this; see [Advisor is less capable than the current main model](</docs/en/errors#advisor-is-less-capable-than-the-current-main-model>). Subagents whose own model satisfies the pairing may still use the advisor.
   * If the API refuses the pairing of an advisor that Claude Code attached, Claude Code resends that request without the advisor. The conversation continues without one, so you see no error and get no advisor calls. If you then pick a different advisor with `/advisor`, it takes effect after `/clear` or `/compact` and in new sessions.
