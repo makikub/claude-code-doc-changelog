@@ -50,7 +50,7 @@ To turn the plugin on in the local sessions your teammates start in the reposito
       }
     }
 
-Administrators can enable the plugin organization-wide by setting [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>) in [managed settings](</docs/en/admin-setup>).
+Each teammate also [runs `claude plugin install security-guidance@claude-plugins-official --scope project`](</docs/en/plugins/loading#enabled-in-project-settings-but-not-installed>) once per clone. Administrators can enable the plugin organization-wide by setting [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>) in [managed settings](</docs/en/admin-setup>).
 
 ##
 

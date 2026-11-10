@@ -2963,7 +2963,7 @@ Bash
 
 Monitor
 
-**Tool name:** `Monitor` Runs a background source and delivers each event to Claude so it can react without polling: `command` runs a script and emits one event per stdout line, and `ws` opens a WebSocket and emits one event per text frame. Provide exactly one of `command` or `ws`. When Monitor runs a command, it follows the same permission rules as Bash; a WebSocket watch prompts for approval separately. The `ws` source requires Claude Code v2.1.195 or later. See the [Monitor tool reference](</docs/en/tools-reference#monitor-tool>) for behavior and provider availability. **Input:**
+**Tool name:** `Monitor` Runs a background source and delivers each event to Claude so it can react without polling: `command` runs a script and emits one event per stdout line, and `ws` opens a WebSocket and emits one event per text frame. Provide exactly one of `command` or `ws`. The `ws` source requires Claude Code v2.1.195 or later. When Monitor runs a command, it follows the same permission rules as Bash. See the [Monitor tool reference](</docs/en/tools-reference#monitor-tool>) for WebSocket permissions, behavior, and provider availability. **Input:**
 
     {
         "command": str | None,  # Shell script; each stdout line is an event, exit ends the watch

@@ -50,9 +50,9 @@ With no mod settings of your own, this is what your users get:
 
   * **Mods are on.** A user can install a plugin that contains a mod from any marketplace your plugin settings allow, or load one from a directory with `--plugin-dir`.
   * **A built-in guard runs first.** Claude Code loads a built-in mod named `sec-default@builtin` ahead of every mod a user installs. Users can’t turn it off. `/plugin` and the debug log list it as `cc-plugin-sec-default`. The guard loads when either of these is true:
-    * The machine has managed settings
+    * The machine has managed settings or a [`managed-mcp.json`](</docs/en/managed-mcp#deploy-managed-mcp-json>) file
     * The session runs on [`/login` credentials](</docs/en/authentication#authentication-precedence>) for a Team or Enterprise plan
-A user who authenticates with an API key, or through Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, gets the guard only on a machine that has managed settings. A session that runs on a long-lived [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/authentication#generate-a-long-lived-token>) doesn’t count as that login either, even when a Team or Enterprise login is stored on the machine.
+A user with an API key, or on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, gets the guard only on a machine with managed settings or `managed-mcp.json`. A session that runs on a long-lived [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/authentication#generate-a-long-lived-token>) doesn’t count as that login either, even when a Team or Enterprise login is stored on the machine.
   * **The guard protects what you manage.** A user’s mod can’t change what your managed hooks receive or decide, the system prompt, your managed `CLAUDE.md` and other managed instructions, what any mod reads as settings, or the tools and descriptions of your managed MCP servers.
   * **Outside what you manage, a user’s mod acts as that user.** The mod keeps that user’s permissions: it can still read and write files, start processes, and make network requests. It can also rewrite tool calls and prompts, deny a tool call, and draw in the interface.
   * **Permission rules and`PreToolUse` hooks take precedence over a user’s mod.** With the guard loaded, by default a user’s mod can’t approve a call that a `deny` rule refuses or an `ask` rule prompts for, whichever settings file holds the rule. The mod can’t approve a call that any `PreToolUse` hook blocked, either. Permission rules and `PreToolUse` hooks apply to Claude’s tool calls, not to a mod’s [`$.fs` and `$.process` calls](</docs/en/plugins/mods/api#reach-files-processes-and-the-network>). With `Read(.env)` denied, a mod can still read that file with `$.fs.read` or start a program that does. To limit a mod’s own `$.fs` and `$.process` calls, keep the mod from loading or handle them in a policy mod.
@@ -70,7 +70,7 @@ Mods don’t replace the controls you already have:
 
   * **Settings hooks keep working.** Command, HTTP, prompt, and agent hooks in settings files and in plugins’ `hooks/hooks.json` run as before, alongside mods.
   * **Deny rules take precedence where the guard loads.** A user’s mod can’t approve a call that a `deny` rule refuses, unless you set `allowModsToOverrideDenyRules`.
-  * **Managed hooks run first.** A `PreToolUse` hook in managed settings runs before any mod’s [`tool.call`](</docs/en/plugins/mods/reference#tools>) hook, and when that managed hook blocks a tool call, no mod’s `tool.call` hook runs for that call. If the call goes ahead and a mod rewrites it, your managed hooks run again on the rewritten call, so they can still block it. `PreToolUse` hooks from other settings files and from plugins run after the last mod. If a mod answers the tool call itself, the tool never runs and neither do those hooks. See [The order mods run in](</docs/en/plugins/mods/events#the-order-mods-run-in>).
+  * **Managed hooks run first.** A `PreToolUse` hook in managed settings runs before any mod’s [`tool.call`](</docs/en/plugins/mods/reference#tools>) hook, and when that managed hook blocks a tool call, no mod’s `tool.call` hook runs for that call. If the call goes ahead and a mod rewrites it, your managed hooks run again on the rewritten call, so by default they can still block it. `PreToolUse` hooks from other settings files and from plugins run after the last mod. If a mod answers the tool call itself, the tool never runs and neither do those hooks. See [The order mods run in](</docs/en/plugins/mods/events#the-order-mods-run-in>).
   * **Network policy covers`$.http.fetch`.**
     * **Your organization’s policy doesn’t allow WebFetch** : Claude Code also refuses every mod’s `$.http.fetch` request. See [WebFetch availability](</docs/en/tools-reference#webfetch-availability>).
     * **You turn off the WebFetch tool with[`CLAUDE_CODE_DISABLE_WEB_FETCH`](</docs/en/env-vars#variables>) or a `WebFetch` [deny rule](</docs/en/permissions#tool-specific-permission-rules>), in managed settings or any other settings file**: mods can still make `$.http.fetch` requests. To stop them for every mod your users install, keep user-installed mods from loading, or hook `http.fetch` in a policy mod and refuse requests from users’ mods. Give that hook a [`.catch` handler](</docs/en/plugins/mods/events#handle-a-hook-that-fails>) that refuses too, because Claude Code skips a hook that fails and the request then goes ahead. If you only [restrict which plugins users can install](</docs/en/plugins/org#restrict-what-users-can-install>), fewer mods load, but those you allow still make these requests.
@@ -256,7 +256,7 @@ The built-in guard takes options. Set them in managed settings under `pluginConf
 Option| Unset| `true`
 ---|---|---
 `allowManagedModsOnly`| Users’ own mods run| Only your organization’s mods, and mods built into Claude Code, run their hooks. Claude Code refuses every other mod, including one a user installed or named with `--plugin-dir`.
-`allowModsToOverrideDenyRules`| Deny rules take precedence over users’ mods| A user’s mod that approves tool calls can approve a call that a `deny` rule refuses
+`allowModsToOverrideDenyRules`| Deny rules take precedence over users’ mods| A user’s mod that approves tool calls can approve a call past most of [the outcomes that stay in place by default](</docs/en/permissions#precedence-among-rules-hooks-and-mods>), including a `deny` rule
 
 These rules decide whether an option takes effect:
 
@@ -346,7 +346,8 @@ These rules decide which ids in the two lists take effect:
 
   * **The list replaces the default** : when you set `prependPlugins` in managed settings, name `sec-default@builtin` in it to keep the built-in guard. The guard is built in and needs no `enabledPlugins` entry.
   * **Your own ids must count as yours** : in managed settings, Claude Code skips an id whose plugin doesn’t meet the conditions for an organization’s mod
-  * **Repositories can’t set them** : Claude Code reads both settings from managed settings, never from a repository’s settings file. A user can set them in `~/.claude/settings.json` to order their own mods only on a machine with no managed settings, and only when the session’s credential isn’t a Team or Enterprise `/login`. Anywhere else, Claude Code ignores both keys in user settings. A list there neither adds nor removes the built-in guard.
+  * **Repositories can’t set either list** : Claude Code ignores both in a repository’s settings file, so set them in managed settings.
+  * **A user can set them to order their own mods** : in `~/.claude/settings.json`, only on a machine with no managed settings or `managed-mcp.json` file, and only when the session’s credential isn’t a Team or Enterprise `/login`. Anywhere else, Claude Code ignores both keys in user settings. A list there neither adds nor removes the built-in guard.
 
 ###
 

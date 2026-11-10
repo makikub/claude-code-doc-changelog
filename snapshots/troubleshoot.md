@@ -8,7 +8,7 @@ Find out why a mod does nothing
 
 When a mod does nothing, check what Claude Code reads from the mod’s files, and the line it writes when it skips something. For the first, in your shell run [`claude plugin validate`](</docs/en/plugins/mods/create#check-what-claude-code-reads-from-your-mod>) with the mod’s directory, as in `claude plugin validate ./first-mod`. It catches a misspelled event, a bad manifest, and a module Claude Code can’t read, without starting a session. When a module doesn’t load, a hook is skipped, or another mod refuses yours, Claude Code writes one line that names your mod. Where you read that line depends on the session:
 
-  * **A session that hot-reloads a plugin directory** : a dim line in the transcript. That’s an interactive session you started with `--plugin-dir`, or one where you [enabled hot reloading](</docs/en/plugins/mods/create#ask-claude-for-a-mod>) for mods Claude wrote.
+  * **A session that hot-reloads a plugin directory** : a dim line in the transcript. That’s an interactive session you started with `--plugin-dir`, or one where [hot reloading is on](</docs/en/plugins/mods/create#ask-claude-for-a-mod>) for mods Claude wrote.
   * **Any other interactive session, such as one that runs a mod you installed from a marketplace** : the debug log only. To get one, start the session with `claude --debug`.
   * **A`claude -p` run with `--plugin-dir`**: stderr, in the default text output format. A refusal by another mod goes to the debug log only.
 
@@ -84,7 +84,7 @@ Message starts with| What it means
 
 Messages from the built-in guard
 
-On a machine with managed settings, or in a session whose credential is a Team or Enterprise `/login`, the [built-in guard](</docs/en/plugins/mods/admin#know-what-happens-by-default>) can refuse a mod or one of its answers. Each message names the option your organization’s administrator sets to change the rule.
+Where the [built-in guard](</docs/en/plugins/mods/admin#know-what-happens-by-default>) loads, it can refuse a mod or one of its answers. Each message names the option your organization’s administrator sets to change the rule.
 
 Message contains| What it means| Where it appears
 ---|---|---

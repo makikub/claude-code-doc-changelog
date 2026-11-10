@@ -12,7 +12,7 @@ Tool| Description| Permission required
 `CronDelete`| Cancels a session-scoped scheduled task by ID| No
 `CronList`| Lists all session-scoped scheduled tasks| No
 `Edit`| Makes targeted edits to specific files. See Edit tool behavior| Yes
-`EndConversation`| Ends the session, in rare cases of sustained abusive input or when you ask Claude to demonstrate the tool. See EndConversation tool behavior| No
+`EndConversation`| Ends the session, in rare cases of sustained abusive input or when you ask Claude to end the session and then confirm. See EndConversation tool behavior| No
 `EnterPlanMode`| Switches to plan mode to design an approach before coding| No
 `EnterWorktree`| Creates an isolated [git worktree](</docs/en/worktrees>) and switches into it, or switches into an existing worktree. See EnterWorktree tool behavior| Yes
 `ExitPlanMode`| Presents a plan for approval and exits plan mode| Yes
@@ -282,8 +282,8 @@ EndConversation tool behavior
 
 The EndConversation tool ends the current session. Claude uses it only in two situations:
 
-  * as a last resort against sustained abusive input, after attempts to redirect the conversation have failed and after a clear warning in an earlier message
-  * when you explicitly ask to see the tool demonstrated and confirm that you want the session to end
+  * When you keep sending abusive messages after Claude gives a clear warning and fails to redirect the conversation
+  * When you explicitly ask Claude to end the session, then confirm when Claude asks whether you still want to proceed
 
 General frustration, profanity, or a task going badly don’t qualify, and neither do requests for harmful content, which Claude declines instead of ending the session. Claude Code follows the same approach as claude.ai, which can [end a rare subset of chats](<https://www.anthropic.com/research/end-subset-conversations>). After Claude ends an interactive session, the session locks. New prompts and most commands return `Claude ended this conversation. Start a new session (or /clear) to continue.`, and only `/clear`, `/resume`, `/help`, `/exit`, and `/feedback` still run. Claude Code records the end in the session’s transcript, so resuming an ended session restores the lock; the session’s history isn’t deleted. Resuming an ended session in [non-interactive mode](</docs/en/headless>) with the `-p` flag errors and exits with code 1, so a script doesn’t read the ended run as a success. The tool never prompts for permission, and [PreToolUse hooks](</docs/en/hooks#pretooluse>) don’t run for it. While any other tool remains, you can’t block it either: [deny and ask rules](</docs/en/permissions#tool-specific-permission-rules>) naming `EndConversation` have no effect, and neither `--disallowedTools` nor a `--tools` list can remove it. The exemption is deliberate: the tool does nothing except end the conversation, never reading or modifying files or data, and a safeguard of this kind holds only if the session it applies to can’t turn it off. When your deny rules remove every other tool and also match `EndConversation`, as `"*"` does, Claude Code removes it too rather than leaving it as the only tool, unless an allow rule names `EndConversation` explicitly. A deny list that removes every other tool without matching `EndConversation` leaves it in place. [Subagents](</docs/en/sub-agents>) never get the tool. Background tasks that share the main conversation’s tool list see it, but calling it there ends nothing. The tool appears only when all of the following are true:
 
@@ -376,7 +376,7 @@ The Monitor tool lets Claude watch something in the background and react when it
   * Track output from any long-running script you point it at
   * Connect to a WebSocket feed and report each message as it arrives
 
-For most watches, Claude writes a small script, runs it in the background, and receives each output line as it arrives. For a server that already pushes events, Claude can open a WebSocket instead of running a script. You keep working in the same session and Claude interjects when an event arrives. Every watch Claude starts has a deadline: 5 minutes by default, at most 30 minutes, and at most 10 minutes in a [non-interactive](</docs/en/headless>) run given a single prompt with `-p`. At the deadline the watch ends. Claude gets one notice, so it can start the watch again if it’s still needed. Stop a monitor by asking Claude to cancel it or by ending the session. When you stop a [subagent](</docs/en/sub-agents>) that started monitors, for example from `/tasks`, those monitors stop with it. When Monitor runs a command, it uses the same [permission rules as Bash](</docs/en/permissions#tool-specific-permission-rules>), so `allow` and `deny` patterns you have set for Bash apply here too. While [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) is active, Claude Code sets aside allow rules that name `Monitor` itself, along with the other [broad allow rules it drops](</docs/en/permission-modes#how-the-classifier-evaluates-actions>), so the classifier reviews Monitor commands the same way it reviews Bash commands. The WebSocket source has its own approval prompt, which the classifier also decides in auto mode. Monitor needs a minimum version or Git Bash in these cases:
+For most watches, Claude writes a small script, runs it in the background, and receives each output line as it arrives. For a server that already pushes events, Claude can open a WebSocket instead of running a script. You keep working in the same session and Claude interjects when an event arrives. Every watch Claude starts has a deadline: 5 minutes by default, at most 30 minutes, and at most 10 minutes in a [non-interactive](</docs/en/headless>) run given a single prompt with `-p`. At the deadline the watch ends. Claude gets one notice, so it can start the watch again if it’s still needed. Stop a monitor by asking Claude to cancel it or by ending the session. When you stop a [subagent](</docs/en/sub-agents>) that started monitors, for example from `/tasks`, those monitors stop with it. When Monitor runs a command, it uses the same [permission rules as Bash](</docs/en/permissions#tool-specific-permission-rules>), so `allow` and `deny` patterns you have set for Bash apply here too. While [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) is active, Claude Code sets aside allow rules that name `Monitor` itself, along with the other [broad allow rules it drops](</docs/en/permission-modes#how-the-classifier-evaluates-actions>), so the classifier reviews Monitor commands the same way it reviews Bash commands. Monitor needs a minimum version or Git Bash in these cases:
 
   * **Minimum version** : on Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, or Microsoft Foundry, or with `DISABLE_TELEMETRY` or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` set, Monitor requires Claude Code v2.1.310 or later. The requirement applies when [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) is off
   * **Windows** : the tool is available only when [Git Bash](</docs/en/setup#set-up-on-windows>) is installed
@@ -403,7 +403,28 @@ Field| Required| Description
 `url`| Yes| The endpoint to connect to. Must be a `ws://` or `wss://` URL with no embedded credentials or whitespace, using ASCII characters only
 `protocols`| No| WebSocket subprotocol names to offer during the handshake. Each entry must be a valid subprotocol token, and the list can’t contain duplicates
 
-The `timeout_ms` deadline applies to a WebSocket watch too: the watch ends at the deadline, and `TaskStop` cancels it early. Opening a WebSocket prompts for approval; in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) the classifier decides instead. The prompt doesn’t offer an option to skip future prompts for the same host. Claude Code denies URLs that point at a private, link-local, or cloud-metadata address, including hostnames that resolve to one. It also denies hosts in `sandbox.network.deniedDomains`, and when [`allowManagedDomainsOnly`](</docs/en/settings-reference#sandbox-network-allowmanageddomainsonly>) is set in managed settings, any host outside the managed allowlist.
+The `timeout_ms` deadline applies to a WebSocket watch too: the watch ends at the deadline, and `TaskStop` cancels it early. Without a `Monitor` allow rule, you’re prompted before Claude opens a WebSocket; in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) the classifier decides instead, unless an ask rule applies. The prompt doesn’t offer an option to skip future prompts for the same host.
+
+####
+
+​
+
+Addresses and hosts denied to WebSocket watches
+
+Claude Code denies URLs that point at a private, link-local, or cloud-metadata address, including hostnames that your machine resolves to one. Behind a [proxy](</docs/en/network-config#proxy-configuration>), a watch can reach a private, link-local, or cloud-metadata address unless the proxy blocks it, because Claude Code doesn’t check the address the proxy finds. Claude Code also denies hosts in `sandbox.network.deniedDomains`, and when [`allowManagedDomainsOnly`](</docs/en/settings-reference#sandbox-network-allowmanageddomainsonly>) is set in managed settings, any host outside the managed allowlist. If a watch behind a proxy fails with `could not resolve <host>`, restart Claude Code v2.1.319 or later with [`CLAUDE_CODE_PROXY_RESOLVES_HOSTS`](</docs/en/env-vars#variables>) set to `1` so the proxy looks up the hostname.
+
+####
+
+​
+
+Bash rules that deny or prompt for WebSocket watches
+
+If Claude Code refuses a `Monitor` call that opens a WebSocket, look for a [deny or ask rule](</docs/en/permissions#manage-permissions>) written `Bash` or `Bash(*)`. Do the same if it prompts for that call despite your `Monitor` allow rule. A rule on every Bash command also covers these WebSocket watches:
+
+  * **Deny rule** : if the rule is in place when the session starts, Claude doesn’t have the Monitor tool, so it can’t start the watch. If you add the rule during a session, Claude’s next `Monitor` call is refused. The refusal reads `Permission to use Monitor has been denied: it runs code as Bash does, and a rule denies Bash.`
+  * **Ask rule** : you’re asked to approve the watch. You can’t have an allow rule, a `PreToolUse` hook, `bypassPermissions` mode, or the auto mode classifier approve it for you. You can approve it from a [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>). Where nobody can answer, such as in `dontAsk` mode, Claude Code denies the watch.
+
+To let these watches run, narrow the rule to the commands you mean, such as `Bash(rm *)`. The ask rule, and a deny rule you add during a session, cover these watches in Claude Code v2.1.319 or later.
 
 ##
 
@@ -610,8 +631,10 @@ Claude Code includes the tool in interactive terminal sessions on your own machi
   * Non-interactive `-p` runs and [Agent SDK](</docs/en/agent-sdk/overview>) sessions, which have no screen to review the queue on
   * [Cloud sessions](</docs/en/claude-code-on-the-web>), which can’t write to the queue on your machine
   * Sessions on [Amazon Bedrock](</docs/en/amazon-bedrock>), [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>)
+  * Sessions that reach Claude through an [LLM gateway](</docs/en/llm-gateway>) with the gateway’s own key or token
   * Sessions where you set [`CLAUDE_CODE_SEND_FEEDBACK=0`](</docs/en/env-vars>) or [`DISABLE_FEEDBACK_COMMAND=1`](</docs/en/env-vars>), set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` to any non-empty value, or turned off [feature-flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>)
   * Organizations that have turned off product feedback, [organizations with Zero Data Retention](</docs/en/zero-data-retention#features-disabled-under-zdr>), and organizations with the [HIPAA configuration](</docs/en/hipaa-setup>) applied
+  * Sessions where Claude Code has [stopped offering feedback after a refused report](</docs/en/errors#feedback-is-disabled-by-your-organizations-policy>)
 
 ##
 

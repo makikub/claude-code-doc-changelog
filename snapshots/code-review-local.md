@@ -2,7 +2,7 @@
 
 To have every pull request in a repository reviewed automatically on GitHub, see [Code Review](</docs/en/code-review>), a managed service that an Owner turns on for your organization.
 
-`/review` is an alias of `/code-review`. Before v2.1.223, `/review` was a separate command that ran a single-pass, read-only review of a GitHub pull request.
+`/review` is an alias of `/code-review`.
 
 1
 
@@ -90,8 +90,6 @@ Pass an [effort level](</docs/en/model-config#adjust-effort-level>) to trade cov
   * **Non-interactive runs** : a level you pass in a non-interactive `-p` run doesn’t update the remembered level
   * **`ultra`** : the review neither uses nor updates the remembered level
   * **No level ever typed** : the review uses the session’s current effort
-
-Before v2.1.223, a `/code-review` without a level always used the session’s current effort.
 
 ###
 

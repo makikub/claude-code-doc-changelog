@@ -917,6 +917,14 @@ After the failure, Claude may offer to rerun the command outside the sandbox. Ap
 
 ​
 
+A git command fails with `Unable to create '…/index.lock'`
+
+If you started Claude Code in a repository’s subdirectory, this error can mean `.git` is outside what sandboxed commands can write to. Start Claude Code from the repository root instead, or from the worktree’s root in a [linked worktree](</docs/en/worktrees>).
+
+###
+
+​
+
 A folder named `objects` or `refs` disappears after a command
 
 A top-level `objects` or `refs` folder that appeared during the session can be deleted after a sandboxed command ends. It doesn’t matter whether a command, Claude, or you created it. To keep a folder, leave something in it. If a `HEAD` file or symlink has been at the top level during the session, move it away, then restart every Claude Code session open there. Before v2.1.307, the folder was deleted even with something in it and no `HEAD`. On an earlier version, [update Claude Code](</docs/en/setup#update-claude-code>).

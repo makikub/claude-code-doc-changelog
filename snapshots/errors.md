@@ -44,7 +44,7 @@ Message| Section
 `Credit balance is too low`| Usage limits
 `You've hit your monthly spend limit` / `You've hit your individual spend limit` / `You've hit your org's monthly spend limit` / `You've hit your channel's monthly spend limit` / `You've hit your team's shared budget` / `You've hit your individual usage limit`| Usage limits
 `Could not update your spend limit`| Usage limits
-`spend limit reached` / `spend limit unavailable`| Usage limits
+`spend limit reached` / `spend limit unavailable` / `This request exceeds your group's budget`| Usage limits
 `Not logged in · Please run /login`| Authentication
 `Couldn't save your login`| Authentication
 `Sign in again to take your previous account or API key off the config file.`| Authentication
@@ -234,10 +234,12 @@ Message| Section
 `The current directory no longer exists (it was deleted or moved)` / `Can't read the current directory`| Command-line errors
 `Temp directory <dir> ... Refusing to use it` / `Claude Code's temporary directory <dir> could not be created`| Command-line errors
 `ENOSPC: no space left on device, mkdir '<dir>'`| Command-line errors
+`Error: Claude Code could not save ... because the disk is full (ENOSPC)` / `because your disk quota is used up (EDQUOT)`| Command-line errors
 `couldn't be resolved to a real location, so its skills, commands, and agents weren't loaded`| Command-line errors
 `Error: Workspace not trusted` when starting Remote Control| Command-line errors
 `Error: Workspace not trusted` when running `claude ultrareview`| Command-line errors
 `Ultrareview did not start`| Command-line errors
+`Remote Control did not start: "<question>" got no answer`| Command-line errors
 ``<flag>` before `remote-control` is not carried over to the sessions Remote Control starts`| Command-line errors
 `--sandbox is not supported by claude remote-control` / `--no-sandbox is not supported by claude remote-control`| Command-line errors
 ``claude import` is not yet available in this build`| Command-line errors
@@ -328,6 +330,7 @@ Message| Section
 `MCP server "<name>" connection closed before the tool call was answered`| Tool errors
 `MCP server "<name>" is disabled — re-enable it via /mcp to use its tools`| Tool errors
 `MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit.`| Tool errors
+`Permission prompt tool returned an invalid result`| Tool errors
 `would be spawned with zero tools — refusing`| Tool errors
 `File is covered by a Read deny rule in your permission settings`| Tool errors
 `<path> is outside <dirs>; the permissions.blockWritesOutsideWorkingDirectories setting blocks writes outside the working directories`| Tool errors
@@ -378,6 +381,7 @@ Message| Section
 `The safety check for domain ... is rate-limited`| Tool errors
 `The safety check for domain ... is temporarily rate-limited`| Tool errors
 `Unable to verify if domain ... is safe to fetch`| Tool errors
+`MCP tool "<tool>" on server "<server>" gave no answer that could be read` / `answered without its text`| [How an MCP tool hook’s result is read](</docs/en/hooks#how-the-tool%E2%80%99s-result-is-read>)
 `Can't open MCP settings while no terminal is attached to this background session`| Background session errors
 `Can't open MCP settings in a background session`| Background session errors
 `blocked because the path is spelled in a form that cannot be safely resolved`| Background session errors
@@ -412,6 +416,7 @@ Message| Section
 `The Claude Code program for this computer, the <build> build, could not be found`| Wrapper and IDE errors
 `Restored the code, but skipped N files`| Rewind warnings and errors
 `No files were restored: N files failed (backup missing, or the file could not be updated)`| Rewind warnings and errors
+`The file backups are still being copied. Nothing was changed. Try again in a moment.`| Select the same point in [`/rewind`](</docs/en/checkpointing>) again. When you restore code soon after [`/branch`](</docs/en/sessions#branch-a-session>), Claude Code can still be copying the file backups to the new session.
 `Transcript writes are failing (...)`| Session saving warnings
 `Transcript saving is off — CLAUDE_CODE_SKIP_PROMPT_HISTORY is set`| Session saving warnings
 `Transcript saving is off — inherited CLAUDE_CODE_CHILD_SESSION marker`| Session saving warnings
@@ -423,6 +428,7 @@ Message| Section
 `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account`| Configuration warnings
 `N skill or command names refused: run with --debug to see which ([names]), rename, then restart`| Configuration warnings
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
+`Two Claude Code config files exist: this run uses <path>, not <path>`| Configuration warnings
 `Make this change again later: <path> could not be updated, so it applies to this session only`| Configuration warnings
 `is a network path, which cannot be added as a working directory`| Configuration warnings
 `Remote managed settings failed to load (<cause>)`| Configuration warnings
@@ -460,6 +466,7 @@ Message| Section
 `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" isn't a usable size, so Claude Code ignores it`| [Values and warnings for `CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/model-config#claude_code_auto_compact_window-values>)
 `Model "<model>" isn't recognized · context assumed to be 200k tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
 `Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
+`Model "<model>" isn't recognized · did you mean "<suggestion>"?` / `Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?`| [Fix a mistyped model name](</docs/en/model-config#fix-a-mistyped-model-name>)
 `[claude-code:unrecognized_model]`| Configuration warnings
 `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly`| Configuration warnings
 `Sandbox mask files left behind at write-deny paths`| Configuration warnings
@@ -951,14 +958,23 @@ Your plan’s included usage can’t cover this request, and the [usage credits]
 
 Spend limit reached
 
-You connect through a [Claude apps gateway](</docs/en/claude-apps-gateway>) and have passed a [spend cap](</docs/en/claude-apps-gateway-spend-limits>) your gateway operator set. The gateway blocks your requests until the named period resets or the operator raises the cap. It marks each blocked `429` response `x-should-retry: false`, so Claude Code shows this message without retrying.
+You connect through a [Claude apps gateway](</docs/en/claude-apps-gateway>) and have reached a [spend cap](</docs/en/claude-apps-gateway-spend-limits>) your gateway operator set. The gateway blocks your requests until the operator raises the cap, or until the cap resets if it’s above $0. It marks each blocked `429` response `x-should-retry: false`, so in the terminal Claude Code shows this message without retrying.
 
-    spend limit reached (daily; resets 2026-08-09 00:00 UTC)
+    spend limit reached · resets Dec 1
 
-The message names the cap’s period and reset time, and when the operator configured a `blocked_message`, their instructions follow it. Before v2.1.225, the message read only `spend limit reached`; a gateway on an older version still sends that shorter form. **What to do:**
+Check the message for a date:
 
-  * Wait for the reset time the message names, or follow the operator’s instructions if the message carries them
-  * Ask your gateway operator to raise the cap if you hit it routinely
+  * **With a date** : the cap resets at 00:00 UTC on that date
+  * **With no date** : your cap is $0, or your gateway runs a version earlier than v2.1.225
+
+Any further text in the message is a note from your gateway operator. From v2.1.225 until v2.1.319 on the gateway server, the message named the cap’s period and reset time, as in `spend limit reached (daily; resets 2026-08-09 00:00 UTC)`. **What to do:**
+
+  * If the message has a date, wait for the reset, or follow the operator’s note if the message carries one
+  * Ask your gateway operator to raise the cap if the message has no date, if you’re still blocked after the date, or if you hit the cap routinely
+
+A second gateway message, `This request exceeds your group's budget`, means your group’s [pooled budget](</docs/en/claude-apps-gateway-config#pooled-budget-order>) is used up. Follow the steps it names:
+
+    This request exceeds your group's budget. Ask your organization's admins to raise it, or try again after it resets on November 1 at 00:00 UTC.
 
 A related message, `spend limit unavailable`, means the gateway could not read its spend records and blocked the request as a precaution rather than over your cap. It usually clears on its own; if it persists, tell your gateway operator.
 
@@ -1361,7 +1377,7 @@ In [non-interactive mode](</docs/en/headless>) (`-p`) and the [Agent SDK](</docs
 
     Failed to authenticate: OAuth session expired and could not be refreshed
 
-For a `Login expired` message that ends with `or re-authenticate your Anthropic profile`, see Anthropic profile login expired. This is not the same state as OAuth token revoked or expired. Those messages report a rejection the API returned. Claude Code itself produces `Login expired` for a login it already failed to renew, so it sends no request. When the renewal fails because the account itself is suspended rather than the login being stale, Claude Code shows Your account is on hold instead. Sessions authenticated with an API key, [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), or a third-party provider don’t use the saved login and never see this message. You can check for this state before a request fails: [`/status`](</docs/en/commands>) shows a `Login` row reading `Expired — log in again`, plus the organization and email it has saved for the expired login. The row appears only when the saved login is your active credential and can no longer be refreshed. Sessions authenticated another way don’t show the row, even if an expired login remains saved. Before v2.1.210, `/status` gave no indication in this state that a login had ever existed, because the cleared credential left it nothing to report. **What to do:**
+For a `Login expired` message that ends with `or re-authenticate your Anthropic profile`, see Anthropic profile login expired. This is not the same state as OAuth token revoked or expired. Those messages report a rejection the API returned. Claude Code itself produces `Login expired` for a login it already failed to renew, so it sends no request. When the renewal fails because the account itself is suspended rather than the login being stale, Claude Code shows Your account is on hold instead. You can check for this state before a request fails: [`/status`](</docs/en/commands>) shows a `Login` row reading `Expired — log in again`, plus the organization and email it has saved for the expired login. The row appears only when the saved login is your active credential and can no longer be refreshed. Sessions authenticated another way don’t show the row, even if an expired login remains saved. Before v2.1.210, `/status` gave no indication in this state that a login had ever existed, because the cleared credential left it nothing to report. **What to do:**
 
   * Run `/login` to sign in again. Retrying without signing in shows the same message on every request.
   * If you sign in with your claude.ai account in another Claude Code window, see Not logged in for when this session starts using that login on its own.
@@ -1382,7 +1398,7 @@ In [non-interactive mode](</docs/en/headless>) (`-p`) and the [Agent SDK](</docs
 
     Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh. This is usually transient; retry in a minute, and if it persists close other Claude Code processes or sign in again
 
-Sessions authenticated with an API key, [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), or a third-party provider don’t use the saved login and never see this message. **What to do:**
+**What to do:**
 
   * Try again in a minute. If another process completes the refresh first, this session uses the renewed login.
   * If the message keeps returning, close other Claude Code windows and processes, then retry.
@@ -2168,7 +2184,7 @@ The upload must fit an 8 MiB limit. On a long session, Claude Code progressively
 
 Couldn’t send feedback
 
-A message starting `Couldn't send feedback` means the feedback service didn’t confirm the report you submitted from the [`/feedback`, `/bug`, or `/share` dialog](</docs/en/commands#all-commands>), or a queued [feedback draft](</docs/en/tools-reference#sendfeedback-tool-behavior>). Treat it as not received. When a sentence about your organization follows the colon, your organization refuses feedback and the same report gets the same answer. The second of these two examples is an organization’s refusal:
+A message starting `Couldn't send feedback` means the feedback service didn’t confirm the report you submitted from the [`/feedback`, `/bug`, or `/share` dialog](</docs/en/commands#all-commands>), or a queued [feedback draft](</docs/en/tools-reference#sendfeedback-tool-behavior>). Treat it as not received. When a sentence about your organization follows the colon, your organization refuses feedback. The second example is an organization’s refusal:
 
     Couldn't send feedback (couldn't reach the service). If it keeps failing, you can file at https://github.com/anthropics/claude-code/issues instead.
 
@@ -2177,7 +2193,7 @@ A message starting `Couldn't send feedback` means the feedback service didn’t 
 **What to do:**
 
   * **Not signed in** : the message continues `: not signed in. Run /login, then retry.` Run `/login`, then send again
-  * **Your organization’s refusal** : for example `: Feedback has not been enabled for your organization.` or `: Feedback collection is not available for organizations with custom data retention policies.` If the message adds `To report a bug, open an issue`, do so at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>). A queued draft stays queued, and you can [discard it](</docs/en/tools-reference#discard-or-keep-a-draft>)
+  * **Your organization’s refusal** : for example `: Feedback has not been enabled for your organization.` or `: Feedback collection is not available for organizations with custom data retention policies.` If the message adds `To report a bug, open an issue`, do so at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>). `/feedback` can then answer that it’s disabled by your organization’s policy for seven days. A queued draft stays queued and still [expires on schedule](</docs/en/tools-reference#discard-or-keep-a-draft>)
   * **Refused credentials** : the message continues `: the sign-in this session uses is not allowed to send feedback` or `: the server did not accept the credentials this session uses`. Run `/status` at the Claude Code prompt to see which login, token, or API key this session sends
   * **`(request timed out)` or `(couldn't reach the service)` straight after `Couldn't send feedback`**: send the report or the queued draft again. The dialog keeps your text, and a queued draft’s message says `The draft is still queued.` If other requests are failing too, check your network connection and see Unable to connect to API. If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>)
   * **`(server returned<status>)`, or no reason, straight after `Couldn't send feedback`**: the status is the service’s response code. The service’s own message follows it when one was sent, as in `(server returned 403: Access Forbidden)`. If it keeps failing, file the report at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>)
@@ -3201,6 +3217,21 @@ Before v2.1.309, Claude Code printed only the operating system’s error text wh
 
 ​
 
+Claude Code could not save because the disk is full
+
+This line on stderr after a [`claude -p`](</docs/en/headless>) run means the disk is full or your disk quota is used up, so Claude Code couldn’t save everything from the run:
+
+    Error: Claude Code could not save all of this session's transcript under /Users/you/.claude because the disk is full (ENOSPC). If you resume this session, part of the conversation may be missing. Free up space on that disk before the next run.
+
+With text or `json` output, the run exits with code 1, and the answer has already been printed. With `stream-json` output, the run keeps its usual exit code, and the answer still arrives. **What to do:**
+
+  * **`the disk is full (ENOSPC)`** : before your next run, free up space on the disk that holds the path in the message
+  * **`your disk quota is used up (EDQUOT)`** : before your next run, free up space or ask for a larger quota
+
+###
+
+​
+
 Directory couldn’t be resolved to a real location
 
 You ran `/add-dir` for a subdirectory of your working directory, and Claude Code couldn’t resolve the directory to its real location. You already have file access to a subdirectory of the working directory, so `/add-dir` only loads its skills, commands, and agents. Before loading them, Claude Code checks that the directory’s real location, with any symlinks resolved, is inside the working directory. When Claude Code can’t resolve that location, it loads nothing and shows this message:
@@ -3261,6 +3292,22 @@ Each of these messages from `claude ultrareview` means that no review started an
   * **`Ultrareview did not start: `--trust-workspace` takes no value`** : something other than a flag follows `--trust-workspace`, such as a PR number or `false`. If you don’t trust the folder, leave the flag out. To trust it for this run, put the PR number or base branch before the flag: `claude ultrareview 1234 --trust-workspace`.
 
 Before v2.1.309, `claude ultrareview` didn’t accept `--trust-workspace`.
+
+###
+
+​
+
+Remote Control did not start because a question got no answer
+
+This message means [`claude remote-control`](</docs/en/remote-control>) asked the first-run question quoted in the message and got no answer:
+
+    Remote Control did not start: "Enable Remote Control?" got no answer. Run `claude remote-control` at a terminal and answer y once; it won't ask again.
+    Remote Control did not start: "Choose [1/2] (default: 1):" got no answer. You can run `claude remote-control` and choose, or pass --spawn=same-dir or --spawn=worktree.
+
+**What to do:**
+
+  * **`Enable Remote Control?`** : in a script or a service, standard input ends before anyone can answer. Run `claude remote-control` once in a terminal, as the user your script or service runs as, and answer `y`.
+  * **`Choose [1/2] (default: 1):`** : run `claude remote-control` again and [choose a spawn mode](</docs/en/remote-control#set-the-default-spawn-mode-for-a-project>), or pass [`--spawn=same-dir` or `--spawn=worktree`](</docs/en/remote-control#start-a-remote-control-session>) to skip the question
 
 ###
 
@@ -4070,15 +4117,21 @@ A `/recap` you pass to `claude -p`, or that your own [Agent SDK](</docs/en/agent
 
 /feedback is disabled by your organization’s policy
 
-This message means your organization’s policy doesn’t allow product feedback from Claude Code, so `/feedback`, `/bug`, and `/share` don’t open the feedback dialog. The message names the command you typed at the Claude Code prompt:
+This message means product feedback is turned off, so the command you typed doesn’t open the feedback dialog. An organization’s policy and an earlier refusal both produce the message:
+
+  * **Organization policy** : your organization’s policy doesn’t allow product feedback from Claude Code. `/feedback`, `/bug`, and `/share` all answer with the message.
+  * **Earlier refusal** : the feedback service refused a report you sent, for example with `Couldn't send feedback: Feedback has not been enabled for your organization.` `/feedback` and `/bug` can then answer with the message. It lasts seven days from that refusal on this machine. This applies on every plan, including Pro and Max.
+
+The message names the command you typed at the Claude Code prompt:
 
     /feedback is disabled by your organization's policy. To report a bug, open an issue at https://github.com/anthropics/claude-code/issues. Issues are public, so leave out anything confidential.
 
 The message can also be its first sentence alone. **What to do:**
 
   * To report a bug, open an issue at [github.com/anthropics/claude-code/issues](<https://github.com/anthropics/claude-code/issues>). Anyone can read issues there, so leave out code, transcripts, and anything else confidential.
+  * After an earlier refusal, wait until the seven days have passed, then send a report again to see whether the service still refuses it
 
-Before v2.1.302, the full message read `/feedback is disabled by your organization's policy. Contact your organization admin to enable it.`
+Before v2.1.319, an earlier refusal didn’t produce this message. Before v2.1.302, the full message read `/feedback is disabled by your organization's policy. Contact your organization admin to enable it.`
 
 ##
 
@@ -4476,6 +4529,25 @@ Before v2.1.310, the result ended at `timed out after <N>s` and said nothing abo
   * In a TypeScript Agent SDK application, make your [`onElicitation`](</docs/en/agent-sdk/typescript#options>) callback return its answer before the limit runs out
   * To give an answer more time, set a longer [`timeout`](</docs/en/mcp#time-limits-on-mcp-tool-calls>) in milliseconds in the server’s configuration entry, such as `"timeout": 600000` for 10 minutes
   * Run the task in an interactive session instead and answer the server’s [dialog](</docs/en/mcp#respond-to-mcp-elicitation-requests>) yourself
+
+###
+
+​
+
+Permission prompt tool returned an invalid result
+
+The tool you passed to [`--permission-prompt-tool`](</docs/en/cli-reference#cli-flags>) returned an answer Claude Code couldn’t read, so the tool call waiting on it didn’t run, even if the answer allowed the call:
+
+    Permission prompt tool returned an invalid result. Expected a single text block param with type="text" and a string text value.
+
+**What to do:**
+
+  * Return one text block whose text is `{"behavior": "allow"}` or `{"behavior": "deny", "message": "<reason>"}`. To change the input, add `updatedInput` to the `allow` object. From v2.1.86 through v2.1.206, an `allow` needed `"updatedInput": {}` to keep the input.
+  * Return no [`structuredContent`](</docs/en/agent-sdk/custom-tools#return-structured-data>), which your MCP SDK may add on its own. For example, register the tool:
+    * **`FastMCP` or `MCPServer` from `mcp.server`**: with `structured_output=False`
+    * **`FastMCP` from `fastmcp`**: with `output_schema=None`, and return a string
+    * **MCP TypeScript SDK** : without `outputSchema`
+  * If the error comes only with inputs of about 40 KB or more, don’t copy the input into `updatedInput` or a deny’s `message`. To change an input that large, [raise your prompt tool’s output limit](</docs/en/mcp#raise-the-limit-for-a-specific-tool>).
 
 ###
 
@@ -6230,6 +6302,51 @@ In `claude doctor`, the warning reads:
   * If a permission choice you saved with “Yes, and don’t ask again” didn’t stick, save it again after deleting the placeholder
 
 Before v2.1.309, the warning read `Stale sandbox mask files left by a killed session`. Before v2.1.257, `claude doctor` didn’t flag these files; earlier versions leave the same placeholders behind when a session is killed.
+
+###
+
+​
+
+Two Claude Code config files exist
+
+Claude Code is using the first file this message names, so what’s in the second file isn’t in effect. The first is `.config.json`, an older name for [`.claude.json`](</docs/en/claude-directory#ce-claude-json>). The message includes a check for which file holds your setup:
+
+    Two Claude Code config files exist: this run uses /home/you/.claude/.config.json, not /home/you/.claude.json. The file with the higher count here is usually yours, and this prints nothing else from them: grep -c -E '"(hasCompletedOnboarding|mcpServers)"' "/home/you/.claude/.config.json" "/home/you/.claude.json". To end this: if several hosts share this home, first get every host to version 2.1.319 or later, since an older one can write a moved .config.json back. Then stop your Claude processes on every host, move aside the one you do not want, and start none until no host lists it.
+
+On Windows, `The one with hasCompletedOnboarding or mcpServers in it is usually yours.` replaces the sentence with the `grep` command. **What to do:**
+
+1
+
+Find the file that holds your setup
+
+  * **On Windows** : open both files and see which one has `hasCompletedOnboarding` or `mcpServers` in it
+  * **On other platforms** : in your shell, run the `grep` command from the message and see which file has the higher count
+
+2
+
+Update every host that shares the home directory
+
+If several hosts share this home directory, first update Claude Code on every host to the version the message names or later. An older version can write a moved `.config.json` back.
+
+3
+
+Stop Claude Code
+
+Stop your Claude Code processes on every host.
+
+4
+
+Move the file you don't want
+
+Move the file you don’t want out of its folder. Move it rather than delete it, so you can put it back.
+
+5
+
+Wait before you start Claude Code again
+
+Don’t start Claude Code on any host until no host still lists the moved file at its old path.
+
+The message stops once one of the two files is gone.
 
 ###
 

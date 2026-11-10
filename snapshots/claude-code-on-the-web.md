@@ -185,7 +185,7 @@ Pull a cloud session into your terminal using any of these:
   * **Using`/teleport`**: inside an existing CLI session, run `/teleport` or `/tp` to open the same session picker without restarting Claude Code.
   * **From`/tasks`**: run `/tasks` to see your background sessions, then press `t` to teleport into one.
   * **From claude.ai/code** : select **Open in > Terminal** from the session menu to copy a command you can paste into your terminal.
-  * **From inside the cloud session** : type `/teleport` and Claude Code replies with the exact `claude --teleport <session-id>` command for that session, ready to run from a checkout of the repository. Requires Claude Code v2.1.223 or later in the session’s environment.
+  * **From inside the cloud session** : type `/teleport` and Claude Code replies with the exact `claude --teleport <session-id>` command for that session, ready to run from a checkout of the repository.
 
 When you teleport a session, Claude verifies you’re in the correct repository, fetches and checks out the branch from the cloud session, and loads the conversation into your terminal.
 
@@ -571,9 +571,6 @@ Before relying on cloud sessions for a workflow, account for these constraints:
   * **Repository authentication** : you can only pull a cloud session into your terminal when you are authenticated to the same account
   * **Platform restrictions** : repository cloning in Anthropic-hosted environments and pull request creation require GitHub. Self-hosted [GitHub Enterprise Server](</docs/en/github-enterprise-server>) instances are supported for Team and Enterprise plans. You can send a GitLab, Bitbucket, or other non-GitHub repository to a cloud session as a local bundle by setting `CCR_FORCE_BUNDLE=1`, but the session can’t push results back to that remote
     * **Self-hosted environments** : for a repository on another git host, see the [requirements for starting a session with `--environment`](</docs/en/self-hosted-environments-deploy#start-a-session-on-a-repository-outside-github>).
-  * **Organization IP allowlist** : cloud sessions call the Anthropic API from Anthropic-managed infrastructure, not your network, while sessions in a [self-hosted environment](</docs/en/self-hosted-environments>) call it from your own network. If your organization has [IP allowlisting](<https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting>) enabled, every Anthropic-hosted cloud session fails with an authentication error.
-    * **Code Review and scheduled tasks** : the same applies to [Code Review](</docs/en/code-review>) and to [cloud scheduled tasks](</docs/en/routines>) that run on Anthropic-hosted environments. A scheduled task routed to a self-hosted environment calls the API from your own network.
-    * **Getting an exemption** : contact [Anthropic support](<https://support.claude.com/>) to exempt Anthropic-hosted services from your organization’s IP allowlist.
 
 ##
 

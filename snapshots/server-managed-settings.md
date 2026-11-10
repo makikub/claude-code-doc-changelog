@@ -60,7 +60,7 @@ Add your configuration as JSON. All [settings available in `settings.json`](</do
       "allowManagedPermissionRulesOnly": true
     }
 
-Hooks use the same format as in `settings.json`.This example runs an audit script after every file edit across the organization:
+Hooks use the same format as in `settings.json`.This example runs an audit script after `Edit` and `Write` tool calls across the organization:
 
     {
       "hooks": {

@@ -84,7 +84,7 @@ Field| Type| Description
 `dependencies`| array| Plugins that must be enabled for this one to work. Each item is `"name"`, `"name@marketplace"`, or an object. See [Plugin dependencies](</docs/en/plugins/dependencies>)
 `defaultEnabled`| boolean| Default `true`. Whether the plugin starts enabled when the user hasn’t set it in [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>). The entry value takes precedence over `plugin.json`
 `displayName`| string| Human-readable name shown in the UI. When neither the entry nor the plugin’s `plugin.json` sets one, users see the plugin’s `name`
-`metadata`| object| Free-form object for your own fields. Claude Code doesn’t read it. Requires Claude Code v2.1.222 or later
+`metadata`| object| Free-form object for your own fields. Claude Code doesn’t read it
 `headers`| object| HTTP headers Claude Code sends when it downloads this entry’s archive. A header set here replaces a header of the same name from the marketplace source’s `headers`. Requires Claude Code v2.1.238 or later
 `headersHelper`| string| Command that prints this entry’s archive-download headers as one JSON object, for a credential that expires. The entry must also set `"strict": false`. Requires Claude Code v2.1.238 or later. See [Authenticate archive downloads](</docs/en/plugins/host-marketplace#authenticate-archive-downloads>)
 
@@ -150,7 +150,7 @@ Relative path| the string itself| A directory inside the marketplace, resolved f
 `url`| `url`, `ref`, `sha`| Any git repository by URL
 `git-subdir`| `url`, `path`, `ref`, `sha`| One subdirectory of a git repository, fetched with a sparse checkout
 `npm`| `package`, `version`, `registry`| npm registry package or tarball link, fetched with your npm client and unpacked without running install scripts
-`archive`| `url`, `sha256`| Zip archive over HTTPS. Requires Claude Code v2.1.224 or later
+`archive`| `url`, `sha256`| Zip archive over HTTPS
 `command`| `command`, `timeout`, `mode`| Directory printed by a command Claude Code runs on the user’s machine. Requires Claude Code v2.1.229 or later
 
 The names `url` and `github` are also marketplace source types, where `url` means a direct link to a `marketplace.json` file rather than a git repository. `git` exists only as a marketplace source, and `npm` exists as both. `git-subdir`, `archive`, and `command` exist only as plugin sources. Use a relative path for a plugin in a subdirectory of the marketplace repository itself. Use `git-subdir` for a subdirectory of some other repository. `github`, `url`, and `git-subdir` sources share the `ref` and `sha` fields:

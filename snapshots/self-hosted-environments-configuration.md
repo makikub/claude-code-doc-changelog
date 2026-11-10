@@ -150,7 +150,7 @@ Variable| Description
 ---|---
 `CLAUDE_RUNNER_REPO_URL`| Repository URL to clone, after any `--git-host-rewrite` and `--git-ssh-rewrite` have been applied
 `CLAUDE_RUNNER_REPO_REF`| Revision to check out, as the session requested it: a branch, tag, commit SHA, or full reference name such as `refs/heads/<branch>` or `refs/pull/<number>/head`. Empty means the repository’s default branch.
-`CLAUDE_RUNNER_CHECKOUT_PATH`| Absolute path where the working tree must be left
+`CLAUDE_RUNNER_CHECKOUT_PATH`| Absolute path where the working tree must be left. See Checkout folder names.
 `CLAUDE_RUNNER_SESSION_ID`| Session ID in the tagged `session_...` form, for logging and correlation
 `CLAUDE_RUNNER_SESSION_UUID`| The same session ID in canonical UUID form
 `CLAUDE_RUNNER_API_BASE_URL`| Anthropic API base URL for session-scoped calls
@@ -159,6 +159,14 @@ Variable| Description
 `GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_n`, `GIT_CONFIG_VALUE_n`| Git settings the runner fixes for the git your hook runs. Git configuration inside lifecycle hooks describes them. Requires Claude Code v2.1.280 or later.
 
 The script must leave a working tree at `CLAUDE_RUNNER_CHECKOUT_PATH` checked out at the requested revision. A detached HEAD works, because the runner creates the session’s working branch on top. After your hook returns, the runner verifies that `CLAUDE_RUNNER_CHECKOUT_PATH` contains a `.git`. If your hook materializes a non-git source such as Perforce or an unpacked tarball, set `CLAUDE_RUNNER_SKIP_GIT_VERIFY=1` in the runner’s environment to skip that check. Git-based flows such as working-branch creation and pushing results require a git checkout, so export outcomes from non-git trees with a `post-session` hook.
+
+####
+
+​
+
+Checkout folder names
+
+`CLAUDE_RUNNER_CHECKOUT_PATH` ends in a folder named `<repo-owner>-<repo>`, such as `acme-api`. Two repositories in a session can’t share a folder, even when their names differ only in case. For example, if a session lists `acme/api` and then `Acme/API`, the first gets `acme-api` and the second gets `Acme-API-2`.
 
 ####
 
@@ -228,6 +236,7 @@ If you compare hook receipts with the [session lifecycle counters](</docs/en/sel
     set -u
     export GIT_ALLOW_PROTOCOL=${GIT_ALLOW_PROTOCOL:-https:http:ssh}
     IFS=':'
+    rc=0  # becomes 1 when a step fails; a non-zero exit makes the runner log it
     # -c overrides beat repo-local settings, blocking session-written fsmonitor,
     # hook-path, and gpg-program config from executing code with the hook's
     # privileges. -c commit.gpgsign=false also leaves these rescue commits
@@ -238,12 +247,13 @@ If you compare hook receipts with the [session lifecycle counters](</docs/en/sel
     g() { git -c core.fsmonitor=false -c core.hooksPath=/dev/null \
             -c commit.gpgsign=false "$@"; }
     for ws in $CLAUDE_RUNNER_WORKSPACE_PATHS; do
-      cd "$ws" 2>/dev/null || continue
-      [ -z "$(g status --porcelain 2>/dev/null)" ] && continue
-      g add -A
-      g commit -q -m "runner snapshot: $CLAUDE_RUNNER_SESSION_ID ($CLAUDE_RUNNER_EXIT_REASON)" || continue
-      g push -q origin "HEAD:refs/heads/rescue/$CLAUDE_RUNNER_SESSION_ID" || true
+      cd "$ws" || { rc=1; continue; }
+      g add -A || rc=1
+      g diff-index --cached --quiet HEAD && continue  # nothing to save
+      g commit -q -m "runner snapshot: $CLAUDE_RUNNER_SESSION_ID ($CLAUDE_RUNNER_EXIT_REASON)" || { rc=1; continue; }
+      g push -q origin "HEAD:refs/heads/rescue/$CLAUDE_RUNNER_SESSION_ID" || rc=1
     done
+    exit "$rc"
 
 The `GIT_ALLOW_PROTOCOL` line in the script limits git to HTTPS, HTTP, and SSH remotes. If the runner’s environment already sets a non-empty `GIT_ALLOW_PROTOCOL` list of its own, the script keeps that list. The hook pushes with whatever git credentials are available in its own environment on the runner host. Under the [no-credentials-in-the-image posture](</docs/en/self-hosted-environments-deploy#configure-git>), including when the built-in clone goes through the Anthropic git proxy, there are none, so mint a short-lived push credential inside the hook before pushing: exchange the session token the hook receives in `CLAUDE_CODE_SESSION_ACCESS_TOKEN` with your own token service, verifying it as [Verify session identity](</docs/en/self-hosted-environments-identity>) describes. Treat any credential your hook gives git as one a session can obtain, and mint it so that it can do no more than this push. Git in your hook reads configuration files that a session can write, and a credential helper or filter driver named in one of them runs with your hook’s privileges. Settings in those files can also change where a push goes, whatever remote you name. For the git settings the runner fixes in your hook and the ones it leaves to those files, see Git configuration inside lifecycle hooks.
 
