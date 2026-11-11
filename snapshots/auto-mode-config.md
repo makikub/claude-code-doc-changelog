@@ -168,7 +168,7 @@ Review and save the draft
 
 Claude Code scans in the background, then shows you the draft. You accept or discard it as a whole, so edit `~/.claude/settings.json` afterwards to adjust single entries. When you accept, Claude Code writes the draft and reconciles it with the settings you already have:
 
-  * Claude Code writes the `environment` list without `"$defaults"`, because the draft spells out the built-in entries it left unchanged
+  * If you chose to add to the `environment` list in `~/.claude/settings.json`, you keep any `"$defaults"` entry in it. If you chose to replace that list, you lose that entry, so add `"$defaults"` back if you want the default entries
   * Claude Code includes `"$defaults"` in each of the `allow`, `soft_deny`, and `hard_deny` lists the draft adds entries to, unless you already wrote an `allow` list without it, so the built-in rules you haven’t replaced stay in effect
   * After saving, Claude Code offers to remove `permissions.allow` rules in `~/.claude/settings.json` that auto mode ignores, such as `Bash(*)`, or that auto-approve destructive commands
 
@@ -212,7 +212,7 @@ Override the block and allow rules
 
 Three additional fields let you replace the classifier’s built-in rule lists:
 
-  * `autoMode.hard_deny`: unconditional security boundaries
+  * `autoMode.hard_deny`: actions to block even when the user asks for them
   * `autoMode.soft_deny`: destructive actions that user intent can clear
   * `autoMode.allow`: exceptions to soft block rules
 
@@ -223,7 +223,7 @@ Each is an array of prose descriptions, read as natural-language rules. For tool
   * `allow` rules then override matching `soft_deny` rules as exceptions.
   * Explicit user intent overrides the remaining soft blocks: if the user’s message directly and specifically describes the exact action Claude is about to take, the classifier allows it even when a `soft_deny` rule matches.
 
-General requests don’t count as explicit intent. Asking Claude to “clean up the repo” doesn’t authorize force-pushing, but asking Claude to “force-push this branch” does. To loosen, add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten, add to `soft_deny` for destructive risks specific to your environment that the defaults miss, or to `hard_deny` for security boundaries that must never be crossed. To keep the built-in rules while adding your own, include the literal string `"$defaults"` in the array. The default rules are spliced in at that position, so your custom rules can go before or after them, and you continue to inherit updates as the built-in list changes across releases. The following example keeps the defaults in all four lists and adds organization-specific rules to each.
+General requests don’t count as explicit intent. Asking Claude to “clean up the repo” doesn’t authorize force-pushing, but asking Claude to “force-push this branch” does. To loosen, add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten, add to `soft_deny` for destructive risks specific to your environment that the defaults miss, or to `hard_deny` for actions to block even when the user asks for them. To keep the built-in rules while adding your own, include the literal string `"$defaults"` in the array. The default rules are spliced in at that position, so your custom rules can go before or after them, and you continue to inherit updates as the built-in list changes across releases. The following example keeps the defaults in all four lists and adds organization-specific rules to each.
 
     {
       "autoMode": {
@@ -239,7 +239,7 @@ General requests don’t count as explicit intent. Asking Claude to “clean up 
         "soft_deny": [
           "$defaults",
           "Never run database migrations outside the migrations CLI, even against dev databases",
-          "Never modify files under infra/terraform/prod/: production infrastructure changes go through the review workflow"
+          "Running terraform apply in infra/terraform/prod/ needs an explicit request: production infrastructure changes go through the review workflow"
         ],
         "hard_deny": [
           "$defaults",

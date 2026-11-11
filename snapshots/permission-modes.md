@@ -17,7 +17,7 @@ Mode| What runs without asking| Best for
 `dontAsk`| File reads inside your working directories and pre-approved tools; anything that would prompt is denied, though a [mod](</docs/en/plugins/mods/overview>) you installed can still approve some of those calls| Locked-down CI and scripts
 `bypassPermissions`| Everything| Isolated containers and VMs only
 
-The mode that reviews every action is named **Manual** in the CLI, in `claude --help`, in the VS Code and JetBrains extensions, and in the desktop app. Its config value is `default`, which is what hooks and SDK integrations use. The CLI accepts `manual` as an alias wherever you type the value, for example `claude --permission-mode manual` or `"defaultMode": "manual"`. Writes to protected paths are never auto-approved except in `bypassPermissions` mode and in plan-mode sessions where bypass permissions are available, meaning interactive terminal sessions started in a way that puts `bypassPermissions` in the mode cycle. Modes set the baseline. Layer [permission rules](</docs/en/permissions#manage-permissions>) on top to pre-approve or block specific tools. Deny rules block in every mode, including `bypassPermissions`. Deny and ask rules don’t apply to [`EndConversation`](</docs/en/tools-reference#endconversation-tool-behavior>) as long as Claude still has at least one other tool it can call. Allow rules have no effect in `bypassPermissions`.
+The mode that reviews every action is named **Manual** in the CLI, in `claude --help`, in the VS Code and JetBrains extensions, and in the desktop app. Its config value is `default`, which is what hooks and SDK integrations use. The CLI accepts `manual` as an alias wherever you type the value, for example `claude --permission-mode manual` or `"defaultMode": "manual"`. Each mode has its own rule for writes to protected paths. Modes set the baseline. Layer [permission rules](</docs/en/permissions#manage-permissions>) on top to pre-approve or block specific tools. Deny rules block in every mode, including `bypassPermissions`. Deny and ask rules don’t apply to [`EndConversation`](</docs/en/tools-reference#endconversation-tool-behavior>) as long as Claude still has at least one other tool it can call. Allow rules have no effect in `bypassPermissions`.
 
 ###
 
@@ -618,7 +618,7 @@ The `--dangerously-skip-permissions` flag is equivalent. Claude Code refuses `by
   * **If you accept** : Claude Code sets `skipDangerousModePermissionPrompt` to `true` in `~/.claude/settings.json`, so later sessions skip the dialog. To see the dialog again, remove the key from that file or set it to `false`. The [`skipDangerousModePermissionPrompt` reference](</docs/en/settings-reference#skipdangerousmodepermissionprompt>) lists the other settings files where you or your organization can set it.
   * **If you decline** : Claude Code exits.
 
-In [non-interactive mode](</docs/en/headless>) no dialog is shown. A [background session](</docs/en/agent-view>) honors your acceptance when it’s recorded in user or managed settings:
+If you pass [`--setting-sources`](</docs/en/cli-reference#cli-flags>) without `user`, the dialog can appear again although you accepted it earlier. To skip it, add `user`, as in `--setting-sources user,project`. In [non-interactive mode](</docs/en/headless>) no dialog is shown. A [background session](</docs/en/agent-view>) honors your acceptance when it’s recorded in user or managed settings:
 
   * With no acceptance recorded, `claude --bg --permission-mode bypassPermissions` is refused. Accept the dialog in an interactive session first.
   * With `skipDangerousModePermissionPrompt` set only in `.claude/settings.local.json`, the background session starts with the bypass request ignored:
@@ -660,13 +660,13 @@ If [`claude agents`](</docs/en/agent-view#dispatch-defaults>) shows the bypass p
 
 Protected paths
 
-Writes to a small set of paths are never auto-approved, except in `bypassPermissions` mode and in interactive terminal sessions in plan mode with bypass permissions available. This prevents accidental corruption of repository state and Claude’s own configuration.
+A small set of paths holds repository state and Claude’s own configuration, so each mode has its own rule for writes to them:
 
 Mode| Protected-path writes
 ---|---
 `default`, `acceptEdits`| Prompted
 `plan`| Allowed in interactive terminal sessions with bypass permissions available. Otherwise, routed to the classifier when auto mode is available during planning, and prompted when it isn’t
-`auto`| Routed to the classifier
+`auto`| Routed to the classifier, which decides
 `dontAsk`| Denied
 `bypassPermissions`| Allowed
 

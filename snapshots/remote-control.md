@@ -25,7 +25,7 @@ Before using Remote Control, confirm that your environment meets these condition
     * You point [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) at a host other than `api.anthropic.com`, such as an [LLM gateway](</docs/en/llm-gateway>) or proxy. Unset the variable to use Remote Control.
     * You sign in through an enterprise [Claude apps gateway](</docs/en/claude-apps-gateway>).
   * **Feature-flag evaluation** : if you set an [environment variable that turns off feature-flag evaluation](</docs/en/env-vars#features-that-need-feature-flag-fetching>), whether Remote Control is available depends on which one:
-    * If you set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `DISABLE_GROWTHBOOK`, Remote Control is unavailable. Unset the variable wherever it’s set, in your shell environment or in the `env` block of a [`settings.json` file](</docs/en/settings-reference#all-settings>), to use Remote Control.
+    * If you set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or [`CLAUDE_CODE_DISABLE_FEATURE_FLAGS`](</docs/en/env-vars#variables>), Remote Control is unavailable. Unset the variable wherever it’s set, in your shell environment or in the `env` block of a [`settings.json` file](</docs/en/settings-reference#all-settings>), to use Remote Control.
     * If you set only `DISABLE_TELEMETRY` or `DO_NOT_TRACK`, Remote Control stays available unless your organization requires Trusted Devices. If it does, unset the variable to use Remote Control. Using Remote Control with either variable set requires Claude Code v2.1.283 or later, or v2.1.304 or later in the Claude Desktop app.
   * **Workspace trust** : in a directory you haven’t trusted yet, `claude remote-control` prints what trusting it turns on and asks `Trust <directory>? [y/N]` before it starts. Answering `y` saves the choice, except in your home directory, where trust is never saved and the question returns on every run. When its standard input or output isn’t a terminal, the command can’t ask and exits with a [`Workspace not trusted`](</docs/en/errors#workspace-not-trusted-when-starting-remote-control>) error.
 
@@ -163,6 +163,17 @@ A connected device shows the conversation in your terminal as it happens. These 
 
 ​
 
+Fork a session from your browser
+
+To try a different direction without interrupting a session, open it at [claude.ai/code](<https://claude.ai/code>) and select **Fork** in the session’s menu, or fork from an earlier message in the transcript. The fork opens as a new session in your session list and continues the conversation from that point while the original keeps running. Forking requires Claude Code v2.1.277 or later on your machine. A `claude remote-control` server started with `--spawn session` has room only for its one session, so it can’t run a fork. Claude Code declines the fork in cases such as these:
+
+  * The session is busy. Fork when it’s idle.
+  * The session is hosted by the VS Code extension or another app built on the [Agent SDK](</docs/en/agent-sdk/overview>).
+
+###
+
+​
+
 Enable Remote Control for all sessions
 
 Remote Control only activates when you explicitly run `claude remote-control`, `claude --remote-control`, or `/remote-control`, unless auto-connect is turned on. To turn auto-connect on for every interactive session, run `/config` inside Claude Code and set **Enable Remote Control for all sessions**. The toggle takes three values:
@@ -184,7 +195,7 @@ To turn auto-connect on from a settings file instead, set [`remoteControlAtStart
 
 Auto-connect with `DISABLE_TELEMETRY` or `DO_NOT_TRACK` set
 
-With only `DISABLE_TELEMETRY` or `DO_NOT_TRACK` set, your sessions don’t auto-connect through your organization’s admin default or Claude Code’s own default. If something else makes Remote Control unavailable for you, such as `DISABLE_GROWTHBOOK` or an LLM gateway, start with Requirements instead. Before you turn auto-connect on with only `DISABLE_TELEMETRY` or `DO_NOT_TRACK` set, confirm that your Claude Code version meets the requirement for these variables. Then check whether your organization requires Trusted Devices:
+With only `DISABLE_TELEMETRY` or `DO_NOT_TRACK` set, your sessions don’t auto-connect through your organization’s admin default or Claude Code’s own default. If something else makes Remote Control unavailable for you, such as [`CLAUDE_CODE_DISABLE_FEATURE_FLAGS`](</docs/en/env-vars#variables>) or an LLM gateway, start with Requirements instead. Before you turn auto-connect on with only `DISABLE_TELEMETRY` or `DO_NOT_TRACK` set, confirm that your Claude Code version meets the requirement for these variables. Then check whether your organization requires Trusted Devices:
 
   * **Not required** : set **Enable Remote Control for all sessions** to `true` in `/config`.
   * **Required** : Remote Control isn’t available while `DISABLE_TELEMETRY` or `DO_NOT_TRACK` is set. Unset whichever of the two variables you set. If your sessions still don’t auto-connect, set **Enable Remote Control for all sessions** to `true` in `/config`.
@@ -475,8 +486,8 @@ Claude Code could not reach the feature-flag service to check whether Remote Con
 
 An [environment variable](</docs/en/env-vars#features-that-need-feature-flag-fetching>) that turns off feature-flag evaluation is set, and the full message names the variable Claude Code found. On versions before 2.1.154, the same configuration produces “Remote Control is not yet enabled for your account” instead. What to do depends on the variable the message names:
 
-  * **`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `DISABLE_GROWTHBOOK`**: unset the variable wherever it’s set, in your shell environment or in the `env` block of a [`settings.json` file](</docs/en/settings-reference#all-settings>).
-  * **`DISABLE_TELEMETRY` or `DO_NOT_TRACK`**: on a Pro, Max, Ultra, Team, or Enterprise plan with `DISABLE_GROWTHBOOK` unset, Remote Control stays available with these variables set, unless your organization requires Trusted Devices. If it does, unset the variable wherever it’s set to use Remote Control. On v2.1.154 through v2.1.282, you see this message with either variable set, so update Claude Code to a version that meets the requirement for these variables.
+  * **`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`, `CLAUDE_CODE_DISABLE_FEATURE_FLAGS`, or `DISABLE_GROWTHBOOK`**: unset the variable wherever it’s set, in your shell environment or in the `env` block of a [`settings.json` file](</docs/en/settings-reference#all-settings>).
+  * **`DISABLE_TELEMETRY` or `DO_NOT_TRACK`**: on a Pro, Max, Ultra, Team, or Enterprise plan with `CLAUDE_CODE_DISABLE_FEATURE_FLAGS` and `DISABLE_GROWTHBOOK` unset, Remote Control stays available with these variables set, unless your organization requires Trusted Devices. If it does, unset the variable wherever it’s set to use Remote Control. On v2.1.154 through v2.1.282, you see this message with either variable set, so update Claude Code to a version that meets the requirement for these variables.
 
 ###
 

@@ -88,11 +88,11 @@ When you omit the prompt, Claude uses a built-in maintenance prompt instead of o
   * tend to the current branch’s pull request: review comments, failed CI runs, merge conflicts
   * run cleanup passes such as bug hunts or simplification when nothing else is pending
 
-Claude does not start new initiatives outside that scope, and irreversible actions such as pushing or deleting only proceed when they continue something the transcript already authorized.
+Each run goes through your session’s [permission checks](</docs/en/permissions>) before it pushes or deletes anything. A bare `/loop` runs this prompt at a dynamically chosen interval:
 
     /loop
 
-A bare `/loop` runs this prompt at a dynamically chosen interval. Add an interval, for example `/loop 15m`, to run it on a fixed schedule instead. To replace the built-in prompt with your own default, see Customize the default prompt with loop.md.
+Add an interval, for example `/loop 15m`, to run it on a fixed schedule instead. To replace the built-in prompt with your own default, see Customize the default prompt with loop.md.
 
 ###
 
@@ -253,7 +253,7 @@ Day-of-week uses `0` or `7` for Sunday through `6` for Saturday. Extended syntax
 
 Disable session-scoped scheduled tasks
 
-Set `CLAUDE_CODE_DISABLE_CRON=1` in your environment to disable the scheduler entirely. The cron tools and `/loop` become unavailable, and any already-scheduled tasks stop firing. See [Environment variables](</docs/en/env-vars>) for the full list of disable flags.
+Set `CLAUDE_CODE_DISABLE_CRON=1` in your environment to disable the scheduler entirely. `CronCreate` and `/loop` become unavailable, and any already-scheduled tasks stop firing. While the project’s `.claude/scheduled_tasks.json` file holds tasks, `CronList` and `CronDelete` stay available, so you can still ask Claude to list or cancel them. See [Environment variables](</docs/en/env-vars>) for the full list of disable flags.
 
 ##
 

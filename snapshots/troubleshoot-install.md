@@ -25,7 +25,7 @@ What you see| Solution
 `EACCES: permission denied` during install| Fix the install directory’s permissions
 `TLS connect error` or `SSL/TLS secure channel`| Update CA certificates
 `CRYPT_E_NO_REVOCATION_CHECK` or `CRYPT_E_REVOCATION_OFFLINE`| Work around blocked revocation checks
-`Failed to fetch version` or can’t reach download server| Check network and proxy settings
+`Failed to fetch version` or can’t reach download server| Check network and proxy settings, or for a certificate error, configure corporate CA certificates
 `The connection dropped while downloading the update` or `Download timed out: exceeded the total deadline`| Run the update again or set your proxy
 `Release verification failed for Claude Code`| Run `claude update` or `claude install` again
 `Auto-update failed · Run claude doctor` in red in the session footer| Run `claude update` from your shell
@@ -92,11 +92,11 @@ You reached the server if the first line shows a `200` status. You see `HTTP/2 2
   * `403`: usually a proxy or network filter blocking the host, or Claude Code is [not available in your region](<https://www.anthropic.com/supported-countries>)
   * `5xx`: usually a temporary service issue; wait a few minutes and retry
 
-If you see no output, `Could not resolve host`, or a connection timeout, your network is blocking the connection. Common causes:
+If you see no output, or the installer shows `Could not resolve host` or a connection timeout, the connection failed, so check for these causes:
 
   * Corporate firewalls or proxies blocking `downloads.claude.ai`
   * Regional network restrictions: try a VPN or alternative network
-  * TLS/SSL issues: update your system’s CA certificates, or check if `HTTPS_PROXY` is configured
+  * TLS/SSL issues: see TLS or SSL connection errors
 
 If you’re behind a corporate proxy, set `HTTPS_PROXY` and `HTTP_PROXY` to your proxy’s address before installing. Ask your IT team for the proxy URL if you don’t know it, or check your browser’s proxy settings. This example sets both proxy variables, then runs the installer through your proxy:
 
@@ -467,13 +467,19 @@ Then run the installer in the same window:
 
          irm https://claude.ai/install.ps1 | iex
 
-  3. **Check for proxy or firewall interference** : corporate proxies that perform TLS inspection can cause these errors, including `unable to get local issuer certificate` and `SELF_SIGNED_CERT_IN_CHAIN`. For the install step, make the install download trust your corporate proxy’s CA:
+  3. **Check for proxy or firewall interference** : corporate proxies that perform TLS inspection can cause these errors, including `unable to get local issuer certificate`, `unable to verify the first certificate`, and `SELF_SIGNED_CERT_IN_CHAIN`. Make the install download trust your corporate proxy’s CA:
 
      * macOS/Linux
 
      * Windows PowerShell
 
-    curl --cacert /path/to/corporate-ca.pem -fsSL https://claude.ai/install.sh | bash
+Set `CURL_CA_BUNDLE` for the install script’s `curl` downloads, and [`NODE_EXTRA_CA_CERTS`](</docs/en/network-config#custom-ca-certificates>) for the `claude install` command the script then runs. Ask your IT team for a PEM file with your proxy’s root CA certificate if you don’t have it. This example sets both to your proxy’s CA file and runs the script in the same terminal:
+
+    export CURL_CA_BUNDLE=/path/to/corporate-ca.pem
+    export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
+    curl -fsSL https://claude.ai/install.sh | bash
+
+If the install still fails with one of those certificate errors, ask your IT team for a file with both the public root certificates and your proxy’s full CA chain. Then set both variables to that file.
 
 The PowerShell installer downloads through .NET, which validates TLS against the Windows certificate store. Ask your IT team to add the proxy’s CA certificate to the Windows store if it isn’t already there, then run the installer:
 
@@ -489,7 +495,6 @@ For Claude Code itself once installed, set `NODE_EXTRA_CA_CERTS` so API requests
 
     $env:NODE_EXTRA_CA_CERTS = 'C:\path\to\corporate-ca.pem'
 
-Ask your IT team for the certificate file if you don’t have it. You can also try on a direct connection to confirm the proxy is the cause.
   4. **On Windows, work around blocked revocation checks**. The errors `CRYPT_E_NO_REVOCATION_CHECK (0x80092012)` and `CRYPT_E_REVOCATION_OFFLINE (0x80092013)` mean curl reached the server but your network blocks the certificate revocation lookup, which is common behind corporate firewalls. If the failing command is the `curl` that downloads `install.cmd`, rerun it from a Command Prompt with `--ssl-revoke-best-effort` added:
 
          curl --ssl-revoke-best-effort -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
@@ -506,7 +511,7 @@ You can also install with `winget install Anthropic.ClaudeCode`, which avoids cu
 
 `Failed to fetch version from downloads.claude.ai`
 
-The installer couldn’t reach the download server. This typically means `downloads.claude.ai` is blocked on your network. See Check network connectivity.
+The end of the message gives the reason. If it’s a certificate error such as `unable to verify the first certificate`, see TLS or SSL connection errors. For any other reason, see Check network connectivity.
 
 ###
 

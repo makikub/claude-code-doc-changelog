@@ -60,7 +60,7 @@ When| What Claude Code does
 ---|---
 The session is in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>)| Asks before the first publish of each artifact
 The publish declares runtime capabilities for the page, such as connector calls or file downloads| Asks before that publish
-You shared the artifact publicly| Asks once per conversation before changing it
+You shared the artifact publicly| Asks once per conversation before changing it, and before each reply to a comment on it
 Claude publishes in a turn that a [session-scoped scheduled task](</docs/en/scheduled-tasks>) firing in your session started, rather than a prompt you typed| Asks before the first publish of each artifact
 Claude can’t read the file without your approval| Asks before publishing it. An allow rule for the `Artifact` tool doesn’t skip this prompt
 In [Manual](</docs/en/permission-modes>) or `acceptEdits` mode, Claude makes a small change to an artifact’s file it can’t edit without your approval, such as a project file in Manual mode| Asks before publishing the change. You’re asked even if an allow rule covers the `Artifact` tool, because the edit to the file needs your approval
@@ -80,6 +80,22 @@ Ask Claude to revise the page, or let a long-running task republish as it makes 
 Anyone with the page open sees the update in place. Each publish becomes a version, and from the **Share** control in the page header you can choose which version viewers see. To update an artifact from a different session, give Claude its URL, or attach it with `/artifacts`. Without either, a new session creates a new artifact instead of updating one.
 
     Update https://claude.ai/code/artifact/5fbea6f3-... with today's numbers.
+
+###
+
+​
+
+Turn off one-step artifact updates
+
+A one-step update is a small change Claude makes to an artifact’s file as part of a publish, instead of through an `Edit` or `Write` call. To turn one-step updates off, set [`CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS`](</docs/en/env-vars>) to `0`. This example adds the variable to the `env` block in `~/.claude/settings.json`:
+
+    {
+      "env": {
+        "CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS": "0"
+      }
+    }
+
+Then quit and relaunch Claude Code, because a running session doesn’t reread the variable.
 
 ##
 
@@ -105,6 +121,7 @@ Share an artifact
 A new artifact is visible only to you. To share it, open the artifact in your browser and use the **Share** control in the page header. The header also links to your gallery at [claude.ai/code/artifacts](<https://claude.ai/code/artifacts>), which lists every artifact you have created. Viewers in your organization can see who published the page: on an artifact shared within your organization, your name is in the title menu, and on a public artifact it’s in the page header for signed-in viewers in your organization. A viewer who opens a public link without signing in, or from outside your organization, sees the label `Content is user-generated and unverified.` instead of your name. Who you can share with depends on your plan:
 
   * **Within your organization** : on Team and Enterprise plans, grant access to specific people in your organization, or to everyone in it. Viewers sign in to claude.ai as members of your organization to see the page.
+  * **People with access to a shared folder** : on Team and Enterprise plans, move the artifact to a folder that you own or are an editor of. Move it from the [Artifacts page](<https://claude.ai/artifacts>), which is available if you can use claude.ai chat. Everyone with access to the folder can then open it, and the folder’s owner and editors can change it.
   * **Publicly** : share a link that anyone on the internet can open, with no claude.ai sign-in required. On Team and Enterprise plans, public sharing is off until an Owner enables it for the organization.
 
 ###

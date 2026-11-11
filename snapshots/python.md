@@ -1489,7 +1489,7 @@ Variant| Fields| Description
 ---|---|---
 `adaptive`| `type`, `display`| Claude adaptively decides when to think
 `enabled`| `type`, `budget_tokens`, `display`| Enable thinking with a specific token budget
-`disabled`| `type`| Disable thinking
+`disabled`| `type`| Turn thinking off [where the model and provider allow it](</docs/en/model-config#where-you-cant-turn-thinking-off>)
 
 The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `ThinkingBlock` outputs. On providers such as Amazon Bedrock and Google Cloud’s Agent Platform, Claude Code doesn’t pass `display` for earlier models it recognizes. Those are Opus 4.6, Sonnet 4.6, Haiku 4.5, and earlier models, which use their default. Because these are `TypedDict` classes, they’re plain dicts at runtime. Either construct them as dict literals or call the class like a constructor; both produce a `dict`. Access fields with `config["budget_tokens"]`, not `config.budget_tokens`:
 
@@ -1995,7 +1995,7 @@ Field| Type| Description
 
 `TaskStartedMessage`
 
-Emitted when a background task starts. A background task is anything tracked outside the main turn: a backgrounded Bash command, a Monitor watch, a subagent spawned via the Agent tool, or a remote agent. The `task_type` field tells you which. This naming is unrelated to the `Task`-to-`Agent` tool rename.
+Emitted when a background task starts. A background task is anything tracked outside the main turn, such as a backgrounded Bash command, a Monitor watch, a subagent spawned via the Agent tool, or a remote agent. This naming is unrelated to the `Task`-to-`Agent` tool rename.
 
     @dataclass
     class TaskStartedMessage(SystemMessage):
@@ -2013,7 +2013,7 @@ Field| Type| Description
 `uuid`| `str`| Unique message identifier
 `session_id`| `str`| Session identifier
 `tool_use_id`| `str | None`| Associated tool use ID
-`task_type`| `str | None`| Which kind of background task: `"local_bash"` for background Bash and Monitor watches, `"local_agent"`, or `"remote_agent"`
+`task_type`| `str | None`| Which kind of background task, such as `"local_bash"` for background Bash and Monitor watches, `"local_agent"` for subagents, `"mcp_task"` for [background MCP tool calls](</docs/en/mcp#automatic-backgrounding-of-long-tool-calls>), or `"remote_agent"`
 
 ###
 

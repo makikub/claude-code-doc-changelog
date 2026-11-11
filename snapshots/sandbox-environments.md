@@ -1,4 +1,4 @@
-Isolating Claude Code limits what a session can read, write, and reach on the network. This matters most when you let Claude work with fewer permission prompts, run it unattended, or point it at code you do not fully trust. Claude Code can run in several kinds of isolated environments, ranging from a lightweight per-command sandbox to a fully separate virtual machine. This page compares them by what they isolate and what they require, helps you choose one for your threat model, and shows how to enforce that choice across an organization.
+Isolating Claude Code limits what a session can read, write, and reach on the network. This matters most when you let Claude work with fewer permission prompts or run it unattended. Claude Code can run in several kinds of isolated environments, ranging from a lightweight per-command sandbox to a fully separate virtual machine. This page compares them by what they isolate and what they require, helps you choose one for your threat model, and shows how to enforce that choice across an organization.
 
 For the broader security model, see [Security](</docs/en/security>). For Agent SDK deployments, see [Secure deployment](</docs/en/agent-sdk/secure-deployment>).
 
@@ -36,7 +36,6 @@ You want to| Start with
 Reduce permission prompts during everyday work on your own machine| The [sandboxed Bash tool](</docs/en/sandboxing>), configured with `/sandbox`
 Let Claude work unattended with `--dangerously-skip-permissions` or auto mode| The preconfigured [dev container](</docs/en/devcontainer>), any container or VM, or the sandbox runtime
 Isolate MCP servers and hooks as well as Bash, without Docker| The sandbox runtime
-Work on an untrusted repository| A dedicated virtual machine, or a [cloud session](</docs/en/claude-code-on-the-web>) if you have a Claude subscription; GitHub is not required when you launch with `claude --cloud`
 Standardize a sandboxed environment across a team| The preconfigured [dev container](</docs/en/devcontainer>), copied into your repository
 Use Claude Code from a device with no local setup| A [cloud session](</docs/en/claude-code-on-the-web>), which requires a Claude subscription, and a connected GitHub account to clone a GitHub repository
 Require isolation for every developer in your organization| Enforce isolation across an organization
@@ -153,7 +152,7 @@ You can run Claude Code in any Docker or OCI container image with your own netwo
 
 Virtual machine
 
-A dedicated virtual machine provides the strongest separation, with its own kernel and, in cloud or microVM deployments, its own virtualized hardware. Options include cloud instances, local hypervisors, and microVMs such as Firecracker. Use this approach when you are evaluating untrusted code, when your security policy requires kernel-level separation between the agent and the host, or when no host-level approach meets your compliance requirements. [Docker Sandboxes](<https://docs.docker.com/ai/sandboxes/>) provides a microVM with its own Docker daemon and workspace sync, which can run Claude Code on any host with Docker Sandboxes installed. It is a free, standalone product from Docker that does not require Docker Desktop.
+A dedicated virtual machine provides the strongest separation, with its own kernel and, in cloud or microVM deployments, its own virtualized hardware. Options include cloud instances, local hypervisors, and microVMs such as Firecracker. Use this approach when your security policy requires kernel-level separation between the agent and the host, or when no host-level approach meets your compliance requirements. [Docker Sandboxes](<https://docs.docker.com/ai/sandboxes/>) provides a microVM with its own Docker daemon and workspace sync, which can run Claude Code on any host with Docker Sandboxes installed. It is a free, standalone product from Docker that does not require Docker Desktop.
 
 ##
 

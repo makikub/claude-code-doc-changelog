@@ -758,7 +758,7 @@ Method| Description
 `rewindFiles(userMessageId, options?)`| Restores files to their state at the specified user message. Pass `{ dryRun: true }` to preview changes. Requires `enableFileCheckpointing: true`. See [File checkpointing](</docs/en/agent-sdk/file-checkpointing>)
 `setPermissionMode()`| Changes the permission mode (only available in streaming input mode)
 `setModel()`| Changes the model (only available in streaming input mode). Passing `undefined` or the string `"default"` resets to [Claude Code’s default model](</docs/en/model-config>). A session in `auto` mode [changes to `default` mode](</docs/en/agent-sdk/permissions#auto-mode-auto>) if the new model doesn’t support auto mode
-`setMaxThinkingTokens()`| _Deprecated:_ Use the `thinking` option instead. Changes the maximum thinking tokens. Passing `null` resets thinking to the session default: a mid-session override is cleared, and thinking stays off for sessions that have it disabled
+`setMaxThinkingTokens()`| _Deprecated:_ Use the `thinking` option instead. Changes the maximum thinking tokens. Pass `null` to undo earlier calls and restore the `thinking` or `maxThinkingTokens` option the session started with
 `applyFlagSettings(settings)`| Merges settings into the session’s flag settings layer at runtime (only available in streaming input mode). See `applyFlagSettings()`
 `updateSettings(source, settings)`| Writes one allowlisted key to the project’s local settings file or your user settings file, so the value persists for later sessions. See `updateSettings()`. Requires TypeScript SDK v0.3.257 or later, which bundles Claude Code v2.1.257
 `initializationResult()`| Returns the full initialization result including supported commands, models, account info, and output style configuration
@@ -2023,9 +2023,9 @@ Reason code| Meaning
 `extra_usage_disabled`| Usage credits are turned off for the account
 `network_error`| The [availability check](</docs/en/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways>) couldn’t reach `api.anthropic.com`
 `unknown`| Claude Code couldn’t determine availability
-`not_first_party`| The session uses a provider other than the Anthropic API
-`disabled_by_env`| [`CLAUDE_CODE_DISABLE_FAST_MODE`](</docs/en/env-vars>) is set
-`model_not_allowed`| The fast mode Opus model isn’t in the organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist
+`not_first_party`| The session uses a provider that doesn’t offer fast mode
+`disabled_by_env`| [`CLAUDE_CODE_DISABLE_FAST_MODE`](</docs/en/env-vars>) is set, or the model’s region on [Google Cloud’s Agent Platform](</docs/en/fast-mode#use-fast-mode-on-agent-platform>) doesn’t offer fast mode
+`model_not_allowed`| The fast mode model isn’t in the organization’s [`availableModels`](</docs/en/model-config#restrict-model-selection>) allowlist, or the provider refused fast mode for the session’s model
 `sdk_opt_in_required`| The session hasn’t opted in to fast mode: pass `fastMode: true` in the `settings` option or through `applyFlagSettings()`
 `pending`| The availability check hasn’t completed yet
 
@@ -2107,7 +2107,7 @@ The number of messages you sent with `origin: { kind: "human" }` that are still 
 
 `startup_failure_reason`
 
-Why Claude Code refused to start, so your application can offer the fix instead of a retry. Claude Code sets it on the `error_during_execution` result it writes before exiting on a known startup failure. That result carries zeroed totals, and its `errors` array carries the same text as stderr. The field is absent on every other result. Requires Agent SDK v0.3.274 or later. Set `CLAUDE_CODE_STARTUP_FAILURE_RESULTS` to `1` in `env` to receive this result for every `SDKStartupFailureReason` value. Without that variable, Claude Code writes the result only for these failures, and the rest end with stderr output, a non-zero exit, and no result message:
+Why Claude Code refused to start, so your application can offer the fix instead of a retry. Claude Code sets it on the `error_during_execution` result it writes before exiting on a known startup failure. That result carries zeroed totals, and its `errors` array carries the failure message. The field is absent on every other result. Requires Agent SDK v0.3.274 or later. Set `CLAUDE_CODE_STARTUP_FAILURE_RESULTS` to `1` in `env` to receive this result for every `SDKStartupFailureReason` value. Without that variable, Claude Code writes the result only for these failures, and the rest end with stderr output, a non-zero exit, and no result message:
 
   * A resume that Claude Code stops because it [can’t return the session to its worktree](</docs/en/worktrees#the-session-resumes-outside-its-worktree>), with `worktree_unverified` or `worktree_resume_refused`. That section says which error carries which value.
   * A refused `continue` of a conversation that a background session holds, with `session_held_by_background`. For a refused `resume` of such a conversation, Claude Code writes the result only when the variable is set.
@@ -5777,9 +5777,9 @@ Controls Claude’s thinking/reasoning behavior. Takes precedence over the depre
     type ThinkingConfig =
       | { type: "adaptive"; display?: ThinkingDisplay } // The model determines when and how much to reason (Opus 4.6+)
       | { type: "enabled"; budgetTokens?: number; display?: ThinkingDisplay } // Fixed thinking token budget
-      | { type: "disabled" }; // No extended thinking
+      | { type: "disabled" }; // Turn thinking off where the model and provider allow it
 
-The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `thinking` blocks. On providers such as Amazon Bedrock and Google Cloud’s Agent Platform, Claude Code doesn’t pass `display` for earlier models it recognizes. Those are Opus 4.6, Sonnet 4.6, Haiku 4.5, and earlier models, which use their default.
+For `disabled`, see [where you can’t turn thinking off](</docs/en/model-config#where-you-cant-turn-thinking-off>). The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `thinking` blocks. On providers such as Amazon Bedrock and Google Cloud’s Agent Platform, Claude Code doesn’t pass `display` for earlier models it recognizes. Those are Opus 4.6, Sonnet 4.6, Haiku 4.5, and earlier models, which use their default.
 
 ###
 
@@ -6061,7 +6061,7 @@ Emitted during authentication flows.
 
 `SDKTaskStartedMessage`
 
-Emitted when a task begins. The `task_type` field is `"local_bash"` for Bash commands and Monitor watches, `"local_agent"` for subagents, or `"remote_agent"`.
+Emitted when a task begins. `task_type` names the kind of task, such as `"local_bash"` for Bash commands and Monitor watches, `"local_agent"` for subagents, `"mcp_task"` for [background MCP tool calls](</docs/en/mcp#automatic-backgrounding-of-long-tool-calls>), or `"remote_agent"`.
 
     type SDKTaskStartedMessage = {
       type: "system";
@@ -6257,12 +6257,13 @@ Emitted when the session encounters a rate limit.
         errorCode?: "credits_required";
         canUserPurchaseCredits?: boolean;
         hasChargeableSavedPaymentMethod?: boolean;
+        overageEnabled?: boolean;
       };
       uuid: UUID;
       session_id: string;
     };
 
-When `errorCode` is `"credits_required"`, the rejection is from a claude.ai subscription whose included usage is exhausted, and the session cannot continue until the user buys usage credits. `canUserPurchaseCredits` indicates whether the authenticated user can buy credits for the account, and `hasChargeableSavedPaymentMethod` indicates whether a saved payment method is on file. All three fields are absent on rate-limit events that are not credits-required rejections. Requires Claude Code v2.1.181 or later.
+When `errorCode` is `"credits_required"`, the rejection is from a claude.ai subscription whose included usage is exhausted, and the session cannot continue until the user buys usage credits. `canUserPurchaseCredits` indicates whether the authenticated user can buy credits for the account, and `hasChargeableSavedPaymentMethod` indicates whether a saved payment method is on file. All three fields are absent on rate-limit events that are not credits-required rejections. Requires Claude Code v2.1.181 or later. On a warning about a plan usage limit, where `status` is `"allowed_warning"`, `overageEnabled` reports whether the account has [usage credits](</docs/en/costs#add-usage-credits-to-your-subscription>) turned on. Requires Claude Code v2.1.295 or later.
 
 ###
 

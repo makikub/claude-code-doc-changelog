@@ -76,7 +76,7 @@ A [cloud environment](</docs/en/cloud-environments>) is the saved configuration 
   * **Pro, Max, and Ultra** : you get an environment named **Default** automatically.
   * **Team and Enterprise** : onboarding shows a **Create your first cloud environment** form. Leave the prefilled name and network access unchanged and click **Create & finish** to create the **Default** environment. If an Owner has turned on [Quick setup](</docs/en/claude-code-on-the-web#quick-setup-for-team-and-enterprise>), onboarding creates **Default** for you instead.
 
-**Default** uses [`Trusted` network access](</docs/en/cloud-environments#access-levels>): sessions reach [common package registries](</docs/en/cloud-environments#default-allowed-domains>) and other allowlisted domains, and nothing else through the session’s network. See [Installed tools](</docs/en/cloud-environments#installed-tools>) for what’s available without any configuration.For a first project, the **Default** environment works as is. To change its network access, add environment variables, or run a [setup script](</docs/en/cloud-environments#setup-scripts>) before sessions start, [edit it or create additional environments](</docs/en/cloud-environments#configure-your-environment>).
+**Default** uses [**Limited** network access](</docs/en/cloud-environments#access-levels>): sessions reach [common package registries](</docs/en/cloud-environments#default-allowed-domains>) and other allowlisted domains. See [Installed tools](</docs/en/cloud-environments#installed-tools>) for what’s available without any configuration.For a first project, the **Default** environment works as is. To change its network access, add environment variables, or run a [setup script](</docs/en/cloud-environments#setup-scripts>) before sessions start, [edit it or create additional environments](</docs/en/cloud-environments#configure-your-environment>).
 
 ###
 
@@ -110,7 +110,7 @@ In the Claude Code CLI, run:
 
     /web-setup
 
-Confirm the prompt to send your `gh` token to your Claude account. On success, Claude Code prints `Connected as <your-github-username>` and opens [claude.ai/code](<https://claude.ai/code>) in your browser. If you don’t have a cloud environment yet, `/web-setup` creates one with Trusted network access and no setup script. You can [edit the environment or add variables](</docs/en/cloud-environments#configure-your-environment>) afterward. Once `/web-setup` completes, you can start cloud sessions from your terminal with [`--cloud`](</docs/en/claude-code-on-the-web#from-terminal-to-cloud>) or set up recurring tasks with [`/schedule`](</docs/en/routines>).
+Confirm the prompt to send your `gh` token to your Claude account. On success, Claude Code prints `Connected as <your-github-username>` and opens [claude.ai/code](<https://claude.ai/code>) in your browser.If you don’t have a cloud environment yet, `/web-setup` creates one with the default **Limited** network access and no setup script. You can [edit the environment or add variables](</docs/en/cloud-environments#configure-your-environment>) afterward. Once `/web-setup` completes, you can start cloud sessions from your terminal with [`--cloud`](</docs/en/claude-code-on-the-web#from-terminal-to-cloud>) or set up recurring tasks with [`/schedule`](</docs/en/routines>).
 
 ####
 
@@ -290,7 +290,7 @@ Setup script failed
 
 The [setup script](</docs/en/cloud-environments#setup-scripts>) exited with a non-zero status, so the session failed to start or started without whatever the script failed to install. If the session started, you can keep working in it. Common causes:
 
-  * A package install failed because the registry isn’t in your [network access level](</docs/en/cloud-environments#access-levels>). `Trusted` covers most package managers; `None` blocks them all.
+  * A package install failed because the registry isn’t in your [network access level](</docs/en/cloud-environments#access-levels>). **Limited** with **Allow package managers** checked covers most package managers; **None** blocks them all.
   * The script references a file or path that doesn’t exist in a fresh clone.
   * A command that works locally needs a different invocation on Ubuntu.
 

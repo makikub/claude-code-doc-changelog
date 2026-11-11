@@ -677,7 +677,8 @@ Incremented after each API request. The `agent.name`, `skill.name`, `plugin.name
   * `plugin.name`: Owning plugin when the active skill or subagent is provided by a plugin. Official-marketplace plugin names appear verbatim. Third-party plugin names are replaced with `"third-party"`. Absent when neither the skill nor the subagent has an owning plugin.
   * `marketplace.name`: Marketplace the owning plugin was installed from. Only emitted for official-marketplace plugins, even with `OTEL_LOG_TOOL_DETAILS=1` set. Absent otherwise.
   * `mcp_server.name`: MCP server whose tool result this request consumed. Built-in, claude.ai-proxied, and official-registry server names appear verbatim. User-configured server names are replaced with `"custom"`. Absent when the request consumed no MCP tool result. Before v2.1.222, Claude Code set this attribute on every request after an MCP tool call, not only on requests that consumed a tool result, so dashboards that aggregate it show a step down after you upgrade.
-  * `mcp_tool.name`: MCP tool whose result this request consumed, with the same redaction and version behavior as `mcp_server.name`. Absent when the request consumed no MCP tool result.
+    * From v2.1.312, the name of a remote server with a fixed URL that a plugin from Anthropic’s official marketplace declares also appears verbatim, as `plugin_<plugin>_<server>`. That name is replaced with `"custom"` when the plugin’s marketplace copy didn’t come from Anthropic’s registered source, such as one mounted from a seed directory in a cloud session.
+  * `mcp_tool.name`: MCP tool whose result this request consumed, with the same redaction and version behavior as `mcp_server.name`, except that it can read `"custom"` when `mcp_server.name` shows a `plugin_<plugin>_<server>` name. Absent when the request consumed no MCP tool result.
 
 ####
 
@@ -970,7 +971,7 @@ Logged when a tool permission decision is made (accept/reject). **Event Name** :
       * The auto mode classifier, whose verdict the same event records in `classifier_verdict`
       * A grant for the rest of the session, given at an earlier permission prompt in the same interactive CLI session
       * The tool being inherently safe
-The `source` value doesn’t indicate which of these sources matched. To find which one refused a call, look for the Safety event with the same `tool_use_id` and read its `category` and `rule_source` attributes. Some refused calls have no safety event. Claude Code also reports `"config"` when the permission prompt request itself fails. For example, that request fails when the Agent SDK’s [`canUseTool`](</docs/en/agent-sdk/typescript#canusetool>) callback or the [`--permission-prompt-tool`](</docs/en/cli-reference#cli-flags>) tool returns an invalid result, or when the input stream closes while the request is pending.
+The `source` value doesn’t indicate which of these sources matched. When `classifier_verdict` is present, it gives the classifier outcome that decided the call. No `tool_decision` attribute names the permission rule or setting that refused the call. Claude Code also reports `"config"` when the permission prompt request itself fails. For example, that request fails when the Agent SDK’s [`canUseTool`](</docs/en/agent-sdk/typescript#canusetool>) callback or the [`--permission-prompt-tool`](</docs/en/cli-reference#cli-flags>) tool returns an invalid result, or when the input stream closes while the request is pending.
     * `"hook"`: A `PreToolUse` or `PermissionRequest` hook returned the decision.
     * `"user_permanent"`: Emitted when the user chose “Yes, and don’t ask again for …” at a permission prompt, which saves an allow rule to their personal settings. In the interactive CLI this is emitted only for that choice itself; later calls that match the saved rule emit `"config"` instead. In Agent SDK or non-interactive `-p` sessions, both the initial choice and later rule matches emit `"user_permanent"`. Treated as an accept.
     * `"user_temporary"`: Emitted when the user chose “Yes” at a permission prompt for a one-time approval, or chose an option that grants access for the rest of the session on a file edit or read prompt. In the interactive CLI this is emitted only for the choice itself; later calls allowed by that session-scoped grant emit `"config"` instead. In Agent SDK or non-interactive `-p` sessions, both the choice and later matches emit `"user_temporary"`. Treated as an accept.
@@ -1015,7 +1016,18 @@ If you lower the OpenTelemetry SDK’s `OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT` be
 
 Safety event
 
-Logged when a check refuses a tool call or requires a permission prompt, except for calls without a safety event. Also logged when the [sandbox’s network proxy](</docs/en/sandboxing#network-isolation>) refuses a connection or request, and when a hook blocks a result. Requires Claude Code v2.1.307 or later. The event exports with the other events and has no separate setting. The event’s own attributes hold no command text, file paths, host names, or MCP server and tool names. The record also carries the standard attributes every event has, which can include `workspace.host_paths` and the repository attributes. To see the command or MCP tool behind an event, set `OTEL_LOG_TOOL_DETAILS=1` and read `tool_parameters` on the matching `tool_decision` event. **Event Name** : `claude_code.safety_event` **Attributes** :
+Claude Code has stopped sending `claude_code.safety_event`:
+
+  * **v2.1.312 and later** : these versions don’t send the event, and no setting turns it on
+  * **v2.1.307 through v2.1.311** : a session stops sending the event at its next feature-flag refresh. A session that doesn’t [fetch feature flags](</docs/en/env-vars#features-that-need-feature-flag-fetching>), such as on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, can keep sending it.
+
+To see refused tool calls, query `tool_decision` events, which show that a call was refused but not always which check refused it. The event details here describe events from v2.1.307 through v2.1.311, where a safety event records cases such as these:
+
+  * A check refuses a tool call or requires a permission prompt, except for calls without a safety event
+  * The [sandbox’s network proxy](</docs/en/sandboxing#network-isolation>) refuses a connection or request
+  * A hook blocks a result or the end of a turn
+
+The event exports with the other events and has no separate setting. The event’s own attributes hold no command text, file paths, host names, or MCP server and tool names. The record also carries the standard attributes every event has, which can include `workspace.host_paths` and the repository attributes. To see the command or MCP tool behind an event, set `OTEL_LOG_TOOL_DETAILS=1` and read `tool_parameters` on the matching `tool_decision` event. **Event Name** : `claude_code.safety_event` **Attributes** :
 
   * All standard attributes
   * `event.name`: `"safety_event"`
@@ -1413,15 +1425,20 @@ Logged when a session quality survey is shown or answered. See [Session quality 
 
 Retention sweep event
 
-Logged once per run of the retention cleanup sweep, which deletes [session transcripts and other application data](</docs/en/claude-directory#cleaned-up-automatically>) older than the [`cleanupPeriodDays`](</docs/en/settings-reference#cleanupperioddays>) setting. Claude Code runs the sweep in the background at most once per session, and a run that deletes nothing still emits the event. If Claude Code ran the sweep in any session on the same machine in the last 24 hours, it delays this session’s sweep by at least 10 minutes, so a session that exits sooner emits nothing. When you run `claude -p` with `--bare`, Claude Code doesn’t run the sweep and emits nothing. Like every OTel event on this page, it goes only to the telemetry backend you configure. Requires Claude Code v2.1.227 or later. When Claude Code can’t safely determine the retention period, it pauses the sweep and emits the event with `result` set to `"skipped"` and a `skip_reason`. When [managed settings](</docs/en/server-managed-settings>) set `cleanupPeriodDays`, the managed value pins the retention period and the sweep runs even when a settings file in a lower-priority scope is broken or invalid. When `managed-settings.json` itself can’t be read, Claude Code still pauses the sweep unless the [managed tier](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) supplies `cleanupPeriodDays` from elsewhere, such as server-managed settings or a `managed-settings.d/` drop-in beside the broken file. The deletion counter attributes are present only when `result` is `"complete"`. **Event Name** : `claude_code.retention_sweep` **Attributes** :
+Logged once per run of the retention cleanup sweep, which deletes [session transcripts and other application data](</docs/en/claude-directory#cleaned-up-automatically>) older than the [`cleanupPeriodDays`](</docs/en/settings-reference#cleanupperioddays>) setting. Claude Code runs the sweep in the background at most once per session, and a run that deletes nothing still emits the event. If Claude Code ran the sweep in any session on the same machine in the last 24 hours, it delays this session’s sweep by at least 10 minutes, so a session that exits sooner emits nothing. When you run `claude -p` with `--bare`, Claude Code doesn’t run the sweep and emits nothing. Like every OTel event on this page, it goes only to the telemetry backend you configure. Requires Claude Code v2.1.227 or later. Read `result` to see whether the sweep ran:
+
+  * `"complete"`: the sweep ran, and the event carries its counts
+  * `"skipped"`: Claude Code couldn’t safely determine the retention period, so it paused the sweep and the event carries no counts. If `skip_reason` is `"settings_unknowable"` or `"settings_invalid_key_set"`, fix the settings error that `/status` reports on that machine so a later session can run the sweep
+
+When [managed settings](</docs/en/server-managed-settings>) set `cleanupPeriodDays`, the managed value pins the retention period and the sweep runs even when a settings file in a lower-priority scope is broken or invalid. **Event Name** : `claude_code.retention_sweep` **Attributes** :
 
   * All standard attributes
   * `event.name`: `"retention_sweep"`
   * `event.timestamp`: ISO 8601 timestamp
   * `event.sequence`: per-process counter for ordering events, described under Event correlation attributes
   * `result`: `"complete"` when the sweep ran, `"skipped"` when Claude Code paused it
-  * `period_days`: The `cleanupPeriodDays` value from merged settings, in days, or `30` when no source sets it. On skipped events, the value the sweep would have used, computed from the settings sources Claude Code could read
-  * `used_default`: `"true"` when no readable settings source sets `cleanupPeriodDays`, `"false"` otherwise. On complete events, `"true"` means the 30-day default applied
+  * `period_days`: The retention period the sweep started with, in days: `cleanupPeriodDays` from merged settings, with any change from a [`settings.read` hook](</docs/en/plugins/mods/events#settings-read-hook>) applied. `30` when that leaves the key unset. On skipped events, the value the sweep would have used, computed from the settings sources Claude Code could read
+  * `used_default`: `"true"` when `period_days` fell back to `30`, `"false"` otherwise. On complete events, `"true"` means the 30-day default applied
   * `skip_reason`: Why Claude Code paused the sweep. Present only when `result` is `"skipped"`:
     * `"user_source_disabled"`: User settings are excluded, for example by the [`--setting-sources`](</docs/en/cli-reference#cli-flags>) flag or the SDK’s [`settingSources`](</docs/en/agent-sdk/typescript#options>) option, and no enabled source provides `cleanupPeriodDays`
     * `"settings_unknowable"`: A settings file couldn’t be read or parsed, so `cleanupPeriodDays` or `desktopSessionCleanupPeriodDays` may be set to a value Claude Code can’t see
@@ -1623,7 +1640,7 @@ Without `OTEL_LOG_TOOL_DETAILS`, these events drop the identifying detail:
 
 Map security questions to events
 
-When building detection rules, look up the signal you want to monitor and query your backend for the corresponding event and attributes:
+Rows for `safety_event` apply only to a session on v2.1.307 through v2.1.311 that still sends the event. When building detection rules, look up the signal you want to monitor and query your backend for the corresponding event and attributes:
 
 Signal| Event| Key attributes
 ---|---|---
@@ -1632,8 +1649,9 @@ Which check refused a tool call or required a permission prompt for it| `safety_
 Auto mode classifier allowed or blocked a tool call, or Claude Code denied the call without a classifier verdict| `tool_decision` where `classifier_verdict` is present. For a denial without a verdict, `classifier_verdict` is `"no_verdict"` or `"unavailable"`| `classifier_verdict`, `permission_mode`, `tool_name`; `classifier_category` when you set `OTEL_LOG_TOOL_DETAILS=1`
 Permission mode escalation| `permission_mode_changed`| `from_mode`, `to_mode`, `trigger`
 Which permission mode each tool call was checked in, including calls subagents make| `tool_decision`| `permission_mode`, `session.id`
-Policy hook blocked an action| `hook_execution_complete`| `hook_event`, `num_blocking`
-Which tool call a hook refused, and which result or turn end a hook blocked| `safety_event` where `category` is `"hook"` and `decision` is `"reject"` for a refused call, or `category` is `"hook_review"` for a blocked result or turn end| `category`, `decision`, `hook_event`; `tool_use_id` for a tool call
+Policy hook blocked an action| `hook_execution_complete`, which isn’t tied to a call or to `tool_use_id`| `hook_event`, `num_blocking`
+Tool call a hook refused| `tool_decision` where `decision` is `"reject"` and `source` is `"hook"`| `decision`, `source`, `tool_use_id`
+Which result or turn end a hook blocked| `safety_event` where `category` is `"hook_review"`| `category`, `hook_event`; `tool_use_id` for a tool call
 Sandbox’s network proxy refused a connection or request from a Bash or PowerShell command| `safety_event` where `sandbox_violation_count` is present and isn’t `"0"`| `sandbox_violation_count`, `category`, `sandbox_enabled`, `tool_use_id`
 Login, logout, and authentication failure| `auth`| `action`, `success`, `error_category`
 MCP server connect or failure| `mcp_server_connection`| `status`, `server_name`, `is_plugin`, `error_code`

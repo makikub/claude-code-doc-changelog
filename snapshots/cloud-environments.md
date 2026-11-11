@@ -27,7 +27,7 @@ If you don’t have an environment yet, onboarding sets up the **Default** envir
 
 **Default** carries no configuration of its own:
 
-  * **Trusted** network access: sessions reach package registries and other allowlisted domains, and nothing else through the session’s network.
+  * **Limited** network access: sessions reach package registries and other allowlisted domains.
   * No other configuration: **Default** defines no environment variables or setup script, so sessions start with just the pre-installed tools.
 
 With only **Default** available, every session runs in it. When you have more than one environment, sessions choose one per surface:
@@ -98,7 +98,7 @@ These requirements decide whether you can add a secret and whether the agent pro
   * **Role** : on every plan, you can add and delete secrets on your own environments whatever your role. On Team and Enterprise, Owners hold an organization admin role in your claude.ai organization and Admins don’t, which changes what you see in these cases:
     * **Your own environment** : without an organization admin role, **Add secret** opens a shorter form
     * **A shared environment** : Owners add and delete its secrets from admin settings. Without an organization admin role, ask an Owner to add the secret, because the environment’s dialog has no **Network secrets** section
-  * **Environment type** : an Anthropic-hosted cloud environment that already exists. A [self-hosted environment](</docs/en/self-hosted-environments>) doesn’t have network secrets
+  * **Environment type** : an Anthropic-hosted cloud environment. A [self-hosted environment](</docs/en/self-hosted-environments>) doesn’t have network secrets
   * **API reachability** : the API accepts connections from the internet, because requests leave from Anthropic’s network
   * **Encryption keys** : if your organization uses customer-managed encryption keys, you can’t save network secrets
 
@@ -222,7 +222,7 @@ In [Claude Tag](<https://claude.com/docs/claude-tag/overview>) channels, Claude 
 
 Network access
 
-Each environment sets one network access level, which controls the outbound connections its sessions can make. The default level, **Trusted** , allows package registries and other allowlisted domains; **Custom** takes your own domain list. To change an environment’s network access, open it for editing and use the **Network access** selector in the dialog. A shared environment opens read-only there, so an Owner changes its network access from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>) instead. The control that opens the selector appears on the app surfaces listed under The Default environment and in the [cloud scheduled task editor](</docs/en/routines#environments-and-network-access>). Personal environments don’t have a separate page in your claude.ai account settings. When you change an Anthropic-hosted environment’s network access, its existing sessions follow the new setting within about a minute, for requests that go through the session’s network allowlist. You don’t need to start a new session.
+Each environment sets one network access level, which controls the outbound connections its sessions can make. A new environment starts at **Limited** with **Allow package managers** checked, so its sessions reach package registries and other allowlisted domains. To change an environment’s network access, open it for editing and use the **Network access** selector in the dialog. A shared environment opens read-only there, so an Owner changes its network access from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>) instead. The control that opens the selector appears on the app surfaces listed under The Default environment and in the [cloud scheduled task editor](</docs/en/routines#environments-and-network-access>). Personal environments don’t have a separate page in your claude.ai account settings. When you change an Anthropic-hosted environment’s network access, its existing sessions follow the new setting within about a minute, for requests that go through the session’s network allowlist. You don’t need to start a new session.
 
 MCP connectors you enable on a session or scheduled task work without adding their hosts to **Allowed domains** , because connector traffic travels through Anthropic’s servers rather than the session’s network. This relies on the same Anthropic-bound channel noted under [Security and isolation](</docs/en/claude-code-on-the-web#security-and-isolation>). Turn off any connector you don’t need to limit which tools Claude can reach.
 
@@ -232,14 +232,13 @@ MCP connectors you enable on a session or scheduled task work without adding the
 
 Access levels
 
-The **Network access** field in the environment dialog takes one of four levels:
+The **Network access** field in the environment dialog takes one of three levels:
 
 Level| Outbound connections
 ---|---
 **None**|  No outbound network access through the session’s network
-**Trusted**| Allowlisted domains only: package registries, GitHub, cloud SDKs
+**Limited**|  The default allowlist of package registries, GitHub, and cloud SDKs while **Allow package managers** is checked, plus any domains you list. See [what a blocked request looks like](</docs/en/errors#host-not-allowed-in-a-cloud-session>).
 **Full**|  Any domain
-**Custom**|  Your own allowlist, optionally including the defaults
 
 Whichever level you pick, sessions can still reach these, because each one takes a path that doesn’t go through the session’s network allowlist:
 
@@ -248,24 +247,29 @@ Whichever level you pick, sessions can still reach these, because each one takes
   * The hosts you listed on the environment’s network secrets, except the hosts that never get the secret
   * The Anthropic API, for Claude Code’s own requests, even at **None** , as noted under [Security and isolation](</docs/en/claude-code-on-the-web#security-and-isolation>)
 
+An environment saved as **Trusted** or **Custom** keeps reaching the same hosts and opens this way:
+
+  * **Saved as Trusted** : opens as **Limited** with **Allow package managers** checked
+  * **Saved as Custom** : opens as **Limited** with its **Allowed domains** list and **Allow package managers** as you set them, or as **Full** if the list contained a bare `*`
+
 ###
 
 ​
 
 Allow specific domains
 
-To allow domains that aren’t in the Trusted list, select **Custom** in the environment’s network access settings, then list one domain per line in the **Allowed domains** field. This example allows three hosts an internal project might need.
+To allow domains that aren’t in the default allowlist, select **Limited** in the environment’s **Network access** selector, then list one domain per line in the **Allowed domains** field. A leading `*.` matches every subdomain. This example allows three hosts an internal project might need.
 
     api.example.com
     *.internal.example.com
     registry.example.com
 
-Sessions in this environment can now reach `api.example.com`, any subdomain of `internal.example.com`, and `registry.example.com`, and no other domains through the session’s network. GitHub traffic, MCP connector traffic, and requests to the hosts of the environment’s network secrets, other than the hosts that never get the secret, don’t go through this allowlist. A leading `*.` matches every subdomain. To keep the Trusted domains too, check **Also include default list of common package managers** ; leave it unchecked to allow only what you list. If your organization uses [artifacts](</docs/en/artifacts#availability>), you don’t need `*.frame.claudeusercontent.com` in the list for sessions to read them. When the list leaves that host out, Claude Code reads artifact content through the session’s connection to Anthropic instead. Keep the host in an allowlist in two situations:
+While **Allow package managers** is checked, sessions in this environment reach the default allowlist as well as the domains you list. Clear the checkbox to leave the default allowlist out. GitHub traffic, MCP connector traffic, and requests to the hosts of the environment’s network secrets, other than the hosts that never get the secret, don’t go through this allowlist. If your organization uses [artifacts](</docs/en/artifacts#availability>), you don’t need `*.frame.claudeusercontent.com` in the list for sessions to read them. When the list leaves that host out, Claude Code reads artifact content through the session’s connection to Anthropic instead. Keep the host in an allowlist in two situations:
 
   * **Sessions in this environment open another organization’s public artifacts** : Claude Code fetches those from the host directly, so add it to this list.
   * **You’re configuring the local CLI or a self-hosted runner** : keep the host in that allowlist. See [network access requirements](</docs/en/network-config#network-access-requirements>) and the self-hosted [network requirements](</docs/en/self-hosted-environments-deploy#network-requirements>).
 
-Each environment has its own allowed-domains list; there’s no organization-level allowlist that admins can push to every member’s environments. No [server-managed setting](</docs/en/server-managed-settings>) adds domains to an environment’s network allowlist either. To give a team one standard list, an Owner can create an organization-shared environment with **Custom** network access and that list.
+Each environment has its own allowed-domains list; there’s no organization-level allowlist that admins can push to every member’s environments. No [server-managed setting](</docs/en/server-managed-settings>) adds domains to an environment’s network allowlist either. To give a team one standard list, an Owner can create an organization-shared environment with **Limited** network access and that list.
 
 ###
 
@@ -281,7 +285,7 @@ In Anthropic-hosted environments, all GitHub operations go through a dedicated p
   * **Repository scope** : the proxy serves GitHub API requests for the repositories attached to the session. An API request for another repository gets a 403 whose message starts with `GitHub access to` and contains `is not enabled for this session`. A source archive you fetch over a `github.com/{owner}/{repo}/archive/` or `codeload.github.com` URL gets that same 403 when the repository isn’t attached, even a public one.
   * **GraphQL restrictions** : the proxy rejects requests to GitHub’s GraphQL endpoint with a 403 whose message starts with `GitHub GraphQL is not available from Claude Code sessions` and names the REST fallback, `gh api repos/{owner}/{repo}/...`. `gh` subcommands that use GraphQL, such as `gh pr` and `gh issue`, get the same 403. The restriction applies to every request through the proxy regardless of the credentials you supply, so a `GH_TOKEN` you set gets the same 403. Claude can’t reach GitHub APIs that exist only in GraphQL, such as Projects v2, through the proxy.
 
-Committed files from public repositories arrive through `raw.githubusercontent.com`, which the security proxy handles instead. That domain is in the default Trusted list, so those files stay reachable unless the environment’s access level excludes it.
+Committed files from public repositories arrive through `raw.githubusercontent.com`, which the security proxy handles instead. That domain is on the default allowlist, so those files stay reachable as long as the environment’s network access allows that list.
 
 ###
 
@@ -425,7 +429,7 @@ PostgreSQL and Redis are pre-installed but not running by default. Ask Claude to
 
     service redis-server start
 
-Docker is available for running containerized services. Ask Claude to run `docker compose up` to start your project’s services. Network access to pull images follows your environment’s access level, and the Trusted defaults include Docker Hub and other common registries. If your images are large or slow to pull, add `docker compose pull` or `docker compose build` to your setup script. The environment cache keeps the pulled images, so each new session has them on disk. The cache stores files only, not running processes, so Claude still starts the containers each session.
+Docker is available for running containerized services. Ask Claude to run `docker compose up` to start your project’s services. Network access to pull images follows your environment’s access level, and the default allowlist includes Docker Hub and other common registries. If your images are large or slow to pull, add `docker compose pull` or `docker compose build` to your setup script. The environment cache keeps the pulled images, so each new session has them on disk. The cache stores files only, not running processes, so Claude still starts the containers each session.
 
 ####
 
@@ -493,7 +497,7 @@ A setup script has four constraints to write around:
 
   * **Exit zero** : if the script exits non-zero, the session [fails to start](</docs/en/web-quickstart#setup-script-failed>) or starts without whatever the script failed to install. Append `|| true` to non-critical commands so an intermittent install failure doesn’t fail the script.
   * **Finish within five minutes** : keep the script’s total runtime under roughly five minutes so the environment cache can build. When setup takes longer than that, the environment isn’t cached. Run independent installs in parallel with `&` and `wait`, and move any single download that won’t fit into a SessionStart hook that launches it in the background. If new sessions stall or fail during setup, see [New sessions hang or time out during setup](</docs/en/web-quickstart#new-sessions-hang-or-time-out-during-setup>).
-  * **Network access for installs** : package installs need to reach registries. The default **Trusted** level covers common package registries including npm, PyPI, RubyGems, and crates.io; with **None** network access, installs fail.
+  * **Network access for installs** : package installs need to reach registries. The default **Limited** level with **Allow package managers** checked covers common package registries including npm, PyPI, RubyGems, and crates.io. With **None** network access, installs fail.
   * **The environment’s variables aren’t set yet** : the script runs before the session sets the environment’s environment variables. Set any value the script needs in the script itself.
 
 ###
@@ -585,7 +589,7 @@ SessionStart hooks behave the same in the cloud as locally, with these caveats:
   * **One repository per session** : in an Anthropic-hosted environment, a session with several repositories doesn’t load hooks from any repository’s `.claude/settings.json`, so a SessionStart hook you define there doesn’t run. Install dependencies for those sessions with a setup script instead. For a self-hosted environment, see [which repository’s settings apply](</docs/en/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories>).
   * **Not in a project’s cloud threads** : a cloud thread in a [project](</docs/en/claude-projects#what-threads-pick-up-from-your-repositories>) doesn’t run hooks from a repository’s `.claude/settings.json`, whatever the number of repositories. In an Anthropic-hosted environment, install dependencies for threads with a setup script. In a self-hosted environment, use a hook in the [runner host’s settings](</docs/en/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories>) instead.
   * **No cloud-only scoping** : hooks run in both local and cloud sessions. To skip local execution, exit early unless the `CLAUDE_CODE_REMOTE` environment variable is `true`, the way the dependency install script does.
-  * **Requires network access** : install commands need to reach package registries. If your environment uses **None** network access, these hooks fail. The default allowlist under **Trusted** covers npm, PyPI, RubyGems, and crates.io.
+  * **Requires network access** : install commands need to reach package registries. If your environment uses **None** network access, these hooks fail. Under the default **Limited** level with **Allow package managers** checked, the default allowlist covers npm, PyPI, RubyGems, and crates.io.
   * **Proxy compatibility** : in Anthropic-hosted environments, all outbound traffic passes through a security proxy, and some package managers don’t work correctly with it; Bun is a known example. In a [self-hosted environment](</docs/en/self-hosted-environments-deploy#default-deny-egress>), outbound traffic goes through your own network boundary instead.
   * **Adds startup latency** : hooks run each time a session starts or resumes, unlike setup scripts which benefit from environment caching. Keep install scripts fast by skipping work that’s already done, the way the dependency install script does.
 
@@ -597,7 +601,7 @@ To customize the base image, use a setup script to install what you need on top 
 
 Default allowed domains
 
-With **Trusted** network access, sessions can reach the following domains by default. Domains marked with `*` indicate wildcard subdomain matching, so `*.gcr.io` allows any subdomain of `gcr.io`.
+When **Allow package managers** is checked under **Limited** network access, as it is in a new environment, sessions can reach the following domains. Domains marked with `*` indicate wildcard subdomain matching, so `*.gcr.io` allows any subdomain of `gcr.io`.
 
 Anthropic services
 

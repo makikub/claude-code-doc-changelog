@@ -380,7 +380,7 @@ The gateway carries model requests, but Claude Code also sends nonessential back
 Setting the variable has these effects and limits:
 
   * It disables auto-updates, so plan for another update path, such as your package manager or managed distribution.
-  * It suppresses the [fast mode](</docs/en/fast-mode>) availability check. Unless a previous check already enabled fast mode on the machine, `/fast` reports that fast mode is unavailable.
+  * It suppresses the [fast mode](</docs/en/fast-mode>) availability check. On the Anthropic API, if `/fast` then reports that fast mode is unavailable, see [use fast mode behind proxies and LLM gateways](</docs/en/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways>) to restore fast mode.
   * It doesn’t affect gateway model discovery, which queries only your gateway. Before v2.1.257, the variable also stopped discovery from refreshing, so the picker kept the previously cached list.
   * The WebFetch tool’s [domain safety check](</docs/en/data-usage#webfetch-domain-safety-check>) isn’t affected and still calls `api.anthropic.com`. Turn it off separately with `skipWebFetchPreflight: true` in [settings](</docs/en/settings>) if your network blocks that host.
   * For each telemetry stream and the variable that controls it, see [telemetry services](</docs/en/data-usage#telemetry-services>).

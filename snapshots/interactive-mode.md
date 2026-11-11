@@ -285,7 +285,7 @@ Command| Action
 `d`/`x`| Delete selection
 `y`| Yank selection
 `c`/`s`| Change selection
-`p`| Replace selection with register contents
+`p`/`P`| Replace selection with register contents
 `r{char}`| Replace every selected character with `{char}`
 `~`/`u`/`U`| Toggle, lowercase, or uppercase selection
 `>`/`<`| Indent or dedent selected lines
@@ -348,7 +348,7 @@ Press `Ctrl+R` to interactively search through your command history. In [fullscr
      * Press `Ctrl+C` to cancel and restore your original input
      * Press `Backspace` on empty search to cancel
 
-Accepting a match or canceling the search takes effect immediately, even while Claude Code is still loading the history.
+Accepting a match or canceling the search takes effect immediately, even while Claude Code is still loading the history. To find an earlier prompt when all you remember is something long you pasted into it, such as an error log, press `Ctrl+R` and type a word from the paste. Requires Claude Code v2.1.314 or later.
 
 ##
 
