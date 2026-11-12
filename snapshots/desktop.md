@@ -154,15 +154,23 @@ If you closed the notice, open the file again to bring it back.
 
 Turn off scripts in SSH and WSL previews for your organization
 
-To keep HTML previews in SSH and WSL sessions from running scripts, set the `disableBrowserExternalNavigation` managed setting to `true`. With this setting, users also can’t browse external sites in the Browser pane. Set it in your [server-managed settings](</docs/en/server-managed-settings>), or in a [Claude Code MDM policy or managed settings file](</docs/en/managed-settings#where-each-mechanism-stores-the-policy>) on the computer that runs Desktop. Desktop doesn’t read it from the remote machine or the WSL distribution. With a [third-party provider](</docs/en/third-party-integrations>), use the MDM policy or the file.
+To keep HTML previews in SSH and WSL sessions from running scripts, set the `disableRemotePreviewScripts` managed setting to `true`. Users can still browse external sites. Requires Claude Desktop v5.1231.0 or later.
+
+Earlier versions ignore `disableRemotePreviewScripts`. To stop the scripts there, update Desktop, or also set `disableBrowserExternalNavigation` to `true`. Users then can’t browse external sites on any computer that receives `disableBrowserExternalNavigation`.
+
+Set each key in your [server-managed settings](</docs/en/server-managed-settings>), or in a [Claude Code MDM policy or managed settings file](</docs/en/managed-settings#where-each-mechanism-stores-the-policy>) on the computer that runs Desktop. Desktop doesn’t read these keys from the remote machine, the WSL distribution, a [`policyHelper`](</docs/en/settings-reference#policyhelper>), or Desktop’s own policies. With a [third-party provider](</docs/en/third-party-integrations>), use the MDM policy or the file.
 
 If the computer that runs Desktop receives no Claude Code managed settings yet, also set [`parentSettingsBehavior`](</docs/en/settings-reference#parentsettingsbehavior>) to `"merge"` in the managed settings that you create. Desktop passes its own policy to Claude Code, and without `"merge"`, Claude Code [ignores that policy](</docs/en/managed-settings#let-an-embedding-host-add-policy>) once the computer has managed settings. On Windows, if you create a managed settings file, users also lose WSL sessions until you [allow them](</docs/en/admin-setup#wsl-sessions-in-claude-code-desktop>).If the computer already receives Claude Code managed settings, add the setting to those, and leave `parentSettingsBehavior` as it is there. On a computer with more than one MDM policy or managed settings file, use the [highest-ranked one](</docs/en/managed-settings#how-claude-code-combines-managed-sources>).
 
 Then have users restart Desktop to make sure that the setting applies, and tell them what to expect:
 
-  * **Files they open** : the preview doesn’t run scripts, so charts and tables that scripts draw stay empty
+  * **Files they open** : the preview doesn’t run scripts, so charts and tables that scripts draw stay empty. Its notice starts with `This preview doesn't run scripts`.
   * **Previews that are running scripts** : if Desktop picks up the setting before the restart, they close. Users see `This preview closed because scripts are turned off for previews. Open the file again to view it without scripts.`
   * **Files they export** : if a user exports a file and opens it in a browser, its scripts run there, with or without this setting
+
+##### Check a computer for scripts that still run
+
+After the restart, open an HTML file from an SSH or WSL session on that computer. If the notice above the preview starts with `This preview doesn't load anything from the web`, scripts still run there. Check Desktop’s version, where you put the key, and that its value is the JSON Boolean `true`.
 
 ###
 
@@ -2177,6 +2185,7 @@ Key| Description
 `browserExternalPageTools`| set to `"disabled"` to prevent Claude from using tools to read or act on external pages in the Browser pane. Users can still navigate to external sites themselves, and local dev server previews are unaffected.
 `disableMobileSimulatorTools`| set to `true` to block Claude’s tools for controlling and capturing devices in the [iOS Simulator pane](</docs/en/desktop-ios-simulator#turn-off-simulator-access>). The pane stays usable for the user’s own taps; only Claude’s access is removed. The value must be the JSON boolean `true`; the string `"true"` is ignored.
 `disableBrowserExternalNavigation`| set to `true` to turn off external browsing in the Browser pane entirely. Neither users nor Claude can navigate to external sites, and localhost dev server previews are unaffected. HTML previews in SSH and WSL sessions don’t run scripts. The value must be the JSON boolean `true`; the string `"true"` is ignored.
+`disableRemotePreviewScripts`| set to `true` to turn off only the scripts in HTML previews in SSH and WSL sessions. Desktop doesn’t read it from the remote machine or the WSL distribution. The value must be the JSON boolean `true`; the string `"true"` is ignored. Requires Claude Desktop v5.1231.0 or later.
 `sshConfigs`| pre-configure SSH connections that appear in the environment selector. Users can’t delete managed connections or edit anything but their own **Worktree folder**.
 `sshHostCommands`| give users SSH connections whose host comes from a command, alongside their own. Desktop reads it from the managed settings file or MDM policy on the computer, and ignores it in [server-managed settings](</docs/en/server-managed-settings>). Requires Claude Desktop v3.6556.0 or later on macOS or Linux, or v4.16336.0 or later on Windows, signed in with a Claude account. On Windows, Desktop also has to connect through the OpenSSH client.
 `sshHostAllowlist`| restrict SSH sessions to hosts whose resolved hostname matches one of these patterns. Read from managed settings only.
@@ -2184,7 +2193,12 @@ Key| Description
 `disableSshSavedPasswords`| set to `true` to stop Desktop from offering to remember SSH passwords and from using or showing the ones it saved earlier. Turning it on doesn’t delete them. Read from managed settings only. Requires Claude Desktop v1.49585.0 or later.
 `managedMcpServers`| push MCP server configurations to all users. Available in third-party (3P) Desktop deployments only. In each entry, set a transport of `"http"`, `"sse"`, or `"stdio"`, connection details, and optionally a `toolPolicy` map to restrict which of that server’s tools users can invoke. Deliver it through the managed settings file, MDM, or a Claude apps gateway policy’s [`desktop` block](</docs/en/claude-apps-gateway-config#claude-desktop-overlay>), since 3P deployments don’t receive admin-console settings. To deliver it through the gateway, you need Claude Code v2.1.232 or later on the gateway server. This is the desktop app’s own key; Claude Code reads a [same-named managed setting](</docs/en/managed-mcp#provide-servers-through-managed-settings>) of its own, with a different entry shape.
 
-If you turn a feature off with `browserExternalPageTools`, `disableMobileSimulatorTools`, or `disableBrowserExternalNavigation` in a computer’s [highest-ranked MDM policy or managed settings file](</docs/en/managed-settings#how-claude-code-combines-managed-sources>), the feature stays off there. It stays off even when your [server-managed settings](</docs/en/server-managed-settings>) leave that key unset or allow the feature. Don’t use a user-level `HKCU` registry value for this. To turn the feature back on, remove the value wherever you set it. Requires Claude Desktop v4.4212.0 or later. Which managed settings reach a Desktop session depends on where that session runs. Model restrictions such as [`availableModels`](</docs/en/model-config#restrict-model-selection>) are enforced in Desktop’s Claude Code sessions the same way as in the terminal CLI; see [surface coverage](</docs/en/model-config#surface-coverage>).
+If you turn a feature off with one of these four keys in a computer’s [highest-ranked MDM policy or managed settings file](</docs/en/managed-settings#how-claude-code-combines-managed-sources>), the feature stays off there:
+
+  * **`browserExternalPageTools`, `disableMobileSimulatorTools`, `disableBrowserExternalNavigation`**: requires Claude Desktop v4.4212.0 or later
+  * **`disableRemotePreviewScripts`** : requires Claude Desktop v5.1231.0 or later
+
+It stays off even when your [server-managed settings](</docs/en/server-managed-settings>) leave that key unset or allow the feature. Don’t use a user-level `HKCU` registry value for this. To turn the feature back on, remove the value wherever you set it. Which managed settings reach a Desktop session depends on where that session runs. Model restrictions such as [`availableModels`](</docs/en/model-config#restrict-model-selection>) are enforced in Desktop’s Claude Code sessions the same way as in the terminal CLI; see [surface coverage](</docs/en/model-config#surface-coverage>).
 
   * **Local sessions on this machine** : a managed settings file deployed to disk applies. Managed settings pushed remotely through the admin console also reach these sessions on Anthropic’s API when the session authenticates with an [eligible login](</docs/en/server-managed-settings#platform-availability>), following the same [settings precedence](</docs/en/settings#settings-precedence>) as the terminal CLI.
   * **Cloud sessions** : receive [server-managed settings](</docs/en/server-managed-settings>); device-deployed files don’t reach them, because they run on Anthropic-managed VMs. Sessions routed to a [self-hosted environment](</docs/en/self-hosted-environments>) also read the managed settings file in the runner image. [How Claude Code combines managed sources](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) says when that file applies.
@@ -2249,7 +2263,10 @@ Replace the placeholder with your claude.ai organization ID, shown in [claude.ai
 
 Check the `forceLoginOrgUUID` value before you deploy it. If the ID isn’t your organization’s, people in your organization can’t use Claude Desktop unless they also belong to an organization with that ID. To recover, deploy the correct ID and have them restart Claude Desktop.
 
-If you set `forceLoginMethod` and `forceLoginOrgUUID` in Claude Code’s [managed settings](</docs/en/managed-settings>), you don’t change the Claude Desktop sign-in screen.
+If you set `forceLoginMethod` and `forceLoginOrgUUID` in Claude Code’s [managed settings](</docs/en/managed-settings>), you don’t change the Claude Desktop sign-in screen. A person can still use Claude Desktop with their own Claude API key or [Claude Console account](<https://claude.com/docs/third-party/claude-desktop/claude-api#which-devices-offer-the-claude-api-account-sign-in>), and run Code tab sessions that way. To stop that, also deploy `forceLoginOrgUUID` in the Claude Desktop policy (in `HKLM` on Windows), with your claude.ai organization ID. Unless the policy itself [selects the Claude API](<https://claude.com/docs/third-party/claude-desktop/claude-api#choose-an-authentication-approach>), Claude Desktop stops using a person’s own API key or Console account at the app’s next launch. Check two cases before you deploy it:
+
+  * **Claude Console organizations** : don’t deploy `forceLoginOrgUUID` on its own with a Claude Console organization’s ID, or you’d lock your people out of Claude Desktop. See [Which devices offer the Claude API account sign-in](<https://claude.com/docs/third-party/claude-desktop/claude-api#which-devices-offer-the-claude-api-account-sign-in>) instead.
+  * **Enterprise Admin Console** : if it delivers your computers’ Claude Desktop configuration, update them to Claude Desktop v2.37337.0 or later first, because earlier versions ignore it once this key is set. See [Keep a device on its managed profile](<https://claude.com/docs/third-party/claude-desktop/admin-console#keep-a-device-on-its-managed-profile>).
 
 ###
 

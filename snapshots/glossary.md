@@ -68,7 +68,7 @@ Notes Claude writes for itself based on your corrections and preferences, stored
 
 Auto mode
 
-A permission mode where a separate classifier model reviews actions instead of you, so Claude Code runs most of them without asking you. Claude Code still asks you before actions your explicit ask rules match. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection. Tool results are stripped from what it sees, so hostile content in a file or web page can’t manipulate it directly.
+A permission mode where a separate classifier model reviews actions instead of you, so Claude Code runs most of them without asking you. Claude Code still asks you before actions your explicit ask rules match. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection.
 
   * **Claude Code v2.1.283 or later** : auto mode is the [built-in starting permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) for interactive terminal and VS Code sessions
   * **Earlier versions** : auto mode is the built-in starting permission mode only on Pro, Max, Ultra, and Team plans
@@ -363,7 +363,7 @@ A dialog accepting a directory before Claude Code loads its configuration. Accep
 
 Prompt injection
 
-Hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you never asked for. Claude Code’s defenses include the permission system, command injection detection, and trust verification. Auto mode adds a server-side probe that scans tool results for suspicious content and a classifier that reviews actions with tool results stripped, so injected text can’t manipulate it directly. Learn more: [Protect against prompt injection](</docs/en/security#protect-against-prompt-injection>)
+Hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you didn’t ask for. Claude Code’s defenses include the permission system, command injection detection, and trust verification. In auto mode, a server-side probe scans tool results for suspicious content, and a classifier reviews actions. Learn more: [Protect against prompt injection](</docs/en/security#protect-against-prompt-injection>)
 
 ##
 

@@ -126,7 +126,7 @@ If you switch models with `/model`, the switch also reaches [subagents that inhe
   * **Agent SDK or an app** : with Claude Code v2.1.268 or later, unless Claude Code accepts a model ID locally, as it does for your custom model option, it confirms the ID with your provider the first time the session switches to it. The confirmation runs on every provider, and an ID your provider doesn’t offer is refused at the switch instead of failing on your next request.
   * **Remote Control** : on the Anthropic API, Claude Code checks the value locally and sends no request.
 
-See [Model is not a recognized model id](</docs/en/errors#model-is-not-a-recognized-model-id>) and [Model not found](</docs/en/errors#model-not-found>) for the messages. If you set the model with the `--model` flag, the `ANTHROPIC_MODEL` environment variable, or the `model` setting, Claude Code doesn’t reject a mistyped value up front. The session starts, and the first request produces [There’s an issue with the selected model](</docs/en/errors#theres-an-issue-with-the-selected-model>). On the Anthropic API, a value that doesn’t start with `claude-` and nearly spells a model name or alias can also produce a startup warning that suggests it. When the requested model has a scheduled retirement date or is automatically remapped to a newer version, Claude Code shows a warning that names the requested model. Interactive sessions show it as a startup notice. From v2.1.182, the same warning is written to stderr in [non-interactive mode](</docs/en/headless>) when using the default text output format. The check also covers a `model` set in [subagent frontmatter](</docs/en/sub-agents>). The stderr warning is suppressed for `--output-format json` and `stream-json`; read the actual model from the `modelUsage` field of the [result message](</docs/en/headless#get-structured-output>) instead. For example, start a session on Opus:
+See [Model is not a recognized model id](</docs/en/errors#model-is-not-a-recognized-model-id>) and [Model not found](</docs/en/errors#model-not-found>) for the messages. If you set the model with the `--model` flag, the `ANTHROPIC_MODEL` environment variable, or the `model` setting, Claude Code doesn’t reject a mistyped value up front. The session starts, and the first request produces [There’s an issue with the selected model](</docs/en/errors#theres-an-issue-with-the-selected-model>). On the Anthropic API, you can see a warning that suggests the closest name if the value nearly spells a model name or alias and doesn’t start with `claude-`. When the requested model has a scheduled retirement date or is automatically remapped to a newer version, Claude Code shows a warning that names the requested model. Interactive sessions show it as a startup notice. From v2.1.182, the same warning is written to stderr in [non-interactive mode](</docs/en/headless>) when using the default text output format. The check also covers a `model` set in [subagent frontmatter](</docs/en/sub-agents>). The stderr warning is suppressed for `--output-format json` and `stream-json`; read the actual model from the `modelUsage` field of the [result message](</docs/en/headless#get-structured-output>) instead. For example, start a session on Opus:
 
     claude --model opus
 
@@ -142,6 +142,20 @@ Example settings file:
         },
         "model": "opus"
     }
+
+####
+
+​
+
+Fix a mistyped model name
+
+Either of these warnings means Claude Code doesn’t recognize the model ID you set, and the ID nearly spells a model name or alias it does recognize:
+
+    ⚠ Model "<model>" isn't recognized · did you mean "<suggestion>"?
+    Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?
+
+  * **You mistyped the ID** : change it to the suggestion wherever you set the model
+  * **The ID is deliberate** : leave it as it is. The session sends it as you wrote it. If the context window Claude Code assumes for it is wrong, correct the window
 
 ####
 
@@ -856,20 +870,6 @@ Claude Code auto-compacts the conversation at the assumed 200K, so if the model�
   * **Any other window** : set [`CLAUDE_CODE_MAX_CONTEXT_TOKENS`](</docs/en/env-vars>) to the window size in tokens in the environment that starts Claude Code, such as `CLAUDE_CODE_MAX_CONTEXT_TOKENS=400000`. For an unrecognized ID that doesn’t start with `claude-` and has no `[1m]` suffix, the variable takes effect on its own. For any other ID, check which IDs it applies to first.
 
 Once Claude Code recognizes the ID or uses the window you gave it, the warning no longer appears when you start a session on that ID.
-
-####
-
-​
-
-Fix a mistyped model name
-
-Either of these warnings means Claude Code doesn’t recognize the model ID you set, and the ID nearly spells a model name or alias it does recognize:
-
-    ⚠ Model "<model>" isn't recognized · did you mean "<suggestion>"?
-    Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?
-
-  * **You mistyped the ID** : change it to the suggestion wherever you set the model
-  * **The ID is deliberate** : leave it as it is. The session sends it as you wrote it. If the context window Claude Code assumes for it is wrong, correct the window
 
 ####
 
