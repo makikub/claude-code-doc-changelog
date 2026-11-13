@@ -5,19 +5,11 @@ Environment variables can control Claude Code behavior such as model selection, 
   * Look up the variables Claude Code reads
   * See which features stop working when a variable turns feature-flag fetching off
 
-##
-
-​
-
-Set environment variables
+## Set environment variables
 
 A variable you set in your shell lasts for that terminal session, while a variable in a settings file applies every time `claude` runs.
 
-###
-
-​
-
-Set variables in your shell
+### Set variables in your shell
 
 Set the variable before launching `claude`:
 
@@ -56,11 +48,7 @@ The assignment line prints nothing on success. To confirm the variable is set, p
 
     echo %API_TIMEOUT_MS%
 
-###
-
-​
-
-Set variables in settings files
+### Set variables in settings files
 
 Add variables under the `env` key in a `settings.json` file, creating the file if it doesn’t exist. Claude Code reads them directly from the file, so they take effect no matter how `claude` was launched. A running session applies new and changed values to its environment when you save the file, but a feature that reads its variables once at startup, such as [OpenTelemetry monitoring](</docs/en/monitoring-usage>), keeps its startup values until you relaunch. Removing a variable from the file doesn’t unset it in a running session; the removal takes effect the next time you launch `claude`.
 
@@ -84,19 +72,11 @@ Managed settings| Everyone in your organization, deployed by an admin
 
 See [Settings files](</docs/en/settings#where-settings-live>) for where each file lives and [Settings precedence](</docs/en/settings#settings-precedence>) for how they combine when more than one sets the same variable.
 
-##
-
-​
-
-Precedence
+## Precedence
 
 Some behaviors have both an environment variable and a dedicated settings key, and which one Claude Code reads first differs per key. For `ANTHROPIC_MODEL` and `CLAUDE_CODE_AUTO_CONNECT_IDE`, Claude Code reads the variable first and uses the `model` or `autoConnectIde` setting only when the variable is unset. For the pair you’re setting, check the variable’s row below and the key’s entry on the [settings reference](</docs/en/settings-reference>). When the same variable is set in both your shell and a settings file `env` block, the settings file value applies in most sessions. Claude Code writes each `env` entry into the process environment, replacing the value inherited from the shell. [How `env` values interact with your shell](</docs/en/settings-reference#how-env-values-interact-with-your-shell>) covers the sessions that keep the inherited value instead, and the [`env` setting](</docs/en/settings-reference#when-claude-code-applies-env-values>) says when it applies them. A few variables are special-cased; the [`env` setting](</docs/en/settings-reference#env>) lists the exceptions. In a settings file you can set a variable but you can’t remove one. To override a variable you can’t unset, such as a stale `CLAUDE_CODE_USE_VERTEX` exported by a shell profile you don’t control, set it to an empty string in the `env` block: `"CLAUDE_CODE_USE_VERTEX": ""`. Claude Code treats the empty value as unset for provider selection. Subprocesses still inherit the empty value. Between settings files, `env` values follow [settings precedence](</docs/en/settings#settings-precedence>), so a managed settings entry overrides the same variable in user or project settings. Project and local settings can’t set some variables, such as `CLAUDE_CONFIG_DIR` and the OpenTelemetry exporter variables. [Variables Claude Code ignores in `env`](</docs/en/settings-reference#variables-claude-code-ignores-in-env>) lists them, along with the OpenTelemetry off values that still apply. How an environment variable interacts with CLI flags and in-session commands varies per feature: `--model` and `/model` override `ANTHROPIC_MODEL`, while `CLAUDE_CODE_EFFORT_LEVEL` overrides `--effort` and `/effort`. When a variable interacts with another configuration source, its row in the Variables list states the precedence or links to the page that documents it. Claude Code reads shell environment variables at startup, so changes to them take effect the next time you launch `claude`. Variables set under the `env` key in settings files are reapplied to a running session when the file changes, with the startup-only exception described in Set variables in settings files.
 
-##
-
-​
-
-Variables
+## Variables
 
 Numeric variables such as timeouts, token budgets, and retry counts accept scientific notation and digit-separator spellings in addition to plain digits, except where a variable’s row notes it takes plain digits only. For example, Claude Code reads `2e3` as 2000 and `64_000` as 64000. Before v2.1.211, these spellings could silently set a much smaller value, such as `1e6` setting a timeout to 1.
 
@@ -518,11 +498,7 @@ Variable| Purpose
 
 Standard OpenTelemetry exporter variables (`OTEL_METRICS_EXPORTER`, `OTEL_LOGS_EXPORTER`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_PROTOCOL`, `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_METRIC_EXPORT_INTERVAL`, `OTEL_RESOURCE_ATTRIBUTES`, and signal-specific variants) are also supported. See [Monitoring](</docs/en/monitoring-usage>) for configuration details. Set `CLAUDE_CODE_ENABLE_TELEMETRY` and the OpenTelemetry variables that turn on export, choose its destination, or capture content in your shell, user settings, or managed settings. Claude Code [ignores them in project and local settings](</docs/en/settings-reference#variables-claude-code-ignores-in-env>), apart from the off values that section describes. `OTEL_RESOURCE_ATTRIBUTES` and the export interval, timeout, and compression variables, such as `OTEL_METRIC_EXPORT_INTERVAL`, still apply from project and local settings.
 
-##
-
-​
-
-What the subprocess environment scrub removes
+## What the subprocess environment scrub removes
 
 When you set `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` to `1`, Claude Code removes credentials from the environments of the subprocesses it starts, such as Bash commands, hooks, and stdio MCP servers. This reduces what a prompt injection attack can read. The Claude Code process keeps the credentials for its own API calls. The scrub recognizes a credential by its variable name or by the shape of its value, so use it as one layer alongside narrow [permission rules](</docs/en/permissions>) rather than as the only control. The table shows what the scrub does to example variables:
 
@@ -540,11 +516,7 @@ A secret whose variable name and value don’t look like a credential| Leaves it
 
 Because the scrub leaves `GITHUB_TOKEN` in place, give a GitHub Actions job the narrowest `permissions` it needs. To remove a GitHub token from sandboxed Bash commands, add a `deny` entry under [`sandbox.credentials`](</docs/en/sandboxing#protect-credentials>). Leave the scrub unset if a subprocess needs one of the removed variables. On Linux, the scrub also runs Bash subprocesses in an isolated PID namespace so they can’t read host process environments through `/proc`. As a side effect, `ps`, `pgrep`, and `kill` can’t see or signal host processes. Before v2.1.251, the scrub removed `ANTHROPIC_API_KEY` and `AWS_SECRET_ACCESS_KEY` and left the table’s other example variables unchanged.
 
-##
-
-​
-
-Features that need feature-flag fetching
+## Features that need feature-flag fetching
 
 Claude Code turns some features on through feature flags it fetches from Anthropic. Claude Code skips that fetch in these sessions:
 
@@ -570,22 +542,14 @@ With fetching off, you can’t:
   * Have Claude [treat large pastes as pasted rather than typed text](</docs/en/terminal-config#how-claude-treats-pasted-text>); the content behind a `[Pasted text #N]` placeholder reaches Claude unmarked
   * Have Claude Code [exclude MCP tools whose input schema the API would reject](</docs/en/mcp#tools-with-invalid-input-schemas>)
 
-###
-
-​
-
-First session after an install or upgrade
+### First session after an install or upgrade
 
 In your first session after you install Claude Code, or upgrade to a version that adds a feature, a flag-gated feature can be missing. When Claude Code fetches its feature flags during that session, it saves them on the machine, so your next session on that machine has the feature. In setups such as these, sessions after the first also start without freshly fetched flags:
 
   * **A clean environment on every run** : if each run starts in a CI container, or any other environment without the flags an earlier session saved, every run is a first session
   * **A gateway token with no API key** : if you authenticate with `ANTHROPIC_AUTH_TOKEN` and no API key, and `ANTHROPIC_BASE_URL` points at a host other than Anthropic’s, such as an [LLM gateway](</docs/en/llm-gateway>), Claude Code has no credential to fetch the flags with
 
-##
-
-​
-
-See also
+## See also
 
   * [Settings](</docs/en/settings>): all `settings.json` configuration, including the `env` key
   * [CLI reference](</docs/en/cli-reference>): launch-time flags

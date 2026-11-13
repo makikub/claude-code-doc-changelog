@@ -2,11 +2,7 @@ By default, the Agent SDK yields a complete `AssistantMessage` for each non-empt
 
 This page covers output streaming (receiving tokens in real-time). For input modes (how you send messages), see [Send messages to agents](</docs/en/agent-sdk/streaming-vs-single-mode>). You can also [stream responses using the Agent SDK via the CLI](</docs/en/headless>).
 
-##
-
-​
-
-Enable streaming output
+## Enable streaming output
 
 To enable streaming, set `include_partial_messages` (Python) or `includePartialMessages` (TypeScript) to `true` in your options. This causes the SDK to yield `StreamEvent` messages containing raw API events as they arrive, in addition to the usual `AssistantMessage` and `ResultMessage`. Your code then needs to:
 
@@ -59,11 +55,7 @@ TypeScript
       }
     }
 
-##
-
-​
-
-StreamEvent reference
+## StreamEvent reference
 
 When partial messages are enabled, you receive raw Claude API streaming events wrapped in an object. The type has different names in each SDK:
 
@@ -81,11 +73,7 @@ Event Type| Description
 `message_delta`| Message-level updates (stop reason, usage)
 `message_stop`| End of the message
 
-##
-
-​
-
-Message flow
+## Message flow
 
 Claude Code emits an `AssistantMessage` as each non-empty content block completes, so a response with a text block and a tool call yields two `AssistantMessage` objects. Each one carries only its own content block, and both share the same message ID, which you read as `message.message.id` in TypeScript and `message.message_id` in Python. With partial messages enabled, each `AssistantMessage` arrives before that block’s `content_block_stop` event, and you receive messages in this order:
 
@@ -106,11 +94,7 @@ Claude Code emits an `AssistantMessage` as each non-empty content block complete
 
 Without partial messages enabled, you receive all message types except `StreamEvent`. Common types include `SystemMessage` (session initialization), `AssistantMessage` (complete content blocks), `ResultMessage` (final result), and a compact boundary message indicating when conversation history was compacted (`SDKCompactBoundaryMessage` in TypeScript; `SystemMessage` with subtype `"compact_boundary"` in Python).
 
-###
-
-​
-
-Handle a stream that’s cut off
+### Handle a stream that’s cut off
 
 If a stream is cut off mid-message, you still receive that message’s `message_stop` before the turn ends. Causes of a cut-off stream include an interrupted turn, a dropped connection, and a fallback to a non-streaming request. `content_block_stop` and `message_delta` can be missing before that `message_stop`:
 
@@ -119,11 +103,7 @@ If a stream is cut off mid-message, you still receive that message’s `message_
 
 Before Claude Code v2.1.290, a cut stream could end the turn without `message_stop`, so a reply you render from stream events could stay shown as in progress. The TypeScript Agent SDK bundles Claude Code v2.1.290 or later from v0.3.290, and the Python Agent SDK from v0.2.164. If a reply stays shown as in progress after the turn ends, update the SDK.
 
-##
-
-​
-
-Stream tool calls
+## Stream tool calls
 
 Tool calls also stream incrementally. You can track when tools start, receive their input as it’s generated, and see when they complete. The example below tracks the current tool being called and accumulates the JSON input as it streams in. It uses three event types:
 
@@ -218,11 +198,7 @@ TypeScript
       }
     }
 
-##
-
-​
-
-Build a streaming UI
+## Build a streaming UI
 
 This example combines text and tool streaming into a cohesive UI. It tracks whether the agent is currently executing a tool (using an `in_tool` flag) to show status indicators like `[Using Read...]` while tools run. Text streams normally when not in a tool, and tool completion triggers a “done” message. This pattern is useful for chat interfaces that need to show progress during multi-step agent tasks.
 
@@ -317,19 +293,11 @@ TypeScript
       }
     }
 
-##
-
-​
-
-Known limitations
+## Known limitations
 
   * **Structured output** : with partial messages enabled, the JSON streams as a tool call’s unvalidated `input_json_delta` chunks, and only the validated result reaches the final `ResultMessage.structured_output`. [Recognize the StructuredOutput tool call](</docs/en/agent-sdk/structured-outputs#recognize-the-structuredoutput-tool-call>) covers how that call appears in your stream.
 
-##
-
-​
-
-Next steps
+## Next steps
 
 Now that you can stream text and tool calls in real-time, explore these related topics:
 

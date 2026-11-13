@@ -1,18 +1,10 @@
 The mods API is the set of methods a mod calls to act: add commands and tools, call a model, run work between events, and reach the file system, processes, and the network. Every hook receives it as its first argument, `$`, with the methods grouped in namespaces such as `$.ui` and `$.fs`. [Events](</docs/en/plugins/mods/events>) decide when a hook runs, and the mods API is what the hook calls once it does. Build your [first mod](</docs/en/plugins/mods/create>) before you start here. For every method, see [mods API methods](</docs/en/plugins/mods/reference#mods-api-methods>) or read [the types for your build](</docs/en/plugins/mods/create#get-the-types-for-your-build>).
 
-##
-
-​
-
-Add a command or a tool
+## Add a command or a tool
 
 A mod can add a command for the user to run and a tool for Claude to call. Register both in a [`session.start`](</docs/en/plugins/mods/reference#session>) hook. Claude Code waits for that hook before the first prompt, so what you register is available from the first turn.
 
-###
-
-​
-
-Add a command
+### Add a command
 
 A command is for the user. Register it, then handle [`command.run`](</docs/en/plugins/mods/reference#commands-and-configuration>) for its name. This example adds a `/standup` command that takes an optional number of days:
 
@@ -30,11 +22,7 @@ A command is for the user. Register it, then handle [`command.run`](</docs/en/pl
 
 After the session starts, `/standup` appears with its description in the list you see when you type `/`. The `argumentHint` shows in the prompt after you type the command and a space, as in `/standup [days]`. When you run `/standup 3`, the second hook returns `Summary for the last 3 day(s): ...`, and the transcript shows that text after the plugin’s name. The hook never calls `next`, because the command has no behavior other than yours. The `text` you return prints in the transcript and Claude reads it. To print nothing, as a command that only opens a [pane](</docs/en/plugins/mods/interface#pick-where-to-draw>) does, return `{}`. To let the command run while Claude is working, add `immediate: true` to the registration. Pick a name that no built-in command uses. Type `/` in a session to see them. `$.command.register` throws for a taken name, with a message such as `"/focus" refused: it is the built-in /focus`. A hook that throws is skipped, so the rest of your `session.start` hook doesn’t run either. Register commands last in that hook, or wrap the call in `try` and `catch`.
 
-###
-
-​
-
-Add a tool
+### Add a tool
 
 A tool is for Claude. Register it with a name, a description Claude reads, and a JSON Schema for its input. Claude sees it under a longer name made of `mcp__`, your plugin’s name, two underscores, and the name you registered. You handle its calls in a [`tool.call`](</docs/en/plugins/mods/events#guard-or-change-a-tool-call>) hook filtered to that full name. This example, from a plugin named `my-mod`, registers `ticket`, so the full name is `mcp__my-mod__ticket`. It gives Claude a tool that looks up a ticket in an issue tracker:
 
@@ -61,11 +49,7 @@ When you ask about a ticket, Claude can call `mcp__my-mod__ticket` with its id. 
 
 When [MCP tool search](</docs/en/mcp#scale-with-mcp-tool-search>) defers a registered tool, Claude sees its name but not its description until it searches for it. If Claude should consider the tool on every turn, add [`isDeferred: false`](</docs/en/plugins/mods/reference#tools>) to the registration to [load the full tool upfront](</docs/en/mcp#exempt-a-server-from-deferral>). The field requires Claude Code v2.1.293 or later, and earlier versions ignore it.
 
-##
-
-​
-
-Call a model
+## Call a model
 
 A mod can send its own requests to a model for a small job such as classifying or summarizing text. `$.model.complete` sends your prompt on its own, and `$.model.fork({ prompt })` sends the current conversation with your prompt at the end. This table compares what each request contains:
 
@@ -79,11 +63,7 @@ Tools| None| Claude’s tools, which the model can’t call
 
 A fork repeats the conversation’s last request, so the Claude API serves most of it from the [prompt cache](</docs/en/prompt-caching>) while the conversation is still cached. Both calls use the session’s credentials, so they bill to the user’s plan, API key, or cloud provider. [The types for your build](</docs/en/plugins/mods/create#get-the-types-for-your-build>) document every `$.model` method.
 
-###
-
-​
-
-Send one prompt
+### Send one prompt
 
 Pass `model` and `prompt` to `$.model.complete`. `prompt` becomes the user message. To give the model instructions, such as a role or an output format, also pass `system`, which becomes the system prompt. This hook answers a `/triage` command, registered as a command, by asking a small model to label the text typed after it:
 
@@ -104,11 +84,7 @@ Pass `model` and `prompt` to `$.model.complete`. `prompt` becomes the user messa
 
 When you run `/triage the export button does nothing`, the mod sends that text to the model and prints its answer, such as `Label: bug`. When the model doesn’t answer, the label is `unknown`. A Claude API failure doesn’t reject the call, so check `r.isAnswered`, and read `r.reason` when it’s `false`. The call rejects for a request Claude Code won’t send, such as a model your organization blocks. [The types for your build](</docs/en/plugins/mods/create#get-the-types-for-your-build>) list the other options, such as `effort`, and the [limits](</docs/en/plugins/mods/reference#limits>) give the `maxTokens` default.
 
-###
-
-​
-
-Use prompt caching
+### Use prompt caching
 
 `$.model.complete` supports the Claude API’s [prompt caching](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching>). The API caches the start of a request, called the prefix, up to a [cache breakpoint](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching#explicit-cache-breakpoints>) that you set. When every call starts with the same long static content, such as instructions or reference material, set a breakpoint at the end of that content. Later calls then read it from the cache instead of paying the full input price for it. To set a breakpoint, pass `prompt` as an array of `{ text }` blocks instead of a string, and add `cache: true` to the last block of the static content. Claude Code sends that block with the API’s `cache_control` field. `system` takes the same array form. To decide between them, see Choose between `prompt` and `system`.
 
@@ -134,11 +110,7 @@ The TTL and the number of breakpoints have these limits:
   * **TTL** : a cache entry lasts five minutes after its last use. The TTL comes from the user’s Claude Code settings, not from the call. For one hour, set [`subagentPromptCacheTtl`](</docs/en/prompt-caching#choose-the-ttl-yourself>) to `1h`.
   * **Breakpoints per request** : the API accepts [up to four](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching#when-to-use-multiple-breakpoints>), and one more comes back as an `api-error` in `r.reason`
 
-####
-
-​
-
-Choose between `prompt` and `system`
+#### Choose between `prompt` and `system`
 
 Put the static content that your calls share at the start of `prompt` unless you know that your requests go directly to the Claude API:
 
@@ -148,11 +120,7 @@ Put the static content that your calls share at the start of `prompt` unless you
 
 `system` comes before `prompt` in the prefix, so a breakpoint in `prompt` covers `system` too, and a call with a different `system` misses the cache.
 
-####
-
-​
-
-Check for cache hits
+#### Check for cache hits
 
 The result of `$.model.complete` has a `usage` object with the API’s [cache fields](<https://platform.claude.com/docs/en/build-with-claude/prompt-caching#tracking-cache-performance>). `usage.cache_creation_input_tokens` counts the tokens the call wrote to the cache, and `usage.cache_read_input_tokens` counts the tokens it read from the cache. Expect a write on the first call and reads on later calls within the TTL. If every call writes and none reads, the prefix differs between calls or the calls are further apart than the TTL. For a prefix that differs, see Choose between `prompt` and `system`. If both fields stay at zero on calls the model answered, nothing was cached. Check for each of these causes:
 
@@ -161,11 +129,7 @@ The result of `$.model.complete` has a `usage` object with the API’s [cache fi
   * **Your gateway strips`cache_control`**: a gateway can [remove the field and still return success](</docs/en/prompt-caching#where-the-cache-lives>)
   * **Another mod rewrites the start of the text** : Claude Code then sends it without breakpoints
 
-###
-
-​
-
-What a `model.complete` hook receives
+### What a `model.complete` hook receives
 
 If you hook the [`model.complete`](</docs/en/plugins/mods/reference#mods-api-calls>) event to inspect or change other mods’ requests, read the text from these fields:
 
@@ -175,11 +139,7 @@ If you hook the [`model.complete`](</docs/en/plugins/mods/reference#mods-api-cal
 
 Claude Code sends the strings your hook passes to `next` and uses the arrays you pass with them to place cache breakpoints. It keeps the leading blocks that still match the start of the string, with their breakpoints, and sends the rest of the string with no breakpoint. For example, `next({ ...e, prompt: e.prompt + NOTE })` keeps the caller’s breakpoints, and a hook that changes the start of `prompt` removes them.
 
-##
-
-​
-
-Run work in the background
+## Run work in the background
 
 Work that outlives one event, such as checking on something once a minute, runs on a timer you start from `session.start`. A hook itself runs for one event and has a [time limit](</docs/en/plugins/mods/reference#limits>) on its own execution time. Time spent waiting on `next` or on a mods API call doesn’t count, except a `$.clock.sleep`. `$.clock.every` and `$.clock.after` take the place of `setInterval` and `setTimeout`, with the delay in milliseconds first: `$.clock.after(5000, fn)` calls `fn` once, five seconds from now. Each returns a timer with a `cancel()` method, and `await $.clock.now()` gives the time in milliseconds. This hook looks up a pull request’s checks once a minute and shows the result under the prompt. `summarize` is a function of your own that turns the command’s JSON output into a few words:
 
@@ -196,11 +156,7 @@ Work that outlives one event, such as checking on something once a minute, runs 
 
 The session starts as usual. A minute later, a line appears under the prompt with a `⚠`, the mod’s name, and then `checks:` and your summary. It’s replaced once a minute after that. The timer’s callback runs outside any event, so it keeps running between turns and doesn’t start one. If the callback throws, the error goes to the [debug log](</docs/en/plugins/mods/troubleshoot#read-the-debug-log>) and the timer runs again at the next interval.
 
-###
-
-​
-
-Show something without starting a turn
+### Show something without starting a turn
 
 A background job can show the user something without starting a turn. Each of these calls puts text in a different place:
 
@@ -236,35 +192,19 @@ The call rejects instead of resolving when `text` isn’t a string, when another
 
 In the [VS Code extension](</docs/en/plugins/mods/interface#draw-in-the-vs-code-extension>), status lines and toasts show above the prompt box instead, and log lines in the conversation.
 
-###
-
-​
-
-Start a turn from a background job
+### Start a turn from a background job
 
 When a background job finds something that needs Claude’s attention, it can start a turn by submitting a prompt with `$.prompt.submit({ text })`. Claude reads the text after a sentence that names your mod as the sender. To send it as the user’s own words, without that sentence, add `asUser: true`. The call waits until the session is idle and then starts a new turn. It resolves when that turn starts, so don’t `await` it in a handler that runs while Claude is working.
 
-###
-
-​
-
-Stop background work
+### Stop background work
 
 Timers stop after the module reloads. For long-running work inside a hook, [`next.signal`](</docs/en/plugins/mods/reference#the-hook-function>) is an `AbortSignal` that aborts when the event your hook is handling is abandoned, for example when the user interrupts. Pass it to anything long-running.
 
-###
-
-​
-
-Calls and background work after the user interrupts a turn
+### Calls and background work after the user interrupts a turn
 
 The reason `the session was stopped and nobody has sent input since` in a result or error means the user stopped a running turn, such as with Esc or **Stop**. After that interruption, calls that start new work in the session are refused until the user’s next input, such as a message at the prompt. Apart from `$.prompt.submit` and `$.command.run`, this handling of calls and background work after an interruption requires Claude Code v2.1.304 or later.
 
-####
-
-​
-
-Retry a refused or dropped call
+#### Retry a refused or dropped call
 
 Make a refused or dropped call again from a [`turn.complete`](</docs/en/plugins/mods/events#follow-a-turn>) hook. Calls stay refused until the user’s next input, and nothing queues or repeats them for you. When a call’s result or error contains one of these strings, keep its arguments for a later retry:
 
@@ -305,11 +245,7 @@ In this example, call `submitPrompt` from your background job in place of `$.pro
 
 Before the user’s next input, `turn.complete` can fire for the interrupted turn itself and for a subagent’s turn, and calls made then are refused again. In that case `submitPrompt` keeps the text for a later `turn.complete`. For a call that rejects, such as `$.command.run`, catch the error and test its message the way `submitPrompt` tests `reason`.
 
-####
-
-​
-
-What refused calls return
+#### What refused calls return
 
 In the results, `<reason>` stands for the reason the call was refused. After an interruption, that’s `the session was stopped and nobody has sent input since`. For other reasons, see Calls refused in `claude -p` runs and Agent SDK sessions.
 
@@ -324,11 +260,7 @@ Some refused calls| Result
 
 When one of these `$.session.send` or `$.tool.call` calls is refused after an interruption in an interactive session, the user can see the [`Stopped:` toast](</docs/en/plugins/mods/troubleshoot#stopped-type-a-message-to-continue>).
 
-####
-
-​
-
-Work your mod started before the interruption
+#### Work your mod started before the interruption
 
 After the user stops a running turn, for example with Esc, some work your mod had already started is dropped and some waits for the user’s next input.
 
@@ -344,11 +276,7 @@ A foreground Bash or PowerShell command from `$.tool.call` that was already runn
 
 When a scheduled job comes due or a monitor raises an event before the user’s next input, the user can see the [`Stopped:` toast](</docs/en/plugins/mods/troubleshoot#stopped-type-a-message-to-continue>).
 
-###
-
-​
-
-Calls refused in `claude -p` runs and Agent SDK sessions
+### Calls refused in `claude -p` runs and Agent SDK sessions
 
 In a `claude -p` run or an [Agent SDK](</docs/en/agent-sdk/overview>) session, a result such as `{ drop: 'the run reached its --max-turns limit' }` means the run refused your mod’s call. A refused `$.prompt.submit` resolves with `{ drop: '<reason>' }`. Other refused calls, such as `$.command.run` and `$.agent.spawn`, give the results shown in What refused calls return with the reason in place of `<reason>`. Find your `<reason>` below for what to do about it:
 
@@ -357,11 +285,7 @@ In a `claude -p` run or an [Agent SDK](</docs/en/agent-sdk/overview>) session, a
   * **`the host has ended its input`** : for example, the SDK application ended its [streaming input](</docs/en/agent-sdk/streaming-vs-single-mode>), or stdin closed on a run started with [`--input-format stream-json`](</docs/en/cli-reference#cli-flags>). The run is ending and takes no more input, so a retry returns the same reason. Have your mod stop making the refused call. If you start the run yourself, next time keep that input open until your mod has no more calls to make.
   * **`the session was stopped and nobody has sent input since`** : the run was interrupted, for example with the Agent SDK’s [`interrupt()`](</docs/en/agent-sdk/typescript#query-object>). To make the call again after the next message from the user or the SDK application, follow Retry a refused or dropped call.
 
-###
-
-​
-
-A `claude -p` run with your mod never exits
+### A `claude -p` run with your mod never exits
 
 If your mod submits a prompt at the end of every turn, each prompt starts another turn. Without [`--max-turns`](</docs/en/cli-reference#cli-flags>) or `--max-budget-usd`, a `claude -p` run that loads the mod goes on until you stop it yourself. To make the run end on its own, add either flag to the command in your shell. If other people start the run, have your mod stop submitting prompts once its work is done. This command adds `--max-turns`:
 
@@ -369,11 +293,7 @@ If your mod submits a prompt at the end of every turn, each prompt starts anothe
 
 Once the run reaches that limit, the mod’s next prompt is refused instead of starting a turn, and the run ends. If the run still goes past the limit, run `claude --version` in your shell, and [update Claude Code](</docs/en/setup#update-claude-code>) if yours is earlier than v2.1.304. The mod’s prompts are refused at the limit from v2.1.299. If your mod spawns subagents, their turns count toward `--max-turns` from v2.1.304.
 
-##
-
-​
-
-Send and receive messages between sessions
+## Send and receive messages between sessions
 
 A mod can send a plain-text message to another of your sessions, to one of this session’s subagents, or to a teammate in its [agent team](</docs/en/agent-teams>). It can also observe the messages that arrive and leave. To send one, call `$.session.send({ to, text })`, which makes the same delivery the SendMessage tool makes. Set `to` by who receives the message:
 
@@ -401,11 +321,7 @@ Event| Fires when| Useful fields
 
 A session set to [refuse inbound messages](</docs/en/cross-session-messaging#control-inbound-messages>) refuses a message before `session.receive` fires, so a hook never sees it. A message that’s held for your approval reaches the hook first, so a mod can read a message you haven’t approved yet. The hook’s `next(e)` rejects when the message isn’t delivered. The sender’s name on a received message is whatever the sender wrote, so don’t base a decision on it.
 
-##
-
-​
-
-Reach files, processes, and the network
+## Reach files, processes, and the network
 
 A mod reaches the file system, processes, and the network through the mods API, with the same permissions as the user running Claude Code. The hooks module itself has no Node.js APIs, no timer globals such as `setTimeout`, and no network or file access of its own. Standard JavaScript and web APIs such as `URL`, `TextEncoder`, `AbortController`, and `crypto.subtle` are available. Each namespace below covers one kind of access:
 
@@ -432,11 +348,7 @@ Every one of these calls is itself an event, named for its namespace and method 
   * **`$.process.spawn started, and a plugin withheld its result:`** : the refusing mod hadn’t read the command’s output to the end. Claude Code stops the command if it’s still running.
   * **`$.process.spawn ran, and a plugin withheld its result:`** : the refusing mod had read the command’s output to the end, so the command had exited
 
-###
-
-​
-
-Read all settings, one source, or one key
+### Read all settings, one source, or one key
 
 `$.settings.read()` resolves to one object that holds the settings from all sources in use, merged by [precedence](</docs/en/settings#settings-precedence>). Pass `{ source }` to read one source instead, `{ key }` to read one key, or both:
 
@@ -457,11 +369,7 @@ For `source`, pass the name of the one settings source to read:
 
 For `key`, pass the exact name of one top-level key, not a dotted path into a nested object. The `key` argument requires Claude Code v2.1.304 or later.
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [React to events](</docs/en/plugins/mods/events>): hook tool calls, prompts, and turns
   * [Draw in the interface](</docs/en/plugins/mods/interface>): show what your mod collects in a pane or above the prompt

@@ -4,20 +4,12 @@ Use the Agent SDK to build an AI agent that reads your code, finds bugs, and fix
   2. Create a file with some buggy code
   3. Run an agent that finds and fixes the bugs automatically
 
-##
-
-​
-
-Prerequisites
+## Prerequisites
 
   * **Node.js 18.14+** or **Python 3.10+**
   * An **Anthropic account**. If you don’t have one, [sign up here](<https://platform.claude.com/>).
 
-##
-
-​
-
-Setup
+## Setup
 
 1
 
@@ -105,11 +97,7 @@ See the setup guides for [Amazon Bedrock](</docs/en/amazon-bedrock>), [Claude Pl
 
 Unless previously approved, Anthropic does not allow third party developers to offer claude.ai login or rate limits for their products, including agents built on the Claude Agent SDK. Use the API key authentication methods described in this document instead.
 
-##
-
-​
-
-Create a buggy file
+## Create a buggy file
 
 This quickstart walks you through building an agent that can find and fix bugs in code. First, you need a file with some intentional bugs for the agent to fix. Create `utils.py` in the `my-agent` directory and paste the following code:
 
@@ -127,11 +115,7 @@ This code has two bugs:
   1. `calculate_average([])` crashes with division by zero
   2. `get_user_name(None)` crashes with a TypeError
 
-##
-
-​
-
-Build an agent that finds and fixes bugs
+## Build an agent that finds and fixes bugs
 
 Create `agent.py` if you’re using the Python SDK, or `agent.ts` for TypeScript. Use `agent.mts` instead if your existing project uses CommonJS:
 
@@ -197,11 +181,7 @@ The `async for` loop keeps running as Claude thinks, calls tools, observes resul
 
 This example uses streaming to show progress in real-time. If you don’t need live output (for example, for background jobs or CI pipelines), you can collect all messages at once. See [Streaming vs. single-turn mode](</docs/en/agent-sdk/streaming-vs-single-mode>) for details.
 
-###
-
-​
-
-Run your agent
+### Run your agent
 
 Your agent is ready. Run it with the following command:
 
@@ -231,11 +211,7 @@ This is what makes the Agent SDK different: Claude executes tools directly inste
 
 If you see an authentication error such as `Not logged in` or `Invalid API key`, make sure you’ve set the `ANTHROPIC_API_KEY` environment variable in the shell where you run your agent. The SDK doesn’t load `.env` files automatically.For the causes and fixes behind these and other authentication errors, see [Authentication errors](</docs/en/errors#authentication-errors>) in the Error reference.
 
-###
-
-​
-
-Try other prompts
+### Try other prompts
 
 Now that your agent is set up, try some different prompts:
 
@@ -243,11 +219,7 @@ Now that your agent is set up, try some different prompts:
   * `"Add type hints to all functions in utils.py"`
   * `"Create a README.md documenting the functions in utils.py"`
 
-###
-
-​
-
-Customize your agent
+### Customize your agent
 
 You can modify your agent’s behavior by changing the options. Here are a few examples: **Add web search capability:**
 
@@ -305,11 +277,7 @@ TypeScript
 
 With `Bash` enabled, try: `"Write unit tests for utils.py, run them, and fix any failures"` Each of these snippets sets fields on the same options object. For more information, see [Configure your agent](</docs/en/agent-sdk/configuration>).
 
-##
-
-​
-
-Key concepts
+## Key concepts
 
 **Tools** control what your agent can do:
 
@@ -321,11 +289,7 @@ Tools| What the agent can do
 
 **Permission modes** control how much human oversight you want. The SDK evaluates the active mode together with your allow and deny rules in a fixed order, described in [How permissions are evaluated](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>). For the full list of modes, their behavior, and when to use each, see [Permission mode in How the agent loop works](</docs/en/agent-sdk/agent-loop#permission-mode>).
 
-##
-
-​
-
-Next steps
+## Next steps
 
 Now that you’ve created your first agent, learn how to extend its capabilities and tailor it to your use case:
 

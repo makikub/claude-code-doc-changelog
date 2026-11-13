@@ -2,11 +2,7 @@
 
 This page builds on the [GitHub Actions setup](</docs/en/github-actions#setup>). It assumes you already know the workflow file and the `anthropics/claude-code-action` step, and covers only what a cloud provider changes.
 
-##
-
-​
-
-Choose your provider
+## Choose your provider
 
 The Claude Code GitHub Action supports three providers, and the setup steps below differ only in the cloud-side configuration. Use the one where your organization already has Claude model access. You tell the Claude Code GitHub Action which provider to use with one input in the `anthropics/claude-code-action` step’s `with:` block:
 
@@ -16,11 +12,7 @@ The Claude Code GitHub Action supports three providers, and the setup steps belo
 
 The complete workflow examples under Set up the integration already include the input for each provider.
 
-##
-
-​
-
-Prerequisites
+## Prerequisites
 
 Before you start, you need:
 
@@ -31,11 +23,7 @@ Before you start, you need:
     * **Google Cloud’s Agent Platform** : a project with the Agent Platform API enabled and access to Claude models. See [Claude Code on Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>)
     * **Microsoft Foundry** : a Foundry resource with a Claude model deployment. See [Claude Code on Microsoft Foundry](</docs/en/microsoft-foundry>)
 
-##
-
-​
-
-Set up the integration
+## Set up the integration
 
 Beyond the prerequisites, you create a GitHub identity for the Claude Code GitHub Action, the cloud-side trust configuration, the repository secrets, and the workflow file. The steps below walk through each.
 
@@ -88,7 +76,7 @@ Note the provider’s full resource name and the service account’s email addre
 Create a Microsoft Entra application with a federated credential for your repository, following [Microsoft’s guide to authenticating from GitHub Actions](<https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-openid-connect>):
 
   * Register a Microsoft Entra application and add a federated identity credential that trusts tokens GitHub issues to your repository. A user-assigned managed identity works in place of an application. Both have the client ID you note below
-  * Assign the application the `Azure AI User` role on your Foundry resource. See [Azure RBAC configuration](</docs/en/microsoft-foundry#azure-rbac-configuration>) for a narrower custom role
+  * Assign the application the `Foundry User` role on your Foundry resource. See [Azure RBAC configuration](</docs/en/microsoft-foundry#azure-rbac-configuration>) for the other built-in role and custom roles
 
 Note the application’s client ID, your tenant ID, and your subscription ID. You add them as secrets in the next step.
 
@@ -289,22 +277,14 @@ Test the setup
 
 Mention `@claude` in an issue or PR comment, then watch the run in the repository’s Actions tab. Claude replies in a comment on the same issue or PR.
 
-##
-
-​
-
-Troubleshooting
+## Troubleshooting
 
 A failing run usually breaks in one of two places:
 
   * **Authentication errors** : usually an OIDC misconfiguration. Check that the workflow includes the `id-token: write` permission, that the trust configuration’s repository condition matches your repository exactly, and that the secret names in your workflow match the ones you added
   * **Trigger and CI problems** : these behave the same as when the Claude Code GitHub Action calls the Claude API. See the main page’s [troubleshooting section](</docs/en/github-actions#troubleshooting>) and the Claude Code GitHub Action’s [FAQ](<https://github.com/anthropics/claude-code-action/blob/main/docs/faq.md>)
 
-##
-
-​
-
-What’s next
+## What’s next
 
   * [Claude Code GitHub Actions](</docs/en/github-actions>) for examples, parameters, and best practices
   * [Claude Code on Amazon Bedrock](</docs/en/amazon-bedrock>) for Bedrock model IDs and regions

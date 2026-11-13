@@ -5,11 +5,7 @@
   * [Claude Agent SDK](</docs/en/agent-sdk/overview>): custom automation outside GitHub Actions. The Claude Code GitHub Action is built on the SDK
   * [GitHub Enterprise Server](</docs/en/github-enterprise-server>): Claude Code with self-hosted GitHub
 
-##
-
-​
-
-Setup
+## Setup
 
 You can set up the Claude Code GitHub Action in one of two ways:
 
@@ -18,11 +14,7 @@ You can set up the Claude Code GitHub Action in one of two ways:
 
 For either path, you need admin access to the repository.
 
-###
-
-​
-
-Quick setup
+### Quick setup
 
 `/install-github-app` works only with github.com repositories. If your repository’s git remote is on gitlab.com or bitbucket.org, the command prints a notice and exits instead of starting setup. To run Claude Code from GitLab pipelines, see [Claude Code GitLab CI/CD](</docs/en/gitlab-ci-cd>). Before you start, install the [GitHub CLI](<https://cli.github.com>) and authenticate it with `gh auth login`. Claude Code checks for it and warns you if it’s missing. Open `claude` in the repository you want to connect, run `/install-github-app`, and follow the prompts. Claude Code installs the Claude GitHub App, then sets up an authentication secret for the workflows:
 
@@ -39,11 +31,7 @@ After installing the GitHub App, Claude Code asks whether to continue with GitHu
   * When you install the GitHub App, you grant it several permissions. See GitHub App permissions for the full set
   * Quick setup works with the Claude API and Claude subscriptions. If you use Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, see [Use Claude Code GitHub Actions with cloud providers](</docs/en/github-actions-cloud-providers>)
 
-###
-
-​
-
-Manual setup
+### Manual setup
 
 To configure the Claude Code GitHub Action without running `/install-github-app`, install the app, add a secret, and copy a workflow file yourself:
 
@@ -78,11 +66,7 @@ Copy [examples/claude.yml](<https://github.com/anthropics/claude-code-action/blo
 
 After setup, test the Claude Code GitHub Action by tagging `@claude` in an issue or PR comment.
 
-###
-
-​
-
-Set up for an organization
+### Set up for an organization
 
 With quick setup or manual setup, you configure one repository at a time. To roll the Claude Code GitHub Action out across an organization:
 
@@ -99,11 +83,7 @@ For a secret shared across repositories, authenticate with an API key from the [
 
 Grant the workflow the `id-token: write` permission, which the Claude Code GitHub Action needs for the federation exchange even when you pass your own `github_token`. See the [Claude Code GitHub Action’s setup guide](<https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md>) for the Console-side configuration. For data handling and retention questions in a security review, see [data usage](</docs/en/data-usage>) and [security](</docs/en/security>).
 
-###
-
-​
-
-Uninstall
+### Uninstall
 
 To remove the Claude Code GitHub Action, undo each piece of the setup that applies to your installation:
 
@@ -113,11 +93,7 @@ To remove the Claude Code GitHub Action, undo each piece of the setup that appli
 
 If you configured a [cloud provider](</docs/en/github-actions-cloud-providers>), also delete the provider secrets, such as `AWS_ROLE_TO_ASSUME`, the `GCP_*` secrets, or the `AZURE_*` secrets, and uninstall the custom GitHub App along with its `APP_ID` and `APP_PRIVATE_KEY` secrets.
 
-###
-
-​
-
-GitHub App permissions
+### GitHub App permissions
 
 The [Claude GitHub App](<https://github.com/apps/claude>) is shared by every Claude feature that integrates with GitHub, including the Claude Code GitHub Action, [Code Review](</docs/en/code-review>), and [auto-fix for pull requests](</docs/en/claude-code-on-the-web#auto-fix-pull-requests>) in cloud sessions. A GitHub App has a single permission set covering all of its features, so the set includes some permissions that the Claude Code GitHub Action doesn’t use. When you install the app, you grant the following permissions:
 
@@ -140,41 +116,25 @@ Workflows| Read and write
 
 The permission set can also change ahead of the features that use it. When the app requests a permission it didn’t have before, GitHub prompts the account owner to approve it, an organization owner for an organization install, and the installation keeps its old permissions until they do. For example, when Actions access changes from read to write, the app can re-run workflows rather than only view runs and logs, so GitHub asks the owner to approve the change. When you install the app, you accept its full permission set. GitHub doesn’t let you accept a subset. If your organization requires only the permissions the Claude Code GitHub Action uses, create a custom GitHub App with Contents, Issues, and Pull requests instead, following the [Claude Code GitHub Action’s setup guide](<https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md>). A custom app covers only the Claude Code GitHub Action. Code Review and web auto-fix still require the official app. For details on how the Claude Code GitHub Action limits what Claude can do with these permissions, see the [security documentation](<https://github.com/anthropics/claude-code-action/blob/main/docs/security.md>).
 
-##
-
-​
-
-Interactive and automation modes
+## Interactive and automation modes
 
 The Claude Code GitHub Action detects how to run from your workflow configuration:
 
   * **Interactive mode** : when the workflow provides no `prompt` input, Claude waits for the trigger phrase, `@claude` by default, in an issue or pull request comment, in a pull request review, or in the body or title of a newly opened issue, then responds to that request. Progress and results appear as a comment on the triggering issue or PR.
   * **Automation mode** : when the workflow provides a `prompt` input, Claude runs without waiting for a mention, subject only to the checks on who can trigger runs. By default, results appear in the workflow run log rather than a comment. Claude can post to the issue or pull request when the prompt directs it to and it has a tool that can post, as in the code-review example.
 
-###
-
-​
-
-Who can trigger runs
+### Who can trigger runs
 
 In both modes, the Claude Code GitHub Action runs two checks on the triggering actor before Claude starts, and the run fails when either check rejects it:
 
   * **Write access** : on issue and pull request events, the triggering user must have write access to the repository. To allow specific users without write access, set `allowed_non_write_users` and pass your own `github_token` input. Events that no user authors, such as a `schedule` trigger, skip this check.
   * **Human actor** : on every event, the Claude Code GitHub Action rejects a bot actor unless you list it in `allowed_bots`, which keeps bots from triggering Claude in a loop. This check also applies to scheduled runs, which GitHub attributes to a repository user, usually the one who last changed the workflow’s `cron` schedule. If that user is a bot, list it in `allowed_bots`.
 
-##
-
-​
-
-Example use cases
+## Example use cases
 
 The [examples directory](<https://github.com/anthropics/claude-code-action/tree/main/examples>) contains ready-to-use workflows for different scenarios. The examples on this page show API key authentication. If you authenticate with a Claude subscription, replace the `anthropic_api_key` line in any example with `claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}`.
 
-###
-
-​
-
-Respond to @claude mentions
+### Respond to @claude mentions
 
 This workflow runs the Claude Code GitHub Action in interactive mode, so Claude responds whenever someone mentions `@claude` in an issue or PR comment.
 
@@ -217,11 +177,7 @@ Once the workflow is in place, mention `@claude` in any issue or PR comment with
 
 Claude replies in a comment on the same issue or PR and updates it as it works.
 
-###
-
-​
-
-Run a skill
+### Run a skill
 
 The `prompt` input accepts a [skill](</docs/en/skills>) invocation as well as plain text:
 
@@ -261,11 +217,7 @@ Two lines in this workflow control where the review goes:
 
 Claude skips draft and closed pull requests, pull requests it judges not to need a review, such as automated or trivial ones, and pull requests that already have a comment from Claude.
 
-###
-
-​
-
-Run on a schedule
+### Run on a schedule
 
 With a `prompt` input, the Claude Code GitHub Action runs in automation mode on any GitHub event, including a cron schedule. For a plain-text prompt, Claude has no shell or GitHub API access until you grant the tools the prompt needs, with `--allowedTools` in `claude_args` or a [`permissions.allow` rule](</docs/en/permissions#permission-rule-syntax>) in the `settings` input. If you invoke a skill instead, Claude can use the tools its [`allowed-tools` frontmatter](</docs/en/skills#pre-approve-tools-for-a-skill>) grants. GitHub runs scheduled workflows only from the default branch and, in public repositories, disables the schedule after 60 days without repository activity. This workflow generates a report in the workflow run log at 09:00 UTC each day. Its `claude_args` line passes CLI arguments that select the model and allow two GitHub MCP tools. Claude reads commits and issues through the GitHub API with those tools, so you can omit the checkout step:
 
@@ -289,35 +241,19 @@ With a `prompt` input, the Claude Code GitHub Action runs in automation mode on 
                 --model claude-opus-5-5
                 --allowedTools "mcp__github__list_commits,mcp__github__list_issues"
 
-##
+## Best practices
 
-​
-
-Best practices
-
-###
-
-​
-
-Define project standards in CLAUDE.md
+### Define project standards in CLAUDE.md
 
 Create a `CLAUDE.md` file in your repository root to define code style guidelines, review criteria, project-specific rules, and preferred patterns. Claude follows these guidelines when creating PRs and responding to requests. See the [memory documentation](</docs/en/memory>) for details.
 
-###
-
-​
-
-Protect your credentials
+### Protect your credentials
 
 Never commit API keys or OAuth tokens directly to your repository. Always store them as GitHub Secrets and reference them in workflows, for example `anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`.
 
 Grant the workflow only the permissions it needs, and review Claude’s changes before merging. For security guidance including permissions and authentication, see the [Claude Code Action security documentation](<https://github.com/anthropics/claude-code-action/blob/main/docs/security.md>).
 
-###
-
-​
-
-Manage costs
+### Manage costs
 
 Each run consumes two kinds of resources:
 
@@ -335,11 +271,7 @@ You can lower both kinds of cost by giving Claude clearer context and by capping
 
 For usage tracking across your organization, see the [analytics dashboard](</docs/en/analytics>) and [monitoring](</docs/en/monitoring-usage>). For how usage is measured and billed, see [costs](</docs/en/costs>).
 
-##
-
-​
-
-Use a cloud provider
+## Use a cloud provider
 
 By default, the Claude Code GitHub Action calls the Claude API directly with your API key or OAuth token. To route inference through your own cloud account instead, set the input for your provider and follow [Use Claude Code GitHub Actions with cloud providers](</docs/en/github-actions-cloud-providers>):
 
@@ -349,17 +281,9 @@ By default, the Claude Code GitHub Action calls the Claude API directly with you
 
 With all three providers, you authenticate through OIDC identity federation instead of a Claude API key, so you store no static cloud credentials in your repository.
 
-##
+## Troubleshooting
 
-​
-
-Troubleshooting
-
-###
-
-​
-
-Claude not responding to @claude commands
+### Claude not responding to @claude commands
 
   * Verify the GitHub App is installed on the repository
   * Check that workflows are enabled for the repository
@@ -367,37 +291,21 @@ Claude not responding to @claude commands
   * Confirm the comment contains `@claude` as a complete word, not `/claude` or `@claude-bot`
   * Confirm the commenting user has write access to the repository. See Who can trigger runs for the exceptions
 
-###
-
-​
-
-CI not running on Claude’s commits
+### CI not running on Claude’s commits
 
   * GitHub doesn’t trigger workflows on commits made with the default `GITHUB_TOKEN`. If you pass `github_token: ${{ secrets.GITHUB_TOKEN }}` to the Claude Code GitHub Action, remove it so it authenticates as the Claude GitHub App, or pass a custom app token instead
   * Check that your CI workflow’s triggers include the events Claude’s pushes produce, such as `push` or `pull_request`
 
-###
-
-​
-
-Authentication errors
+### Authentication errors
 
   * Confirm the API key or OAuth token is valid by testing it locally with `claude` before debugging the workflow
   * For Bedrock, Agent Platform, and Foundry, see the cloud provider page’s [troubleshooting section](</docs/en/github-actions-cloud-providers#troubleshooting>)
 
 For more solutions, see the Claude Code GitHub Action’s [FAQ](<https://github.com/anthropics/claude-code-action/blob/main/docs/faq.md>).
 
-##
+## Advanced configuration
 
-​
-
-Advanced configuration
-
-###
-
-​
-
-Action parameters
+### Action parameters
 
 These are the most commonly used inputs. Each maps to a `with:` key in the `anthropics/claude-code-action` step.
 
@@ -418,11 +326,7 @@ Parameter| Description| Required
 
 For the full input list, see the Claude Code GitHub Action’s [configuration reference](<https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md#inputs>).
 
-###
-
-​
-
-Pass CLI arguments
+### Pass CLI arguments
 
 The `claude_args` parameter accepts any [Claude Code CLI argument](</docs/en/cli-reference>):
 
@@ -436,11 +340,7 @@ Common arguments:
   * `--allowedTools`: comma-separated list of allowed tools. The `--allowed-tools` alias also works
   * `--debug`: enable debug output
 
-##
-
-​
-
-Upgrade from beta
+## Upgrade from beta
 
 If your workflows still reference `anthropics/claude-code-action@beta`, update them to v1:
 
@@ -451,11 +351,7 @@ If your workflows still reference `anthropics/claude-code-action@beta`, update t
 
 For the full input mapping and before-and-after examples, see the [migration guide](<https://github.com/anthropics/claude-code-action/blob/main/docs/migration-guide.md>).
 
-##
-
-​
-
-What’s next
+## What’s next
 
   * [Use Claude Code GitHub Actions with cloud providers](</docs/en/github-actions-cloud-providers>): route inference through Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry
   * [Configuration reference](<https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md#inputs>): the full list of action inputs

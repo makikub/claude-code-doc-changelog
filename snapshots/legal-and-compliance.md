@@ -1,33 +1,17 @@
-##
+## Legal agreements
 
-​
-
-Legal agreements
-
-###
-
-​
-
-License
+### License
 
 Your use of Claude Code is subject to:
 
   * [Commercial Terms of Service](<https://www.anthropic.com/legal/commercial-terms>) \- for Team, Enterprise, and Claude API users
   * [Consumer Terms of Service](<https://www.anthropic.com/legal/consumer-terms>) \- for Free, Pro, Max, and Ultra users
 
-###
-
-​
-
-Commercial agreements
+### Commercial agreements
 
 Whether you’re using the Claude API directly (1P) or accessing it through Amazon Bedrock or Google Cloud’s Agent Platform (3P), your existing commercial agreement will apply to Claude Code usage, unless we’ve mutually agreed otherwise.
 
-###
-
-​
-
-Can customers offer Claude Code in their products?
+### Can customers offer Claude Code in their products?
 
 Unless we’ve mutually agreed otherwise, preinstalling or running Claude Code in your products or services (e.g. in hosted sandboxes or other agent infrastructure) requires agreeing to our [Commercial Terms of Service](<https://www.anthropic.com/legal/commercial-terms>) and complying with the conditions below:
 
@@ -36,17 +20,9 @@ Unless we’ve mutually agreed otherwise, preinstalling or running Claude Code i
 
 **Using the Claude Code name and logo.** You can accurately say, in plain text, that your product has Claude Code preinstalled or that it runs Claude Code. But you can’t use the Claude Code or Anthropic names or logos as part of your own product, feature, or company name, in your own logo, or in a way that suggests Anthropic built, endorses, or is partnered with your product. Any other use of Anthropic’s names or logos is governed by our [Trademark Guidelines](<https://www.anthropic.com/legal/trademark-guidelines>) and requires our written permission. Claude Code remains governed by Anthropic’s standard terms (see the License and Commercial agreements sections above) regardless of the platform through which it is accessed.
 
-##
+## Compliance
 
-​
-
-Compliance
-
-###
-
-​
-
-Healthcare compliance (BAA)
+### Healthcare compliance (BAA)
 
 If a customer has executed a Business Associate Agreement (BAA) with Anthropic, that BAA extends to Claude Code in two configurations, depending on what is available for your organization:
 
@@ -55,25 +31,13 @@ If a customer has executed a Business Associate Agreement (BAA) with Anthropic, 
 
 Under the HIPAA configuration, cloud sessions, Remote Control, Claude Code in the Claude mobile app, and Claude Code routed through a third-party cloud provider or a gateway aren’t covered. Review the [Implementation Guide](<https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide>) for a full list of Eligible Services.
 
-##
+## Usage policy
 
-​
-
-Usage policy
-
-###
-
-​
-
-Acceptable use
+### Acceptable use
 
 Claude Code usage is subject to the [Anthropic Usage Policy](<https://www.anthropic.com/legal/aup>). Advertised usage limits for Pro, Max, and Ultra plans assume ordinary, individual usage of Claude Code and the Agent SDK.
 
-###
-
-​
-
-Authentication and credential use
+### Authentication and credential use
 
 Claude Code authenticates with Anthropic’s servers using OAuth tokens or API keys. These authentication methods serve different purposes:
 
@@ -82,25 +46,13 @@ Claude Code authenticates with Anthropic’s servers using OAuth tokens or API k
 
 This does not restrict how customers provision and manage their own API keys or third-party inference provider credentials — for example, configuring an API key in a development environment, secrets manager, or machine image for use by the customer’s own authorized users — provided the resulting usage is billed to the key owner under their agreement with Anthropic (or the applicable provider) and is not resold or intermediated as described above. Nor does it prevent an end user from signing in to the unmodified Claude Code binary with their own Claude subscription, including where a platform hosts Claude Code as described under _Can customers offer Claude Code in their products?_ above. Anthropic reserves the right to take measures to enforce these restrictions and may do so without prior notice. For questions about permitted authentication methods for your use case, please [contact sales](<https://www.anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=legal_compliance_contact_sales>).
 
-##
+## Security and trust
 
-​
-
-Security and trust
-
-###
-
-​
-
-Trust and safety
+### Trust and safety
 
 You can find more information in the [Anthropic Trust Center](<https://trust.anthropic.com>) and [Transparency Hub](<https://www.anthropic.com/transparency>).
 
-###
-
-​
-
-Security vulnerability reporting
+### Security vulnerability reporting
 
 Anthropic manages our security program through HackerOne. [Use this form to report vulnerabilities](<https://hackerone.com/4f1f16ba-10d3-4d09-9ecc-c721aad90f24/embedded_submissions/new>).
 

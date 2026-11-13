@@ -5,11 +5,7 @@ A gateway is a proxy your organization runs between Claude Code and a model prov
   * How gateways interact with claude.ai subscriptions
   * What’s configured separately from the gateway
 
-##
-
-​
-
-How a gateway works
+## How a gateway works
 
 Each developer’s Claude Code sends its requests to the gateway’s address and authenticates with a gateway-issued credential. The gateway authenticates the developer, applies whatever access and budget rules you configure, and forwards the request to your provider with the organization’s credential. The provider can be Anthropic’s API or a [cloud provider](</docs/en/third-party-integrations>) such as Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry; the gateway’s configuration decides. With Claude apps gateway, or another gateway that exposes a single Anthropic-format endpoint, changing provider doesn’t require touching developer machines.
 
@@ -18,43 +14,23 @@ Two kinds of credential are involved:
   * **Developer credential** : each developer holds their own, issued by the gateway. It authenticates them to the gateway and identifies them in usage tracking
   * **Provider credential** : the gateway holds one credential for your provider account, shared by all forwarded traffic
 
-##
-
-​
-
-Choose a gateway
+## Choose a gateway
 
 Claude Code works with Anthropic’s own gateway or with a gateway your organization already runs.
 
-###
-
-​
-
-Claude apps gateway
+### Claude apps gateway
 
 Claude apps gateway is Anthropic’s self-hosted gateway, included in the `claude` binary. It routes to Amazon Bedrock, Claude Platform on AWS, Google Cloud, Microsoft Foundry, or the Anthropic API as the upstream. Developers sign in with your corporate identity provider through `/login`, the gateway enforces model access and [managed settings](</docs/en/managed-settings>) by IdP group, and it emits [OpenTelemetry Protocol (OTLP)](</docs/en/monitoring-usage>) usage metrics to your own observability stack. Because it is built and tested alongside each Claude Code release, it forwards the `anthropic-beta` values and request fields Claude Code sends. A gateway maintained separately needs its [forwarding rules updated](</docs/en/llm-gateway-protocol#forward-as-open-lists>) as those change with each release; Claude apps gateway releases with the CLI, so there is no list to keep current. See [Availability and limitations](</docs/en/claude-apps-gateway#availability-and-limitations>) for the small set of features that behave differently on a gateway session. The gateway sign-in is a browser SSO step, and there is no service-token flow, so a CI pipeline with no developer to approve the sign-in can’t authenticate through it; configure those against your provider directly. Agent SDK sessions and `claude -p` runs on a machine where a developer has signed in use that machine’s gateway session and are governed by its policies. See [CI pipelines and remote machines](</docs/en/claude-apps-gateway#ci-pipelines-and-remote-machines>). See [Claude apps gateway](</docs/en/claude-apps-gateway>) to deploy it.
 
-###
-
-​
-
-Other gateways
+### Other gateways
 
 If your organization already runs an LLM gateway or API gateway, you can use it instead. Anthropic doesn’t endorse, maintain, or audit other gateway products, and doesn’t support routing Claude Code to non-Claude models through any gateway. See [Other LLM gateways](</docs/en/llm-gateway>) for the admin rollout checklist, what a gateway must implement, and how to point Claude Code at it.
 
-##
-
-​
-
-Subscriptions and gateways
+## Subscriptions and gateways
 
 When developers connect through a gateway with a gateway credential, usage is billed to your organization’s provider account at API rates, and their claude.ai subscriptions aren’t used or charged. Every request forwarded under that credential is charged to the account behind the gateway’s provider credential. The exception is setting only `ANTHROPIC_BASE_URL`, with no gateway credential. Requests still route through the gateway, but a saved claude.ai login stays the active credential, so the subscription’s usage limits and billing apply. [Other LLM gateways](</docs/en/llm-gateway#subscriptions-and-gateways>) covers that configuration and what the gateway has to forward for it to work.
 
-##
-
-​
-
-Configure separately from the gateway
+## Configure separately from the gateway
 
 A gateway routes model API requests. A few things you might expect it to handle are configured elsewhere:
 
@@ -63,13 +39,9 @@ A gateway routes model API requests. A few things you might expect it to handle 
   * **Client telemetry** : Claude Code disables its Anthropic-bound client analytics when a session signs in to a Claude apps gateway. To keep pre-sign-in startup analytics off as well, deliver [`DISABLE_TELEMETRY`](</docs/en/managed-settings#turn-telemetry-off-for-your-organization>) in the [client-side managed settings](</docs/en/claude-apps-gateway-config#client-side-managed-settings>) on each device.
   * **Client telemetry on other gateways** : whether Claude Code sends the optional client telemetry stream depends on your provider, and the [telemetry defaults table](</docs/en/data-usage#default-behaviors-by-api-provider>) covers each case.
   * **Telemetry destinations** : where Claude Code sends a gateway session’s telemetry depends on how the session signed in, and [What’s enforced on developers](</docs/en/claude-apps-gateway#whats-enforced-on-developers>) says where each kind of session’s exports go.
-  * **Corporate HTTP proxies** : an `HTTPS_PROXY` sits between Claude Code and every server it talks to, including the gateway. If your network requires one, [configure the proxy](</docs/en/network-config>) in addition to the gateway. For a Claude apps gateway you host, [sign-in checks that the proxy host is also on a private network](</docs/en/claude-apps-gateway#prerequisites>); if it isn’t, add the gateway host to `NO_PROXY` so the CLI connects to it directly.
+  * **Corporate HTTP proxies** : Claude Code sends its requests, including those to the gateway, through the proxy in `HTTPS_PROXY`. If your network requires a proxy, [configure it](</docs/en/network-config>). If the proxy applies to a Claude apps gateway you host, [sign-in](</docs/en/claude-apps-gateway#prerequisites>) needs the proxy’s hostname to resolve to private addresses, or the gateway host in `NO_PROXY`.
 
-##
-
-​
-
-Next steps
+## Next steps
 
 The next page depends on who runs the gateway. Anthropic’s gateway runs from the `claude` binary and has its own setup guide; a gateway your organization already runs has a compatibility guide to follow and an admin rollout checklist.
 

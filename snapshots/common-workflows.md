@@ -7,27 +7,15 @@ This page collects short recipes for everyday development. For higher-level guid
   * Delegate research to subagents to keep your main context clean
   * Pipe Claude into scripts for CI and batch processing
 
-##
-
-​
-
-Prompt recipes
+## Prompt recipes
 
 These are prompt patterns for everyday tasks like exploring unfamiliar code, debugging, refactoring, writing tests, and creating PRs. Each works in any Claude Code surface; adapt the wording to your project.
 
-###
-
-​
-
-Understand new codebases
+### Understand new codebases
 
 For configuring Claude Code in a monorepo or large codebase, see [Monorepos and large repos](</docs/en/large-codebases>).
 
-####
-
-​
-
-Get a quick codebase overview
+#### Get a quick codebase overview
 
 Suppose you’ve just joined a new project and need to understand its structure quickly.
 
@@ -67,11 +55,7 @@ Tips:
   * Ask about coding conventions and patterns used in the project
   * Request a glossary of project-specific terms
 
-####
-
-​
-
-Find relevant code
+#### Find relevant code
 
 Suppose you need to locate code related to a specific feature or functionality.
 
@@ -101,11 +85,7 @@ Tips:
 
 * * *
 
-###
-
-​
-
-Fix bugs efficiently
+### Fix bugs efficiently
 
 Suppose you’ve encountered an error message and need to find and fix its source.
 
@@ -135,11 +115,7 @@ Tips:
 
 * * *
 
-###
-
-​
-
-Refactor code
+### Refactor code
 
 Suppose you need to update old code to use modern patterns and practices. For porting an entire codebase to a new language, see [how Anthropic runs large-scale code migrations with Claude Code](<https://claude.com/blog/ai-code-migration>) on the blog.
 
@@ -175,11 +151,7 @@ Tips:
 
 * * *
 
-###
-
-​
-
-Work with tests
+### Work with tests
 
 Suppose you need to add tests for uncovered code.
 
@@ -211,11 +183,7 @@ Claude can generate tests that follow your project’s existing patterns and con
 
 * * *
 
-###
-
-​
-
-Create pull requests
+### Create pull requests
 
 You can create pull requests by asking Claude directly (“create a pr for my changes”), or guide Claude through it step-by-step:
 
@@ -241,11 +209,7 @@ To find the session later, run `claude --from-pr 1234` with your own PR number, 
 
 Review Claude’s generated PR before submitting and ask Claude to highlight potential risks or considerations.
 
-###
-
-​
-
-Handle documentation
+### Handle documentation
 
 Suppose you need to add or update documentation for your code.
 
@@ -281,21 +245,13 @@ Tips:
 
 * * *
 
-###
-
-​
-
-Work in notes and non-code folders
+### Work in notes and non-code folders
 
 Claude Code works in any directory. Run it inside a notes vault, a documentation folder, or any collection of markdown files to search, edit, and reorganize content the same way you would code. The `.claude/` directory and `CLAUDE.md` sit alongside other tools’ config directories without conflict. Claude reads files fresh on each tool call, so it sees edits you make in another application the next time it reads that file.
 
 * * *
 
-###
-
-​
-
-Work with images
+### Work with images
 
 Suppose you need to work with images in your codebase, and you want Claude’s help analyzing image content.
 
@@ -345,11 +301,7 @@ Tips:
 
 * * *
 
-###
-
-​
-
-Reference files and directories
+### Reference files and directories
 
 Use @ to quickly include files or directories without waiting for Claude to read them.
 
@@ -390,11 +342,7 @@ To stop `@` references from including file contents and directory listings, set 
 
 * * *
 
-###
-
-​
-
-Run Claude on a schedule
+### Run Claude on a schedule
 
 Suppose you want Claude to handle a task automatically on a recurring basis, like reviewing open PRs every morning, auditing dependencies weekly, or checking for CI failures overnight. Pick a scheduling option based on where you want the task to run:
 
@@ -409,19 +357,11 @@ When writing prompts for scheduled tasks, be explicit about what success looks l
 
 * * *
 
-###
-
-​
-
-Ask Claude about its capabilities
+### Ask Claude about its capabilities
 
 Claude can answer questions about its own features and limitations. It looks up the answers in the current Claude Code documentation, so they aren’t limited to the version you’re running.
 
-####
-
-​
-
-Example questions
+#### Example questions
 
     can Claude Code create pull requests?
 
@@ -444,11 +384,7 @@ Tips:
 
 * * *
 
-##
-
-​
-
-Resume previous conversations
+## Resume previous conversations
 
 When a task spans multiple sittings, pick up where you left off instead of re-explaining context. Claude Code saves every conversation locally.
 
@@ -456,11 +392,7 @@ When a task spans multiple sittings, pick up where you left off instead of re-ex
 
 This resumes the most recent session in the current directory; if there isn’t one yet, it prints `No conversation found to continue` and exits. Use `claude --resume` to choose from a list, or `/resume` from inside a running session. See [Manage sessions](</docs/en/sessions>) for naming, branching, and the full picker reference.
 
-##
-
-​
-
-Run parallel sessions with worktrees
+## Run parallel sessions with worktrees
 
 Work on a feature in one terminal while Claude fixes a bug in another, without the edits colliding. Each [git worktree](<https://git-scm.com/docs/git-worktree>) is a separate checkout on its own branch, created from an existing commit, so the repository needs at least one commit first.
 
@@ -468,11 +400,7 @@ Work on a feature in one terminal while Claude fixes a bug in another, without t
 
 Run the same command with a different name in a second terminal to start an isolated parallel session. See [Worktrees](</docs/en/worktrees>) for cleanup, `.worktreeinclude`, and non-git VCS support. To monitor parallel sessions from one screen instead of separate terminals, see [background agents](</docs/en/agent-view>).
 
-##
-
-​
-
-Plan before editing
+## Plan before editing
 
 For changes you want to review before they touch disk, switch to plan mode. Claude reads files and proposes a plan but makes no edits until you approve. The status bar shows `⏸ plan mode on` while plan mode is active.
 
@@ -480,11 +408,7 @@ For changes you want to review before they touch disk, switch to plan mode. Clau
 
 You can also press `Shift+Tab` mid-session until the status bar shows `⏸ plan mode on`. See [Plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) for the approval flow and editing the plan in your text editor.
 
-##
-
-​
-
-Delegate research to subagents
+## Delegate research to subagents
 
 Exploring a large codebase fills your context with file reads. Delegate the exploration so only the findings come back.
 
@@ -492,11 +416,7 @@ Exploring a large codebase fills your context with file reads. Delegate the expl
 
 The subagent reads files in its own context window and reports a summary. See [Subagents](</docs/en/sub-agents>) for defining custom agents with their own tools and prompts.
 
-##
-
-​
-
-Pipe Claude into scripts
+## Pipe Claude into scripts
 
 Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdin and stdout work like any Unix tool.
 
@@ -504,11 +424,7 @@ Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdi
 
 See [Non-interactive mode](</docs/en/headless>) for output formats, permission flags, and fan-out patterns.
 
-##
-
-​
-
-Next steps
+## Next steps
 
 ## Best practices
 

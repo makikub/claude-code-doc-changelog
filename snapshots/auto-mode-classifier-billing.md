@@ -4,11 +4,7 @@ In [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), a 
 
 At the prompt, Claude Code holds the first action it would check that way until you answer. Auto mode keeps working, and its classifier requests are billed as they were before. The most common cause is an LLM gateway or proxy between Claude Code and the API, and when Claude Code can identify one, the notice names it. Press **Enter** to continue, or see Make the session eligible to keep it from appearing in new sessions.
 
-##
-
-​
-
-Respond to the notice
+## Respond to the notice
 
 The notice holds the action until you answer it:
 
@@ -17,11 +13,7 @@ The notice holds the action until you answer it:
 
 To stop using auto mode instead, switch permission modes with `Shift+Tab` after you answer. Where the notice can’t wait for an answer, Claude Code reports the same text and the session continues in auto mode, unless a gateway acknowledgment on this machine in the last 24 hours has dismissed it. In [non-interactive mode](</docs/en/headless>) with `-p` it prints the text to stderr, and in `stream-json` output it emits a `system` warning message, which Agent SDK applications can read from the message stream.
 
-##
-
-​
-
-Make the session eligible
+## Make the session eligible
 
 If a gateway keeps auto mode’s server-side checks from reaching your sessions and you don’t run it, send the requirements below to your company’s admin or your gateway provider. Where [the upstream accepts the format that the gateway receives](</docs/en/llm-gateway-protocol#format-mismatch-with-the-upstream>), Claude Code expects the gateway to pass requests and responses through unchanged, as the [gateway compatibility guide](</docs/en/llm-gateway-protocol#feature-pass-through>) describes:
 
@@ -34,11 +26,7 @@ Once your gateway does this, new sessions use the server’s checks again. If yo
 
 Classifier requests are then always Claude Code’s own, billed the same way, and the notice doesn’t appear. On a direct connection to the Anthropic API, the variable requires Claude Code v2.1.281 or later. Setting `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` while `CLAUDE_CODE_AUTO_MODE_SERVER` is unset turns the server’s checks off as well, except as [Disable pre-release capabilities](</docs/en/llm-gateway-protocol#disable-pre-release-capabilities>) describes. `CLAUDE_CODE_AUTO_MODE_SERVER` is a temporary setting and may be removed in a later release.
 
-##
-
-​
-
-Why the notice appears
+## Why the notice appears
 
 On a Pro, Max, Ultra, or Team plan, you never see the notice. To find out which sessions ask the server for the classifier checks, see [Server-side classifier review](</docs/en/permission-modes#server-side-classifier-review>). If you see the notice, check for these usual causes:
 
@@ -47,11 +35,7 @@ On a Pro, Max, Ultra, or Team plan, you never see the notice. To find out which 
 
 To check a session that’s in auto mode, run `/status` at the Claude Code prompt: its **Auto mode server** row reads `Enabled` while the server’s checks decide the session’s actions and `Disabled` once the session has fallen back. When a gateway cuts responses short or rewrites the results into a form Claude Code can’t read, you get denials with no verdict in place of this notice; see [Server-side classifier review](</docs/en/permission-modes#server-side-classifier-review>).
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>): what auto mode is and what it blocks by default
   * [Server-side classifier review](</docs/en/permission-modes#server-side-classifier-review>): which sessions ask the server to check actions, and the Claude Code version each one requires

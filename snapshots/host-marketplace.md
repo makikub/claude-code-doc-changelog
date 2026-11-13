@@ -7,11 +7,7 @@ These cases are covered on other pages:
 
 Start with Host your marketplace to pick a host and the command your users run. Read Keep users up to date before your first release. Read Rename or remove a plugin before you change a plugin’s `name`.
 
-##
-
-​
-
-Host your marketplace
+## Host your marketplace
 
 You can host the marketplace on GitHub, on another git host, as a hosted `marketplace.json` URL, or in a directory on a shared filesystem. Send your users the add command for your host and tell them what they need on their machine:
 
@@ -24,27 +20,15 @@ A directory on a shared filesystem| `/plugin marketplace add /Volumes/shared/cla
 
 To pin a branch or tag of a GitHub or git-URL marketplace, tell users to append `#<ref>`, as in `your-org/your-marketplace#stable`. The [plugin commands reference](</docs/en/plugins/cli-reference#plugin-marketplace-add>) lists every form the command accepts. A successful add prints `Successfully added marketplace: your-marketplace`. Claude Code takes that name from the `name` field in your `marketplace.json`, not from the repository name. Users then install a plugin by its entry’s `name` and the marketplace’s `name`, as in `/plugin install code-formatter@your-marketplace`.
 
-###
-
-​
-
-Register the marketplace for everyone in a repository
+### Register the marketplace for everyone in a repository
 
 To share the marketplace with everyone who works in one repository, run `claude plugin marketplace add your-org/your-marketplace --scope project` there once from your shell and commit the `.claude/settings.json` it writes. Claude Code then registers the marketplace for each teammate who [trusts the folder](</docs/en/plugins/org#require-plugins-per-repository>).
 
-###
-
-​
-
-Avoid relative-path entries in a URL-hosted marketplace
+### Avoid relative-path entries in a URL-hosted marketplace
 
 When users add your marketplace as a bare `marketplace.json` URL, Claude Code downloads only that file. An entry in your `plugins` array whose `source` is a relative path such as `./plugins/formatter` then fails at install with [`its marketplace entry path does not stay inside the marketplace directory`](</docs/en/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces>). Give every entry a source that can be fetched on its own, such as a `github` repository or an `archive` URL, or host the marketplace in a git repository so Claude Code clones the whole tree.
 
-###
-
-​
-
-Stay within the download limits for hosted files
+### Stay within the download limits for hosted files
 
 When users add your marketplace as a `marketplace.json` URL, or install an entry with an [`archive`](</docs/en/plugins/marketplace-reference#archive-plugin-source>) source, Claude Code downloads the file from your server. The download fails past the limits in this table, so size your files and configure your server to stay inside them.
 
@@ -60,27 +44,15 @@ A request that a redirect sends to a different origin carries none of the header
   * **Total size** : 1 GiB uncompressed
   * **Compression ratio** : uncompressed content 50 times the size of the zip
 
-###
-
-​
-
-Edit plugins in place on a shared directory
+### Edit plugins in place on a shared directory
 
 When users add your marketplace from a shared directory, Claude Code reads plugins with relative-path sources directly from that directory instead of copying them. Users see your edits when they next start a session or run `/reload-plugins`, without an update step or a version bump.
 
-###
-
-​
-
-Keep plugin files out of Git LFS
+### Keep plugin files out of Git LFS
 
 Keep the files your plugins need out of [Git LFS](<https://git-lfs.com>). When users add a marketplace hosted in a git repository, or install a git-based plugin it lists, Claude Code clones that marketplace or plugin repository onto their machine. The clone never downloads LFS content, so LFS-tracked files arrive as pointer files.
 
-###
-
-​
-
-Share files within a marketplace with symlinks
+### Share files within a marketplace with symlinks
 
 To share files between your plugin and other parts of the same marketplace, create symbolic links inside your plugin directory. When Claude Code copies the plugin into its cache, it handles each symlink by where the target resolves:
 
@@ -92,11 +64,7 @@ For plugins installed from a local path, or from a [`command` source](</docs/en/
 
     ln -s ../../shared-plugin/skills/foo ./skills/foo
 
-##
-
-​
-
-Distribute through organization settings
+## Distribute through organization settings
 
 On a Team or Enterprise plan, you can also distribute the marketplace through [**Organization settings > Plugins & skills**](<https://claude.ai/admin-settings/skills?tab=inventory>) on claude.ai instead of hosting it somewhere users add it themselves. Organization sync reads the repository through your organization’s GitHub or GitLab connection on claude.ai, so your users’ git credentials aren’t involved. Organization sync is stricter about the repository than `/plugin marketplace add` is:
 
@@ -106,11 +74,7 @@ On a Team or Enterprise plan, you can also distribute the marketplace through [*
 
 [Sync your organization’s plugins from a repository](<https://claude.com/docs/plugins/org-sync>) on claude.com lists the accepted sources, the GitLab setup, and the `bin/` error, and [Manage plugins for your organization](<https://claude.com/docs/plugins/admin>) covers the admin workflow.
 
-##
-
-​
-
-Grant access to a private marketplace
+## Grant access to a private marketplace
 
 When a user adds, installs from, or updates your marketplace, Claude Code runs `git` on their machine with interactive prompts turned off and relies on whatever credentials that machine already holds. Claude Code has no git token of its own, and `marketplace.json` has no field for one. You choose whether the clone runs over SSH or HTTPS by the form of the add command you send users:
 
@@ -125,11 +89,7 @@ Tell users what each protocol needs on their machine:
 
 For a GitHub Enterprise Server host, users need git access to that host from their machine. See [Plugin marketplaces on GHES](</docs/en/github-enterprise-server#plugin-marketplaces-on-ghes>) for what each Claude Code surface needs to reach a GHES-hosted marketplace. If you distribute through **Organization settings > Plugins & skills** on claude.ai instead, your users’ git credentials aren’t involved. See Distribute through organization settings.
 
-###
-
-​
-
-Serve users who have no git-host account
+### Serve users who have no git-host account
 
 Users without a git-host account can add a marketplace you serve as a `marketplace.json` URL or from a shared directory, but they can install only the plugins whose entry sources they can also reach. An entry that points at a private `github` repository still fails at install for them, because Claude Code fetches it with the same non-interactive `git` it uses for a git-hosted marketplace. These entry sources need no git account:
 
@@ -138,11 +98,7 @@ Users without a git-host account can add a marketplace you serve as a `marketpla
 
 Keep `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` in your instructions even if `claude plugin install` succeeds without it from the shell on a machine with no SSH key. For a `github` source, that command can fall back to HTTPS on its own, printing `SSH not configured, cloning via HTTPS`. Installs from `/plugin` inside a session and plugin updates don’t fall back, so without the variable they fail for users who have no GitHub SSH key. For a team on one network, a `directory` marketplace on a shared filesystem also works without git accounts. Users need only read access to the path.
 
-###
-
-​
-
-What background auto-update does with credentials
+### What background auto-update does with credentials
 
 Background auto-update is Claude Code’s unattended refresh of marketplaces and installed plugins after a session starts. It’s off for your marketplace until a user or admin turns it on, as covered under Keep users up to date. When it’s on for a private marketplace, the background check for new commits uses the user’s configured git credential helpers and never prompts. Each kind of remote and helper gives a different result:
 
@@ -162,11 +118,7 @@ To keep a private marketplace current, a user can do either of the following:
 
 If a user sets `GITHUB_TOKEN` or another provider token in the environment, that alone doesn’t authenticate the background check. A token takes effect through a credential helper, such as the `gh` CLI’s helper, which reads `GH_TOKEN` and `GITHUB_TOKEN`.
 
-##
-
-​
-
-Roll out to a whole company
+## Roll out to a whole company
 
 Rolling a plugin out to a company involves you as the marketplace owner, an administrator who controls managed settings, and each person who uses Claude Code. You can run the rollout without the administrator, in which case each person adds the marketplace and installs the plugin themselves.
 
@@ -182,19 +134,11 @@ For people who have no git-host account, these sections each cover one way to re
   * **A pre-populated plugins directory** : [Seed containers and CI](</docs/en/plugins/org#seed-containers-and-ci>), which also serves users who have no git-host account
   * **claude.ai organization settings** : Distribute through organization settings, where your users’ git credentials aren’t involved
 
-##
-
-​
-
-Keep users up to date
+## Keep users up to date
 
 Your changes reach users through background auto-update, once it’s turned on for your marketplace, or when users update the plugin themselves. In both cases a user gets a new copy of a plugin only when its computed version changes, as described under Release a new version.
 
-###
-
-​
-
-Turn on auto-update
+### Turn on auto-update
 
 Background auto-update is off for your marketplace by default, and `marketplace.json` has no field to turn it on. A user or an admin turns it on:
 
@@ -203,11 +147,7 @@ Background auto-update is off for your marketplace by default, and `marketplace.
 
 Without auto-update, users receive your changes when they run `/plugin marketplace update <name>` in a session or `claude plugin update <plugin>@<name>` in the shell. For what users see when an update reaches them, see [When auto-update runs](</docs/en/plugins/loading#when-auto-update-runs>).
 
-###
-
-​
-
-Release a new version
+### Release a new version
 
 To release a new version to users, change the plugin’s `version`. Users get a new copy only when the plugin’s computed version differs from the one they have. That version comes from `plugin.json` first, then from the marketplace entry, per [Versions and updates](</docs/en/plugins/loading#versions-and-updates>). A plugin that users [load in place](</docs/en/plugins/loading#find-plugins-on-disk>) from a marketplace they added from a local path isn’t controlled by `version`. It loads your current files at every session start, whatever its version string says. For every install other than an in-place load or one from a `command` source, either increase `version` on each release or omit it:
 
@@ -216,11 +156,7 @@ To release a new version to users, change the plugin’s `version`. Users get a 
 
 Don’t set `version` in both `plugin.json` and the marketplace entry. If you do, Claude Code uses the `plugin.json` value without warning, and `claude plugin validate` reports the mismatch as `Entry declares version "<a>" but <path>/plugin.json says "<b>"`.
 
-###
-
-​
-
-Hold users on one version
+### Hold users on one version
 
 One marketplace serves one version of each plugin at a time, so you hold users on a version by choosing what each entry points at:
 
@@ -230,11 +166,7 @@ One marketplace serves one version of each plugin at a time, so you hold users o
 
 Release a new version says when a changed entry reaches users.
 
-###
-
-​
-
-Change the command of a command source
+### Change the command of a command source
 
 If you change the `command` of a [`command` source](</docs/en/plugins/marketplace-reference#command-plugin-source>), or switch its `mode`, each user has to accept the new command before Claude Code runs it. Claude Code runs only the exact command a user accepted when they installed or last updated the plugin. After a user’s copy of your marketplace picks up the change, that user sees the following:
 
@@ -243,11 +175,7 @@ If you change the `command` of a [`command` source](</docs/en/plugins/marketplac
 
 Tell users to run the `claude plugin update` command that entry shows, in a terminal. Claude Code shows them the new command and asks them to accept it.
 
-##
-
-​
-
-Run release channels
+## Run release channels
 
 To offer stable and early-access tracks, host two marketplaces whose entries point at different refs of the same plugin, and let each user add the one they want. Claude Code has no release-channel concept, and one marketplace serves one version of each plugin at a time. Give the two `marketplace.json` files different `name` values. Claude Code identifies a marketplace by its `name`, so a user can’t have two marketplaces with the same name registered at once. With these two catalogs, users who add `stable-tools` install `code-formatter` from the `stable` branch, and users who add `latest-tools` install it from `latest`:
 
@@ -269,19 +197,11 @@ To offer stable and early-access tracks, host two marketplaces whose entries poi
 
 Give the two refs different `plugin.json` versions, or omit `version` so the commit SHA distinguishes them. Updates are detected by comparing versions, so a ref that moves without a version change leaves users on the cached copy. To assign the channels to user groups instead of letting users choose, an admin gives each group the matching `extraKnownMarketplaces` entry, as described under [Set update policy](</docs/en/plugins/org#set-update-policy>).
 
-##
-
-​
-
-Rename or remove a plugin
+## Rename or remove a plugin
 
 A plugin’s `name` is its identifier. Users reference it in the `enabledPlugins` and `pluginConfigs` settings keys and in `/plugin install`, so changing it breaks every existing install. To change the label users see in `/plugin` without breaking anything, set `displayName` in `plugin.json` and keep `name` unchanged.
 
-###
-
-​
-
-Migrate users with a renames map
+### Migrate users with a renames map
 
 When you must change a `name`, add a top-level `renames` map to `marketplace.json` so Claude Code migrates existing users instead of reporting [`Plugin "<name>" not found in marketplace`](</docs/en/plugins/troubleshooting#plugin-not-found-in-marketplace>). Do the same when you remove an entry from `plugins`. Map each former name to its current name, or to `null` when the plugin is gone. This marketplace renames `formatter` to `code-formatter` and records that `legacy-linter` was removed:
 
@@ -305,11 +225,7 @@ After you push, a user who still has the old name enabled sees one of these resu
 
 For a marketplace users added from a git repository or URL, a renamed plugin reports [`Plugin "<name>" not cached at <path>`](</docs/en/plugins/troubleshooting#plugin-not-cached-at>) until the user runs `/plugin install code-formatter@your-marketplace` once in a session. Treat `renames` as append-only history. Keep old entries after everyone has migrated. When you rename again, add a second entry rather than editing the first, because Claude Code follows the chain from the oldest name. In your shell, run `claude plugin validate .` after editing the map. It rejects a chain that cycles or that ends anywhere other than `null` or a name in `plugins`, with `renames.<name>: chain does not resolve`.
 
-###
-
-​
-
-Uninstall removed plugins from users’ machines
+### Uninstall removed plugins from users’ machines
 
 To uninstall a removed plugin from users’ machines rather than leave a copy behind, set `"forceRemoveDeletedPlugins": true` at the top level of `marketplace.json`. Without the field, a removed plugin stays installed and reports `Plugin "<name>" not found in marketplace` when a session loads it. With it, Claude Code does the following at each session start:
 
@@ -317,11 +233,7 @@ To uninstall a removed plugin from users’ machines rather than leave a copy be
   2. Uninstalls each removed plugin from the user, project, and local scopes. Plugins that only managed settings installed stay in place.
   3. Lists each removed plugin under a **Flagged** heading in `/plugin` with the status `Removed from marketplace`.
 
-##
-
-​
-
-Authenticate archive downloads
+## Authenticate archive downloads
 
 To authenticate an [`archive`](</docs/en/plugins/marketplace-reference#archive-plugin-source>) download, such as a download from a private registry, set the HTTP headers Claude Code sends with it. You can set `headers` in either of these places:
 
@@ -337,11 +249,7 @@ Plugin entry| That entry’s download only| Only when a user installs or updates
 
 Where both places set a header of the same name, Claude Code sends the entry’s value. Within one place, a header the command prints overrides a header of the same name listed in `headers`.
 
-###
-
-​
-
-Add a headersHelper to a plugin entry
+### Add a headersHelper to a plugin entry
 
 This entry sets `headersHelper` beside `source`. It also sets [`"strict": false`](</docs/en/plugins/marketplace-reference#strict-mode>), which Claude Code requires of a `marketplace.json` entry that sets `headersHelper`:
 
@@ -358,11 +266,7 @@ This entry sets `headersHelper` beside `source`. It also sets [`"strict": false`
 
 To check the entry, run `claude plugin install my-plugin@your-marketplace` in your shell. Claude Code shows you the command and the archive URL, and downloads the zip after you accept.
 
-###
-
-​
-
-Write the headersHelper command
+### Write the headersHelper command
 
 Whether you set `headersHelper` on a marketplace’s `url` source or on a plugin entry, write the command to meet these requirements:
 
@@ -376,11 +280,7 @@ A command that mints a bearer token prints an object like this one:
 
     {"Authorization": "Bearer eyJhbGciOiJSUzI1NiJ9"}
 
-###
-
-​
-
-When Claude Code skips a headersHelper command or drops its output
+### When Claude Code skips a headersHelper command or drops its output
 
 A `headersHelper` command doesn’t run, or headers from `headers` or from the command’s output are dropped, when one of the following applies:
 
@@ -391,11 +291,7 @@ A `headersHelper` command doesn’t run, or headers from `headers` or from the c
   * **Command set in an`--add-dir` directory’s settings**: the command is ignored, on a `url` source and on an [inline plugin entry](</docs/en/settings-reference#extraknownmarketplaces>) alike, and only that file’s `headers` are sent.
   * **Managed settings block the command** : setting [`disableCommandPluginSources`](</docs/en/settings-reference#disablecommandpluginsources>) to `true` blocks `headersHelper` commands, and [`allowManagedHooksOnly`](</docs/en/settings-reference#allowmanagedhooksonly>) blocks them too unless `disableCommandPluginSources` is explicitly `false`. Under either block, Claude Code still runs the command for a marketplace that managed settings themselves declare.
 
-###
-
-​
-
-How users accept a headersHelper command
+### How users accept a headersHelper command
 
 A user accepts a plugin entry’s command each time they install or update that one plugin by itself. Claude Code shows the command and the archive URL, and runs the command only after the user accepts. Users can install or update the plugin inside a Claude Code session in a terminal, in their shell with no session running, or in the VS Code extension:
 
@@ -405,22 +301,14 @@ A user accepts a plugin entry’s command each time they install or update that 
 
 In a non-interactive shell, pass [`--yes`](</docs/en/plugins/cli-reference#plugin-install>) to accept the command. To accept only the command that a previous `--json` run displayed, pass [`--accept-command`](</docs/en/plugins/cli-reference#plugin-install>) with the `sha256` the run reported. Claude Code runs only the command it showed, for the archive URL it showed. If the entry’s command or archive URL changed in between, Claude Code refuses the install or update. A change in the query string alone doesn’t count, except in the VS Code extension or with `--accept-command`.
 
-###
-
-​
-
-Installs and updates that refuse a command instead of asking
+### Installs and updates that refuse a command instead of asking
 
 On any operation other than a single-plugin install or update, Claude Code neither runs an entry’s command nor downloads its archive. The plugin stays at its installed version or stays uninstalled, and the user sees one of these results:
 
   * **Installing several plugins at once, from a plugin suggestion, or as another plugin’s dependency** : Claude Code refuses the plugin that has the command and directs the user to that plugin’s own view in `/plugin`. The other plugins in a bulk install still install. A plugin that depends on the refused plugin fails to install until the user installs the refused plugin by itself.
   * **Background auto-update, or session start for a plugin whose archive was never downloaded** : Claude Code lists the plugin in the `/plugin` Errors tab so the user knows to install or update it themselves.
 
-###
-
-​
-
-When a marketplace `url` source’s command runs
+### When a marketplace `url` source’s command runs
 
 You declare a marketplace `url` source’s `headersHelper` in a settings file, such as an [`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>) entry, rather than in the catalog the marketplace publishes. Claude Code therefore doesn’t ask the user to accept it on each install or update. Instead, the settings file that declares it decides when Claude Code runs it:
 
@@ -432,11 +320,7 @@ Server-managed settings| In an interactive session, only after the user approves
 
 For an [inline plugin entry](</docs/en/settings-reference#extraknownmarketplaces>) in one of these files, Claude Code requires the same folder trust or settings approval as for a marketplace-level command in that file, and the user also accepts the entry’s command on each install or update.
 
-##
-
-​
-
-Depend on and recommend other plugins
+## Depend on and recommend other plugins
 
 An entry can declare dependencies on other plugins.
 
@@ -445,11 +329,7 @@ An entry can declare dependencies on other plugins.
 
 For version ranges, the `<plugin>--v<version>` git-tag convention they resolve against, and cross-marketplace trust, see [Plugin dependencies](</docs/en/plugins/dependencies>). To have Claude Code suggest a plugin when a project matches it, add a `relevance` block to the entry with the signals that identify the project. Users see these suggestions only when an admin lists your marketplace in `pluginSuggestionMarketplaces`. For the signals and the enablement step, see [Plugin relevance](</docs/en/plugins/relevance>).
 
-##
-
-​
-
-Work around what a marketplace can’t do
+## Work around what a marketplace can’t do
 
 Some things owners ask for have no field in `marketplace.json`. Here is the nearest option for each:
 
@@ -460,11 +340,7 @@ Some things owners ask for have no field in `marketplace.json`. Here is the near
   * **Turn on auto-update for your users** : each user turns it on under **Marketplaces** in `/plugin`, or an admin sets `autoUpdate` in managed settings. See Turn on auto-update.
   * **Carry git credentials** : no marketplace field holds a git token. Access to a git-hosted marketplace or plugin follows the user’s git setup, per Grant access to a private marketplace. For `archive` sources, an entry can set `headers` or `headersHelper` instead.
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [Marketplace reference](</docs/en/plugins/marketplace-reference>): `marketplace.json` fields, source types, and validation messages
   * [Manage plugins for your organization](</docs/en/plugins/org>): require, restrict, or seed your marketplace across your organization’s machines

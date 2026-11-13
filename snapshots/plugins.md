@@ -7,11 +7,7 @@ Plugins let you extend Claude Code with custom functionality that can be shared 
 
 For complete information on plugin structure and how to create plugins, see [Plugins](</docs/en/plugins/overview>).
 
-##
-
-​
-
-Loading plugins
+## Loading plugins
 
 Load plugins by providing their local file system paths in your options configuration. The `type` field must be `"local"`, the only value the SDK accepts. The SDK supports loading multiple plugins from different locations. To use a plugin distributed through a [marketplace](</docs/en/plugins/overview>) or remote repository, download it first and provide the local directory path. For the directory layout a plugin needs, see the Plugin structure reference below.
 
@@ -51,11 +47,7 @@ Python
 
     asyncio.run(main())
 
-###
-
-​
-
-Path specifications
+### Path specifications
 
 Plugin paths can be:
 
@@ -64,19 +56,11 @@ Plugin paths can be:
 
 The path should point to the plugin’s root directory: the parent of `skills/`, `agents/`, `hooks/`, `commands/`, or `.claude-plugin/`.
 
-###
-
-​
-
-Reload plugins in a running session
+### Reload plugins in a running session
 
 To apply a change to a plugin’s skills, commands, agents, or hooks without starting a new session, call [`reloadPlugins()`](</docs/en/agent-sdk/typescript#query-object>) on the TypeScript SDK’s `Query` object. The Python SDK doesn’t expose an equivalent method; send [`/reload-plugins`](</docs/en/plugins/cli-reference#reload-plugins>) as a prompt in the session instead.
 
-###
-
-​
-
-Add plugins to a running session
+### Add plugins to a running session
 
 In the TypeScript SDK, call [`reloadPlugins()`](</docs/en/agent-sdk/typescript#load-more-plugin-folders-with-addplugins>) on the `Query` object that `query()` returned, and list the plugin directory in that call’s `addPlugins` option. Each `addPlugins` entry is a `{ type: "local", path }` object with an absolute `path`. Requires TypeScript Agent SDK v0.3.301 or later. In this example, `q` is the `Query` object that `query()` returned. The example adds one plugin directory to the running session and, after `reloadPlugins()` returns, prints the path of every plugin in the session:
 
@@ -88,11 +72,7 @@ In the TypeScript SDK, call [`reloadPlugins()`](</docs/en/agent-sdk/typescript#l
 
 If the plugin loaded, the printed list includes `/home/user/plugins/another-plugin`. If that path is missing from the list, or `reloadPlugins()` rejects, see [When `reloadPlugins()` doesn’t load the `addPlugins` folders](</docs/en/agent-sdk/typescript#when-reloadplugins-doesnt-load-the-addplugins-folders>) for the causes.
 
-##
-
-​
-
-Verifying plugin installation
+## Verifying plugin installation
 
 When plugins load successfully, they appear in the system initialization message. You can verify that your plugins are available:
 
@@ -148,11 +128,7 @@ Python
 
     asyncio.run(main())
 
-##
-
-​
-
-Use plugin skills
+## Use plugin skills
 
 Skills from plugins are automatically namespaced with the plugin name to avoid conflicts. To invoke one directly, send `/plugin-name:skill-name` as the prompt.
 
@@ -196,11 +172,7 @@ Python
 
 If you installed a plugin via the CLI (for example, `/plugin install my-plugin@marketplace`), you can still use it in the SDK by providing its installation path. Check `~/.claude/plugins/` for CLI-installed plugins.
 
-##
-
-​
-
-Complete example
+## Complete example
 
 Here’s a full example demonstrating plugin loading and usage:
 
@@ -278,11 +250,7 @@ Python
     if __name__ == "__main__":
         asyncio.run(run_with_plugin())
 
-##
-
-​
-
-Plugin structure reference
+## Plugin structure reference
 
 A plugin directory typically contains a `.claude-plugin/plugin.json` manifest file. The manifest is optional. When omitted, Claude Code auto-discovers components from the directory layout. The directory can include:
 
@@ -302,11 +270,7 @@ A plugin directory typically contains a `.claude-plugin/plugin.json` manifest fi
 
 The `commands/` directory holds skills as flat Markdown files. Use `skills/` for new plugins. Claude Code supports both locations.
 
-##
-
-​
-
-Multiple plugin sources
+## Multiple plugin sources
 
 Combine plugins from different locations:
 
@@ -323,17 +287,9 @@ Combine plugins from different locations:
 
 The SDK doesn’t expand tilde paths like `~/plugins`. If a plugin path doesn’t exist, the SDK skips that plugin and the session continues, so check the `plugins` list in the init message to confirm each plugin loaded.
 
-##
+## Troubleshooting
 
-​
-
-Troubleshooting
-
-###
-
-​
-
-Plugin not loading
+### Plugin not loading
 
 If your plugin doesn’t appear in the init message’s `plugins` list, check its [`plugin_errors`](</docs/en/agent-sdk/typescript#sdksystemmessage>) field for the reason, then work through these checks:
 
@@ -342,11 +298,7 @@ If your plugin doesn’t appear in the init message’s `plugins` list, check it
   3. **Check file permissions** : ensure the plugin directory is readable
   4. **Confirm the directory exists** : the SDK skips a nonexistent path, and the plugin doesn’t appear in the init message’s `plugins` list
 
-###
-
-​
-
-Skills not appearing
+### Skills not appearing
 
 If plugin skills don’t work:
 
@@ -354,11 +306,7 @@ If plugin skills don’t work:
   2. **Check init message** : verify the skill appears in the `skills` list with the correct namespace
   3. **Validate skill files** : ensure each skill has a `SKILL.md` file in its own subdirectory under `skills/`, for example `skills/my-skill/SKILL.md`
 
-##
-
-​
-
-See also
+## See also
 
   * [Plugins](</docs/en/plugins/overview>) \- Complete plugin development guide
   * [Plugins reference](</docs/en/plugins/manifest-reference>) \- Technical specifications

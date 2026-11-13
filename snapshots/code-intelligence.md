@@ -4,11 +4,7 @@ Code intelligence plugins work in terminal sessions. In [cloud sessions](</docs/
 
 To get started, find your language in the table under Install a code intelligence plugin. The plugins in that table come from Anthropic’s [official plugin marketplace](</docs/en/plugins/anthropic-marketplaces>). If you already saw an **LSP plugin recommendation** dialog, see Accept or dismiss the recommendation dialog for what each choice does.
 
-##
-
-​
-
-Install a code intelligence plugin
+## Install a code intelligence plugin
 
 A code intelligence plugin tells Claude Code which command starts the language server and which file extensions it handles. It doesn’t include the language server. Install the language server binary first, then the plugin, then confirm the server starts.
 
@@ -57,38 +53,22 @@ The language server starts the first time Claude edits a file with one of the pl
 
 After you install a missing binary, Claude Code tries again the next time Claude edits a matching file. If you installed the binary into a directory that isn’t on the `PATH` of the shell you started `claude` from, start a new session from a shell where it is.
 
-##
-
-​
-
-See what Claude gains
+## See what Claude gains
 
 With a language server running, Claude gains diagnostics and code navigation:
 
   * **Diagnostics after edits** : each time Claude edits or writes a file the server handles, Claude gets the errors and warnings the server reports. It sees a type error, missing import, or syntax error it introduced without running a compiler.
   * **Code navigation** : Claude gets an `LSP` tool that looks up symbols through the server instead of searching text for them. The tool is read-only. For what Claude can look up with the tool and how permissions apply to it, see [LSP tool behavior](</docs/en/tools-reference#lsp-tool-behavior>).
 
-###
-
-​
-
-Read the diagnostics yourself
+### Read the diagnostics yourself
 
 After Claude edits a file the server handles, the conversation shows only the `Found N new diagnostic issues` summary. To read the issues themselves, press **Ctrl+O**.
 
-##
-
-​
-
-Accept or dismiss the recommendation dialog
+## Accept or dismiss the recommendation dialog
 
 If a language server binary is already on your `PATH` and the plugin that uses it isn’t installed, Claude Code offers to install the plugin for you in a dialog titled **LSP plugin recommendation**.
 
-###
-
-​
-
-When the recommendation dialog appears
+### When the recommendation dialog appears
 
 The **LSP plugin recommendation** dialog can appear after Claude edits a file. These conditions decide whether it appears and which plugin it offers:
 
@@ -97,11 +77,7 @@ The **LSP plugin recommendation** dialog can appear after Claude edits a file. T
   * **Once per session** : the dialog appears at most once in a session, for the first matching file Claude edits.
   * **Not for cloud sessions** : the dialog never appears when your terminal is attached to a cloud session, such as one you started with [`claude --cloud`](</docs/en/claude-code-on-the-web#from-terminal-to-cloud>).
 
-###
-
-​
-
-Respond to the recommendation dialog
+### Respond to the recommendation dialog
 
 The **LSP plugin recommendation** dialog names the plugin and offers these choices:
 
@@ -112,22 +88,14 @@ The **LSP plugin recommendation** dialog names the plugin and offers these choic
 
 If you don’t choose an option, Claude Code closes it after 30 seconds and counts that as ignored. The count is kept across sessions. After five ignored dialogs, Claude Code stops recommending plugins, the same as if you’d chosen **Disable all LSP recommendations**.
 
-###
-
-​
-
-Turn recommendations back on
+### Turn recommendations back on
 
 The **LSP plugin recommendation** dialog stops appearing after you choose **Disable all LSP recommendations** or ignore it five times.
 
   * **Disabled or ignored five times** : to turn it back on in either case, remove the `lspRecommendationDisabled` and `lspRecommendationIgnoredCount` keys from `~/.claude.json`, Claude Code’s own configuration file.
   * **Never for this plugin** : if you chose **Never for this plugin** and want that plugin offered again, remove its `name@marketplace` id from the `lspRecommendationNeverPlugins` list in the same file.
 
-##
-
-​
-
-Troubleshoot code intelligence
+## Troubleshoot code intelligence
 
 The plugins troubleshooting page covers the symptoms specific to code intelligence plugins under [Language server doesn’t start, uses too much memory, or reports wrong diagnostics](</docs/en/plugins/troubleshooting#language-server-doesnt-start>):
 
@@ -135,11 +103,7 @@ The plugins troubleshooting page covers the symptoms specific to code intelligen
   * **High memory use** : memory use increases while the server indexes the project.
   * **False positive diagnostics in a monorepo** : diagnostics report imports as unresolved when they aren’t.
 
-##
-
-​
-
-Add a language without an official plugin
+## Add a language without an official plugin
 
 If your language isn’t in the table of official plugins, you can still connect a language server.
 
@@ -148,11 +112,7 @@ If your language isn’t in the table of official plugins, you can still connect
 
 For the file’s fields and a worked example, see [LSP servers in plugin components](</docs/en/plugins/components#lsp-servers>).
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [LSP servers in plugin components](</docs/en/plugins/components#lsp-servers>): write the `.lsp.json` for a language server that has no official plugin
   * [Install and manage plugins](</docs/en/plugins/install>): scopes, updates, and uninstalling

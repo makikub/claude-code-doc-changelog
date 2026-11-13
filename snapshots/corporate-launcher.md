@@ -2,11 +2,7 @@ Some organizations require every process on a workstation to start through a man
 
 `CLAUDE_CODE_PROCESS_WRAPPER` requires Claude Code v2.1.208 or later. Earlier versions ignore the variable and start every process unwrapped. The equivalent [`processWrapper` setting](</docs/en/settings-reference#processwrapper>) requires v2.1.210 or later. Earlier versions ignore it as an unknown key, apply no launcher, and report no error.After deploying either form, use the Verify step to confirm the running version applies it.
 
-##
-
-​
-
-What the launcher covers
+## What the launcher covers
 
 With `CLAUDE_CODE_PROCESS_WRAPPER` set, Claude Code starts each of the following processes through your launcher:
 
@@ -19,11 +15,7 @@ With `CLAUDE_CODE_PROCESS_WRAPPER` set, Claude Code starts each of the following
 
 On Windows, the variable is ignored: the launcher contract depends on `exec`, which Windows doesn’t support. A Windows machine with the variable set runs every process unwrapped and keeps working, and the only signal is a warning in the [debug log](</docs/en/troubleshooting>). If your launcher policy covers Windows, the variable doesn’t satisfy it there: count Windows machines as unwrapped when you plan the rollout.
 
-###
-
-​
-
-Processes that start outside the launcher
+### Processes that start outside the launcher
 
 The following processes don’t start through the launcher:
 
@@ -32,19 +24,11 @@ The following processes don’t start through the launcher:
   * The relaunch that `--worktree` combined with `--tmux` performs: the terminal multiplexer starts that pane, not Claude Code’s binary.
   * The native-messaging host that [Claude in Chrome](</docs/en/chrome>) registers: the browser starts it, not Claude Code’s binary.
 
-###
-
-​
-
-Helper process names in process monitors
+### Helper process names in process monitors
 
 With a launcher configured, `ps` and Activity Monitor no longer show Claude Code’s `claude bg-pty-host` and `claude bg-spare` labels for the background helper processes, because the launcher’s `exec` rebuilds the argument list. Losing the labels is a side effect, not concealment: the processes are otherwise unchanged, and Claude Code identifies its own processes by binary path, never by display name.
 
-##
-
-​
-
-Set up the launcher
+## Set up the launcher
 
 1
 
@@ -93,11 +77,7 @@ Verify
 
 Run `/status` in a session: the Self-exec entry shows the resolved launch command and warns when the running background service doesn’t match it. `claude daemon status` prints the same information from the shell, including after you unset the variable, when `/status` no longer shows the entry.
 
-##
-
-​
-
-The launcher contract
+## The launcher contract
 
 When the launcher can’t run, Claude Code refuses to start the process instead of starting it unwrapped. On Windows, the variable is ignored and processes start unwrapped. Claude Code holds the script to these rules:
 
@@ -114,11 +94,7 @@ When the launcher can’t run, Claude Code refuses to start the process instead 
   * **Don’t read standard input.** A command that reads it before the `exec`, such as one that asks for a password, can wait for input that doesn’t come and leave the session stuck. It can also take input meant for Claude Code, and the session can then run without that input and report no error. Redirect such a command’s input from `/dev/null`.
   * **Call other programs by absolute path.** The launcher can start with a `PATH` that lacks the directories your shell profile adds.
 
-###
-
-​
-
-Format of the launcher value
+### Format of the launcher value
 
 `CLAUDE_CODE_PROCESS_WRAPPER` and the `processWrapper` setting take the same format. For most launchers, the value is the script’s absolute path, like `/opt/corp/launcher`. To pass your launcher arguments of its own, write them after the path. Claude Code parses the value as an argument list, not a shell command:
 
@@ -128,11 +104,7 @@ Format of the launcher value
 
 When the value can’t be used, Claude Code refuses to start the affected process and [reports the reason](</docs/en/errors#claude_code_process_wrapper-launcher-errors>). In a settings file, write the array form inside a JSON string and escape its quotes: `"[\"/opt/corp/launcher\", \"--profile\", \"cc\"]"`.
 
-###
-
-​
-
-Pass arguments to the launcher
+### Pass arguments to the launcher
 
 Write the launcher’s own arguments after its path in the value, and remove them in the script before the `exec` call. They reach the script first, ahead of the Claude Code command. The following script, written for the value `/opt/corp/launcher --profile cc`, saves the profile name and then removes both arguments with `shift`:
 
@@ -146,19 +118,11 @@ Write the launcher’s own arguments after its path in the value, and remove the
 
 Use the Verify step to see the launch command Claude Code resolved from the value.
 
-##
-
-​
-
-Relationship to `CLAUDE_CODE_SHELL_PREFIX`
+## Relationship to `CLAUDE_CODE_SHELL_PREFIX`
 
 `CLAUDE_CODE_PROCESS_WRAPPER` wraps Claude Code’s own processes and passes the command through as separate argv tokens for the launcher to `exec`. [`CLAUDE_CODE_SHELL_PREFIX`](</docs/en/env-vars>) wraps the shell commands Claude runs on your behalf, such as Bash tool calls, hooks, and the commands that start stdio MCP servers, and passes each one as a single shell-quoted string in `$1` for the wrapper to re-evaluate. A launcher written for one doesn’t work as the other.
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Agent view](</docs/en/agent-view>): the background sessions and supervisor process the launcher covers
   * [Environment variables](</docs/en/env-vars>): the `CLAUDE_CODE_PROCESS_WRAPPER` reference entry

@@ -10,11 +10,7 @@ Start with the sections for your role:
   * **Marketplace operators** : read how suggestions work, then add relevance to a plugin entry and validate your marketplace
   * **Administrators** : enable suggestions in managed settings
 
-##
-
-​
-
-Understand how plugin relevance works
+## Understand how plugin relevance works
 
 Each plugin entry in `marketplace.json` can include a `relevance` object. The object names a topic and one or more signals. A signal is a pattern that Claude Code tests against the current session, such as the working directory or files Claude has read. Signal matching happens locally on the user’s machine and adds no network traffic. Claude Code doesn’t report which signals matched or their values to Anthropic or to the marketplace operator. When a signal matches and the plugin isn’t already installed, Claude Code suggests the plugin in these places:
 
@@ -24,11 +20,7 @@ Each plugin entry in `marketplace.json` can include a `relevance` object. The ob
 
 Preview what the user sees shows the exact text of each and how often they repeat. Claude Code never installs the plugin automatically. The user always confirms. The spinner tip and the session-start notification both stop appearing when the user or project sets [`spinnerTipsEnabled`](</docs/en/settings-reference#spinnertipsenabled>) to `false`, or when a [`spinnerTipsOverride`](</docs/en/settings-reference#spinnertipsoverride>) with `excludeDefault` replaces the built-in tips. The Discover-tab pin isn’t affected by either setting.
 
-##
-
-​
-
-Add relevance to a plugin entry
+## Add relevance to a plugin entry
 
 Add a `relevance` object to the plugin’s entry in your `marketplace.json`. The following example declares that the `terraform-helpers` plugin is relevant when Claude reads a `.tf` file or runs `terraform`:
 
@@ -53,19 +45,11 @@ Add a `relevance` object to the plugin’s entry in your `marketplace.json`. The
 
 While none of its signals match, the plugin keeps its normal position in the Discover list and doesn’t appear as a spinner tip. To check the block before publishing, validate your marketplace.
 
-##
-
-​
-
-Field reference
+## Field reference
 
 The `relevance` object and its nested `signals` object accept the fields in the following tables. Older clients still load a marketplace that uses `relevance` fields they don’t recognize, because unknown fields under `relevance` and `relevance.signals` are ignored at load time. A recognized field whose value exceeds its limit in the field reference invalidates the whole plugin entry, and users can’t install that plugin from the marketplace until you fix it; `claude plugin validate` reports the same limits.
 
-###
-
-​
-
-`relevance`
+### `relevance`
 
 Field| Type| Description
 ---|---|---
@@ -74,11 +58,7 @@ Field| Type| Description
 
 The `topic` is often the product name, for example `Terraform`. Use a domain such as `design` when the plugin name doesn’t sound natural as a topic.
 
-###
-
-​
-
-`relevance.signals`
+### `relevance.signals`
 
 The `signals` object accepts the following fields.
 
@@ -92,11 +72,7 @@ Field| Type| Description| Limit
 
 The `filesRead` and `manifestDeps` signals also match against files Claude has written or edited this session and against the project’s auto-loaded `CLAUDE.md` memory files.
 
-####
-
-​
-
-Working directory matching
+#### Working directory matching
 
 `cwd` is the only signal that can match at session start, before the user sends a first message. Claude Code matches each `cwd` pattern as follows:
 
@@ -104,19 +80,11 @@ Working directory matching
   * Matching is forward-slash normalized and case-insensitive.
   * Every pattern matches the directory itself and everything under it, so `infra`, `infra/`, and `infra/**` behave identically.
 
-####
-
-​
-
-Command name matching
+#### Command name matching
 
 Claude Code records one command name for each shell command Claude runs: the first token after any leading environment variable assignments and `sudo`. Compound commands contribute only their leading command, so `cd infra && terraform plan` records `cd`, not `terraform`.
 
-####
-
-​
-
-Manifest dependency matching
+#### Manifest dependency matching
 
 Each `manifestDeps` entry pairs two JavaScript `RegExp` source strings:
 
@@ -142,11 +110,7 @@ The following example uses `manifestDeps` to suggest your plugin once Claude has
 
 In this example, the `file` pattern uses `[/\\\\]` so it matches both forward-slash and backslash path separators, and `\\.` so the dot is literal. In JSON, each backslash in the regular expression is written twice.
 
-##
-
-​
-
-Validate your marketplace
+## Validate your marketplace
 
 In your shell, run `claude plugin validate` against your marketplace directory to check the `relevance` block before publishing:
 
@@ -160,11 +124,7 @@ The validator reports errors and warnings on the `relevance` block, including th
 
 Each finding prints with the path of the field it concerns, and the output ends with `Validation passed`, `Validation passed with warnings`, or `Validation failed`.
 
-##
-
-​
-
-Enable suggestions in managed settings
+## Enable suggestions in managed settings
 
 In the terminal, users see no suggestions from a marketplace until an administrator allowlists it in [managed settings](</docs/en/plugins/org>), even when its `marketplace.json` declares `relevance`. To allowlist a marketplace, edit your managed settings as follows:
 
@@ -191,11 +151,7 @@ The official marketplace’s name can only register from the official Anthropic 
       "pluginSuggestionMarketplaces": ["claude-plugins-official"]
     }
 
-##
-
-​
-
-Preview what the user sees
+## Preview what the user sees
 
 When a plugin’s `relevance` signal matches during a session, the tip below the spinner reads:
 
@@ -213,11 +169,7 @@ In the `/plugin` Discover tab, the plugin is pinned above the other results with
   * Neither the spinner tip nor the session-start notification repeats once the plugin is installed.
   * The Discover tab pins the plugin the first time the user opens the tab while the plugin’s signals match. Claude Code records that in `~/.claude.json`, so every later time the user opens `/plugin` on that machine, the plugin appears in normal order.
 
-##
-
-​
-
-See also
+## See also
 
   * [Host a marketplace](</docs/en/plugins/host-marketplace>): run the marketplace that hosts your plugins
   * [Marketplace reference](</docs/en/plugins/marketplace-reference#plugin-entries>): every field a plugin entry accepts

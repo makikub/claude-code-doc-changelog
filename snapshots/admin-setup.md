@@ -10,11 +10,7 @@ Decide what to enforce| Which tools, commands, and integrations are allowed| [Pe
 Set up usage visibility| How you track spend and adoption| [Analytics](</docs/en/analytics>), [Monitoring](</docs/en/monitoring-usage>), [Costs](</docs/en/costs>)
 Review data handling| Data retention and compliance posture| [Data usage](</docs/en/data-usage>), [Security](</docs/en/security>)
 
-##
-
-​
-
-Choose your API provider
+## Choose your API provider
 
 Claude Code connects to Claude through one of several API providers. Your choice affects billing, authentication, which compliance posture you inherit, and which Claude Code features your developers can use.
 
@@ -28,11 +24,7 @@ Microsoft Foundry| You want to inherit existing Azure compliance controls and bi
 
 Some Claude Code features require a claude.ai account. [Cloud sessions](</docs/en/claude-code-on-the-web>), [cloud scheduled tasks](</docs/en/routines>), [Code Review](</docs/en/code-review>), [Remote Control](</docs/en/remote-control>), and the [Chrome extension](</docs/en/chrome>) aren’t available through Console API keys or cloud-provider credentials alone. If you deploy through Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, plan whether developers also need Claude for Teams or Enterprise seats. Each feature page lists its plan requirements. For the full provider comparison covering authentication, regions, and feature parity, see the [enterprise deployment overview](</docs/en/third-party-integrations>). Each provider’s auth setup is in [Authentication](</docs/en/authentication>). Proxy and firewall requirements in [Network configuration](</docs/en/network-config>) apply regardless of provider. If you want a single endpoint in front of multiple providers or centralized request logging, see [LLM gateway](</docs/en/llm-gateway>).
 
-##
-
-​
-
-Decide how settings reach devices
+## Decide how settings reach devices
 
 Managed settings define organization policy. Claude Code checks the four sources in the table below in priority order. [How Claude Code combines managed sources](</docs/en/managed-settings#precedence-within-the-managed-tier>) says which of them apply, what a policy helper changes, and how to compose every source. The table is the decision map.
 
@@ -48,11 +40,7 @@ Windows user registry| `HKCU\SOFTWARE\Policies\ClaudeCode`| Lowest| Windows only
 
 Claude Code fetches server-managed settings at startup and refreshes them hourly during the session, with no endpoint infrastructure to deploy. Delivery through the claude.ai admin console requires a Claude for Teams or Enterprise plan. Deployments on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry can get the same remote delivery by running a [Claude apps gateway](</docs/en/claude-apps-gateway>), or use one of the file-based or OS-level mechanisms instead. If your organization mixes providers, configure [server-managed settings](</docs/en/server-managed-settings>) for claude.ai users plus a [file-based or plist/registry fallback](</docs/en/managed-settings#delivery-mechanisms>) so other users still receive managed policy. The plist and HKLM registry locations work with any provider and resist tampering because they require admin privileges to write. The Windows user registry at HKCU is writable without elevation, so treat it as a convenience default rather than an enforcement channel. By default, WSL reads only the Linux file path at `/etc/claude-code`. To extend your Windows registry and `C:\Program Files\ClaudeCode` policy to WSL on the same machine, set [`wslInheritsWindowsSettings: true`](</docs/en/settings-reference#wslinheritswindowssettings>) in either of those admin-only Windows sources. Whichever mechanism you choose, managed values take precedence over user and project settings, apart from a few security-sensitive [exceptions](</docs/en/settings#exceptions-to-managed-settings-precedence>). Array settings such as `permissions.allow` and `permissions.deny` merge entries from all sources, so developers can extend managed lists but not remove from them. For `fallbackModel`, `availableModels`, and [`modelPicker`](</docs/en/settings-reference#modelpicker>), the managed value replaces lower layers rather than merging.
 
-###
-
-​
-
-WSL sessions in Claude Code Desktop
+### WSL sessions in Claude Code Desktop
 
 On Windows, [Claude Code Desktop can run Code sessions inside a WSL 2 distribution](</docs/en/desktop-wsl>). The session’s Claude Code process runs inside the distribution, so it resolves managed settings through the WSL discovery path above: Windows-only sources don’t reach it unless `wslInheritsWindowsSettings: true` is deployed. Claude Desktop turns off WSL sessions by default on devices it detects as organization-managed, for example when `C:\Program Files\ClaudeCode\managed-settings.json` exists. To turn them on, deploy a Windows registry policy, which requires Claude Desktop v1.19367.0 or later:
 
@@ -66,11 +54,7 @@ Desktop reads the policy each time a WSL session starts, so you don’t need to 
 
 If a WSL session starts on a device with Claude Desktop’s [`allowedWorkspaceFolders`](<https://claude.com/docs/third-party/claude-desktop/configuration#allowedworkspacefolders>) list, a `~` entry means the home directory inside the distribution. Processes inside the WSL 2 utility VM aren’t visible to Windows-side endpoint detection sensors. To observe in-distro process and file activity, check your endpoint detection vendor’s WSL guidance for a Linux sensor you can run inside the distribution and the exclusions it needs. Claude Code’s [OpenTelemetry tool-execution telemetry](</docs/en/monitoring-usage>) is emitted identically for WSL and native sessions.
 
-##
-
-​
-
-Decide what to enforce
+## Decide what to enforce
 
 Managed settings can lock down tools, sandbox execution, restrict MCP servers and plugin sources, and control which hooks run. Each row is a control surface with the setting keys that drive it.
 
@@ -110,11 +94,7 @@ None of these controls reach sessions on Amazon Bedrock, Google Cloud’s Agent 
 
 Permission rules and sandboxing cover different layers. Denying WebFetch blocks Claude’s fetch tool, but if Bash is allowed, `curl` and `wget` can still reach any URL. Sandboxing closes that gap with a network domain allowlist enforced at the OS level. For the threat model these controls defend against, see [Security](</docs/en/security>).
 
-###
-
-​
-
-Connected GitHub accounts
+### Connected GitHub accounts
 
 On Team and Enterprise plans, the GitHub section of [**Organization settings > Git providers**](<https://claude.ai/admin-settings/source-control>) lists the GitHub organizations and personal accounts linked to your Claude organization through the [Claude GitHub App](<https://github.com/apps/claude>). Claude Code, [Claude Tag](<https://claude.com/docs/claude-tag/admins/configure-github>), and Claude Security share the list. Opening the page requires an [Owner role](</docs/en/server-managed-settings#access-control>) in your Claude organization. The Admin role can’t open it. Someone can link an account from the Git providers page or by connecting GitHub to Claude:
 
@@ -123,11 +103,7 @@ On Team and Enterprise plans, the GitHub section of [**Organization settings > G
 
 A row marked **Not linked** comes from your own GitHub sign-in. It’s an account you can see on GitHub where the Claude GitHub App is installed. To unlink an account from your Claude organization, open its row’s menu and select **Unlink from this workspace**. Unlinking leaves the Claude GitHub App installed on GitHub, and the account is linked again the next time one of its owners connects GitHub to Claude. To keep it from being linked again, uninstall the Claude GitHub App from that account on GitHub. On Enterprise plans, the [Compliance API](<https://platform.claude.com/docs/en/api/compliance/activities/list>) activity types for linking and unlinking are `github_app_installation_linked` and `github_app_installation_unlinked`.
 
-##
-
-​
-
-Set up usage visibility
+## Set up usage visibility
 
 Choose monitoring based on what you need to report on. The dashboards, APIs, and spend controls differ between Claude for Teams or Enterprise plans and Claude Console organizations, so check the Availability column before you plan your reporting around a capability.
 
@@ -140,11 +116,7 @@ Spend controls| Spend limits and rate limits| Organization settings for Teams / 
 
 On Teams and Enterprise, per-user usage and spend numbers come from the [spend report](<https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans>) in your organization’s analytics settings, not the analytics dashboard. Cloud providers expose spend through AWS Cost Explorer, GCP Billing, or Azure Cost Management. For planning enterprise budgets across Claude chat, Claude Code, and Cowork, see the [Claude Enterprise consumption guide](<https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide>).
 
-##
-
-​
-
-Review data handling
+## Review data handling
 
 On Team, Enterprise, Claude API, and cloud provider plans, Anthropic doesn’t train models on your code or prompts. Your API provider determines retention and compliance posture.
 
@@ -157,11 +129,7 @@ Security architecture| Network model, encryption, authentication, audit trail| [
 
 If you need request-level audit logging or to route traffic by data sensitivity, we recommend you place a gateway between developers and your provider: a self-hosted [Claude apps gateway](</docs/en/claude-apps-gateway>) records a per-request audit log with IdP identity, or you can use another [LLM gateway](</docs/en/llm-gateway>). Sessions that go through a gateway aren’t eligible for the HIPAA configuration. [Check how developers sign in and connect](</docs/en/hipaa-setup#check-how-developers-sign-in-and-connect>) lists which sign-in and connection methods are. For regulatory requirements and certifications, see [Legal and compliance](</docs/en/legal-and-compliance>).
 
-##
-
-​
-
-Verify and onboard
+## Verify and onboard
 
 After configuring managed settings, have a developer run `/status` inside Claude Code. On the **Status** tab, the `Setting sources` line shows `Enterprise managed settings` followed by the source that won in parentheses; [Verify enforcement](</docs/en/managed-settings#verify-enforcement>) lists the labels. Share these resources to help developers get started:
 
@@ -177,11 +145,7 @@ For login issues, point developers to [authentication troubleshooting](</docs/en
 
 If a developer sees “You haven’t been added to your organization yet,” their seat doesn’t include Claude Code access and needs to be updated in the admin console.
 
-##
-
-​
-
-Next steps
+## Next steps
 
 With provider and delivery mechanism chosen, move on to detailed configuration:
 

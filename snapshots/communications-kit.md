@@ -2,19 +2,11 @@ This page is for administrators and engineering leads rolling Claude Code out to
 
 Treat everything here as draft copy, not finished copy. Rewrite each message in your organization’s voice, swap the example tasks for real bugs and modules from your own codebase, and replace the `[bracketed placeholders]` before sending. The announcements that drive adoption are the ones that read like someone at your company wrote them.
 
-##
-
-​
-
-Launch communications
+## Launch communications
 
 One announcement in two formats, plus two optional variants. Pick whichever fits your rollout and rewrite it from there.
 
-###
-
-​
-
-Before you send
+### Before you send
 
 Work through this checklist before the announcement goes out. Each item closes a gap that otherwise turns into a launch-day support thread.
 
@@ -27,11 +19,7 @@ One concrete first task chosen, a real bug or file in your codebase| Generic exa
 A named owner for the channel for the first 48 hours| Unanswered launch-day questions kill momentum
 A C-suite sponsor lined up to send or co-sign the announcement| Exec-sent launches consistently see higher first-week adoption than admin-sent ones
 
-###
-
-​
-
-The announcement
+### The announcement
 
 Use this as your standard org-wide rollout message. It covers what Claude Code is, gives a two-minute install path, hands readers one concrete task to try, and answers “where does my code go?” before anyone has to ask.
 
@@ -98,11 +86,7 @@ Use this as your standard org-wide rollout message. It covers what Claude Code i
 
     Questions → this thread. [Owner] is on point.
 
-###
-
-​
-
-Executive sponsor variant
+### Executive sponsor variant
 
 Send this from your sponsoring executive, such as the CTO, CIO, or SVP Engineering, under their name and from their account. Launches that go out under an exec’s name consistently see higher open rates and faster first-week activation than the same message from an admin or tooling team. It signals a company priority rather than an optional experiment. This version is deliberately stripped to one ask: install it and run it on one real task. The exec’s job is to make the ask land; the standard announcement and `#claude-code` handle the how.
 
@@ -145,11 +129,7 @@ Send this from your sponsoring executive, such as the CTO, CIO, or SVP Engineeri
 
     That's it. Questions → #claude-code.
 
-###
-
-​
-
-Pilot group variant
+### Pilot group variant
 
 Use for a phased rollout. Send to the pilot cohort only.
 
@@ -171,11 +151,7 @@ Use for a phased rollout. Send to the pilot cohort only.
     without editing your source. It is the fastest way to calibrate how much to
     trust it.
 
-###
-
-​
-
-Champion recruitment DM
+### Champion recruitment DM
 
 After launch, DM the two or three people who are most active in `#claude-code`.
 
@@ -187,19 +163,11 @@ After launch, DM the two or three people who are most active in `#claude-code`.
     are posting, plus first crack at new features and a direct line to the
     Anthropic team. I can share a short playbook if you're in.
 
-##
-
-​
-
-Tips and tricks campaign
+## Tips and tricks campaign
 
 Ready-to-paste Slack or Teams messages designed to drive feature activation after launch. Each follows the same pattern: a hook, the payoff, a “try it now” prompt, and a docs link. Drip them one or two a week in `#claude-code`, or pick the handful that match your team’s gaps. They stand alone with no required order.
 
-###
-
-​
-
-Get started
+### Get started
 
 **Choosing the right model**
 
@@ -253,11 +221,7 @@ Haiku| Quick questions, formatting, mechanical edits, rapid iteration
 
     📖 Quickstart → https://code.claude.com/docs/en/quickstart
 
-###
-
-​
-
-Project memory
+### Project memory
 
 **`/init` and CLAUDE.md**
 
@@ -293,11 +257,7 @@ Project memory
 
     📖 Referencing files → https://code.claude.com/docs/en/common-workflows
 
-###
-
-​
-
-Control and safety
+### Control and safety
 
 **Permission modes**
 
@@ -334,11 +294,7 @@ Control and safety
 
     📖 Checkpointing → https://code.claude.com/docs/en/checkpointing
 
-###
-
-​
-
-Connect your tools
+### Connect your tools
 
 **MCP connectors**
 
@@ -357,11 +313,7 @@ Connect your tools
 
     📖 MCP connectors → https://code.claude.com/docs/en/mcp
 
-###
-
-​
-
-Automate your workflows
+### Automate your workflows
 
 **Skills**
 
@@ -395,11 +347,7 @@ Automate your workflows
 
     📖 Hooks guide → https://code.claude.com/docs/en/hooks-guide
 
-###
-
-​
-
-Day-to-day development
+### Day-to-day development
 
 **Screenshots and images**
 
@@ -434,11 +382,7 @@ Day-to-day development
 
     📖 Creating pull requests → https://code.claude.com/docs/en/common-workflows
 
-###
-
-​
-
-Share and scale
+### Share and scale
 
 **Plugins**
 
@@ -456,11 +400,7 @@ Share and scale
 
     📖 Plugins → https://code.claude.com/docs/en/plugins
 
-###
-
-​
-
-Security and admin
+### Security and admin
 
 **Security architecture**
 
@@ -498,17 +438,9 @@ Security and admin
 
     📖 Best practices → https://code.claude.com/docs/en/best-practices
 
-##
+## Quick reference
 
-​
-
-Quick reference
-
-###
-
-​
-
-FAQ responses
+### FAQ responses
 
 One-line replies for the questions you will be asked most.
 
@@ -521,11 +453,7 @@ Question| Response
 “How is this different from Copilot?”| Copilot autocompletes lines. Claude Code is an agent that reads files, runs commands, and makes multi-file edits. [Overview →](</docs/en/overview>)
 “What should I try first?”| A bug you’ve been putting off because it’s tedious. “The test in [file] is flaky, figure out why.” [Quickstart →](</docs/en/quickstart>)
 
-###
-
-​
-
-Prompt templates
+### Prompt templates
 
 Share these starter prompts with engineers who have installed but aren’t sure what to ask. Each one is phrased the way it would be typed into a real session; replace the bracketed pieces with files from your own repo.
 

@@ -1,10 +1,6 @@
 Structured outputs let you define the exact shape of data you want back from an agent. The agent can use any tools it needs to complete the task, and you still get validated JSON matching your schema at the end. Define a [JSON Schema](<https://json-schema.org/understanding-json-schema/about>) for the structure you need, and the SDK validates the output against it, re-prompting on mismatch. If validation does not succeed within the retry limit, the result is an error instead of structured data; see Error handling. For full type safety, use Zod (TypeScript) or Pydantic (Python) to define your schema and get strongly typed objects back.
 
-##
-
-​
-
-Why structured outputs?
+## Why structured outputs?
 
 Agents return free-form text by default, which works for chat but not when you need to use the output programmatically. Structured outputs give you typed data you can pass directly to your application logic, database, or UI components. Consider a recipe app where an agent searches the web and brings back recipes. Without structured outputs, you get free-form text that you’d need to parse yourself. With structured outputs, you define the shape you want and get typed data you can use directly in your app.
 
@@ -38,11 +34,7 @@ With structured outputs
 
 Typed data you can use directly in your UI.
 
-##
-
-​
-
-Quick start
+## Quick start
 
 To use structured outputs, define a [JSON Schema](<https://json-schema.org/understanding-json-schema/about>) describing the shape of data you want, then pass it to `query()` via the `outputFormat` option (TypeScript) or `output_format` option (Python). When the agent finishes, the result message includes a `structured_output` field with validated data matching your schema. Before running the examples on this page, install the Claude Agent SDK by following the [quickstart](</docs/en/agent-sdk/quickstart#setup>). The example below asks the agent to research Anthropic and return the company name, year founded, and headquarters as structured output.
 
@@ -122,11 +114,7 @@ Python
 
     asyncio.run(main())
 
-##
-
-​
-
-Type-safe schemas with Zod and Pydantic
+## Type-safe schemas with Zod and Pydantic
 
 Instead of writing JSON Schema by hand, you can use [Zod](<https://zod.dev/>) (TypeScript) or [Pydantic](<https://docs.pydantic.dev/latest/>) (Python) to define your schema. These libraries generate the JSON Schema for you and let you parse the response into a fully-typed object you can use throughout your codebase with autocomplete and type checking. The example below defines a schema for a feature implementation plan with a summary, list of steps (each with complexity level), and potential risks. The agent plans the feature and returns a typed `FeaturePlan` object. You can then access properties like `plan.summary` and iterate over `plan.steps` with full type safety. The SDK validates schemas with JSON Schema draft-07, so schemas that declare a newer version are rejected. Zod targets draft 2020-12 by default, so pass `target: "draft-7"` when converting your schema.
 
@@ -233,11 +221,7 @@ Python
 
     asyncio.run(main())
 
-##
-
-​
-
-Output format configuration
+## Output format configuration
 
 The `outputFormat` (TypeScript) or `output_format` (Python) option accepts an object with:
 
@@ -246,11 +230,7 @@ The `outputFormat` (TypeScript) or `output_format` (Python) option accepts an ob
 
 The SDK supports standard JSON Schema features including all basic types (object, array, string, number, boolean, null), `enum`, `const`, `required`, nested objects, and `$ref` definitions. For the full list of supported features and limitations, see [JSON Schema limitations](<https://platform.claude.com/docs/en/build-with-claude/structured-outputs#json-schema-limitations>). A schema that isn’t valid JSON Schema fails the run at startup with an error naming the problem. Before v2.1.205, an invalid schema was silently ignored and the agent returned unstructured text. The `format` keyword, such as `"format": "email"`, is accepted as an annotation and isn’t enforced by the SDK’s validator. Before v2.1.205, any schema containing `format` was treated as invalid.
 
-##
-
-​
-
-Example: TODO tracking agent
+## Example: TODO tracking agent
 
 This example demonstrates how structured outputs work with multi-step tool use. The agent needs to find TODO comments in the codebase, then look up git blame information for each one. It autonomously decides which tools to use (Grep to search, Bash to run git commands) and combines the results into a single structured response. The schema includes optional fields (`author` and `date`) since git blame information might not be available for all files. The agent fills in what it can find and omits the rest.
 
@@ -364,11 +344,7 @@ Python
 
     asyncio.run(main())
 
-##
-
-​
-
-Recognize the StructuredOutput tool call
+## Recognize the StructuredOutput tool call
 
 When you set `outputFormat` in TypeScript or `output_format` in Python, your message stream carries a tool call named `StructuredOutput` that you never defined. Claude Code adds this tool to the session, and the agent calls it to return its answer. The [system init message](</docs/en/agent-sdk/typescript#sdksystemmessage>) lists it in the `tools` array, and each call arrives as two blocks:
 
@@ -377,11 +353,7 @@ When you set `outputFormat` in TypeScript or `output_format` in Python, your mes
 
 When that object doesn’t match your schema, the `tool_result` carries `is_error: true` instead and the agent calls `StructuredOutput` again, so your stream can hold several calls for one query. Read the validated data from `structured_output` on the result message rather than from a `tool_use` block, and see Error handling for the result you get when no attempt succeeds. If your application shows or logs tool calls, skip the ones named `StructuredOutput` so the mechanism doesn’t appear as a step the agent chose. A `tool_result` block carries no tool name, only the `tool_use_id` of the call it answers, so match that against the `id` of each call you skipped.
 
-##
-
-​
-
-Error handling
+## Error handling
 
 Structured output generation can fail when the agent cannot produce valid JSON matching your schema. This typically happens when the schema is too complex for the task, the task itself is ambiguous, or the agent hits its retry limit trying to fix validation errors. It can also happen without any validation failure: a [model fallback](</docs/en/model-config#automatic-model-fallback>) can retract an already-completed output mid-stream, and if no retry replaces it the run ends with the same error. Check the `errors` list on the error result message to tell the two causes apart before debugging your schema. Check the result message’s `subtype`:
 
@@ -486,11 +458,7 @@ Python
   * **Match schema to task.** If the task might not have all the information your schema requires, make those fields optional.
   * **Use clear prompts.** Ambiguous prompts make it harder for the agent to know what output to produce.
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [JSON Schema documentation](<https://json-schema.org/>): learn JSON Schema syntax for defining complex schemas with nested objects, arrays, enums, and validation constraints
   * [API Structured Outputs](<https://platform.claude.com/docs/en/build-with-claude/structured-outputs>): use structured outputs with the Claude API directly for single-turn requests without tool use

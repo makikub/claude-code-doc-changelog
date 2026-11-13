@@ -12,19 +12,11 @@ Find the section for what you’re writing or reading:
   * **A`source` object in settings**: Marketplace sources
   * **Output from[`claude plugin validate <path>`](</docs/en/plugins/cli-reference>)**: Validation messages, which maps each message to the field it names
 
-##
-
-​
-
-Marketplace file
+## Marketplace file
 
 Save the marketplace file at `.claude-plugin/marketplace.json` in your marketplace’s directory. If you keep the file somewhere else in the repository, users have to declare the marketplace in [`extraKnownMarketplaces`](</docs/en/settings-reference#extraknownmarketplaces>) with `path` set on its source, because `claude plugin marketplace add` has no option for it. The directory that contains `.claude-plugin/` is called the marketplace root, and every relative plugin source resolves from it, not from `.claude-plugin/`. Each user registers one marketplace per `name`, so a user can’t have two marketplaces with the same name registered at once. Claude Code ignores an unknown top-level key or plugin-entry key rather than rejecting it, so a typo loads silently. `claude plugin validate` reports each unknown key as a warning.
 
-###
-
-​
-
-Reserved names
+### Reserved names
 
 You can’t give your marketplace any of the following names:
 
@@ -41,11 +33,7 @@ You can’t give your marketplace any of the following names:
 
 When a registered marketplace stops loading because its name imitates an official one, `claude plugin list` and `/plugin` report `Claude Code refuses the marketplace name "<name>"`. The message tells you to remove the marketplace. Removing it also uninstalls its plugins and deletes their data, options, and secrets. This named refusal message requires Claude Code v2.1.282 or later. If a settings file declares the marketplace inline, the message tells you to rename its entry before you remove the old name. For the steps, see [Claude Code refuses the marketplace name](</docs/en/errors#claude-code-refuses-the-marketplace-name>). The message lists them in Claude Code v2.1.292 or later.
 
-##
-
-​
-
-Top-level fields
+## Top-level fields
 
 The table lists every key Claude Code reads from `marketplace.json`. `name`, `owner`, and `plugins` are required.
 
@@ -63,11 +51,7 @@ Field| Type| Description
 `allowCrossMarketplaceDependenciesOn`| array of strings| Marketplace names whose plugins may be installed as dependencies of this marketplace’s plugins. When you install a plugin, only the list in that plugin’s own marketplace applies, for its whole dependency chain. See [Plugin dependencies](</docs/en/plugins/dependencies>)
 `renames`| object| Map from a former plugin `name` to its current name, or to `null` for a plugin you removed. See [Host and maintain a marketplace](</docs/en/plugins/host-marketplace>)
 
-##
-
-​
-
-Plugin entries
+## Plugin entries
 
 Each object in the top-level `plugins` array of `marketplace.json` names a plugin and says where to fetch it. `name` and `source` are required. Apart from the [directory listing fields](</docs/en/plugins/manifest-reference#directory-listing-fields>), an entry also accepts every [`plugin.json` field](</docs/en/plugins/manifest-reference>), such as `description`, `version`, `author`, `commands`, and `hooks`. For when those fields apply, see How an entry combines with plugin.json. The table lists the entry’s own fields and the manifest fields whose meaning changes in an entry.
 
@@ -88,30 +72,18 @@ Field| Type| Description
 `headers`| object| HTTP headers Claude Code sends when it downloads this entry’s archive. A header set here replaces a header of the same name from the marketplace source’s `headers`. Requires Claude Code v2.1.238 or later
 `headersHelper`| string| Command that prints this entry’s archive-download headers as one JSON object, for a credential that expires. The entry must also set `"strict": false`. Requires Claude Code v2.1.238 or later. See [Authenticate archive downloads](</docs/en/plugins/host-marketplace#authenticate-archive-downloads>)
 
-###
-
-​
-
-How an entry combines with plugin.json
+### How an entry combines with plugin.json
 
 The entry’s fields apply differently to a fetched plugin that has its own `.claude-plugin/plugin.json` and to one that doesn’t:
 
   * **No`plugin.json`**: the entry is the manifest regardless of `strict`. Every manifest field that the entry accepts applies, including [`mcpServers`, `lspServers`, `userConfig`, and `channels`](</docs/en/plugins/manifest-reference>).
   * **`plugin.json` present**: `plugin.json` is the manifest. Strict mode decides whether the entry’s six component fields, `commands`, `agents`, `skills`, `hooks`, `outputStyles`, and `themes`, are combined with it or rejected as a conflict. Entry `mcpServers`, `lspServers`, `userConfig`, and `channels` don’t apply. Declare them in `plugin.json`.
 
-####
-
-​
-
-Hooks in an entry
+#### Hooks in an entry
 
 Write entry `hooks` as an inline object that maps hook event names to matcher arrays. If you write a file path or an array instead, `claude plugin validate` passes it. Those hooks never run, and Claude Code reports a `not yet supported in a marketplace entry` error for the plugin. Put file-based hooks in the plugin’s own [`hooks/hooks.json`](</docs/en/plugins/components>) or `plugin.json`.
 
-####
-
-​
-
-Display fields
+#### Display fields
 
 Both the entry and the plugin’s own `plugin.json` can set the display fields `displayName`, `description`, `author`, `homepage`, `repository`, `license`, and `keywords`. Users see these values in plugin listings and details, before and after install:
 
@@ -120,11 +92,7 @@ Both the entry and the plugin’s own `plugin.json` can set the display fields `
 
 Before install, Claude Code can read `plugin.json` only for entries with a relative-path source, whose plugin files are inside the marketplace itself. For an entry with any other source type, users see only the entry’s own fields until they install the plugin.
 
-###
-
-​
-
-Strict mode
+### Strict mode
 
 `strict` decides what happens when the fetched plugin has its own `plugin.json` and the entry also declares any of the component fields: `commands`, `agents`, `skills`, `hooks`, `outputStyles`, or `themes`. With `strict: true`, the default, Claude Code appends the entry’s component fields to `plugin.json`, except `hooks`, whose matchers replace the manifest’s per event. With `strict: false`, an entry that declares any component field is a conflict, and the plugin fails to load. The table shows each combination of `strict`, `plugin.json`, and the entry’s component fields.
 
@@ -135,11 +103,7 @@ any| absent| any| The entry is the manifest
 `false`| present| none| `plugin.json` is the manifest, as with `true`
 `false`| present| one or more| Conflict. The plugin fails to load with `Plugin <name> has conflicting manifests: both plugin.json and marketplace entry specify components`
 
-##
-
-​
-
-Plugin sources
+## Plugin sources
 
 A plugin entry’s `source` says where Claude Code fetches that one plugin from. It’s either a relative path string or an object whose own `source` key names the type, so an entry looks like `"source": { "source": "github", "repo": "your-org/formatter" }`. The table lists each plugin source type and its fields.
 
@@ -160,11 +124,7 @@ The names `url` and `github` are also marketplace source types, where `url` mean
 
 For how each type is fetched, cached, and versioned, see [Plugin loading reference](</docs/en/plugins/loading>).
 
-###
-
-​
-
-Relative path plugin source
+### Relative path plugin source
 
 The path resolves from the marketplace root. `./plugins/formatter` is `<root>/plugins/formatter` even though the marketplace file is in `<root>/.claude-plugin/`. A path containing `..` fails validation. On macOS and Linux, Claude Code refuses an entry path that contains a backslash anywhere after the leading `./`, so write the path with forward slashes.
 
@@ -176,11 +136,7 @@ A relative path resolves only when Claude Code has the marketplace’s files, so
   * **`url`** : Claude Code fetches only `marketplace.json`, so relative paths can’t resolve. Give each plugin an object source instead, such as `github` or `git-subdir`.
   * **`settings`** : relative paths are rejected outright.
 
-####
-
-​
-
-Git submodules in the marketplace repository
+#### Git submodules in the marketplace repository
 
 When Claude Code clones a marketplace repository, it fetches only the git submodules that hold plugin files. Requires Claude Code v2.1.295 or later. Earlier versions fetch every submodule, nested ones included. If the repository has a large submodule, Claude Code can then run past the [clone timeout](</docs/en/plugins/troubleshooting#git-clone-timed-out-after-120s>) while fetching it. For a plugin in a subdirectory, such as `./plugins/formatter`, Claude Code fetches a submodule in these cases:
 
@@ -202,11 +158,7 @@ When none of them does, Claude Code fetches no submodule for that plugin. A repo
 
 If you add a marketplace with `--sparse`, or its source sets `sparsePaths`, Claude Code checks out only the directories named there and fetches no submodule. Earlier versions do the same. To keep a submodule your plugins don’t use out of the clone, see [Keep unused submodules out of the clone](</docs/en/plugins/create-marketplace#keep-unused-submodules-out-of-the-clone>).
 
-####
-
-​
-
-Bare names under pluginRoot
+#### Bare names under pluginRoot
 
 A bare name is a single directory name with no `/`, such as `"formatter"`. To write bare names instead of `./` paths, set `metadata.pluginRoot` to the directory they resolve under. With `"pluginRoot": "./plugins"`, `"source": "formatter"` resolves to `./plugins/formatter`. Requires Claude Code v2.1.239 or later. `metadata.pluginRoot` has these limits:
 
@@ -214,11 +166,7 @@ A bare name is a single directory name with no `/`, such as `"formatter"`. To wr
   * It has no effect on a source that already starts with `./`.
   * A source that contains a `/`, such as `team-a/formatter`, isn’t a bare name and still needs the `./` prefix, even when `metadata.pluginRoot` is set.
 
-###
-
-​
-
-github plugin source
+### github plugin source
 
 `repo` takes `owner/repo`. `ref` and `sha` are optional.
 
@@ -232,11 +180,7 @@ github plugin source
       }
     }
 
-###
-
-​
-
-url plugin source
+### url plugin source
 
 `url` is a full git URL: `https://`, `http://`, `file://`, or `git@`. A `.git` suffix isn’t required, so Azure DevOps and AWS CodeCommit URLs work as written. This type doesn’t take `owner/repo` shorthand.
 
@@ -249,11 +193,7 @@ url plugin source
       }
     }
 
-###
-
-​
-
-git-subdir plugin source
+### git-subdir plugin source
 
 `url` accepts a full git URL or GitHub `owner/repo` shorthand. `path` is the subdirectory that holds the plugin, and Claude Code checks out only that subdirectory. Over an `https` or SSH URL, Claude Code asks the server for a partial clone, so from a host that supports partial clones, a plugin in a large monorepo installs without downloading the rest of the repository.
 
@@ -266,11 +206,7 @@ git-subdir plugin source
       }
     }
 
-###
-
-​
-
-npm plugin source
+### npm plugin source
 
 An `npm` source takes these fields:
 
@@ -296,11 +232,7 @@ The `registry` URL must use `https` unless it is the installing user’s own def
       }
     }
 
-###
-
-​
-
-archive plugin source
+### archive plugin source
 
 `url` must use `https://` and can’t point at a loopback, link-local, or cloud-metadata host. For the size, timeout, redirect, and extraction limits on the download, see [Stay within the download limits for hosted files](</docs/en/plugins/host-marketplace#stay-within-the-download-limits-for-hosted-files>). The plugin root may be at the top of the zip or one directory down. `sha256` is the archive’s digest as 64 hex characters, uppercase or lowercase. When you set it, Claude Code refuses a download that doesn’t match.
 
@@ -313,11 +245,7 @@ archive plugin source
       }
     }
 
-###
-
-​
-
-command plugin source
+### command plugin source
 
 Use a `command` source when a tool installed on the user’s machine produces the plugin directory, such as an IDE that renders its plugin for the toolchain the user has selected. Claude Code runs the command when the user installs or updates the plugin, and [again once per session](</docs/en/plugins/loading#when-a-command-source-re-runs>), so users get the tool’s changed output without reinstalling. A `command` source takes these fields:
 
@@ -336,11 +264,7 @@ Use a `command` source when a tool installed on the user’s machine produces th
 
 For how users accept the command, see [Install from your shell](</docs/en/plugins/install#install-from-your-shell>). For what users see after you change it, see [Change the command of a command source](</docs/en/plugins/host-marketplace#change-the-command-of-a-command-source>). Administrators turn command sources off with [`disableCommandPluginSources`](</docs/en/settings-reference#disablecommandpluginsources>).
 
-####
-
-​
-
-What the command must do
+#### What the command must do
 
 Write the command to meet these requirements:
 
@@ -348,11 +272,7 @@ Write the command to meet these requirements:
   * **Output** : print exactly one line on stdout, the absolute path of the plugin directory, and exit 0 within `timeout` seconds.
   * **Directory contents** : the directory holds the complete plugin by the time the command exits. The path can differ from one run to the next.
 
-####
-
-​
-
-Output that fails the install or update
+#### Output that fails the install or update
 
 The install or update fails when the command exits non-zero, runs longer than `timeout`, or prints anything other than one absolute path. It also fails when the printed directory is one of these:
 
@@ -361,11 +281,7 @@ The install or update fails when the command exits non-zero, runs longer than `t
   * **A network path** : on Windows, the printed path is a UNC path.
   * **Too large to copy** : in copy mode, the directory is larger than 256 MiB or has more than 20,000 entries.
 
-####
-
-​
-
-Copy mode and link mode
+#### Copy mode and link mode
 
 `mode` decides whether Claude Code copies the printed directory or uses it in place:
 
@@ -381,11 +297,7 @@ A link-mode plugin has these requirements:
   * **Sessions started inside the directory** : a session started in the printed directory or anywhere below it doesn’t load the plugin.
   * **Not on Windows** : Claude Code refuses to install a link-mode plugin on Windows. Declare `"mode": "copy"` there.
 
-##
-
-​
-
-Marketplace sources
+## Marketplace sources
 
 A marketplace source says where Claude Code fetches a `marketplace.json` from. The CLI builds one for you when you add a marketplace, and you write one yourself in settings:
 
@@ -416,11 +328,7 @@ Type| Fields| `marketplace add` input| `extraKnownMarketplaces`| `strictKnownMar
 `hostPattern`| `hostPattern`| Not produced| Fails to load: `Unsupported marketplace source type`| Allows `github`, `git`, and `url` sources whose host matches| Blocks those sources
 `pathPattern`| `pathPattern`| Not produced| Fails to load: `Unsupported marketplace source type`| Allows `file` and `directory` sources whose `path` matches| Blocks those sources
 
-###
-
-​
-
-Fields by type
+### Fields by type
 
 The table lists each marketplace source field that has a default, a constraint, or a meaning specific to its type.
 
@@ -440,11 +348,7 @@ Field| Types| Description
 `name`| `settings`| Must equal the `extraKnownMarketplaces` key and can’t be a reserved name
 `plugins`| `settings`| The inline catalog, with no hosted file. Each item takes `name`, `source`, `description`, `version`, `strict`, `headers`, and `headersHelper`. Write each item’s `source` as an object type, because a relative path has no repository to resolve against
 
-###
-
-​
-
-Source values valid only in policy lists
+### Source values valid only in policy lists
 
 `hostPattern`, `pathPattern`, `skills-dir`, and the `owner/*` form of `repo` are valid only in the two policy lists, `strictKnownMarketplaces` and `blockedMarketplaces`:
 
@@ -454,11 +358,7 @@ Source values valid only in policy lists
 
 For match order, exact-`ref` semantics, and recipes, see [Manage plugins for your organization](</docs/en/plugins/org>).
 
-###
-
-​
-
-Source objects in settings
+### Source objects in settings
 
 An `extraKnownMarketplaces` value is a map from marketplace name to an object with `source`. This entry registers a marketplace from a git repository at its `main` branch:
 
@@ -483,11 +383,7 @@ An `extraKnownMarketplaces` value is a map from marketplace name to an object wi
       ]
     }
 
-##
-
-​
-
-Validation messages
+## Validation messages
 
 `claude plugin validate <path>` takes the marketplace root or the marketplace file itself. To have that file [validated as a marketplace](</docs/en/plugins/cli-reference#validate-a-manifest-file>) rather than a plugin manifest, name it `marketplace.json`. For exit codes and `--strict`, see [plugin validate](</docs/en/plugins/cli-reference#plugin-validate>). A message names a plugin entry by its index, written as `plugins.1.source` or `plugins[1].source`. A message prefixed with an entry index and `plugin.json →`, such as `plugins[2] plugin.json →`, is about that plugin’s own files. [`claude plugin validate` reports errors](</docs/en/plugins/troubleshooting#claude-plugin-validate-reports-errors>) lists those messages with their fixes. Warnings that mention Claude Desktop flag names that Claude Desktop rejects. The table maps marketplace-level messages to the field each is about.
 
@@ -529,11 +425,7 @@ Message| Level| Field
 `Marketplace name "x" is not accepted by Claude Desktop (letters, digits, ".", "_", "-"; must start alphanumeric; max 128 chars)`| Warning| `name`. Claude Desktop rejects the marketplace
 `Plugin name "x" is not accepted by Claude Desktop (letters, digits, ".", "_", "-"; must start alphanumeric; max 128 chars)`| Warning| `plugins[i].name`. Claude Desktop drops the entry
 
-###
-
-​
-
-Invalid input on a source
+### Invalid input on a source
 
 `Invalid input` on a `source` means the object matched no source type. Check for these causes:
 
@@ -543,19 +435,11 @@ Invalid input on a source
 
 A relative path that doesn’t start with `./`, other than `"."` or a bare name under `metadata.pluginRoot`, fails with `Invalid string: must start with "./"`. Before v2.1.285, it printed `Invalid input` like the causes above.
 
-###
-
-​
-
-Failures that validation doesn’t catch
+### Failures that validation doesn’t catch
 
 `claude plugin validate` doesn’t report every failure. An entry `hooks` written as a file path or array passes validation, and the error appears only when the plugin loads, as Hooks in an entry describes. Errors fetching a `source` also appear only after install, not in validation. [`claude plugin list`](</docs/en/plugins/cli-reference>) shows a plugin that failed to load with its error, and [Troubleshoot plugins](</docs/en/plugins/troubleshooting>) covers the load-time strings.
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [Create a marketplace](</docs/en/plugins/create-marketplace>): build a marketplace from these fields and install from it locally
   * [Host and maintain a marketplace](</docs/en/plugins/host-marketplace>): where to put the file and how users receive changes

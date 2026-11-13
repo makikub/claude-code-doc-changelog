@@ -1,10 +1,6 @@
 The Agent SDK is built on the same foundation as Claude Code, which means your SDK agents have access to the same filesystem-based features: project instructions (`CLAUDE.md` and rules), skills, hooks, and more. When you omit `settingSources`, `query()` reads the same filesystem settings as the Claude Code CLI: user, project, and local settings, CLAUDE.md files, and `.claude/` skills, agents, and commands. To run without these, pass `settingSources: []`, which limits the agent to what you configure programmatically. Managed policy settings and the global `~/.claude.json` config are read regardless of this option. For more information, see What settingSources does not control.
 
-##
-
-​
-
-Control filesystem settings with settingSources
+## Control filesystem settings with settingSources
 
 The setting sources option ([`setting_sources`](</docs/en/agent-sdk/python#claudeagentoptions>) in Python, [`settingSources`](</docs/en/agent-sdk/typescript#settingsource>) in TypeScript) controls which filesystem-based settings the SDK loads. Pass an explicit list to opt in to specific sources, or pass an empty array to disable user, project, and local settings. This example loads both user-level and project-level settings by setting `settingSources` to `["user", "project"]`:
 
@@ -67,11 +63,7 @@ Source| What it loads| Location
 
 Omitting `settingSources` is equivalent to `["user", "project", "local"]`. The `cwd` option determines where the SDK looks for project-level inputs. Project `settings.json` loads from `<cwd>/.claude/` with no parent-directory fallback.
 
-###
-
-​
-
-What settingSources does not control
+### What settingSources does not control
 
 `settingSources` covers user, project, and local settings. A few inputs are read regardless of its value:
 
@@ -85,19 +77,11 @@ Auto memory at `~/.claude/projects/<project>/memory/`| Loaded into the system pr
 
 Do not rely on default `query()` options for multi-tenant isolation. Because the inputs above are read regardless of `settingSources`, an SDK process can pick up host-level configuration and per-directory memory. For multi-tenant deployments, run each tenant in its own filesystem and set `settingSources: []` plus `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` in `env`. [Server-managed settings](</docs/en/server-managed-settings>) are fetched when the process authenticates with an organization credential; filesystem isolation does not remove them. See [Secure deployment](</docs/en/agent-sdk/secure-deployment>).
 
-##
-
-​
-
-Project instructions (CLAUDE.md and rules)
+## Project instructions (CLAUDE.md and rules)
 
 `CLAUDE.md` files and `.claude/rules/*.md` files give your agent persistent context about your project: coding conventions, build commands, architecture decisions, and instructions. When `settingSources` includes `"project"`, as in the `settingSources` example, the SDK loads these files into context at session start. The agent then follows your project conventions without you repeating them in every prompt.
 
-###
-
-​
-
-CLAUDE.md load locations
+### CLAUDE.md load locations
 
 Level| Location| When loaded
 ---|---|---
@@ -115,11 +99,7 @@ You can also inject context directly via `systemPrompt` without using CLAUDE.md 
 
 For how to structure and organize CLAUDE.md content, see [Manage Claude’s memory](</docs/en/memory>).
 
-##
-
-​
-
-Skills
+## Skills
 
 Skills are markdown files that give your agent specialized knowledge and invocable workflows. Unlike `CLAUDE.md` (which loads every session), skills load on demand. The agent receives skill descriptions at startup and loads the full content when relevant. Skills are discovered from the filesystem through `settingSources`. When the `skills` option on `query()` is omitted, discovered user and project skills are enabled and the Skill tool is available, matching CLI behavior. To control which skills are enabled, pass `skills` as `"all"`, a list of skill names, or `[]` to disable all. When `skills` is set, the SDK adds the Skill tool to `allowedTools` automatically. If you also pass an explicit `tools` list, include `"Skill"` in that list so Claude can invoke skills.
 
@@ -165,11 +145,7 @@ TypeScript
 
 Skills must be created as filesystem artifacts (`.claude/skills/<name>/SKILL.md`). The SDK does not have a programmatic API for registering skills. See [Agent Skills in the SDK](</docs/en/agent-sdk/skills>) for full details.
 
-##
-
-​
-
-Hooks
+## Hooks
 
 The SDK supports two ways to define hooks, and they run side by side:
 
@@ -256,11 +232,7 @@ TypeScript
       }
     }
 
-###
-
-​
-
-When to use which hook type
+### When to use which hook type
 
 Hook type| Best for
 ---|---
@@ -271,11 +243,7 @@ The TypeScript SDK supports additional hook events beyond Python, including `Ses
 
 For full details on programmatic hooks, see [Control execution with hooks](</docs/en/agent-sdk/hooks>). For filesystem hook syntax, see [Hooks](</docs/en/hooks>).
 
-##
-
-​
-
-Choose the right feature
+## Choose the right feature
 
 The Agent SDK gives you access to several ways to extend your agent’s behavior. If you’re unsure which to use, this table maps common goals to the right approach.
 
@@ -291,11 +259,7 @@ Give Claude structured tool access to an external service| [MCP](</docs/en/agent
 
 Every feature you enable adds to your agent’s context window. For per-feature costs and how these features layer together, see [Extend Claude Code](</docs/en/features-overview#understand-context-costs>).
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Extend Claude Code](</docs/en/features-overview>): Conceptual overview of all extension features, with comparison tables and context cost analysis
   * [Skills in the SDK](</docs/en/agent-sdk/skills>): Full guide to using skills programmatically

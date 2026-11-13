@@ -6,11 +6,7 @@ V2 was an experimental session API that removed the need for async generators an
   * `session.send()`: Send a message
   * `session.stream()`: Get the response
 
-##
-
-​
-
-Installation
+## Installation
 
 Agent SDK 0.2.x is the last version that includes the V2 interface. The package version jumped from 0.2.x directly to 0.3.142, so the removal version above and the install pin below describe the same boundary. To install the last V2-compatible release, pin the major and minor version:
 
@@ -18,17 +14,9 @@ Agent SDK 0.2.x is the last version that includes the V2 interface. The package 
 
 The SDK bundles a native Claude Code binary for your platform as an optional dependency, so most installs need no separate Claude Code install. See the [quickstart’s install note](</docs/en/agent-sdk/quickstart>) for the installs that need one.
 
-##
+## Quick start
 
-​
-
-Quick start
-
-###
-
-​
-
-One-shot prompt
+### One-shot prompt
 
 For simple single-turn queries where you don’t need to maintain a session, use `unstable_v2_prompt()`. This example sends a math question and logs the answer:
 
@@ -41,11 +29,7 @@ For simple single-turn queries where you don’t need to maintain a session, use
       console.log(result.result);
     }
 
-###
-
-​
-
-Basic session
+### Basic session
 
 For interactions beyond a single prompt, create a session. V2 separates sending and streaming into distinct steps:
 
@@ -72,11 +56,7 @@ This explicit separation makes it easier to add logic between turns (like proces
       }
     }
 
-###
-
-​
-
-Multi-turn conversation
+### Multi-turn conversation
 
 Sessions persist context across multiple exchanges. To continue a conversation, call `send()` again on the same session. Claude remembers the previous turns. This example asks a math question, then asks a follow-up that references the previous answer:
 
@@ -111,11 +91,7 @@ Sessions persist context across multiple exchanges. To continue a conversation, 
       }
     }
 
-###
-
-​
-
-Session resume
+### Session resume
 
 If you have a session ID from a previous interaction, you can resume it later. This is useful for long-running workflows or when you need to persist conversations across application restarts. This example creates a session, stores its ID, closes it, then resumes the conversation:
 
@@ -163,11 +139,7 @@ If you have a session ID from a previous interaction, you can resume it later. T
       if (text) console.log("Resumed response:", text);
     }
 
-###
-
-​
-
-Cleanup
+### Cleanup
 
 Sessions can be closed manually or automatically using [`await using`](<https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management>), a TypeScript 5.2+ feature for automatic resource cleanup. If you’re using an older TypeScript version or encounter compatibility issues, use manual cleanup instead. The examples below show only the cleanup pattern and don’t send any messages, so running them produces no output. **Automatic cleanup (TypeScript 5.2+):**
 
@@ -188,17 +160,9 @@ Sessions can be closed manually or automatically using [`await using`](<https://
     // ... use the session ...
     session.close();
 
-##
+## API reference
 
-​
-
-API reference
-
-###
-
-​
-
-`unstable_v2_createSession()`
+### `unstable_v2_createSession()`
 
 Creates a new session for multi-turn conversations.
 
@@ -207,11 +171,7 @@ Creates a new session for multi-turn conversations.
       // Additional options supported
     }): SDKSession;
 
-###
-
-​
-
-`unstable_v2_resumeSession()`
+### `unstable_v2_resumeSession()`
 
 Resumes an existing session by ID.
 
@@ -223,11 +183,7 @@ Resumes an existing session by ID.
       }
     ): SDKSession;
 
-###
-
-​
-
-`unstable_v2_prompt()`
+### `unstable_v2_prompt()`
 
 One-shot convenience function for single-turn queries.
 
@@ -239,11 +195,7 @@ One-shot convenience function for single-turn queries.
       }
     ): Promise<SDKResultMessage>;
 
-###
-
-​
-
-SDKSession interface
+### SDKSession interface
 
     interface SDKSession {
       readonly sessionId: string;
@@ -252,22 +204,14 @@ SDKSession interface
       close(): void;
     }
 
-##
-
-​
-
-Feature availability
+## Feature availability
 
 The V2 session API does not support every V1 feature. The following require the [V1 SDK](</docs/en/agent-sdk/typescript>):
 
   * Session forking (`forkSession` option)
   * Some advanced streaming input patterns
 
-##
-
-​
-
-See also
+## See also
 
   * [TypeScript SDK reference (V1)](</docs/en/agent-sdk/typescript>) \- Full V1 SDK documentation
   * [SDK overview](</docs/en/agent-sdk/overview>) \- General SDK concepts

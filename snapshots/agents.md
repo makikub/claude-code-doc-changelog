@@ -22,11 +22,7 @@ A few other features run Claude without you driving each step, but they solve a 
 
 Running several sessions or subagents at once multiplies token usage. See [Costs](</docs/en/costs>) for usage and rate limit details.
 
-##
-
-​
-
-Choose an approach
+## Choose an approach
 
 The right approach depends on who coordinates the work, whether the workers need to communicate, and whether they edit the same files:
 
@@ -38,11 +34,7 @@ The right approach depends on who coordinates the work, whether the workers need
   * **Do the workers need to talk to each other?** Claude can pass findings with [cross-session messaging](</docs/en/cross-session-messaging>) between sessions you run yourself, including the sessions you dispatch from agent view. Subagents report results back to the conversation that spawned them, and agent view sessions report results only to you. Teammates in an agent team message each other directly and, when they [have the Task tools](</docs/en/tools-reference#task-tool-availability>), share a task list.
   * **Do the tasks touch the same files?** Isolate the work with [worktrees](</docs/en/worktrees>). Subagents and sessions you run yourself can each use a separate worktree. Agent teams don’t isolate teammates in worktrees, so [partition the work](</docs/en/agent-teams#avoid-file-conflicts>) so each teammate owns a different set of files.
 
-##
-
-​
-
-Check on running work
+## Check on running work
 
 The command for checking on running work depends on which approach you used:
 
@@ -53,11 +45,7 @@ The command for checking on running work depends on which approach you used:
 
 For a desktop view of all your sessions, see [parallel sessions in the desktop app](</docs/en/desktop#work-in-parallel-with-sessions>).
 
-##
-
-​
-
-Learn more
+## Learn more
 
 Each guide below covers setup and configuration for one approach:
 

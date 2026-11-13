@@ -2,11 +2,7 @@ A mod can draw its own interface in Claude Code and change parts of the interfac
 
 To look up one prop or limit, see the [reference](</docs/en/plugins/mods/reference#render-sites>).
 
-##
-
-​
-
-Build a pane with tabs
+## Build a pane with tabs
 
 In this section you build a mod that adds a `/hello-tabs` command, and the command opens a pane. A pane is a sidebar beside the transcript in a wide fullscreen terminal, or a framed region above the prompt otherwise. This pane shows two tabs, and the second tab has a button that adds one to a counter. The count is still there after you restart Claude Code. The finished mod looks like this. The recording opens the pane, switches to the second tab, presses the button a few times, and returns to the first tab:
 
@@ -159,11 +155,7 @@ Check that the count was saved
 
 Press Esc to close the pane, then exit the session. In your shell, start Claude Code again with the same `claude --plugin-dir ./hello-tabs` command, and at the Claude Code prompt run `/hello-tabs`. The count is where you left it.To clear the count, have the mod call `$.store.delete('count')`. Keep state covers how long each kind of value lasts.
 
-##
-
-​
-
-Pick where to draw
+## Pick where to draw
 
 A `ui.render` hook runs for every render site unless you narrow it to the one you want to draw in. To choose the render site, pass a filter, called a [matcher](</docs/en/plugins/mods/events#filter-which-events-a-hook-handles>), as the second argument to `on`. `{ component: 'Pane' }` runs the hook only for panes. In the hook, `e.component` names the site, `e.surface` says which app is drawing, and `e.props` holds the site’s own data. For a pane, `e.requestId` is the `id` you opened it with. The pane and the band are empty until a mod fills them. Select a tab to see what each one is and how to draw in it:
 
@@ -177,11 +169,7 @@ The band is a strip directly above the prompt input. It’s always there, and ev
 
 A mod can also place a row of its own in the transcript.
 
-###
-
-​
-
-Change what Claude Code already draws
+### Change what Claude Code already draws
 
 Claude Code draws most of its interface itself: messages, tool call rows, the spinner, and more. Each of those parts is a render site too, so a mod can restyle or replace it. To change one, filter your `ui.render` hook on its name from this table:
 
@@ -247,11 +235,7 @@ At these sites, `next(e)` returns a reference to Claude Code’s drawing, `{ typ
 
 While Claude works, the spinner animates as before, and `under the spinner` appears below it. The permission prompt isn’t a render site, so a mod can’t change what it shows. The question dialog, `AskUserQuestion`, is one, so a mod can change that. A tree for the dialog has to hold the reference exactly once, with your elements above it. Otherwise, Claude Code draws its own dialog.
 
-###
-
-​
-
-Open a pane at the right time
+### Open a pane at the right time
 
 A pane appears only when your mod opens it. How and when you open it decides whether it takes keyboard focus, how much room it asks for, and whether it shows at all in a narrow terminal. To open a pane, call [`$.ui.open`](</docs/en/plugins/mods/reference#mods-api-methods>) with an `id` you choose. The `id` is the pane’s name: your `ui.render` hook checks for it, and you pass it again to close the pane.
 
@@ -279,19 +263,11 @@ The VS Code extension ignores `rows` and `columns` and sizes the pane itself. `f
 
 To let a command open the pane while Claude is working, add `immediate: true` when you [register the command](</docs/en/plugins/mods/api#add-a-command>). Without it, a command typed during a turn waits for the turn to end.
 
-####
-
-​
-
-Hold toasts behind a dialog
+#### Hold toasts behind a dialog
 
 Pass `holdToasts: true` to `$.ui.open` when the pane is a dialog the user answers and leaves, so toasts don’t appear while they decide. In the terminal, the hold lasts while that pane is the one showing, and a toast raised in that time waits until the hold ends. Claude Code holds other mods’ toasts and its own short-lived notifications as well as the ones your mod raises with [`$.ui.toast`](</docs/en/plugins/mods/api#show-something-without-starting-a-turn>). Leave the field off a pane that stays open, so the user keeps seeing them.
 
-####
-
-​
-
-When a pane waits for a wider terminal
+#### When a pane waits for a wider terminal
 
 A pane your mod opens without being asked doesn’t appear in a narrow terminal, so it can’t take over a small screen. Whether it appears depends on what opened it:
 
@@ -300,11 +276,7 @@ A pane your mod opens without being asked doesn’t appear in a narrow terminal,
 
 When the pane appears, `$.ui.open` resolves to `{ isPlaced: true }`. When the pane is waiting, `isPlaced` is `false` and `reason` is a string that says why. A waiting pane appears when the user opens it or widens the terminal. To say something is available without opening a pane, call `$.ui.toast('Your message')`, which shows a toast notification.
 
-###
-
-​
-
-Draw in the VS Code extension
+### Draw in the VS Code extension
 
 In the VS Code extension, what a mod draws appears in the chat panel with extension version 2.1.299 or later. A session that [doesn’t fetch feature flags](</docs/en/env-vars#features-that-need-feature-flag-fetching>), such as one on Amazon Bedrock, needs 2.1.304 or later. In a `ui.render` hook for the panel, `e.surface` is `vscode`. To check which sites and elements the panel draws, and which props it ignores, see the [render sites](</docs/en/plugins/mods/reference#render-sites>) and [elements](</docs/en/plugins/mods/reference#elements>) tables. To make a mod work in the panel as well as the terminal, account for these differences:
 
@@ -317,11 +289,7 @@ In the VS Code extension, what a mod draws appears in the chat panel with extens
   * **Prompt suggestions** : `$.prompt.suggest` resolves with `isShown: false` and shows nothing, because the panel keeps the prompt box’s dim suggestion text for Claude’s own suggestions.
   * **Text limits** : the panel cuts a status line at 200 characters or two rows, and a toast at 500 characters.
 
-###
-
-​
-
-Place a row in the transcript
+### Place a row in the transcript
 
 A row is a line your mod adds to the transcript in the terminal, after the latest message. It stays at that spot as the conversation goes on, and Claude doesn’t see it. `$.ui.place` requires Claude Code v2.1.314 or later.
 
@@ -365,11 +333,7 @@ To try the example, put this code in a [mod](</docs/en/plugins/mods/create>). In
   * **A second call with the same`id`**: while the first row is still in the transcript, the call adds no row and resolves with that row’s `requestId`. To change what the row shows, redraw the row.
   * **When the row goes away** : when the conversation ends, when the user rewinds past the row, or, outside [fullscreen rendering](</docs/en/fullscreen>), when the conversation is compacted. `--resume` doesn’t bring the row back. To show the row again, call `$.ui.place` again.
 
-###
-
-​
-
-Put a backdrop behind the conversation
+### Put a backdrop behind the conversation
 
 `$.theme.set` and `$.theme.clear` replace `$.ui.backdrop`, which Claude Code v2.1.319 removed. Change `$.ui.backdrop({ id: 'your-backdrop' })` to `$.theme.set({ backdrop: { id: 'your-backdrop' } })`, and `$.ui.backdrop(undefined)` to `$.theme.clear()`, which removes any mod’s backdrop.
 
@@ -402,11 +366,7 @@ To try the example, put this code in a [mod](</docs/en/plugins/mods/create>) and
   * **Whether the backdrop is drawn** : `$.theme.set` resolves with `isDrawn: true` when a Desktop or mobile app connected to the session says it draws backdrops. Otherwise `isDrawn` is `false` and `reason` says why.
   * **One backdrop for each session** : a `$.theme.set` call replaces the session’s backdrop and `$.theme.clear()` removes that backdrop, whichever mod set it. Call `$.theme.clear()` only when the user asks for it.
 
-##
-
-​
-
-Build a tree from elements
+## Build a tree from elements
 
 What a `ui.render` hook returns is an element tree: a description of what to draw, made of boxes, text, and controls nested inside each other. You describe the drawing, and Claude Code renders it in whichever app the user has open: the terminal, the Desktop app, or the VS Code extension. To get the elements, call `$.ui.resolve(e)` in your hook, as in `const { Box, Text, Button } = $.ui.resolve(e)`. Each element is a function. You pass it props, and you put the elements and strings that go inside it in `children`. Select a tab to see each of the most common elements and how the terminal draws it:
 
@@ -477,11 +437,7 @@ If your module is a `.tsx` or `.jsx` file, you can write the tree as JSX. Destru
 
     my-mod: ui.render hook skipped: returned the wrong shape (a tree Pane refuses: Text prop "bogusProp" is not allowed)
 
-###
-
-​
-
-`Link` in the Desktop app and VS Code
+### `Link` in the Desktop app and VS Code
 
 In the Desktop app and the VS Code extension, a `Link` draws as plain text unless its `href` meets these requirements:
 
@@ -491,19 +447,11 @@ In the Desktop app and the VS Code extension, a `Link` draws as plain text unles
 
 In the terminal, these requirements don’t apply.
 
-###
-
-​
-
-When a `Client` fails
+### When a `Client` fails
 
 In the terminal, when the file a `Client` runs fails, a dimmed line such as `my-mod: Client client/spinner.js: boom` takes the `Client`’s place, and the rest of your drawing still shows. If your mod handles [`ui.fault`](</docs/en/plugins/mods/reference#interface>), Claude Code then draws the site again.
 
-###
-
-​
-
-Draw a grid of colored cells
+### Draw a grid of colored cells
 
 For a heat map, a sparkline, or a game board in the terminal, draw one `Raster` and not a `Box` for each cell. A `Raster` takes a `key`, its size in `columns` and `rows`, and `cells`, a base64 string that packs every cell. Each cell is three numbers: the character’s code point, its color, and its background color. A color is a 24-bit RGB value in hexadecimal, such as `0xc62828` for a red. The value `0x01000000`, one above that range, means the terminal’s default. Apps other than the terminal have no `Raster`, so check `e.surface` and draw text there. This pane body draws a three by two heat map:
 
@@ -537,11 +485,7 @@ For a heat map, a sparkline, or a game board in the terminal, draw one `Raster` 
 
 In the terminal, the pane shows the grid: The `rows` array is the part you’d change, and `cellsOf` turns it into the packed string. The hook draws only in a pane whose `id` is `heat`, so open one with `$.ui.open({ id: 'heat' })` from a command, as the `hello-tabs` example opens its pane. Each character has to be one cell wide. To animate a `Raster` that’s already on screen, call `$.ui.blit` with the pane’s `id` as `requestId`, the `Raster`’s `key`, the same size, and new cells. For this example, that’s `$.ui.blit({ requestId: 'heat', key: 'grid', columns: 3, rows: 2, cells: cellsOf(newRows) })`. It repaints that one element without running your `ui.render` hook again.
 
-##
-
-​
-
-Respond to presses and typing
+## Respond to presses and typing
 
 When the user presses a button, types into a field, or picks from a list your mod drew, Claude Code calls that control’s callback, which runs in your module. Each control takes its own callbacks:
 
@@ -549,11 +493,7 @@ When the user presses a button, types into a field, or picks from a list your mo
   * **`Input`** : takes `onSubmit(value)` and `onInput(value)`
   * **`Select`** : takes `onSelect(value)` with its choices in `options`, a list of at least one choice with unique values, such as `[{ value: 'sm', label: 'Small' }, { value: 'lg', label: 'Large' }]`
 
-###
-
-​
-
-Which controls need a `key`
+### Which controls need a `key`
 
 Give every `Input` and `Select` a `key` prop, such as `key: 'size'`. A `Button` can go without a `key` when it has a `label` prop or a single string child. Its key is then the `label` value or that string. Tests and other mods identify a control by its key:
 
@@ -562,19 +502,11 @@ Give every `Input` and `Select` a `key` prop, such as `key: 'size'`. A `Button` 
 
 If a message says `needs a key` or `is drawn twice`, [find the cause by that message](</docs/en/plugins/mods/troubleshoot#needs-a-key>).
 
-###
-
-​
-
-Keyboard focus and hotkeys
+### Keyboard focus and hotkeys
 
 Your mod never reads the keyboard itself. The user presses a key, Claude Code decides which of your controls it’s for, and that control’s callback runs. Apart from a [digit hotkey on the band or an `action` binding](</docs/en/plugins/mods/reference#elements>), that happens only while your pane or band has keyboard focus. The rest of the time, keys go to the prompt. In the VS Code extension, buttons have no hotkeys: the user clicks a button or presses Enter on it, and types into fields.
 
-####
-
-​
-
-How a pane gets keyboard focus
+#### How a pane gets keyboard focus
 
 A pane gets keyboard focus when:
 
@@ -584,11 +516,7 @@ A pane gets keyboard focus when:
 
 Claude Code grants `focus: true` only while the prompt is empty and nothing else has keyboard focus. A pane that opens while the user is typing doesn’t take their keystrokes.
 
-####
-
-​
-
-What each key does
+#### What each key does
 
 This table lists what a key does while your pane or band has keyboard focus:
 
@@ -606,11 +534,7 @@ Esc| Returns keyboard focus to the prompt. With `closeOnEscape: true`, it also c
 
 A mod can’t bind Tab or the arrow keys to anything else, so a game steers with `w`, `a`, `s`, and `d`.
 
-####
-
-​
-
-Set a hotkey and the first focus
+#### Set a hotkey and the first focus
 
   * **`hotkey`** : to let the user press a `Button` with one key, give it a `hotkey` of one digit or one lowercase letter, as in `hotkey: 'a'`
   * **`autoFocus`** : to choose which control has the focus when the pane opens, add `autoFocus: true` to it. In the VS Code extension, `autoFocus` does nothing: the control draws as if you had left it out, and you don’t need to change anything. The prop accepts only `true`, so omit it on the other controls.
@@ -624,11 +548,7 @@ With `plain: true`| `1: One`| The label with a small key beside it| The label, a
 
 In the terminal, name the key in a bracketed button’s label, or use `plain: true`, so the user can see what to press. The [elements reference](</docs/en/plugins/mods/reference#elements>) has the other `Button` rules: `action`, digit hotkeys on the band, and two buttons on one hotkey.
 
-####
-
-​
-
-When the user collapses the band
+#### When the user collapses the band
 
 In the terminal, while a mod draws in the band, the user can collapse the band to one row to get it out of the way:
 
@@ -641,11 +561,7 @@ A collapsed band hides everything the mods draw there and shows one dim row inst
 
 The same keys, or in fullscreen rendering a click on the row, expand the band again. Until then, nothing presses a button in it: no hotkey, no digit typed into an empty prompt, and no keybinding for a button’s [`action`](</docs/en/plugins/mods/reference#elements>). If the band has keyboard focus when the user collapses it, the focus returns to the prompt, and Ctrl+X then Tab skips the band while it’s collapsed. The band stays collapsed until the user expands it, even after `/clear`, and is expanded again the next time Claude Code starts. Your mod can’t expand it or tell that it’s collapsed: the `ui.render` hook keeps running, and nothing in `e.props` says so. Don’t make the band the only place your mod shows something the user has to answer.
 
-###
-
-​
-
-Take typed input and draw a row for each item
+### Take typed input and draw a row for each item
 
 Many panes are a text field with a list under it. The example in this section is a notes pane: you type a note and press Enter to add it, and each note has an `x` button that deletes it. With two notes added, the terminal draws the pane this way:
 
@@ -732,27 +648,15 @@ Prop| In the example| What it is
 
 Submitting an `Input` doesn’t start a turn unless your callback calls [`$.prompt.submit`](</docs/en/plugins/mods/api#start-a-turn-from-a-background-job>).
 
-##
-
-​
-
-Redraw a site
+## Redraw a site
 
 A drawing is a snapshot: it shows what your `ui.render` hook returned the last time the hook ran. To show something new, the hook has to run again. Claude Code runs it again for some changes, and your mod asks for the rest.
 
-###
-
-​
-
-When Claude Code redraws without being asked
+### When Claude Code redraws without being asked
 
 Claude Code runs your `ui.render` hook again when the site’s props change or the terminal’s width changes. When a `Client` in the site fails and your mod handles [`ui.fault`](</docs/en/plugins/mods/reference#interface>), Claude Code runs the hook once more after your `ui.fault` hooks return, so your `ui.render` hook can leave the `Client` out. It doesn’t run the hook on a timer, and it can’t tell when a variable in your module changes.
 
-###
-
-​
-
-Redraw when your data changes
+### Redraw when your data changes
 
 To have your sites drawn again after your own data changes, call `$.ui.invalidate('ui.render')`. This pane counts presses. The button’s callback changes `count`, then asks for a redraw:
 
@@ -781,11 +685,7 @@ To have your sites drawn again after your own data changes, call `$.ui.invalidat
 
 Each press raises the number in the pane. The `hello-tabs` example wraps the same call in its `redraw` function. A value you keep in `$.state` doesn’t need the call, because writing the value redraws the sites that read it.
 
-###
-
-​
-
-Redraw on a timer
+### Redraw on a timer
 
 To keep a clock, a countdown, or a value from outside the session current, redraw on a schedule. Start a timer in the module’s `session.start` hook. If the module already has one, as `hello-tabs` does, add the [`$.clock.every`](</docs/en/plugins/mods/api#run-work-in-the-background>) line to it:
 
@@ -797,19 +697,11 @@ To keep a clock, a countdown, or a value from outside the session current, redra
 
 Claude Code now runs your `ui.render` hook once a second. The timer stops after the module reloads, and the new instance of the module starts its own.
 
-###
-
-​
-
-How often a site can redraw
+### How often a site can redraw
 
 Claude Code throttles redraws of a site, so your mod can call `$.ui.invalidate` as often as its data changes. For how often each site can redraw, see the [limits table](</docs/en/plugins/mods/reference#limits>). Calls that come faster than the limit are coalesced into one redraw. That redraw runs your hook once, and the hook reads your data as it is at that moment, so the latest value shows and the values in between don’t. An animation can’t run faster than the limit.
 
-##
-
-​
-
-Keep state
+## Keep state
 
 Where a mod keeps a value decides how long the value lasts: until the module reloads, until the session ends, or from one session to the next. Choose by how long the value has to last:
 
@@ -821,19 +713,11 @@ A module-level variable| The module reloads, which happens every time you save a
 
 `$.store.get(key)` resolves to the value or `undefined`, and `$.store.set(key, value)` takes any JSON value.
 
-###
-
-​
-
-Keep a value in `$.state`
+### Keep a value in `$.state`
 
 `$.state` holds values for the length of a session, and it redraws for you. It’s reactive state: a `ui.render` hook that reads a value subscribes to it, so Claude Code redraws that site each time you write the value, and you don’t call `$.ui.invalidate`. A value in `$.state` also survives a reload of the module, which a variable doesn’t. To set it up, declare your values, point your manifest at the declaration, then define and use each value. The examples move the `count` from `hello-tabs` into `$.state`.
 
-####
-
-​
-
-Declare the values
+#### Declare the values
 
 Declare the values in a type declaration file. The outer key is your plugin’s name, and each entry under it is a value and its type. Save this as `hello-tabs/types/index.d.ts`:
 
@@ -848,11 +732,7 @@ hello-tabs/types/index.d.ts
       }
     }
 
-####
-
-​
-
-Point the manifest at the declaration
+#### Point the manifest at the declaration
 
 To let `claude plugin validate` check your code against that file, add a `types` field to the manifest with its path:
 
@@ -866,11 +746,7 @@ hello-tabs/.claude-plugin/plugin.json
       "types": "./types/index.d.ts"
     }
 
-####
-
-​
-
-Define, read, and write a value
+#### Define, read, and write a value
 
 In your module, define each value with a default, read it while drawing, and write it from a callback. `atom` names a value and its default, `read` returns it, and `update` writes it. The three helpers call `$.state.get` and `$.state.set` for you:
 
@@ -892,11 +768,7 @@ Because the `ui.render` hook read `count`, Claude Code runs the hook again each 
   * **Declare every value in the type declaration file** : otherwise validation fails with `hello-tabs.count is not declared`
   * **Write from a callback or another event’s hook** : a `ui.render` hook can read state and can’t write it, so write from `onPress`, `onSubmit`, or a hook for another event
 
-####
-
-​
-
-Change `hello-tabs` to use `$.state`
+#### Change `hello-tabs` to use `$.state`
 
 To move `count` in `hello-tabs` into `$.state`, change every line that uses it:
 
@@ -907,11 +779,7 @@ To move `count` in `hello-tabs` into `$.state`, change every line that uses it:
 
 Keep `redraw` for the tab buttons, because `tab` is still a variable.
 
-###
-
-​
-
-Load a saved value again after `/clear`
+### Load a saved value again after `/clear`
 
 If your mod copies a saved value from `$.store` into `$.state` at `session.start`, it has to copy it again after `/clear`, `/resume`, or `/branch`. Those commands reset every `$.state` value to its default, and `session.start` doesn’t fire again. [`classic.SessionStart`](</docs/en/plugins/mods/events#hook-the-settings-hook-events>) does fire after each of them, with `e.source` set to `clear`, `resume`, or `fork`, so copy the value again in a hook on it. Otherwise your drawing shows the default, and a callback that saves the `$.state` value writes the default over what you stored. This code loads `count` from both hooks. It builds on the `$.state` version of `hello-tabs`, where `count` is an atom and `update` is imported. Put `loadCount` above `register`, and add the `loadCount` call to the `session.start` hook you already have. `classic.SessionStart` also fires at startup and after compaction, which doesn’t reset `$.state`, so the filter on `source` keeps the hook to the three resets:
 
@@ -935,11 +803,7 @@ If your mod copies a saved value from `$.store` into `$.state` at `session.start
 
 With both hooks in place, the pane shows the saved count after `/clear` and not `0`, and the next press of **Add one** adds to the saved count. `loadCount` writes the stored value over the one in `$.state`, and `session.start` fires again each time the module reloads. To keep the store from falling behind, save on every change, as the **Add one** button does. To check the reload without a session, [test the drawing after `/clear`](</docs/en/plugins/mods/test#test-a-drawing-after-clear>).
 
-###
-
-​
-
-Save from more than one session
+### Save from more than one session
 
 Every session on your machine that runs your mod shares one `$.store`. A `get` followed by a `set` isn’t atomic. When two sessions each read a value, change it, and write it back, they race, and the second write replaces the first. To make that less likely:
 
@@ -958,11 +822,7 @@ This button adds one to whatever the store holds now, then updates the drawing:
 
 If a second session has pressed its own button three times since this session started, this press shows and saves a count that includes those three.
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [React to events](</docs/en/plugins/mods/events>): feed your drawing from tool calls and turns
   * [Use the mods API](</docs/en/plugins/mods/api>): feed your drawing from timers and model calls

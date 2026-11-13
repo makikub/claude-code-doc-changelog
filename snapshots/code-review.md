@@ -4,11 +4,7 @@ Code Review uses AI to review code and may miss bugs, security vulnerabilities, 
 
 To turn on Code Review, an Owner of your Claude organization follows [Set up Code Review](</docs/en/code-review-setup>). Claude can also review code without this service. Run [`/code-review`](</docs/en/code-review-local>) in your Claude Code session on any plan, or compare all the options.
 
-##
-
-​
-
-Availability
+## Availability
 
 Check that your organization qualifies before you set up Code Review:
 
@@ -18,11 +14,7 @@ Check that your organization qualifies before you set up Code Review:
   * **Encryption keys** : Code Review isn’t yet available for organizations that use customer-managed encryption keys (CMEK).
   * **Cloud providers** : you need a Claude organization on one of these plans even if your developers use Claude Code through Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry
 
-##
-
-​
-
-Set up and use Code Review
+## Set up and use Code Review
 
 Pick the page for what you need to do:
 
@@ -46,11 +38,7 @@ Fix a review that didn’t start, failed, or was skipped for budget
 
 See how reviews are billed, estimate spend, set the monthly spend limit, and track review activity
 
-##
-
-​
-
-How reviews work
+## How reviews work
 
 By default, Code Review focuses on correctness: bugs that would break production, not formatting preferences or missing test coverage. To change what it flags, [add guidance files](</docs/en/code-review-customize>) to your repository. A review runs on Anthropic infrastructure in four stages:
 
@@ -67,11 +55,7 @@ Each review leaves these on the pull request:
 
 Code Review chooses the Claude models that reviews run on, and its admin settings don’t offer a model choice. To make reviews more or less thorough, change the review level. After an Owner turns on Code Review, each repository has a setting for [when reviews run](</docs/en/code-review-setup#set-when-reviews-run>): once when a pull request opens, after every push, or only on request. Whichever it is, someone with write access to the repository can comment `@claude review` on a pull request to [start a review](</docs/en/code-review-pull-requests#comment-commands>).
 
-###
-
-​
-
-Review levels
+### Review levels
 
 The review level sets how thorough each review is, and a more thorough review costs more:
 
@@ -81,11 +65,7 @@ The review level sets how thorough each review is, and a more thorough review co
 
 An Owner [chooses one level for the organization](</docs/en/code-review-setup#set-the-default-review-level>) and can give an individual repository its own, such as Quick for a routine codebase and Deep for a critical one. For what else drives the cost of each review, see [Code Review costs and usage](</docs/en/code-review-costs>).
 
-###
-
-​
-
-What a review can access
+### What a review can access
 
 A review reaches your repository through the Claude GitHub App that an Owner [installs during setup](</docs/en/code-review-setup#turn-on-code-review>):
 
@@ -93,20 +73,12 @@ A review reaches your repository through the Claude GitHub App that an Owner [in
   * **What it reads and writes** : inside a review, access to your repository is read-only, and a review doesn’t push commits. On the pull request, it posts comments and the [check run](</docs/en/code-review-pull-requests#check-run-output>), resolves its own earlier comment threads, and can react to a comment command with 👀. The app itself holds a [broader permission set](</docs/en/github-actions#github-app-permissions>) that other Claude features share.
   * **How it examines your code** : a review works from reading the diff and the surrounding code, without building or running your code.
 
-###
-
-​
-
-Who controls a review
+### Who controls a review
 
   * **Who can start one** : where reviews run automatically, opening or pushing to a pull request starts a review, [except on drafts and forks](</docs/en/code-review-pull-requests#review-drafts-and-pull-requests-from-forks>). After some pushes, Code Review [keeps the earlier result](</docs/en/code-review-pull-requests#when-a-push-keeps-the-earlier-result>) instead. A [comment command](</docs/en/code-review-pull-requests#comment-commands>) starts one only when it comes from a person with write access to the repository.
   * **Which instructions it follows** : `REVIEW.md` from the base or default branch and [never from the pull request’s own changes](</docs/en/code-review-customize#which-branch-review-md-is-read-from>).
 
-##
-
-​
-
-Compare ways to get a review
+## Compare ways to get a review
 
 To find the options open to you, check the **Who can use it** column against your plan and code host:
 
@@ -118,11 +90,7 @@ Code Review| Pull request activity, as each repository is set, or an `@claude re
 Claude in your own CI, with [GitHub Actions](</docs/en/github-actions>) or [GitLab CI/CD](</docs/en/gitlab-ci-cd>)| Your pipeline’s events, such as every pull request or merge request| Your own CI runners| Anyone with a Claude API key or cloud provider credentials, on GitHub or GitLab
 Your own reviewer, as a [subagent](</docs/en/sub-agents>) or [skill](</docs/en/skills>)| You or Claude invoke it during a session| Wherever you run Claude Code| Anyone who writes one
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [GitHub Enterprise Server](</docs/en/github-enterprise-server>): use Code Review with a self-hosted GitHub instance
   * [GitHub App permissions](</docs/en/github-actions#github-app-permissions>): the full permission set the Claude GitHub App requests

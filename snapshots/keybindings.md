@@ -1,10 +1,6 @@
 Claude Code supports customizable keyboard shortcuts. Run `/keybindings` to create or open your configuration file at `~/.claude/keybindings.json`.
 
-##
-
-​
-
-Configuration file
+## Configuration file
 
 The keybindings configuration file is an object with a `bindings` array. Each block specifies a context and a map of keystrokes to actions.
 
@@ -32,11 +28,7 @@ This example binds `Ctrl+E` to open an external editor in the chat context, and 
       ]
     }
 
-##
-
-​
-
-Contexts
+## Contexts
 
 Each binding block specifies a **context** where the bindings apply:
 
@@ -72,19 +64,11 @@ Context| Description
 
 Before v2.1.205, a `Doctor` context and a `doctor:fix` action existed for the `/doctor` diagnostics screen.
 
-##
-
-​
-
-Available actions
+## Available actions
 
 Actions follow a `namespace:action` format, such as `chat:submit` to send a message or `app:toggleTodos` to show the task list. Each context has specific actions available.
 
-###
-
-​
-
-App actions
+### App actions
 
 Actions available in the `Global` context:
 
@@ -96,11 +80,7 @@ Action| Default| Description
 `app:toggleTodos`| Ctrl+T| Toggle visibility of Claude’s to-do checklist. This is not the [`/tasks`](</docs/en/commands>) background-task view
 `app:toggleTranscript`| Ctrl+O| Toggle verbose transcript
 
-###
-
-​
-
-History actions
+### History actions
 
 Actions for navigating command history:
 
@@ -110,11 +90,7 @@ Action| Default| Description
 `history:previous`| Up| Previous history item
 `history:next`| Down| Next history item
 
-###
-
-​
-
-Chat actions
+### Chat actions
 
 Actions available in the `Chat` context:
 
@@ -140,11 +116,7 @@ Action| Default| Description
 
 *On Windows without VT mode (Node <24.2.0/<22.17.0, Bun <1.2.23), defaults to Meta+M.
 
-###
-
-​
-
-Autocomplete actions
+### Autocomplete actions
 
 Actions available in the `Autocomplete` context:
 
@@ -155,11 +127,7 @@ Action| Default| Description
 `autocomplete:previous`| Up| Previous suggestion
 `autocomplete:next`| Down| Next suggestion
 
-###
-
-​
-
-Confirmation actions
+### Confirmation actions
 
 Actions available in the `Confirmation` context:
 
@@ -190,11 +158,7 @@ Action| Default| Description
 
 With these bindings, `y` and `n` still type as letters while a text field has focus. Before v2.1.280, `y` was also bound to `confirm:yes` and `n` to `confirm:no` by default. If you created your `keybindings.json` with `/keybindings` before v2.1.280, the file lists both bindings and they stay in effect until you delete those two lines.
 
-###
-
-​
-
-Permission actions
+### Permission actions
 
 Actions available in the `Confirmation` context for permission dialogs:
 
@@ -202,11 +166,7 @@ Action| Default| Description
 ---|---|---
 `permission:toggleDebug`| (unbound)| Claude Code doesn’t respond to this action, and a `keybindings.json` that names it remains valid
 
-###
-
-​
-
-Transcript actions
+### Transcript actions
 
 Actions available in the `Transcript` context:
 
@@ -217,11 +177,7 @@ Action| Default| Description
 
 `transcript:toggleShowAll` applies in the classic renderer only; in [fullscreen rendering](</docs/en/fullscreen>), the transcript viewer doesn’t offer a show-all toggle.
 
-###
-
-​
-
-History search actions
+### History search actions
 
 Actions available in the `HistorySearch` context:
 
@@ -235,11 +191,7 @@ Action| Default| Description
 
 The `historySearch:next`, `historySearch:accept`, `historySearch:cancel`, and `historySearch:execute` defaults apply to the inline history search in the classic renderer, which always searches prompts from all projects. `historySearch:cycleScope` takes effect only in [fullscreen rendering](</docs/en/fullscreen>), where `Ctrl+R` opens a search dialog instead and `Ctrl+S` cycles its scope. The dialog’s other keys are fixed and can’t be rebound: `Enter` or `Tab` places the highlighted match in the prompt input and `Esc` cancels.
 
-###
-
-​
-
-Task actions
+### Task actions
 
 Actions available in the `Task` context:
 
@@ -247,11 +199,7 @@ Action| Default| Description
 ---|---|---
 `task:background`| Ctrl+B, Ctrl+X Ctrl+B| Background current task
 
-###
-
-​
-
-Theme actions
+### Theme actions
 
 Actions available in the `ThemePicker` context:
 
@@ -259,11 +207,7 @@ Action| Default| Description
 ---|---|---
 `theme:toggleSyntaxHighlighting`| Ctrl+T| Toggle syntax highlighting
 
-###
-
-​
-
-Help actions
+### Help actions
 
 Actions available in the `Help` context:
 
@@ -271,11 +215,7 @@ Action| Default| Description
 ---|---|---
 `help:dismiss`| Escape| Close help menu
 
-###
-
-​
-
-Tabs actions
+### Tabs actions
 
 Actions available in the `Tabs` context:
 
@@ -286,11 +226,7 @@ Action| Default| Description
 
 In a tabbed dialog, `tabs:next` and `tabs:previous` switch tabs while the tab row has focus. In some dialogs, such as `/help` and `/sandbox`, the tab-switching keys also work from inside the tab’s content. `Up` and `Down` move focus between the tab row and the tab’s content, and a list in the content responds to keys only while it has focus.
 
-###
-
-​
-
-Attachments actions
+### Attachments actions
 
 Actions available in the `Attachments` context:
 
@@ -301,11 +237,7 @@ Action| Default| Description
 `attachments:remove`| Backspace, Delete| Remove selected attachment
 `attachments:exit`| Down, Escape| Exit attachment navigation
 
-###
-
-​
-
-Footer actions
+### Footer actions
 
 Actions available in the `Footer` context:
 
@@ -322,11 +254,7 @@ Action| Default| Description
 
 While a footer item is selected, such as a row in the agent panel below the prompt, `Enter` opens it even when you rebind `Enter` in the `Chat` context to `chat:queueSubmit` or `chat:newline`. `Chat` bindings on keys the `Footer` context doesn’t bind, such as `Shift+Tab` for `chat:cycleMode`, keep working while an item is selected.
 
-###
-
-​
-
-Message selector actions
+### Message selector actions
 
 In the message list of the [rewind menu](</docs/en/checkpointing>), you move through messages and pick one with the Select actions and their default keys. Your `Select` bindings for those actions apply there too. The `MessageSelector` context has no actions or default bindings of its own. Use it to change a key for this list alone, by binding a Select action such as `select:accept` in a `MessageSelector` block. This example binds `o` to pick the highlighted message in the rewind menu, without changing any other list:
 
@@ -343,11 +271,7 @@ In the message list of the [rewind menu](</docs/en/checkpointing>), you move thr
 
 Before v2.1.283, this list ignored `Select` bindings and had its own actions: `messageSelector:up`, `messageSelector:down`, `messageSelector:top`, `messageSelector:bottom`, and `messageSelector:select`. If your `keybindings.json` binds one of those names, the binding keeps working in this list as the Select action that does the same thing. `Home` and `End` jump to either end of the list; before v2.1.283, keys such as `Shift+K` and `Shift+J` did that by default.
 
-###
-
-​
-
-Diff actions
+### Diff actions
 
 These actions reach only Claude Code’s earlier diff viewer, which `/diff` opens outside [fullscreen rendering](</docs/en/fullscreen>) after you disable the [`cc-plugin-diff` mod](</docs/en/plugins/mods/overview#mods-built-into-claude-code>) in `/plugin`. While that mod is enabled, `/diff` opens the [diff dialog](</docs/en/interactive-mode#diff-dialog>) instead. Actions available in the `DiffDialog` context:
 
@@ -371,11 +295,7 @@ Action| Default| Description
 `scroll:top`| G, Home| Jump to the top
 `scroll:bottom`| Shift+G, End| Jump to the bottom
 
-###
-
-​
-
-Diff panel actions
+### Diff panel actions
 
 Actions for the [diff panel](</docs/en/interactive-mode#diff-panel>) that `/diff` opens in fullscreen rendering. `app:cycleDiffBase` is in the `DiffPanel` context, which is active while the panel is open; the others are `Global`. The built-in [`cc-plugin-diff` mod](</docs/en/plugins/mods/overview#mods-built-into-claude-code>) draws this panel and handles `app:cycleDiffBase`, `app:diffFileListUp`, and `app:diffFileListDown`. `app:toggleReplTab`, `app:toggleDiffNoiseFilter`, and `app:toggleDiffPreSession` reach only Claude Code’s earlier panel, which `/diff` opens after you disable `cc-plugin-diff` in `/plugin`.
 
@@ -388,11 +308,7 @@ Action| Default| Description
 `app:toggleDiffNoiseFilter`| (unbound)| Show or hide test and generated files in the panel
 `app:toggleDiffPreSession`| (unbound)| Expand or collapse the changes from before this session
 
-###
-
-​
-
-Model picker actions
+### Model picker actions
 
 Actions available in the `ModelPicker` context:
 
@@ -402,11 +318,7 @@ Action| Default| Description
 `modelPicker:increaseEffort`| Right| Increase effort level
 `modelPicker:thisSessionOnly`| s| Apply highlighted model to this session only
 
-###
-
-​
-
-Effort slider actions
+### Effort slider actions
 
 Actions available in the `EffortSlider` context, the slider that opens when you run `/effort` with no arguments. The slider’s Enter and Escape keys can’t be rebound.
 
@@ -417,11 +329,7 @@ Action| Default| Description
 `effortSlider:toggleUltracode`| Tab| Turn [ultracode](</docs/en/workflows#let-claude-decide-with-ultracode>) on or off for this session, when the slider [offers it](</docs/en/model-config#when-ultracode-is-available>). Requires v2.1.284 or later
 `effortSlider:thisSessionOnly`| s| Apply the focused [effort level](</docs/en/model-config#adjust-effort-level>) to this session only. Requires v2.1.257 or later
 
-###
-
-​
-
-Select actions
+### Select actions
 
 Actions available in the `Select` context:
 
@@ -438,11 +346,7 @@ Action| Default| Description
 
 In list panels such as `/skills`, `/mcp`, and `/tasks`, Claude Code applies your `select:pageUp`, `select:pageDown`, `select:first`, and `select:last` bindings. In most other lists, such as the `/model` picker, your `select:first` and `select:last` bindings apply. PageUp and PageDown page through the options in those lists regardless of your bindings. Before v2.1.280, those other lists ignored Home, End, and your `select:first` and `select:last` bindings. Before v2.1.283, the `/mcp` tool list paged with fixed PageUp and PageDown keys regardless of your bindings.
 
-###
-
-​
-
-Plugin actions
+### Plugin actions
 
 Actions available in the `Plugin` context:
 
@@ -452,11 +356,7 @@ Action| Default| Description
 `plugin:install`| I| Install selected plugins
 `plugin:favorite`| F| Favorite the selected plugin so it sorts near the top of the Installed tab
 
-###
-
-​
-
-Above-prompt actions
+### Above-prompt actions
 
 Actions for the band above the prompt, the shared strip where [mods](</docs/en/plugins/mods/interface#pick-where-to-draw>) draw buttons, input fields, and selects. `abovePrompt:toggle` and `abovePrompt:focus` apply in the `Chat` context. The other actions apply in the context of whatever has keyboard focus in the band or a pane.
 
@@ -473,11 +373,7 @@ Action| Default| Description
 
 In the `AbovePrompt` context, Right and Left also run `abovePrompt:next` and `abovePrompt:previous` by default, and Space also runs `abovePrompt:press`. The `AbovePrompt` context also binds Up, Down, PageUp, PageDown, Home, and End to the pane scroll actions `pane:scrollUp` through `pane:bottom`, so to change one of those keys for the band, bind the scroll action in an `AbovePrompt` block.
 
-###
-
-​
-
-Pane actions
+### Pane actions
 
 Actions for a pane drawn by a [mod](</docs/en/plugins/mods/interface#know-which-keys-your-mod-can-receive>). The scroll, resize, and close actions apply in the `Pane` context. `pane:close` also applies in the `PaneField` context, so it works while one of the pane’s fields has focus. `pane:next` and `pane:previous` apply in the `Global` context while more than one pane is open.
 
@@ -497,11 +393,7 @@ Action| Default| Description
 
 The `Pane` context also binds Tab, Shift+Tab, Enter, and Escape to the same above-prompt actions as the band, and a pane’s input fields and selects use the `AbovePromptInput` and `AbovePromptSelect` contexts. [Keyboard focus and hotkeys](</docs/en/plugins/mods/interface#know-which-keys-your-mod-can-receive>) lists what each key does in a pane.
 
-###
-
-​
-
-Settings actions
+### Settings actions
 
 Actions available in the `Settings` context. The `select:accept` and `confirm:no` actions are reused from the Select and Confirmation contexts with Settings-specific behavior: changes apply to each setting as soon as you change it, so Escape closes the panel with your changes saved rather than declining.
 
@@ -513,11 +405,7 @@ Action| Default| Description
 `select:accept`| Enter, Space| Change the selected setting or open its submenu
 `confirm:no`| Escape| Close the panel. Changes are already saved
 
-###
-
-​
-
-Agents actions
+### Agents actions
 
 Actions available in the `Agents` context, which applies in [agent view](</docs/en/agent-view>), opened with `claude agents`. Requires v2.1.257 or later.
 
@@ -532,11 +420,7 @@ Action| Default| Description
 
 While agent view is open, Claude Code uses the `Agents` binding for any key the `Agents` context binds, and it ignores a `Chat` or `Global` binding on the same key. For example, pressing Ctrl+S in agent view switches the session grouping rather than triggering the default `chat:stash`. The dispatch input’s external-editor shortcut isn’t an `Agents` action. Agent view follows the `Chat` context’s `chat:externalEditor` binding, Ctrl+G by default. Bindings fire on single keystrokes in agent view, so the Ctrl+X Ctrl+E chord bound to `chat:externalEditor` doesn’t open the editor there.
 
-###
-
-​
-
-Voice actions
+### Voice actions
 
 Actions available in the `Chat` context when [voice dictation](</docs/en/voice-dictation>) is enabled:
 
@@ -544,11 +428,7 @@ Action| Default| Description
 ---|---|---
 `voice:pushToTalk`| Space| Dictate a prompt. Hold or tap depending on `/voice` mode
 
-###
-
-​
-
-Scroll actions
+### Scroll actions
 
 Actions available in the `Scroll` context when [fullscreen rendering](</docs/en/fullscreen>) is enabled:
 
@@ -573,17 +453,9 @@ Action| Default| Description
 `selection:extendLineStart`| Shift+Home| Extend the active selection to the start of the line
 `selection:extendLineEnd`| Shift+End| Extend the active selection to the end of the line
 
-##
+## Keystroke syntax
 
-​
-
-Keystroke syntax
-
-###
-
-​
-
-Modifiers
+### Modifiers
 
 Use modifier keys with the `+` separator:
 
@@ -599,30 +471,18 @@ The `cmd` group is only detected in terminals that report the Super modifier, su
     meta+p          Option + P on macOS, Alt + P elsewhere
     ctrl+shift+c    Multiple modifiers
 
-###
-
-​
-
-Uppercase letters
+### Uppercase letters
 
 Claude Code parses key names case-insensitively, so `K` is the same binding as `k` and `ctrl+K` is the same as `ctrl+k`. To bind Shift and a letter, write `shift+k`.
 
-###
-
-​
-
-Non-US keyboard layouts
+### Non-US keyboard layouts
 
 Write the key names of Ctrl shortcuts as Latin characters even when your active keyboard layout types other characters. How Claude Code matches the key you press to a binding depends on the kind of layout:
 
   * Under a non-Latin layout such as Cyrillic, Claude Code matches Ctrl shortcuts by the key’s US-layout position when the terminal uses the Kitty keyboard protocol and reports that position. In such a terminal, with a Russian layout active, pressing Ctrl and the physical W key triggers `ctrl+w`. In a terminal that doesn’t report the position, Claude Code matches whatever the terminal sends for the keypress: an ASCII control code triggers the Latin shortcut, and a keypress that arrives as the Cyrillic character matches no binding
   * Under layouts that rearrange Latin letters, such as AZERTY, Claude Code matches the letter that the key types, so pressing Ctrl and the key labeled A triggers `ctrl+a`
 
-###
-
-​
-
-Chords
+### Chords
 
 Chords are sequences of keystrokes separated by spaces:
 
@@ -630,11 +490,7 @@ Chords are sequences of keystrokes separated by spaces:
 
 Press each keystroke within 3 seconds of the one before it. If you wait longer, Claude Code cancels the chord and shows a brief notice saying so.
 
-###
-
-​
-
-Special keys
+### Special keys
 
   * `escape` or `esc` \- Escape key
   * `enter` or `return` \- Enter key
@@ -646,11 +502,7 @@ Special keys
   * `backspace`, `delete` \- Delete keys
   * `wheelup`, `wheeldown` \- Mouse wheel scroll events
 
-##
-
-​
-
-Unbind default shortcuts
+## Unbind default shortcuts
 
 Set an action to `null` to unbind a default shortcut:
 
@@ -667,7 +519,7 @@ Set an action to `null` to unbind a default shortcut:
 
 This also works for chord bindings. Unbinding every chord that shares a prefix frees that prefix for use as a single-key binding. A chord in any active context keeps its prefix reserved, so you must unbind each chord in the context that defines it. Claude Code binds these default chords on the `ctrl+x` prefix, by context:
 
-  * `Chat`: `ctrl+x ctrl+k`, `ctrl+x ctrl+e`, `ctrl+x enter`, `ctrl+x ctrl+a`, `ctrl+x ctrl+s`, and `ctrl+x tab`
+  * `Chat`: `ctrl+x ctrl+k`, `ctrl+x ctrl+e`, `ctrl+x enter`, `ctrl+x ctrl+a`, `ctrl+x ctrl+s`, `ctrl+x tab`, `ctrl+x ctrl+=`, `ctrl+x ctrl+-`, `ctrl+x ctrl+_`, `ctrl+x =`, and `ctrl+x -`
   * `Task`: `ctrl+x ctrl+b`
   * `DiffPanel`: `ctrl+x b`
   * `Pane`: `ctrl+x left`, `ctrl+x right`, `ctrl+x up`, `ctrl+x down`, and `ctrl+x x`
@@ -714,6 +566,11 @@ The `ctrl+x enter` chord requires v2.1.247 or later, `ctrl+x b`, `ctrl+x ctrl+a`
             "ctrl+x ctrl+a": null,
             "ctrl+x ctrl+s": null,
             "ctrl+x tab": null,
+            "ctrl+x ctrl+=": null,
+            "ctrl+x ctrl+-": null,
+            "ctrl+x ctrl+_": null,
+            "ctrl+x =": null,
+            "ctrl+x -": null,
             "ctrl+x": "chat:newline"
           }
         }
@@ -722,11 +579,7 @@ The `ctrl+x enter` chord requires v2.1.247 or later, `ctrl+x b`, `ctrl+x ctrl+a`
 
 If you unbind some but not all chords on a prefix, pressing the prefix still enters chord-wait mode for the remaining bindings.
 
-##
-
-​
-
-Reserved shortcuts
+## Reserved shortcuts
 
 These shortcuts cannot be rebound:
 
@@ -740,11 +593,7 @@ Ctrl+I| Claude Code always receives it as Tab
 Ctrl+H| Sends the ASCII backspace byte. [How Claude Code reads it on Windows](</docs/en/terminal-config#fix-backspace-deleting-a-whole-word-on-windows>) depends on your terminal and the [`CLAUDE_CODE_BS_AS_CTRL_BACKSPACE`](</docs/en/env-vars>) environment variable
 Caps Lock| Not delivered to terminal applications
 
-##
-
-​
-
-Terminal conflicts
+## Terminal conflicts
 
 Some shortcuts may conflict with terminal multiplexers:
 
@@ -754,11 +603,7 @@ Ctrl+B| tmux prefix (press twice to send)
 Ctrl+A| GNU screen prefix
 Ctrl+Z| Unix process suspend (SIGTSTP)
 
-##
-
-​
-
-Text fields
+## Text fields
 
 If you bind a bare letter, digit, or Space, you can still type that character in a text field inside a dialog or panel. One such field is the `Other` answer to a question Claude asks. While the field has focus, a printable key you press without Ctrl, Alt, or Cmd goes to the field, and Claude Code doesn’t match it against your bindings. These keys still run their bindings while the field has focus:
 
@@ -768,11 +613,7 @@ If you bind a bare letter, digit, or Space, you can still type that character in
 
 At the main prompt, Claude Code matches every key against the active contexts, such as `Chat`, and types the key only when no binding takes it.
 
-##
-
-​
-
-Vim mode interaction
+## Vim mode interaction
 
 When you enable vim mode with the Editor mode setting in `/config`, keybindings and vim mode operate independently:
 
@@ -786,11 +627,7 @@ When you enable vim mode with the Editor mode setting in `/config`, keybindings 
 
 In the `Other` row of a question Claude asks, Escape doesn’t cancel the question right away in vim mode. Except in [screen reader mode](</docs/en/accessibility>), the row starts in INSERT mode each time you focus it. When you press Escape in the `Other` row, the row switches to NORMAL mode or drops a half-typed vim command, and the question stays open. Press Escape again in NORMAL mode to cancel the question.
 
-###
-
-​
-
-Cancel a question with one key press
+### Cancel a question with one key press
 
 To cancel a question with one key press in vim mode, bind another key to `select:cancel` in the `Select` context. You can cancel this way from the `Other` row of a question where you select one option. In [screen reader mode](</docs/en/accessibility>) or in a question where you can select several options, the bound key doesn’t cancel, so cancel with Escape instead. Pick a key that you press with Ctrl or Alt. A bare letter or digit goes to the `Other` row instead and doesn’t reach your bindings. For example, to bind `Ctrl+Q`, add this to `~/.claude/keybindings.json`:
 
@@ -807,11 +644,7 @@ To cancel a question with one key press in vim mode, bind another key to `select
 
 After you save the file, press `Ctrl+Q` in the `Other` row of a question where you select one option. The question closes whether the row is in INSERT or NORMAL mode.
 
-##
-
-​
-
-Validation
+## Validation
 
 Claude Code validates your keybindings and writes a warning to the debug log for:
 

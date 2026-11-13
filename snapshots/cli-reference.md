@@ -1,8 +1,4 @@
-##
-
-​
-
-CLI commands
+## CLI commands
 
 You can start sessions, pipe content, resume conversations, and manage updates with these commands:
 
@@ -47,11 +43,7 @@ Command| Description| Example
 
 If you mistype a subcommand, Claude Code suggests the closest match and exits without starting a session. For example, `claude udpate` prints `Did you mean claude update?`. `claude --dangerously-skip-permissions daemon <subcommand>` runs the `daemon` subcommand, so the subcommand works when `claude` is aliased to include the flag. Only a leading `--dangerously-skip-permissions` or `--allow-dangerously-skip-permissions` routes to `daemon` this way; with any other flag ahead of `daemon`, the subcommand doesn’t run.
 
-##
-
-​
-
-CLI flags
+## CLI flags
 
 Customize Claude Code’s behavior with these command-line flags. `claude --help` does not list every flag, so a flag’s absence from `--help` does not mean it is unavailable.
 
@@ -142,11 +134,7 @@ The prompt tool can’t approve an MCP tool marked as [requiring user interactio
 `--version`, `-v`| Output the version number| `claude -v`
 `--worktree`, `-w`| Start Claude in an isolated [git worktree](</docs/en/worktrees>) at `<repo>/.claude/worktrees/<name>`. If you don’t give a name, Claude Code generates one. Pass `#<number>`, a GitHub pull request URL, or a GitLab merge request URL to [fetch that PR or MR from `origin` and branch the worktree from it](</docs/en/worktrees#branch-from-a-pull-request>). Branching from a GitLab merge request requires Claude Code v2.1.233 or later| `claude -w feature-auth`
 
-###
-
-​
-
-System prompt flags
+### System prompt flags
 
 Claude Code provides five flags for customizing the system prompt. Four set its text, and with `--system-prompt-snapshot` you control whether a conversation keeps the text it started with. All five work in both interactive and non-interactive modes.
 
@@ -164,19 +152,11 @@ You can combine these flags. To replace the default prompt and still append your
 
 Claude receives the default system prompt followed by the contents of `style.md`, a blank line, and then `Always reply in French`. The file’s contents come first even if you pass `--append-system-prompt` before `--append-system-prompt-file`. When the replacement text combines instructions that are the same on every run with context that changes per run, add a line containing only `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` between the instructions and the context. Claude Code splits the prompt at the first such line and removes that line, so the part above it stays cached while the part below changes. Requires Claude Code v2.1.275 or later. [Cache the static part of a custom prompt](</docs/en/agent-sdk/modifying-system-prompts#cache-the-static-part-of-a-custom-prompt>) lists the configurations where the split applies. Choose based on whether Claude Code’s default identity still fits your task. Use an append flag when Claude should remain a coding assistant that also follows your extra rules: per-invocation instructions, output formatting, or domain context for a `-p` script. Appending preserves the default tool guidance, safety instructions, and coding conventions, so you only supply what differs. Use a replacement flag when the surface, identity, or permission model differs from Claude Code’s, like a non-coding agent in a pipeline that no human watches. Replacing drops all of the default prompt, including tool guidance and safety instructions, so you take responsibility for whatever your task still needs. For persistent personas you can switch between and share across a project, use [output styles](</docs/en/output-styles>). For project conventions Claude should always follow, use [CLAUDE.md](</docs/en/memory>). The [Agent SDK guide on system prompts](</docs/en/agent-sdk/modifying-system-prompts#decide-on-a-starting-point>) covers the same decision in more depth.
 
-####
-
-​
-
-System prompt flags in resumed conversations
+#### System prompt flags in resumed conversations
 
 By default, Claude Code builds the system prompt once, on a conversation’s first request, with the text from any system prompt flags applied, and records it in the session. Until the conversation is compacted, every later request uses that recorded prompt, including after you return to the conversation with `--resume` or `--continue`. If you pass different system prompt flag text, or none, on that later launch, it takes effect once the conversation is compacted or when you start a new conversation. Outside of [cloud sessions](</docs/en/cloud-environments>), if you start Claude Code in [bare mode](</docs/en/headless#start-faster-with-bare-mode>) by passing `--bare` or setting `CLAUDE_CODE_SIMPLE=1`, recording stays off unless you pass `--system-prompt-snapshot on`. Before v2.1.268, sessions that don’t [fetch feature flags](</docs/en/env-vars#features-that-need-feature-flag-fetching>), including sessions on Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry, rebuilt the prompt on every request and `--system-prompt-snapshot` had no effect. To rebuild the prompt on every request instead, for example while you iterate on its wording across `--continue` runs, pass `--system-prompt-snapshot off`. Before v2.1.265, passing any of the system prompt flags also turned recording off unless you passed `--system-prompt-snapshot on`.
 
-##
-
-​
-
-See also
+## See also
 
   * [Chrome extension](</docs/en/chrome>) \- Browser automation and web testing
   * [Interactive mode](</docs/en/interactive-mode>) \- Shortcuts, input modes, and interactive features

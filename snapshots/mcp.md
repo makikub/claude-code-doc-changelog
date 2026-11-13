@@ -2,11 +2,7 @@ The [Model Context Protocol (MCP)](<https://modelcontextprotocol.io/docs/getting
 
 This page covers MCP configuration for the Agent SDK. To add MCP servers to the Claude Code CLI so they load in every project, see [MCP installation scopes](</docs/en/mcp#mcp-installation-scopes>).
 
-##
-
-​
-
-Quickstart
+## Quickstart
 
 This example connects to the [Claude Code documentation](<https://code.claude.com/docs>) MCP server using HTTP transport and uses `allowedTools` with a wildcard to permit all tools from the server.
 
@@ -58,19 +54,11 @@ Python
 
 The agent connects to the documentation server, searches for information about hooks, and returns the results.
 
-##
-
-​
-
-Add an MCP server
+## Add an MCP server
 
 You can configure MCP servers in code when calling `query()`, or in a `.mcp.json` file loaded via `settingSources`.
 
-###
-
-​
-
-Add a server in code
+### Add a server in code
 
 Pass MCP servers directly in the `mcpServers` option. This example starts a local filesystem MCP server for `/Users/me/projects`. Replace that path with a directory on your machine:
 
@@ -121,11 +109,7 @@ Python
 
     asyncio.run(main())
 
-###
-
-​
-
-Add a server from a config file
+### Add a server from a config file
 
 Create a `.mcp.json` file at your project root. The file is picked up when the `project` setting source is enabled, which it is for default `query()` options. If you set `settingSources` explicitly, include `"project"` for this file to load. Replace `/Users/me/projects` with a directory on your machine:
 
@@ -138,11 +122,7 @@ Create a `.mcp.json` file at your project root. The file is picked up when the `
       }
     }
 
-##
-
-​
-
-Connection timing
+## Connection timing
 
 Claude Code starts connecting your MCP servers when the session starts, and sends the init message once the first-turn wait, if any, ends. How long the first turn waits for a server depends on where you configured it. If you set `permissionPromptToolName`, the first turn always waits for that tool’s server, up to `MCP_TIMEOUT`, wherever you configured it. For a server in `options.mcpServers`, find its type in the first column to see how long the first turn waits for it.
 
@@ -159,19 +139,11 @@ A server has a cached tool list only when the [MCP discovery cache](</docs/en/mc
   * **Otherwise, with[tool search](</docs/en/agent-sdk/tool-search>) on, which is the default**: the first turn waits up to 2 seconds, and only for pending servers that set [`alwaysLoad: true`](</docs/en/mcp#exempt-a-server-from-deferral>) or that you named. The rest keep connecting in the background, and Claude [reaches their tools](</docs/en/mcp#tool-availability>) once they connect.
   * **Otherwise, with tool search off** : the first turn waits up to 2 seconds for every pending settings-file and plugin server. Tool search is off when your [`ENABLE_TOOL_SEARCH` value or model](</docs/en/agent-sdk/tool-search#configure-tool-search>) turns it off, or when you exclude the `ToolSearch` tool, for example through `disallowedTools`.
 
-###
-
-​
-
-Named servers
+### Named servers
 
 You name a server by listing any of its tools, such as `mcp__github__list_issues` or `mcp__github__*`, in `allowedTools` or in a `permissions.allow` rule in the `settings` option. An [`mcp_tool` hook](</docs/en/hooks#mcp-tool-hook-fields>) also names the server it calls when you configure it on a prompt-submission, tool-use, permission, subagent, task, elicitation, or worktree event. Before v2.1.284, naming a server had no effect on the first-turn wait.
 
-###
-
-​
-
-Set the first-turn wait yourself
+### Set the first-turn wait yourself
 
 To choose the first-turn wait yourself, set `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` in the [`env` option](</docs/en/agent-sdk/configuration#set-environment-variables>), for example `CLAUDE_CODE_MCP_STARTUP_WAIT_MS: "5000"`. The first turn then waits up to that many milliseconds for pending settings-file and plugin servers, whether or not tool search is on. The same limit replaces the `MCP_TIMEOUT` wait for the stdio, HTTP, and SSE servers in `options.mcpServers`. Three waits apply whatever value you set, including `0`:
 
@@ -181,11 +153,7 @@ To choose the first-turn wait yourself, set `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` in
 
 Set the variable to `0` to skip the wait for every other server. Servers still pending when the wait ends keep connecting in the background. `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` requires Claude Code v2.1.274 or later.
 
-###
-
-​
-
-Make startup wait for servers
+### Make startup wait for servers
 
 Two settings make startup itself wait, before Claude Code sends the init message:
 
@@ -194,19 +162,11 @@ Two settings make startup itself wait, before Claude Code sends the init message
 
 The init message reports each server’s status as of the moment Claude Code sends it.
 
-##
-
-​
-
-Allow MCP tools
+## Allow MCP tools
 
 MCP tools require explicit permission before Claude can use them. Without permission, Claude will see that tools are available but won’t be able to call them.
 
-###
-
-​
-
-Tool naming convention
+### Tool naming convention
 
 MCP tools are named `mcp__<server-name>__<tool-name>`, where `<server-name>` is the name you register the server under, such as its key in `mcpServers`. Characters in the server name such as `.` and spaces are replaced by `_`. This table shows the full name of a `list_issues` tool for two server keys:
 
@@ -217,11 +177,7 @@ Key in `mcpServers`| Full tool name
 
 Use the full tool names in `allowedTools` and in [MCP permission rules](</docs/en/permissions#mcp>). For a server that a [plugin](</docs/en/agent-sdk/plugins>) provides, `<server-name>` takes the [plugin-scoped form](</docs/en/mcp#plugin-provided-mcp-servers>) and starts with `plugin_`.
 
-###
-
-​
-
-Auto-approve with allowedTools
+### Auto-approve with allowedTools
 
 Use `allowedTools` to auto-approve specific MCP tools:
 
@@ -257,11 +213,7 @@ Wildcards (`*`) let you allow all tools from a server without listing each one i
 
 **Prefer`allowedTools` over permission modes for MCP access.** `permissionMode: "acceptEdits"` does not auto-approve MCP tools (only file edits and filesystem Bash commands). `permissionMode: "bypassPermissions"` does auto-approve MCP tools but also disables most other safety prompts, which is broader than necessary; see [How permissions are evaluated](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) for the prompts that remain. A wildcard in `allowedTools` grants exactly the MCP server you want and nothing more. See [Permission modes](</docs/en/agent-sdk/permissions#permission-modes>) for a full comparison.
 
-###
-
-​
-
-Discover available tools
+### Discover available tools
 
 To see what tools an MCP server provides, check the server’s documentation or inspect the `tools` array in the `system` init message. MCP tool names start with `mcp__`. Claude Code emits the init message after the first-turn connection wait for servers passed in `options.mcpServers`, so the `tools` array lists the `mcp__` tools of each server that has connected by then, plus those of servers with a cached tool list, which connect on first use. Tools of any other server that hasn’t connected are absent; see Error handling for reading each server’s status. This filter prints the MCP tool names:
 
@@ -302,11 +254,7 @@ Python
 
 You can also ask Claude to list the tools available from a server.
 
-##
-
-​
-
-Transport types
+## Transport types
 
 MCP servers communicate with your agent using different transport protocols. Check the server’s documentation to see which transport it supports:
 
@@ -314,11 +262,7 @@ MCP servers communicate with your agent using different transport protocols. Che
   * If the docs give you a **URL** , use HTTP or SSE
   * If you’re building your own tools in code, use an SDK MCP server
 
-###
-
-​
-
-stdio servers
+### stdio servers
 
 Local processes that communicate via stdin/stdout. Use this for MCP servers you run on the same machine. For the `.mcp.json` form, use the same fields shown at Add a server from a config file. In code, pass the command and its arguments. Replace `/Users/me/projects` with a directory on your machine:
 
@@ -352,11 +296,7 @@ Python
         allowed_tools=["mcp__filesystem__read_file", "mcp__filesystem__list_directory"],
     )
 
-###
-
-​
-
-HTTP/SSE servers
+### HTTP/SSE servers
 
 Use HTTP or SSE for cloud-hosted MCP servers and remote APIs. For the `.mcp.json` form, use the same fields as the example at HTTP headers for remote servers, with `"type": "sse"` for an SSE server. In code, pass the server’s URL:
 
@@ -392,35 +332,19 @@ Python
 
 For the streamable HTTP transport, use `"type": "http"` instead. In `.mcp.json` and other JSON config files, `"streamable-http"` is accepted as an alias for `"http"`. The SDKs’ `McpHttpServerConfig` type declares only `"http"`, so use `"http"` for servers you pass in code.
 
-###
-
-​
-
-SDK MCP servers
+### SDK MCP servers
 
 Define custom tools directly in your application code instead of running a separate server process. See the [custom tools guide](</docs/en/agent-sdk/custom-tools>) for implementation details. An SDK MCP server registered by an [`initialize` control request](</docs/en/agent-sdk/typescript#sdkcontrolinitializeresponse>) begins connecting as soon as Claude Code processes the request.
 
-##
-
-​
-
-MCP tool search
+## MCP tool search
 
 When you have many MCP tools configured, tool definitions can consume a significant portion of your context window. Tool search solves this by withholding tool definitions from context and loading only the ones Claude needs for each turn. Tool search is enabled by default. See [Tool search](</docs/en/agent-sdk/tool-search>) for configuration options, best practices, and using tool search with custom SDK tools.
 
-##
-
-​
-
-Authentication
+## Authentication
 
 Most MCP servers require authentication to access external services. Pass credentials through environment variables in the server configuration.
 
-###
-
-​
-
-Pass credentials via environment variables
+### Pass credentials via environment variables
 
 Use the `env` field to pass API keys, tokens, and other credentials to the MCP server:
 
@@ -472,11 +396,7 @@ Python
 
 The `${API_KEY}` syntax expands environment variables at runtime.
 
-###
-
-​
-
-HTTP headers for remote servers
+### HTTP headers for remote servers
 
 For HTTP and SSE servers, pass authentication headers directly in the server configuration:
 
@@ -530,11 +450,7 @@ The `${API_TOKEN}` syntax expands environment variables at runtime.
 
 For a complete working example of a remote server authenticated with headers, see List issues from a repository.
 
-###
-
-​
-
-OAuth2 authentication
+### OAuth2 authentication
 
 The [MCP specification supports OAuth 2.1](<https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization>) for authorization. The SDK doesn’t open a browser or run an interactive OAuth flow. When a configured server returns an authorization challenge and Claude Code has no token to send, the SDK reports the server as `needs-auth` or `failed`:
 
@@ -579,17 +495,9 @@ Python
         allowed_tools=["mcp__oauth-api__*"],
     )
 
-##
+## Examples
 
-​
-
-Examples
-
-###
-
-​
-
-List issues from a repository
+### List issues from a repository
 
 This example connects to the remote [GitHub MCP server](<https://github.com/github/github-mcp-server>) to list recent issues. The example includes debug logging to verify the MCP connection and tool calls. Before running, create a [GitHub personal access token](<https://github.com/settings/personal-access-tokens>) with read access to the repositories you want to query and set it as an environment variable:
 
@@ -680,11 +588,7 @@ Python
 
 In the `MCP servers:` line, a `status` of `connected` for `github` confirms the token works. If Claude Code has a cached tool list for the server, the status can read `pending` instead and the server connects on its first tool call. If the status is `failed` or `needs-auth`, see Error handling before trusting the result, since Claude can fall back to built-in tools when the server is unavailable.
 
-###
-
-​
-
-Query a database
+### Query a database
 
 This example uses [DBHub](<https://github.com/bytebase/dbhub>) to query a Postgres database. The agent automatically discovers the database schema, writes the SQL query, and returns the results. DBHub’s `execute_sql` tool runs whatever SQL the agent emits, including writes, unless you restrict it. Setting `readonly = true` in the [DBHub configuration file](<https://dbhub.ai/config/toml>) makes DBHub reject `INSERT`, `UPDATE`, `DELETE`, and DDL statements, so the example cannot modify your data even if the agent emits a write. DBHub resolves `${DATABASE_URL}` from the process environment when it loads the config, so the connection string stays out of the file. Create this `dbhub.toml` next to your script:
 
@@ -758,11 +662,7 @@ Python
 
     asyncio.run(main())
 
-##
-
-​
-
-Error handling
+## Error handling
 
 MCP servers can fail to connect for various reasons: the server process might not be installed, credentials might be invalid, or a remote server might be unreachable. Claude Code emits a `system` message with subtype `init` at the start of each query. This message includes the connection status for each MCP server. The `status` field can be `"pending"`, `"connected"`, `"failed"`, `"needs-auth"`, or `"disabled"`. Claude Code emits the init message after the first-turn connection wait for servers passed in `options.mcpServers`, so such a server that connected within the wait shows `"connected"`. In the init message, don’t treat `"pending"` as a failure on its own. It can mean any of these:
 
@@ -849,17 +749,9 @@ Python
 
 A remote server’s status can also change after it reports `"connected"`. When the connection to it drops mid-session, Claude Code moves the server back to `"pending"` while [reconnecting](</docs/en/mcp#automatic-reconnection>). A later `mcpServerStatus()` call in TypeScript, or [`ClaudeSDKClient.get_mcp_status()`](</docs/en/agent-sdk/python#methods>) in Python, can then report `"pending"` for a server you saw connected earlier, with no configuration change on your side. After five reconnection attempts fail, the server reports `"failed"`, or `"needs-auth"` when it needs authorizing again. A `"failed"` HTTP or SSE server can still return to `"connected"` without a call from you, because Claude Code keeps [retrying in the background](</docs/en/mcp#mid-session-drops-of-a-remote-server>) after a transient error. To retry manually, call [`reconnectMcpServer()`](</docs/en/agent-sdk/typescript#methods>) in TypeScript or [`ClaudeSDKClient.reconnect_mcp_server()`](</docs/en/agent-sdk/python#methods>) in Python.
 
-##
+## Troubleshooting
 
-​
-
-Troubleshooting
-
-###
-
-​
-
-Server shows “failed” status
+### Server shows “failed” status
 
 Check the `init` message to see which servers failed to connect:
 
@@ -887,11 +779,7 @@ A `"pending"` status doesn’t mean the server failed. See Error handling for th
   * **Invalid connection string** : For database servers, verify the connection string format and that the database is accessible.
   * **Network issues** : For remote HTTP/SSE servers, check the URL is reachable and any firewalls allow the connection.
 
-###
-
-​
-
-Tools not being called
+### Tools not being called
 
 If Claude sees tools but doesn’t use them, check that you’ve granted permission with `allowedTools`:
 
@@ -915,11 +803,7 @@ Python
         allowed_tools=["mcp__servername__*"],  # Auto-approve calls from this server
     )
 
-###
-
-​
-
-A tool is missing from an SDK MCP server
+### A tool is missing from an SDK MCP server
 
 In the TypeScript SDK, when a tool’s input schema can’t be converted to JSON Schema, the server you created with [`createSdkMcpServer()`](</docs/en/agent-sdk/typescript#createsdkmcpserver>) leaves that tool out when it lists its tools. The SDK emits a warning at that point. Under Node.js the warning is a process warning with code `CLAUDE_SDK_MCP_TOOL_SCHEMA_UNCONVERTIBLE`, and it starts with this text:
 
@@ -927,11 +811,7 @@ In the TypeScript SDK, when a tool’s input schema can’t be converted to JSON
 
 The rest of the warning gives the conversion error’s message when it has one, then says what to check and change. Before TypeScript Agent SDK v0.3.286, one unconvertible schema made the server’s whole tool listing fail without this warning, so none of that server’s tools reached Claude.
 
-###
-
-​
-
-Connection timeouts
+### Connection timeouts
 
 MCP server connections time out after 30 seconds by default. To change how long a running tool call may take, set [`MCP_TOOL_TIMEOUT`](</docs/en/env-vars>). If your server takes longer to start, the connection fails. Raise the connection limit with the [`MCP_TIMEOUT`](</docs/en/env-vars>) environment variable, in milliseconds. For servers that need more startup time, also consider:
 
@@ -941,19 +821,11 @@ MCP server connections time out after 30 seconds by default. To change how long 
 
 In TypeScript, you can set the tool-call limit for a single SDK MCP server by passing [`timeout` to `createSdkMcpServer()`](</docs/en/agent-sdk/typescript#createsdkmcpserver>).
 
-###
-
-​
-
-Tool output exceeds maximum allowed tokens
+### Tool output exceeds maximum allowed tokens
 
 The SDK applies the same MCP output limits as Claude Code. When a successful tool result with no image content is larger than 25,000 tokens, Claude Code saves the output to a file and replaces the tool result with an error message that names the file path, so the agent can read the output back in portions. To change the token limit, set the [`MAX_MCP_OUTPUT_TOKENS`](</docs/en/env-vars>) environment variable. Unless the tool declares `anthropic/maxResultSizeChars`, a successful text result longer than 50,000 characters is saved to a file regardless of the token limit. See [MCP output limits and warnings](</docs/en/mcp#mcp-output-limits-and-warnings>) for the full behavior, including how a server declares that annotation.
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * **[Custom tools guide](</docs/en/agent-sdk/custom-tools>)** : Build your own MCP server that runs in-process with your SDK application
   * **[Permissions](</docs/en/agent-sdk/permissions>)** : Control which MCP tools your agent can use with `allowedTools` and `disallowedTools`

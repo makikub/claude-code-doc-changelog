@@ -6,11 +6,7 @@ This page holds three example `settings.json` files, one for each place you save
 
 Each one is a plausible file for that reader, so you can see the shape and copy the parts you want. None of them is a recommended baseline. Every value comes from the key’s entry on the [settings reference](</docs/en/settings-reference>), which has its type, default, and where it can be set. Each example has two tabs. **Copyable settings file** is the file as you’d save it. **What each key does** is the same file with a comment above each key; Claude Code doesn’t accept comments in a settings file, so copy from the first tab.
 
-##
-
-​
-
-Your own settings
+## Your own settings
 
 One developer’s personal settings. It picks a model and effort, adjusts the terminal, and pre-approves a read-only command and one file read. Everything not listed keeps its default. A file like this goes in `~/.claude/settings.json`, where it applies to every project you open.
 
@@ -84,11 +80,7 @@ The same file with a comment above each key. Read it here; copy from the other t
       "cleanupPeriodDays": 20
     }
 
-##
-
-​
-
-A team’s shared settings
+## A team’s shared settings
 
 One team’s shared settings, committed to the repository so everyone who clones it gets the same permissions, hooks, and plugin marketplace. Save a file like this at `.claude/settings.json` at the top of the repository. What to know before you commit one:
 
@@ -228,11 +220,7 @@ The same file with a comment above each key. Read it here; copy from the other t
       "plansDirectory": "./plans"
     }
 
-##
-
-​
-
-An organization’s managed settings
+## An organization’s managed settings
 
 A `managed-settings.json` file that shows the shape of the managed keys, with one plausible value for each. It isn’t a recommended policy: pick the keys that match your own requirements and set your own values. The example sets these keys:
 

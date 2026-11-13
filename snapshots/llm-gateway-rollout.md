@@ -3,11 +3,7 @@ This page walks an administrator through rolling out an LLM gateway for Claude C
   * To connect Claude Code on your own machine to an existing gateway, see [Connect Claude Code to an LLM gateway](</docs/en/llm-gateway-connect>)
   * For what Claude Code sends to a gateway and what to forward, see the [gateway compatibility guide](</docs/en/llm-gateway-protocol>)
 
-##
-
-​
-
-Prerequisites
+## Prerequisites
 
 To complete the rollout, you’ll need:
 
@@ -18,11 +14,7 @@ To complete the rollout, you’ll need:
   * A way to deliver settings files to developer machines, such as MDM or configuration management
     * If you don’t have one yet, [how settings reach devices](</docs/en/admin-setup#decide-how-settings-reach-devices>) compares the options
 
-###
-
-​
-
-Gateway requirements
+### Gateway requirements
 
 Whichever product provides the gateway, it must:
 
@@ -35,11 +27,7 @@ Whichever product provides the gateway, it must:
 
 Optionally, serve `GET /v1/models` so Claude Code can populate the model picker from your gateway with [model discovery](</docs/en/llm-gateway-protocol#model-discovery>).
 
-##
-
-​
-
-Rollout steps
+## Rollout steps
 
 The rollout takes five steps, each with a checkpoint:
 
@@ -57,11 +45,7 @@ Provider credential| The gateway, which forwards it to the upstream provider| Co
 Gateway administrative credential| You, if your gateway product issues one for its admin or test interface| `<gateway-key>`
 Developer key| Each developer, issued by the gateway in Issue developer credentials| `<developer-key>`
 
-###
-
-​
-
-Confirm the gateway routes your models
+### Confirm the gateway routes your models
 
 Your gateway should already be configured with your provider credential, listening at its base URL, and forwarding requests to your provider’s API. Test that the path works end to end with a minimal request, substituting two values from your deployment:
 
@@ -87,11 +71,7 @@ Your gateway should already be configured with your provider credential, listeni
 
 Avoid serving the gateway behind a redirect. A redirect can drop the request body or strip the credential header on inference requests, and [model discovery](</docs/en/llm-gateway-protocol#model-discovery>) treats any redirect as a failure so the credential cannot leak to a redirect target.
 
-###
-
-​
-
-Issue developer credentials
+### Issue developer credentials
 
 Each developer needs their own gateway key to authenticate. Create a credential per developer at the gateway, following your product’s credential management documentation. Confirm a freshly issued key works against the gateway with the same request as Confirm the gateway routes your models, replacing `<gateway-key>` with the new `<developer-key>`:
 
@@ -112,11 +92,7 @@ Each developer needs their own gateway key to authenticate. Create a credential 
 
 **Checkpoint** : a `200` with a `content` field means the developer key reaches the gateway and the gateway forwards it. A `401` here, when the previous step succeeded, means the developer key is wrong or hasn’t taken effect at the gateway yet. Issuing one key per developer rather than a shared key is what makes per-developer usage attribution and individual offboarding work. The environment variable that holds the key depends on which header the gateway reads. For a gateway that checks credentials in the `Authorization: Bearer` header, developers set their key in `ANTHROPIC_AUTH_TOKEN`. For a gateway that reads keys from the `x-api-key` header, developers set `ANTHROPIC_API_KEY` instead; the [credential table](</docs/en/llm-gateway-connect#set-the-credential-variable>) covers the mapping.
 
-###
-
-​
-
-Test Claude Code against the gateway
+### Test Claude Code against the gateway
 
 Run Claude Code through the gateway yourself before distributing anything, using the same configuration the rollout will deliver fleet-wide. Type these directly in a terminal, not in a `.env` or settings file; they last only for this terminal session, so closing it returns your machine to its normal configuration. Use `ANTHROPIC_API_KEY` instead of `ANTHROPIC_AUTH_TOKEN` if your gateway reads the `x-api-key` header:
 
@@ -134,26 +110,18 @@ Then send a one-shot prompt through the gateway:
 
     claude -p "Reply with one word: connected"
 
-**Checkpoint** : the prompt returns a response, and the request appears in the gateway’s log as a `POST` to the `/v1/messages` path with status `200`. Claude Code appends a query string such as `?beta=true`, so match on the path, not the full URL. Two failure messages point in different directions:
+**Checkpoint** : the prompt returns a response, and the request appears in the gateway’s log as a `POST` to the `/v1/messages` path with status `200`. Claude Code appends a query string such as `?beta=true`, so match on the path, not the full URL. Check the failure message:
 
-  * `Not logged in`: check the gateway log to tell the two causes apart. If it’s empty, no credential reached the session and no request left the machine; re-run the exports in the shell you’re testing from. If it shows a rejected request with `x-api-key` in the `401` body, the gateway expects keys in that header instead; switch to `ANTHROPIC_API_KEY`
+  * `Not logged in`: check the gateway log. If it’s empty, no credential reached the session and no request left the machine; re-run the exports in the shell you’re testing from. If it shows a `401` from the gateway naming `x-api-key`, the gateway expects keys in that header instead; switch to `ANTHROPIC_API_KEY`. If it shows a `401` from `api.anthropic.com` or your provider’s endpoint, fix the provider credential the gateway holds
   * `Failed to authenticate. API Error: 401` means a credential was sent and rejected, and the gateway log says where: a `401` naming `api.anthropic.com` or your provider’s endpoint means the gateway reached the upstream but its provider credential was rejected, so the developer key worked and the provider credential the gateway holds is wrong or a placeholder
 
 A wrong or unreachable base URL produces a different symptom: Claude Code [retries the connection with backoff](</docs/en/errors#automatic-retries>) and can sit with no output for several minutes before reporting an error. If the command appears to hang, check the gateway log instead of waiting; no arriving request means `ANTHROPIC_BASE_URL` doesn’t point at the gateway.
 
-###
-
-​
-
-Distribute the configuration
+### Distribute the configuration
 
 Every developer machine needs the gateway address and a credential. You can distribute them centrally through [managed settings](</docs/en/managed-settings#delivery-mechanisms>), so developers configure nothing, or give developers the values to set themselves.
 
-####
-
-​
-
-What to distribute
+#### What to distribute
 
 The same set of variables applies whichever path you choose. Most rollouts only need `ANTHROPIC_BASE_URL` and a credential; include the conditional rows when your gateway setup calls for them.
 
@@ -169,11 +137,7 @@ Variable or setting| What it does| Include when
 `ANTHROPIC_MODEL` or [`ANTHROPIC_DEFAULT_HAIKU_MODEL`](</docs/en/model-config>)| Set which model name Claude Code requests for the main session and for background traffic| Your gateway routes model names that don’t match Claude Code’s defaults, or you route [background functionality](</docs/en/model-config#environment-variables>) to a different model. Route both the override names and the built-in model IDs Claude Code requests when no override is set, since some background sub-calls request a built-in ID regardless of the override
 `ANTHROPIC_BEDROCK_BASE_URL`, `ANTHROPIC_VERTEX_BASE_URL`, `ANTHROPIC_FOUNDRY_BASE_URL`, or `ANTHROPIC_AWS_BASE_URL` with the [variables for that provider](</docs/en/llm-gateway-connect#route-to-a-cloud-provider-through-a-gateway>)| Point Claude Code at the gateway through a provider-specific base URL. Amazon Bedrock and Google Cloud’s Agent Platform also switch to those providers’ native request format| Your gateway fronts Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or the Claude Platform on AWS; see [API formats](</docs/en/llm-gateway-protocol#api-formats>)
 
-####
-
-​
-
-Distribute through managed settings
+#### Distribute through managed settings
 
 Deliver the variables through the `env` block of a [managed settings file](</docs/en/managed-settings#delivery-mechanisms>), pushed by MDM, registry policy, or configuration management:
 
@@ -190,11 +154,7 @@ Add the conditional variables from the table to the same `env` block. A managed 
   * CI runners need `ANTHROPIC_BASE_URL` and the credential set in the [runner’s environment](</docs/en/llm-gateway-connect#configure-each-surface>)
   * WSL on managed Windows machines reads the Windows managed settings only when [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>) is `true`
 
-####
-
-​
-
-The HIPAA configuration behind a gateway
+#### The HIPAA configuration behind a gateway
 
 Sessions that go through a gateway aren’t eligible for the HIPAA configuration. [Check how developers sign in and connect](</docs/en/hipaa-setup#check-how-developers-sign-in-and-connect>) lists which sign-in and connection methods are. To restrict features for those sessions in the managed settings file, use the keys in [Map egress paths to managed controls and events](</docs/en/monitoring-usage#map-egress-paths-to-managed-controls-and-events>). These keys don’t make a session eligible for the HIPAA configuration, and they don’t cover everything the configuration changes. For example:
 
@@ -203,11 +163,7 @@ Sessions that go through a gateway aren’t eligible for the HIPAA configuration
 
 Don’t use `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` in place of these keys. It turns off some of these features, but it also turns off the auto-updater, and it leaves WebFetch on.
 
-####
-
-​
-
-Hand developers the values to set themselves
+#### Hand developers the values to set themselves
 
 If you don’t have managed-settings distribution in place, send each developer what they need to follow the [connect page](</docs/en/llm-gateway-connect#configure-claude-code-yourself>):
 
@@ -218,11 +174,7 @@ If you don’t have managed-settings distribution in place, send each developer 
 
 The [connect page](</docs/en/llm-gateway-connect#configure-claude-code-yourself>) walks developers through setting each one. **Checkpoint** : on a developer machine, `claude` starts a session without showing the login screen, since the distributed credential satisfies authentication. Then run `/status` and open the **Status** tab: the `Anthropic base URL` line shows the gateway address, and for managed distribution the `Setting sources` line includes managed settings. A login screen, or a missing `Anthropic base URL` line, means the configuration didn’t reach the machine.
 
-###
-
-​
-
-Verify the rollout
+### Verify the rollout
 
 Confirm everything works from a developer machine, not the gateway host, so the test covers the network path developers use. Send a streaming request, which checks the endpoint, streaming pass-through, and model routing at once:
 
@@ -243,19 +195,15 @@ Confirm everything works from a developer machine, not the gateway host, so the 
       -H "content-type: application/json" `
       --data-binary '@-'
 
-You should see `data:` lines arrive incrementally. The whole response arriving at once after a pause means the gateway is buffering, which stalls Claude Code; a `404` means the model name isn’t routed. Repeat per model name. Then start `claude` and send a message. Each symptom at this step has one cause:
+You should see `data:` lines arrive incrementally. The whole response arriving at once after a pause means the gateway is buffering, which stalls Claude Code; a `404` means the model name isn’t routed. Repeat per model name. Then start `claude`, send a message, and match what you see:
 
-  * A login prompt means a credential gap. Run `/status` and open the **Status** tab: when the `Setting sources` line doesn’t include managed settings, the distribution didn’t reach the machine; when it does, the developer credential wasn’t delivered, so set `ANTHROPIC_AUTH_TOKEN` or the `apiKeyHelper`
-  * `Failed to authenticate` errors mean the gateway is rejecting requests; its log says which credential failed. A rejection the gateway logs itself names the developer key, while a `401` from `api.anthropic.com` or your provider’s endpoint means the provider credential the gateway holds was rejected
+  * A login screen, or `Not logged in` with nothing new in the gateway log, means a credential gap. Run `/status` and open the **Status** tab: when the `Setting sources` line doesn’t include managed settings, the distribution didn’t reach the machine; when it does, the developer credential wasn’t delivered, so set `ANTHROPIC_AUTH_TOKEN` or the `apiKeyHelper`
+  * `Please run /login · API Error: 401`, `Not logged in`, or `Invalid API key` with a `401` in the gateway log: check who wrote the `401`. Fix the developer key or its header if the gateway wrote it, or the provider credential it holds if it came from `api.anthropic.com` or your provider’s endpoint
   * A one-time approval prompt for the key is expected on first use when the gateway expects keys in the `x-api-key` header, set as `ANTHROPIC_API_KEY`
 
 If your organization uses [fast mode](</docs/en/fast-mode>), run `/fast` here too: the availability check calls `api.anthropic.com` directly rather than following the gateway base URL, so a gateway-routed session can report fast mode as unavailable or disabled even though inference works. [Use fast mode behind proxies and LLM gateways](</docs/en/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways>) maps each message to the variable that restores it, distributed with the rest of the configuration. Finally, check the gateway’s logs for the message you sent: the credential identifies the developer, and the [`x-claude-code-session-id` header](</docs/en/llm-gateway-protocol#request-headers>) groups requests by session. If features fail with the [troubleshooting symptoms](</docs/en/llm-gateway-connect#troubleshoot-gateway-errors>), the gateway is stripping headers or rewriting errors; see the gateway requirements above.
 
-##
-
-​
-
-Maintain the gateway
+## Maintain the gateway
 
 After rollout, three kinds of change reach the gateway over time. Each has a symptom to watch for and an action to take.
 
@@ -267,11 +215,7 @@ Credentials expire or need rotation| All developer requests start failing with `
 
 When sizing per-key rate limits, account for the client [retrying transient failures](</docs/en/errors#automatic-retries>), including `429` responses, up to 10 times with backoff, honoring `Retry-After`. Keep the [compatibility guide](</docs/en/llm-gateway-protocol>) as the reference for what each Claude Code release sends.
 
-###
-
-​
-
-Plan Claude Code version upgrades
+### Plan Claude Code version upgrades
 
 Some Claude Code behavior is built into the installed version rather than set at your gateway, so moving developers to a new release can change behavior across your deployment even when the gateway configuration hasn’t changed. To control when that happens, pin developers to a tested version with [`requiredMaximumVersion`](</docs/en/settings-reference#requiredmaximumversion>), or with [`DISABLE_UPDATES`](</docs/en/setup#disable-auto-updates>) if you distribute Claude Code through your own channel. Before you raise the pin, read the new release’s [changelog](</docs/en/changelog>) entry and test it against the gateway. When you test a release, new headers or request fields that the gateway rejects appear as the `400` errors described in Maintain the gateway. The table below covers version-dependent changes that don’t produce an error, with the setting that keeps each one constant across upgrades.
 
@@ -281,11 +225,7 @@ Feature-flag defaults| Sessions that [don’t fetch feature flags from Anthropic
 Model capability assumptions| A model ID that the installed version doesn’t recognize, such as the gateway alias `prod-opus`, runs on default assumptions for [adaptive reasoning](</docs/en/model-config#adaptive-reasoning-and-fixed-thinking-budgets>), the effort parameter, and the [context window](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>) until a later version recognizes the ID or you map it| Route Anthropic model IDs at the gateway, or add a [`modelOverrides`](</docs/en/model-config#override-model-ids-per-version>) entry that maps the Anthropic model ID to your alias. On a cloud provider connection, you can instead [declare a pinned model’s capabilities](</docs/en/model-config#customize-pinned-model-display-and-capabilities>)
 Default model and aliases| The model that new sessions start on by default, and the models that aliases such as `opus` and `sonnet` resolve to, are [built into each version](</docs/en/model-config#pin-models-for-third-party-deployments>) and can change when developers upgrade| [`ANTHROPIC_DEFAULT_MODEL`](</docs/en/model-config#set-a-default-model-for-new-sessions>) for the model new sessions start on, and the [`ANTHROPIC_DEFAULT_*_MODEL` variables](</docs/en/model-config#environment-variables>), such as `ANTHROPIC_DEFAULT_OPUS_MODEL`, for what each alias resolves to. `ANTHROPIC_DEFAULT_MODEL` requires Claude Code v2.1.236 or later
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Connect Claude Code to an LLM gateway](</docs/en/llm-gateway-connect>): the developer-facing setup steps, with per-surface configuration and a troubleshooting table you can hand to developers
   * [Gateway compatibility guide](</docs/en/llm-gateway-protocol>): the reference for gateway operators, covering endpoints, headers to forward, and the feature pass-through table

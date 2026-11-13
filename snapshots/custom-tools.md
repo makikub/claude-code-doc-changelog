@@ -1,10 +1,6 @@
 Custom tools extend the Agent SDK by letting you define your own functions that Claude can call during a conversation. Using the SDK’s in-process MCP server, you can give Claude access to databases, external APIs, domain-specific logic, or any other capability your application needs.
 
-##
-
-​
-
-Quick reference
+## Quick reference
 
 What you want to do| Do this
 ---|---
@@ -20,11 +16,7 @@ Return images or files| Use `image` or `resource` blocks in the content array. S
 Return a machine-readable JSON result| Set `structuredContent` on the result. See Return structured data.
 Scale to many tools| Use [tool search](</docs/en/agent-sdk/tool-search>) to load tools on demand.
 
-##
-
-​
-
-Create a custom tool
+## Create a custom tool
 
 A tool is defined by four parts, passed as arguments to the [`tool()`](</docs/en/agent-sdk/typescript#tool>) helper in TypeScript or the [`@tool`](</docs/en/agent-sdk/python#tool>) decorator in Python:
 
@@ -48,11 +40,7 @@ After defining a tool, wrap it in a server with [`createSdkMcpServer`](</docs/en
 
     pip install httpx
 
-###
-
-​
-
-Weather tool example
+### Weather tool example
 
 This example defines a `get_temperature` tool and wraps it in an MCP server, without passing the server to `query`. To run the tool, see Call a custom tool.
 
@@ -137,11 +125,7 @@ TypeScript
 
 See the [`tool()`](</docs/en/agent-sdk/typescript#tool>) TypeScript reference or the [`@tool`](</docs/en/agent-sdk/python#tool>) Python reference for full parameter details, including JSON Schema input formats and return value structure.
 
-###
-
-​
-
-Make a parameter optional
+### Make a parameter optional
 
 To make a parameter optional, declare it optional in the schema and apply the default in the handler:
 
@@ -150,11 +134,7 @@ To make a parameter optional, declare it optional in the schema and apply the de
 
 The `get_precipitation_chance` tool shows both patterns.
 
-###
-
-​
-
-Call a custom tool
+### Call a custom tool
 
 To call a custom tool, follow these steps:
 
@@ -219,11 +199,7 @@ Activate the virtual environment where you installed the SDK, then run:
 
 Claude calls `get_temperature` and the script prints a one-line answer with the current temperature in San Francisco.
 
-###
-
-​
-
-Add more tools
+### Add more tools
 
 A server holds as many tools as you list in its `tools` array. With more than one tool on a server, you can list each one in `allowedTools` individually or use the wildcard `mcp__weather__*` to cover every tool the server exposes. The example below defines a second tool, `get_precipitation_chance`, and replaces the `weatherServer` definition from the weather tool example with one that lists both tools in the array.
 
@@ -321,11 +297,7 @@ TypeScript
 
 [Tool search](</docs/en/agent-sdk/tool-search>) is on by default and defers SDK MCP tools: Claude sees each tool’s name in a compact list and loads its full schema on demand. With tool search disabled, every tool in this array consumes context window space on every turn. In TypeScript, pass `alwaysLoad: true` in the `extras` argument of [`tool()`](</docs/en/agent-sdk/typescript#tool>) or in the options of [`createSdkMcpServer()`](</docs/en/agent-sdk/typescript#createsdkmcpserver>) to keep a tool’s full schema in the initial prompt.
 
-###
-
-​
-
-Add tool annotations
+### Add tool annotations
 
 [Tool annotations](<https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations>) are optional metadata describing how a tool behaves. Pass them as the fifth argument to `tool()` helper in TypeScript or via the `annotations` keyword argument for the `@tool` decorator in Python. All hint fields are Booleans.
 
@@ -368,19 +340,11 @@ TypeScript
 
 See `ToolAnnotations` in the [TypeScript](</docs/en/agent-sdk/typescript#toolannotations>) or [Python](</docs/en/agent-sdk/python#toolannotations>) reference.
 
-##
-
-​
-
-Control tool access
+## Control tool access
 
 The weather tool example registered a server and listed tools in `allowedTools`. This section covers how to scope access when you have multiple tools or want to restrict built-ins. For how tool names are constructed, see Call a custom tool.
 
-###
-
-​
-
-Configure allowed tools
+### Configure allowed tools
 
 You control two layers with the `tools`, `allowedTools`, and `disallowedTools` options:
 
@@ -396,11 +360,7 @@ disallowed tools| Both| A bare built-in name such as `"Bash"` removes the tool f
 
 To remove a built-in from Claude’s context, omit it from `tools` or list its bare name in `disallowedTools` (TypeScript) or `disallowed_tools` (Python). For the full evaluation order, see [Configure permissions](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>).
 
-###
-
-​
-
-Require approval for specific tools
+### Require approval for specific tools
 
 Set a tool’s `permission_policy` to `always_ask`, and `allowedTools` stops approving that tool’s calls, so they can reach your [`canUseTool`](</docs/en/agent-sdk/user-input>) callback even though the tool is listed. Set `always_deny` instead, and [a call to the tool is denied](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>), but a [mod](</docs/en/plugins/mods/overview>) in a plugin you load [can still approve it](</docs/en/permissions#precedence-among-rules-hooks-and-mods>). The field is TypeScript-only and requires Agent SDK v0.3.301 or later. Put the policy entry in a `tools` array on the config object `createSdkMcpServer()` returns, not in the `tools` option you pass into that function. This example spreads `weatherServer` from the weather tool example and adds a `tools` array giving `get_temperature` the `always_ask` policy:
 
@@ -423,11 +383,7 @@ TypeScript
 
 To try the policy, replace the `options` in the Call a custom tool script with this example’s `options`, then run that script from your terminal. The script prints `Approval requested for mcp__weather__get_temperature`, followed by Claude’s answer about the temperature. For a complete script, see the [TypeScript reference](</docs/en/agent-sdk/typescript#mcpsdkserverconfigwithinstance>). If you use `auto` or `plan` [permission mode](</docs/en/agent-sdk/permissions#permission-modes>), set `destructiveHint: true` in the tool’s annotations so calls to the tool still reach your callback. Otherwise the [auto mode classifier](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) can approve some `always_ask` calls, under [conditions listed in the TypeScript reference](</docs/en/agent-sdk/typescript#permission-modes-that-can-approve-an-always_ask-call>), and a call it approves doesn’t reach your callback. Set the hint explicitly, because an unset `destructiveHint` counts as `false` for `always_ask` calls rather than defaulting to `true`.
 
-##
-
-​
-
-Handle errors
+## Handle errors
 
 A handler error doesn’t stop the agent loop. The SDK’s in-process MCP server catches uncaught exceptions and returns them as error results, so how you report an error determines what Claude reads, not whether the query fails:
 
@@ -531,19 +487,11 @@ TypeScript
       }
     );
 
-##
-
-​
-
-Return images and resources
+## Return images and resources
 
 The `content` array in a tool result accepts `text`, `image`, `audio`, `resource`, and `resource_link` blocks. You can mix them in the same response. In TypeScript, the SDK saves audio blocks to disk and Claude receives a text block with the saved file path; in Python, the SDK drops audio blocks from the tool result and logs a warning. Claude receives each resource link block as a text block containing the link’s name, URI, and description. In TypeScript, your application also receives the links themselves as [`resourceLinks`](</docs/en/agent-sdk/typescript#sdkmcpresourcelink>) on the user message’s `tool_use_result`; in Python, the SDK flattens them to text before the CLI sees the result, so the Python [`resourceLinks` key](</docs/en/agent-sdk/python#usermessage>) is never produced for in-process tools.
 
-###
-
-​
-
-Images
+### Images
 
 An image block carries the image bytes inline, encoded as base64. There is no URL field. To return an image that lives at a URL, fetch it in the handler, read the response bytes, and base64-encode them before returning. A PNG, JPEG, GIF, or WebP image reaches Claude as visual input; an image of any other type is saved to disk and Claude receives its file path as text instead.
 
@@ -607,11 +555,7 @@ TypeScript
       }
     );
 
-###
-
-​
-
-Resources
+### Resources
 
 A resource block embeds a piece of content identified by a URI. The actual content rides in the block’s `text` or `blob` field. Use this when your tool produces a generated file or a record from an external system.
 
@@ -657,11 +601,7 @@ Python
 
 These block shapes come from the MCP `CallToolResult` type. See the [MCP specification](<https://modelcontextprotocol.io/specification/2025-06-18/server/tools#tool-result>) for the full definition.
 
-##
-
-​
-
-Return structured data
+## Return structured data
 
 `structuredContent` is an optional JSON object on the result, separate from the `content` array. Use it to return raw values that Claude can read as exact fields instead of parsing them out of a text string or image. For Python handlers, see Structured content in Python. When a TypeScript `tool()` handler sets `structuredContent`, Claude receives the JSON plus the image and resource blocks in `content`, and the text blocks in `content` don’t reach Claude. The example below renders a chart as an image block and returns the data points behind it in `structuredContent` from the same handler. In the snippet, `chartPngBuffer` is a `Buffer` holding the rendered PNG bytes.
 
@@ -684,11 +624,7 @@ TypeScript
 
 The Python `@tool` decorator forwards only `content` and `is_error` from the handler’s return dict. To return `structuredContent` from Python, run a [standalone MCP server](</docs/en/agent-sdk/mcp>) instead of an in-process SDK server.
 
-##
-
-​
-
-Example: unit converter
+## Example: unit converter
 
 This tool converts values between units of length, temperature, and weight. A user can ask “convert 100 kilometers to miles” or “what is 72°F in Celsius,” and Claude picks the right unit type and units from the request. It demonstrates two patterns:
 
@@ -927,11 +863,7 @@ TypeScript
       }
     }
 
-##
-
-​
-
-Next steps
+## Next steps
 
 You can mix the patterns on this page in the same server: a single server can hold a database tool, an API gateway tool, and an image renderer alongside each other. From here:
 

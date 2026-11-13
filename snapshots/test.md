@@ -1,10 +1,6 @@
 You can write automated tests for a mod and run them from your shell with [`claude plugin test`](</docs/en/plugins/mods/reference#commands>). A test fires the events your hooks handle and checks what the hooks did, so you catch a problem before it reaches a session. The first example tests the mod from [Create a mod](</docs/en/plugins/mods/create>).
 
-##
-
-​
-
-Write a test
+## Write a test
 
 A test loads your mod, sends events through its hooks the way Claude Code would, and checks what the hooks did, without a session, a sign-in, or a network. You run tests from your shell with `claude plugin test`, and each test file imports the test kit, a test library in the `claude-code/testing` module. Give each test file a name that ends in `.test.ts`, such as `first-mod.test.ts`, and save it anywhere in the plugin directory. Every test file needs at least one `test()`, or the run fails with `declares no test(): nothing ran`. A test file can import your mod’s own files and sibling `.ts` helpers, so you can unit test plain functions, such as a game’s rules, without the kit. This test fires two tool calls, runs the `/tally` command from [Create a mod](</docs/en/plugins/mods/create>), and checks that the reply counts both. Its first line is a stub, which answers the tool calls in Claude Code’s place. Save it as `first-mod/tests/first-mod.test.ts`:
 
@@ -40,11 +36,7 @@ The output names each test and whether it passed, with timings that vary from ru
 
 Each `$.tool.call` went through the mod’s [`tool.call`](</docs/en/plugins/mods/reference#tools>) hook, which added one to its count and passed the call on to the stub. No `ls` ran and no file was read. `$.command.run` then went to the mod’s [`command.run`](</docs/en/plugins/mods/reference#commands-and-configuration>) hook, and `answer` is the object that hook returned. The command exits with status 1 when a test fails, so it works in CI. If your own mods can’t load in the shell that runs it, it prints a line starting `claude plugin test: hooks modules are turned off` with the reason, and exits with status 1.
 
-###
-
-​
-
-Stub what Claude Code would answer
+### Stub what Claude Code would answer
 
 No model, store, or tool runs in a test, so wherever your mod expects Claude Code to answer, the test supplies the answer with a stub. A test function receives two arguments for that:
 
@@ -101,11 +93,7 @@ The kit also exports ready-made mocks for the clock, the store, environment vari
   * **`mock.env(on, { CI: 'true' })`** : answers `$.env.get` from those variables.
   * **`mock.session(on)`** : returns a mock session whose `appended()` method lists the rows your mod added with [`$.session.append`](</docs/en/plugins/mods/reference#session>), oldest first; it requires Claude Code v2.1.293 or later.
 
-###
-
-​
-
-Follow the test kit’s rules
+### Follow the test kit’s rules
 
 The test kit has a few rules of its own, and breaking one produces the errors new test authors hit first:
 
@@ -145,11 +133,7 @@ With the stub registered, the mount succeeds, and `ui.find({ type: 'Text' })` re
 When the loop ends, `result` is the object the stub returned, after your `turn.step` hook has had the chance to change it. Here `result.answer` is `'ok'`.
   * **Fire a tool call with the tool’s name and arguments as fields** , such as `await $.tool.call({ tool: 'Bash', command: 'ls' })`, and register a `tool.call` stub that returns `{ result }`.
 
-###
-
-​
-
-Look up what a stub returns
+### Look up what a stub returns
 
 Every mods API call your mod makes in a test needs a stub that answers in Claude Code’s place, except the few the kit answers itself: [`$.ui.invalidate`](</docs/en/plugins/mods/interface#redraw-when-something-changes>), [`$.state`](</docs/en/plugins/mods/interface#keep-state>), and `$.session.append` calls. For `$.clock` calls, use `mock.clock(on)`, or your mod’s `$.clock.now()` fails with `no implementation for clock.now`. This table lists the ones mods use most. The first column is the call your mod makes or the event it passes on with `next(e)`. The second is the function to pass to `on` under that name, so the `$.store.get` row becomes `on('store.get', ($, e) => ({ value: saved.get(e.key) }))`. A `'...'` in a stub marks text for you to fill in:
 
@@ -178,28 +162,11 @@ Any mods API call that should fail| `() => ({ deny: 'the reason' })`, which make
 `session.receive`| `($, e) => ({ text: e.text })`. Fire it with `$.session.receive({ origin: { kind: 'peer-send-message' }, text })`.
 `ui.render`| `() => ({ type: 'Text', props: {}, children: ['...'] })`
 
-###
+### Check a result with `expect`
 
-​
+`expect` has its own set of assertions, such as `toEqual` and `toHaveLength`, which go after the value you’re checking, as in `expect(answer.text).toBe('ok')`. For the full list, search `claude-code/index.d.ts` in [the types for your build](</docs/en/plugins/mods/create#get-the-types-for-your-build>) for `type Matchers`. Put `.not` before the assertion to check the opposite. To check what a promise settles with, put `.resolves` or `.rejects` right after `expect(...)` and `await` the line, as in `await expect(promise).rejects.toThrow()`. When an `expect` fails inside a stub or hook that you passed to `on` as a plain function rather than an async generator, the test fails. The engine skips that hook, and the failure output names it, such as `in the test's store.set hook`.
 
-Check a result with `expect`
-
-The kit has these assertions, and the one you pick goes after the value you’re checking, as in `expect(answer.text).toBe('ok')`:
-
-  * **Equality** : `toBe` for the same value or object, `toEqual` for structure, `toStrictEqual` for structure plus `undefined` fields and the prototype, and `toMatchObject` for the fields you name
-  * **Text** : `toMatch`, which takes a regular expression or a substring, `toStartWith`, and `toEndWith`
-  * **Numbers** : `toBeGreaterThan`, `toBeGreaterThanOrEqual`, `toBeLessThan`, `toBeLessThanOrEqual`
-  * **Contents** : `toContain` for a substring or a member, `toContainEqual` for a member compared by structure, `toHaveLength`, and `toHaveProperty`
-  * **Presence and type** : `toBeDefined`, `toBeUndefined`, `toBeNull`, `toBeTruthy`, `toBeFalsy`, `toBeNaN`, `toBeInstanceOf`
-  * **Throwing** : `toThrow`, for a function `expect` calls, or for a promise you check with `.rejects`
-
-Put `.not` in front of an assertion to check the opposite, and `.resolves` or `.rejects` to check what a promise settles with. When an `expect` fails inside a stub or hook that you passed to `on` as a plain function rather than an async generator, the test fails. The engine skips that hook, and the failure output names it, such as `in the test's store.set hook`.
-
-##
-
-​
-
-Test a timer
+## Test a timer
 
 A mod that runs work on a timer needs a clock the test controls, so the test can move time forward instead of waiting. `const clock = mock.clock(on)` returns a mock clock that starts at `0` and moves only when your test moves it. To start at another time, pass it in milliseconds, as in `mock.clock(on, { now: 5000 })`. The clock has these methods:
 
@@ -258,11 +225,7 @@ countdown/tests/countdown.test.ts
 
 The first `expect` shows that the toast doesn’t come early, and the second shows that it comes once. Each `advance` resolves after the timers that came due have run, so the check on the next line sees their effect.
 
-##
-
-​
-
-Test a drawing
+## Test a drawing
 
 A test can draw one of your mod’s [render sites](</docs/en/plugins/mods/reference#render-sites>), then press, type into, and find the elements it drew. `$.ui.mount` draws the site through your mod’s `ui.render` hook and returns a handle with a method for each of those. To cover several apps in one test, set `surface` to the app to draw for. This test opens the pane from [Build a pane with tabs](</docs/en/plugins/mods/interface#build-a-pane-with-tabs>), switches tabs, presses the button, and checks the count in the terminal and the Desktop app:
 
@@ -322,11 +285,7 @@ Method| What it does
 
 Each method resolves after your handler has finished, so you can check the result on the next line. Set `props` to what Claude Code would pass for that site. The [render sites table](</docs/en/plugins/mods/reference#render-sites>) lists each site’s props, and [the types for your build](</docs/en/plugins/mods/create#get-the-types-for-your-build>) have their types. To catch an [element tree](</docs/en/plugins/mods/interface#build-a-tree-from-elements>) that isn’t valid for the app you named in `surface`, check with `find` for an element your hook adds. The test doesn’t check how the app paints a tree, so look at a new layout in a real session too.
 
-###
-
-​
-
-Test a drawing after `/clear`
+### Test a drawing after `/clear`
 
 Each test starts with every `$.state` value at its default, which is how `/clear` leaves them. To test what your mod does next, skip `session.start`, fire `classic.SessionStart` with `source: 'clear'`, and check what your mod draws. This test checks the module from [Load a saved value again after `/clear`](</docs/en/plugins/mods/interface#load-a-saved-value-again-after-clear>). Add it to the file from Test a drawing, where `PANE` is defined. That file’s first test expects the button to save the count, as the button in [Save from more than one session](</docs/en/plugins/mods/interface#save-from-more-than-one-session>) does:
 
@@ -349,11 +308,7 @@ hello-tabs/tests/hello-tabs.test.ts
 
 The test passes when your `classic.SessionStart` hook has copied the stored `7` into `$.state` before the pane draws. Without that hook in your module, the pane draws `Count: 0`, `find` returns `undefined`, and the test fails at `toBeDefined`.
 
-##
-
-​
-
-Test a policy mod
+## Test a policy mod
 
 A mod your organization lists in [`prependPlugins`](</docs/en/plugins/mods/admin>) can refuse another mod before it loads. To test one, set your mod’s tier and give the test a second mod for yours to allow or refuse:
 
@@ -411,11 +366,7 @@ acme-guard/tests/guard.test.ts
 
 In your shell, run `claude plugin test` from the `acme-guard` directory. Both tests pass with the policy mod as the admin page shows it. The kit loads every mod at the test’s first call on `$`. When your mod refuses one, that call throws, and the message names the refused mod, the mod that refused it, and your reason. In the second test nothing is refused, so `reader` answers the tool call before it reaches the stub.
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [Troubleshoot a mod](</docs/en/plugins/mods/troubleshoot>): find out why a mod does nothing in a session
   * [Mods reference](</docs/en/plugins/mods/reference>): every event’s input and result, for writing stubs

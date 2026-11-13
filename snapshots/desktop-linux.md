@@ -2,22 +2,14 @@ Linux support for the Claude desktop app is in beta.
 
 The desktop app on Linux gives you the same Chat, Cowork, and Claude Code experience as on macOS and Windows: parallel sessions, visual diff review, an integrated terminal and editor, and live app preview. See [Use Claude Code Desktop](</docs/en/desktop>) for the feature reference.
 
-##
-
-​
-
-Requirements
+## Requirements
 
   * A Debian-based distribution: Ubuntu 22.04 or later, or Debian 12 or later
   * x86_64 or arm64
 
 Other Debian-based distributions that meet these requirements may work but aren’t officially tested. On distributions that aren’t Debian-based, such as Fedora or Arch, run the [CLI](</docs/en/setup#system-requirements>) instead. If you work on Windows with WSL 2, install the Windows desktop app and run sessions inside your distribution; see [Claude Code Desktop in WSL](</docs/en/desktop-wsl>).
 
-###
-
-​
-
-Cowork requirements
+### Cowork requirements
 
 Cowork is the part of the desktop app for [Dispatch and longer agentic work](<https://claude.com/docs/cowork/overview>). On Linux, Cowork runs those tasks in a virtual machine that the desktop app hosts with QEMU and KVM. To use Cowork, your machine needs:
 
@@ -27,11 +19,7 @@ Cowork is the part of the desktop app for [Dispatch and longer agentic work](<ht
 
 The app checks these requirements once at launch: restart it after installing packages, and log out and back in after joining the group. If `/dev/vhost-vsock` is missing and your running kernel has no module directory under `/lib/modules`, Cowork reports that the kernel doesn’t include the virtualization support Cowork needs and that it can’t be added manually. This combination is common on ChromeOS and in container-based Linux environments.
 
-##
-
-​
-
-Install
+## Install
 
 Install from Anthropic’s apt repository so that updates arrive through your system’s regular package updates. Open a terminal and run the commands in each step.
 
@@ -65,13 +53,9 @@ Install the package
 
 Launch and sign in
 
-Launch **Claude** from your application launcher, or run `claude-desktop` from a terminal, and sign in with your Anthropic account.The Linux app signs in the same way as on macOS and Windows: with a claude.ai subscription, or through your organization’s SSO. For API-key authentication, use the [CLI](</docs/en/quickstart>). To use Desktop with Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or an LLM gateway instead, see [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>). For proxy servers and custom certificate authorities in those deployments, see [network configuration](</docs/en/network-config>).
+Launch **Claude** from your application launcher, or run `claude-desktop` from a terminal, and sign in with your Anthropic account.The Linux app signs in the same way as on macOS and Windows: with a claude.ai subscription, or through your organization’s SSO. To use Desktop with a Claude API key, Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or an LLM gateway instead, see [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>). For proxy servers and custom certificate authorities in those deployments, see [network configuration](</docs/en/network-config>).
 
-###
-
-​
-
-Install from a downloaded file
+### Install from a downloaded file
 
 If you can’t install through the apt repository, download the `.deb` package directly from the repository’s package pool. This command looks up the newest package for your architecture in the repository index, then downloads it to the current directory:
 
@@ -83,11 +67,7 @@ If the command fails with `Remote file name has no length`, the lookup returned 
 
 If apt reports `E: Unsupported file ./claude-desktop_*.deb given on commandline`, the pattern didn’t match a `.deb` file in the current directory. Confirm the download completed, then run the command again from the directory that contains the file. The `.deb` contains Anthropic’s signing key and installs it at `/usr/share/keyrings/claude-desktop-archive-keyring.asc`, so you don’t need to download the key yourself. Unless you turned registration off with `CLAUDE_DESKTOP_ADD_REPO`, the package also registers the apt repository at `/etc/apt/sources.list.d/claude-desktop.list`, so future updates arrive with your system’s regular package updates.
 
-##
-
-​
-
-Update
+## Update
 
 The desktop app doesn’t update itself on Linux. Updates arrive with your system’s regular package updates:
 
@@ -95,11 +75,7 @@ The desktop app doesn’t update itself on Linux. Updates arrive with your syste
 
 Your distribution’s graphical software updater will also pick up new versions.
 
-##
-
-​
-
-Uninstall
+## Uninstall
 
     sudo apt remove claude-desktop
 
@@ -107,17 +83,9 @@ Uninstalling the package also removes the repository entry and signing key it re
 
     sudo rm /etc/apt/sources.list.d/claude-desktop.list
 
-##
+## Troubleshoot
 
-​
-
-Troubleshoot
-
-###
-
-​
-
-Unable to locate package claude-desktop
+### Unable to locate package claude-desktop
 
 If `sudo apt install claude-desktop` fails with `E: Unable to locate package claude-desktop`, apt didn’t find the repository you added. Check the following:
 
@@ -128,30 +96,18 @@ If `sudo apt install claude-desktop` fails with `E: Unable to locate package cla
 
 If the repository is in place and reachable and the package is still not found, install from a downloaded file instead.
 
-###
-
-​
-
-Unmet dependencies
+### Unmet dependencies
 
 If `apt` stops with `The following packages have unmet dependencies` or `Unsatisfied dependencies`, read which dependency it names:
 
   * `libc6 (>= 2.34)`: your distribution is older than the package supports. Ubuntu 20.04 ships `libc6` 2.31. Upgrade to Ubuntu 22.04 or later, or Debian 12 or later.
   * All missing dependencies show `not installable` with an `:amd64` or `:arm64` suffix: you downloaded the `.deb` for a different architecture than your machine’s. Run `dpkg --print-architecture` and download the matching `.deb`, or install from the apt repository, which selects the package for your architecture.
 
-###
-
-​
-
-Running as root without `--no-sandbox` is not supported
+### Running as root without `--no-sandbox` is not supported
 
 If `claude-desktop` exits with this message, you launched it as root. Log in as a regular user and launch it from there.
 
-###
-
-​
-
-Your sign-in won’t be saved on this device
+### Your sign-in won’t be saved on this device
 
 Claude Desktop saves your sign-in in your desktop’s keyring, such as GNOME Keyring or KDE Wallet. If it can’t reach an unlocked keyring, your sign-in isn’t saved and you sign in again each time you launch the app. Pick the case that matches your system:
 
@@ -161,11 +117,7 @@ Claude Desktop saves your sign-in in your desktop’s keyring, such as GNOME Key
 
 After the fix, restart the app and sign in. Then quit and launch it again to confirm the app opens with you still signed in.
 
-###
-
-​
-
-Cowork isn’t available
+### Cowork isn’t available
 
 If Cowork shows one of these messages, fix the requirement it names, then restart the app:
 
@@ -174,11 +126,7 @@ If Cowork shows one of these messages, fix the requirement it names, then restar
   * **Claude doesn’t have permission to use virtualization (/dev/kvm)** : add your user to the `kvm` group, then log out and back in.
   * **Cowork requires the`vhost_vsock` kernel module**: run `sudo modprobe vhost_vsock`, then restart the app. That loads the module for the current boot only. To load it on every boot, run `echo vhost_vsock | sudo tee /etc/modules-load.d/vhost_vsock.conf`.
 
-##
-
-​
-
-What’s not in the Linux beta yet
+## What’s not in the Linux beta yet
 
   * **Computer Use** : [app and screen control](</docs/en/desktop#let-claude-use-your-computer>) isn’t available on Linux.
   * **Dictation** : voice input isn’t available in the Linux desktop app. Use [voice dictation](</docs/en/voice-dictation>) in the CLI instead.

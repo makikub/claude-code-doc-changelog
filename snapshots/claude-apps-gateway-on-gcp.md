@@ -2,11 +2,7 @@ This page walks through one way to run Claude apps gateway on Google Cloud. The 
 
 This example provisions Claude apps gateway on Google Cloud with Google Cloud’s Agent Platform as the model upstream, using either Cloud Run or GKE for compute. Google Workspace is the example identity provider (IdP), but any OpenID Connect (OIDC) compliant IdP works; only the `oidc` block changes. See [Identity provider setup](</docs/en/claude-apps-gateway-deploy#identity-provider-setup>) for per-IdP details.
 
-##
-
-​
-
-What you’ll build
+## What you’ll build
 
 The deployment consists of:
 
@@ -17,11 +13,7 @@ The deployment consists of:
   * **Service account** with `roles/aiplatform.user`, attached directly on Cloud Run or bound via Workload Identity on GKE
   * **HTTPS front end** that you provide: an internal Application Load Balancer in front of Cloud Run, which this walkthrough configures the gateway for but doesn’t create, or an internal **GKE Ingress** of class `gce-internal` on GKE
 
-##
-
-​
-
-Prerequisites
+## Prerequisites
 
   * A GCP project with billing enabled, and permission to create the resources above
   * The `gcloud` CLI, authenticated with `gcloud auth login`, and Docker installed locally
@@ -36,11 +28,7 @@ Set the project and region once:
     export REGION=us-east5   # a region where the Claude models you need are published in Model Garden
     gcloud config set project "$PROJECT_ID"
 
-##
-
-​
-
-Deploy the gateway
+## Deploy the gateway
 
 The steps below provision the full deployment with `gcloud` commands.
 
@@ -271,11 +259,7 @@ Push the gateway URL to developer machines
 
 The gateway is now running, but developers can’t reach it from `/login` until the gateway URL is on their machines. Deploy the full [managed settings snippet](</docs/en/claude-apps-gateway#set-the-gateway-url>), with `forceLoginMethod`, `forceLoginGatewayUrl`, and the `parentSettingsBehavior: "merge"` opt-in, to each device via MDM. There is no gateway option in the login picker for a developer to select manually.
 
-##
-
-​
-
-Terraform reference
+## Terraform reference
 
 The [reference deployment assets](<https://github.com/anthropics/claude-code/tree/main/examples/gateway/gcp>) automate the Cloud Run track on this page; the config and image assets apply to both tracks:
 
@@ -285,11 +269,7 @@ The [reference deployment assets](<https://github.com/anthropics/claude-code/tre
 
 The artifacts default Cloud Run ingress to `internal`, matching the deploy command on this page; that setting works with or without an internal Application Load Balancer in front of the service, and the artifacts don’t create the load balancer either. The artifacts also default the invoker layer to an `allUsers` `run.invoker` grant rather than `--no-invoker-iam-check`, the inverse of this page’s walkthrough; either works, and the choice depends on your organization’s policy constraints. The assets are provided as working examples, not as a supported production artifact; review and adapt them to your environment.
 
-##
-
-​
-
-Troubleshooting
+## Troubleshooting
 
 For gateway boot and login errors, see the platform-agnostic [troubleshooting table](</docs/en/claude-apps-gateway-deploy#troubleshooting>). The entries below are specific to Google Cloud.
 
@@ -302,11 +282,7 @@ Gateway boot exits with a Postgres connection-timeout error on Cloud Run| Servic
 Google Cloud’s Agent Platform requests return `403 PERMISSION_DENIED`| Runtime isn’t using the `claude-gateway` service account, or the model isn’t enabled in Model Garden for the project| Set `--service-account` on Cloud Run or bind Workload Identity on GKE, and enable each Claude model in Model Garden for the target region
 Streaming responses cut off after a fixed duration| Front-end request timeout: the load balancer backend service behind GKE Ingress defaults to 30 seconds and Cloud Run to 300 seconds| Attach a BackendConfig with a raised `timeoutSec` on GKE, or deploy with `--timeout=3600` on Cloud Run
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [Configuration reference](</docs/en/claude-apps-gateway-config>): every `gateway.yaml` option, including `managed.policies` and `telemetry`
   * [Deployment and operations](</docs/en/claude-apps-gateway-deploy>): IdP setup, health checks, JWT secret rotation, upgrades, and the security model

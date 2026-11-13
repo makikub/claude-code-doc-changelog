@@ -4,11 +4,7 @@ This example provisions Claude apps gateway on AWS with Amazon Bedrock as the mo
 
 Bedrock isn’t the only Claude upstream on AWS. The gateway also supports Claude Platform on AWS, the Anthropic-operated Claude API with AWS authentication and AWS Marketplace billing, in place of Bedrock or alongside it. Its upstream entry, credentials, and IAM permissions differ from this page’s Bedrock-scoped ones; the [Claude Platform on AWS upstream reference](</docs/en/claude-apps-gateway-config#claude-platform-on-aws>) covers what changes, and the rest of this page applies unchanged.
 
-##
-
-​
-
-Architecture
+## Architecture
 
 The example architecture, with Amazon Bedrock as the model upstream. A Claude Platform on AWS upstream occupies the same position.
 
@@ -21,11 +17,7 @@ The gateway runs as a private HTTPS endpoint on your network that developers sig
   * **IAM role** with `bedrock:InvokeModel`, `bedrock:InvokeModelWithResponseStream`, and `bedrock:CountTokens`, attached as the ECS task role or bound via IAM Roles for Service Accounts (IRSA) on EKS
   * **Internal Application Load Balancer** for HTTPS
 
-##
-
-​
-
-Prerequisites
+## Prerequisites
 
 The walkthrough creates the gateway’s own resources, but it builds on network and identity infrastructure you already have. Before you start, you need:
 
@@ -35,11 +27,7 @@ The walkthrough creates the gateway’s own resources, but it builds on network 
   * An Okta OIDC web application with redirect URI `https://<gateway-host>/oauth/callback`; see [Identity provider setup](</docs/en/claude-apps-gateway-deploy#identity-provider-setup>)
   * A TLS hostname for the gateway, typically an internal DNS name in a [Route 53 private hosted zone](<https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html>) pointing at the load balancer, with an [ACM certificate](<https://docs.aws.amazon.com/acm/latest/userguide/gs.html>) for that name, imported or issued by [AWS Private CA](<https://docs.aws.amazon.com/privateca/latest/userguide/PcaWelcome.html>)
 
-###
-
-​
-
-Set your environment variables
+### Set your environment variables
 
 Every command on this page reads four values from your shell: `AWS_REGION`, `ACCOUNT_ID`, `VPC_ID`, and `PRIVATE_SUBNETS`. Pick a US region where Bedrock serves the Claude models you need. The walkthrough relies on the gateway’s built-in model catalog, which resolves to `us.anthropic.*` inference profiles, and the IAM policy grants those ARNs. In a non-US region, add a [`models:` block](</docs/en/claude-apps-gateway-config#models>) with that geo’s inference-profile IDs and change the IAM policy’s ARN prefix to match. If you don’t have the VPC ID at hand, list your VPCs with `aws ec2 describe-vpcs`, then list that VPC’s subnets to find two private ones in different Availability Zones:
 
@@ -53,11 +41,7 @@ Export all four before continuing:
     export VPC_ID=<your-vpc-id>
     export PRIVATE_SUBNETS="<subnet-id-a> <subnet-id-b>"
 
-##
-
-​
-
-Deploy the gateway
+## Deploy the gateway
 
 The steps below provision the full deployment with `aws` commands.
 
@@ -412,11 +396,7 @@ Push the gateway URL to developer machines
 
 The gateway is now running, but developers can’t reach it from `/login` until the gateway URL is on their machines. Deploy the full [managed settings snippet](</docs/en/claude-apps-gateway#set-the-gateway-url>), with `forceLoginMethod`, `forceLoginGatewayUrl`, and the `parentSettingsBehavior: "merge"` opt-in, to each device via MDM. There is no gateway option in the login picker for a developer to select manually.
 
-##
-
-​
-
-Terraform reference
+## Terraform reference
 
 The companion bundle at [`examples/gateway/aws`](<https://github.com/anthropics/claude-code/tree/main/examples/gateway/aws>) packages this page as code:
 
@@ -427,11 +407,7 @@ The companion bundle at [`examples/gateway/aws`](<https://github.com/anthropics/
 
 Like this page, the bundle is a working example for customer-managed infrastructure rather than a supported production deployment; review and adapt it to your own environment before relying on it.
 
-##
-
-​
-
-Troubleshooting
+## Troubleshooting
 
 For gateway boot and login errors, see the platform-agnostic [troubleshooting table](</docs/en/claude-apps-gateway-deploy#troubleshooting>). The entries below are specific to AWS.
 
@@ -446,59 +422,31 @@ Gateway boot exits with a Postgres connection-timeout error| The database securi
 Gateway boot exits with a Postgres TLS certificate verification error| The connection string sets `sslmode=verify-full` but the image doesn’t trust the RDS CA bundle: the bundle wasn’t copied into the image, or `NODE_EXTRA_CA_CERTS` doesn’t point at it| Add the build step’s two Dockerfile lines that copy the bundle and set `NODE_EXTRA_CA_CERTS`, then rebuild, push under a new tag, and redeploy
 Streaming responses drop mid-stream after a quiet period| A gateway older than v2.1.229 on a Bedrock or Claude Platform on AWS upstream sends nothing while the upstream is quiet, for example during extended thinking with no streamed output. The ALB closes a connection after 60 seconds with no data by default, so it cuts the stream at that gap. Gateways v2.1.229 and later keep a quiet stream under that timeout: on those upstreams the gateway emits an SSE `ping` event once about 15 seconds pass with no stream data, and on an Anthropic API upstream it relays the API’s own pings| Update the gateway to v2.1.229 or later, or set the `idle_timeout.timeout_seconds` attribute to `3600`, via `modify-load-balancer-attributes` or the `load-balancer-attributes` Ingress annotation on EKS
 
-##
-
-​
-
-Telemetry
+## Telemetry
 
 The gateway gives you per-developer usage metrics without any per-machine OTEL configuration. Claude Code emits OpenTelemetry (OTLP) metrics, logs, and opt-in traces; [Monitoring usage](</docs/en/monitoring-usage>) covers everything the CLI reports. In sessions signed in through `/login`, the CLI [stamps each export](</docs/en/monitoring-usage#standard-attributes>) with the authenticated IdP identity attributes `user.id`, `user.email`, and `user.groups`, so usage rolls up per developer. The gateway itself is an authenticated OTLP relay. Set [`telemetry.forward_to`](</docs/en/claude-apps-gateway-config#telemetry>) together with `listen.public_url`, and it pushes the OTEL exporter settings to every connected client and forwards their OTLP traffic verbatim to each destination you list. Each destination opts into metrics, logs, and traces independently, and the default is metrics only; see the [`telemetry` reference](</docs/en/claude-apps-gateway-config#telemetry>) for the per-signal fields and their sensitivity tradeoffs. The gateway doesn’t buffer, aggregate, or store telemetry, so where the data lands is entirely the collector’s exporter configuration. Client telemetry is off by default; configuring `telemetry.forward_to` is what turns it on for connected developers, and each interactive client shows a security approval dialog for the pushed settings, as described in the [configuration reference](</docs/en/claude-apps-gateway-config#telemetry>). On AWS, each signal maps to a destination as follows.
 
-###
-
-​
-
-Client metrics, logs, and traces
+### Client metrics, logs, and traces
 
 Point `telemetry.forward_to` at an OpenTelemetry collector, such as the [AWS Distro for OpenTelemetry (ADOT) collector](<https://aws-otel.github.io/>), and export from there to Amazon CloudWatch, Amazon Managed Service for Prometheus, or any OTLP backend. Run the collector as its own internal service reachable over `https://`; the [`telemetry` reference](</docs/en/claude-apps-gateway-config#telemetry>) covers the loopback exception and `CLAUDE_GATEWAY_ALLOW_LOOPBACK`.
 
-###
-
-​
-
-Gateway logs
+### Gateway logs
 
 On ECS Fargate, no extra setup: the `awslogs` driver delivers the gateway’s stderr, which carries its audit events and operational logs, to the `/ecs/claude-gateway` log group created above. On EKS, pod logs don’t reach CloudWatch by default, so the audit trail is lost until you install log collection: the Amazon CloudWatch Observability add-on with container log capture enabled, or a Fluent Bit DaemonSet. On either track, query the logs with CloudWatch Logs Insights and drive alarms from metric filters.
 
-###
-
-​
-
-Container metrics
+### Container metrics
 
 Enable Container Insights on the cluster with `aws ecs update-cluster-settings --cluster claude-gateway --settings name=containerInsights,value=enabled` for per-task CPU, memory, and network. On EKS, install the Amazon CloudWatch Observability add-on.
 
-###
-
-​
-
-Spend
+### Spend
 
 Telemetry shows usage after the fact; [spend limits](</docs/en/claude-apps-gateway-spend-limits>) are the gateway’s live per-developer view and enforcement.
 
-##
-
-​
-
-Cost attribution
+## Cost attribution
 
 The gateway signs every Bedrock request with its own principal, the ECS task role or EKS IRSA role, so by default AWS sees all of that spend under one IAM principal. There are two ways to split it in AWS’s own billing data, and they combine.
 
-###
-
-​
-
-Per developer with `assume_role`
+### Per developer with `assume_role`
 
 Create a second IAM role that holds the Bedrock permissions and trusts the gateway’s principal, grant that principal `sts:AssumeRole` on it, and set [`assume_role`](</docs/en/claude-apps-gateway-config#per-developer-aws-cost-attribution>) with `session_name: email` on the Bedrock upstream. The gateway then assumes that role once per developer per hour with the session name set to their email and signs their requests with the result. Requires a gateway running Claude Code v2.1.281 or later. The role can also be in another AWS account: see [Bedrock in another AWS account](</docs/en/claude-apps-gateway-config#bedrock-in-another-aws-account>). In Terraform, next to the task role in the Terraform bundle:
 
@@ -523,11 +471,7 @@ Create a second IAM role that holds the Bedrock permissions and trusts the gatew
 
 With `assume_role` set the gateway signs every Bedrock call, the free `CountTokens` call for spend metering included, with the assumed role’s credentials, so the gateway’s principal needs a Bedrock policy of its own only for an upstream without `assume_role`. Because the gateway calls STS at request time, the private subnets need a path to `sts.<region>.amazonaws.com`. The NAT gateway from the prerequisites provides one, and so does an STS interface VPC endpoint that answers for that hostname. Each active developer costs one STS call per hour per gateway replica. Each developer’s requests reach AWS as the principal `arn:aws:sts::<account>:assumed-role/<role>/<email>`. To see spend per principal, use a billing export that includes IAM principal data; AWS’s [IAM principal cost allocation](<https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/iam-principal-cost-allocation.html>) page covers how to enable it and which billing tools show it.
 
-###
-
-​
-
-Per team with application inference profiles
+### Per team with application inference profiles
 
 This route uses only the [`models`](</docs/en/claude-apps-gateway-config#models>) and [`managed`](</docs/en/claude-apps-gateway-config#managed>) sections. Create one Bedrock [application inference profile](<https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-create.html>) per team and model, tag each profile with the team, and activate that tag as a cost allocation tag. Then give each team its own model id in `gateway.yaml` and pin each IdP group to its team’s ids:
 
@@ -555,11 +499,7 @@ Tell developers in a pinned team to start Claude Code with `--model platform-cla
 
 See [How requests are priced](</docs/en/claude-apps-gateway-spend-limits#how-requests-are-priced>) for how the gateway’s own spend meter prices these ids.
 
-####
-
-​
-
-Let a developer choose which team to bill
+#### Let a developer choose which team to bill
 
 To let a developer who works for two teams choose which team each session bills, give that pair of teams an IdP group and a policy of its own.
 
@@ -594,11 +534,7 @@ Have the developer pass the id of the team the work is for, such as `claude --mo
 
 By default, the gateway applies the [first policy that matches](</docs/en/claude-apps-gateway-config#managed>), so a developer in only the two team groups gets the `team-platform` policy. Their sessions on the data team’s id fail with `is not in your role's availableModels allowlist`, naming Claude Code’s default model and not the id they typed. If you list both team groups in one policy’s `groups` instead, everyone in either team can bill either team’s profile. In the gateway’s own [spend limits](</docs/en/claude-apps-gateway-spend-limits#set-a-cap>), the developer has one total and one cap per period, by default the lowest of their groups’ caps, whichever id a session uses. To keep one team’s lower cap from stopping work for the other, set a per-user cap for the developer.
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [Configuration reference](</docs/en/claude-apps-gateway-config>): every `gateway.yaml` option, including `managed.policies` and `telemetry`
   * [Deployment and operations](</docs/en/claude-apps-gateway-deploy>): IdP setup, health checks, JWT secret rotation, upgrades, and the security model

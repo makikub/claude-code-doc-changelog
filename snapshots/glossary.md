@@ -1,72 +1,36 @@
 This glossary defines Claude Code terminology. Each entry links to the page where the concept is covered in depth. For model-level concepts like tokens, temperature, and RAG, see the [platform glossary](<https://platform.claude.com/docs/en/about-claude/glossary>). For Claude Desktop terms such as desktop extension, MCPB, and DXT, see the [Claude Help Center](<https://support.claude.com/>).
 
-##
+## A
 
-​
-
-A
-
-###
-
-​
-
-AGENTS.md
+### AGENTS.md
 
 A markdown file of project instructions you write for AI coding agents. If your repository has one and no CLAUDE.md, Claude reads it as your project instructions without you adding a second file. You can change the **Project instructions** setting in `/config` to have Claude read both files or only `CLAUDE.md`. Reading `AGENTS.md` directly requires Claude Code v2.1.277 or later. In some sessions Claude [can’t read `AGENTS.md`](</docs/en/memory#when-agents-md-support-is-unavailable>), so [import it from a `CLAUDE.md`](</docs/en/memory#share-one-file-with-other-coding-tools>) there instead. Learn more: [AGENTS.md](</docs/en/memory#agents-md>)
 
-###
-
-​
-
-Agent teams
+### Agent teams
 
 Multiple independent Claude Code sessions coordinated by a team lead, with a shared task list and peer-to-peer messaging. Unlike subagents, which run within a single session and report only to the parent, teammates each have their own context window and you can interact with any of them directly. Agent teams are experimental and disabled by default; see [Enable agent teams](</docs/en/agent-teams#enable-agent-teams>). Learn more: [Run agent teams](</docs/en/agent-teams>)
 
-###
-
-​
-
-Agentic coding
+### Agentic coding
 
 A workflow where the AI can read files, run commands, and make changes autonomously while you watch, redirect, or step away, as opposed to chat-based assistants that only respond with text you must apply yourself. Claude Code is agentic because it has tools that let it act, not just advise. Learn more: [How Claude Code works](</docs/en/how-claude-code-works>)
 
-###
-
-​
-
-Agentic harness
+### Agentic harness
 
 The tools, context management, and execution environment that turn a language model into a capable coding agent. Claude Code is the harness; Claude is the model inside it. The harness supplies file access, shell execution, permission gating, memory loading, and the loop that chains actions together. Learn more: [How Claude Code works](</docs/en/how-claude-code-works>)
 
-###
-
-​
-
-Agentic loop
+### Agentic loop
 
 The cycle Claude works through for every task: gather context, take action, verify results, and repeat until done. Each tool use returns information that informs the next step. You can interrupt the loop at any point to redirect. Most extension points, including hooks, skills, and MCP, plug into specific phases of this loop. Learn more: [How Claude Code works](</docs/en/how-claude-code-works#the-agentic-loop>)
 
-###
-
-​
-
-Artifact
+### Artifact
 
 A live, interactive web page Claude Code publishes from your session to a private URL on claude.ai, so you can see output visually or share it instead of reading terminal text. The page updates in place when the session republishes. Artifacts you create from Claude Code appear in the same gallery as artifacts created in claude.ai conversations. Sharing options depend on your plan: see [Share an artifact](</docs/en/artifacts#share-an-artifact>). Learn more: [Share session output as artifacts](</docs/en/artifacts>)
 
-###
-
-​
-
-Auto memory
+### Auto memory
 
 Notes Claude writes for itself based on your corrections and preferences, stored per git repository under `~/.claude/projects/`. All worktrees of the same repository share one auto memory directory. The first 200 lines or 25 KB of the `MEMORY.md` index loads at the start of every session. Auto memory is the Claude-written counterpart to CLAUDE.md, which you write. Learn more: [Auto memory](</docs/en/memory#auto-memory>)
 
-###
-
-​
-
-Auto mode
+### Auto mode
 
 A permission mode where a separate classifier model reviews actions instead of you, so Claude Code runs most of them without asking you. Claude Code still asks you before actions your explicit ask rules match. The classifier blocks scope escalation, untrusted infrastructure, and prompt injection.
 
@@ -75,167 +39,79 @@ A permission mode where a separate classifier model reviews actions instead of y
 
 Learn more: [Eliminate prompts with auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>)
 
-##
+## B
 
-​
-
-B
-
-###
-
-​
-
-Bare mode
+### Bare mode
 
 With `--bare`, Claude Code starts without loading hooks, skills, custom commands, subagents, installed plugins, MCP servers, auto memory, or CLAUDE.md, apart from skills in a directory you pass with `--add-dir`. Recommended for CI and scripted calls where you need the same result on every machine. Learn more: [Start faster with bare mode](</docs/en/headless#start-faster-with-bare-mode>)
 
-###
-
-​
-
-Bundled skills
+### Bundled skills
 
 Prompt-based playbooks included with Claude Code, such as `/batch`, `/code-review`, `/debug`, and `/loop`. Unlike built-in commands, which execute fixed logic, bundled skills give Claude a detailed prompt and let it orchestrate the work, so they can spawn agents, read files, and adapt to your codebase. Learn more: [Bundled skills](</docs/en/skills#bundled-skills>)
 
-##
+## C
 
-​
-
-C
-
-###
-
-​
-
-Channel
+### Channel
 
 An MCP server that pushes events into your running session so Claude can react to things that happen while you’re away from the terminal. Channels can be two-way: Claude reads an inbound event and replies back through the same channel. Telegram, Discord, and iMessage are included in the research preview. Learn more: [Channels](</docs/en/channels>)
 
-###
-
-​
-
-Checkpoint
+### Checkpoint
 
 A restore point created at each prompt you send that starts a turn. Claude Code snapshots files before every edit so a checkpoint can revert them. Press `Esc` twice or run `/rewind` to restore code, conversation, or both to an earlier point, or to summarize part of the conversation from a selected message. Checkpoints are saved with the conversation, so a resumed session can still `/rewind` to them. Rewinding doesn’t undo a Bash command’s changes to a file unless Claude had already used its file editing tools on that file in your conversation. Learn more: [Checkpointing](</docs/en/checkpointing>)
 
-###
-
-​
-
-`.claude` directory
+### `.claude` directory
 
 The directory where Claude Code reads project-scoped configuration: settings, hooks, skills, subagents, rules, and auto memory. A project has `.claude/` at its root; your user-level defaults are at `~/.claude/`. Learn more: [The `.claude` directory](</docs/en/claude-directory>)
 
-###
-
-​
-
-CLAUDE.md
+### CLAUDE.md
 
 A markdown file of persistent instructions you write for Claude, loaded at the start of every session as a user message after the system prompt. Put project conventions, architecture notes, and “always do X” rules here. Project-root CLAUDE.md survives compaction and is re-read fresh from disk afterward. You can place CLAUDE.md at project scope in `./CLAUDE.md` or `./.claude/CLAUDE.md`, at user scope in `~/.claude/CLAUDE.md`, or as managed policy for your organization. All discovered files are concatenated into context rather than overriding each other, ordered from broadest scope to most specific. Claude Code can also load a project’s AGENTS.md files in place of CLAUDE.md. Learn more: [CLAUDE.md files](</docs/en/memory#claude-md-files>)
 
-###
-
-​
-
-Cloud session
+### Cloud session
 
 A Claude Code session that keeps running after you close your laptop, because it runs on cloud infrastructure instead of your machine. That infrastructure is Anthropic-managed by default, or a [self-hosted environment](</docs/en/self-hosted-environments>) your organization operates. You start one from claude.ai/code, the Claude mobile app, the Desktop app with **Cloud** selected, `claude --cloud`, or a [cloud scheduled task](</docs/en/routines>). A session in your terminal, IDE, or the Desktop app with **Local** selected is a local session; to reach a local session from another device, use Remote Control. Learn more: [Use Claude Code in the cloud](</docs/en/claude-code-on-the-web>)
 
-###
-
-​
-
-Command
+### Command
 
 A reusable instruction you invoke by typing `/name` in the prompt. Built-in commands such as `/clear`, `/model`, and `/compact` control the session. You can define your own commands as files in `.claude/commands/`, or install them from a plugin. Skills are the recommended way to package multi-step commands. Two other uses of the word are unrelated: `claude` CLI subcommands such as `claude mcp add`, listed in the [CLI reference](</docs/en/cli-reference#cli-commands>), and the `command` field of a stdio MCP server entry, which specifies the executable Claude Code launches to start the server. Learn more: [Commands](</docs/en/commands>) · [Skills](</docs/en/skills>)
 
-###
-
-​
-
-Compaction
+### Compaction
 
 Automatic summarization of your conversation when the context window approaches its limit. Project-root CLAUDE.md and auto memory survive compaction, but instructions given only in conversation may not. Run `/compact` to trigger manually, optionally with a focus like `/compact focus on the API changes`. Learn more: [What survives compaction](</docs/en/context-window#what-survives-compaction>) · [When context fills up](</docs/en/how-claude-code-works#when-context-fills-up>) · [When Claude Code compacts a conversation you leave idle](</docs/en/settings-reference#idlecompaction>)
 
-###
-
-​
-
-Connector
+### Connector
 
 An MCP server added to your claude.ai account rather than configured in Claude Code. When you sign in to Claude Code with that account, your connectors appear in `/mcp` alongside the servers you added locally. Organizations can also provision connectors and set per-tool controls on them. Learn more: [Use MCP servers from claude.ai](</docs/en/mcp#use-mcp-servers-from-claude-ai>)
 
-###
-
-​
-
-Context window
+### Context window
 
 The working memory for a session, holding conversation history, file contents, command outputs, CLAUDE.md, auto memory, loaded skills, and system instructions. As you work, context fills up until compaction summarizes it. Run `/context` to see what’s using space. For the underlying model concept, see the [platform glossary](<https://platform.claude.com/docs/en/about-claude/glossary#context-window>). Learn more: [Explore the context window](</docs/en/context-window>)
 
-##
+## D
 
-​
-
-D
-
-###
-
-​
-
-Dispatch
+### Dispatch
 
 A phone-initiated task router that spawns a Claude Code session in the Desktop app when you send a coding task from the Claude mobile app. Your prompt routes to the right tool automatically. Available on Pro, Max, and Ultra plans. Learn more: [Sessions from Dispatch](</docs/en/desktop#sessions-from-dispatch>)
 
-##
+## E
 
-​
-
-E
-
-###
-
-​
-
-Effort level
+### Effort level
 
 A setting that controls adaptive reasoning, which lets the model decide whether and how much to think on each step. Higher effort means more thinking tokens and deeper reasoning; lower effort is faster and cheaper. Effort is supported on Fable models, on Opus 4.6 and later, on Sonnet 4.6 and later, and on Haiku 5.5. Learn more: [Adjust effort level](</docs/en/model-config#adjust-effort-level>)
 
-###
-
-​
-
-Extended thinking
+### Extended thinking
 
 Visible step-by-step reasoning the model performs before responding. You can adjust it with the effort level, or cap thinking tokens with `MAX_THINKING_TOKENS` on models with a fixed thinking budget. Thinking appears in gray italic text in the terminal. Learn more: [Use extended thinking](</docs/en/model-config#extended-thinking>)
 
-##
+## F
 
-​
-
-F
-
-###
-
-​
-
-Frontmatter
+### Frontmatter
 
 A block of YAML settings at the very top of a Markdown file, between an opening `---` line and a closing `---` line. Skills, subagents, output styles, and rules each read their configuration from frontmatter, such as a skill’s `description` or a subagent’s `tools`, and treat everything after the closing `---` as the instructions. The opening `---` must be the file’s first line. Each file type accepts its own set of fields. Learn more: [Skill frontmatter](</docs/en/skills#frontmatter-reference>), [Subagent frontmatter](</docs/en/sub-agents#supported-frontmatter-fields>), [Output style frontmatter](</docs/en/output-styles#frontmatter>), [Rule frontmatter](</docs/en/memory#rules-frontmatter-reference>)
 
-##
+## H
 
-​
-
-H
-
-###
-
-​
-
-Hook
+### Hook
 
 A user-defined handler that executes automatically at a specific point in Claude Code’s lifecycle, such as before a tool runs, after a file edit, or at session start. Handlers can be a shell command, HTTP endpoint, MCP tool, LLM prompt, or subagent. Hooks are deterministic: they fire at fixed lifecycle points rather than at the model’s discretion. A hook configuration has three levels:
 
@@ -245,215 +121,103 @@ A user-defined handler that executes automatically at a specific point in Claude
 
 Learn more: [Get started with hooks](</docs/en/hooks-guide>) · [Hooks reference](</docs/en/hooks>)
 
-##
+## M
 
-​
-
-M
-
-###
-
-​
-
-Managed settings
+### Managed settings
 
 Settings enforced org-wide by IT or DevOps, delivered from Anthropic’s servers through the admin console or deployed to devices at an OS-level path outside `~/.claude`. User and project settings cannot override managed settings. Server-managed delivery applies on [eligible configurations](</docs/en/server-managed-settings#platform-availability>); see [Security considerations](</docs/en/server-managed-settings#security-considerations>). Use this for security policies, compliance requirements, or standardized tooling across a fleet. Learn more: [Server-managed settings](</docs/en/server-managed-settings>) · [Settings files](</docs/en/settings#where-settings-live>)
 
-###
-
-​
-
-MCP (Model Context Protocol)
+### MCP (Model Context Protocol)
 
 An open standard for connecting AI tools to external data sources and services. MCP servers give Claude new tools for Slack, Jira, databases, browsers, and hundreds of other integrations. You connect servers via `/mcp` or by adding them to `.mcp.json`. For the protocol itself, see the [platform glossary](<https://platform.claude.com/docs/en/about-claude/glossary#mcp-model-context-protocol>). Learn more: [Model Context Protocol](</docs/en/mcp>)
 
-###
-
-​
-
-MCP server
+### MCP server
 
 A program that gives Claude tools, prompts, or resources over MCP. You add servers with `claude mcp add`, in `.mcp.json`, through a plugin, or as a claude.ai connector. A local stdio server runs as a process Claude Code starts from the `command` and `args` fields of its configuration, which have nothing to do with the commands you type at the prompt. Learn more: [Model Context Protocol](</docs/en/mcp>)
 
-###
-
-​
-
-MCP Tool Search
+### MCP Tool Search
 
 A context-saving mechanism that defers MCP tool schemas until needed. Only tool names and server instructions load at startup; Claude fetches the full schema on demand when it decides to use a specific tool. This keeps idle MCP servers from consuming much context. Learn more: [Scale with MCP Tool Search](</docs/en/mcp#scale-with-mcp-tool-search>)
 
-##
+## N
 
-​
-
-N
-
-###
-
-​
-
-Non-interactive mode
+### Non-interactive mode
 
 A mode that executes a single prompt and exits without an interactive prompt, invoked with `-p` or `--print`. Used for CI, scripts, and piping. The run is still saved as a resumable session unless you pass `--no-session-persistence`. The [Agent SDK](</docs/en/agent-sdk/overview>) is the Python and TypeScript equivalent. Formerly called headless mode. Learn more: [Run Claude Code programmatically](</docs/en/headless>)
 
-##
+## O
 
-​
-
-O
-
-###
-
-​
-
-Output style
+### Output style
 
 A configuration that changes the instructions Claude Code gives Claude, to set response behavior, tone, or format. Unlike CLAUDE.md, which adds project context alongside Claude Code’s default instructions, a custom output style adds its own instructions and can leave out the default software engineering instructions. Learn more: [Output styles](</docs/en/output-styles>)
 
-##
+## P
 
-​
-
-P
-
-###
-
-​
-
-Permission mode
+### Permission mode
 
 The baseline approval behavior for the session. Cycle with `Shift+Tab` in the CLI or use the mode selector in VS Code, Desktop, and claude.ai. Available modes are `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, and `bypassPermissions`. The `default` mode is labeled Manual in the CLI, in the VS Code and JetBrains extensions, and in the desktop app, and Claude Code accepts `manual` as an alias for the value. Learn more: [Choose a permission mode](</docs/en/permission-modes>)
 
-###
-
-​
-
-Permission rule
+### Permission rule
 
 A settings entry that allows, asks about, or denies a tool invocation based on the tool name and argument pattern. Rules are evaluated deny→ask→allow, first match wins. Permission rules are fine-grained controls layered on top of the broader permission mode. Learn more: [Configure permissions](</docs/en/permissions>)
 
-###
-
-​
-
-Plan mode
+### Plan mode
 
 A permission mode where Claude researches and proposes changes without editing your source files. It can read, search, and run exploration commands, then presents a plan for approval before touching anything. Enter plan mode with `/plan` or by pressing `Shift+Tab`. Learn more: [Analyze before you edit with plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>)
 
-###
-
-​
-
-Plugin
+### Plugin
 
 A bundle of skills, hooks, subagents, and MCP servers packaged as a single installable unit. Plugin skills are namespaced as `plugin-name:skill-name` so multiple plugins coexist. Distribute plugins across teams via a [marketplace](</docs/en/plugins/overview>). Learn more: [Plugins](</docs/en/plugins/overview>)
 
-###
-
-​
-
-Project trust
+### Project trust
 
 A dialog accepting a directory before Claude Code loads its configuration. Acceptance is saved per project directory, except your home directory, where trust is held for the current session only and the prompt reappears on each launch. Until you trust a directory, Claude Code holds back some of the content its repository supplies, such as project allow rules and marketplaces from `.claude/settings.json`. [What runs before you trust a folder](</docs/en/permissions#what-runs-before-you-trust-a-folder>) lists each kind of content, including what a `-p` session runs without a dialog. Learn more: [The `.claude` directory](</docs/en/claude-directory>)
 
-###
-
-​
-
-Prompt injection
+### Prompt injection
 
 Hostile instructions embedded in a file, web page, or tool result that attempt to redirect Claude toward actions you didn’t ask for. Claude Code’s defenses include the permission system, command injection detection, and trust verification. In auto mode, a server-side probe scans tool results for suspicious content, and a classifier reviews actions. Learn more: [Protect against prompt injection](</docs/en/security#protect-against-prompt-injection>)
 
-##
+## R
 
-​
-
-R
-
-###
-
-​
-
-Remote Control
+### Remote Control
 
 A way to continue a local Claude Code session from your phone or browser via claude.ai. Your code execution and files stay on your machine; the interface is remote. Different from a [cloud session](</docs/en/claude-code-on-the-web>), which runs in a cloud sandbox. Learn more: [Remote Control](</docs/en/remote-control>)
 
-###
-
-​
-
-Rules
+### Rules
 
 Modular instruction files in `.claude/rules/` that load alongside CLAUDE.md. A rule can be path-scoped with YAML `paths:` frontmatter so it only loads when Claude reads, writes, or edits a matching file, keeping context lean until it’s relevant. Learn more: [Organize rules with `.claude/rules/`](</docs/en/memory#organize-rules-with-claude/rules/>)
 
-##
+## S
 
-​
-
-S
-
-###
-
-​
-
-Sandboxing
+### Sandboxing
 
 OS-level filesystem and network isolation for the Bash tool. Commands run inside a boundary you define upfront, so Claude can work freely within it without per-command approval prompts. Sandboxing is a separate layer from permission rules. Learn more: [Sandboxing](</docs/en/sandboxing>)
 
-###
-
-​
-
-Session
+### Session
 
 A conversation tied to your current directory, with its own independent context window. Sessions can be resumed with `claude -c`, forked with `--fork-session` to preserve history under a new session ID, or run in parallel across terminals. Running `/clear` starts a new session; the previous one stays stored and is available via `/resume`. Each session’s transcript is stored under `~/.claude/projects/`. Learn more: [Work with sessions](</docs/en/how-claude-code-works#work-with-sessions>)
 
-###
-
-​
-
-Settings layers
+### Settings layers
 
 The hierarchy Claude Code reads configuration from, in precedence order from highest to lowest: managed policy, settings you pass with the `--settings` flag, local settings at `.claude/settings.local.json`, project settings at `.claude/settings.json`, then user settings at `~/.claude/settings.json`. Arrays merge across layers; scalars at a higher layer override lower ones. See [Settings precedence](</docs/en/settings#settings-precedence>). Learn more: [Settings files](</docs/en/settings#where-settings-live>)
 
-###
-
-​
-
-Skill
+### Skill
 
 A `SKILL.md` file containing instructions, knowledge, or a workflow that Claude adds to its toolkit. Claude loads a skill automatically when relevant, or you invoke it directly with `/skill-name`. Skills follow the Agent Skills open standard; Claude Code extends it with invocation control and subagent execution. Skills are the recommended successor to custom commands. A file at `.claude/commands/deploy.md` and one at `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same way; existing command files continue to work. Learn more: [Extend Claude with skills](</docs/en/skills>)
 
-###
-
-​
-
-Subagent
+### Subagent
 
 A specialized AI assistant that runs in its own context window with a custom system prompt, specific tool access, and independent permissions. It works on a delegated task and returns a summary to the main conversation. Use subagents to keep large explorations out of your primary context or to run parallel research. A subagent stays inside the session that spawned it. To pass findings between separate sessions you run yourself, use [cross-session messaging](</docs/en/cross-session-messaging>). Built-in subagents include Explore, Plan, and general-purpose. Learn more: [Create custom subagents](</docs/en/sub-agents>)
 
-###
-
-​
-
-Surface
+### Surface
 
 Any place you access Claude Code: the CLI, VS Code, JetBrains, Desktop, or claude.ai. All surfaces share the same engine. Sessions on your machine read your local CLAUDE.md, settings, and skills; [cloud sessions](</docs/en/cloud-environments#what-carries-over-from-your-setup>) start from a fresh clone of your repository and don’t read `~/.claude/` on your machine. Slack and the Chrome extension are integrations that connect to a surface rather than surfaces themselves. Learn more: [Platforms and integrations](</docs/en/platforms>)
 
-###
-
-​
-
-System prompt
+### System prompt
 
 The instructions Claude Code sends ahead of your conversation on every request, covering how Claude uses tools, behaves safely, and formats its responses. You can add to the system prompt with `--append-system-prompt` or replace it with `--system-prompt`. The system prompt is the first layer of the [prompt cache](</docs/en/prompt-caching#how-the-cache-is-organized>). Your CLAUDE.md files and the instructions of your output style aren’t part of the system prompt. Claude Code delivers them in the conversation as system reminders. Learn more: [System prompt flags](</docs/en/cli-reference#system-prompt-flags>)
 
-###
-
-​
-
-System reminder
+### System reminder
 
 A message that Claude Code, as the harness, adds to the conversation to give Claude context. You don’t send system reminders yourself. Claude Code inserts them as a session runs, for example when the session starts, when a hook returns text, or when a file changes on disk. Claude reads them alongside your messages. The following all reach Claude as system reminders:
 
@@ -466,79 +230,39 @@ A message that Claude Code, as the harness, adds to the conversation to give Cla
 
 In a logged API request, a system reminder appears wrapped in `<system-reminder>` tags inside a user message, or on some models as a separate message with the `system` role. Learn more: [Context Claude Code adds outside the system prompt](</docs/en/agent-sdk/modifying-system-prompts#context-claude-code-adds-outside-the-system-prompt>)
 
-##
+## T
 
-​
-
-T
-
-###
-
-​
-
-Teleport
+### Teleport
 
 A command, `/teleport`, that pulls a cloud Claude Code session into your local terminal. Claude fetches the branch, loads the conversation history, and resumes from the cloud session’s last state. The reverse direction is `--cloud`, which sends a local task to run in the cloud. Learn more: [Continue a cloud session in your terminal](</docs/en/claude-code-on-the-web#from-cloud-to-terminal>)
 
-###
-
-​
-
-Tool
+### Tool
 
 An action Claude can take: read a file, edit code, run a shell command, search the web, spawn a subagent. Tools are what make Claude Code agentic. Without them, Claude can only respond with text. Each tool use returns a result that informs Claude’s next decision in the agentic loop. Learn more: [Tools available to Claude](</docs/en/tools-reference>)
 
-###
-
-​
-
-Transcript
+### Transcript
 
 The stored record of a session. The conversation is what you and Claude exchange; the transcript is that conversation kept as a file, by default at `~/.claude/projects/<project>/<session-id>.jsonl`. Claude Code reads the file back when you resume, which is how a conversation continues after the session ends. For the on-screen view of the same conversation, see the [transcript viewer](</docs/en/interactive-mode#transcript-viewer>). Learn more: [Where transcripts are stored](</docs/en/sessions#where-transcripts-are-stored>)
 
-###
-
-​
-
-Turn
+### Turn
 
 One complete response from Claude within a session. A turn begins when you send a message and ends when Claude finishes responding, with any number of tool calls in between. Stop hooks fire at the end of each turn. A session consists of many turns, and the agentic loop describes what happens inside one. Learn more: [How Claude Code works](</docs/en/how-claude-code-works#the-agentic-loop>)
 
-##
+## V
 
-​
-
-V
-
-###
-
-​
-
-Verification loop
+### Verification loop
 
 How a session knows the work is actually done instead of accepting a result that looks plausible. You give Claude a check it can run, such as a test suite, a build, or a screenshot comparison, and Claude iterates until the check passes instead of stopping after one attempt. A verification loop is the prerequisite for [`/goal`](</docs/en/goal>), unattended runs, and [dynamic workflows](</docs/en/workflows>): without one, the only thing deciding the agent is finished is the agent itself. Learn more: [Give Claude a check to run](</docs/en/best-practices#give-claude-a-check-to-run>)
 
-##
+## W
 
-​
-
-W
-
-###
-
-​
-
-Worktree isolation
+### Worktree isolation
 
 An isolation mode that runs Claude in a separate git worktree under `.claude/worktrees/`, enabled with the `-w` flag or `isolation: worktree` in subagent config. Changes stay on a separate branch in a separate directory, so parallel agents each edit their own copy of the files. Learn more: [Run parallel sessions with git worktrees](</docs/en/worktrees>)
 
 * * *
 
-##
-
-​
-
-Deprecated and renamed terms
+## Deprecated and renamed terms
 
 These terms appear in older docs, blog posts, and community content. Use the current name when searching this site.
 

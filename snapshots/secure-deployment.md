@@ -1,18 +1,10 @@
 Claude Code and the Agent SDK can execute code, access files, and interact with external services on your behalf. Unlike traditional software that follows predetermined code paths, these tools generate their actions dynamically based on context and goals. This flexibility is what makes them useful, but it also means their behavior can be influenced by the content they process: files, webpages, or user input. This is sometimes called prompt injection. For example, if a repository’s README contains unusual instructions, Claude Code might incorporate those into its actions in ways the operator didn’t anticipate. This guide covers practical ways to reduce this risk. Not every deployment needs maximum security. A developer running Claude Code on their laptop has different requirements than a company processing customer data in a multi-tenant environment. This guide presents options ranging from Claude Code’s built-in security features to hardened production architectures, so you can choose what fits your situation.
 
-##
-
-​
-
-Threat model
+## Threat model
 
 Agents can take unintended actions due to prompt injection (instructions embedded in content they process) or model error. Claude models are designed to resist this; see the [model overview](<https://platform.claude.com/docs/en/about-claude/models/overview>) and the system card for the model you deploy for evaluation details. Defense in depth is still good practice though. For example, if an agent processes a malicious file that instructs it to send customer data to an external server, network controls can block that request entirely.
 
-##
-
-​
-
-Built-in security features
+## Built-in security features
 
 Claude Code includes several security features that address common concerns. See the [security documentation](</docs/en/security>) for full details.
 
@@ -21,27 +13,15 @@ Claude Code includes several security features that address common concerns. See
   * **Web search summarization** : Search results are summarized rather than passing raw content directly into the context, reducing the risk of prompt injection from malicious web content.
   * **Sandbox mode** : Bash commands can run in a sandboxed environment that restricts filesystem and network access. See the [sandboxing documentation](</docs/en/sandboxing>) for details.
 
-##
-
-​
-
-Security principles
+## Security principles
 
 For deployments that require additional hardening beyond Claude Code’s defaults, these principles guide the available options.
 
-###
-
-​
-
-Security boundaries
+### Security boundaries
 
 A security boundary separates components with different trust levels. For high-security deployments, you can place sensitive resources (like credentials) outside the boundary containing the agent. If something goes wrong in the agent’s environment, resources outside that boundary remain protected. For example, rather than giving an agent direct access to an API key, you could run a proxy outside the agent’s environment that injects the key into requests. The agent can make API calls, but it never sees the credential itself. This pattern is useful for multi-tenant deployments or when processing untrusted content.
 
-###
-
-​
-
-Least privilege
+### Least privilege
 
 When needed, you can restrict the agent to only the capabilities required for its specific task:
 
@@ -52,11 +32,7 @@ Network| Restrict to specific endpoints via proxy
 Credentials| Inject via proxy rather than exposing directly
 System capabilities| Drop Linux capabilities in containers
 
-###
-
-​
-
-Defense in depth
+### Defense in depth
 
 For high-security environments, layering multiple controls provides additional protection. Options include:
 
@@ -67,11 +43,7 @@ For high-security environments, layering multiple controls provides additional p
 
 The right combination depends on your threat model and operational requirements.
 
-##
-
-​
-
-Isolation technologies
+## Isolation technologies
 
 Different isolation technologies offer different tradeoffs between security strength, performance, and operational complexity.
 
@@ -84,11 +56,7 @@ Containers (Docker)| Setup dependent| Low| Medium
 gVisor| Excellent (with correct setup)| Medium/High| Medium
 VMs (Firecracker, QEMU)| Excellent (with correct setup)| High| Medium/High
 
-###
-
-​
-
-Sandbox runtime
+### Sandbox runtime
 
 For lightweight isolation without containers, [sandbox-runtime](<https://github.com/anthropics/sandbox-runtime>) enforces filesystem and network restrictions at the OS level. The main advantage is simplicity: no Docker configuration, container images, or networking setup required. The proxy and filesystem restrictions are built in. **How it works:**
 
@@ -104,11 +72,7 @@ For lightweight isolation without containers, [sandbox-runtime](<https://github.
 
 For many single-developer and CI/CD use cases, sandbox-runtime raises the bar significantly with minimal setup. The sections below cover containers and VMs for deployments requiring stronger isolation.
 
-###
-
-​
-
-Containers
+### Containers
 
 Containers provide isolation through Linux namespaces. Each container has its own view of the filesystem, process tree, and network stack, while sharing the host kernel. A security-hardened container configuration might look like this:
 
@@ -155,11 +119,7 @@ Option| Purpose
 `--userns-remap`| Maps container root to unprivileged host user; requires daemon configuration but limits damage from container escape
 `--ipc private`| Isolates inter-process communication to prevent cross-container attacks
 
-###
-
-​
-
-gVisor
+### gVisor
 
 Standard containers share the host kernel: when code inside a container makes a system call, it goes directly to the same kernel that runs the host. This means a kernel vulnerability could allow container escape. gVisor addresses this by intercepting system calls in userspace before they reach the host kernel, implementing its own compatibility layer that handles most syscalls without involving the real kernel. If an agent runs malicious code (perhaps due to prompt injection), that code runs in the container and could attempt kernel exploits. With gVisor, the attack surface is much smaller: the malicious code would need to exploit gVisor’s userspace implementation first and would have limited access to the real kernel. To use gVisor with Docker, install the `runsc` runtime and configure the daemon:
 
@@ -187,19 +147,11 @@ File I/O intensive| Up to 10-200× slower for heavy open/close patterns
 
 For multi-tenant environments or when processing untrusted content, the additional isolation is often worth the overhead.
 
-###
-
-​
-
-Virtual machines
+### Virtual machines
 
 VMs provide hardware-level isolation through CPU virtualization extensions. Each VM runs its own kernel, creating a strong boundary. A vulnerability in the guest kernel doesn’t directly compromise the host. However, VMs aren’t automatically “more secure” than alternatives like gVisor. VM security depends heavily on the hypervisor and device emulation code. Firecracker is designed for lightweight microVM isolation. It can boot VMs in under 125ms with less than 5 MiB memory overhead, stripping away unnecessary device emulation to reduce attack surface. With this approach, the agent VM has no external network interface. Instead, it communicates through `vsock` (virtual sockets). All traffic routes through vsock to a proxy on the host, which enforces allowlists and injects credentials before forwarding requests.
 
-###
-
-​
-
-Cloud deployments
+### Cloud deployments
 
 For cloud deployments, you can combine any of the above isolation technologies with cloud-native network controls:
 
@@ -209,19 +161,11 @@ For cloud deployments, you can combine any of the above isolation technologies w
   4. Assign minimal IAM permissions to the agent’s service account, routing sensitive access through the proxy where possible
   5. Log all traffic at the proxy for audit purposes
 
-##
-
-​
-
-Credential management
+## Credential management
 
 Agents often need credentials to call APIs, access repositories, or interact with cloud services. The challenge is providing this access without exposing the credentials themselves.
 
-###
-
-​
-
-The proxy pattern
+### The proxy pattern
 
 The recommended approach is to run a proxy outside the agent’s security boundary that injects credentials into outgoing requests. The agent sends requests without credentials, the proxy adds them, and forwards the request to its destination. This pattern has several benefits:
 
@@ -230,11 +174,7 @@ The recommended approach is to run a proxy outside the agent’s security bounda
   3. The proxy can log all requests for auditing
   4. Credentials are stored in one secure location rather than distributed to each agent
 
-###
-
-​
-
-Configuring Claude Code to use a proxy
+### Configuring Claude Code to use a proxy
 
 Claude Code supports two methods for routing sampling requests through a proxy: **Option 1: ANTHROPIC_BASE_URL (simple but only for sampling API requests)**
 
@@ -247,11 +187,7 @@ This tells Claude Code and the Agent SDK to send sampling requests to your proxy
 
 Claude Code and the Agent SDK respect these standard environment variables, routing all HTTP traffic through the proxy. For HTTPS, the proxy creates an encrypted CONNECT tunnel: it cannot see or modify request contents without TLS interception.
 
-###
-
-​
-
-Implementing a proxy
+### Implementing a proxy
 
 You can build your own proxy or use an existing one:
 
@@ -260,30 +196,18 @@ You can build your own proxy or use an existing one:
   * [Squid](<http://www.squid-cache.org/>): caching proxy with access control lists
   * [LiteLLM](<https://github.com/BerriAI/litellm>): LLM gateway with credential injection and rate limiting
 
-###
-
-​
-
-Credentials for other services
+### Credentials for other services
 
 Beyond sampling from the Claude API, agents often need authenticated access to other services, such as git repositories, databases, and internal APIs. There are two main approaches:
 
-####
-
-​
-
-Custom tools
+#### Custom tools
 
 Provide access through an MCP server or custom tool that routes requests to a service running outside the agent’s security boundary. The agent calls the tool, but the actual authenticated request happens outside. The tool calls to a proxy which injects the credentials. For example, a git MCP server could accept commands from the agent but forward them to a git proxy running on the host, which adds authentication before contacting the remote repository. The agent never sees the credentials. Advantages:
 
   * **No TLS interception** : The external service makes authenticated requests directly
   * **Credentials stay outside** : The agent only sees the tool interface, not the underlying credentials
 
-####
-
-​
-
-Traffic forwarding
+#### Traffic forwarding
 
 For Claude API calls, `ANTHROPIC_BASE_URL` lets you route requests to a proxy that can inspect and modify them in plaintext. But for other HTTPS services (GitHub, npm registries, internal APIs), the traffic is often encrypted end-to-end. Even if you route it through a proxy via `HTTP_PROXY`, the proxy only sees an opaque TLS tunnel and can’t inject credentials. To modify HTTPS traffic to arbitrary services, without using a custom tool, you need a TLS-terminating proxy that decrypts traffic, inspects or modifies it, then re-encrypts it before forwarding. This requires:
 
@@ -297,19 +221,11 @@ A **transparent proxy** intercepts traffic at the network level, so the client d
 
 Both approaches still require the TLS-terminating proxy and trusted CA certificate. They just ensure traffic actually reaches the proxy.
 
-##
-
-​
-
-Filesystem configuration
+## Filesystem configuration
 
 Filesystem controls determine what files the agent can read and write.
 
-###
-
-​
-
-Read-only code mounting
+### Read-only code mounting
 
 When the agent needs to analyze code but not modify it, mount the directory read-only:
 
@@ -332,11 +248,7 @@ File| Risk
 
 Consider copying only the source files needed, or using `.dockerignore`-style filtering.
 
-###
-
-​
-
-Writable locations
+### Writable locations
 
 If the agent needs to write files, you have a few options depending on whether you want changes to persist: For ephemeral workspaces in containers, use `tmpfs` mounts that exist only in memory and are cleared when the container stops:
 
@@ -348,11 +260,7 @@ If the agent needs to write files, you have a few options depending on whether y
 
 If you want to review changes before persisting them, an overlay filesystem lets the agent write without modifying underlying files. Changes are stored in a separate layer you can inspect, apply, or discard. For fully persistent output, mount a dedicated volume but keep it separate from sensitive directories.
 
-##
-
-​
-
-Further reading
+## Further reading
 
   * [Claude Code security documentation](</docs/en/security>)
   * [Hosting the Agent SDK](</docs/en/agent-sdk/hosting>)

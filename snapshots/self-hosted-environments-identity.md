@@ -2,19 +2,11 @@ Self-hosted environments are in public beta on Team and Enterprise plans; an [Ow
 
 A [self-hosted environment](</docs/en/self-hosted-environments>) lets Claude Code [cloud sessions](</docs/en/claude-code-on-the-web>) run on infrastructure you operate instead of on Anthropic’s. Because the session runs inside your network, Claude can call your internal services directly. Those services need a way to confirm that a request came from a Claude Code session in your environment, and to identify the user or service identity that created that session. Every session in a self-hosted environment receives a signed JSON Web Token (JWT) in the `CLAUDE_CODE_SESSION_ACCESS_TOKEN` environment variable. A session presents the token like any bearer credential; for example, a script Claude runs can call your service with `curl -H "Authorization: Bearer $CLAUDE_CODE_SESSION_ACCESS_TOKEN"`. Anthropic signs the token and publishes the verification keys at a public JWKS endpoint. Your services fetch those keys, verify the signature, and read the claims to decide what access to grant.
 
-##
-
-​
-
-The session token
+## The session token
 
 Before you write verification code, know what the token establishes and the shape your JWT library will see.
 
-###
-
-​
-
-What the token proves
+### What the token proves
 
 A valid token establishes some facts and deliberately not others:
 
@@ -26,11 +18,7 @@ Two consequences for your services:
   * Verify the `aud` claim against your environment ID, the `ccpool_...` value shown with your environment on the [**Cloud environments** admin page](<https://claude.ai/admin-settings/cloud-environments>), to reject tokens issued to any other organization’s environment.
   * Scope credentials you derive from the token to what a single coding session should be able to do, not to everything the session’s creator can do. See Scope derived credentials.
 
-###
-
-​
-
-Token format
+### Token format
 
 The value of `CLAUDE_CODE_SESSION_ACCESS_TOKEN` has an `sk-ant-cc-` prefix followed by a standard three-part JWT:
 
@@ -38,19 +26,11 @@ The value of `CLAUDE_CODE_SESSION_ACCESS_TOKEN` has an `sk-ant-cc-` prefix follo
 
 Strip the prefix before passing the value to a JWT library. Tokens issued to Anthropic-hosted cloud sessions carry an `sk-ant-si-` prefix instead and are signed by a different key set, so reject any value that doesn’t start with `sk-ant-cc-`. The signature algorithm is `ES256`, which is ECDSA on the P-256 curve with SHA-256. The token header carries a `kid` that identifies which key in the JWKS signed it.
 
-##
-
-​
-
-Verify the token
+## Verify the token
 
 Verification runs in one of two places. Services on your network verify the token cryptographically against Anthropic’s published keys, and wrapper scripts inside the session can use the runner binary’s built-in decoder instead.
 
-###
-
-​
-
-Verify the token from your service
+### Verify the token from your service
 
 Anthropic publishes the verification keys at a public, unauthenticated endpoint:
 
@@ -176,11 +156,7 @@ The checks map directly onto standard JWT libraries. The examples below implemen
             "creator_sub": act.get("sub"),
         }
 
-###
-
-​
-
-Verify the token inside the session
+### Verify the token inside the session
 
 [Wrapper scripts](</docs/en/self-hosted-environments-configuration#wrapper-scripts>) run inside the session, before Claude starts. Instead of calling a JWT library, they can run the runner binary’s `self-hosted-runner decode-token` subcommand. The subcommand reads the token from a positional argument, from `CLAUDE_CODE_SESSION_ACCESS_TOKEN`, or from piped stdin, in that order, then strips the prefix, verifies the signature against the JWKS endpoint, checks expiry, and prints the claims as JSON. The subcommand performs the signature and expiry checks only; it doesn’t check `iss`, `aud`, or `ccr:role`. When your wrapper’s auth decision depends on those claims, read them from the printed JSON and compare them explicitly. This command extracts the creator identity, preferring the email address, then the creator’s `act.sub` subject, `user:<id>` or `agent:<id>`:
 
@@ -188,11 +164,7 @@ Verify the token inside the session
 
 Wrappers receive the absolute path to the runner’s own binary in `CLAUDE_RUNNER_CLAUDE_BIN`; use that path rather than a PATH-resolved `claude` so the decode runs on the same binary the runner itself uses. Use `jq -re` rather than `jq -r` so a missing claim causes a non-zero exit. With `-r` alone, a missing claim prints the literal string `null` and exits zero, which silently passes a bad value downstream. If `decode-token` can’t fetch the keys from the JWKS endpoint or can’t verify the token, it prints the reason to stderr, prints no claims, and exits with code 1. Pass `--no-verify` to `decode-token` only for offline inspection where the JWKS endpoint is unreachable.
 
-##
-
-​
-
-Claims reference
+## Claims reference
 
 Read identity from the `ccr:*` namespace and the `act` chain; the flat `account_email`, `organization_uuid`, and `account_uuid` claims are backward-compatibility duplicates that may be removed. Sessions your organization’s service identity creates carry an `agent:` subject in `act.sub` and omit `act.email`, `ccr:account_id`, `account_email`, and `account_uuid`. The two email claims are optional for user-created sessions too. Anthropic records them at session creation only when the creating request’s credentials carry an email, and a session dispatched from the CLI can lack both. Key identity on `act.sub` or `ccr:account_id` rather than on email. Tokens can also carry additional claims beyond this table; ignore claims you don’t recognize. The table below lists the session token claims relevant to verification.
 
@@ -214,11 +186,7 @@ Claim| Type| Description
 `account_uuid`| string| The creating user’s Anthropic account UUID.
 `act`| object| [RFC 8693](<https://www.rfc-editor.org/rfc/rfc8693>) delegation chain. See The `act` chain.
 
-###
-
-​
-
-The `act` chain
+### The `act` chain
 
 The `act` claim records the full delegation path from the user or service identity that created the session down to the [environment](</docs/en/self-hosted-environments#key-concepts>) whose secret admitted the runner, and the identity that created that secret. The creator is the outermost actor, so `act.sub` identifies them directly.
 
@@ -231,11 +199,7 @@ Path| Description
 `act.act.act`| The environment. `act.act.act.sub` is `ccr:pool:<pool_id>`.
 `act.act.act.act`| The identity that created the environment secret the runner registered with. The chain ends here.
 
-##
-
-​
-
-Scope derived credentials
+## Scope derived credentials
 
 The session token identifies the user or service identity that created the session, but don’t treat it as equivalent to that creator logging in directly. The token sits in an environment variable inside the session, so any code Claude runs, and any tool or MCP server the session starts, can read and present it. Verification is also offline: a token that verifies against the JWKS stays valid until its `exp`, whatever has happened to the session since, and Anthropic doesn’t publish a revocation feed for session tokens. Bound anything you derive from the token accordingly. When your service exchanges the token for internal credentials, issue credentials scoped to what one coding session should reach:
 
@@ -243,11 +207,7 @@ The session token identifies the user or service identity that created the sessi
   * **Limit lifetime** : bound derived credentials to the token’s `exp`, or shorter.
   * **Audit as the session** : record the `ccr:session_id` and `jti` alongside the creator identity so you can trace actions back to a specific session.
 
-##
-
-​
-
-Related environment variables
+## Related environment variables
 
 The creator identity also appears in plain environment variables on two surfaces that never verify the token:
 
@@ -256,11 +216,7 @@ The creator identity also appears in plain environment variables on two surfaces
 
 Use the plain variables for orchestrator-side decisions such as selecting a machine image. Use `CLAUDE_CODE_SESSION_ACCESS_TOKEN` when a downstream service needs independent cryptographic proof rather than trusting the runner’s environment.
 
-##
-
-​
-
-What’s next
+## What’s next
 
   * [Self-hosted environments](</docs/en/self-hosted-environments>): the environment, runner, and session model; the [quickstart](</docs/en/self-hosted-environments-quickstart>) and [Deploy to production](</docs/en/self-hosted-environments-deploy>) hold setup and operations
   * [Customize sessions](</docs/en/self-hosted-environments-configuration>): wrapper scripts that consume the token, and the `spawn-runner` hook

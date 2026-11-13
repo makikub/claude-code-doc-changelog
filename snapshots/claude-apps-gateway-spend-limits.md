@@ -1,10 +1,6 @@
 Spend limits cap how much each developer can spend through your [Claude apps gateway](</docs/en/claude-apps-gateway>) in a given day, week, or month. When a developer passes their cap, the gateway returns `429` on their following requests until an admin raises the cap, or until the cap resets if it’s above $0. Use spend limits to give each developer, group, or the whole organization a ceiling on a credential everyone shares. By default, a Claude apps gateway forwards all inference through one shared upstream credential, so your provider’s bill attributes everything to that credential, not to individual developers. On Amazon Bedrock, [per-developer AWS cost attribution](</docs/en/claude-apps-gateway-config#per-developer-aws-cost-attribution>) changes this. Without per-developer limits, one runaway agent fleet can spend the organization’s entire commitment. Spend limits are the gateway’s per-developer view and circuit breaker on top of that shared bill.
 
-##
-
-​
-
-Set a cap
+## Set a cap
 
 With the [`admin:`](</docs/en/claude-apps-gateway-config#admin>) block configured in `gateway.yaml`, the gateway serves an admin API at `/v1/organizations/spend_limits` and enforces caps live on every inference request. Caps themselves are set through that API, not in `gateway.yaml`; each `POST /v1/organizations/spend_limits` request creates or replaces one cap from `{scope, amount, period}`. The API mirrors the wire shapes of Anthropic’s public [Admin API](<https://platform.claude.com/docs/en/manage-claude/admin-api>) spend-limits endpoints, so an HTTP client written against that contract can target the gateway by changing its base URL. This request sets an org-wide default of $500 per month for every developer:
 
@@ -28,22 +24,14 @@ Field| Values| Description
 
 A group or organization cap is a per-seat default that each member inherits, not a shared pool. Per period, a developer’s effective cap resolves in this order: a per-user override, then the most restrictive of their group caps, then the org default, then unlimited. [`admin.group_limit_mode: max`](</docs/en/claude-apps-gateway-config#admin>) flips the multi-group tie-break to least-restrictive instead.
 
-###
-
-​
-
-Authenticate to the admin API
+### Authenticate to the admin API
 
 Send one of:
 
   * An `x-api-key` header matching a key in [`admin.write_keys`](</docs/en/claude-apps-gateway-config#admin>) for full access, or `admin.read_keys` for `GET`-only access. Each key carries an `id` that appears in the audit log as `admin-key:<id>`, so give Terraform, CI, and each automation its own.
   * A gateway bearer token whose `groups` claim includes one of [`admin.admin_groups`](</docs/en/claude-apps-gateway-config#admin>). This is full access and audits as `oidc:<sub>`, so prefer it for human admins.
 
-##
-
-​
-
-How enforcement works
+## How enforcement works
 
 On each `/v1/messages` request, the gateway looks up the developer’s caps and period-to-date spend in one Postgres query. A developer over any cap gets a `429` with `error.type: billing_error` and header `x-should-retry: false`. For a cap above `"0"`, the message gives the UTC date that cap resets. If you set [`admin.blocked_message`](</docs/en/claude-apps-gateway-config#admin>), the gateway appends it, as in this example:
 
@@ -51,11 +39,7 @@ On each `/v1/messages` request, the gateway looks up the developer’s caps and 
 
 For a `"0"` cap, which a reset doesn’t lift, the message has no date. When a developer exceeds several caps at once, the message describes the cap that resets last. The response also carries a `retry-after` header with the seconds until that cap’s period ends. Before v2.1.319 on the gateway server, the message named the period and reset time, such as `spend limit reached (daily; resets 2026-08-08 00:00 UTC)`. Before v2.1.225, the message was `spend limit reached` with no period, reset time, or `retry-after` header. On v2.1.227 or later, the protocol reference at `<public_url>/protocol` also lists the exact usage-limit response headers and `429` body. Caps reset on UTC calendar boundaries: daily at 00:00 UTC, weekly on Monday, and monthly on the first. The gateway never blocks `/v1/messages/count_tokens`, because token counting is free.
 
-###
-
-​
-
-How requests are priced
+### How requests are priced
 
 After each response, a usage meter reads the token counts and adds the cost to the daily, weekly, and monthly counters. It never touches the bytes sent to the client, so a metering failure can’t break a response. The amounts are USD estimates, a circuit breaker rather than an invoice; for billing, reconcile against your provider’s usage reporting. The meter picks each request’s rates in this order:
 
@@ -66,27 +50,15 @@ After each response, a usage meter reads the token counts and adds the cost to t
 
 Whichever rate applies, the meter then multiplies the amount by [`pricing.multiplier`](</docs/en/claude-apps-gateway-config#pricing>), default `1`. Requires a gateway server running Claude Code v2.1.227 or later. Client aborts are billed too. When a stream ends without the upstream’s final usage frame, the meter bills a floor estimate of about four characters per output token for the text already sent to the client, so aborting requests early doesn’t evade a cap.
 
-####
-
-​
-
-Long-prompt rates
+#### Long-prompt rates
 
 The list price for [Claude Haiku 5.5](<https://platform.claude.com/docs/en/models/haiku-5-5/overview>) has a [higher rate for prompts over a token threshold](</docs/en/model-config#haiku-5-5-context-window-and-pricing>). When Haiku 5.5 serves a request whose prompt exceeds the threshold, a gateway server running Claude Code v2.1.293 or later prices the whole request at that rate. The meter counts input tokens, cache reads, and cache writes toward that threshold. If one of your `pricing.overrides` rows matches the request, that row’s rates apply at any prompt length.
 
-###
-
-​
-
-Postgres availability
+### Postgres availability
 
 The pre-check queries Postgres with a two-second timeout. If the store is unreachable or times out, enforcement fails open by default: the request proceeds, the gateway logs a warning, and the response carries no `anthropic-ratelimit-unified-*` headers. Set [`enforcement.fail_closed_on_error: true`](</docs/en/claude-apps-gateway-config#enforcement>) to fail closed instead, which returns the same `429 billing_error` but with the message `spend limit unavailable` and no period, reset time, or `retry-after` header. Fail-open keeps a store outage from becoming an inference outage; fail-closed guarantees no unmetered spend. Fail-open only helps while your load balancer or orchestrator still routes traffic to the gateway. See [Outage behavior](</docs/en/claude-apps-gateway-deploy#outage-behavior>) for `store.readiness_grace_seconds`, which keeps replicas passing their readiness check through a short outage.
 
-###
-
-​
-
-Usage warnings in Claude Code
+### Usage warnings in Claude Code
 
 Claude Code warns a developer as they approach their cap: once utilization passes 75%, and again past 95% of their most-consumed cap. When the gateway blocks a request, Claude Code shows the gateway’s `429` message as is, including your `admin.blocked_message`. It also shows the cap in `/usage` and passes it to the developer’s [status line](</docs/en/statusline#spend-limit-fields>) script. Each display needs a minimum Claude Code version on the developer’s machine and on the gateway server:
 
@@ -99,11 +71,7 @@ On a gateway with an [`admin:`](</docs/en/claude-apps-gateway-config#admin>) blo
 
 The warnings and the percentage come from the `anthropic-ratelimit-unified-*` headers, which the gateway adds to each successful `/v1/messages` response for a developer who has a cap. The headers always describe the developer’s own cap: the gateway strips the upstream provider’s rate-limit headers, which describe your shared quota, and never forwards them. The spend a developer sees is the gateway’s own estimate, the same figure it enforces the cap with. It isn’t an amount from your provider’s bill. Claude Code reads the dollar amounts with a separate request to the gateway, which it sends even if you set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` on developers’ machines. Before v2.1.295, Claude Code skipped that request when the variable was set, and `/usage` and the status line showed the percentage and the reset date, with no dollar amounts.
 
-##
-
-​
-
-Admin API reference
+## Admin API reference
 
 The endpoints below are served under `/v1/organizations/spend_limits`.
 
@@ -126,11 +94,7 @@ Conventions mirror Anthropic’s Admin API:
 
 Every mutation writes a before/after row to `admin_audit` in the same transaction, attributed to `admin-key:<id>` or `oidc:<sub>`. The gateway serves the spend-limits endpoints only. Other Admin API surfaces, such as the `spend_limit_increase_requests` queue, aren’t part of the gateway’s admin API.
 
-###
-
-​
-
-`/effective`
+### `/effective`
 
 `GET /v1/organizations/spend_limits/effective` returns Anthropic’s `SpendSummary` schema: each row is a principal for a period, with the resolved cap, period-to-date spend, and an `actor` object. Gateway-specific differences:
 
@@ -151,27 +115,15 @@ Query parameter| Description
 
 `q=` and `user_ids[]=` ride GET query strings, so any fronting proxy or load balancer captures them in its access logs. If your PII log policy is strict, scrub these parameters there.
 
-###
-
-​
-
-`/audit`
+### `/audit`
 
 Returns the spend-limit mutation trail: who changed which cap, with before/after snapshots, newest-first. `has_more` is exact. This endpoint follows the local Admin API conventions rather than a first-party wire shape.
 
-###
-
-​
-
-Pagination
+### Pagination
 
 The raw list pages by `after_id` and `before_id`, which are mutually exclusive `spl_…` IDs; results are ordered by creation and `has_more` reflects the traversal direction. `/effective` pages by the opaque `next_page` token passed back as `?page=`, with principals ordered ascending so pages stay stable while spend is being recorded. `limit` is 1–1000, default 20, on both. `/audit` pages by `after_id`, the numeric `id` of the last event on the previous page, and its `limit` defaults to 100.
 
-##
-
-​
-
-Data lifecycle
+## Data lifecycle
 
 The gateway holds four spend-related tables; an hourly sweep enforces the retention windows:
 
@@ -184,11 +136,7 @@ Table| Contents| Retention
 
 When a developer leaves, delete any per-user cap via `DELETE /v1/organizations/spend_limits/{id}`; their spend and identity rows age out on the retention windows above. To erase one person immediately, for offboarding or a data subject access request (DSAR), run `DELETE FROM principal_emails WHERE principal = '<sub>'` directly against the gateway database. That removes the only table holding their email, name, and groups. The `spend` and `admin_audit` rows reference the pseudonymous OIDC `sub` only and age out on their own windows.
 
-##
-
-​
-
-Related
+## Related
 
   * [`admin` and `enforcement` configuration](</docs/en/claude-apps-gateway-config#admin>): enabling the admin API and tuning retention
   * [Deployment guide](</docs/en/claude-apps-gateway-deploy#postgres>): Postgres schema and backup guidance

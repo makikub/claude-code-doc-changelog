@@ -1,10 +1,6 @@
 While working on a task, Claude sometimes needs to check in with users. It might need permission before deleting files, or need to ask which database to use for a new project. Your application needs to surface these requests to users so Claude can continue with their input. Claude requests user input in two situations: when it needs **permission to use a tool** (like deleting files or running commands), and when it has **clarifying questions** (via the `AskUserQuestion` tool). Both trigger your `canUseTool` callback, which pauses execution until you return a response. This is different from normal conversation turns where Claude finishes and waits for your next message. For clarifying questions, Claude generates the questions and options. Your role is to present them to users and return their selections. You can’t add your own questions to this flow; if you need to ask users something yourself, do that separately in your application logic. The callback can stay pending indefinitely. Execution remains paused until your callback returns. If a user might take longer to respond than your process can reasonably stay running, register a [`PreToolUse` hook](</docs/en/agent-sdk/hooks>) that returns the [`defer` decision](</docs/en/hooks#defer-a-tool-call-for-later>) instead of waiting in the callback, so the process can exit and resume later from the persisted session. This guide shows you how to detect each type of request and respond appropriately.
 
-##
-
-​
-
-Detect when Claude needs input
+## Detect when Claude needs input
 
 Pass a `canUseTool` callback in your query options. The callback fires whenever Claude needs user input, receiving the tool name and input as arguments:
 
@@ -39,11 +35,7 @@ The callback fires in two cases:
 
 You can also use the [`PermissionRequest` hook](</docs/en/agent-sdk/hooks#available-hooks>) to send external notifications (Slack, email, push) when Claude is waiting for approval.
 
-##
-
-​
-
-Handle tool approval requests
+## Handle tool approval requests
 
 Once you’ve passed a `canUseTool` callback in your query options, it fires when Claude wants to use a tool that nothing earlier in the permission flow has approved. In some configurations, such as `dontAsk` mode, Claude Code doesn’t call it; the last step of [How permissions are evaluated](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) lists them and says what happens to the call instead. Your callback receives three arguments:
 
@@ -176,11 +168,7 @@ TypeScript
 
 This example uses a `y/n` flow where any input other than `y` is treated as a denial. In practice, you might build a richer UI that lets users modify the request, provide feedback, or redirect Claude entirely. See Respond to tool requests for all the ways you can respond.
 
-###
-
-​
-
-Respond to tool requests
+### Respond to tool requests
 
 Your callback returns one of two response types:
 
@@ -356,11 +344,7 @@ TypeScript
 
 For a complete change of direction (not just a nudge), use [streaming input](</docs/en/agent-sdk/streaming-vs-single-mode>) to send Claude a new instruction directly. This bypasses the current tool request and gives Claude entirely new instructions to follow.
 
-##
-
-​
-
-Handle clarifying questions
+## Handle clarifying questions
 
 When Claude needs more direction on a task with multiple valid approaches, it calls the `AskUserQuestion` tool. This triggers your `canUseTool` callback with `toolName` set to `AskUserQuestion`. The input contains Claude’s questions as multiple-choice options, which you display to the user and return their selections.
 
@@ -503,11 +487,7 @@ TypeScript
       }
     };
 
-###
-
-​
-
-Question format
+### Question format
 
 The input contains Claude’s generated questions in a `questions` array. Each question has these fields:
 
@@ -534,11 +514,7 @@ The structure your callback receives:
       ]
     }
 
-####
-
-​
-
-Option previews (TypeScript)
+#### Option previews (TypeScript)
 
 `toolConfig.askUserQuestion.previewFormat` adds a `preview` field to each option so your app can show a visual mockup alongside the label. Without this setting, Claude does not generate previews and the field is absent.
 
@@ -575,11 +551,7 @@ An option with an HTML preview:
       "preview": "<div style=\"padding:12px;border:1px solid #ddd;border-radius:8px\"><div style=\"font-size:12px;color:#666\">Active users</div><div style=\"font-size:28px;font-weight:600\">1,284</div></div>"
     }
 
-###
-
-​
-
-Response format
+### Response format
 
 Return an `answers` object mapping each question’s `question` field to the selected option’s `label`:
 
@@ -601,11 +573,7 @@ For multi-select questions, pass an array of labels or join them with `", "`. Fo
       }
     }
 
-####
-
-​
-
-Support free-text input
+#### Support free-text input
 
 Claude’s predefined options won’t always cover what users want. To let users type their own answer:
 
@@ -614,11 +582,7 @@ Claude’s predefined options won’t always cover what users want. To let users
 
 See the complete example below for a full implementation.
 
-###
-
-​
-
-Complete example
+### Complete example
 
 Claude asks clarifying questions when it needs user input to proceed. For example, when asked to help decide on a tech stack for a mobile app, Claude might ask about cross-platform vs native, backend preferences, or target platforms. These questions help Claude make decisions that match the user’s preferences rather than guessing. This example handles those questions in a terminal application. Here’s what happens at each step:
 
@@ -777,28 +741,16 @@ TypeScript
 
     main();
 
-##
-
-​
-
-Limitations
+## Limitations
 
   * **Subagents** : `AskUserQuestion` is not currently available in subagents spawned via the Agent tool
   * **Question limits** : each `AskUserQuestion` call supports 1-4 questions with 2-4 options each
 
-##
-
-​
-
-Other ways to get user input
+## Other ways to get user input
 
 The `canUseTool` callback and `AskUserQuestion` tool cover most approval and clarification scenarios, but the SDK offers other ways to get input from users:
 
-###
-
-​
-
-Streaming input
+### Streaming input
 
 Use [streaming input](</docs/en/agent-sdk/streaming-vs-single-mode>) when you need to:
 
@@ -808,11 +760,7 @@ Use [streaming input](</docs/en/agent-sdk/streaming-vs-single-mode>) when you ne
 
 Streaming input is ideal for conversational UIs where users interact with the agent throughout execution, not just at approval checkpoints.
 
-###
-
-​
-
-Custom tools
+### Custom tools
 
 Use [custom tools](</docs/en/agent-sdk/custom-tools>) when you need to:
 
@@ -822,11 +770,7 @@ Use [custom tools](</docs/en/agent-sdk/custom-tools>) when you need to:
 
 Custom tools give you full control over the interaction, but require more implementation work than using the built-in `canUseTool` callback.
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Configure permissions](</docs/en/agent-sdk/permissions>): set up permission modes and rules
   * [Control execution with hooks](</docs/en/agent-sdk/hooks>): run custom code at key points in the agent lifecycle

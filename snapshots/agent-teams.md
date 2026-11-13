@@ -2,11 +2,7 @@ Agent teams are experimental and disabled by default. Enable them by setting `CL
 
 Agent teams let you coordinate multiple Claude Code instances working together. One session acts as the team lead, coordinating work, assigning tasks, and synthesizing results. Teammates work independently, each in its own context window, and communicate directly with each other. You can also talk to any teammate directly without going through the lead. Before you set up a team, check whether a lighter option does the job. [Subagents](</docs/en/sub-agents>) work within a single session, and with [cross-session messaging](</docs/en/cross-session-messaging>) Claude can pass findings between the sessions you run yourself.
 
-##
-
-​
-
-When to use agent teams
+## When to use agent teams
 
 Agent teams are most effective for tasks where parallel exploration adds real value. See use case examples for full scenarios. The strongest use cases are:
 
@@ -17,11 +13,7 @@ Agent teams are most effective for tasks where parallel exploration adds real va
 
 Agent teams add coordination overhead and use significantly more tokens than a single session. They work best when teammates can operate independently. For sequential tasks, same-file edits, or work with many dependencies, a single session or [subagents](</docs/en/sub-agents>) are more effective.
 
-###
-
-​
-
-Compare with subagents
+### Compare with subagents
 
 Both agent teams and [subagents](</docs/en/sub-agents>) let you parallelize work, but they operate differently. For separate sessions that pass messages to each other without a team, see [cross-session messaging](</docs/en/cross-session-messaging>).
 
@@ -37,11 +29,7 @@ Subagents report results back to the main agent. In agent teams, teammates share
 
 Use subagents when you need quick, focused workers that report back. Use agent teams when teammates need to share findings, challenge each other, and coordinate on their own.
 
-##
-
-​
-
-Enable agent teams
+## Enable agent teams
 
 Agent teams are disabled by default. Enable them by setting the `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` environment variable to `1`, either in your shell environment or through [settings.json](</docs/en/settings>):
 
@@ -55,11 +43,7 @@ settings.json
 
 Enabling agent teams also changes ordinary delegation. Claude may [name a subagent](</docs/en/sub-agents#subagent-names>) on its own, and while agent teams are enabled, a subagent that Claude names launches as a teammate, so teams can form even when you didn’t ask for one. For more, see How Claude starts agent teams; to turn the behavior off, see Claude spawns teammates instead of subagents. Spawning teammates also requires an interactive session. In [non-interactive mode](</docs/en/headless>) with the `-p` flag, including Agent SDK sessions, Claude doesn’t spawn teammates, and a subagent that Claude names runs as an ordinary [subagent](</docs/en/sub-agents>) even with agent teams enabled.
 
-##
-
-​
-
-Start your first agent team
+## Start your first agent team
 
 After enabling agent teams, describe the task and the teammates you want in natural language. Claude spawns them and coordinates work based on your prompt. This example works well because the three roles are independent and can explore the problem without waiting on each other:
 
@@ -75,19 +59,11 @@ From there, Claude populates a [shared task list](</docs/en/interactive-mode#tas
 
 An idle teammate’s row stays in the panel while any teammate or subagent is still working, so you can select it to review its transcript or send it more work. Once every agent in the panel is idle, idle rows hide after 30 seconds and reappear on the teammate’s next turn; the teammate stays running and addressable while hidden. When more than three teammates are idle at once, the rows beyond the first three collapse into a single row that counts the collapsed teammates, such as `2 idle agents` when five are idle. Select it and press Enter to expand the collapsed rows, or press Esc to collapse them again. Working teammates, failed teammates, and the teammate you’re viewing always keep their own rows. If you want each teammate in its own split pane, see Choose a display mode.
 
-##
-
-​
-
-Control your agent team
+## Control your agent team
 
 Tell the lead what you want in natural language. It handles team coordination, task assignment, and delegation based on your instructions.
 
-###
-
-​
-
-Choose a display mode
+### Choose a display mode
 
 Agent teams support two display modes:
 
@@ -111,11 +87,7 @@ The `--teammate-mode` flag is experimental and doesn’t appear in `claude --hel
   * **tmux** : install through your system’s package manager. See the [tmux wiki](<https://github.com/tmux/tmux/wiki/Installing>) for platform-specific instructions.
   * **iTerm2** : install the [`it2` CLI](<https://github.com/mkusaka/it2>), then enable the Python API in **iTerm2 → Settings → General → Magic → Enable Python API**.
 
-###
-
-​
-
-Specify teammates and models
+### Specify teammates and models
 
 Claude decides the number of teammates to spawn based on your task, or you can specify exactly what you want:
 
@@ -140,11 +112,7 @@ Claude Code checks the model it selects for a teammate against your organization
 
 By default, a teammate on the lead’s model inherits the lead’s [effort level](</docs/en/model-config#adjust-effort-level>). In split-pane mode this applies from v2.1.186; earlier versions did not pass the lead’s session effort to split-pane teammates. For a teammate on another model, see [Effort level of subagents and teammates](</docs/en/model-config#effort-level-of-subagents-and-teammates>).
 
-###
-
-​
-
-Have teammates plan before implementing
+### Have teammates plan before implementing
 
 For complex or risky tasks, you can have teammates plan before implementing. A teammate that Claude spawns while the lead is in [plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>) also works in plan mode until its plan is ready. Switch the lead into plan mode first, then ask for the teammate:
 
@@ -152,11 +120,7 @@ For complex or risky tasks, you can have teammates plan before implementing. A t
 
 When that teammate finishes planning, it sends a plan approval request to the lead. If you haven’t changed that teammate’s permission mode since it was spawned, Claude Code approves the plan as soon as the request arrives, without the lead reviewing it. Once approved, the teammate exits plan mode and begins implementation. Claude Code passes it the lead’s current permission mode, or Manual if that’s plan mode. If you put a running in-process teammate in plan mode by pressing [`Shift+Tab`](</docs/en/permission-modes#switch-permission-modes>) while viewing its session, the lead reviews that run’s plan instead of Claude Code approving it. You aren’t asked to approve it; the lead approves it or sends it back for revision.
 
-###
-
-​
-
-Talk to teammates directly
+### Talk to teammates directly
 
 Each teammate is a full, independent Claude Code session. You can message any teammate directly to give additional instructions, ask follow-up questions, or redirect their approach.
 
@@ -170,11 +134,7 @@ While you’re viewing an in-process teammate, plain text and [skills](</docs/en
 
 A teammate’s model and fast mode are fixed when it spawns.
 
-###
-
-​
-
-Assign and claim tasks
+### Assign and claim tasks
 
 The shared task list coordinates work across the team. The lead creates tasks and teammates work through them. Tasks have three states: pending, in progress, and completed. A task can also depend on other tasks and shows as blocked in the task list until they’re completed. Teammates don’t self-claim a blocked task, but you or the lead can still assign it. Agents [without the Task tools](</docs/en/tools-reference#task-tool-availability>) coordinate through messages instead of the shared task list. The lead can assign tasks explicitly, or teammates can self-claim:
 
@@ -183,11 +143,7 @@ The shared task list coordinates work across the team. The lead creates tasks an
 
 Task claiming uses file locking to prevent race conditions when multiple teammates try to claim the same task simultaneously.
 
-###
-
-​
-
-Shut down teammates
+### Shut down teammates
 
 To gracefully end a teammate’s session, refer to it by name. For example, with a teammate named researcher:
 
@@ -195,11 +151,7 @@ To gracefully end a teammate’s session, refer to it by name. For example, with
 
 The lead sends a shutdown request. The teammate can approve, exiting gracefully, or reject with an explanation. The team’s shared directories are cleaned up automatically when the session ends, so there’s no separate cleanup step. See Architecture for which directories are removed and which stay on disk.
 
-###
-
-​
-
-Enforce quality gates with hooks
+### Enforce quality gates with hooks
 
 Use [hooks](</docs/en/hooks>) to enforce rules when teammates finish work or tasks are created or completed:
 
@@ -207,27 +159,15 @@ Use [hooks](</docs/en/hooks>) to enforce rules when teammates finish work or tas
   * [`TaskCreated`](</docs/en/hooks#taskcreated>): runs when a task is being created. Exit with code 2 to prevent creation and send feedback.
   * [`TaskCompleted`](</docs/en/hooks#taskcompleted>): runs when a task is being marked complete. Exit with code 2 to prevent completion and send feedback.
 
-##
-
-​
-
-How agent teams work
+## How agent teams work
 
 This section covers the architecture and mechanics behind agent teams. If you want to start using them, see Control your agent team above.
 
-###
-
-​
-
-How Claude starts agent teams
+### How Claude starts agent teams
 
 To start a team, ask Claude for teammates. Claude launches a teammate when it calls the [Agent tool](</docs/en/tools-reference>) with a [`name`](</docs/en/sub-agents#subagent-names>) while agent teams are enabled, unless the call is a [fork](</docs/en/sub-agents#fork-the-current-conversation>) or passes `isolation` on the call itself. Claude Code doesn’t ask you to confirm the launch. Claude also names ordinary subagents on its own so it can message them later. Those calls follow the same rule, so teams can form even when you didn’t ask for one. If you want subagents instead, turn agent teams off.
 
-###
-
-​
-
-Architecture
+### Architecture
 
 An agent team consists of:
 
@@ -245,11 +185,7 @@ Each agent’s mailbox is a JSON file at `~/.claude/teams/{team-name}/inboxes/{a
 
 Claude Code generates both of these automatically at session startup and updates them as teammates join, go idle, or leave. The team config holds runtime state such as session IDs and tmux pane IDs, so don’t edit it by hand or pre-author it: your changes are overwritten on the next state update. To define reusable teammate roles, use subagent definitions instead. The team config contains a `members` array with each member’s name and agent ID. The lead’s entry always carries the agent type `team-lead`. A teammate’s entry carries whatever agent type the lead named when spawning it, whether a [built-in type](</docs/en/sub-agents#built-in-subagents>) or a subagent definition, and omits the field when the lead named none. Teammates can read this file to discover other team members. There is no project-level equivalent of the team config. A file like `.claude/teams/teams.json` in your project directory is not recognized as configuration; Claude treats it as an ordinary file.
 
-###
-
-​
-
-Use subagent definitions for teammates
+### Use subagent definitions for teammates
 
 When spawning a teammate in either display mode, you can reference a [subagent](</docs/en/sub-agents>) type from the project, user, managed, or plugin [subagent scope](</docs/en/sub-agents#choose-the-subagent-scope>). This lets you define a role once, such as a security-reviewer or test-runner, and reuse it both as a delegated subagent and as an agent team teammate. To use a subagent definition, name it when you ask Claude to spawn the teammate:
 
@@ -268,11 +204,7 @@ Claude Code reads the subagent definition you named and applies these parts of i
 
 When Claude messages an in-process teammate that is no longer running, Claude Code brings it back in the same session, restores any conversation saved for it, and gives it the message as its next prompt. After you resume a session, teammates aren’t brought back this way, per the resume limitation. For a teammate it brings back, Claude Code re-applies a definition that came from a project’s `.claude/agents/` directory or an `--add-dir` directory only if you’ve [trusted the folder the agent file is in](</docs/en/permissions#what-runs-before-you-trust-a-folder>). Trusting a parent folder doesn’t count. Until then, the teammate comes back with none of the definition’s tools or instructions, keeping only the tools Claude Code adds to every in-process teammate. See [the teammate’s agent definition was not restored](</docs/en/errors#teammate-agent-definition-not-restored>) for the notice text.
 
-###
-
-​
-
-Permissions
+### Permissions
 
 To cycle a running teammate’s permission mode, press [`Shift+Tab`](</docs/en/permission-modes#switch-permission-modes>), though an in-process teammate can run in the lead’s mode instead. For a split-pane teammate, press it in its pane. For an in-process teammate, press it while viewing its session, and the teammate checks its mode when it starts its next turn.
 
@@ -285,22 +217,14 @@ You can’t set per-teammate permission modes at spawn time. A new teammate star
 
 Teammate permission prompts appear in the lead session, so approve them there yourself. You don’t need to approve a teammate’s plan.
 
-####
-
-​
-
-Messages between agents
+#### Messages between agents
 
 When one agent sends another a message over `SendMessage`, Claude Code tells the receiving agent the message came from another Claude session, not from you. A teammate can’t approve a permission prompt or supply consent on your behalf, and a teammate that was denied an action can’t relay it to another teammate to bypass the check. The same rules apply to a message that arrives from [one of your other Claude Code sessions](</docs/en/cross-session-messaging#how-a-session-treats-an-incoming-message>), outside the team entirely. In [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), the classifier applies two checks to messages between agents:
 
   * It treats an approval claim relayed from another agent as untrusted input rather than confirmation from you.
   * It reviews each message before Claude Code delivers it, whether a plain message or a structured protocol message such as a shutdown request or plan approval response. A message it blocks never reaches the recipient.
 
-###
-
-​
-
-Context and communication
+### Context and communication
 
 Each teammate has its own context window. When spawned, a teammate loads the same project context as a regular session: CLAUDE.md, MCP servers, and skills. If you start the lead with [`--setting-sources`](</docs/en/cli-reference#cli-flags>), teammates load from the same restricted list of sources. Before v2.1.281, split-pane teammates loaded every settings source. A teammate also receives the spawn prompt from the lead. The lead’s conversation history does not carry over. **How teammates share information:**
 
@@ -311,27 +235,15 @@ Each teammate has its own context window. When spawned, a teammate loads the sam
 
 The lead assigns every teammate a name when it spawns them, and any teammate can message any other by that name. To get predictable names you can reference in later prompts, tell the lead what to call each teammate in your spawn instruction.
 
-###
-
-​
-
-Token usage
+### Token usage
 
 Agent teams use significantly more tokens than a single session. Each teammate has its own context window, and token usage scales with the number of active teammates. For research, review, and new feature work, the extra tokens are usually worthwhile. For routine tasks, a single session is more cost-effective. See [agent team token costs](</docs/en/costs#agent-team-token-costs>) for usage guidance. An in-process teammate’s requests fall outside the main conversation’s [cache TTL bucket](</docs/en/prompt-caching#which-ttl-each-request-gets>), so its cache holds for five minutes by default, including on a Claude subscription. To keep it for an hour, set [`subagentPromptCacheTtl`](</docs/en/settings-reference#subagentpromptcachettl>) to `1h`. The API bills 1-hour cache writes at a higher rate.
 
-##
-
-​
-
-Use case examples
+## Use case examples
 
 These examples show how agent teams handle tasks where parallel exploration adds value.
 
-###
-
-​
-
-Run a parallel code review
+### Run a parallel code review
 
 A single reviewer tends to gravitate toward one type of issue at a time. Splitting review criteria into independent domains means security, performance, and test coverage all get thorough attention simultaneously. The prompt assigns each teammate a distinct lens so they don’t overlap:
 
@@ -343,11 +255,7 @@ A single reviewer tends to gravitate toward one type of issue at a time. Splitti
 
 Each reviewer works from the same PR but applies a different filter. The lead synthesizes findings across all three after they finish.
 
-###
-
-​
-
-Investigate with competing hypotheses
+### Investigate with competing hypotheses
 
 When the root cause is unclear, a single agent tends to find one plausible explanation and stop looking. The prompt fights this by making teammates explicitly adversarial: each one’s job is not only to investigate its own theory but to challenge the others’.
 
@@ -358,17 +266,9 @@ When the root cause is unclear, a single agent tends to find one plausible expla
 
 The debate structure is the key mechanism here. Sequential investigation suffers from anchoring: once one theory is explored, subsequent investigation is biased toward it. With multiple independent investigators actively trying to disprove each other, the theory that survives is much more likely to be the actual root cause.
 
-##
+## Best practices
 
-​
-
-Best practices
-
-###
-
-​
-
-Give teammates enough context
+### Give teammates enough context
 
 Teammates load project context automatically, including CLAUDE.md, MCP servers, and skills, but they don’t inherit the lead’s conversation history. See Context and communication for details. Include task-specific details in the spawn prompt:
 
@@ -377,11 +277,7 @@ Teammates load project context automatically, including CLAUDE.md, MCP servers, 
     management, and input validation. The app uses JWT tokens stored in
     httpOnly cookies. Report any issues with severity ratings."
 
-###
-
-​
-
-Choose an appropriate team size
+### Choose an appropriate team size
 
 There’s no hard limit on the number of teammates, but practical constraints apply:
 
@@ -391,11 +287,7 @@ There’s no hard limit on the number of teammates, but practical constraints ap
 
 Start with 3-5 teammates for most workflows. This balances parallel work with manageable coordination. If you have 15 independent tasks, 3 teammates is a good starting point. Scale up only when the work benefits from having teammates work simultaneously. Three focused teammates often outperform five scattered ones.
 
-###
-
-​
-
-Size tasks appropriately
+### Size tasks appropriately
 
   * **Too small** : coordination overhead exceeds the benefit
   * **Too large** : teammates work too long without check-ins, increasing risk of wasted effort
@@ -403,51 +295,27 @@ Size tasks appropriately
 
 The lead breaks work into tasks and assigns them to teammates automatically. If it isn’t creating enough tasks, ask it to split the work into smaller pieces. Having 5-6 tasks per teammate keeps everyone productive and lets the lead reassign work if someone gets stuck.
 
-###
-
-​
-
-Wait for teammates to finish
+### Wait for teammates to finish
 
 Sometimes the lead starts implementing tasks itself instead of waiting for teammates. If you notice this:
 
     Wait for your teammates to complete their tasks before proceeding
 
-###
-
-​
-
-Start with research and review
+### Start with research and review
 
 If you’re new to agent teams, start with tasks that have clear boundaries and don’t require writing code: reviewing a PR, researching a library, or investigating a bug. These tasks show the value of parallel exploration without the coordination challenges that come with parallel implementation.
 
-###
-
-​
-
-Avoid file conflicts
+### Avoid file conflicts
 
 Two teammates editing the same file leads to overwrites. Break the work so each teammate owns a different set of files.
 
-###
-
-​
-
-Monitor and steer
+### Monitor and steer
 
 Check in on teammates’ progress, redirect approaches that aren’t working, and synthesize findings as they come in. Letting a team run unattended for too long increases the risk of wasted effort.
 
-##
+## Troubleshooting
 
-​
-
-Troubleshooting
-
-###
-
-​
-
-Teammates not appearing
+### Teammates not appearing
 
 If teammates aren’t appearing after you ask Claude to spawn them:
 
@@ -460,11 +328,7 @@ If teammates aren’t appearing after you ask Claude to spawn them:
 
   * For iTerm2, verify the `it2` CLI is installed and the Python API is enabled in iTerm2 preferences.
 
-###
-
-​
-
-Claude spawns teammates instead of subagents
+### Claude spawns teammates instead of subagents
 
 While agent teams are enabled, a subagent that Claude names in the lead’s session launches as a teammate. Claude can name subagents on its own, so this can happen during delegation you never framed as team work. To make named subagents launch as subagents again, turn agent teams off by setting `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` to `0`:
 
@@ -483,19 +347,11 @@ You don’t need to start a new session: Claude Code reapplies settings-file `en
 
 After the change, Claude may still name subagents, and the name keeps working as a [`SendMessage` address](</docs/en/sub-agents#resume-subagents>). Claude receives each subagent’s result when it completes.
 
-###
-
-​
-
-Too many permission prompts
+### Too many permission prompts
 
 Teammate permission requests bubble up to the lead, which can create friction. Pre-approve common operations in your [permission settings](</docs/en/permissions>) before spawning teammates to reduce interruptions.
 
-###
-
-​
-
-Agents stopping early
+### Agents stopping early
 
 Teammates may stop after encountering errors instead of recovering. Check their output by selecting the teammate in the agent panel and pressing Enter in in-process mode, or by clicking the pane in split mode, then either:
 
@@ -504,22 +360,14 @@ Teammates may stop after encountering errors instead of recovering. Check their 
 
 A message from the lead or another teammate wakes an in-process teammate that is waiting to retry a failed API request, so it retries immediately instead of waiting for the full retry delay. The lead can stop early too, deciding the team is finished before all tasks are actually complete. If that happens, tell it to keep going.
 
-###
-
-​
-
-Orphaned tmux sessions
+### Orphaned tmux sessions
 
 If a tmux session persists after the Claude Code session ends, it may not have been fully cleaned up. List sessions and end the one created by the team:
 
     tmux ls
     tmux kill-session -t <session-name>
 
-##
-
-​
-
-Limitations
+## Limitations
 
 Agent teams are experimental. Current limitations to be aware of:
 
@@ -533,11 +381,7 @@ Agent teams are experimental. Current limitations to be aware of:
   * **No per-teammate permission modes at spawn** : teammates start with the permission mode described under Permissions.
   * **Split panes require tmux or iTerm2** : the default in-process mode works in any terminal. Split-pane mode isn’t supported in VS Code’s integrated terminal, Windows Terminal, or Ghostty.
 
-##
-
-​
-
-Next steps
+## Next steps
 
 Explore related approaches for parallel work and delegation:
 

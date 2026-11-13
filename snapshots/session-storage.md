@@ -4,11 +4,7 @@ By default, the SDK writes session transcripts to JSONL files under `~/.claude/p
   * **Durability.** Local containers are ephemeral. An external store survives restarts and redeploys.
   * **Compliance and audit.** Keep transcripts in storage you already govern, with your own retention rules, encryption, and access controls.
 
-##
-
-​
-
-The `SessionStore` interface
+## The `SessionStore` interface
 
 A `SessionStore` is an object with two required methods, `append` and `load`, and four optional methods. The SDK calls `append` to write transcript entries during a query and `load` to read them back for resume.
 
@@ -91,11 +87,7 @@ Method| Required| Called when
 
 In a `SessionSummaryEntry`, `mtime` is the sidecar’s storage write time and must share a clock source with the `mtime` values `listSessions` returns. `data` is opaque SDK-owned state; persist it verbatim without interpreting it. Build the entries by calling the exported `foldSessionSummary` helper, `fold_session_summary` in Python, on each batch inside `append`. Skip batches whose key has a `subpath`; subagent transcripts must not contribute to the main session’s summary. The fold never sets `mtime`: stamp it at persist time, through the `options.mtime` argument in TypeScript or by overwriting the field on the returned entry in Python. Concurrent `append` calls for the same session can race on the sidecar, so serialize the read-fold-write with a transaction, a compare-and-swap, or a per-session lock; the fold itself is pure. For what the SDK does with the transcript `load` returns, see Resume from the store.
 
-##
-
-​
-
-Quick start
+## Quick start
 
 The SDK ships an `InMemorySessionStore` for development and testing. The example below runs a query with the store attached, captures the session ID from the result message, then resumes from the store in a second `query()` call. The second call passes the same store instance plus `resume`, so the SDK loads the transcript from the store instead of the local filesystem:
 
@@ -171,19 +163,11 @@ Python
 
 The second query prints a summary of the files from the first query, which shows the agent resumed with full context from the store.
 
-##
-
-​
-
-Write your own adapter
+## Write your own adapter
 
 Implement `append` and `load` against your backend. Add `listSessions`, `listSessionSummaries`, `delete`, and `listSubkeys` if you want `listSessions()`, one-call metadata reads, `deleteSession()`, and subagent resume to work against the store. Entries passed to `append` are typed as `SessionStoreEntry` (a `{ type: string; ... }` object). Treat them as opaque JSON-safe values: persist them in order and return them from `load` in the same order. `load` must return entries that are deep-equal to what was appended; byte-equal serialization is not required, so a backend that reorders object keys, such as a binary JSON column type, is fine.
 
-##
-
-​
-
-Reference implementations
+## Reference implementations
 
 Both SDK repositories include runnable reference adapters under [`examples/session-stores/`](<https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores>) in TypeScript and [`examples/session_stores/`](<https://github.com/anthropics/claude-agent-sdk-python/tree/main/examples/session_stores>) in Python. There is one adapter per storage type, and each shows how `append` and `load` map onto that kind of backend. They are not published as packages; copy the adapter for the type closest to your backend into your project, install your backend’s client, and adapt it.
 
@@ -224,11 +208,7 @@ TypeScript
       // ...
     }
 
-###
-
-​
-
-Validate your adapter
+### Validate your adapter
 
 Both SDKs ship a conformance suite that asserts the behavioral contract `append`, `load`, and the optional methods must satisfy. Tests for optional methods skip automatically when those methods are not implemented. In TypeScript, copy [`shared/conformance.ts`](<https://github.com/anthropics/claude-agent-sdk-typescript/blob/main/examples/session-stores/shared/conformance.ts>) from the example directory into your test suite. In Python, the suite ships in the package. To run it with pytest, which isn’t an SDK dependency, install pytest first:
 
@@ -247,17 +227,9 @@ Python
 
 Passing the `MyRedisStore` class itself, as this example does, works when the constructor takes no arguments. For an adapter that takes a pre-configured client, pass a lambda that constructs the store instead. Because the contracts reuse the same session keys, each store the factory returns must start with empty storage, so have the lambda provision isolated backing storage per call, such as a fresh in-memory fake, a unique key prefix, or a new test database.
 
-##
+## Behavior notes
 
-​
-
-Behavior notes
-
-###
-
-​
-
-Dual-write architecture
+### Dual-write architecture
 
 The Claude Code subprocess always writes each batch of transcript entries to local disk first, and the SDK then forwards the same batch to your store’s `append()`, so the store is a mirror of the local transcript rather than a replacement for it. Which copy outlives the run depends on how the run started:
 
@@ -275,11 +247,7 @@ Two options conflict with the mirror, and the SDK throws at startup if you combi
   * **`persistSession: false`** in TypeScript: turns off the local writes the mirror is built from. The Python SDK has no equivalent option.
   * **File checkpointing** , `enableFileCheckpointing` in TypeScript or `enable_file_checkpointing` in Python: writes its file backups straight to local disk, and the SDK doesn’t mirror them to the store.
 
-###
-
-​
-
-Resume from the store
+### Resume from the store
 
 When you pass `resume`, or `continue: true` in TypeScript or `continue_conversation=True` in Python, together with a store, the SDK asks the store for a transcript before it spawns the subprocess:
 
@@ -297,51 +265,27 @@ When the store has nothing for the session, the SDK runs under your real config 
   * **`continue: true`** in TypeScript: the SDK starts a fresh session.
   * **`continue_conversation=True`** in Python: the SDK continues from the newest local session.
 
-###
+### Mirror writes are best-effort
 
-​
+If `append()` rejects, the SDK retries the batch up to two more times with a short backoff, for at most three attempts in total. A call that times out isn’t retried, since the original call may still land. Because a retried batch can re-deliver entries that already landed, deduplicate by `entry.uuid` in your `append()` implementation, and keep every entry that has no `uuid`. If the batch still fails, the SDK logs the error, emits a `{ type: "system", subtype: "mirror_error" }` message into the iterator, drops the batch, and continues the query. A store outage doesn’t interrupt the agent, since the subprocess writes locally first. Monitor for `mirror_error` to detect store data loss. On a run resumed from the store, a dropped batch has no surviving copy once the run ends.
 
-Mirror writes are best-effort
-
-If `append()` rejects, the SDK retries the batch up to two more times with a short backoff, for at most three attempts in total. A call that times out isn’t retried, since the original call may still land. If the batch still fails, the SDK logs the error, emits a `{ type: "system", subtype: "mirror_error" }` message into the iterator, drops the batch, and continues the query. Because a retried batch can re-deliver entries that already landed, deduplicate by `entry.uuid` in your `append()` implementation. A store outage doesn’t interrupt the agent, since the subprocess writes locally first. Monitor for `mirror_error` if you need to detect store data loss. On a run resumed from the store, a dropped batch has no surviving copy once the run ends.
-
-###
-
-​
-
-`getSessionMessages` returns the post-compaction chain
+### `getSessionMessages` returns the post-compaction chain
 
 `getSessionMessages({ sessionStore })` returns the linked message chain the agent would see on resume. After auto-compaction, earlier turns are replaced by a summary, so a session whose store holds 503 raw entries may return 18 messages from `getSessionMessages`. For the full raw history, including pre-compaction turns and metadata entries, call `store.load(key)` directly.
 
-###
-
-​
-
-`forkSession` is not a byte copy
+### `forkSession` is not a byte copy
 
 `forkSession({ sessionStore })` reads the source entries, rewrites every `sessionId` field and remaps message UUIDs, then appends the transformed entries under a new key. An adapter-level copy or `CopyObject` shortcut would produce a transcript that still references the old session ID, so the SDK does not use one.
 
-###
-
-​
-
-Subagent transcripts
+### Subagent transcripts
 
 Subagent transcripts are mirrored under `subpath: "subagents/agent-<id>"`. `listSubagents({ sessionStore })` requires the adapter to implement `listSubkeys`; `getSubagentMessages({ sessionStore })` uses it when available but falls back to the direct subpath when it is undefined. Resume also calls `listSubkeys` to restore subagent files; without it, only the main transcript is materialized.
 
-###
-
-​
-
-Retention
+### Retention
 
 The SDK never deletes from your store on its own. Retention is the adapter’s responsibility: use your backend’s expiry or lifecycle mechanism, or run scheduled cleanup, according to your compliance requirements. Local transcripts under `CLAUDE_CONFIG_DIR` are swept independently by the `cleanupPeriodDays` setting, following the [retention sweep rules](</docs/en/claude-directory#cleaned-up-automatically>). A run resumed from the store leaves no local transcript, so for those runs your store’s retention is the only retention there is.
 
-##
-
-​
-
-Supported on
+## Supported on
 
 The following TypeScript SDK functions accept a `sessionStore` option and operate against the store instead of the local filesystem when it is provided:
 
@@ -359,11 +303,7 @@ The following TypeScript SDK functions accept a `sessionStore` option and operat
 
 In the Python SDK, set `session_store` in [`ClaudeAgentOptions`](</docs/en/agent-sdk/python#claudeagentoptions>) to run `query()` against a store. The remaining operations each have a store-backed Python function that takes the store as an argument: `list_sessions_from_store()`, `get_session_info_from_store()`, `get_session_messages_from_store()`, `list_subagents_from_store()`, `get_subagent_messages_from_store()`, `rename_session_via_store()`, `tag_session_via_store()`, `delete_session_via_store()`, and `fork_session_via_store()`. `startup()` has no Python equivalent. The standalone functions documented in the [Python SDK reference](</docs/en/agent-sdk/python#functions>), such as `list_sessions()`, read local session files.
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Work with sessions](</docs/en/agent-sdk/sessions>): Continue, resume, and fork without a custom store
   * [Host the SDK](</docs/en/agent-sdk/hosting>): Deployment patterns for multi-host environments

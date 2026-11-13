@@ -1,10 +1,6 @@
 Claude Code runs the same underlying engine everywhere, but each surface is tuned for a different way of working. This page helps you pick the right platform for your workflow and connect the tools you already use.
 
-##
-
-​
-
-Where to run Claude Code
+## Where to run Claude Code
 
 Choose a platform based on how you like to work and where your project lives.
 
@@ -19,11 +15,7 @@ Platform| Best for| What you get
 
 The CLI is the most complete surface for terminal-native work: scripting and the Agent SDK are CLI-only. Third-party providers also work in [VS Code](</docs/en/vs-code#use-third-party-providers>) and in [JetBrains](</docs/en/feature-availability#features-available-on-every-provider>), which runs the CLI in your IDE’s terminal. Enterprise [Desktop](</docs/en/desktop>) deployments support Google Cloud’s Agent Platform, and Desktop supports [gateway providers](</docs/en/llm-gateway-connect#desktop-app>); for Amazon Bedrock or Microsoft Foundry, use the CLI or an IDE extension, or [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>), which runs the Code tab on those providers. Desktop and the IDE extensions trade some CLI-only features for visual review and tighter editor integration. The web runs in the cloud, so tasks keep going after you disconnect. Mobile is a thin client into those same cloud sessions or into a local session via Remote Control, and can send tasks to Desktop with Dispatch. You can mix surfaces on the same project. Configuration, project memory, and MCP servers are shared across the local surfaces.
 
-##
-
-​
-
-Connect your tools
+## Connect your tools
 
 Integrations let Claude work with services outside your codebase.
 
@@ -38,11 +30,7 @@ Integration| What it does| Use it for
 
 For integrations not listed here, [MCP servers](</docs/en/mcp>) and [connectors](</docs/en/desktop#connect-external-tools>) let you connect almost anything: Linear, Notion, Google Drive, or your own internal APIs.
 
-##
-
-​
-
-Work when you are away from your terminal
+## Work when you are away from your terminal
 
 Claude Code offers several ways to work when you’re not at your terminal. They differ in what triggers the work, where Claude runs, and how much you need to set up.
 
@@ -57,17 +45,9 @@ Claude Code offers several ways to work when you’re not at your terminal. They
 
 If you’re not sure where to start, [install the CLI](</docs/en/quickstart>) and run it in a project directory. If you’d rather not use a terminal, [Desktop](</docs/en/desktop-quickstart>) gives you the same engine with a graphical interface.
 
-##
+## Related resources
 
-​
-
-Related resources
-
-###
-
-​
-
-Platforms
+### Platforms
 
   * [CLI quickstart](</docs/en/quickstart>): install and run your first command in the terminal
   * [Desktop](</docs/en/desktop>): visual diff review, parallel sessions, computer use, and Dispatch
@@ -77,11 +57,7 @@ Platforms
   * [Projects](</docs/en/claude-projects>): one conversation where Claude coordinates many cloud sessions for a body of work and reports back
   * [Mobile](</docs/en/mobile>): the Claude app for [iOS](<https://apps.apple.com/us/app/claude-by-anthropic/id6473753684>) and [Android](<https://play.google.com/store/apps/details?id=com.anthropic.claude>) for starting and monitoring tasks while away from your computer
 
-###
-
-​
-
-Integrations
+### Integrations
 
   * [Chrome](</docs/en/chrome>): automate browser tasks with your logged-in sessions
   * [Computer use](</docs/en/computer-use>): let Claude open apps and control your screen on macOS
@@ -91,11 +67,7 @@ Integrations
   * [Slack](</docs/en/slack>): send tasks from team chat and get PRs back, on Pro, Max, and Ultra plans
   * [Claude Tag](<https://claude.com/docs/claude-tag>): run `@Claude` as your organization’s shared identity on Team and Enterprise plans
 
-###
-
-​
-
-Remote access
+### Remote access
 
   * [Dispatch](</docs/en/desktop#sessions-from-dispatch>): message a task from your phone and it can spawn a Desktop session
   * [Remote Control](</docs/en/remote-control>): drive a running session from your phone or browser

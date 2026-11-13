@@ -1,10 +1,6 @@
 Claude Code’s context window holds everything Claude knows about your session: your instructions, the files it reads, its own responses, and content that never appears in your terminal. The timeline below plays a full session from startup to compaction: what loads before you type, what each file read, rule, and hook adds as Claude works, and how a subagent keeps large reads out of your context. See the written breakdown for the same content as a list.
 
-##
-
-​
-
-What the timeline shows
+## What the timeline shows
 
 The session walks through a realistic flow with representative token counts:
 
@@ -13,11 +9,7 @@ The session walks through a realistic flow with representative token counts:
   * **The follow-up prompt** : a [subagent](</docs/en/sub-agents>) handles the research in its own separate context window, so the large file reads stay out of yours. Only the summary and a small metadata trailer come back.
   * **At the end of the walkthrough** : you run `/compact`, which replaces the conversation with a structured summary. Most startup content reloads automatically; the table below shows what happens to each mechanism.
 
-##
-
-​
-
-What survives compaction
+## What survives compaction
 
 When a long session compacts, Claude Code summarizes the conversation history to fit the context window.
 
@@ -39,11 +31,7 @@ Context that hooks added earlier| Summarized with the rest of the conversation
 
 Right after compaction, Claude Code re-reads up to five of the files Claude has read or edited in the session, choosing the ones modified most recently. A file over 5,000 tokens comes back as a path reference without its content, shown as `Referenced file` instead of `Read`. Path-scoped rules and nested CLAUDE.md files load into message history when Claude reads, writes, or edits their trigger file, so compaction summarizes them away with everything else. If a rule must persist across compaction, drop the `paths:` frontmatter or move it to the project-root CLAUDE.md. Skill bodies are re-injected after compaction, but large skills are truncated to fit the per-skill cap, and the oldest invoked skills are dropped once the total budget is exceeded. Truncation keeps the start of the file, so put the most important instructions near the top of `SKILL.md`.
 
-##
-
-​
-
-When your context fills up
+## When your context fills up
 
 Claude Code compacts automatically as you approach the limit, so a full context window doesn’t end your session. The automatic pass works the same way as the `/compact` step in the timeline. See [When context fills up](</docs/en/how-claude-code-works#when-context-fills-up>) for what it preserves. For when Claude Code also compacts a conversation you leave idle, see [idle compaction](</docs/en/settings-reference#idlecompaction>). You can also act before the automatic pass runs:
 
@@ -55,19 +43,11 @@ Claude Code compacts automatically as you approach the limit, so a full context 
 
 If you need a larger window rather than a smaller conversation, Fable models, Sonnet 5 and later, Haiku 5.5, Opus 4.6 and later, and Sonnet 4.6 support a 1 million token context window. See [Extended context](</docs/en/model-config#extended-context>) for availability by plan and how to select a `[1m]` model variant. Compaction works the same way at the larger limit. The point where automatic compaction runs depends on your model and configuration. See [Default auto-compact thresholds](</docs/en/model-config#default-auto-compact-thresholds>) for the boundaries per model, and [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>) if Claude Code assumes the wrong window for your model ID, such as an [LLM gateway](</docs/en/llm-gateway>) alias.
 
-##
-
-​
-
-Check your own session
+## Check your own session
 
 The visualization uses representative numbers. To see your actual context usage at any point, run `/context` for a live breakdown by category with optimization suggestions, including which CLAUDE.md and auto memory files loaded. Run `/memory` to open and edit those files.
 
-##
-
-​
-
-Related resources
+## Related resources
 
 For deeper coverage of the features shown in the timeline, see these pages:
 

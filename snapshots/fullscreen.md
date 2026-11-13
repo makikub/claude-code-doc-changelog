@@ -4,11 +4,7 @@ Fullscreen rendering is an alternative rendering path for the Claude Code CLI th
 
 The term fullscreen describes how Claude Code takes over the terminal’s drawing surface, the way `vim` does. It has nothing to do with maximizing your terminal window, and works at any window size.
 
-##
-
-​
-
-Enable fullscreen rendering
+## Enable fullscreen rendering
 
 Run `/tui fullscreen` inside any Claude Code conversation. The CLI saves the [`tui` setting](</docs/en/settings-reference#tui>) and relaunches into fullscreen with your conversation intact, so you can switch mid-session without losing context. Run `/tui default` to switch back to the classic renderer, or `/tui` with no argument to print which renderer is active. In [screen reader mode](</docs/en/accessibility>), Claude Code always uses the classic renderer except in attached [background sessions](</docs/en/agent-view>), which still render fullscreen. If you run `/tui fullscreen` in any other session, Claude Code prints an explanation instead of switching and doesn’t change the saved `tui` setting. Claude Code carries these into the relaunched session:
 
@@ -31,11 +27,7 @@ In that case Claude Code prints [`Cannot switch renderers in this session`](</do
 
 For how the [`tui`](</docs/en/settings-reference#tui>) setting and the variable combine when both are set, see the setting’s entry. After a failed fullscreen start, Claude Code still honors the variable but not the setting. The `/tui` command clears `CLAUDE_CODE_NO_FLICKER` from the relaunched process so the setting it writes takes effect.
 
-###
-
-​
-
-Fullscreen by default
+### Fullscreen by default
 
 Attached [background sessions](</docs/en/agent-view>) render fullscreen, and other sessions in [screen reader mode](</docs/en/accessibility>) use the classic renderer. Otherwise, Claude Code starts you in the renderer from the first row of this table that matches your setup:
 
@@ -57,11 +49,7 @@ Sessions that don’t fetch feature flags include those through [Amazon Bedrock]
   * If you choose **Not now** , Claude Code doesn’t offer again on this machine.
   * Claude Code stops offering after it has shown the dialog on three launches, answered or not.
 
-##
-
-​
-
-What changes
+## What changes
 
 Fullscreen rendering changes how the CLI draws to your terminal. The input box stays fixed at the bottom of the screen instead of moving as output streams in. If the input doesn’t move while Claude is working, fullscreen rendering is active. Only visible messages are kept in the render tree, so memory stays constant regardless of conversation length. Because the conversation lives in the alternate screen buffer instead of your terminal’s scrollback, a few things work differently:
 
@@ -73,11 +61,7 @@ Terminal’s native click-and-drag to select and copy| In-app selection, copies 
 
 If mouse capture interferes with your workflow, you can turn it off while keeping the flicker-free rendering.
 
-##
-
-​
-
-Use the mouse
+## Use the mouse
 
 Fullscreen rendering captures mouse events and handles them inside Claude Code:
 
@@ -110,11 +94,7 @@ Selected text copies to your clipboard automatically on mouse release. To turn t
 
 In transcript mode, the navigation keys listed there also keep the selection.
 
-##
-
-​
-
-Scroll the conversation
+## Scroll the conversation
 
 Fullscreen rendering handles scrolling inside the app. Use these shortcuts to navigate:
 
@@ -133,19 +113,11 @@ If you close a [compacted](</docs/en/context-window#what-survives-compaction>) s
 
 These actions are rebindable. See [Scroll actions](</docs/en/keybindings#scroll-actions>) for the full list of action names, including half-page and full-page variants that have no default binding. While you’re scrolled up, a dim header row at the top of the conversation shows the most recent prompt that has scrolled above the view. Click the row to jump to that prompt.
 
-###
-
-​
-
-Auto-follow
+### Auto-follow
 
 Scrolling up pauses auto-follow so new output doesn’t pull you back to the bottom. A `Jump to bottom` button floats over the bottom edge of the transcript while you’re scrolled up, and shows a count such as `3 new messages` when new output arrives. Click it, press `Ctrl+End`, or scroll to the bottom to resume following. While auto-follow is paused, the view also stays where you scrolled it when a response finishes streaming. The button’s keyboard hint reflects what your keyboard can send. On macOS it suggests clicking, or `Fn+↓` to scroll, because `Ctrl+End` doesn’t reach Claude Code from a Mac keyboard. Rebind [`scroll:bottom`](</docs/en/keybindings#scroll-actions>) and the button shows your chord on every platform. On a terminal too narrow for the full label, the button shortens the hint instead of wrapping onto the transcript row underneath. To turn auto-follow off entirely so the view stays where you leave it, open `/config` and set Auto-scroll to off. With auto-scroll disabled, the view never jumps to the bottom on its own. Permission prompts and other dialogs that need a response still scroll into view regardless of this setting.
 
-###
-
-​
-
-Mouse wheel scrolling
+### Mouse wheel scrolling
 
 Mouse wheel scrolling requires your terminal to forward mouse events to Claude Code. Most terminals do this whenever an application requests it. iTerm2 makes it a per-profile setting: if the wheel does nothing but `PgUp` and `PgDn` work, open Settings → Profiles → Terminal and turn on Enable mouse reporting. The same setting is also required for click-to-expand and text selection to work. If mouse wheel scrolling feels slow, your terminal may be sending one scroll event per physical notch with no multiplier. Some terminals, like Ghostty and iTerm2 with faster scrolling enabled, already amplify wheel events. Others, including the VS Code integrated terminal, send exactly one event per notch. Claude Code can’t detect which. Set `CLAUDE_CODE_SCROLL_SPEED` to multiply the base scroll distance:
 
@@ -153,19 +125,11 @@ Mouse wheel scrolling requires your terminal to forward mouse events to Claude C
 
 A value of `3` matches the default in `vim` and similar applications. The setting accepts any positive value up to 20, including fractional values below 1 such as `0.25` to slow accelerated trackpad and wheel scrolling in terminals that already amplify wheel events. To adjust scroll speed interactively, run `/scroll-speed`. Scroll while the dialog is open to feel the change immediately. Press `←` and `→` to adjust the speed, `r` to reset to the auto-detected default, and `Enter` to save. The dialog steps in whole numbers up to 10, and on terminals that support finer control it also offers quarter steps down to 0.25. The command writes the same value the `CLAUDE_CODE_SCROLL_SPEED` environment variable sets, persisted to `~/.claude/settings.json`. The dialog’s maximum is 10: if you set a higher value through the environment variable, the dialog shows 10, and saving from the dialog persists 10. The command isn’t available in the JetBrains IDE terminal. Separately from the base speed, Claude Code accelerates the scroll rate when you spin the wheel quickly, so a fast spin covers more distance than the same number of slow notches. To turn acceleration off and keep a constant rate per notch, set `wheelScrollAccelerationEnabled` to `false` in [`settings.json`](</docs/en/settings-reference#all-settings>). This setting requires Claude Code v2.1.174 or later.
 
-###
-
-​
-
-Scroll in the JetBrains IDE terminal
+### Scroll in the JetBrains IDE terminal
 
 In the JetBrains IDE terminal, Claude Code applies its own scroll handling and ignores `CLAUDE_CODE_SCROLL_SPEED`. The terminal sends scroll events at a much higher rate than other emulators, so a multiplier tuned elsewhere overshoots here. In 2025.2, the terminal also has scroll-wheel bugs that produce spurious arrow keys and wrong-direction events. Claude Code detects these at runtime and mitigates them automatically, so trackpad and mouse wheel scrolling work without configuration. For the best scroll experience, upgrade to 2025.3 or later. Claude Code shows a hint the first time you scroll if it detects the bug.
 
-##
-
-​
-
-Search and review the conversation
+## Search and review the conversation
 
 `Ctrl+o` toggles between the normal prompt and transcript mode. For a quieter view that shows only your last prompt, a one-line summary of tool calls with edit diffstats, and the final response, run `/focus`. The setting persists across sessions. Run `/focus` again to turn it off. Transcript mode gains `less`-style navigation and search:
 
@@ -185,27 +149,15 @@ Your terminal’s `Cmd+f` and tmux search don’t see the conversation because i
   * **`[`** : writes the full conversation into your terminal’s native scrollback buffer, with all tool output expanded. The conversation is now ordinary text in your terminal, so `Cmd+f`, tmux copy mode, and any other native tool can search or select it. Long sessions may pause for a moment while this happens. This lasts until you exit transcript mode with `Esc` or `q`, which returns you to fullscreen rendering. The next `Ctrl+o` starts fresh.
   * **`v`** : writes the conversation to a temporary file and opens it in `$VISUAL` or `$EDITOR`.
 
-##
-
-​
-
-Watch your changes in the diff panel
+## Watch your changes in the diff panel
 
 In fullscreen rendering, [`/diff`](</docs/en/interactive-mode#review-changes-with-%2Fdiff>) opens a panel beside the conversation, so you can watch the changes accumulate while Claude works. [Diff panel](</docs/en/interactive-mode#diff-panel>) covers what it shows, when it opens on its own, how to keep it closed, and how to change what it compares against.
 
-##
-
-​
-
-Clear the conversation
+## Clear the conversation
 
 Run `/clear` to start a new conversation. If the display looks garbled or partially blank, press `Ctrl+L` to redraw the screen. The redraw keeps the conversation and your input in place. `Cmd+K` does the same as `Ctrl+L` when your terminal passes it through to Claude Code. iTerm2 and Terminal.app handle `Cmd+K` themselves and clear their own screen, and Claude Code detects the cleared screen and repaints the conversation. Before v2.1.280, starting with v2.1.260, pressing `Ctrl+L`, or `Cmd+K` where it reaches Claude Code, cleared the screen in fullscreen rendering. Before v2.1.238, pressing `Ctrl+L` twice within two seconds ran `/clear`.
 
-##
-
-​
-
-Use with tmux
+## Use with tmux
 
 Fullscreen rendering works inside tmux, with three caveats. Mouse wheel scrolling requires tmux’s mouse mode. If your `~/.tmux.conf` doesn’t already enable it, add this line and reload your config:
 
@@ -213,11 +165,7 @@ Fullscreen rendering works inside tmux, with three caveats. Mouse wheel scrollin
 
 Without mouse mode, wheel events go to tmux instead of Claude Code. Keyboard scrolling with `PgUp` and `PgDn` works either way. Claude Code prints a one-time hint at startup if it detects tmux with mouse mode off. Fullscreen rendering is incompatible with iTerm2’s tmux integration mode, which is the mode you enter with `tmux -CC`. In integration mode, iTerm2 renders each tmux pane as a native split rather than letting tmux draw to the terminal. The alternate screen buffer and mouse tracking don’t work correctly there: the mouse wheel does nothing, and double-click can corrupt the terminal state. Don’t enable fullscreen rendering in `tmux -CC` sessions. Regular tmux inside iTerm2, without `-CC`, works fine. tmux releases through the 3.6 series don’t implement synchronized output, so under those versions you may see more flicker during redraws than when running Claude Code directly in your terminal. Claude Code probes the terminal for synchronized-output support at startup and uses it when the terminal reports it. If you see flicker under tmux, upgrade to the newest tmux or run Claude Code in its own terminal tab outside tmux.
 
-##
-
-​
-
-Keep native text selection
+## Keep native text selection
 
 Mouse capture is the most common friction point, especially over SSH or inside tmux. When Claude Code captures mouse events, your terminal’s native copy-on-select stops working. The selection you make with click-and-drag exists inside Claude Code, not in your terminal’s selection buffer, so tmux copy mode, Kitty hints, and similar tools don’t see it. Claude Code writes the selection to your system clipboard, and the path it uses depends on your setup. On a local session it runs a native clipboard tool:
 
@@ -238,17 +186,9 @@ Hold that key while you click and drag. Your terminal handles the selection itse
 
 With mouse capture disabled, keyboard scrolling with `PgUp`, `PgDn`, `Ctrl+Home`, and `Ctrl+End` still works, and your terminal handles selection natively. You lose click-to-position-cursor, click-to-expand, URL clicking, and wheel scrolling inside Claude Code. To keep wheel scrolling but turn off click, drag, and hover handling, set `CLAUDE_CODE_DISABLE_MOUSE_CLICKS=1` instead. `CLAUDE_CODE_DISABLE_MOUSE` takes precedence when both variables are set. With clicks disabled, Claude Code still captures the mouse, so the wheel and touchpad scroll the conversation but left clicks do nothing inside Claude Code. You still need to hold your terminal’s key for native click-and-drag selection. Right-click and middle-click paste continue to work on terminals that support them.
 
-##
+## Troubleshooting
 
-​
-
-Troubleshooting
-
-###
-
-​
-
-Stale or misplaced text on screen
+### Stale or misplaced text on screen
 
 Fullscreen rendering sends only the cells that changed between frames. Some terminals, most commonly Windows Terminal and other ConPTY-backed hosts, coalesce these positioned writes incorrectly and leave fragments of earlier output on screen until you resize the window. Set [`CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1`](</docs/en/env-vars>) to repaint every cell on every frame instead of sending incremental updates. On Windows PowerShell:
 
@@ -261,11 +201,7 @@ On macOS or Linux:
 
 On Windows, Claude Code already enables full repaint automatically for background sessions and [agent view](</docs/en/agent-view>), so you only need to set the variable for an interactive fullscreen session you launched directly.
 
-###
-
-​
-
-`Claude Code's fullscreen renderer didn't finish starting last time` appears at startup
+### `Claude Code's fullscreen renderer didn't finish starting last time` appears at startup
 
 If a fullscreen session on this machine crashes before it has started successfully, Claude Code starts your next session in the classic renderer and prints one of two lines. A session has started successfully once it has drawn its first frame and then either stayed up for 10 seconds or you ended it with `/exit`, Ctrl+C, or Ctrl+D. The line you see tells you what Claude Code does after this session:
 
@@ -274,21 +210,13 @@ If a fullscreen session on this machine crashes before it has started successful
 
 To confirm that a failed start is why you’re in the classic renderer, run `/tui` with no argument. While a failed start is the reason, the `Current renderer` line says so. To keep the classic renderer, run `/tui default`, which saves the `tui` setting without relaunching. To try fullscreen rendering again, run `/tui fullscreen`. If that session doesn’t finish starting either, report the problem. Before v2.1.236, Claude Code kept starting sessions in fullscreen rendering after a failed start.
 
-####
-
-​
-
-How Claude Code counts failed starts
+#### How Claude Code counts failed starts
 
   * Sessions that count: only sessions that started in fullscreen rendering because your `tui` setting says so, because you accepted the startup dialog, or because Claude Code starts you in fullscreen by default
   * `CLAUDE_CODE_NO_FLICKER=1`: if you set it, Claude Code renders that session fullscreen even after a failed start, and doesn’t count it
   * Count reset: Claude Code counts failed starts per Claude Code version, and a successful fullscreen start resets the count
   * Startup dialog: if you accepted the dialog and the relaunched session crashed, Claude Code prints neither line and doesn’t show the dialog again on this Claude Code version
 
-##
-
-​
-
-Research preview
+## Research preview
 
 Fullscreen rendering is a research preview feature. It has been tested on common terminal emulators, but you may encounter rendering issues on less common terminals or unusual configurations. If you encounter a problem, run `/feedback` inside Claude Code to report it, or open an issue on the [claude-code GitHub repo](<https://github.com/anthropics/claude-code/issues>). Include your terminal emulator name and version. To turn fullscreen rendering off, run `/tui default`, or unset `CLAUDE_CODE_NO_FLICKER` if you enabled it that way. When you switch back with `/tui default`, Claude Code may first show an optional feedback prompt asking what made you switch. Type a reason and press `Enter` to send it, or press `Esc` to skip. The CLI relaunches into the classic renderer either way. To force the classic renderer regardless of the saved `tui` setting, set `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1`. The classic renderer keeps the conversation in your terminal’s native scrollback so `Cmd+f` and tmux copy mode work as usual. Background sessions opened from [agent view](</docs/en/agent-view>) or `claude attach` always use fullscreen rendering. The attaching terminal enters the alternate screen buffer to show the session, and the classic renderer has no scrollback or mouse handling there, so the `tui` setting and `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN` don’t apply to them.

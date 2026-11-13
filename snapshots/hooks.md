@@ -6,11 +6,7 @@ Hooks are callback functions that run your code in response to agent events, lik
   * **Require human approval** for sensitive actions like database writes or API calls
   * **Track session lifecycle** to manage state, clean up resources, or send notifications
 
-##
-
-​
-
-How hooks work
+## How hooks work
 
 1
 
@@ -141,11 +137,7 @@ The hook denies a Write or Edit call whose `file_path` ends in `/.env`, in any l
 
 The `Write|Edit` matcher limits this hook to the Write and Edit tools. If Claude writes `.env` with a Bash command, the hook doesn’t run. To block Bash writes to a file where [the sandbox runs](</docs/en/sandboxing>), see the sandbox configuration for [Python](</docs/en/agent-sdk/python#sandbox-configuration>) or [TypeScript](</docs/en/agent-sdk/typescript#sandbox-configuration>).
 
-##
-
-​
-
-Available hooks
+## Available hooks
 
 The SDK provides hooks for different stages of agent execution. Some hooks are available in both SDKs, while others are TypeScript-only.
 
@@ -185,11 +177,7 @@ Hook Event| Python SDK| TypeScript SDK| What triggers it| Example use case
 `FileChanged`| No| Yes| A watched file is modified, created, or deleted| Reload configuration when project files change
 `DirectoryAdded`| No| Yes| A working directory is added during a session| Install dependencies for a repository added mid-session
 
-##
-
-​
-
-Configure hooks
+## Configure hooks
 
 To configure a hook, pass it in the `hooks` field of your agent options (`ClaudeAgentOptions` in Python, the `options` object in TypeScript). This snippet assumes you have already defined a hook callback, like `protect_env_files` in Python or `protectEnvFiles` in TypeScript from the example above:
 
@@ -222,11 +210,7 @@ The `hooks` option is a dictionary in Python or an object in TypeScript, where:
   * **Keys** : hook event names such as `'PreToolUse'`, `'PostToolUse'`, and `'Stop'`
   * **Values** : arrays of matchers, each containing an optional filter pattern and your callback functions
 
-###
-
-​
-
-Matchers
+### Matchers
 
 Use matchers to filter when your callbacks fire. The `matcher` field matches against a different value depending on the hook event type. For example, tool-based hooks match against the tool name, while `Notification` hooks match against the notification type. SDK matchers follow the same rules as [matchers in settings files](</docs/en/hooks#matcher-patterns>). That section documents the exact-string and regular-expression evaluation paths, their version requirements, and the matcher values for each event type.
 
@@ -239,17 +223,9 @@ Option| Type| Default| Description
 
 Use the `matcher` pattern to target specific tools whenever possible. With a `'Bash'` matcher, your callbacks run for Bash commands. On Claude Code v2.1.314 or later, they also run on `PreToolUse` and `PermissionRequest` for Monitor commands, which they [can deny but not approve](</docs/en/hooks#match-monitor-commands>). With no matcher, they run for every occurrence of the event.
 
-###
+### Callback functions
 
-​
-
-Callback functions
-
-####
-
-​
-
-Inputs
+#### Inputs
 
 Every hook callback receives three arguments:
 
@@ -259,11 +235,7 @@ Every hook callback receives three arguments:
   * **Tool use ID** (`str | None` / `string | undefined`): correlates `PreToolUse` and `PostToolUse` events for the same tool call.
   * **Context:** in TypeScript, contains a `signal` property (`AbortSignal`) for cancellation. In Python, this argument is reserved for future use.
 
-####
-
-​
-
-Outputs
+#### Outputs
 
 Your callback returns an object with two categories of fields:
 
@@ -277,11 +249,7 @@ Return `{}` to allow the operation without changes. SDK callback hooks use the s
 
 When multiple `PreToolUse` hooks return different [decisions](</docs/en/hooks#pretooluse-decision-control>), `deny` takes priority over `defer`, which takes priority over `ask`, which takes priority over `allow`.
 
-####
-
-​
-
-Asynchronous output
+#### Asynchronous output
 
 By default, the agent waits for your hook to return before proceeding. If your hook performs a side effect, such as logging or sending a webhook, and doesn’t need to influence the agent’s behavior, you can return an async output instead. This tells the agent to continue immediately without waiting for the hook to finish. In this snippet, `send_to_logging_service` in Python and `sendToLoggingService` in TypeScript stand in for any logging function you define:
 
@@ -307,11 +275,7 @@ Field| Type| Description
 
 Async outputs can’t block, modify, or inject context into the operation since the agent has already moved on. Use them only for side effects like logging, metrics, or notifications.
 
-###
-
-​
-
-Block the action when a callback fails
+### Block the action when a callback fails
 
 On most events, if a callback throws or returns output that fails validation, the action goes ahead and your app receives an [`SDKInformationalMessage`](</docs/en/agent-sdk/typescript#sdkinformationalmessage>) warning whose `tag` is `hook_callback_failed`. A `PreToolUse` guard that crashes then lets the tool call reach the normal permission flow. A callback that returns nothing, such as a path with no `return`, also counts as failing. In Python, read `tag` from `SystemMessage.data`. To block the action instead, set `onFailure: "block"` in TypeScript or `on_failure="block"` in Python on the matcher. Requires TypeScript Agent SDK v0.3.317 or later, or Python Agent SDK v0.2.177 or later. This example blocks a Bash call when `check_policy` in Python or `checkPolicy` in TypeScript fails:
 
@@ -337,11 +301,7 @@ TypeScript
 
 To test it, make the callback raise an error and ask Claude to run a Bash command. The tool result includes `failed; blocking because onFailure is "block"`, and Claude doesn’t see your error text. Return `{}` when the callback has no opinion. With `"block"` set, a path with no `return` blocks the action. A callback that catches its own error and returns `{}` isn’t failing, so let the error propagate from a guard.
 
-####
-
-​
-
-Events that behave differently
+#### Events that behave differently
 
 These events don’t always block with `"block"` set:
 
@@ -351,30 +311,18 @@ These events don’t always block with `"block"` set:
 
 A callback that exceeds its timeout follows Hook timeout. With `"block"` set, a timeout also blocks `PreCompact`, `Elicitation`, and `WorktreeCreate`.
 
-####
-
-​
-
-Startup errors for `onFailure`
+#### Startup errors for `onFailure`
 
 With `"block"` set, the query fails at startup and sends no prompt when it can’t honor the option:
 
   * **Claude Code doesn’t support the option** : the error includes `does not honor`. Update Claude Code, or remove the option.
   * **The session was already running and didn’t register your hooks** : the error includes `did not register your hooks`. Start a new session.
 
-##
-
-​
-
-Examples
+## Examples
 
 Several examples in this section show only the callback function. To run one, register the callback under the matching event in the `hooks` field of your options, as shown in Configure hooks.
 
-###
-
-​
-
-Modify tool input
+### Modify tool input
 
 This example intercepts Write tool calls and rewrites the `file_path` argument to prepend `/sandbox`. The callback returns `updatedInput` with the modified path and `permissionDecision: 'allow'` to auto-approve the rewritten operation:
 
@@ -425,11 +373,7 @@ Pair `updatedInput` with `permissionDecision: 'allow'` to auto-approve the modif
 
 To confirm the redirect, set the prefix to a path you can write to, such as `./sandbox` or `/tmp/sandbox` (macOS doesn’t allow creating a root-level `/sandbox` directory), then ask the agent to write a file: the Write tool’s result in the message stream names the path with your sandbox prefix rather than the one Claude requested.
 
-###
-
-​
-
-Add context and block a tool
+### Add context and block a tool
 
 This example denies tool calls whose `file_path` starts with `/etc` and explains why to both the model and the user:
 
@@ -479,11 +423,7 @@ TypeScript
 
 To confirm the block, register the callback under `PreToolUse` with a `Write|Edit` matcher and ask the agent to create a file under `/etc`: the Write tool’s result in the message stream contains `Writing to /etc is not allowed`, and no file is created.
 
-###
-
-​
-
-Auto-approve specific tools
+### Auto-approve specific tools
 
 By default, the agent may prompt for permission before using certain tools. This example auto-approves read-only filesystem tools (Read, Glob, Grep) by returning `permissionDecision: 'allow'`, letting them run without user confirmation, apart from reads from [network paths](</docs/en/permissions#network-paths>), while leaving all other tools subject to normal permission checks:
 
@@ -523,11 +463,7 @@ TypeScript
       return {};
     };
 
-###
-
-​
-
-Register multiple hooks
+### Register multiple hooks
 
 When an event fires, the matching hooks run in parallel. For permission decisions, the most restrictive result applies. One hook’s `deny` blocks the tool call. Because completion order is non-deterministic, write each hook to act independently rather than relying on another hook having run first. The example below registers three independent checks, each with an [omitted matcher](</docs/en/hooks#matcher-patterns>). The hook names in it, such as `audit_logger` in Python or `auditLogger` in TypeScript, stand in for callbacks you define:
 
@@ -555,11 +491,7 @@ TypeScript
       }
     };
 
-###
-
-​
-
-Filter with multi-tool matchers
+### Filter with multi-tool matchers
 
 Use multi-tool matchers to share one callback across related tools. This example registers three matchers with different scopes, and each hook it names stands in for a callback you define:
 
@@ -599,11 +531,7 @@ TypeScript
       }
     };
 
-###
-
-​
-
-Track subagent activity
+### Track subagent activity
 
 Use `SubagentStop` hooks to monitor when subagents finish their work. See the full input type in the [TypeScript](</docs/en/agent-sdk/typescript#hookinput>) and [Python](</docs/en/agent-sdk/python#hookinput>) SDK references. This example logs a summary each time a subagent completes:
 
@@ -645,11 +573,7 @@ TypeScript
 
 To confirm the hook fires, register the callback and ask the agent to delegate a small task to a subagent, such as listing the files in the current directory: when the subagent finishes, the callback prints the `[SUBAGENT] Completed:` lines with the subagent’s ID and transcript path.
 
-###
-
-​
-
-Make HTTP requests from hooks
+### Make HTTP requests from hooks
 
 Hooks can perform asynchronous operations like HTTP requests. Catch errors inside your hook instead of letting them propagate. This example sends a webhook after each tool completes, logging which tool ran and when. The hook catches errors from a failed webhook:
 
@@ -734,11 +658,7 @@ TypeScript
 
 To confirm the hook fires, point the webhook URL at an endpoint you can watch and send a prompt that uses a tool: the hook sends a POST with the tool name and timestamp after each tool completes.
 
-###
-
-​
-
-Forward notifications to Slack
+### Forward notifications to Slack
 
 Use `Notification` hooks to receive system notifications from the agent and forward them to external services. In SDK sessions, Claude Code runs this hook for the following notification types:
 
@@ -838,17 +758,9 @@ TypeScript
 
 When a `Notification` event fires, the hook posts the notification’s `message`, prefixed with `Agent status:`, to the channel your webhook targets.
 
-##
+## Fix common issues
 
-​
-
-Fix common issues
-
-###
-
-​
-
-Hook not firing
+### Hook not firing
 
   * Verify the hook event name is correct and case-sensitive (`PreToolUse`, not `preToolUse`)
   * Check that your matcher pattern matches the tool name exactly
@@ -856,11 +768,7 @@ Hook not firing
   * For non-tool hooks that support matchers, like `Notification` and `SubagentStop`, matchers match against different fields, and `Stop` ignores matchers entirely (see [matcher patterns](</docs/en/hooks#matcher-patterns>))
   * Hooks may not fire when the agent hits the [`max_turns`](</docs/en/agent-sdk/python#claudeagentoptions>) limit because the session ends before hooks can execute
 
-###
-
-​
-
-Matcher not filtering as expected
+### Matcher not filtering as expected
 
 Matchers only match tool names, not file paths or other arguments. To filter by file path, check `tool_input.file_path` inside your hook:
 
@@ -873,11 +781,7 @@ Matchers only match tool names, not file paths or other arguments. To filter by 
       return {};
     };
 
-###
-
-​
-
-Hook timeout
+### Hook timeout
 
 Claude Code runs each callback with a timeout, which you set in seconds with the `timeout` field on its `HookMatcher`. When you don’t set one, Claude Code uses the event’s default: 600 seconds for most events, 30 seconds for `UserPromptSubmit`, `PreModelSwitch`, and `PostModelSwitch`, and 10 seconds for `MessageDisplay`. Claude Code runs `SessionEnd` callbacks during shutdown under the shorter [SessionEnd timeout budget](</docs/en/hooks#sessionend-input>), 1.5 seconds by default. When a callback exceeds its timeout, Claude Code cancels it and discards its output, and the session continues rather than hanging. What happens next depends on the event:
 
@@ -891,21 +795,13 @@ Claude Code runs each callback with a timeout, which you set in seconds with the
 
 The first time a `Stop` or `SessionStart` callback times out in the main session, Claude Code also adds an [`SDKInformationalMessage`](</docs/en/agent-sdk/typescript#sdkinformationalmessage>) to the message stream saying the app driving the session didn’t respond. Later timeouts don’t repeat that message while your app stays unresponsive. If you interrupt the query while a callback is pending, Claude Code cancels the pending tool call. Before v2.1.208, the tool call could still proceed if you interrupted during a pending `PreToolUse` callback. If your callback needs more time, set a higher `timeout` on its `HookMatcher`. In TypeScript, use the `AbortSignal` from the third callback argument to handle cancellation gracefully when the timeout fires.
 
-###
-
-​
-
-Tool blocked unexpectedly
+### Tool blocked unexpectedly
 
   * Check all `PreToolUse` hooks for `permissionDecision: 'deny'` returns
   * Add logging to your hooks to see what `permissionDecisionReason` they’re returning
   * Verify matcher patterns aren’t too broad: an empty matcher matches all tools
 
-###
-
-​
-
-Modified input not applied
+### Modified input not applied
 
   * Ensure `updatedInput` is inside `hookSpecificOutput`, not at the top level:
 
@@ -920,11 +816,7 @@ Modified input not applied
   * Don’t pair `updatedInput` with `permissionDecision: 'defer'`, which drops the modified input. Omitting `permissionDecision` is fine: the modified input still applies through the normal permission evaluation. You can also return `'allow'` to auto-approve the modified input or `'ask'` to show it to the user for approval
   * Include `hookEventName` in `hookSpecificOutput` to identify which hook type the output is for
 
-###
-
-​
-
-Session hooks not available in Python
+### Session hooks not available in Python
 
 `SessionStart` and `SessionEnd` can be registered as SDK callback hooks in TypeScript, but aren’t available in the Python SDK because its `HookEvent` type omits them. In Python, they are only available as [shell command hooks](</docs/en/hooks#hook-events>) defined in settings files such as `.claude/settings.json`. Which settings files your SDK application loads depends on [`setting_sources`](</docs/en/agent-sdk/python#settingsource>) or [`settingSources`](</docs/en/agent-sdk/typescript#settingsource>). If you set that option, include the source that holds the hooks:
 
@@ -942,38 +834,22 @@ TypeScript
 
 To run initialization logic as a Python SDK callback instead, use the first message from `client.receive_response()` as your trigger.
 
-###
-
-​
-
-Subagent permission prompts multiplying
+### Subagent permission prompts multiplying
 
 When spawning multiple subagents, each one may request permissions separately for its own tool calls. To avoid repeated prompts, use `PreToolUse` hooks to auto-approve specific tools, or configure permission rules, which subagents [inherit from the parent conversation](</docs/en/sub-agents#permission-modes>).
 
-###
-
-​
-
-Recursive hook loops with subagents
+### Recursive hook loops with subagents
 
 A `UserPromptSubmit` hook that spawns subagents can create infinite loops if those subagents trigger the same hook. To prevent this:
 
   * Use a shared variable or session state to track whether you’re already inside a subagent
   * Scope hooks to only run for the top-level agent session
 
-###
-
-​
-
-systemMessage not appearing in output
+### systemMessage not appearing in output
 
 The `systemMessage` field shows a message to the user, not the model. On Claude Code v2.1.227 or later, a hook’s `systemMessage` can surface in the message stream as an [`SDKInformationalMessage`](</docs/en/agent-sdk/typescript#sdkinformationalmessage>). Whether it does depends on the event. Each [event’s section](</docs/en/hooks#hook-events>) on the hooks page says how output surfaces. To pass context to the model instead, return [`additionalContext`](</docs/en/hooks#add-context-for-claude>). Before v2.1.227, the SDK surfaced hook output in the message stream only for `SessionStart` and `Setup` hooks. For any other event, the output appeared only in the lifecycle events that [`includeHookEvents`](</docs/en/agent-sdk/typescript#options>) (`include_hook_events` in Python) adds. That option’s entry covers which lifecycle events each hook event produces. If you need to surface hook decisions to your application reliably, log them separately or use a dedicated output channel.
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Claude Code hooks reference](</docs/en/hooks>): full JSON input/output schemas, event documentation, and matcher patterns
   * [Claude Code hooks guide](</docs/en/hooks-guide>): shell command hook examples and walkthroughs

@@ -51,11 +51,7 @@ Tool| Description| Permission required
 `Workflow`| Runs a [dynamic workflow](</docs/en/workflows>): a script that orchestrates many subagents in the background and returns one consolidated result| Yes
 `Write`| Creates or overwrites files. See Write tool behavior| Yes
 
-##
-
-​
-
-Configure tools with permission rules and hooks
+## Configure tools with permission rules and hooks
 
 For the most part, Claude decides when to use these tools and you don’t need to name them yourself when interacting with Claude. You reference tool names directly when defining permissions and other configuration:
 
@@ -80,11 +76,7 @@ Rule format| Applies to| Details
 
 Tools not listed here, such as `ExitPlanMode` or `ShareOnboardingGuide`, accept only the bare tool name with no specifier. An `Edit(...)` allow rule also grants read access to the same path, so you don’t need a matching `Read(...)` rule. A `Read(...)` deny rule also blocks the Edit and Write tools on the same path, including creating a new file there, because both tools change content Claude has to be able to read back. For the Write tool, the `Read` deny check requires Claude Code v2.1.228 or later. Hook `matcher` fields use bare tool names, not the parenthesized rule format. See [matcher patterns](</docs/en/hooks#matcher-patterns>) for the matching rules. For the field names each tool passes to `tool_input` in hooks, see the [PreToolUse input reference](</docs/en/hooks#pretooluse-input>).
 
-##
-
-​
-
-Agent tool behavior
+## Agent tool behavior
 
 The Agent tool spawns a subagent in a separate context window. The subagent works through its task autonomously, then returns its result to the parent conversation. The parent doesn’t see the subagent’s intermediate tool calls or outputs, only that final result. The same tool can also launch a teammate or a fork:
 
@@ -105,35 +97,19 @@ In every case, the resolved set is limited to the [tools available to subagents]
 
 To [limit what a subagent can reach](</docs/en/sub-agents#control-subagent-capabilities>) in the first place, narrow its `tools` field, for example by leaving Bash off the list, or set deny rules in your settings.
 
-##
+## AskUserQuestion tool behavior
 
-​
+Claude uses `AskUserQuestion` to ask you multiple-choice questions when it needs a decision or a clarification. Answer by picking an option, or type your own text through the `Other` row or the notes field.
 
-AskUserQuestion tool behavior
-
-Claude uses `AskUserQuestion` to ask you multiple-choice questions when it needs a decision or a clarification. Answer by picking an option, or type your own text through the `Other` row or the notes field. When you answer by typing your own text, Claude Code relays the answer with neutral wording so Claude follows what you wrote, including a request to wait or explain first.
-
-###
-
-​
-
-Question auto-continue timeout
+### Question auto-continue timeout
 
 Questions stay open until you answer them. If you want a question you leave unanswered to eventually close and let Claude continue without you, set the [`askUserQuestionTimeout`](</docs/en/settings-reference#askuserquestiontimeout>) setting to `60s`, `5m`, or `10m`, either in your user `settings.json` or from the **Question auto-continue timeout** row in `/config`. After a question sits that long with no input, the dialog closes on its own: it submits any options you’d already selected and tells Claude you may be away from your keyboard, so Claude proceeds on its own judgment and can re-ask later. You see a countdown for the last 20 seconds. Press any key to restart the timer. While your terminal reports that its window is focused, the timer doesn’t count down. The timer never starts for a question Claude asks in a [background session](</docs/en/agent-view>), in [screen reader mode](</docs/en/accessibility>), or while the session is connected to [Remote Control](</docs/en/remote-control>). Those questions wait until you answer them. The timeout applies only to `AskUserQuestion`’s multiple-choice questions; permission prompts, including plan approval, never auto-resolve on idle.
 
-##
-
-​
-
-Bash tool behavior
+## Bash tool behavior
 
 The Bash tool runs each command in a separate process.
 
-###
-
-​
-
-What persists between commands
+### What persists between commands
 
   * When Claude runs `cd` in the main session, the new working directory carries over to later Bash commands as long as it stays inside the project directory or an [additional working directory](</docs/en/permissions#working-directories>) you added with `--add-dir`, `/add-dir`, or `additionalDirectories` in settings. This includes commands Claude runs in response to your later messages.
     * Subagent sessions never carry over working directory changes.
@@ -144,11 +120,7 @@ What persists between commands
 
 Activate your virtualenv or conda environment before launching Claude Code. To make environment variables persist across Bash commands, set [`CLAUDE_ENV_FILE`](</docs/en/env-vars>) to a shell script before launching Claude Code, or use a [SessionStart hook](</docs/en/hooks#persist-environment-variables>) to populate it dynamically.
 
-###
-
-​
-
-Timeout and output limits
+### Timeout and output limits
 
 Each command runs under a timeout, and Claude manages it: when it wants longer than the default for a command, it passes the `timeout` parameter with that call. You never set a per-command timeout. Two [environment variables](</docs/en/env-vars>) control what Claude gets for a command that runs in the foreground:
 
@@ -157,11 +129,7 @@ Each command runs under a timeout, and Claude manages it: when it wants longer t
 
 In a session that has a time limit for background commands, `timeout` on a command that Claude starts in the background instead sets how long the command may run there, with that limit’s separate default and maximum. The PowerShell tool follows the same timeout rules and reads the same two variables.
 
-####
-
-​
-
-Output limits
+#### Output limits
 
 Claude Code streams a command’s output to a working file as the command runs; a command whose output passes 5 GB is killed. When the command finishes, Claude Code reads the output back from that file, up to the read-back window described below. How much of the output reaches Claude inline depends on whether Claude Code treats the result as a failure:
 
@@ -172,27 +140,15 @@ Failure| Inline up to roughly 10,000 characters; past that, a head-and-tail exce
 
 A command that exits 1 counts as a valid result for the Bash tool only when Claude Code recognizes exit code 1 as a benign outcome for that command: `grep`, `rg`, `egrep`, `fgrep`, `find`, `diff`, `test`, and `[`, plus `git diff` and `git grep`. Every other command that exits 1 counts as a failure, even when exit 1 is a benign informational outcome: no matches for `pgrep` and `jq -e`, files that differ for `cmp`. [`BASH_MAX_OUTPUT_LENGTH`](</docs/en/env-vars>) sets how many characters of output Claude Code reads back from the working file into a command’s result: 30,000 by default, up to a hard ceiling of 150,000. Raise it when your commands routinely overflow that window, such as a verbose build or a full test-suite log. Raising it enlarges the read-back window, which is also the window a failing command’s excerpt is cut from. It doesn’t raise the inline ceilings: a valid result over the inline ceiling arrives as a file path plus preview regardless of this variable. To change how much of a valid result Claude receives inline, set the [`bashOutputMaxChars`](</docs/en/settings-reference#bashoutputmaxchars>) setting instead, up to 128,000 characters. It sizes the inline ceiling and the read-back window together, and Claude Code then ignores `BASH_MAX_OUTPUT_LENGTH`. Requires Claude Code v2.1.261 or later.
 
-###
-
-​
-
-Background commands
+### Background commands
 
 For long-running processes such as dev servers or watch builds, Claude can set `run_in_background: true` to start the command as a background task and continue working while it runs. List and stop background tasks with `/tasks`. After you stop one there, or from a connected client such as the desktop app, Claude moves on instead of waiting for it. If a subagent started the command, it’s that subagent that moves on.
 
-####
-
-​
-
-When a background command stops
+#### When a background command stops
 
 A command that a [foreground subagent](</docs/en/sub-agents#run-subagents-in-foreground-or-background>) started stops when that subagent’s run ends, whether it finished, failed, or was interrupted. A command that the main conversation or a background subagent started keeps running after a final response, until it exits, is stopped, or reaches its time limit. While a command that the main conversation started is still running, a run in non-interactive mode with the `-p` flag [stays open after its result](</docs/en/headless#background-tasks-at-exit>) until that command exits or reaches its time limit. A command that a background subagent started is stopped when the run exits.
 
-####
-
-​
-
-Time limit for background commands
+#### Time limit for background commands
 
 In a session that runs unattended, such as a run with the `-p` flag, an Agent SDK application, a CI job, or a cloud session, background Bash and PowerShell commands have a time limit. A local session you work in from a terminal, the desktop app, or the VS Code extension has no time limit on background commands. The time limit requires Claude Code v2.1.285 or later. Before v2.1.288, it applied in every session. The time limit counts from the moment the command enters the background:
 
@@ -201,33 +157,21 @@ In a session that runs unattended, such as a run with the `-p` flag, an Agent SD
 
 In a run with the `-p` flag whose prompt you pass as text rather than with `--input-format stream-json`, both defaults are 10 minutes instead of 30, because the run [waits for background commands after its result](</docs/en/headless#background-tasks-at-exit>). When a background command reaches its time limit, Claude Code stops it and tells Claude why, and Claude can start the command again with a longer `timeout` if the work still needs it. The stop notice reads `Background command "<description>" was stopped after reaching its background time limit`.
 
-####
-
-​
-
-Raise the time limit for background commands
+#### Raise the time limit for background commands
 
 Two [environment variables](</docs/en/env-vars>) raise these limits, for Bash and PowerShell commands alike. Both take milliseconds, and neither can shorten a limit: a lower value leaves the defaults and the 2-hour maximum in place.
 
   * Set `BASH_DEFAULT_TIMEOUT_MS` above `1800000` to replace the 30-minute default with that value, both for commands Claude starts without a `timeout` and for moved commands. In a `-p` run whose prompt you pass as text, any value above `600000` replaces its 10-minute default
   * Set `BASH_MAX_TIMEOUT_MS` above `7200000` to raise the 2-hour maximum to that value. Setting `BASH_DEFAULT_TIMEOUT_MS` above `7200000` raises the maximum the same way
 
-####
-
-​
-
-Foreground commands that move to the background
+#### Foreground commands that move to the background
 
 When a foreground command reaches its timeout without finishing, Claude Code moves it to the background instead of stopping it, unless the command starts with `sleep`. A moved command’s time limit counts from the move, and a foreground subagent’s moved command still stops when that subagent’s run ends. Setting [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](</docs/en/env-vars#variables>) or running in [bare mode](</docs/en/headless#start-faster-with-bare-mode>) disables auto-backgrounding, so a command that reaches its timeout stops instead. The result of a command moved to the background states what happened:
 
   * When the timeout triggers the move, the result reports it explicitly: `Command did not complete within its 120s timeout and was moved to the background`, with the seconds matching the timeout that applied, followed by the task ID and the path of the file the output is being written to.
   * A `cd`, `pushd`, `popd`, or `chdir` inside a command that is moved to the background never carries over: the result states `Session cwd remains <dir>; directory changes made by the backgrounded command do not apply to subsequent commands.`, so Claude doesn’t act on a directory change that didn’t happen.
 
-###
-
-​
-
-Memory limit on Linux and WSL
+### Memory limit on Linux and WSL
 
 On Linux and WSL, set [`CLAUDE_CODE_TOOL_MEMORY_LIMIT`](</docs/en/env-vars#variables>) to a size such as `4G` to cap the memory that Bash, PowerShell, and Monitor tool commands can use, so one runaway build can’t take the memory the rest of the session needs. Requires Claude Code v2.1.233 or later. Before v2.1.246, Monitor tool commands ran outside the cap.
 
@@ -252,11 +196,7 @@ Whatever you list, these rules apply:
   * **Variable unset** : Claude Code takes the set of other capped kinds from configuration Anthropic delivers from the server, and that set can change over time, so set the variable when you need a set that doesn’t change
   * **Permission-gating hooks** : even with every kind capped, Claude Code excludes from the cap a hook that can block or change the outcome of an action, and any MCP server that such a hook calls, so the kernel killing a permission-gating hook can’t allow the action it was blocking
 
-##
-
-​
-
-Edit tool behavior
+## Edit tool behavior
 
 The Edit tool performs exact string replacement. It takes an `old_string` and a `new_string` and replaces the first with the second. It doesn’t use regex or fuzzy matching. These checks must pass for an edit to apply. Before any of them, a path matched by a [`Read` deny rule](</docs/en/permissions#tool-specific-permission-rules>) is refused, including creating a new file there.
 
@@ -266,19 +206,11 @@ The Edit tool performs exact string replacement. It takes an `old_string` and a 
 
 A file that changed on disk after Claude last read it can still be edited when `old_string` matches the current content exactly and unambiguously and Claude Code can read the file without prompting. Matching against the file’s current content keeps this safe, and the result notes that the file carries other changes so Claude re-reads it before edits that depend on surrounding content. In any other case, such as a stale `old_string` or one that matches more than once without `replace_all`, Claude reads the file again before editing. Claude can also edit a file without a separate Read after viewing it with a Bash command such as `cat` or `grep`. Those commands are `cat`, `nl`, `bat`, `batcat`, `head`, `tail`, `sed -n 'X,Yp'`, `grep`, `egrep`, `fgrep`, and `rg`, each run on one file with no pipes or redirects. If the command printed none of the file’s text, as when a search matches nothing, the read-before-edit check still applies. When Claude views a file this way, Claude Code also loads any [subdirectory `CLAUDE.md`](</docs/en/memory#how-claude-md-files-load>) and [path-scoped rules](</docs/en/memory#path-specific-rules>) that apply to that file. See [Read and Edit permission rules](</docs/en/permissions#read-and-edit>) for which Bash commands your `Read` and `Edit` deny rules cover.
 
-###
-
-​
-
-Non-UTF-8 files
+### Non-UTF-8 files
 
 Claude can’t use NotebookEdit on a file that isn’t valid UTF-8. The same goes for Edit, unless the file starts with a little-endian UTF-16 byte-order mark. When Claude tries, the tool refuses the change and leaves the file untouched. Refused files include non-ASCII text saved in a legacy encoding such as Windows-1252 or Shift-JIS, binary files, and UTF-8 with an invalid byte sequence. The tools refuse because they save the whole file back as UTF-8, which would replace every byte they can’t decode with the replacement character `U+FFFD`. Instead, the [error Claude receives](</docs/en/errors#file-is-not-valid-utf-8>) tells it to make the change with a shell command that keeps the file’s encoding, or to ask you about converting it to UTF-8 first. Claude can still replace such a file with Write, unless the new content contains `U+FFFD`, the character Read shows Claude in place of bytes it can’t decode. That guard stops Claude from writing back the garbled text it read. When Write does replace the file, it saves the new content as UTF-8, so the file’s original encoding is lost.
 
-##
-
-​
-
-EndConversation tool behavior
+## EndConversation tool behavior
 
 The EndConversation tool ends the current session. Claude uses it only in two situations:
 
@@ -297,11 +229,7 @@ General frustration, profanity, or a task going badly don’t qualify, and neith
   * **Startup mode** : not a [`--bare`](</docs/en/headless#start-faster-with-bare-mode>) session. Bare mode loads only shell and file tools, so the tool is never registered there.
   * **Provider** : not available on [Amazon Bedrock](</docs/en/amazon-bedrock>), [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), or [Microsoft Foundry](</docs/en/microsoft-foundry>), or on sessions signed in through a [cloud gateway](</docs/en/claude-apps-gateway>).
 
-##
-
-​
-
-EnterWorktree tool behavior
+## EnterWorktree tool behavior
 
 The EnterWorktree tool creates an isolated [git worktree](</docs/en/worktrees>) and switches into it. Given a `path`, it switches into an existing worktree instead of creating a new one.
 
@@ -310,11 +238,7 @@ The EnterWorktree tool creates an isolated [git worktree](</docs/en/worktrees>) 
   * **From inside a worktree** : from within a worktree session, only the `path` form is available and the target must be under `.claude/worktrees/` of the session’s repository. The same holds for a subagent with a pinned working directory, such as [`isolation: worktree`](</docs/en/sub-agents#supported-frontmatter-fields>).
   * **When the tool is missing** : once [`permissions.blockWritesOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockwritesoutsideworkingdirectories>) is on, Claude Code removes `EnterWorktree` and `ExitWorktree` or refuses calls to them. To keep working in worktrees, see [Claude has no `EnterWorktree` tool](</docs/en/worktrees#claude-has-no-enterworktree-tool>).
 
-##
-
-​
-
-Glob tool behavior
+## Glob tool behavior
 
 The Glob tool finds files by name pattern. On Windows, it’s part of the default tool set. On macOS, Linux, and WSL, Claude Code leaves Glob and Grep out of the default tool set, and Claude searches with `find` and `grep` through the Bash tool instead. In Claude’s shell those two commands run embedded versions of `bfs` and `ugrep`, and the searches reach your hooks and permission rules as `Bash` calls. On macOS, Linux, and WSL, you get the Glob and Grep tools back in these cases:
 
@@ -330,11 +254,7 @@ Glob supports standard glob syntax including `**` for recursive directory matchi
 
 Results are sorted by modification time and capped at 100 files. If the cap is hit, Claude sees a truncation flag in the result and can narrow the pattern. Glob doesn’t respect `.gitignore` by default, so it finds gitignored files alongside tracked ones. This differs from Grep, which skips gitignored files. To make Glob respect `.gitignore`, set `CLAUDE_CODE_GLOB_NO_IGNORE=false` before launching Claude Code. Claude Code decides permission for a Glob call before it checks whether the search directory exists. It still runs the read-permission check for a missing `path` outside the [working directories](</docs/en/permissions#working-directories>), so a permission prompt for a path doesn’t mean the path exists. A `pattern` or `path` value that contains a null byte returns an error asking Claude to remove it.
 
-##
-
-​
-
-Grep tool behavior
+## Grep tool behavior
 
 The Grep tool searches file contents for patterns. Where Glob finds files by name, Grep finds lines inside them. On macOS, Linux, and WSL, Grep is absent by default under the same conditions as Glob. See Glob tool behavior for when both tools are available. Grep is built on [ripgrep](<https://github.com/BurntSushi/ripgrep>) and uses ripgrep’s regex syntax, not POSIX grep. Patterns that include regex metacharacters need escaping. For example, finding `interface{}` in Go code takes the pattern `interface\{\}`. A pattern, glob, or file type that ripgrep rejects returns an error that includes ripgrep’s diagnostic, so Claude can correct the input and search again. Before v2.1.208, Claude Code reported a rejected input as `No files found` instead of an error, even when the searched-for text existed in the target files. Three output modes control what comes back:
 
@@ -344,11 +264,7 @@ The Grep tool searches file contents for patterns. Where Glob finds files by nam
 
 Claude can scope results by file with the `glob` parameter, such as `**/*.tsx`, or by language with the `type` parameter, such as `py` or `rust`. By default, patterns match within a single line. Claude can set `multiline: true` to match across line boundaries. Grep respects `.gitignore`, so gitignored files are skipped. To search a gitignored file, Claude passes its path directly. Claude Code decides permission for a Grep call before it checks whether the search `path` exists. It still runs the read-permission check for a missing `path` outside the [working directories](</docs/en/permissions#working-directories>), so a permission prompt for a path doesn’t mean the path exists.
 
-##
-
-​
-
-LSP tool behavior
+## LSP tool behavior
 
 The LSP tool gives Claude code intelligence from a running language server. After each file edit, it automatically reports type errors and warnings so Claude can fix issues without a separate build step. Claude can also call it directly to navigate code:
 
@@ -362,11 +278,7 @@ The LSP tool gives Claude code intelligence from a running language server. Afte
 
 Claude Code keeps the tool inactive until you install a [code intelligence plugin](</docs/en/plugins/code-intelligence>) for your language. In [cloud sessions](</docs/en/claude-code-on-the-web>), Claude Code doesn’t start plugin language servers, so the LSP tool stays inactive there. Claude Code takes the language server’s configuration from the plugin, and you install the server binary yourself. Claude Code returns an error result for each LSP call on a file whose language server it can’t start.
 
-##
-
-​
-
-Monitor tool
+## Monitor tool
 
 The Monitor tool lets Claude watch something in the background and react when it changes, without pausing the conversation. Ask Claude to:
 
@@ -383,11 +295,7 @@ For most watches, Claude writes a small script, runs it in the background, and r
 
 Plugins can declare monitors that start automatically when the plugin is active, instead of asking Claude to start them. See [plugin monitors](</docs/en/plugins/components#monitors>).
 
-###
-
-​
-
-WebSocket source
+### WebSocket source
 
 When a server already pushes events over a WebSocket, Claude can connect to it directly instead of writing a polling script. Each kind of socket activity either becomes an event or ends the watch:
 
@@ -405,19 +313,11 @@ Field| Required| Description
 
 The `timeout_ms` deadline applies to a WebSocket watch too: the watch ends at the deadline, and `TaskStop` cancels it early. Without a `Monitor` allow rule, you’re prompted before Claude opens a WebSocket; in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) the classifier decides instead, unless an ask rule applies. The prompt doesn’t offer an option to skip future prompts for the same host.
 
-####
-
-​
-
-Addresses and hosts denied to WebSocket watches
+#### Addresses and hosts denied to WebSocket watches
 
 Claude Code denies URLs that point at a private, link-local, or cloud-metadata address, including hostnames that your machine resolves to one. Behind a [proxy](</docs/en/network-config#proxy-configuration>), a watch can reach a private, link-local, or cloud-metadata address unless the proxy blocks it, because Claude Code doesn’t check the address the proxy finds. Claude Code also denies hosts in `sandbox.network.deniedDomains`, and when [`allowManagedDomainsOnly`](</docs/en/settings-reference#sandbox-network-allowmanageddomainsonly>) is set in managed settings, any host outside the managed allowlist. If a watch behind a proxy fails with `could not resolve <host>`, restart Claude Code v2.1.319 or later with [`CLAUDE_CODE_PROXY_RESOLVES_HOSTS`](</docs/en/env-vars#variables>) set to `1` so the proxy looks up the hostname.
 
-####
-
-​
-
-Bash rules that deny or prompt for WebSocket watches
+#### Bash rules that deny or prompt for WebSocket watches
 
 If Claude Code refuses a `Monitor` call that opens a WebSocket, look for a [deny or ask rule](</docs/en/permissions#manage-permissions>) written `Bash` or `Bash(*)`. Do the same if it prompts for that call despite your `Monitor` allow rule. A rule on every Bash command also covers these WebSocket watches:
 
@@ -426,11 +326,7 @@ If Claude Code refuses a `Monitor` call that opens a WebSocket, look for a [deny
 
 To let these watches run, narrow the rule to the commands you mean, such as `Bash(rm *)`. The ask rule, and a deny rule you add during a session, cover these watches in Claude Code v2.1.319 or later.
 
-##
-
-​
-
-NotebookEdit tool behavior
+## NotebookEdit tool behavior
 
 NotebookEdit modifies a Jupyter notebook one cell at a time, targeting cells by their `cell_id`. It doesn’t perform string replacement across the notebook the way Edit does on plain files. Three edit modes control what happens to the target cell:
 
@@ -440,11 +336,7 @@ NotebookEdit modifies a Jupyter notebook one cell at a time, targeting cells by 
 
 NotebookEdit refuses a notebook file that doesn’t decode as UTF-8, under the same rule as Edit, and writes nothing. Permission rules use the `Edit(...)` path format. A rule like `Edit(notebooks/**)` covers NotebookEdit calls on files in that directory.
 
-##
-
-​
-
-PowerShell tool
+## PowerShell tool
 
 The PowerShell tool lets Claude run PowerShell commands natively. On Windows, this means commands run in PowerShell instead of routing through Git Bash. How the tool becomes available depends on your platform:
 
@@ -454,11 +346,7 @@ The PowerShell tool lets Claude run PowerShell commands natively. On Windows, th
 
 Your [PreToolUse hooks](</docs/en/hooks#powershell>) receive the tool’s command string in `tool_input.command`, with the same fields as the Bash tool. Match `Bash|PowerShell` in hooks that inspect shell commands; the [PowerShell hook input section](</docs/en/hooks#powershell>) explains why matching `Bash` alone is not enough.
 
-###
-
-​
-
-Enable the PowerShell tool
+### Enable the PowerShell tool
 
 Set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` in your environment or in `settings.json`:
 
@@ -470,11 +358,7 @@ Set `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` in your environment or in `settings.json
 
 On Windows, set the variable to `0` to turn the tool off. On Linux, macOS, and WSL, the tool requires PowerShell 7 or later: install `pwsh` and ensure it is on your `PATH`. On Windows, Claude Code auto-detects `pwsh.exe` for PowerShell 7+ with a fallback to `powershell.exe` for PowerShell 5.1. When the tool is enabled, Claude treats PowerShell as the primary shell. The Bash tool remains available for POSIX scripts when Git Bash is installed. Claude Code spawns PowerShell with `-ExecutionPolicy Bypass` at process scope only, so `.ps1` scripts and module imports work on default Windows installs without changing the machine’s policy. Process-scope bypass doesn’t override Group Policy `MachinePolicy` or `UserPolicy`, so enterprise policies still apply. To respect the machine’s effective execution policy instead, set `CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1`.
 
-###
-
-​
-
-Bash deny rules also turn off the PowerShell tool
+### Bash deny rules also turn off the PowerShell tool
 
 On Windows with Git Bash installed, denying Bash also turns the PowerShell tool off for the session. This applies to scoped rules such as `Bash(git push *)` as well as a bare `Bash`, and to rules from one of your settings files or `--disallowedTools`. Claude Code does this because a `Bash` rule doesn’t restrict the PowerShell tool, which has [its own permission rules](</docs/en/permissions#powershell>). With PowerShell left on, Claude could run there what your rule denies in Bash. To keep the PowerShell tool on alongside a Bash deny rule, do either of these:
 
@@ -483,11 +367,7 @@ On Windows with Git Bash installed, denying Bash also turns the PowerShell tool 
 
 Without one of these, a scoped Bash deny rule leaves the Bash tool available, and Claude Code turns PowerShell off without a warning. A rule that removes the whole Bash tool leaves Claude with no shell tool for the session.
 
-###
-
-​
-
-Shell selection in settings, hooks, and skills
+### Shell selection in settings, hooks, and skills
 
 Three additional settings control where PowerShell is used:
 
@@ -497,19 +377,11 @@ Three additional settings control where PowerShell is used:
 
 PowerShell commands follow the same main-session working-directory reset behavior as Bash commands, including the `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` environment variable. PowerShell commands also receive the variables hooks persist through `CLAUDE_ENV_FILE`, under the conditions in [Persisted variables in PowerShell commands](</docs/en/hooks#persisted-variables-in-powershell-commands>). Requires Claude Code v2.1.296 or later.
 
-###
-
-​
-
-Exit code 1 from searches and `git diff` in PowerShell
+### Exit code 1 from searches and `git diff` in PowerShell
 
 If a `grep` or `rg` search that matches nothing shows `Error: Exit code 1` when Claude runs it in the PowerShell tool, the search didn’t fail. You don’t need to do anything. The error can appear when the search is part of a longer command. For example, when `rg` exits with code 1, `rg foo | Out-Null` shows the error and `rg foo` doesn’t. The PowerShell tool can count exit code 1 as a normal result from `grep`, `rg`, `egrep`, `fgrep`, `findstr`, `git grep`, and `git diff`. The searches use exit code 1 to report no matches. From `git diff`, exit code 1 means the files differ. A command that shows the error when Claude runs it [counts as failed](</docs/en/skills#when-an-injected-command-fails>) in a skill with `shell: powershell`.
 
-###
-
-​
-
-Windows encoding and exit codes
+### Windows encoding and exit codes
 
   * Redirection with `>` and `>>` writes UTF-8 files on PowerShell 5.1
   * Claude Code encodes text piped to a native command’s standard input as UTF-8
@@ -518,24 +390,16 @@ Windows encoding and exit codes
   * If `where.exe` finds no match, or `fc.exe` or `diff.exe` finds that the files differ, the result can show `Error: Exit code 1` though the command didn’t fail. You don’t need to do anything.
   * If a `robocopy` exit code from 1 through 7 shows as an error, the copy didn’t fail and you don’t need to do anything. `robocopy` exits with code 0 through 7 to report a result, such as files copied, and with 8 or higher when it fails.
 
-###
-
-​
-
-Preview limitations
+### Preview limitations
 
 The PowerShell tool has the following known limitations during the preview:
 
   * PowerShell profiles are not loaded
   * On Windows, sandboxing is not supported
 
-##
+## Read tool behavior
 
-​
-
-Read tool behavior
-
-The Read tool takes a file path and returns the contents with line numbers. Claude is instructed to always pass absolute paths. Reading an empty file returns a notice that the file exists but its contents are empty, and an `offset` past the last line returns a notice giving the file’s line count. Read handles several file types beyond plain text:
+The Read tool takes a file path and returns the contents with line numbers. Reading an empty file returns a notice that the file exists but its contents are empty, and an `offset` past the last line returns a notice giving the file’s line count. Read handles several file types beyond plain text:
 
   * **Images** : PNG, JPEG, GIF, and WebP files are returned as visual content that Claude can see, not as raw bytes. Claude Code resizes and recompresses large images to fit the model’s image size limits before sending them, so Claude may see a downscaled version of a large screenshot. If Claude misses fine pixel-level detail in a large image, ask it to crop the region you care about, such as with ImageMagick via Bash, and then read the crop. Read refuses an image file larger than 128 MB with an error that tells Claude to resize the image or export a smaller copy, then read that copy. If Claude stops at the error instead of doing so, see [File is too large to read as an image](</docs/en/errors#file-is-too-large-to-read-as-an-image>).
   * **PDFs** : Claude reads short `.pdf` files whole. For PDFs longer than 10 pages, it reads in ranges with a `pages` parameter, such as `"1-5"`, up to 20 pages at a time. Page-range reads render pages with `pdftoppm` from poppler-utils, so install it with `brew install poppler` on macOS or `apt-get install poppler-utils` on Debian and Ubuntu. On Windows and other platforms, install a poppler build that puts `pdftoppm` on your `PATH`. Without it, a page-range read fails with `pdftoppm is not installed`.
@@ -543,22 +407,14 @@ The Read tool takes a file path and returns the contents with line numbers. Clau
 
 Read only reads files, not directories. Claude lists directory contents with a shell command such as `ls`. Read refuses a file whose extension it treats as binary, such as `.xlsx`, `.parquet`, `.heic`, or `.zip`. Claude keeps working after a refusal: the error suggests a skill for that file type if one is available, or else a shell command or script that reads the format. If you [`@`-mention](</docs/en/common-workflows#reference-files-and-directories>) a file that Read refuses, Claude receives the file’s path but not its contents.
 
-###
-
-​
-
-Large files
+### Large files
 
 Claude can read a text file larger than a single Read call returns. By default one call returns at most 25,000 tokens, or the value you set in [`CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS`](</docs/en/env-vars>), and refuses a whole file over 256 KB, so Claude reads a larger file in pages with `offset` and `limit`. On Claude Code v2.1.296 or later it can instead read the whole file, or a long line range, in one call by setting `allow_large: true` when it needs to, for example because you asked for the entire file. That read is sized against the room left in the session’s [context window](</docs/en/context-window>) instead of the default limits. Images, PDFs, and notebooks keep their limits. What Claude receives when a read goes over the default limits:
 
   * **Whole file over the token limit** : the first page of the file, with a `PARTIAL view` notice saying how much of the file it received and how to read more with `offset` and `limit`
   * **Whole file over 256 KB, or an`offset` or `limit` read over the token limit**: an error telling it to read a portion with `offset` and `limit`, or to search for specific content with Grep instead
 
-##
-
-​
-
-SendFeedback tool behavior
+## SendFeedback tool behavior
 
 Claude-drafted feedback is a feedback report about Claude Code that Claude writes for you. It requires Claude Code v2.1.238 or later. Claude Code saves each draft on your machine under `~/.claude/feedback/drafts/`, and nothing reaches Anthropic until you send it. Claude drafts one with the SendFeedback tool when:
 
@@ -567,19 +423,11 @@ Claude-drafted feedback is a feedback report about Claude Code that Claude write
   * You point out a mistake it made, or it notices one
   * You ask it to file feedback
 
-###
-
-​
-
-What you see when Claude drafts
+### What you see when Claude drafts
 
 After Claude queues a draft, you see a card above your prompt with the draft’s title. Press `1` to review the draft, press `2` twice to send it as written, or press `0` to dismiss it. A dismissed draft stays in your queue. After you dismiss a card, Claude Code asks whether to turn Claude-drafted feedback off. It stops asking once you’ve declined twice. By default, you see at most three cards in a session; Anthropic can adjust that limit from the server without a release. After the limit, and whenever you set [`feedbackDrafts`](</docs/en/settings-reference#feedbackdrafts>) to `quiet`, you see only a count of queued drafts in the prompt footer.
 
-###
-
-​
-
-Review and edit a draft
+### Review and edit a draft
 
 Run `/feedback` with no argument to open your queue. It lists every queued draft from all your sessions, including drafts whose cards you dismissed or never saw. Select a draft to open it for review, where you can:
 
@@ -589,11 +437,7 @@ Run `/feedback` with no argument to open your queue. It lists every queued draft
 
 To write a report yourself instead, press `w` for the standard feedback dialog. `/feedback` with text after it, and `/bug`, open that dialog directly.
 
-###
-
-​
-
-Send a draft
+### Send a draft
 
 When you send a draft, Claude Code submits it the same way as a `/feedback` report, with the same [retention](</docs/en/data-usage#feedback-using-the-%2Ffeedback-command>), and deletes the draft from your machine. When you send from the card, it shows `✓ Sent`; when you send from the queue, it closes with a receipt ID. The report carries:
 
@@ -604,27 +448,15 @@ When you send a draft, Claude Code submits it the same way as a `/feedback` repo
 
 Claude Code keeps your working directory in the local draft so it can find the transcript, and doesn’t send the directory. In [organizations with Zero Data Retention](</docs/en/zero-data-retention#features-disabled-under-zdr>), and in organizations with the [HIPAA configuration](</docs/en/hipaa-setup>) applied, Claude Code leaves the SendFeedback tool out of your sessions. If a session in an organization with Zero Data Retention still offers the tool, drafts stay on your machine, and sending fails with `Feedback collection is not available for organizations with custom data retention policies.`
 
-###
-
-​
-
-Discard or keep a draft
+### Discard or keep a draft
 
 When you discard a draft, Claude Code deletes it from your machine. A draft you leave in the queue expires after 30 days, or after [`cleanupPeriodDays`](</docs/en/settings-reference#cleanupperioddays>) when that’s shorter. The queue holds 10 drafts across all your sessions, and when Claude queues an eleventh, Claude Code deletes the oldest. When you run `/exit` with drafts from the session still in the queue, Claude Code asks whether to review them or discard them before exiting.
 
-###
-
-​
-
-Turn Claude-drafted feedback off
+### Turn Claude-drafted feedback off
 
 Set **Claude-drafted feedback** to `off` in `/config`, which writes the [`feedbackDrafts`](</docs/en/settings-reference#feedbackdrafts>) setting, or set [`CLAUDE_CODE_SEND_FEEDBACK=0`](</docs/en/env-vars>) for one session. With either, Claude can’t queue drafts. To keep drafting on without cards, set `feedbackDrafts` to `quiet` instead. Administrators can set `feedbackDrafts` in [managed settings](</docs/en/managed-settings>), which takes precedence over your own setting.
 
-###
-
-​
-
-Sessions without Claude-drafted feedback
+### Sessions without Claude-drafted feedback
 
 Claude Code includes the tool in interactive terminal sessions on your own machine that use the Claude API rather than a cloud provider. It leaves the tool out of:
 
@@ -636,11 +468,7 @@ Claude Code includes the tool in interactive terminal sessions on your own machi
   * Organizations that have turned off product feedback, [organizations with Zero Data Retention](</docs/en/zero-data-retention#features-disabled-under-zdr>), and organizations with the [HIPAA configuration](</docs/en/hipaa-setup>) applied
   * Sessions where Claude Code has [stopped offering feedback after a refused report](</docs/en/errors#feedback-is-disabled-by-your-organizations-policy>)
 
-##
-
-​
-
-Task tool availability
+## Task tool availability
 
 The task-tracking tools, `TaskCreate`, `TaskGet`, `TaskUpdate`, `TaskList`, and `TodoWrite`, are available by default only on Opus 4.7, Sonnet 4.6, Haiku 4.5, and earlier models. Wherever the tools are available, you get the four Task tools, or `TodoWrite` instead when you set [`CLAUDE_CODE_ENABLE_TASKS=0`](</docs/en/env-vars>). On every other model, Claude Code leaves the tools out unless you opt in. The same applies to a model ID Claude Code doesn’t recognize, such as a custom model name served through an [LLM gateway](</docs/en/llm-gateway>). On newer models, Claude keeps track of multi-step work without a written checklist, and the tools’ definitions and reminders take up context. Without the tools, Claude adds nothing to the [task list](</docs/en/interactive-mode#task-list>) while it works. If you’d like to use these tools on a model that doesn’t have them by default, do one of the following:
 
@@ -651,11 +479,7 @@ The task-tracking tools, `TaskCreate`, `TaskGet`, `TaskUpdate`, `TaskList`, and 
 
 In [background sessions](</docs/en/agent-view>) and in [cloud sessions](</docs/en/claude-code-on-the-web>), Claude Code provides the same tools on every model, listed or not. The default set described here applies in Claude Code v2.1.268 and later.
 
-###
-
-​
-
-Task-tracking tools in subagents and agent teams
+### Task-tracking tools in subagents and agent teams
 
 A subagent has the task-tracking tools only when your session has them, whatever model the subagent runs. An in-process [agent team](</docs/en/agent-teams>) teammate has the task-tracking tools when your session does. A [split-pane](</docs/en/agent-teams#choose-a-display-mode>) teammate is a separate Claude Code process that [inherits](</docs/en/agent-teams#permissions>) your `--tools` list and deny rules, not `--allowedTools`, so check what you set:
 
@@ -666,11 +490,7 @@ A subagent has the task-tracking tools only when your session has them, whatever
 
 Without the Task tools, an agent coordinates with its team through messages instead of the [shared task list](</docs/en/agent-teams#assign-and-claim-tasks>).
 
-##
-
-​
-
-WebFetch tool behavior
+## WebFetch tool behavior
 
 WebFetch takes a URL and a prompt describing what to extract. It fetches the page and converts the response to Markdown when the server returns HTML. For most fetches, it then runs the prompt against the content in a separate model call, and Claude receives the result of that call rather than the raw page. The conversion step is not configurable. This makes WebFetch lossy by design. The extraction prompt determines what reaches Claude, so a result that says a page doesn’t mention something may only mean the prompt didn’t ask about it. Ask Claude to fetch again with a more specific prompt, or use `curl` via Bash for the unprocessed page. A few behaviors shape the response Claude receives:
 
@@ -690,29 +510,17 @@ In Manual and `acceptEdits` [permission modes](</docs/en/permission-modes>), Web
 
 To allow a domain in advance without a prompt, add an allow rule like `WebFetch(domain:example.com)`; `WebFetch(domain:*)` allows every domain. The `auto` and `bypassPermissions` [permission modes](</docs/en/permissions#permission-modes>) skip the prompt, except for a domain an explicit `ask` rule matches. An explicit `WebFetch(domain:...)` rule in `deny`, `ask`, or `allow` takes precedence over the preapproved set, so you can block a preapproved domain or require a prompt for it. When the URL is a claude.ai [artifact](</docs/en/artifacts>) link, Claude Code can also ask for approval to read the artifact itself. For the cases where it asks, see [Read an artifact shared with you](</docs/en/artifacts#read-an-artifact-shared-with-you>). WebFetch sets a `User-Agent` header beginning with `Claude-User`, and an `Accept` header that prefers Markdown over HTML so servers that support content negotiation can return Markdown directly. Sandboxed commands don’t inherit WebFetch’s built-in set of preapproved documentation domains. To let a sandboxed command reach a domain without a prompt, add the domain to [`allowedDomains`](</docs/en/settings-reference#sandbox-network-alloweddomains>) or allow it with a `WebFetch(domain:...)` rule, which the [sandbox also honors](</docs/en/sandboxing#network-isolation>). WebFetch never reads the sandbox allowlist in return, so adding a domain to a sandbox or organization network allowlist doesn’t stop WebFetch from prompting for it.
 
-###
-
-​
-
-WebFetch availability
+### WebFetch availability
 
 On Claude Code v2.1.285 or later, set [`CLAUDE_CODE_DISABLE_WEB_FETCH`](</docs/en/env-vars#variables>) to `1` to turn WebFetch off. If you sign in with a Team or Enterprise claude.ai account and don’t connect through an [LLM gateway](</docs/en/llm-gateway>), WebFetch also depends on your organization’s policy, which Claude Code requests from `api.anthropic.com` when a session starts. The same goes for a session whose plan Claude Code can’t determine, such as one running under a claude.ai token that another app supplied. If WebFetch is missing from a session, run `/status` in the session. If its `Organization policy` line reports that the policy didn’t load and names web fetch among the features that wait for it, Claude Code is withholding WebFetch until it can confirm that your organization allows it. Outside a session, `claude doctor` makes its own request and prints the same line. Once a policy that allows WebFetch loads, the tool returns without a restart.
 
-##
-
-​
-
-WebSearch tool behavior
+## WebSearch tool behavior
 
 WebSearch runs a query against Anthropic’s [web search](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool>) backend and returns result titles and URLs. It doesn’t fetch the result pages. To read a page Claude finds in search results, it follows up with WebFetch. The tool may issue up to eight backend searches per call, refining the search internally before returning results. Claude can scope results with `allowed_domains` to include only certain hosts, or `blocked_domains` to exclude them. The two lists can’t be combined in a single call. When the search request hits an overloaded API, Claude Code retries it with backoff; a call that still fails returns an error result. WebSearch permission rules take no specifier. A bare `WebSearch` entry in `allow` or `deny` is the only form. The search backend is not configurable. To search with a different provider, add an [MCP server](</docs/en/mcp>) that exposes a search tool.
 
 WebSearch is available on the Claude API, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), and Microsoft Foundry. On Google Cloud’s Agent Platform it works with Opus 4, Sonnet 4, Haiku 4.5, and later models. Amazon Bedrock doesn’t expose the server-side web search tool.
 
-###
-
-​
-
-Session search limit
+### Session search limit
 
 An interactive terminal session has a limit of 200 WebSearch calls. Searches from the main conversation and from [subagents](</docs/en/sub-agents>), such as a parallel research fan-out, count against the same limit. While a session is at the limit, searches appear in the conversation as calls that did nothing. Claude gets a notice telling it to continue with the information already gathered, say so in its answer, and, if it needs more searches, ask you to raise the limit. To get more searches, raise the cap, wait for the limit to refill, or start a new conversation:
 
@@ -722,11 +530,7 @@ An interactive terminal session has a limit of 200 WebSearch calls. Searches fro
 
 In [non-interactive mode](</docs/en/headless>) with `-p` and in the [Agent SDK](</docs/en/agent-sdk/overview>), the limit applies per turn, not per session. A turn lasts from a message you send until Claude finishes responding. The limit resets when you send the next message after that or start a new `claude -p` run, even with [`--continue` or `--resume`](</docs/en/headless#continue-conversations>). For more searches, raise [`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`](</docs/en/env-vars#variables>) or set a refill rate with [`CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR`](</docs/en/env-vars#variables>).
 
-##
-
-​
-
-Write tool behavior
+## Write tool behavior
 
 The Write tool creates a new file or overwrites an existing one with the full content provided. It doesn’t append or merge. Write also overwrites an existing file whose bytes don’t decode and saves the new content as UTF-8, as described under non-UTF-8 files. Whether Claude must read an existing file in the current conversation before overwriting it depends on the model and the file:
 
@@ -736,11 +540,7 @@ The Write tool creates a new file or overwrites an existing one with the full co
 
 This constraint doesn’t apply to new files. Before v2.1.228, every model required the read before overwriting an existing file. Viewing the file with Bash also satisfies this requirement under the same rules described in Edit tool behavior. For partial changes to an existing file, Claude uses Edit instead of Write.
 
-##
-
-​
-
-Check which tools are available
+## Check which tools are available
 
 Your exact tool set depends on your provider, platform, and settings. To check what’s loaded in a running session, ask Claude directly:
 
@@ -750,11 +550,7 @@ Claude gives a conversational summary. For exact MCP tool names, run `/mcp`.
 
 The [advisor tool](</docs/en/advisor>) is a [server tool](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool>) that the API runs, rather than a tool that Claude Code implements. It has no name you can reference in permission rules or hook matchers.
 
-##
-
-​
-
-See also
+## See also
 
   * [MCP servers](</docs/en/mcp>): add custom tools by connecting external servers
   * [Permissions](</docs/en/permissions>): permission system, rule syntax, and tool-specific patterns

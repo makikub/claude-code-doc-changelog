@@ -2,11 +2,7 @@ If you maintain a CLI or SDK, your tool can prompt Claude Code users to install 
 
 To publish a plugin, see [Publish and distribute a plugin](</docs/en/plugins/publish>).
 
-##
-
-​
-
-Emit the hint
+## Emit the hint
 
 Emit the tag only when `CLAUDECODE` or `CLAUDE_CODE_CHILD_SESSION` is set, so it doesn’t appear when a person runs your CLI directly. Claude Code sets `CLAUDECODE=1` in the commands it runs through the Bash and PowerShell tools and in hook commands. On v2.1.172 and later it also sets `CLAUDE_CODE_CHILD_SESSION=1` there. The variables differ in which processes carry them:
 
@@ -48,11 +44,7 @@ Shell
 
 Replace `example-cli` with your plugin’s name in the official marketplace. You can emit the hint on every invocation, because Claude Code prompts for each plugin once. To check the emitter, run `CLAUDECODE=1 example-cli` in a terminal and confirm the tag line appears on stderr, then run `example-cli` without the variable and confirm nothing extra prints.
 
-##
-
-​
-
-Hint format
+## Hint format
 
 The tag must occupy its own line; Claude Code ignores a tag embedded mid-line. The tag takes three attributes, all required:
 
@@ -64,11 +56,7 @@ Attribute| Description
 
 Values may be double-quoted or unquoted; an unquoted value can’t contain whitespace. Claude Code removes the line from the output even when `v` or `type` is unrecognized.
 
-##
-
-​
-
-Check when the prompt appears
+## Check when the prompt appears
 
 The prompt appears only in interactive terminal sessions. In `claude -p` runs, in subagent runs, and in hook command output, the tag is stripped and no prompt is shown. All of these checks must also pass:
 
@@ -78,11 +66,7 @@ The prompt appears only in interactive terminal sessions. In `claude -p` runs, i
   * **Not turned off** : the user hasn’t chosen **No, and don’t show plugin installation hints again**
   * **Local, attended session** : the session’s workspace is local rather than on a cloud or remote machine, and the session isn’t running unattended. For example, a session started with `--cloud`, one serving Remote Control, or an agent-team teammate never prompts
 
-##
-
-​
-
-Preview what the user sees
+## Preview what the user sees
 
 When the checks in Check when the prompt appears pass, Claude Code shows a **Plugin recommendation** dialog like the following:
 
@@ -108,11 +92,7 @@ The dialog names the first word of the shell command Claude ran, so users can sp
   * **No, and don’t show plugin installation hints again** : turns off future hint prompts for that user
   * **No answer for 30 seconds** : counts as **No**
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [Publish and distribute a plugin](</docs/en/plugins/publish>): the routes for distributing a plugin, including the official marketplace, which the hint requires
   * [Plugin commands reference](</docs/en/plugins/cli-reference#plugin-install>): the shell command that installs the same plugin outside a session

@@ -1,10 +1,6 @@
 The Claude Code CLI and everything that runs locally work on every provider. For setup instructions per provider, see the [Enterprise deployment overview](</docs/en/third-party-integrations>). To skip straight to what is missing on your provider, see the summary by provider tabs. In the tables below, ✓ means available, ✗ means not available, and “See note” links to a footnote for partial support. A qualifier after ✓ narrows availability to that subset, and “Admin-enabled” means the feature is off until an organization admin turns it on.
 
-##
-
-​
-
-Availability by model provider
+## Availability by model provider
 
 How you authenticate determines which features Claude Code can reach. For a single list of what is missing on your provider, see the summary by provider tabs. To find your column in the tables:
 
@@ -15,11 +11,7 @@ How you authenticate determines which features Claude Code can reach. For a sing
   * **Google Cloud’s Agent Platform** : Google-operated; you set `CLAUDE_CODE_USE_VERTEX`
   * **Microsoft Foundry** : Anthropic-operated; you set `CLAUDE_CODE_USE_FOUNDRY`
 
-###
-
-​
-
-Features available on every provider
+### Features available on every provider
 
 These work on every provider:
 
@@ -39,11 +31,7 @@ These have provider-specific differences:
     * `/voice` requires a claude.ai account
     * `/list-agents` and its alias `/peers` are available only in sessions where [cross-session messaging is enabled](</docs/en/cross-session-messaging#availability>)
 
-###
-
-​
-
-Features that require a Claude subscription
+### Features that require a Claude subscription
 
 These require signing in with a claude.ai account and are not reachable with an Anthropic Console API key or from a third-party provider:
 
@@ -61,11 +49,7 @@ These require signing in with a claude.ai account and are not reachable with an 
 
 Desktop is the partial exception: [gateway routing can be configured in the app or by an administrator](</docs/en/llm-gateway-connect#desktop-app>). [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>) also runs the Code tab on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or a self-hosted LLM gateway. It also runs the Code tab on the [Claude API](<https://claude.com/docs/third-party/claude-desktop/claude-api>) with an Anthropic Console API key. For per-plan availability of these features, see Availability by subscription plan.
 
-###
-
-​
-
-CLI capabilities that vary by provider
+### CLI capabilities that vary by provider
 
 These features work in the local CLI but depend on a server-side capability that not every provider exposes. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud’s Agent Platform| Microsoft Foundry
 ---|---|---|---|---|---|---
@@ -78,11 +62,7 @@ These features work in the local CLI but depend on a server-side capability that
 [GitHub Actions](</docs/en/github-actions>)| ✓| ✓| ✓| ✗| ✓| ✓
 [GitLab CI/CD](</docs/en/gitlab-ci-cd>)| ✓| ✓| ✓| ✓| ✓| ✗
 
-###
-
-​
-
-Admin and analytics
+### Admin and analytics
 
 Organization-level controls and usage visibility. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud’s Agent Platform| Microsoft Foundry
 ---|---|---|---|---|---|---
@@ -97,11 +77,7 @@ Organization-level controls and usage visibility. Feature| Claude subscription| 
 
 If you authenticate through an [LLM gateway](</docs/en/llm-gateway>), feature availability matches the underlying provider the gateway forwards to, except for the features Claude Code itself turns off. Whenever `ANTHROPIC_BASE_URL` points at a host other than `api.anthropic.com`, Claude Code turns off features such as [Remote Control](</docs/en/remote-control#requirements>) and [server-managed settings](</docs/en/server-managed-settings#platform-availability>), whatever the gateway forwards. Some features, such as the [Advisor](</docs/en/advisor#requirements>), work only if the gateway forwards requests intact.For how the requests Claude Code sends differ between an Amazon Bedrock- or Agent Platform-format gateway, an `ANTHROPIC_BASE_URL` gateway, and a Claude apps gateway sign-in, see [client behavior by connection method](</docs/en/llm-gateway-protocol#how-the-connection-method-changes-client-behavior>).
 
-###
-
-​
-
-Summary by provider
+### Summary by provider
 
 Each tab lists what is unavailable or partially supported on that provider, with alternatives where one exists. Everything not listed works the same as on a Claude subscription, apart from the provider-specific differences noted above. On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and Claude Platform on AWS, error reporting and telemetry to Anthropic are off by default. See [default behaviors by API provider](</docs/en/data-usage#default-behaviors-by-api-provider>) for what traffic still reaches Anthropic and how to opt out.
 
@@ -154,11 +130,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
   * [Desktop](</docs/en/desktop>): via [Claude Desktop on 3P with the Claude API](<https://claude.com/docs/third-party/claude-desktop/claude-api>)
 
-##
-
-​
-
-Availability by subscription plan
+## Availability by subscription plan
 
 If you authenticate through Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or an Anthropic Console API key, this section does not apply to you. When you sign in with a claude.ai account, your plan determines which of the features below are available. In Enterprise organizations with the [HIPAA configuration](</docs/en/hipaa-setup>) applied, some features in this table are turned off.
 
@@ -183,27 +155,15 @@ SCIM| ✗| ✗| ✗| ✗| ✓
 6 On Enterprise, requires a premium seat or a Chat + Claude Code seat. See [Use Claude Code in the cloud](</docs/en/claude-code-on-the-web>).
 7 Not included in the standard Enterprise plan. Requires separate enablement by Anthropic for qualified accounts. See [Zero Data Retention](</docs/en/zero-data-retention>). For pricing and the full plan comparison, see [Team plans](<https://support.claude.com/en/articles/9266767-what-is-the-team-plan>) and [Enterprise plans](<https://support.claude.com/en/articles/9797531-what-is-the-enterprise-plan>).
 
-###
-
-​
-
-Ultra plan
+### Ultra plan
 
 Ultra is the new name for the Max 20x plan, and Max is the new name for Max 5x. To check which plan you’re on, see your subscription on claude.ai. In Claude Code, Max and Ultra have the same features, listed in the Max and Ultra columns of the availability table. For usage limits and pricing, see the [Claude pricing page](<https://claude.com/pricing>).
 
-##
-
-​
-
-Model availability
+## Model availability
 
 For which Claude models and context-window sizes are available per provider and region, see [Model configuration](</docs/en/model-config>) and the [Models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>). Vision, PDF input, and extended thinking are model capabilities rather than Claude Code features and work on every provider that offers the model. [Prompt caching](</docs/en/prompt-caching>) works the same way on most providers; on Amazon Bedrock, support varies by model.
 
-##
-
-​
-
-Related resources
+## Related resources
 
   * [Enterprise deployment overview](</docs/en/third-party-integrations>): compare authentication, billing, and regions across providers
   * Provider setup guides: [Amazon Bedrock](</docs/en/amazon-bedrock>), [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), [Microsoft Foundry](</docs/en/microsoft-foundry>)

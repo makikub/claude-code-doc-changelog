@@ -2,17 +2,9 @@ Claude Code supports various enterprise network and security configurations thro
 
 All environment variables shown on this page can also be configured in [`settings.json`](</docs/en/settings>).
 
-##
+## Proxy configuration
 
-​
-
-Proxy configuration
-
-###
-
-​
-
-Environment variables
+### Environment variables
 
 Claude Code respects standard proxy environment variables. In Claude Desktop sessions where the app manages the provider connection, Claude Code reads them only from managed settings and `~/.claude/settings.json`; see mTLS authentication for the scope rules.
 
@@ -33,11 +25,7 @@ Lowercase variants also work, and Claude Code uses the first one that’s set in
 
 Claude Code does not support SOCKS proxies.
 
-###
-
-​
-
-Basic authentication
+### Basic authentication
 
 If your proxy requires basic authentication, include credentials in the proxy URL:
 
@@ -47,11 +35,7 @@ Avoid hardcoding passwords in scripts. Use environment variables or secure crede
 
 For proxies requiring advanced authentication (NTLM, Kerberos, etc.), consider using an LLM Gateway service that supports your authentication method.
 
-##
-
-​
-
-CA certificate store
+## CA certificate store
 
 By default, Claude Code trusts both its bundled Mozilla CA certificates and your operating system’s certificate store. Reading the OS store requires a runtime with `tls.getCACertificates`: the native installer always has it, and npm installs need Node 22.15 or later. On older Node versions, only the bundled set and `NODE_EXTRA_CA_CERTS` apply. Enterprise TLS-inspection proxies work without additional configuration when their root certificate is installed in the OS trust store and the runtime can read it. If such a proxy mishandles gzip-compressed request bodies, set [`CLAUDE_CODE_GZIP_REQUEST_BODIES=0`](</docs/en/env-vars>) to turn off compression for Claude API, telemetry, and artifact publish requests. `CLAUDE_CODE_CERT_STORE` accepts a comma-separated list of sources. Recognized values are `bundled` for the Mozilla CA set shipped with Claude Code and `system` for the operating system trust store. The default is `bundled,system`. To trust only the bundled Mozilla CA set:
 
@@ -63,11 +47,7 @@ To trust only the OS certificate store:
 
 `CLAUDE_CODE_CERT_STORE` has no dedicated `settings.json` schema key. Set it via the `env` block in `~/.claude/settings.json` or directly in the process environment.
 
-##
-
-​
-
-Custom CA certificates
+## Custom CA certificates
 
 If your enterprise environment uses a custom CA, configure Claude Code to trust it directly:
 
@@ -80,11 +60,7 @@ If you see either of these warnings, Claude Code couldn’t load the `NODE_EXTRA
 
 The full text of each warning says how to fix the file. A skipped certificate that’s also in the CA certificate store still works.
 
-##
-
-​
-
-mTLS authentication
+## mTLS authentication
 
 For enterprise environments requiring client certificate authentication:
 
@@ -116,11 +92,7 @@ To confirm Claude Code picked up a rotation, start the session with debug loggin
 
 Claude Code notes each ignored key in the session’s debug log. In [Claude Desktop](</docs/en/desktop>) sessions where the app manages the provider connection, such as the Code tab on a [third-party provider](</docs/en/third-party-integrations>) and Cowork sessions, Claude Code reads these variables except `CLAUDE_CODE_OAUTH_SCOPES`, and the proxy variables `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY`, only from [managed settings](</docs/en/managed-settings>) and `~/.claude/settings.json`. It ignores them in a repository’s own settings files, so a checked-out repository can’t redirect the TLS or proxy path of a session whose credentials come from the app. Before v2.1.217, Claude Code ignored these variables in every settings file when the app managed the connection. In a local, SSH, or WSL Code tab session signed in through claude.ai, you can set these variables and the proxy variables in any settings file, apart from `CLAUDE_CODE_OAUTH_SCOPES`. Desktop sets `CLAUDE_CODE_OAUTH_SCOPES` itself in Code tab and Cowork sessions, so you can’t set it. When the session’s launch environment already sets a variable, Claude Code [ignores the settings file’s value](</docs/en/settings-reference#how-env-values-interact-with-your-shell>) and names the variable in the [debug log](</docs/en/debug-your-config>). To use your own proxy or certificate value in a local session, [add it to a saved local environment](</docs/en/desktop#set-environment-variables-for-local-sessions>). [Cloud sessions](</docs/en/claude-code-on-the-web>) follow the cloud-session rules above wherever you start them.
 
-##
-
-​
-
-Verify your configuration
+## Verify your configuration
 
 You usually find out about a wrong proxy address or a bad certificate path from a [connection or certificate error](</docs/en/errors#network-and-connection-errors>) on a later request, since Claude Code doesn’t validate most of these settings when it reads them. The one setting it checks at startup is the proxy URL: when it can’t parse the value, such as one missing the `http://` scheme, Claude Code stops launch with an error naming the variable to fix. To confirm your configuration loaded before you send a request, start Claude Code with debug logging:
 
@@ -138,37 +110,21 @@ If Claude Code can’t read one of these files, the log shows a `Failed to read`
   * **mTLS client cert** and **mTLS client key** : appear only when the files loaded, so a missing row means the load failed and the debug log has the reason.
   * **Additional CA cert(s)** : shows the `NODE_EXTRA_CA_CERTS` path without checking that the file loaded, so confirm this one in the debug log.
 
-##
-
-​
-
-Apply network settings to background agents
+## Apply network settings to background agents
 
 [Background agents](</docs/en/agent-view>) don’t run inside the terminal that dispatched them. A per-user supervisor process starts on demand, outlives your shell, and hosts every `claude agents`, `--bg`, and `/background` session. See [How background sessions are hosted](</docs/en/agent-view#how-background-sessions-are-hosted>). This changes how the configuration on this page reaches those sessions.
 
-###
-
-​
-
-Set network variables in settings, not the shell
+### Set network variables in settings, not the shell
 
 The supervisor is one process shared by every terminal. It inherits the environment of whichever shell starts it first. If you export a proxy, CA path, or mTLS variable only in your shell, it reaches background agents when that shell happened to cold-start the supervisor, and silently doesn’t when a different shell did. Put the same variables in the `env` block of `~/.claude/settings.json` or [managed settings](</docs/en/settings>) instead. Every variable on this page can be set there, and settings are the only configuration that reaches every background session on every machine.
 
-###
-
-​
-
-Configure a corporate launcher as a setting
+### Configure a corporate launcher as a setting
 
 Some organizations require every Claude Code process to start through a corporate launcher that applies sandboxing, network controls, or credential injection. The supervisor and its workers start Claude Code from a fixed path rather than by looking up `claude` on `PATH`, so every background agent bypasses a wrapper you place earlier on `PATH`. Set the [`processWrapper`](</docs/en/settings-reference#processwrapper>) setting to prefix the supervisor, its workers, and the other background processes listed under [What the launcher covers](</docs/en/corporate-launcher#what-the-launcher-covers>) with your launcher. The equivalent [`CLAUDE_CODE_PROCESS_WRAPPER`](</docs/en/env-vars>) environment variable takes precedence when both are set, and it is subject to the same rule: deliver it through managed settings or `~/.claude/settings.json`, not a shell export. [Run Claude Code behind a corporate launcher](</docs/en/corporate-launcher>) covers the contract the launcher must satisfy, what it does and doesn’t reach, and how to roll it out.
 
 An already-running supervisor keeps the launch configuration it started with. After deploying the launcher setting, run [`claude daemon stop --any`](</docs/en/agent-view#the-supervisor-process>) so the next `claude agents` or `--bg` starts a supervisor that honors it.
 
-##
-
-​
-
-Streaming idle watchdogs
+## Streaming idle watchdogs
 
 Claude Code runs four independent timers that abort a streaming model response when it goes quiet, so a dead connection fails and retries instead of hanging. A request that gets no response headers at all ends in one of two ways:
 
@@ -193,11 +149,7 @@ If you set `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1`, the byte-level watchdog repl
 
 When a watchdog aborts a stalled stream, Claude Code treats the abort as a mid-stream failure, and what you see depends on how far the response had got. Claude Code retries the request or ends the turn with an error, keeps the completed output and shows an [incomplete-response notice](</docs/en/errors#the-response-above-may-be-incomplete>), or ends the turn normally. [Automatic retries](</docs/en/errors#automatic-retries>) says where each outcome applies. In a [non-interactive session](</docs/en/headless>), and for a subagent’s response in any session, Claude Code may first prompt Claude to continue the cut-off response; [that notice’s entry](</docs/en/errors#the-response-above-may-be-incomplete>) says when it does and when you still see the notice. When the first-byte deadline fires, no response has started, so there is no partial output to keep. For how Claude Code re-sends the request and when the turn ends instead, see [No response from API](</docs/en/errors#no-response-from-api>).
 
-##
-
-​
-
-Network access requirements
+## Network access requirements
 
 Claude Code requires access to the following URLs. Allowlist these in your proxy configuration and firewall rules, especially in containerized or restricted network environments. The first-run setup connectivity check points here when it can’t reach `api.anthropic.com` or `platform.claude.com`; see [Unable to connect to Anthropic services](</docs/en/errors#unable-to-connect-to-anthropic-services>) for the check’s messages and recovery steps.
 
@@ -225,51 +177,27 @@ URL| Required for
 
 If you install Claude Code through npm or manage your own binary distribution, end users don’t need the native installer and auto-updater uses of `downloads.claude.ai`, but npm and bun installs need their package registry, `registry.npmjs.org`, unless your organization mirrors it. The other uses in the table apply regardless of install method. The two Datadog intake hosts carry only optional operational telemetry, and setting [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](</docs/en/env-vars>) disables both. Sessions on third-party providers never send to these hosts, even when a platform sets [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](</docs/en/env-vars>) and telemetry metrics default on. See [Telemetry services](</docs/en/data-usage#telemetry-services>) for everything Claude Code sends and how to disable it before finalizing your allowlist.
 
-###
-
-​
-
-Cloud provider and LLM gateway routing
+### Cloud provider and LLM gateway routing
 
 When using [Amazon Bedrock](</docs/en/amazon-bedrock>), [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), [Microsoft Foundry](</docs/en/microsoft-foundry>), or a signed-in [Claude apps gateway](</docs/en/claude-apps-gateway>) session, model traffic and authentication go to your provider or gateway instead of `api.anthropic.com`, `claude.ai`, or `platform.claude.com`. The WebFetch tool still calls `api.anthropic.com` for its [domain safety check](</docs/en/data-usage#webfetch-domain-safety-check>) unless you set `skipWebFetchPreflight: true` in [settings](</docs/en/settings>). If your developers use [fast mode](</docs/en/fast-mode>) behind an [LLM gateway](</docs/en/llm-gateway>) set with [`ANTHROPIC_BASE_URL`](</docs/en/llm-gateway-connect#set-the-base-url-and-credential>), keep `api.anthropic.com` reachable through your proxy. When Claude Code sends the fast mode availability check, it goes to that host through any configured HTTP proxy, never to the gateway. For when the check isn’t sent, and the variable that restores fast mode in each case, see [Use fast mode behind proxies and LLM gateways](</docs/en/fast-mode#use-fast-mode-behind-proxies-and-llm-gateways>).
 
-###
-
-​
-
-Organization IP allowlists and proxy egress
+### Organization IP allowlists and proxy egress
 
 If your organization has [IP allowlisting](<https://support.claude.com/en/articles/13200993-restrict-access-to-claude-with-ip-allowlisting>) enabled for Claude, route `bridge.claudeusercontent.com` through the same proxy egress as `claude.ai` and `api.anthropic.com`, for example by placing it in the same Zscaler app segment or Netskope steering policy. If you can’t route it that way, add the egress address your proxy uses for that host to your organization’s IP allowlist, but only when that address is dedicated to your organization: a shared proxy egress range also admits the proxy vendor’s other customers. Anthropic checks connections to `bridge.claudeusercontent.com` against your organization’s IP allowlist using the address they arrive from. If your proxy sends traffic for that host out through an address that isn’t on that allowlist, Claude Code can’t connect to the [Claude in Chrome](</docs/en/chrome>) extension even though the rest of Claude Code works.
 
-###
-
-​
-
-GitHub allow lists and firewalls
+### GitHub allow lists and firewalls
 
 [Cloud sessions](</docs/en/claude-code-on-the-web>) in Anthropic-hosted environments and [Code Review](</docs/en/code-review>) connect to your repositories from Anthropic-managed infrastructure; sessions in a [self-hosted environment](</docs/en/self-hosted-environments>) connect from inside your network, unless the runner opts into the [Anthropic git proxy](</docs/en/self-hosted-environments-deploy#use-the-anthropic-git-proxy>), which fetches from Anthropic’s side. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](<https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps>) and also [add an allow list entry](<https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address>) for Anthropic’s [outbound IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses>). Inheritance covers only the requests the Claude GitHub App makes as an installation, not the requests it makes on your users’ behalf. For other firewalls, see the [Anthropic API IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses>). For self-hosted [GitHub Enterprise Server](</docs/en/github-enterprise-server>) instances behind a firewall, allowlist Anthropic’s [outbound IP addresses](<https://platform.claude.com/docs/en/api/ip-addresses#outbound-ip-addresses>) so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments. Sessions in a [self-hosted environment](</docs/en/self-hosted-environments-deploy#configure-git>) reach your GHES host from inside your network instead, so that exposure applies only to Anthropic-hosted sessions, to hosted pre-session flows such as the repository picker, and to self-hosted runners that opt into the [Anthropic git proxy](</docs/en/self-hosted-environments-deploy#use-the-anthropic-git-proxy>), which fetches from Anthropic’s side. The [SCM connector](</docs/en/self-hosted-environments-reference#scm-connector-flags>) isn’t available, so the hosted pre-session flows can’t reach a GHES host that’s only routable inside your network.
 
-###
-
-​
-
-Desktop and claude.ai
+### Desktop and claude.ai
 
 The preceding table covers the standalone CLI. The Claude Desktop app and claude.ai in a browser load their application code and user content from additional Anthropic CDN hosts, including `assets-proxy.anthropic.com` and the other `*.claudeusercontent.com` origins that serve [artifacts](</docs/en/artifacts>) in those apps. Allowing `claude.ai` while blocking those hosts produces a blank page rather than an error. See [network access requirements](</docs/en/desktop#network-access-requirements>) on the Desktop page. Claude Desktop and claude.ai also render some tool results inside a conversation as interactive widgets, such as the [MCP Apps](<https://claude.com/docs/connectors/building/mcp-apps/getting-started>) some connectors provide. Those widgets load from generated subdomains of `claudemcpcontent.com`, so allow `*.claudemcpcontent.com` with the wildcard intact. If you block it, the rest of the app keeps working, but those widgets don’t load.
 
-####
-
-​
-
-Third-party hosts for artifact fonts and libraries
+#### Third-party hosts for artifact fonts and libraries
 
 An [artifact](</docs/en/artifacts>) that loads a typeface from [Google Fonts](</docs/en/artifacts#improve-the-visual-design>) also requests `fonts.googleapis.com` and `fonts.gstatic.com`. Both hosts are optional. If you block them, artifacts render in fallback typefaces. Block with a fast rejection rather than a silent drop so the font request fails immediately instead of delaying the page’s first render. Artifacts can also load JavaScript libraries, such as React or a charting package, from `cdnjs.cloudflare.com`, `cdn.jsdelivr.net`, `cdn.tailwindcss.com`, `code.jquery.com`, and `unpkg.com`, and from no other external host. If you block those hosts, the parts of an artifact that depend on a library don’t work, and unlike a blocked font, a blocked library has no fallback. Block with a fast rejection here too, so a blocked library request fails at once rather than hanging until it times out.
 
-##
-
-​
-
-Additional resources
+## Additional resources
 
   * [Settings files and precedence](</docs/en/settings>)
   * [Environment variables reference](</docs/en/env-vars>)

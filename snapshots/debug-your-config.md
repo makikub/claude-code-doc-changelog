@@ -1,10 +1,6 @@
 When Claude ignores an instruction or a feature you configured doesn’t appear, the cause is usually that the file didn’t load, it loaded from a different location than you expected, or another file overrode it. This guide shows how to inspect what Claude Code actually loaded so you can narrow down which applies. For installation, authentication, and connectivity problems, see [Troubleshoot installation and login](</docs/en/troubleshoot-install>) instead.
 
-##
-
-​
-
-See what loaded into context
+## See what loaded into context
 
 The `/context` command shows everything occupying the context window for the current session. It breaks this down by category: system prompt, system tools, MCP tools, custom subagents with the source each loaded from, memory files, skills, and conversation messages. Run it first to confirm whether your `CLAUDE.md`, rules, or skill descriptions are present at all. The skills section in `/context` also includes [bundled skills](</docs/en/skills#bundled-skills>), which `/skills` doesn’t list. In [fullscreen mode](</docs/en/fullscreen>), `/context` collapses the per-item breakdown, so run `/context all` to expand it. For detail on a specific category, follow up with the dedicated command:
 
@@ -23,19 +19,11 @@ If a memory file is missing from the `/context` breakdown, check its location ag
 
 CLAUDE.md and permissions solve different problems. CLAUDE.md tells Claude how your project works so it makes good decisions. [Permissions](</docs/en/permissions>) and [hooks](</docs/en/hooks>) enforce limits regardless of what Claude decides. Use CLAUDE.md for “we do it this way here.” Use permissions or hooks for security boundaries and anything that must never happen, where you need a guarantee instead of guidance.
 
-##
-
-​
-
-Check resolved settings
+## Check resolved settings
 
 Settings merge across managed, user, project, and local scopes. Managed settings apply first when present. Among the rest, the closer scope overrides the broader one in the order local, then project, then user. Some settings can also be set by command-line flags or [environment variables](</docs/en/env-vars>), which act as another override layer. When a setting doesn’t seem to apply, the value you set is usually being overridden by another scope or an environment variable. To find invalid settings files, run `claude doctor` from your terminal. It prints read-only installation and settings diagnostics without starting a session. For a full checkup that also proposes fixes and asks before applying them, run [`/doctor`](</docs/en/commands#all-commands>) inside a session. Run `/status` to see which settings sources are active, including whether managed settings are in effect. To understand which scope Claude Code uses for a given key, see [Settings precedence](</docs/en/settings#settings-precedence>).
 
-##
-
-​
-
-Check MCP servers
+## Check MCP servers
 
 Run `/mcp` to see every configured server, its connection status, and whether you have approved it for the current project. A server can be defined correctly but still not provide tools for a few common reasons:
 
@@ -45,11 +33,7 @@ Run `/mcp` to see every configured server, its connection status, and whether yo
 
 For configuration locations and scope rules, see [MCP](</docs/en/mcp>).
 
-##
-
-​
-
-Check hooks
+## Check hooks
 
 Run `/hooks` to list every hook registered for the current session, grouped by event. If a hook you defined doesn’t appear, Claude Code didn’t load it. Check for these causes:
 
@@ -64,11 +48,7 @@ If the hook appears but doesn’t fire, the matcher is the usual cause. Check it
 
 When you edit `settings.json`, the change takes effect in the running session after a brief file-stability delay, even if you create the file or the project’s `.claude/` folder itself after the session started. You don’t need to restart. Before v2.1.257, Claude Code didn’t detect edits in a `.claude/` folder created after the session started. If `/hooks` still shows the old definition a few seconds after you save, run `/hooks` again to refresh the view. If `/hooks` shows the hook but it still does not fire, the next step is to watch hook evaluation live. Start a session with `claude --debug` and trigger the tool call. The debug log records each event, which matchers were checked, and the hook’s exit code and output. See [Debug hooks](</docs/en/hooks#debug-hooks>) for the log format and [hooks troubleshooting](</docs/en/hooks-guide#limitations-and-troubleshooting>) for common failure patterns.
 
-##
-
-​
-
-Test against a clean configuration
+## Test against a clean configuration
 
 Start with [`claude --safe-mode`](</docs/en/cli-reference#cli-flags>), which launches a session with your customizations disabled, including:
 
@@ -126,11 +106,7 @@ Repeat what triggered the problem in the clean session:
   * **Problem gone** : the cause is in your user or project configuration. Copy `~/.claude.json` and the files in `~/.claude` into `~/claude-clean/config` one at a time. If none brings the problem back, go to your project directory in the same shell and start Claude Code without `--setting-sources user`. In Bash or Zsh, run `CLAUDE_CONFIG_DIR=~/claude-clean/config claude`. In PowerShell, the variable is still set, so run `claude`.
   * **Problem persists** : the cause is outside your user and project configuration. Run `/status` in the session to check for managed settings, check your shell for [environment variables](</docs/en/env-vars>), then see [Troubleshooting](</docs/en/troubleshooting>).
 
-##
-
-​
-
-Check common causes
+## Check common causes
 
 Most configuration surprises trace back to a small set of location and syntax rules. Check these before assuming a bug:
 
@@ -154,11 +130,7 @@ MCP server fails to start from some directories| `command` or `args` uses a rela
 MCP server starts without expected environment variables| The server’s config entry doesn’t set them, and they aren’t in the environment Claude Code passes to stdio servers: its own environment, minus the [variables it strips from subprocesses](</docs/en/monitoring-usage#administrator-configuration>)| Set per-server `env` inside the server’s `.mcp.json` entry, which doesn’t depend on the launch environment or workspace trust.
 `Bash(rm *)` deny rule doesn’t block `/bin/rm` or `find -delete`| Bash rules match the literal command string, not the underlying executable; see [what a Bash rule doesn’t match](</docs/en/permissions#bash-rule-limits>)| Use a [PreToolUse hook](</docs/en/hooks-guide>) or the [sandbox](</docs/en/sandboxing>) for a hard guarantee.
 
-##
-
-​
-
-Related resources
+## Related resources
 
 For full reference on each configuration surface, see the dedicated page:
 

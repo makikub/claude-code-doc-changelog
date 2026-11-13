@@ -9,19 +9,11 @@ These cases are covered on other pages:
 
 The sections follow the order most rollouts take: require plugins for everyone or per repository, seed containers and CI, restrict what users can add on their own, set update policy, then audit what’s installed. To review every policy key in one place, see the control matrix.
 
-##
-
-​
-
-Pre-install and require plugins
+## Pre-install and require plugins
 
 A marketplace is a catalog of plugins that Claude Code fetches from a git repository, a URL, or a local path. Once you register a marketplace on a machine, Claude Code can install plugins from it. To install plugins for a fleet, set two keys together in [managed settings](</docs/en/managed-settings>), the policy file or server-delivered policy that every machine in your organization reads: `extraKnownMarketplaces` registers a marketplace on each machine, and `enabledPlugins` names the plugins to install and enable from it. Choose a delivery mechanism covers how managed settings reach each machine.
 
-###
-
-​
-
-Choose a delivery mechanism
+### Choose a delivery mechanism
 
 Managed settings reach a machine through one of three delivery mechanisms:
 
@@ -31,19 +23,11 @@ Managed settings reach a machine through one of three delivery mechanisms:
 
 Use server-managed settings if you have a Claude for Teams or Enterprise organization on claude.ai and your devices aren’t all under MDM. Otherwise use an MDM policy or the managed settings file. For the trade-off, see [Choose between server-managed and endpoint-managed settings](</docs/en/server-managed-settings#choose-between-server-managed-and-endpoint-managed-settings>).
 
-####
-
-​
-
-Which managed source applies on a machine
+#### Which managed source applies on a machine
 
 By default, only one of these three sources applies on a machine. Claude Code uses the first that delivers a policy key, checking server-managed settings first, then MDM policies, then the managed settings file. If server-managed settings deliver even one unrelated policy key, Claude Code ignores the plugin keys in an MDM policy or managed settings file on that machine, apart from the [keys it reads from every source](</docs/en/managed-settings#keys-read-from-every-admin-source>). To apply every source instead, set [`managedSourcesBehavior`](</docs/en/managed-settings#compose-every-managed-source>) to `"merge"`. [How Claude Code combines managed sources](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) also lists the keys Claude Code reads from every source in both modes.
 
-###
-
-​
-
-Require a marketplace and its plugins
+### Require a marketplace and its plugins
 
 Add the marketplace under `extraKnownMarketplaces`, keyed by the marketplace’s own `name` from its `marketplace.json`. Then add each plugin under `enabledPlugins` as `plugin-name@marketplace-name`. Each marketplace entry carries a `source` object with a `source` field naming the type, such as `github`. This managed settings example registers an organization marketplace and force-enables two plugins from it:
 
@@ -72,11 +56,7 @@ If the marketplace is a private git repository, each user needs read access to i
 
 Anthropic’s official marketplace `claude-plugins-official` needs no `extraKnownMarketplaces` entry when `enabledPlugins` sets one of its plugins to `true`. That `name@claude-plugins-official` entry declares the marketplace by itself, wherever these keys apply. If you enable none of its plugins and still want it registered on every machine, give it an explicit entry, as Allow the official marketplace and your own does.
 
-###
-
-​
-
-Require plugins per repository
+### Require plugins per repository
 
 To cover one repository’s contributors instead of your whole fleet, set `extraKnownMarketplaces` and `enabledPlugins` in that repository’s `.claude/settings.json`. The `extraKnownMarketplaces` entries apply only in a folder the contributor has trusted, and in an untrusted folder Claude Code ignores them without a message:
 
@@ -85,11 +65,7 @@ To cover one repository’s contributors instead of your whole fleet, set `extra
 
 Setting `enabledPlugins` in the repository doesn’t install the plugin. Once the marketplace is registered, ask each contributor to run `claude plugin install <name>@<marketplace> --scope project`. Until they do, the `/plugin` **Errors** tab can show `Plugin "<name>" is enabled in project settings but isn't installed here` or [`not cached`](</docs/en/plugins/troubleshooting#plugin-not-cached-at>). Contributors don’t need the install when a local `directory` or `file` marketplace lists the plugin with a [relative-path `source`](</docs/en/plugins/marketplace-reference#plugin-sources>). If you use a local `directory` or `file` source with a relative path, the path resolves against your repository’s main checkout. When you run Claude Code from a git worktree, the path still points at the main checkout, so all worktrees share the same marketplace location. To roll out a bundle of plugins with dependencies, put the bundle plugin in `enabledPlugins`, as [Plugin dependencies](</docs/en/plugins/dependencies>) describes.
 
-###
-
-​
-
-When each surface applies the plugin keys
+### When each surface applies the plugin keys
 
 The table shows when each kind of Claude Code session applies `extraKnownMarketplaces` and `enabledPlugins`, from managed settings and from a repository’s `.claude/settings.json`. For the Desktop app and the IDE extensions, see [Install a plugin](</docs/en/plugins/install#install-a-plugin>).
 
@@ -101,22 +77,14 @@ Cloud sessions| In an Anthropic-hosted environment, only server-managed settings
 
 In a `-p` or CI run, marketplaces and plugins install in the background, so a plugin can be missing from the first turn. Set `CLAUDE_CODE_SYNC_PLUGIN_INSTALL=1` to make the run wait for the install before its first query.
 
-###
-
-​
-
-Confirm the rollout
+### Confirm the rollout
 
 Check that the marketplace and plugins arrived on a machine or in a CI run:
 
   * **On one machine** : start Claude Code and run `/plugin`. The marketplace and the plugins are listed.
   * **In CI** : run `claude -p` with `--output-format stream-json --verbose`. The `init` event lists the loaded plugins under `plugins`.
 
-##
-
-​
-
-Seed containers and CI
+## Seed containers and CI
 
 For container images and CI runners that can’t clone at runtime, pre-populate a plugins directory at build time and point `CLAUDE_CODE_PLUGIN_SEED_DIR` at it. Claude Code registers the seed’s marketplaces at startup and loads plugin caches from the seed in place, without cloning. A seed also serves users who have no git-host account.
 
@@ -154,11 +122,7 @@ To verify a seed, run `claude -p` with `--output-format stream-json --verbose` i
 
 For fleets with no outbound git access, combine a seed with `directory` or `file` marketplace sources on a shared mount. Set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` as well, which also turns off [plugin auto-update](</docs/en/plugins/loading#when-auto-update-runs>). If a proxy is available, see [Proxy configuration](</docs/en/network-config#proxy-configuration>) for the variables to set.
 
-##
-
-​
-
-Restrict what users can install
+## Restrict what users can install
 
 The managed `strictKnownMarketplaces` allowlist and `blockedMarketplaces` blocklist decide which marketplace sources plugins may come from. A marketplace’s source is the git repository, URL, or local path that Claude Code fetches it from. Both lists match the source of the marketplace a plugin comes from, not the plugin’s own entry inside that marketplace. For the common lockdown, which allows the official marketplace and your own, see Allow the official marketplace and your own. Pair it with `disableSideloadFlags` so users can’t load plugins from a local directory or URL either. Both lists apply before anything downloads and again at session start:
 
@@ -172,11 +136,7 @@ Where the two lists are enforced depends on where you set them:
 
 While any allowlist is set, or a blocklist names any source other than `skills-dir`, a plugin whose marketplace Claude Code can’t find doesn’t load. `/plugin` shows the policy error for it rather than a not-found error. The common case is a stale `enabledPlugins` entry for a marketplace nobody registered.
 
-###
-
-​
-
-Control matrix
+### Control matrix
 
 The table lists each plugin policy key, what it enforces, and what it can’t do.
 
@@ -205,22 +165,14 @@ Every key in the table is a managed setting, apart from `enabledPlugins`, `syncC
 
 Each settings key here has an entry in the [settings reference](</docs/en/settings-reference>).
 
-####
-
-​
-
-Aliases for the marketplace keys
+#### Aliases for the marketplace keys
 
 `strictKnownMarketplaces` can also be spelled `allowedMarketplaces`, and `extraKnownMarketplaces` can also be spelled `additionalMarketplaces`.
 
   * **Version** : the aliases require Claude Code v2.1.232 or later, and older clients ignore them. In a file that a mixed fleet reads, keep the canonical names.
   * **Both spellings set** : when a file sets both spellings, the canonical key’s value applies.
 
-###
-
-​
-
-Allowlist with `strictKnownMarketplaces`
+### Allowlist with `strictKnownMarketplaces`
 
 Set the allowlist to a list of these source objects. Most entries match exactly, `hostPattern` and `pathPattern` entries match as regular expressions, and `github` owner wildcards match by owner:
 
@@ -233,11 +185,7 @@ Set the allowlist to a list of these source objects. Most entries match exactly,
   * **`pathPattern`** : `{ "source": "pathPattern", "pathPattern": "^/opt/approved/" }`, matched against the `path` of `file` and `directory` sources. The pattern matches anywhere in the path, so start it with `^` to pin a directory prefix. `".*"` allows every local path.
   * **`skills-dir`** : `{ "source": "skills-dir" }` matches no marketplace. For what it does, see Keep skills-directory plugins loading.
 
-####
-
-​
-
-How entries match
+#### How entries match
 
 A `url` entry matches on its `url` value; `headers` aren’t compared. For `github` and `git` entries, the `repo` or `url`, the `ref`, and the `path` must all match, or be absent on both sides:
 
@@ -247,35 +195,19 @@ A `url` entry matches on its `url` value; `headers` aren’t compared. For `gith
 
 Owner-wildcard entries follow the exact rules for `ref` and match any `path` inside the repository unless the entry pins one. Wildcard matching is case-sensitive on the allowlist.
 
-####
-
-​
-
-Keep skills-directory plugins loading
+#### Keep skills-directory plugins loading
 
 Skills-directory plugins are the plugins users keep under `~/.claude/skills/` or a project’s `.claude/skills/` in folders that carry a `.claude-plugin/plugin.json`. If you set any allowlist without a `{ "source": "skills-dir" }` entry, they stop loading. If you lock any customization type with [`strictPluginOnlyCustomization`](</docs/en/settings-reference#strictpluginonlycustomization>), they stop loading whether or not the entry is present. The allowlist doesn’t apply to plain [skills](</docs/en/skills>), meaning a `SKILL.md` without that manifest.
 
-####
-
-​
-
-Marketplaces hosted on claude.ai
+#### Marketplaces hosted on claude.ai
 
 The allowlist and blocklist match a [marketplace hosted on claude.ai](</docs/en/plugins/install#add-from-claude-ai>) by its host. To allow or block one, add a `hostPattern` entry that matches `claude.ai` to `strictKnownMarketplaces` or `blockedMarketplaces`. On the allowlist, such an entry admits your organization’s claude.ai marketplaces and the claude.ai default marketplaces, but not a marketplace made of a member’s own claude.ai uploads or one whose scope claude.ai didn’t state. Requires Claude Code v2.1.273 or later.
 
-####
-
-​
-
-Lock every source out
+#### Lock every source out
 
 An empty allowlist, `[]`, locks every marketplace source out, including the official marketplace. This lockdown doesn’t cover the plugins [synced from claude.ai](</docs/en/plugins/loading#synced-plugins>), which Claude Code downloads from each user’s account rather than from a marketplace. To stop those as well, set [`syncClaudeAiPlugins`](</docs/en/settings-reference#syncclaudeaiplugins>) to `false` in managed settings, or turn off Skills for your organization on claude.ai.
 
-###
-
-​
-
-Blocklist with `blockedMarketplaces`
+### Blocklist with `blockedMarketplaces`
 
 `blockedMarketplaces` takes the same source objects as `strictKnownMarketplaces` and is checked first, so a source on both lists is blocked. Blocklist matching is wider than allowlist matching:
 
@@ -294,11 +226,7 @@ This entry blocks every repository under one GitHub owner:
 
 The `url` entries in `blockedMarketplaces` also apply when a user adds an `https://` repository URL that Claude Code [clones rather than fetches](</docs/en/plugins/cli-reference#plugin-marketplace-add>), such as a bare `github.com` or `gitlab.com` repository URL. The user can’t add that URL if an entry names it. The match ignores the `.git` suffix and any ref the user appends after `#`. Requires Claude Code v2.1.232 or later. A `{ "source": "skills-dir" }` entry here stops skills-directory plugins from loading, from both `~/.claude/skills/` and a project’s `.claude/skills/`. A blocklist that names only that entry doesn’t count as an active restriction, so it doesn’t stop plugins whose marketplace Claude Code can’t find from loading.
 
-###
-
-​
-
-Allow the official marketplace and your own
+### Allow the official marketplace and your own
 
 Most organizations allow the official marketplace and their own, and register both so every machine has them. This managed settings policy allows both marketplaces, registers both, force-enables two plugins, and rejects `--plugin-dir`:
 
@@ -329,30 +257,18 @@ On a machine with this policy, adding any source outside the list, for example `
   * **The official marketplace registers itself only in an interactive terminal session** : even there, it registers only when the allowlist permits it. A `-p` run or a terminal attached to a cloud session never registers it.
   * **A blocked attempt is remembered** : if a machine ever ran under a policy that blocked the official marketplace, Claude Code records the blocked attempt and doesn’t retry after the policy changes. An `[]` lockdown is one such policy. That machine registers it again only through an `extraKnownMarketplaces` entry such as the one in this policy, an `enabledPlugins` entry for one of its plugins, or a manual `/plugin marketplace add`.
 
-##
-
-​
-
-Set update policy
+## Set update policy
 
 You can set update policy per marketplace, for the whole fleet, or per user group through release channels.
 
-###
-
-​
-
-Turn auto-update on or off per marketplace
+### Turn auto-update on or off per marketplace
 
 Plugin auto-update runs in the background after startup for marketplaces that have it turned on. For which marketplaces have it on by default, see [When auto-update runs](</docs/en/plugins/loading#when-auto-update-runs>). To decide for the fleet, set `"autoUpdate": true` or `false` on a managed `extraKnownMarketplaces` entry:
 
   * If the managed entry sets the field, Claude Code refuses the user’s `/plugin` toggle with an error that starts `Auto-update for '<name>' is set by`.
   * If the managed entry leaves the field unset, the user’s toggle persists.
 
-###
-
-​
-
-Turn updates off for the whole fleet
+### Turn updates off for the whole fleet
 
 To turn plugin auto-update off for every marketplace, set `DISABLE_AUTOUPDATER` in the managed `env` block, as this example does. The same variable also stops Claude Code’s own updates:
 
@@ -364,11 +280,7 @@ To turn plugin auto-update off for every marketplace, set `DISABLE_AUTOUPDATER` 
 
 To stop Claude Code’s own updates but keep plugin auto-update, add `"FORCE_AUTOUPDATE_PLUGINS": "1"` to the same block. The other [environment variables that stop plugin auto-update](</docs/en/plugins/loading#when-auto-update-runs>) work the same way. `DISABLE_AUTOUPDATER` doesn’t cover plugins with a [`command` source](</docs/en/plugins/marketplace-reference#command-plugin-source>). Claude Code re-runs each enabled one’s command every session and installs the output when it changed. For what stops those runs, see [When a command source re-runs](</docs/en/plugins/loading#when-a-command-source-re-runs>).
 
-###
-
-​
-
-Assign release channels to user groups
+### Assign release channels to user groups
 
 To run stable and early-access channels, host two marketplaces that point at different refs of the same plugins. Then give each user group its own marketplace through separate endpoint-managed settings or a gateway policy. On an Enterprise plan, you can also use server-managed settings from the admin console.
 
@@ -388,45 +300,25 @@ With any of these mechanisms, the stable group receives this setting:
 
 The early-access group receives `latest-tools` instead. To set up the two marketplaces, see [Run release channels](</docs/en/plugins/host-marketplace#run-release-channels>).
 
-##
-
-​
-
-Recommend plugins
+## Recommend plugins
 
 Marketplace owners can attach `relevance` signals to entries so Claude Code suggests the plugin when a project matches. Suggestions from a marketplace appear only when it’s registered on the user’s machine, you list its name in `pluginSuggestionMarketplaces` in managed settings, and you declare its source in the same policy. Declare the source either as the marketplace’s `extraKnownMarketplaces` entry or as an allowlist entry. The official marketplace needs only the name. See [Enable suggestions in managed settings](</docs/en/plugins/relevance#enable-suggestions-in-managed-settings>).
 
 In a cloud session’s conversation, Claude can suggest plugins whether or not you set `pluginSuggestionMarketplaces`. To turn those suggestions off, see [Turn off plugin suggestions](</docs/en/claude-code-on-the-web#turn-off-plugin-suggestions>).
 
-##
-
-​
-
-Audit and review
+## Audit and review
 
 OpenTelemetry events and the Analytics API tell you what your fleet installs and runs. For what a plugin can run on a machine and what each trust tier permits, read [Plugin security](</docs/en/plugins/security>) before you approve a marketplace.
 
-###
-
-​
-
-OpenTelemetry events
+### OpenTelemetry events
 
 `claude_code.plugin_installed` records each install, and `claude_code.plugin_loaded` records each enabled plugin at session start. Both events redact or omit third-party plugin and marketplace names unless you set `OTEL_LOG_TOOL_DETAILS=1`, as [Redacted plugin names in your backend](</docs/en/plugins/measure#redacted-plugin-names-in-your-backend>) shows. Field lists are under [Plugin installed event](</docs/en/monitoring-usage#plugin-installed-event>) and [Plugin loaded event](</docs/en/monitoring-usage#plugin-loaded-event>).
 
-###
-
-​
-
-Analytics API
+### Analytics API
 
 On the Enterprise plan, `GET /v1/organizations/analytics/plugins` returns per-plugin, per-day install and invocation counts across Claude Code and Cowork. You can group the counts by user or RBAC group. Plugin activity that reaches Anthropic without a plugin name appears in one aggregate `third-party` row. See the [endpoint reference](<https://platform.claude.com/docs/en/api/admin/analytics/plugins/list>) and [Access data programmatically](</docs/en/analytics#access-data-programmatically>) for the key it needs.
 
-##
-
-​
-
-Plan for what managed settings can’t enforce
+## Plan for what managed settings can’t enforce
 
 These requests from security reviews have no dedicated key in the current settings schema. The nearest existing controls are:
 
@@ -436,11 +328,7 @@ These requests from security reviews have no dedicated key in the current settin
   * **Gating`--plugin-dir` through the allowlist**: the allowlist doesn’t cover `--plugin-dir`. `disableSideloadFlags` does.
   * **Enforcing the claude.ai plugin toggles through these keys** : [**Organization settings > Plugins & skills**](<https://claude.ai/admin-settings/skills?tab=inventory>) doesn’t set the keys on this page. What members and your organization turn on there reaches the CLI as [synced plugins](</docs/en/plugins/loading#synced-plugins>), which have their own controls.
 
-##
-
-​
-
-Troubleshoot policy
+## Troubleshoot policy
 
 If plugin policy doesn’t behave as expected on a machine, check for these symptoms first:
 
@@ -449,11 +337,7 @@ If plugin policy doesn’t behave as expected on a machine, check for these symp
   * **A user reports`blocked by enterprise policy`**: the message names the marketplace or its source. For an allowlist, it also lists the allowed sources. The user-facing entries are on [Troubleshoot plugins](</docs/en/plugins/troubleshooting>).
   * **A plugin the user disabled in`~/.claude/settings.json` still loads**: another settings source re-enabled it, such as a managed `enabledPlugins` entry that force-enables it. `/plugin` and `claude plugin list` show `Disabled in ~/.claude/settings.json but still loads` with that settings source.
 
-##
-
-​
-
-Next steps
+## Next steps
 
   * [Marketplace reference](</docs/en/plugins/marketplace-reference#marketplace-sources>): the `source` values `extraKnownMarketplaces`, `strictKnownMarketplaces`, and `blockedMarketplaces` accept
   * [Host and maintain a marketplace](</docs/en/plugins/host-marketplace>): run the marketplace your policy points at

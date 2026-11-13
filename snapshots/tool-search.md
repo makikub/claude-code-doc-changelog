@@ -3,21 +3,13 @@ Tool search enables your agent to work with hundreds or thousands of tools by dy
   * **Context efficiency:** Tool definitions can consume large portions of the context window (50 tools can use 10-20K tokens), leaving less room for actual work.
   * **Tool selection accuracy:** Tool selection accuracy degrades with more than 30-50 tools loaded at once.
 
-##
-
-​
-
-How tool search works
+## How tool search works
 
 Tool search is on by default, with the exceptions listed in Configure tool search. When it is active, tool definitions are withheld from the context window. The agent receives a summary of available tools and searches for relevant ones when the task requires a capability not already loaded. Up to five of the most relevant tools are loaded into context by default, where they stay available for subsequent turns until the SDK compacts the messages where the agent discovered them. After that compaction, the agent searches for those tools again when it next needs them. Tool search adds one extra round-trip each time Claude searches for tools, but for large tool sets this is offset by smaller context on every turn. With fewer than ~10 tools whose definitions fit comfortably in the context window, loading everything upfront is typically faster. For details on the underlying API mechanism, see [Tool search in the API](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool>).
 
 Tool search isn’t supported on Microsoft Foundry [deployments hosted on Azure](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>), which reject it server-side: the SDK detects the rejection and loads tool definitions upfront for that deployment instead. `ENABLE_TOOL_SEARCH` can’t override this, since the rejection comes from the deployment itself.
 
-##
-
-​
-
-Configure tool search
+## Configure tool search
 
 Tool search is on by default. For models on the SDK’s unsupported-model list, the SDK loads tool definitions upfront instead, and no `ENABLE_TOOL_SEARCH` value overrides that. On Google Cloud’s Agent Platform, the SDK decides by model generation:
 
@@ -107,11 +99,7 @@ Python
 
 To run this example, replace `https://tools.example.com/mcp` with the URL of your own MCP server. On success the result text prints to the console. Because this is a single-shot `query()` call, the SDK raises after yielding an error result, so the example wraps the loop in a try block. To see why a run failed, check the result message’s `subtype`, such as `error_during_execution`, inside the loop. For more on result messages, see [Handle the result](</docs/en/agent-sdk/agent-loop#handle-the-result>).
 
-##
-
-​
-
-Optimize tool discovery
+## Optimize tool discovery
 
 The search mechanism matches queries against tool names and descriptions. Names like `search_slack_messages` surface for a wider range of requests than `query_slack`. Descriptions with specific keywords (“Search Slack messages by keyword, channel, or date range”) match more queries than generic ones (“Query Slack”). You can also add a system prompt section listing available tool categories. This gives the agent context about what kinds of tools are available to search for. Pass the text in the `systemPrompt` option of `query()` in TypeScript, or `system_prompt` in Python. Use the `claude_code` preset with `append`, which adds your text to the preset’s prompt instead of replacing it:
 
@@ -137,21 +125,13 @@ Python
 
 For the full set of system prompt options, see [Modifying system prompts](</docs/en/agent-sdk/modifying-system-prompts>).
 
-##
-
-​
-
-Limits
+## Limits
 
   * **Maximum tools:** 10,000 tools in your catalog
   * **Search results:** returns up to five most relevant tools per search by default
   * **Model support:** Opus 4, Sonnet 4, Haiku 4.5, and later models, or Opus 4.5, Sonnet 4.5, Haiku 4.5, and later models on Google Cloud’s Agent Platform. On earlier models the SDK loads tool definitions upfront, as Configure tool search describes.
 
-##
-
-​
-
-Related documentation
+## Related documentation
 
   * [Tool search in the API](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool>): Full API documentation for tool search, including custom implementations
   * [Connect MCP servers](</docs/en/agent-sdk/mcp>): Connect to external tools via MCP servers

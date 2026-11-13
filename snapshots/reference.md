@@ -2,11 +2,7 @@ Look up any event a [mod](</docs/en/plugins/mods/overview>) can handle, mods API
 
 The complete reference is Claude Code’s [TypeScript declarations for mods](<https://github.com/anthropics/claude-code/blob/main/mods/types/claude-code.d.ts>), which describe every event, method, and element, with examples. The copy on GitHub can be older than the Claude Code version you have installed. When the two disagree, trust [the copy Claude Code writes for your version](</docs/en/plugins/mods/create#get-the-types-for-your-build>).
 
-##
-
-​
-
-Files
+## Files
 
 A mod is a plugin directory with these files:
 
@@ -20,11 +16,7 @@ Files whose names end in `.test.ts` or `.test.tsx`| No| Tests that [`claude plug
 
 `register` receives `on` and `options`. `options` holds the values of the [`userConfig`](</docs/en/plugins/components#user-configuration>) fields the manifest declares, with defaults filled in.
 
-##
-
-​
-
-The hook function
+## The hook function
 
 A mod registers each of its hooks, which are event handlers, by calling `on` inside `register`. `on` takes the event’s name, an optional [matcher](</docs/en/plugins/mods/events#filter-which-events-a-hook-handles>), which is a filter on the event’s fields, and the hook, as in `on('tool.call', { tool: 'Bash' }, async ($, e, next) => next(e))`. `on` returns a registration with one method, `.catch(handler)`, which sets the hook’s [error handler](</docs/en/plugins/mods/events#handle-a-hook-that-fails>).
 
@@ -40,19 +32,11 @@ Argument| What it is
 `next.error`| In a `.catch` handler only. `kind` is `throw` or `timeout`, and `message` is the error’s text.
 `next.called`| In a `.catch` handler only. `true` when the hook had called `next`.
 
-##
-
-​
-
-Events
+## Events
 
 Events are grouped by what they concern, each with when it fires and what a hook on it can return. Hooks on `turn.step` and `process.spawn` are async generators, and other hooks are async functions. The last column of each table uses shorthand. `next(e)` passes the event on unchanged. `next({ ...e, text })` passes on a copy with the named field changed, as in `next({ ...e, text: e.text.trim() })`. An object answers the event without calling `next`, and a word such as `reason` stands for a string you write, as in `{ deny: 'Use the file tools.' }`.
 
-###
-
-​
-
-Tools
+### Tools
 
 Tool events fire around each tool call Claude makes, from the description Claude reads to the decision on whether the call runs:
 
@@ -62,11 +46,7 @@ Event| Fires when| A hook can return
 [`tool.check`](</docs/en/plugins/mods/events#where-settings-hooks-run-in-the-order>)| Claude Code decides whether a tool call may run, after the `tool.call` and `PreToolUse` hooks. `next(e)` resolves to the decision the rules, the permission mode, and those hooks reached.| `next(e)` or `{ decision }`, with `decision` set to `allow`, `ask`, or `deny` and an optional `reason`
 `tool.describe`| Once for each tool, when its description is first sent to Claude. A second time for an MCP tool when Claude loads it through [tool search](</docs/en/mcp#scale-with-mcp-tool-search>), with `e.description` set to the text Claude reads for the loaded tool.| `{ description }`, optionally with `isDeferred` set to `true` to put the tool behind tool search or `false` to load it upfront. Add `breakPromptCache: true` to send a changed description on the next turn.
 
-####
-
-​
-
-Agent and organization fields on `tool.check`
+#### Agent and organization fields on `tool.check`
 
 In a `tool.check` hook, read these fields to tell a subagent’s call from the main conversation’s, and to see whether your organization requires approval for a connector tool:
 
@@ -75,19 +55,11 @@ In a `tool.check` hook, read these fields to tell a subagent’s call from the m
 
 On `tool.check`, `e.agentId` and `e.ceiling` require Claude Code v2.1.290 or later.
 
-####
-
-​
-
-The `e.isReadOnly` field on `tool.check`
+#### The `e.isReadOnly` field on `tool.check`
 
 In a `tool.check` hook, `e.isReadOnly` is `true` when the tool reports this call as read-only. Otherwise the field is absent, not `false`. The value is the tool’s own report, so read [Check whether a tool call is read-only](</docs/en/plugins/mods/events#check-whether-a-tool-call-is-read-only>) before you approve a call on this field alone. On `tool.check`, `e.isReadOnly` requires Claude Code v2.1.304 or later.
 
-###
-
-​
-
-Prompts and what Claude reads
+### Prompts and what Claude reads
 
 Prompt events cover the text the user types and the text Claude Code sends to Claude on its own, such as the system prompt and reminders:
 
@@ -105,11 +77,7 @@ Event| Fires when| A hook can return
 [`skill.prompt`](</docs/en/plugins/mods/events#rewrite-or-add-to-a-prompt>)| A skill’s text is expanded for Claude| `{ text }`
 `attribution.text`| Claude Code composes commit or pull request attribution text| `{ text }`
 
-####
-
-​
-
-Source and frontmatter fields on `skill.prompt`
+#### Source and frontmatter fields on `skill.prompt`
 
 In a `skill.prompt` hook, you can read these fields along with the skill’s name in `e.skill` and the text Claude reads in `e.text`:
 
@@ -123,19 +91,11 @@ Field| Type| What it holds
 
 A hook can pass a changed `text` or `frontmatter` to `next`: the hooks after it read both, and Claude reads the final `text`. A hook that changes any other field [fails](</docs/en/plugins/mods/events#handle-a-hook-that-fails>). On `skill.prompt`, `e.source`, `e.pluginName`, `e.path`, `e.frontmatter`, and `e.frontmatterProblem` require Claude Code v2.1.299 or later.
 
-####
-
-​
-
-Send a changed system prompt section or tool description with `breakPromptCache`
+#### Send a changed system prompt section or tool description with `breakPromptCache`
 
 To change a section or a tool description in a running conversation, call `$.ui.invalidate('prompt.section')` or `$.ui.invalidate('tool.describe')` so your hook runs again. Return `{ text, breakPromptCache: true }` or `{ description, breakPromptCache: true }` from it. Without the field, Claude keeps reading the text [saved with the conversation](</docs/en/cli-reference#system-prompt-flags-in-resumed-conversations>) for a section or a tool loaded upfront until a new conversation or a [compaction](</docs/en/prompt-caching#compacting-the-conversation>). The changed text reaches Claude on the next turn, and the [prompt cache](</docs/en/prompt-caching>) starts over, so that turn is slower and more expensive. The field requires Claude Code v2.1.321 or later. From v2.1.299 until v2.1.321, a running conversation got the changed text on the next turn.
 
-###
-
-​
-
-Commands and configuration
+### Commands and configuration
 
 Event| Fires when| A hook can return
 ---|---|---
@@ -145,20 +105,12 @@ Event| Fires when| A hook can return
 `config.describe`| Once for each `/config` row| `{ label, description, isHidden }`
 [`settings.read`](</docs/en/plugins/mods/events#settings-read-hook>)| A mod calls [`$.settings.read`](</docs/en/plugins/mods/api#reach-files-processes-and-the-network>), or Claude Code builds the session’s merged settings. Requires Claude Code v2.1.304 or later on Claude Code’s own read and for `e.layers`| `next(e)`, `{ value }`, or `{ deny: reason }`
 
-####
-
-​
-
-`e.layers` and `e.source` on `settings.read`
+#### `e.layers` and `e.source` on `settings.read`
 
   * **`e.layers`** : one `{ source, settings }` object for each source in use that holds settings, lowest [precedence](</docs/en/settings#settings-precedence>) first. See [What a `settings.read` hook receives](</docs/en/plugins/mods/events#settings-read-receives>).
   * **`e.source`** : the one source a mod asked for, as in `$.settings.read({ source: 'policy' })`. Absent on Claude Code’s own read and on a read of the merged settings
 
-###
-
-​
-
-Turns
+### Turns
 
 Turn events follow one answer from start to finish, including each request to the model within it:
 
@@ -168,11 +120,7 @@ Event| Fires when| A hook can return
 [`turn.step`](</docs/en/plugins/mods/events#follow-a-turn>)| One request is about to go to the model| `yield* next(e)`, or `next({ ...e, model })`, `next({ ...e, effort })`
 [`turn.complete`](</docs/en/plugins/mods/events#follow-a-turn>)| A turn ended| `next(e)`, or `{ text }` to show a line under the answer
 
-###
-
-​
-
-Session
+### Session
 
 Session events mark the session starting, ending, compacting, and exchanging messages with other sessions:
 
@@ -186,11 +134,7 @@ Event| Fires when| A hook can return
 `session.attach`, `session.detach`| Another app connects to or disconnects from the session| `next(e)`
 `session.measure`| After each turn, and when a plan limit’s percent used changes| `next(e)`
 
-###
-
-​
-
-Subagents
+### Subagents
 
 Subagent events fire when a subagent type is offered to Claude and when a subagent or an agent-team teammate is about to start:
 
@@ -203,11 +147,7 @@ Your `agent.spawn` hook also runs when a subagent that finished or stopped is ab
 
 The event for a resumed run requires Claude Code v2.1.299 or later. Before v2.1.299, your `agent.spawn` hook didn’t run when a subagent resumed. On those versions, to refuse the `SendMessage` calls that resume a subagent, match that tool in a [`tool.call`](</docs/en/plugins/mods/events#guard-or-change-a-tool-call>) hook.
 
-###
-
-​
-
-Interface
+### Interface
 
 Interface events fire when Claude Code draws a render site and when the user uses a control a mod drew. [Draw in the interface](</docs/en/plugins/mods/interface>) shows what a `ui.render` hook returns:
 
@@ -221,11 +161,7 @@ Event| Fires when
 [`ui.message`](</docs/en/plugins/mods/interface#build-a-tree-from-elements>)| A `Client` element posts data to its mod
 [`ui.fault`](</docs/en/plugins/mods/interface#redraw-when-something-changes>)| A `Client` element your mod drew failed to load, draw, or run. `e.phase` is `load`, `render`, or `run`, and `e.reason` is the error message. Requires Claude Code v2.1.289 or later.
 
-###
-
-​
-
-Other mods
+### Other mods
 
 These events let a mod act on other mods as they load, to refuse one or change the mods API it receives:
 
@@ -236,11 +172,7 @@ Event| Fires when| A hook can return
 
 When another mod’s hook calls a method on a namespace you added in `engine.create`, your method’s `$` calls run in that hook’s context until every hook on that event returns. For example, a relative path resolves against that hook’s working directory, and `$.prompt.submit` rejects while the turn is waiting on that hook. Calls your method makes after that run in your mod’s own context.
 
-###
-
-​
-
-Telemetry
+### Telemetry
 
 Telemetry events fire for the usage records Claude Code logs:
 
@@ -248,27 +180,15 @@ Event| Fires when| A hook can return
 ---|---|---
 `telemetry.log`, `telemetry.mark`| A telemetry record is about to be logged, or one use of a feature is marked. In a mod you install, give a telemetry hook the filter `{ to: 'collector' }`, as in `on('telemetry.log', { to: 'collector' }, hook)`. Without the filter, the mod fails `claude plugin validate`. `*` doesn’t match these events.| `next(e)`, or `{ deny: reason }`
 
-###
-
-​
-
-Settings hook events
+### Settings hook events
 
 Each [settings hook event](</docs/en/hooks#hook-events>) is an event named `classic.<Event>`, such as `classic.Stop` or `classic.PostToolUse`. `e` is the hook’s stdin JSON.
 
-###
-
-​
-
-Mods API calls
+### Mods API calls
 
 Every mods API method is also an event, named for its namespace and method, such as `fs.read`, `model.complete`, or `ui.open`. A hook on one intercepts calls from the mods that run after it, and can return `next(e)`, `{ deny: reason }`, or `{ value }`.
 
-##
-
-​
-
-Mods API methods
+## Mods API methods
 
 The mods API is the `$` argument every hook receives. Its methods are grouped in namespaces, such as `$.ui`. This table lists each namespace’s methods by name, so `open` in the `$.ui` row is the call `$.ui.open(...)`. The guides show the common ones in use, and [the types for your build](</docs/en/plugins/mods/create#get-the-types-for-your-build>) document every method with an example.
 
@@ -297,11 +217,7 @@ Namespace| Methods
 `$.audio`| `play`, `speak`
 `$.telemetry`| `log`, `mark`. A record is sent only when Claude Code or a built-in mod makes the call.
 
-##
-
-​
-
-Render sites
+## Render sites
 
 A render site is an extension point in Claude Code’s interface. Each row is a value of `e.component` in a `ui.render` hook, with the fields of `e.props` and the apps that render it. `e.surface` names the app that’s drawing, such as `terminal`, `desktop`, or `vscode`. [Change what Claude Code already draws](</docs/en/plugins/mods/interface#change-what-claude-code-already-draws>) shows what a hook can do at a site, with an example of each choice. Rendering in the VS Code extension requires extension version 2.1.299 or later. A session that [doesn’t fetch feature flags](</docs/en/env-vars#features-that-need-feature-flag-fetching>) needs 2.1.304 or later. [Draw in the VS Code extension](</docs/en/plugins/mods/interface#draw-in-the-vs-code-extension>) lists what the extension draws differently.
 
@@ -331,11 +247,7 @@ Site| `e.props`| `e.requestId`| Rendered on
 
 A tree taller than the pane scrolls as a whole.
 
-##
-
-​
-
-Elements
+## Elements
 
 Elements are the building blocks of a tree a `ui.render` hook returns, and you get them from `$.ui.resolve(e)`. [Build a tree from elements](</docs/en/plugins/mods/interface#build-a-tree-from-elements>) shows the common ones with how the terminal draws them, and the [interface gallery](</docs/en/plugins/mods/gallery>) has screenshots of most. A check mark means the app can draw the element.
 
@@ -381,11 +293,7 @@ A `Button` with children other than a single string requires Claude Code v2.1.29
   * **`Input` and `Select`**: `autoFocus`, and `rows` on an `Input`
   * **`Svg`** : `isInteractive`
 
-###
-
-​
-
-`Box` border styles
+### `Box` border styles
 
 To draw a border around a `Box`, set its `borderStyle` to one of these names, as in `borderStyle: 'round'`. Each row says what the terminal draws for that name and shows the top edge of the border.
 
@@ -404,11 +312,7 @@ To draw a border around a `Box`, set its `borderStyle` to one of these names, as
 
 A `Box` whose `borderStyle` names anything else, such as `'rounded'`, draws with no border.
 
-###
-
-​
-
-`Box` spacing steps
+### `Box` spacing steps
 
 The `Box` spacing props are `gap`, `columnGap`, `rowGap`, `padding`, `margin`, and the one-side and one-axis forms of `padding` and `margin`, such as `paddingX` and `marginTop`. Each takes a number of terminal cells such as `gap: 1`, or a step name such as `gap: 'md'`. In the terminal and the VS Code extension, each step is this many cells:
 
@@ -422,11 +326,7 @@ Step| Cells across| Cells down
 
 If you set `gap`, `padding`, or `margin` to a step, the step applies across and down at once. For example, in the terminal and the VS Code extension, `padding: 'md'` is two cells at each side and one row above and below. Step names require Claude Code v2.1.299 or later. On an earlier release, a tree that uses a step name doesn’t draw.
 
-###
-
-​
-
-`Text` typography props
+### `Text` typography props
 
 Set `size`, `weight`, `mono`, or `tabular` on a `Text` to ask the app drawing your tree for a text size, a weight, a monospaced typeface, or equal-width digits. Before you rely on a prop, check what the terminal and the VS Code extension do with it. If an app ignores a prop you set, your tree still draws there, with the text as if you’d left that prop out.
 
@@ -439,19 +339,11 @@ Prop| Values| In the terminal| In the VS Code extension
 
 These four props require Claude Code v2.1.299 or later. On an earlier release, a tree that sets `size`, `weight`, `mono`, or `tabular` doesn’t draw.
 
-####
-
-​
-
-Replace `bold` with `weight`
+#### Replace `bold` with `weight`
 
 `bold` on a `Text` is deprecated in favor of `weight` and still works. To replace it on a `Text` with no `weight`, change `bold: true` to `weight: 'semibold'` for the same result on Claude Code v2.1.299 or later. On a release earlier than v2.1.299, a tree that sets `weight` doesn’t draw. If you set both `bold` and `weight` on a `Text`, `bold` has no effect.
 
-##
-
-​
-
-Limits
+## Limits
 
 Hooks and mods API calls run under time and size limits. Claude Code skips a hook that exceeds a time limit. A tree over the nesting, element, `Raster` cell, or `Image` byte limit [isn’t drawn](</docs/en/plugins/mods/troubleshoot#a-pane-or-band-is-empty>).
 
@@ -489,11 +381,7 @@ Scopes, such as functions, blocks, and loops, nested inside one another in one f
 Command, tool, subagent type, and pane names, and the `id` of a placed row or a backdrop| Letters, digits, `_`, and `-`, up to 64 characters
 One `claude plugin test` test| 5 seconds unless the test sets `timeoutMs`
 
-##
-
-​
-
-Settings and environment variables
+## Settings and environment variables
 
 These are the settings and environment variables that affect mods. The Where column says which settings file or environment each one is read from:
 
@@ -511,11 +399,7 @@ Name| Where| What it does
 
 `sec-default@builtin` is a guard built into Claude Code, listed as `cc-plugin-sec-default` in `/plugin` and the debug log. [Where it loads](</docs/en/plugins/mods/admin#know-what-happens-by-default>), it runs ahead of every mod a person installs. If managed `prependPlugins` is set, the guard loads only when that list names it, at the position listed. Its source is in the [`mods/sec-default` directory of the Claude Code repository](<https://github.com/anthropics/claude-code/tree/main/mods/sec-default>).
 
-##
-
-​
-
-Commands
+## Commands
 
 These commands and flags load, inspect, and test a mod. The `claude` commands run in your shell and the `/` commands at the Claude Code prompt. In the table, `<directory>` stands for a path you type, as in `claude plugin validate ./first-mod`. Square brackets mark an optional argument.
 

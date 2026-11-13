@@ -11,37 +11,21 @@ Claude for Enterprise organizations that have enabled HIPAA can bring the Claude
 
 ZDR for Claude Code on Claude for Enterprise applies only to Anthropic’s direct platform. For Claude deployments on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, refer to those platforms’ data retention policies.
 
-##
-
-​
-
-ZDR scope
+## ZDR scope
 
 ZDR covers Claude Code inference on Claude for Enterprise.
 
 ZDR is enabled on a per-organization basis. Each new organization requires ZDR to be enabled separately by your Anthropic account team. ZDR does not automatically apply to new organizations created under the same account. Contact your account team to enable ZDR for any new organizations.
 
-###
-
-​
-
-Route Claude Code traffic to your ZDR organization
+### Route Claude Code traffic to your ZDR organization
 
 ZDR applies to requests that authenticate into a ZDR-enabled organization. If a developer signs in to Claude Code with a personal account or with an API key from a different organization, those sessions are not covered. To require that developers’ claude.ai logins belong to your ZDR organization, deploy the `forceLoginMethod` and `forceLoginOrgUUID` managed settings; see [Restrict login to your organization](</docs/en/authentication#restrict-login-to-your-organization>), which also explains how these keys treat Claude Console logins.
 
-###
-
-​
-
-What ZDR covers
+### What ZDR covers
 
 ZDR covers model inference calls made through Claude Code on Claude for Enterprise. When you use Claude Code in your terminal, the prompts you send and the responses Claude generates are not retained by Anthropic. This applies to every model available to your ZDR organization. Some models require data retention by default; see Model availability under ZDR.
 
-###
-
-​
-
-What ZDR does not cover
+### What ZDR does not cover
 
 ZDR does not extend to the following, even for organizations with ZDR enabled. Except where a row says otherwise, these features follow [standard data retention policies](</docs/en/data-usage#data-retention>):
 
@@ -54,11 +38,7 @@ Claude Code Analytics| Does not store prompts or model responses, but collects p
 User and seat management| Administrative data such as account emails and seat assignments is retained under standard policies.
 Third-party integrations| Data processed by third-party tools, MCP servers, or other external integrations is not covered by ZDR. Review those services’ data handling practices independently.
 
-##
-
-​
-
-Features disabled under ZDR
+## Features disabled under ZDR
 
 When ZDR is enabled for a Claude Code organization on Claude for Enterprise, certain features that require storing prompts or completions are automatically disabled at the backend level:
 
@@ -74,26 +54,14 @@ Feedback submission (`/feedback`, `/bug`, `/share`)| Submitting feedback sends c
 
 These features are blocked in the backend regardless of client-side display. If you see a disabled feature in the Claude Code terminal during startup, attempting to use it returns an error indicating the organization’s policies do not allow that action. Future features may also be disabled if they require storing prompts or completions.
 
-###
-
-​
-
-Model availability under ZDR
+### Model availability under ZDR
 
 Claude Fable 5.2, Fable 5.1, and Fable 5 are [Covered Models](<https://support.claude.com/en/articles/15425695-covered-models>) that [require data retention](<https://platform.claude.com/docs/en/manage-claude/api-and-data-retention#model-specific-data-retention-requirements>) by default, and whether a ZDR organization or workspace can use them is governed by the Covered Models policies rather than by Claude Code. Where your organization can’t use them, the models are either absent from the `/model` picker or shown as disabled, and the server rejects requests for them regardless of client configuration. Other models remain available under ZDR. Fable models aren’t the default, and the `best` alias resolves to Opus.
 
-##
-
-​
-
-Data retention for policy violations
+## Data retention for policy violations
 
 Even with ZDR enabled, Anthropic may retain data where required by law or to address Usage Policy violations. If a session is flagged for a policy violation, Anthropic may retain the associated inputs and outputs for up to 2 years, consistent with Anthropic’s standard ZDR policy.
 
-##
-
-​
-
-Request ZDR
+## Request ZDR
 
 To request ZDR for Claude Code on Claude for Enterprise, [contact sales](<https://www.anthropic.com/contact-sales?utm_source=claude_code&utm_medium=docs&utm_content=zero_data_retention_request>) or your Anthropic account team. Your account team will submit the request internally, and Anthropic will review and enable ZDR on your organization after confirming eligibility. All enablement actions are audit-logged. If you are currently using ZDR for Claude Code via pay-as-you-go API keys, you can transition to Claude for Enterprise to gain access to administrative features while maintaining ZDR for Claude Code. Contact your account team to coordinate the migration.

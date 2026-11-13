@@ -1,10 +1,6 @@
 The Claude Security plugin runs a multi-agent vulnerability scan of your codebase inside a Claude Code session. By default, when you scan a whole repository, Claude agents map your architecture, build a threat model, hunt for vulnerabilities, and independently review every finding before writing the report. Use the plugin to scan a whole repository or only a set of changes, such as a branch’s diff, a pull request’s diff, or a single commit, then turn the findings you choose into patches that you review and apply yourself. The plugin runs locally in your session, uses whichever models you have access to in Claude Code, and each scan counts toward your [usage](</docs/en/costs>). If you want a managed service that monitors your repositories, or want to run scans on [Claude Mythos](<https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5>), see the [Claude Security](<https://claude.com/product/claude-security>) product, available on the Enterprise plan. The plugin is also distinct from the review tools already in Claude Code: the [security guidance plugin](</docs/en/security-guidance>) reviews code as Claude writes it, [`/security-review`](</docs/en/commands#all-commands>) runs a single pass over your branch, and [Code Review](</docs/en/code-review>) reviews pull requests. For how the layers stack, see How the plugin fits with other security tools.
 
-##
-
-​
-
-Prerequisites
+## Prerequisites
 
 To run the plugin, you need:
 
@@ -13,11 +9,7 @@ To run the plugin, you need:
   * Linux, macOS, or Windows.
   * Git, for change scans and for turning findings into patches; those jobs don’t support other version control systems. A full scan works in any directory, with or without version control.
 
-##
-
-​
-
-Models and providers
+## Models and providers
 
 A scan runs inside your Claude Code session. The plugin makes no model calls of its own, so there’s no separate API key or provider setting to configure.
 
@@ -26,11 +18,7 @@ A scan runs inside your Claude Code session. The plugin makes no model calls of 
 
 On a third-party provider, the `sonnet` alias can resolve to a different version than it does on the Anthropic API. If your account can’t use that version, [pin your model versions](</docs/en/model-config#pin-models-for-third-party-deployments>), including `ANTHROPIC_DEFAULT_SONNET_MODEL`. [Automatic model fallback](</docs/en/model-config#automatic-model-fallback>) re-runs a request that a model’s safeguards flag. On Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry, the request can end with a refusal message instead, depending on [how your deployment is set up](</docs/en/model-config#enable-fallback-on-bedrock-agent-platform-and-foundry>).
 
-##
-
-​
-
-Install the plugin
+## Install the plugin
 
 In the VS Code extension or the desktop app, install it by following [Install a plugin](</docs/en/plugins/install#install-a-plugin>). In a terminal, start Claude Code by running `claude`, then enter this at its prompt to install from the [official Anthropic marketplace](</docs/en/plugins/anthropic-marketplaces>):
 
@@ -43,27 +31,15 @@ The command opens the plugin’s details, where you choose an [installation scop
 
 Check the install summary. If it reports `Run /reload-plugins to apply.`, see [Apply plugin changes without restarting](</docs/en/plugins/cli-reference#reload-plugins>) to activate the plugin in your current session. Once the plugin is active, you’re ready to scan and fix your codebase.
 
-###
-
-​
-
-Update the plugin
+### Update the plugin
 
 To update the plugin yourself, see [Update plugins now](</docs/en/plugins/install#update-plugins-now>). Claude Code also [updates the plugin automatically](</docs/en/plugins/install#keep-plugins-updated>) unless auto-update is turned off.
 
-###
-
-​
-
-Uninstall the plugin
+### Uninstall the plugin
 
 To remove the plugin, uninstall it from the `/plugin` menu, or run `claude plugin uninstall claude-security` in your terminal.
 
-##
-
-​
-
-Scan and fix your codebase
+## Scan and fix your codebase
 
 The plugin adds one command, `/claude-security`, which opens a menu of its three jobs: scanning the codebase, scanning a set of changes, and suggesting patches. The happy path runs a full scan, then turns its findings into patches:
 
@@ -105,27 +81,15 @@ Apply each patch from your shell with `git apply`, in its own pull request. Patc
 
 You don’t have to start from the menu: ask for a job directly, as arguments to the command, such as `/claude-security scan my branch`, or in plain language, such as “scan commit abc1234”. The plugin works best in [auto mode](</docs/en/permission-modes>), which lets the scan’s agents proceed without a permission prompt at each step.
 
-###
-
-​
-
-Scan only your changes
+### Scan only your changes
 
 When your branch has commits its base doesn’t, the `/claude-security` menu offers to scan only that diff, so you can check a branch before merging. You can also scan one of your open pull requests, or a single commit by asking for it, such as “scan commit abc1234”. Only committed changes are scanned: commit or stash in-progress edits first, or run a full scan, which reads the working tree. Change scans need a git repository; full scans of an unversioned directory still work. Finding your open pull requests is offered only when your session already has permission to run the GitHub CLI and `gh` is signed in.
 
-###
-
-​
-
-Scope large repositories
+### Scope large repositories
 
 On a large repository, scan one area at a time instead of the whole tree. Pick one of the focused scopes the plugin offers, such as your API layer or your authentication code, and the run sizes itself to what you pick. The report’s coverage section states what was and wasn’t examined. Run another scan on a different area anytime.
 
-###
-
-​
-
-Choose a scan effort
+### Choose a scan effort
 
 Scan effort sets how deep a scan goes. Your findings go through the same independent verification at `low`, `medium`, and `high`.
 
@@ -135,11 +99,7 @@ Scan effort sets how deep a scan goes. Your findings go through the same indepen
 
 Name the scan effort in your request at the Claude Code prompt, such as `/claude-security scan my public API code at high` or `/claude-security scan my branch at high`. If a scan of a large repository finds less than you expect, choose `high` scan effort, scan a second time, or do both. Each can report findings that one `medium` scan doesn’t.
 
-###
-
-​
-
-Read the scan results
+### Read the scan results
 
 Every scan writes its results into a timestamped `CLAUDE-SECURITY-<timestamp>/` directory in your repository:
 
@@ -150,19 +110,11 @@ Every scan writes its results into a timestamped `CLAUDE-SECURITY-<timestamp>/` 
 
 That directory is the only change a scan makes to your checkout, and it carries its own `.gitignore`, so a stray `git add` never sweeps a report into a commit. To keep a report in history for an audit trail, delete that one `.gitignore` file and commit the directory like any other. Findings only appear in the report after independent verifier agents analyze them, which keeps reports short and worth reading. Scans are nondeterministic: two scans of the same code can surface different findings. Run scans regularly.
 
-##
-
-​
-
-Fix findings
+## Fix findings
 
 Start the fix flow by picking **Suggest patches** from the `/claude-security` menu, or ask in plain language, such as “fix finding F3”, then pick which findings from the report to address. Patches are built against committed code, and the report has to still describe the code you have: findings whose code has since changed are skipped with a note, and the plugin offers a fresh scan instead of patching from a stale report. Each patch is drafted in a scratch copy of your repository, so your source files stay untouched until you apply a patch yourself. Before delivery, each patch is reviewed by an agent independent of the one that wrote it, which runs your project’s tests against the change when the code has them and reads the diff on its own terms for anything new it might introduce. A patch is written only when that review can vouch that the change addresses the one finding, introduces no new vulnerability, and leaves behavior otherwise unchanged. When it can’t vouch for all three, you get a short note explaining why instead of a patch.
 
-###
-
-​
-
-Patches are never applied automatically
+### Patches are never applied automatically
 
 Applying a patch is always your decision. Patches are written to the report’s `patches/` folder, one `F<n>.patch` per finding with a note beside it explaining the change. Apply one from your shell, or ask Claude to apply it and open a pull request:
 
@@ -170,11 +122,7 @@ Applying a patch is always your decision. Patches are written to the report’s 
 
 When the patched code has no tests, the patch’s note says so, so you know its review ran without a test pass. Apply each patch in its own pull request so it can be reviewed and tested on its own.
 
-##
-
-​
-
-How the plugin fits with other security tools
+## How the plugin fits with other security tools
 
 The Claude Security plugin is the on-demand deep-scan layer in a defense-in-depth stack, alongside the [security guidance plugin](</docs/en/security-guidance>), [`/security-review`](</docs/en/commands#all-commands>), [Code Review](</docs/en/code-review>), the managed [Claude Security](<https://claude.com/product/claude-security>) product, and your existing scanners:
 
@@ -189,19 +137,11 @@ In CI| Your existing static analysis and dependency scanners| Language-specific 
 
 The plugin doesn’t replace your existing source-code security tools. Run it alongside static analysis, dependency scanning, and code review: it reasons about your code the way a human security researcher would, which complements the deterministic checks those tools provide.
 
-##
-
-​
-
-Troubleshooting
+## Troubleshooting
 
 **The`/claude-security` menu opens with a Python warning.** The plugin needs `python3` 3.9 or later on your `PATH`. When it can’t find `python3` at all, the menu warns that Claude Security won’t work until one is installed; when the first `python3` on your `PATH` is older, the warning names the version it found. Install Python 3, or put a newer `python3` first on your `PATH`, then start a new session. **You may see a “safeguards flagged this message” notice when scanning on a Fable model.** The message names the model you’re running. Fable’s cybersecurity safety classifiers flag certain requests, and Claude Code re-runs a flagged request on an Opus model through [automatic model fallback](</docs/en/model-config#automatic-model-fallback>). This is expected. When the request re-runs, the scan should still complete successfully.
 
-##
-
-​
-
-Related resources
+## Related resources
 
 To go deeper on the pieces this page touches:
 

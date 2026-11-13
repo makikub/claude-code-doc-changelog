@@ -1,25 +1,15 @@
 Commands control Claude Code from inside a session. They provide a quick way to switch models, manage permissions, clear context, run a workflow, and more. Type `/` to see the commands available to you, or type `/` followed by letters to filter. How the command menu matches what you type covers highlighting, typos, and the few commands Claude Code hides from the menu until you type their full name. A command is only recognized at the start of your message. Text that follows the command name becomes its arguments. At the terminal prompt, you can start one message with several [skills](</docs/en/skills#stack-several-skills-in-one-message>): typing `/skill-a /skill-b do XYZ` loads both skills and passes the trailing text to each as arguments. Up to six skills can be chained. If you send a command while Claude is responding, Claude Code queues it and runs it after the current turn finishes. Claude Code runs some commands immediately without interrupting the response, such as `/status`, `/tasks`, and `/usage`. In [fullscreen rendering](</docs/en/fullscreen>), Claude Code also opens dialog commands such as `/theme` and `/help` immediately. Before v2.1.234, Claude Code queued those dialogs until the turn finished.
 
-##
-
-​
-
-Commands across a typical workflow
+## Commands across a typical workflow
 
 Most commands are useful at a specific point in a session, from setting up a project to shipping a change. **First session in a repo.** Run `/init` to generate a starter `CLAUDE.md`, then `/memory` to refine it. Use `/mcp` to set up any servers the project needs, ask Claude to create any [subagents](</docs/en/sub-agents>) you want, and run `/permissions` to set your approval rules. **During a task.** `/plan` switches into plan mode before a large change. `/model` and `/effort` adjust which model you’re using and how much reasoning it applies. When the conversation gets long, `/context` shows what’s filling the window and `/compact` summarizes it to free space. Use `/btw` for a side question that shouldn’t add to the conversation history. **Run work in parallel.** Claude delegates side tasks to [subagents](</docs/en/sub-agents>), and `/tasks` lists the current session’s background work, including subagents that have finished. `/background` detaches the whole session to keep running as a [background agent](</docs/en/agent-view>) and frees your terminal. For a large change that spans the codebase, `/batch` decomposes it into independent units and runs each in its own [worktree](</docs/en/worktrees>). See [Run agents in parallel](</docs/en/agents>) for how these approaches relate. **Before you ship.** `/diff` shows what changed. `/code-review` checks the current diff for correctness bugs and can apply the findings with `--fix`; pass a PR number, such as `/code-review high 1234`, to review a pull request instead. `/review` is an alias. `/code-review ultra` runs a multi-agent review in the cloud. `/security-review` checks the diff for security vulnerabilities. **Between sessions.** `/clear` starts fresh on a new task while keeping project memory. `/resume` returns to an earlier conversation, `/branch` branches the current one to try a different direction, and `/fork` copies it into a new [background session](</docs/en/agent-view>). `/teleport` pulls a cloud session into this terminal, and `/remote-control` lets you continue this local session from another device. **When something is wrong.** `/rewind` rolls code and conversation back to a checkpoint, or summarizes part of the conversation. `/doctor` runs a setup checkup that diagnoses installation and configuration issues and can fix them, `/debug` diagnoses runtime issues, and `/feedback` reports a bug with session context attached.
 
-##
-
-​
-
-All commands
+## All commands
 
 The table below lists all the commands included in Claude Code. Most are built-in commands whose behavior is coded into the CLI. Two kinds of entries are marked:
 
   * **[Skill](</docs/en/skills#bundled-skills>)** : a bundled skill. It works like skills you write yourself: a prompt handed to Claude.
-    * `/verify` runs only when you invoke it.
   * **[Workflow](</docs/en/workflows#bundled-workflows>)** : a bundled [dynamic workflow](</docs/en/workflows>) that fans work out across many subagents and runs in the background.
-    * `/deep-research` runs only when you invoke it.
 
 To add your own commands, see [skills](</docs/en/skills>). In the table below, `<arg>` indicates a required argument and `[arg]` indicates an optional one.
 
@@ -149,11 +139,7 @@ Command| Purpose
 `/workflow-authoring`| **[Skill](</docs/en/skills#bundled-skills>).** Load the reference for writing [dynamic workflow](</docs/en/workflows>) scripts: the script API, resume behavior, quality patterns, and worked examples. Claude normally loads it on its own before writing a script; run it yourself before [editing a saved script by hand](</docs/en/workflows#edit-a-saved-script>). Available when dynamic workflows are enabled, and requires Claude Code v2.1.248 or later
 `/workflows`| Open the [workflow](</docs/en/workflows#watch-the-run>) progress view to watch, pause, resume, or save running and completed workflows
 
-##
-
-​
-
-How the command menu matches what you type
+## How the command menu matches what you type
 
 Claude Code filters the `/` menu as you type. Each bullet below covers one thing you might notice while filtering:
 
@@ -162,19 +148,11 @@ Claude Code filters the `/` menu as you type. Each bullet below covers one thing
   * **Commands that aren’t available to you** : Claude Code leaves them out of the menu. When nothing matches, Claude Code shows `No commands match "/name"`. Most unavailable commands return [Unknown command](</docs/en/errors#unknown-command>) when you submit them; a few, such as [`/schedule` on a Console API key](</docs/en/routines#schedule-returns-unknown-command>), answer with their own availability message instead. Some commands also answer with a message of their own when your organization’s policy disables them.
   * **Hidden commands** : Claude Code keeps a few available commands, such as `/heapdump`, out of the menu by design. A partial name never brings a hidden command into the menu: if the partial matches nothing visible, Claude Code shows the same no-match message. Claude Code lists the command only once you’ve typed its full name, and submitting the full name runs it.
 
-##
-
-​
-
-MCP prompts
+## MCP prompts
 
 MCP servers can expose prompts that appear as commands. See [MCP prompts](</docs/en/mcp#use-mcp-prompts-as-commands>) for details.
 
-##
-
-​
-
-See also
+## See also
 
   * [Skills](</docs/en/skills>): create your own commands
   * [Interactive mode](</docs/en/interactive-mode>): keyboard shortcuts, Vim mode, and command history
