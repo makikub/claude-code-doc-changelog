@@ -191,7 +191,7 @@ Modular instruction files in `.claude/rules/` that load alongside CLAUDE.md. A r
 
 ### Sandboxing
 
-OS-level filesystem and network isolation for the Bash tool. Commands run inside a boundary you define upfront, so Claude can work freely within it without per-command approval prompts. Sandboxing is a separate layer from permission rules. Learn more: [Sandboxing](</docs/en/sandboxing>)
+OS-level filesystem and network isolation for the Bash tool. Commands run inside a boundary you define upfront. Sandboxing is a separate layer from permission rules. Learn more: [Sandboxing](</docs/en/sandboxing>)
 
 ### Session
 

@@ -2,7 +2,7 @@ A Claude apps gateway deployment is configured by one YAML file, conventionally 
 
 ## File structure
 
-Five sections are required. Every other section is optional, and an omitted section takes its defaults. Unknown keys fail boot, so a typo surfaces as a named error rather than a silently ignored setting. **Required sections:**
+Five sections are required. Every other section is optional, and an omitted section takes its defaults. **Required sections:**
 
   * `listen`: bind address, public URL, TLS termination
   * `oidc`: your identity provider (IdP), including issuer, client, claim mapping, and who may sign in
@@ -419,6 +419,8 @@ This example gives one model a custom id that only the isolated upstream serves:
 
 By default the gateway signs every Bedrock request with one credential, so AWS sees all developers’ requests under a single IAM principal. Add `session_name: email` to `assume_role` and the gateway calls `sts:AssumeRole` once per developer per hour, with the session name set to that developer’s email, and signs their requests with the returned credentials, so each developer’s requests reach AWS under their own assumed-role session. The role can be in the gateway’s own account. Requires a gateway running Claude Code v2.1.281 or later. [Cost attribution on AWS](</docs/en/claude-apps-gateway-on-aws#cost-attribution>) covers the IAM role and where AWS billing shows the sessions.
 
+For per-developer attribution, set `assume_role` with `session_name` on every `bedrock` and `mantle` upstream except those that use `aws_bearer_token`. Those can’t take `assume_role`, so their requests stay under one principal.
+
     upstreams:
       - provider: bedrock
         region: us-east-1
@@ -427,7 +429,7 @@ By default the gateway signs every Bedrock request with one credential, so AWS s
           role_arn: arn:aws:iam::123456789012:role/claude-gateway-bedrock-user
           session_name: email              # or sub
 
-`session_name` selects which verified claim becomes the AWS `RoleSessionName`: `email` or `sub`. The gateway writes any character other than ASCII letters, digits, and `_+,.@-` as `=XX` hex per UTF-8 byte, and shortens a result longer than 64 characters to a prefix plus a hash, so each developer’s session name stays valid and unique. A request from a developer whose token lacks the claim isn’t sent through this upstream, and the operator log says to switch to `sub` or set `oidc.email_claim`. An active developer costs one STS call per hour per gateway replica, and concurrent first requests share one call. The gateway also makes one call of its own on this role: the token count for a request the client abandoned, so that [spend limits](</docs/en/claude-apps-gateway-spend-limits>) stay accurate. That count and its one-token fallback request are signed by the shared `claude-apps-gateway` session, so AWS attributes the fallback to `claude-apps-gateway` rather than to the developer. For strict per-developer attribution, set `assume_role` with `session_name` on every Bedrock upstream you list. An upstream without it signs the requests it serves with its own credentials.
+`session_name` selects which verified claim becomes the AWS `RoleSessionName`: `email` or `sub`. The gateway writes any character other than ASCII letters, digits, and `_+,.@-` as `=XX` hex per UTF-8 byte, and shortens a result longer than 64 characters to a prefix plus a hash, so each developer’s session name stays valid and unique. A request from a developer whose token lacks the claim isn’t sent through this upstream, and the operator log says to switch to `sub` or set `oidc.email_claim`. An active developer costs one STS call per hour per gateway replica, and concurrent first requests share one call. The gateway also makes one call of its own on this role: the token count for a request the client abandoned, so that [spend limits](</docs/en/claude-apps-gateway-spend-limits>) stay accurate. That count and its one-token fallback request are signed by the shared `claude-apps-gateway` session, so AWS attributes the fallback to `claude-apps-gateway` rather than to the developer.
 
 #### Amazon Bedrock Mantle endpoint
 
@@ -1031,6 +1033,8 @@ Terminal sessions signed in through `/login` use the 1M context window for Opus 
 
 Claude Code applies this variable without showing the developer the approval dialog. The variable applies to every model, including model IDs that end in `[1m]`. To turn off 1M context instead, set [`CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"`](</docs/en/model-config#extended-context>) in the same `env` block. Claude Code then treats every model as having a 200K window. In interactive sessions, each developer approves this variable in the approval dialog before it takes effect.
 
+Claude Code doesn’t read an alias’s `upstream_model` to size its context window. To give its model’s window to an alias in `models` that Claude Code doesn’t recognize, see [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>).
+
 #### One-hour prompt cache
 
 To request the one-hour [prompt cache TTL](</docs/en/prompt-caching#cache-lifetime>) instead of the default five minutes, add these keys to a policy’s existing `code`, `cli`, or `settings` block and restart the gateway. The keys need Claude Code v2.1.242 or later on the gateway server and on clients. `promptCacheTtl` covers the main conversation. `subagentPromptCacheTtl` is optional and covers subagents, workflows, and background requests. This example adds both to a `match: {}` policy keyed `cli`:
@@ -1071,7 +1075,7 @@ To set `disabledBuiltinTools`, `coworkEgressAllowedHosts`, or Claude Desktop’s
 
 ##### Apply `code` settings in the Code tab
 
-The Claude Code settings a policy holds under its `code` key apply in Claude Desktop’s Code tab when all of these hold:
+Apart from [some provider and model variables](</docs/en/desktop#managed-settings>), the Claude Code settings a policy holds under its `code` key apply in Claude Desktop’s Code tab when all of these hold:
 
   * The policy also has a `desktop` key, and an empty `desktop: {}` counts
   * Claude Desktop is version 2.9939.2 or later
@@ -1105,18 +1109,27 @@ Every key is optional; Claude Desktop applies its own default for any key you om
 
 ##### What the gateway rejects at boot
 
-The gateway validates each `desktop` block at boot against the configuration schema Claude Desktop itself uses, so a mistake surfaces at gateway start as an error naming the key rather than reaching every connected desktop. The gateway fails at boot when a block contains:
+The gateway fails at boot when a `desktop` block contains:
 
-  * An unknown key
-  * A recognized key whose value Claude Desktop would reject or silently drop, such as an empty value or a misspelled sub-key inside a nested entry. Before v2.1.260, the gateway silently dropped a misspelled field inside a nested object of a `managedMcpServers` or `orgPluginSettings` entry instead of failing at boot.
+  * A recognized key whose value Claude Desktop would reject or silently drop, such as an empty value.
   * A key the gateway computes itself: the inference connection, the model list, and the OTLP relay. Configure those through `upstreams`, `models`, and the `telemetry` section’s `forward_to`.
   * A legacy alias of a current key. In the boot error, the gateway names the canonical key to write.
+  * From v2.1.300, any key whose name starts with `selfHosted`, such as the keys for a self-hosted session host. Remove these keys before you upgrade the gateway to v2.1.300 or later.
 
 If you use a deprecated value or entry shape, such as a `managedMcpServers` entry without `transport`, the gateway starts and logs a warning that names the replacement. Before v2.1.232, the gateway accepted a fixed list of 11 feature-gate keys, such as `chatTabEnabled` and `disableAutoUpdates`, and rejected every other key at boot. Before v2.1.227, the gateway also rejected `chatTabEnabled` and `chatAdvancedFileAnalysisEnabled` at boot.
 
+##### Keys the gateway doesn’t know
+
+On a gateway running Claude Code v2.1.295 or later, most keys from a newer Claude Desktop release need no gateway upgrade. On v2.1.321 or later, neither do most new sub-keys inside a known key. Some keys and values still fail at boot, such as these:
+
+  * A new choice in a known key’s fixed list of values.
+  * A likely typo of a key you can set in a `desktop` block, such as `disable_auto_updates` for `disableAutoUpdates`. The error suggests a name.
+
+In each case, if the name or value is real in a newer Claude Desktop release, [upgrade the gateway](</docs/en/claude-apps-gateway-deploy#upgrades>) to the latest release. Otherwise correct or remove it. To find out before you deploy, test the policy.
+
 ##### Keys that need a later gateway or Claude Desktop version
 
-The gateway validates a `desktop` block against the schema bundled with its installed version, as it does the `cli` block. To deliver a setting introduced by a newer Claude Desktop release, upgrade the gateway first. For example, `userPluginMarketplacesEnabled` and `userPluginUploadsEnabled` need Claude Code v2.1.260 or later on the gateway server and Claude Desktop 1.37937.0 or later on members’ machines. `blockReadsOutsideWorkingDirectories`, `disableBypassPermissionsMode`, `configRecheckIntervalMinutes`, and `sshClientPath` need Claude Code v2.1.281 or later on the gateway server. So do the `required` value of `microsoftAuthBroker` and the `continuousAccessEvaluation` field of a Microsoft 365 `managedMcpServers` entry. Claude Desktop releases that predate the `required` value read it as `disabled`, so set `required` only after every member’s Claude Desktop supports it. Claude Desktop’s [managed configuration reference](<https://claude.com/docs/third-party/claude-desktop/configuration>) lists the release that first reads each key.
+`userPluginMarketplacesEnabled` and `userPluginUploadsEnabled` need Claude Code v2.1.260 or later on the gateway server and Claude Desktop 1.37937.0 or later on members’ machines. `blockReadsOutsideWorkingDirectories`, `disableBypassPermissionsMode`, `configRecheckIntervalMinutes`, and `sshClientPath` need Claude Code v2.1.281 or later on the gateway server. So do the `required` value of `microsoftAuthBroker` and the `continuousAccessEvaluation` field of a Microsoft 365 `managedMcpServers` entry. Claude Desktop releases that predate the `required` value read it as `disabled`, so set `required` only after every member’s Claude Desktop supports it. Claude Desktop’s [managed configuration reference](<https://claude.com/docs/third-party/claude-desktop/configuration>) lists the release that first reads each key.
 
 [`sshTransport`](<https://claude.com/docs/third-party/claude-desktop/configuration#sshtransport>) needs Claude Code v2.1.293 or later on the gateway server.
 

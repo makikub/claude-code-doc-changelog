@@ -16,7 +16,7 @@ Run [hooks](</docs/en/agent-sdk/hooks>). A hook can deny the call outright or pa
 
 Deny rules
 
-If a deny rule from `disallowed_tools` or from a settings file the SDK loads matches, the call is denied and [`canUseTool`](</docs/en/agent-sdk/user-input>) isn’t called. The call is denied this way even in `bypassPermissions` mode and when a hook returned `allow`.In the TypeScript SDK, if you set the `permission_policy` of a [custom tool](</docs/en/agent-sdk/custom-tools#require-approval-for-specific-tools>) to [`always_deny`](</docs/en/agent-sdk/typescript#mcpservertoolpolicy>), a call to that tool is denied at this step.
+If a deny rule from `disallowed_tools` or from a settings file the SDK loads matches, the call is denied and [`canUseTool`](</docs/en/agent-sdk/user-input>) isn’t called. The call is denied this way even in `bypassPermissions` mode and when a hook returned `allow`.
 
 3
 

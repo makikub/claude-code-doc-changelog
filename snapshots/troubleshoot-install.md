@@ -706,7 +706,7 @@ Then run `source ~/.bashrc` and retry `claude`.
 
 ### npm install errors in WSL
 
-These issues apply if you installed Claude Code with `npm install -g` inside WSL. If you used the [native installer](</docs/en/setup>), skip this section. On npm 12, install as Fix an npm 12 install describes. **OS or platform detection issues.** If npm reports a platform mismatch during install, WSL is likely picking up the Windows `npm`. Run `npm config set os linux` first, then install with `npm install -g @anthropic-ai/claude-code --force`. Do not use `sudo`. **`exec: node: not found` when running `claude`.** Your WSL environment is likely using the Windows installation of Node.js. Confirm with `which npm` and `which node`: paths starting with `/mnt/c/` are Windows binaries, while Linux paths start with `/usr/`. To fix this, install Node via your Linux distribution’s package manager or via [`nvm`](<https://github.com/nvm-sh/nvm>). **nvm version conflicts.** If you have nvm installed in both WSL and Windows, switching Node versions in WSL may break because WSL imports the Windows PATH by default and the Windows nvm takes priority. The most common cause is that nvm isn’t loaded in your shell. Add the nvm loader to `~/.bashrc` or `~/.zshrc`:
+These issues apply if you installed Claude Code with `npm install -g` inside WSL. If you used the [native installer](</docs/en/setup>), skip this section. On npm 12, install as Fix an npm 12 install describes. **OS or platform detection issues.** If npm reports a platform mismatch during install, run `npm config set os linux` first, then install with `npm install -g @anthropic-ai/claude-code@latest --force`. Do not use `sudo`. **`exec: node: not found` when running `claude`.** Your WSL environment is likely using the Windows installation of Node.js. Confirm with `which npm` and `which node`: paths starting with `/mnt/c/` are Windows binaries, while Linux paths start with `/usr/`. To fix this, install Node via your Linux distribution’s package manager or via [`nvm`](<https://github.com/nvm-sh/nvm>). **nvm version conflicts.** If you have nvm installed in both WSL and Windows, switching Node versions in WSL may break because WSL imports the Windows PATH by default and the Windows nvm takes priority. The most common cause is that nvm isn’t loaded in your shell. Add the nvm loader to `~/.bashrc` or `~/.zshrc`:
 
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -764,7 +764,7 @@ If `claude` prints `Error: claude native binary not installed.` after an npm ins
 
     3. Reinstall:
 
-           npm install -g @anthropic-ai/claude-code
+           npm install -g @anthropic-ai/claude-code@latest
 
 If this or step 1 fails with `EACCES`, switch to the native installer instead of rerunning it with `sudo`. Claude Code runs npm without `sudo` when it updates itself, so automatic updates would fail the same way.
     4. If `claude --version` doesn’t print a version number, check the other causes.
@@ -772,7 +772,7 @@ To undo, set the list again without `@anthropic-ai/claude-code`, or remove the w
 
 ### npm `ENOTEMPTY` error during update or reinstall
 
-When you run `npm install -g @anthropic-ai/claude-code` over an existing installation, npm can fail while moving the old package directory aside:
+When you run `npm install -g @anthropic-ai/claude-code@latest` over an existing installation, npm can fail while moving the old package directory aside:
 
     npm error code ENOTEMPTY
     npm error syscall rename
@@ -797,7 +797,7 @@ Then remove any leftover temp directories. If Zsh prints `no matches found`, the
 
 Then reinstall. On npm 12, follow Fix an npm 12 install. Otherwise, run:
 
-    npm install -g @anthropic-ai/claude-code
+    npm install -g @anthropic-ai/claude-code@latest
 
 Confirm with `claude --version`, which prints a version number such as `2.1.211 (Claude Code)`.
 

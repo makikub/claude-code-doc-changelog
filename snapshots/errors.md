@@ -77,6 +77,7 @@ Message| Section
 `Session failed: working folder not found:`| [Troubleshoot Remote Control](</docs/en/remote-control#working-folder-not-found>)
 `The program file this Remote Control started from is gone`| [Troubleshoot Remote Control](</docs/en/remote-control#program-file-is-gone>)
 `Session failed: spawn error:` followed by an `ENOENT` message| [Troubleshoot Remote Control](</docs/en/remote-control#program-file-is-gone>)
+`Remote Control disconnected:` followed by a reason that mentions a `share link`| [Remote Control](</docs/en/remote-control#what-connected-devices-see>)
 `OAuth token revoked` / `OAuth token has expired`| Authentication
 `Failed to authenticate: OAuth token revoked`| Authentication
 `Your account does not have access to Claude. Please login again or contact your administrator.`| Authentication
@@ -142,6 +143,7 @@ Message| Section
 `403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session| [GitHub proxy](</docs/en/cloud-environments#github-proxy>)
 `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format`| Network
 `Failed to fetch session from Sessions API: Failed to fetch session logs`| Network
+`Couldn't load the history of cloud session`| Network
 `Couldn't reconnect to your Remote Control session`| Network
 `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.`| Network
 `Couldn't share the transcript.`| Network
@@ -169,6 +171,7 @@ Message| Section
 `PDF too large` / `PDF is password protected` / `pdftoppm is not installed`| Request errors
 `Extra inputs are not permitted`| Request errors
 `API Error: 400 ... tools.N.custom.input_schema: JSON schema is invalid` / `Property keys should match pattern`| Request errors
+`N tools left out` beside a server in `/mcp` / `Claude wasn't given N tools because the Anthropic API would reject their input schemas`| [Tools with invalid input schemas](</docs/en/mcp#tools-with-invalid-input-schemas>)
 `Tool "mcp__<server>__<tool>" is not sent to Claude: its name has <N> characters and the API accepts at most 128`| Request errors
 `tools.N.custom.name: String should have at most 128 characters`| Request errors
 `tool_use.name: String should have at most 200 characters`| Request errors
@@ -259,6 +262,7 @@ Message| Section
 `No available ports for OAuth redirect`| Command-line errors
 `Shell command failed for pattern "..."`, from `/security-review` or any skill that injects dynamic context| Command-line errors
 `Shell command permission check failed for pattern "..."`, from a skill that injects dynamic context| Command-line errors
+`Couldn't run `<command>` for <name>. A file named HEAD or .git in this folder or one above it may not be yours`, from a skill that injects dynamic context| [Permission checks on injected commands](</docs/en/skills#permission-checks-on-injected-commands>)
 `Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`| Command-line errors
 `No shell command in <name> was run, because the <tool> tool does not accept one of them`| Command-line errors
 `Input must be provided either through stdin or as a prompt argument when using --print`| Command-line errors
@@ -328,6 +332,8 @@ Message| Section
 `Plugin "<plugin>" was not uninstalled: installed_plugins.json`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read>)
 `Plugin directory does not exist: <path>`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#plugin-directory-does-not-exist>)
 `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)`| Plugin errors
+`is not added on this machine, so your organization's marketplace policy keeps its plugins off`| [Add a marketplace](</docs/en/plugins/install#add-a-marketplace>)
+`A mod's http.fetch hook stopped this request`| [Turn mods on or off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>)
 `Error: No such tool available: <tool name>`| Tool errors
 `MCP server "<name>" connection closed before the tool call was answered`| Tool errors
 `MCP server "<name>" is disabled — re-enable it via /mcp to use its tools`| Tool errors
@@ -416,6 +422,8 @@ Message| Section
 `Workspace not trusted.` when starting or restarting a background session| Background session errors
 `Claude Code is being updated by npm on this machine (still not runnable after 2 min, ...)`| Background session errors
 `Claude Code process exited with code N`| Wrapper and IDE errors
+`Subprocess initialization did not complete within 60000ms`| Wrapper and IDE errors
+`Claude Code did not finish starting`| Wrapper and IDE errors
 `The connection to Claude Code ended before this message completed`| Wrapper and IDE errors
 `Could not locate the Claude CLI on PATH`| Wrapper and IDE errors
 `The Claude Code program for this computer, the <build> build, could not be found`| Wrapper and IDE errors
@@ -545,7 +553,7 @@ Variable| Default| Effect
 `CLAUDE_CODE_RETRY_WATCHDOG_MAX_USAGE_LIMIT_WAIT_MS`| no cap| With `CLAUDE_CODE_RETRY_WATCHDOG` set, the longest time in milliseconds one request waits for your plan’s usage limit, such as the session or weekly limit, to reset. When the reset is further away than this cap, the request fails at once, unless usage credits have room or the API couldn’t check them. In those cases it’s retried, and fails if the cap passes before it succeeds. Requires Claude Code v2.1.301 or later.
 [`CLAUDE_CODE_RETRY_WATCHDOG_USAGE_LIMIT_RECHECK_MS`](</docs/en/env-vars>)| unset| Minimum interval in milliseconds between checks of whether a usage limit was already lifted, while a request waits for that limit to reset with `CLAUDE_CODE_RETRY_WATCHDOG` set. When a check finds the limit lifted, the request goes out at once. Give plain digits from `60000` to `10800000`. When unset or outside that range, no checks are made. For when Claude Code skips these checks, see the [environment variables reference](</docs/en/env-vars>). Requires Claude Code v2.1.305 or later.
 [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](</docs/en/env-vars>)| 500| Starting delay in milliseconds of the backoff between retries of a request that the API rejects with a `529` overloaded error. Raise it, up to 32000, to spread the retries over a longer window when the API is at capacity. Has no effect when `CLAUDE_CODE_RETRY_WATCHDOG` is set to `1`, or when the rejected request was sent in [fast mode](</docs/en/fast-mode#handle-rate-limits>). Requires Claude Code v2.1.292 or later.
-[`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](</docs/en/env-vars>)| 32000| Ceiling in milliseconds on the backoff between retries of a request that the API rejects with a `529` overloaded error. Raise it, up to 64000, so that later retries keep spreading apart when the API is at capacity. Has no effect when `CLAUDE_CODE_RETRY_WATCHDOG` is set to `1`, or when the rejected request was sent in [fast mode](</docs/en/fast-mode#handle-rate-limits>). Requires Claude Code v2.1.296 or later.
+[`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](</docs/en/env-vars>)| 32000| Ceiling in milliseconds on the backoff between retries of a request that the API rejects with a `529` overloaded error. Raise it, up to 300000, so that later retries keep spreading apart when the API is at capacity. Values above 64000 require v2.1.323 or later. Has no effect in the same cases as `CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`. Requires Claude Code v2.1.296 or later.
 [`API_TIMEOUT_MS`](</docs/en/env-vars>)| 600000| Time in milliseconds that each request attempt has to receive its response headers. It doesn’t limit how long a streaming response runs after that. Raise it for slow networks or proxies. For how it caps the first-byte deadline, see No response from API.
 [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](</docs/en/env-vars>)| unset| Limit on re-sends of a non-streaming request that times out. At the limit, the request fails. A response from Claude that takes longer than the timeout to generate times out again on every re-send, so set a low number such as `0` to fail sooner. For each attempt’s timeout, see How long a non-streaming attempt waits. Requires Claude Code v2.1.285 or later.
 [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](</docs/en/env-vars>)| unset| Deadline in milliseconds for the first response byte of a streaming request. Requires Claude Code v2.1.242 or later. For how Claude Code picks the deadline when this is unset, see No response from API.
@@ -857,7 +865,7 @@ The trailing sentence names where to check service health and varies by provider
 
 ### You’ve hit your monthly spend limit
 
-Your plan’s included usage can’t cover this request, and the [usage credits](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) that would otherwise pay for it have reached a spend limit. That happens when one of your plan’s usage windows has run out, or when the request is one that only usage credits pay for, such as a request to a model that [bills to usage credits](</docs/en/model-config#fable-and-usage-credits>). The message names whose limit blocked you. The text after the `·` says how to get that limit increased, and varies with your plan and whether you manage billing:
+Your plan’s included usage can’t cover this request, and the [usage credits](<https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans>) that would otherwise pay for it have reached a spend limit. Your plan can’t cover a request when one of its usage windows has run out, or when only usage credits pay for the request. One example is a request to a model that [bills to usage credits](</docs/en/model-config#fable-and-usage-credits>). The words before the `·` name the limit that blocked you, such as your org’s monthly spend limit, and the text after it says how to get that limit increased. In a cloud session or under [Remote Control](</docs/en/remote-control>), that text gives no URL, and a message about your own `monthly spend limit` doesn’t say how to raise it. Other sessions show forms like these:
 
     You've hit your monthly spend limit · raise it at https://claude.ai/settings/usage?from=cc_cli_limit_message
     You've hit your individual spend limit · ask your admin for a higher limit
@@ -1538,6 +1546,7 @@ Your Google Cloud credentials for [Google Cloud’s Agent Platform](</docs/en/go
 **What to do:**
 
   * If the hint says credentials are managed by this environment, the app that launched Claude Code owns the credential and the other steps here don’t apply: retry, or contact your administrator
+  * If you set `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`, follow the steps for [Claude Models on Google Cloud (Anthropic managed)](</docs/en/claude-models-on-google-cloud-anthropic-managed#google-cloud-credentials-expired-or-invalid>) instead
   * If you authenticate with application default credentials, run the [`gcpAuthRefresh`](</docs/en/google-vertex-ai#advanced-credential-configuration>) command named in the message, or `gcloud auth application-default login`, and complete the sign-in, then retry
   * If you route through an [LLM gateway](</docs/en/llm-gateway>) with `CLAUDE_CODE_SKIP_VERTEX_AUTH` set, refresh the gateway token in `ANTHROPIC_AUTH_TOKEN` or `ANTHROPIC_CUSTOM_HEADERS`, then retry
   * If you authenticate with a service account key file, confirm `GOOGLE_APPLICATION_CREDENTIALS` points at a valid key. See [Configure GCP credentials](</docs/en/google-vertex-ai#3-configure-gcp-credentials>)
@@ -1554,6 +1563,7 @@ Before v2.1.273, a 401 from Agent Platform showed the generic `Please run /login
 **What to do:**
 
   * If the hint says credentials are managed by this environment, the app that launched Claude Code owns the credential and the other steps here don’t apply: retry, or contact your administrator
+  * If you set `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`, follow the steps for [Claude Models on Google Cloud (Anthropic managed)](</docs/en/claude-models-on-google-cloud-anthropic-managed#google-cloud-authentication-failed>) instead
   * Confirm the roles in [IAM configuration](</docs/en/google-vertex-ai#iam-configuration>) are granted to the identity you authenticate with
   * Confirm the model is enabled for your project. See [Request model access](</docs/en/google-vertex-ai#2-request-model-access>)
 
@@ -1830,6 +1840,16 @@ You see it after `claude --teleport`, `/teleport`, or choosing the session in th
   * Run the same teleport again. If it fails the same way, report the problem
 
 Before v2.1.296, Claude Code didn’t retry a failed read, and after one it could open the session with an empty conversation and report success instead of printing this message.
+
+### Couldn’t load the history of cloud session
+
+This message means Claude Code found the [cloud session you asked to pull into your terminal](</docs/en/claude-code-on-the-web#from-cloud-to-terminal>), but the request for its conversation history came back as not found:
+
+    Couldn't load the history of cloud session session_01HJKLMNOPQRSTUVWXYZ. Check it at https://claude.ai/code/session_01HJKLMNOPQRSTUVWXYZ?from=cli
+
+**What to do:**
+
+  * Open the link in the message to check the session in your browser. If it opens there and the same teleport fails this way again, report the problem.
 
 ### Couldn’t reconnect to your Remote Control session
 
@@ -3000,7 +3020,7 @@ The message may quote `git log` or a different `git diff` instead. Git creates `
 
 Claude Code shows the same error for any skill that [injects dynamic context](</docs/en/skills#when-an-injected-command-fails>), and a failed injected command aborts that skill’s invocation. Sibling strings fire before the command runs at all:
 
-  * `Shell command permission check failed for pattern "..."`: the command’s permission check didn’t allow it. [Permission checks on injected commands](</docs/en/skills#permission-checks-on-injected-commands>) covers which results abort in each permission mode and how to pre-approve a command with `allowed-tools`
+  * `Shell command permission check failed for pattern "..."`: the command’s permission check didn’t allow it. See [Permission checks on injected commands](</docs/en/skills#permission-checks-on-injected-commands>) for which results abort in each permission mode and when `allowed-tools` pre-approves a command
   * `Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`: the skill’s frontmatter demands bash on a machine without it. Install Git for Windows or change the frontmatter to `shell: powershell`. See [How injected commands run](</docs/en/skills#how-injected-commands-run>)
 
 **What to do:**
@@ -4320,9 +4340,9 @@ Before v2.1.248, only the `already open in another running Claude session` refus
 
 You opened a [background session](</docs/en/agent-view>) that ended while the background service was off, and [transcript cleanup](</docs/en/settings-reference#cleanupperioddays>) has since removed its saved conversation, for example after the machine was off for weeks. Opening such a row normally [resumes its saved conversation](</docs/en/agent-view#sessions-show-as-failed-after-shutdown>). With nothing left to resume, Claude Code refuses rather than re-run the session’s original prompt without asking:
 
-    This session's saved conversation is no longer on disk (it ended while the background service was off, and old transcripts are cleaned up), so there is nothing to resume. `claude rm 7c5dcf5d` deletes the row; `claude respawn 7c5dcf5d` runs its original prompt again instead.
+    This session's saved conversation is no longer on disk (it ended while the background service was off, and old transcripts are cleaned up), so there is nothing to resume. `claude rm 7c5dcf5d` removes the row; `claude respawn 7c5dcf5d` runs its original prompt again instead.
 
-`claude attach <id>` prints this text. In agent view, the footer is shorter and ends with `ctrl+x deletes the row`. **What to do:**
+`claude attach <id>` prints this text. In agent view, the footer is shorter and ends with `ctrl+x removes the row`. **What to do:**
 
   * Run `claude rm <id>` to delete the row. When one of the [kept cases](</docs/en/agent-view#what-deleting-a-session-removes>) applies, `claude rm` keeps the row and the worktree instead and names the reason
   * To run the session’s original prompt again as a fresh conversation, run `claude respawn <id>`
@@ -4331,19 +4351,19 @@ Before v2.1.248, opening such a row re-ran the session’s original prompt inste
 
 ### Worktree has commits that are not pushed anywhere
 
-You tried to delete a [background session](</docs/en/agent-view#what-deleting-a-session-removes>) whose worktree holds commits Claude Code can’t confirm are saved elsewhere. Claude Code keeps the worktree and the session row rather than destroy the commits unseen. `claude rm` names the branch and the unpushed commits, and says how to proceed:
+You tried to delete a [background session](</docs/en/agent-view#what-deleting-a-session-removes>) whose worktree holds commits Claude Code can’t confirm are saved elsewhere. `claude rm` says how to proceed:
 
     kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktrees/fix-login”
       2 unpushed commits on “claude/fix-login”: a1b2c3d “Fix login flow” and 1 more. They exist on no remote, so deleting the worktree would lose them.
       push them and run 'claude rm 7c5dcf5d' again, or discard the worktree and its commits: claude rm 7c5dcf5d --discard-unpushed a1b2c3d000000000000000000000000000000000@0123456789abcdef0123456789abcdef
 
-When Claude Code can’t summarize the commits, the detail line reads `The worktree has unpushed commits` instead. In [agent view](</docs/en/agent-view>), the session’s row shows `not deleted` with the same reason. Commits on a remote don’t block the delete. Neither do commits on the local copy of your `origin` remote’s default branch, as long as that branch is checked out in your main checkout, the repository directory itself rather than a worktree. **What to do:**
+When Claude Code can’t summarize the commits, the detail line reads `The worktree has unpushed commits` instead. In [agent view](</docs/en/agent-view>), the session’s row shows `not removed` with the same reason. **What to do:**
 
-  * To keep the commits, push the worktree’s branch, or merge it into the default branch checked out in your main checkout, then delete the session again
-  * To discard the commits, run the `claude rm <id> --discard-unpushed` command the message printed, or press `Ctrl+X` twice on the session’s row in agent view again. This removes the session and the worktree along with its branch, the unpushed commits, and any uncommitted changes. If the delete is refused again, follow the new message.
-  * When the message says the worktree is also recorded by another finished session, deleting again doesn’t discard it: push the commits, then delete the session again
+  * To keep the commits, push them. Once the push puts them on a remote-tracking branch, such as `origin/claude/fix-login`, try deleting the session again.
+  * If the message offers to discard the commits, first make sure you don’t need the worktree, the commits or any uncommitted changes. Then take the step the message gives: press `Ctrl+X` twice on the session’s row in agent view, or run the `claude rm <id> --discard-unpushed <commit>@<worktree-id>` command that `claude rm` printed. If Claude Code refuses again, follow the new message.
+  * When the message says the worktree is also recorded by another finished session, deleting again doesn’t discard it: push the commits, then try deleting the session again
 
-Before v2.1.268, `claude rm` put the commit summary on the `kept` line itself. When `claude rm` couldn’t summarize the commits, the `kept` line read `worktree has commits that are not pushed anywhere` in place of the summary. Before v2.1.260, the message didn’t name the branch or commits, and there was no discard route. You can still delete the session, losing uncommitted changes but keeping the branch and commits. Run `git worktree remove --force --force <path>` with the path the refusal printed, then `claude rm <id>`. Git needs `--force` twice for a locked worktree. Before v2.1.248, the default branch checked out in your main checkout didn’t count: a branch you had already merged there still triggered this refusal until its commits reached a remote.
+Before v2.1.268, `claude rm` put the commit summary on the `kept` line itself. When `claude rm` couldn’t summarize the commits, the `kept` line read `worktree has commits that are not pushed anywhere` in place of the summary. Before v2.1.260, the message didn’t name the branch or commits, and there was no discard route. You can still delete the session, losing uncommitted changes but keeping the branch and commits. Run `git worktree remove --force --force <path>` with the path the refusal printed, then `claude rm <id>`. Git needs `--force` twice for a locked worktree.
 
 ### Terminal host process died
 
@@ -4523,6 +4543,26 @@ Before v2.1.286, on Windows, this message could also appear in a directory you h
 ## Wrapper and IDE errors
 
 These errors come from the program that launched Claude Code for you, such as an IDE extension or an [Agent SDK](</docs/en/agent-sdk/overview>) application, rather than from Claude Code itself.
+
+### Subprocess initialization did not complete within 60000ms
+
+This error means a Claude Code process that the [VS Code extension](</docs/en/vs-code>) or an Agent SDK application launched didn’t report in time that it was ready. The extension or application then stopped it. In a VS Code conversation the error starts with `Claude Code did not finish starting`, for example:
+
+    Claude Code did not finish starting: it did not answer in time. The output logs ("View output logs") show how far it got. Slow plugins, MCP servers, hooks, disks or network can each cause this.
+
+In the extension’s output logs, on its sign-in screen, and in an Agent SDK application, the error reads differently. It starts with `Subprocess initialization did not complete within` and the time limit, then gives what Claude Code reported, for example:
+
+    Subprocess initialization did not complete within 60000ms. Claude Code did not answer the initialize request and reported no SessionStart or Setup hook running. Slow plugins, MCP servers, hooks that Claude Code does not report, disks or network can each cause this.
+
+**What to do:**
+
+  * To try again in VS Code, send a message. If the error appeared while you were signing in, select the sign-in method again instead.
+  * To see how far Claude Code got, click **View output logs** under a conversation’s error, or run **Claude Code: Show Logs** from the Command Palette. Include the entries around the `Subprocess initialization` line when [reporting the problem](<https://github.com/anthropics/claude-code/issues>).
+  * To check your network, see [Network configuration](</docs/en/network-config>). If the message tells you to check your sign-in or authentication, see [Login and authentication](</docs/en/troubleshoot-install#login-and-authentication>).
+  * If the message says that [SessionStart](</docs/en/hooks#sessionstart>) or [Setup](</docs/en/hooks#setup>) hooks hadn’t finished, [check how long yours run](</docs/en/hooks#debug-hooks>). In VS Code, the first 10 minutes in which Claude Code reports these hooks running don’t count toward the 60-second limit. Make a slow hook finish sooner, lower a non-async hook’s [`timeout`](</docs/en/hooks#common-fields>), or [remove the hook](</docs/en/hooks#disable-or-remove-hooks>).
+  * If your Agent SDK application calls [`startup()`](</docs/en/agent-sdk/typescript#startup>), set `initializeTimeoutMs` long enough for the whole start, or leave it unset so up to 10 minutes of reported hook time doesn’t count.
+
+Before VS Code extension v2.1.304 and TypeScript Agent SDK v0.3.304, all hook time counted toward the limit. With the default limit, the message contained `Subprocess initialization did not complete within 60000ms — check authentication and network connectivity`. If you see that wording, update the extension or the SDK.
 
 ### Claude Code process exited with code N
 

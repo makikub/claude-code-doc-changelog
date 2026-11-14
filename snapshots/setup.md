@@ -138,18 +138,27 @@ Configure this via `/config` → **Auto-update channel** , or add it to your [se
       "autoUpdatesChannel": "stable"
     }
 
-A newly launched model can require a Claude Code version newer than the stable channel serves. To run the model now, move to the latest channel. For enterprise deployments, you can enforce a consistent release channel across your organization using [managed settings](</docs/en/managed-settings>). Homebrew installations choose a channel by cask name instead of this setting: `claude-code` tracks stable and `claude-code@latest` tracks latest. Installations from the apt, dnf, and apk repositories choose a channel by repository instead of this setting. To switch one, follow Install with Linux package managers.
+With this setting, a native installation updates to the stable version even when that version is older than yours. To avoid the downgrade, also pin a minimum version. A newly launched model can require a Claude Code version newer than the stable channel serves. To run the model now, move to the latest channel. For enterprise deployments, you can enforce a consistent release channel across your organization using [managed settings](</docs/en/managed-settings>). Homebrew installations choose a channel by cask name instead of this setting: `claude-code` tracks stable and `claude-code@latest` tracks latest. Installations from the apt, dnf, and apk repositories choose a channel by repository instead of this setting. To switch one, follow Install with Linux package managers.
 
 ### Pin a minimum version
 
-The `minimumVersion` setting establishes a floor. Background auto-updates and `claude update` refuse to install any version below this value, so moving to the `"stable"` channel does not downgrade you if you are already on a newer `"latest"` build. Switching from `"latest"` to `"stable"` via `/config` prompts you to either stay on the current version or allow the downgrade. Choosing to stay sets `minimumVersion` to that version. Switching back to `"latest"` clears it. Add it to your [settings.json file](</docs/en/settings>) to pin a floor explicitly:
+To move a native installation to the `"stable"` release channel without a downgrade, set [`minimumVersion`](</docs/en/settings-reference#minimumversion>) to the version you’re running. Background auto-updates and `claude update` refuse to install any version below the minimum. Set the minimum in `/config` to have Claude Code fill in your current version, or in your settings file to type the number yourself:
+
+  * **In`/config`**: switch **Auto-update channel** to stable, then select **Stay on current version**. If you switch back to latest in `/config`, Claude Code clears the minimum.
+  * **In your[settings file](</docs/en/settings>)**: run `claude --version` in your shell, and set `minimumVersion` to the number at the start of the output. In the same edit, set `autoUpdatesChannel` to `"stable"`.
+
+This `~/.claude/settings.json` switches an installation on version 2.1.323 to stable:
 
     {
       "autoUpdatesChannel": "stable",
-      "minimumVersion": "2.1.100"
+      "minimumVersion": "2.1.323"
     }
 
-In [managed settings](</docs/en/managed-settings>), this enforces an organization-wide minimum that user and project settings cannot override. The `minimumVersion` pin only constrains updates. To make Claude Code refuse to start outside a version range, use the managed settings `requiredMinimumVersion` and `requiredMaximumVersion` instead. Updates also respect the `requiredMaximumVersion` ceiling. See [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>) and [`requiredMaximumVersion`](</docs/en/settings-reference#requiredmaximumversion>).
+The installation stays on 2.1.323 until the stable channel serves a newer version.
+
+#### Set version limits for your organization
+
+In [managed settings](</docs/en/managed-settings>), `minimumVersion` enforces an organization-wide minimum that user and project settings can’t override. The `minimumVersion` pin only constrains updates. To make Claude Code refuse to start outside a version range, use the managed settings `requiredMinimumVersion` and `requiredMaximumVersion` instead. Updates also respect the `requiredMaximumVersion` ceiling. See [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>) and [`requiredMaximumVersion`](</docs/en/settings-reference#requiredmaximumversion>).
 
 ### Disable auto-updates
 
@@ -295,9 +304,9 @@ Verify the downloaded key with `sha256sum /etc/apk/keys/claude-code.rsa.pub`, wh
 
 If `npm --version` prints a version starting with `12` in your shell, follow [Fix an npm 12 install](</docs/en/troubleshoot-install#fix-an-npm-12-install>) instead. Don’t install with `sudo`. Claude Code runs npm without `sudo` when it updates itself, so an install that needs `sudo` can’t update automatically.
 
-You can also install Claude Code as a global npm package. The npm package requires [Node.js 22 or later](<https://nodejs.org/en/download>). On an older Node.js version, npm prints an `EBADENGINE` warning during install rather than failing; the install completes and `claude` still runs, since the package downloads a native binary that doesn’t use your Node.js at runtime.
+You can also install Claude Code as a global npm package. The npm package requires [Node.js 22 or later](<https://nodejs.org/en/download>). On an older Node.js version, npm by default prints an `EBADENGINE` warning and completes the install rather than failing. The installed `claude` still runs, since the package downloads a native binary that doesn’t use your Node.js at runtime.
 
-    npm install -g @anthropic-ai/claude-code
+    npm install -g @anthropic-ai/claude-code@latest
 
 The npm package installs the same native binary as the standalone installer. npm pulls the binary in through a per-platform optional dependency such as `@anthropic-ai/claude-code-darwin-arm64`, and a postinstall step links it into place. The installed `claude` binary does not itself invoke Node. Supported npm install platforms are `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `linux-x64-musl`, `linux-arm64-musl`, `win32-x64`, and `win32-arm64`. Your package manager must allow optional dependencies. See [troubleshooting](</docs/en/troubleshoot-install#native-binary-not-found-after-npm-install>) if the binary is missing after install. To upgrade an npm installation, run `npm install -g @anthropic-ai/claude-code@latest`. Avoid `npm update -g`, which respects the semver range from the original install and may not move you to the newest release.
 

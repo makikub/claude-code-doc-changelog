@@ -767,7 +767,7 @@ Property| Type| Default| Description
 `allowed_tools`| `list[str]`| `[]`| Tools to auto-approve without prompting, apart from reads from [network paths](</docs/en/permissions#network-paths>). This does not restrict Claude to only these tools. If you name one of the [task-tracking tools](</docs/en/agent-sdk/todo-tracking#model-availability>) here, Claude Code also opts the session in. Other unlisted tools fall through to `permission_mode` and `can_use_tool`. Use `disallowed_tools` to block tools. See [Permissions](</docs/en/agent-sdk/permissions#allow-and-deny-rules>)
 `system_prompt`| `str | SystemPromptPreset | SystemPromptCustom | SystemPromptFile | None`| `None`| System prompt configuration. Pass a string for a custom prompt, `{"type": "preset", "preset": "claude_code"}` for Claude Code’s system prompt with optional `"append"`, `{"type": "custom", "prompt": "..."}` for a custom prompt that can also set `"snapshot"`, or `{"type": "file", "path": "..."}` to load a large prompt from disk. See `SystemPromptPreset`, `SystemPromptCustom`, and `SystemPromptFile`
 `mcp_servers`| `dict[str, McpServerConfig] | str | Path`| `{}`| MCP server configurations or path to config file
-`strict_mcp_config`| `bool`| `False`| When `True`, use only the servers passed in `mcp_servers` and ignore project `.mcp.json`, user settings, plugin-provided MCP servers, and [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>). Maps to the CLI `--strict-mcp-config` flag
+`strict_mcp_config`| `bool`| `False`| When `True`, use the servers passed in `mcp_servers` and ignore project `.mcp.json`, user settings, plugin-provided MCP servers, and [claude.ai connectors](</docs/en/mcp#use-mcp-servers-from-claude-ai>). Maps to the CLI `--strict-mcp-config` flag
 `permission_mode`| `PermissionMode | None`| `None`| Permission mode for tool usage
 `continue_conversation`| `bool`| `False`| Continue the most recent conversation
 `resume`| `str | None`| `None`| Session ID to resume
@@ -787,7 +787,7 @@ Property| Type| Default| Description
 `add_dirs`| `list[str | Path]`| `[]`| Additional directories Claude can access. The SDK passes each entry to Claude Code as `--add-dir`, so with the `project` setting source Claude Code also [loads the directory’s skills, commands, and subagents](</docs/en/permissions#additional-directories-grant-file-access-not-configuration>)
 `env`| `dict[str, str]`| `{}`| Environment variables merged on top of the inherited process environment. See [Environment variables](</docs/en/env-vars>) for variables the underlying CLI reads, and Handle slow or stalled API responses for timeout-related variables. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header
 `extra_args`| `dict[str, str | None]`| `{}`| Additional CLI arguments to pass directly to the CLI
-`max_buffer_size`| `int | None`| `None`| Maximum bytes when buffering CLI stdout
+`max_buffer_size`| `int | None`| `None`| Longest single message the SDK accepts from the CLI, in characters. `None` uses 1,048,576. A longer message raises `CLIJSONDecodeError`
 `debug_stderr`| `Any`| `sys.stderr`|  _Deprecated_ \- The SDK ignores this value. Use the `stderr` callback for CLI stderr output
 `stderr`| `Callable[[str], None] | None`| `None`| Callback function for stderr output from CLI
 `can_use_tool`| `CanUseTool` ` | None`| `None`| Tool permission callback, invoked only when the [permission flow](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) falls through to a prompt. Not invoked for calls auto-approved by `allowed_tools`, allow rules, or `permission_mode`. An allow rule doesn’t pre-approve the [actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>). See `CanUseTool` for details
@@ -1088,7 +1088,7 @@ Context information passed to tool permission callbacks.
 Field| Type| Description
 ---|---|---
 `signal`| `Any | None`| Reserved for future abort signal support
-`suggestions`| `list[PermissionUpdate]`| Permission update suggestions from the CLI. Bash prompts include a suggestion with the `localSettings` destination, so returning it in `updated_permissions` writes the rule to `.claude/settings.local.json` and persists across sessions.
+`suggestions`| `list[PermissionUpdate]`| Permission update suggestions from the CLI. Bash prompts can include a suggestion with the `localSettings` destination, so returning it in `updated_permissions` writes the rule to `.claude/settings.local.json` and persists across sessions.
 `tool_use_id`| `str | None`| Identifier of the specific tool call this prompt is for. Always populated when delivered to `can_use_tool`
 `agent_id`| `str | None`| Sub-agent ID when the call originates from a subagent; `None` for the main agent
 `blocked_path`| `str | None`| File path that triggered the permission request, when applicable. For example, when a Bash command tries to access a path outside allowed directories
@@ -1501,8 +1501,8 @@ The `subtype` field determines which other fields are populated. It is one of `"
   * `is_error`: `True` when the conversation ended in an error state. Always `True` on the `error_*` subtypes. On `subtype="success"` it is `True` in three cases. Check `stop_reason` to tell them apart:
     * `"refusal"`: the model declined to respond. Read the refusal text in `result`, or in the preceding `AssistantMessage` when `result` is empty.
     * `"tool_deferred_unavailable"`: the [deferred tool](</docs/en/hooks#defer-a-tool-call-for-later>) was no longer available when you resumed the session, for example because its MCP server wasn’t connected. In the two cases below, a prompt you send after resuming counts the same as one passed with the resume:
-      * No prompt: the call is still pending. Make the tool available and resume again without a prompt, and the call runs first.
-      * A prompt: Claude Code answers it without the tool’s result, and the deferred call is gone. Send a new prompt if you still need the tool called.
+      * No prompt: by default, the call is still pending. Make the tool available and resume again without a prompt, and the call runs first.
+      * A prompt: by default, the prompt doesn’t reach Claude and the call is still pending. To continue without the tool, [drop the call](</docs/en/hooks#resume-when-a-deferred-tool-is-unavailable>).
     * Any other value: the turn ended on an error that Claude Code reported in place of a model response, such as an API error. Read `terminal_reason` for the cause, `result` for the message, and `api_error_status` for the HTTP status when the API returned one.
   * `api_error_status`: the HTTP status code of the terminating API error. `None` when the turn ended without one. Populated only on `subtype="success"`.
   * `result`: text of the final assistant message on `subtype="success"`, or `None` on the `error_*` subtypes. When `subtype="success"` and `is_error=True`, this holds the API error string if one is available but can be empty, so check `api_error_status` and the preceding `AssistantMessage` content for detail.
@@ -1814,7 +1814,7 @@ To tell failures apart, check `data["stop_reason"]` first, then `terminal_reason
 
 ### `CLIJSONDecodeError`
 
-Raised when JSON parsing fails.
+Raised when JSON parsing fails, or when one message from the CLI is longer than `max_buffer_size`. To raise the limit and pick up the stopped work, see [Large tool calls and results](</docs/en/agent-sdk/troubleshooting#large-tool-calls-and-results>).
 
     class CLIJSONDecodeError(ClaudeSDKError):
         def __init__(self, line: str, original_error: Exception):
@@ -2193,7 +2193,7 @@ Use `async_` (with underscore) in Python code. It is automatically converted to 
 
 ### Hook Usage Example
 
-This example registers two hooks: one that blocks dangerous Bash commands like `rm -rf /`, and another that logs all tool usage for auditing. With its [`Bash` matcher](</docs/en/agent-sdk/hooks#matchers>), the security hook runs on Bash tool calls. The logging hook has no matcher, so it runs on every tool call.
+This example registers two hooks: one that blocks dangerous Bash commands like `rm -rf /`, and another that logs all tool usage for auditing. With its [`Bash` matcher](</docs/en/agent-sdk/hooks#matchers>), the security hook runs on Bash tool calls. The logging hook has no matcher, so it matches every tool.
 
     import asyncio
     from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, HookContext
@@ -3068,14 +3068,14 @@ Configuration for sandbox behavior. Use this to enable command sandboxing and co
 Property| Type| Default| Description
 ---|---|---|---
 `enabled`| `bool`| `False`| Enable sandbox mode for command execution
-`autoAllowBashIfSandboxed`| `bool`| `True`| Auto-approve bash commands when sandbox is enabled
+[`autoAllowBashIfSandboxed`](</docs/en/settings-reference#sandbox-autoallowbashifsandboxed>)| `bool`| `False`| Auto-approve Bash commands when sandbox is enabled. The `False` default requires Python SDK v0.2.182 or later
 `excludedCommands`| `list[str]`| `[]`| Commands that bypass sandbox restrictions, such as `["docker *"]`. These run unsandboxed automatically without model involvement; [`sandbox.excludedCommands`](</docs/en/settings-reference#sandbox-excludedcommands>) covers when an entry applies
 `allowUnsandboxedCommands`| `bool`| `True`| Allow the model to request running commands outside the sandbox. When `True`, the model can set `dangerouslyDisableSandbox` in tool input, which falls back to the permissions system
 `network`| `SandboxNetworkConfig`| `None`| Network-specific sandbox configuration
 `ignoreViolations`| `SandboxIgnoreViolations`| `None`| Configure which sandbox violations to ignore
 `enableWeakerNestedSandbox`| `bool`| `False`| Enable a weaker nested sandbox for compatibility
 
-The sandbox depends on platform support and, on Linux, tools like `bubblewrap` and `socat`. By default, when `enabled` is `True` but the sandbox can’t start, commands run unsandboxed with a warning on stderr. This default differs from the TypeScript SDK, where `failIfUnavailable` defaults to `true`.Set `"failIfUnavailable": True` in your sandbox settings to stop instead. The SDK forwards `failIfUnavailable` to Claude Code along with the declared `SandboxSettings` fields. `query()` then reports a `ResultMessage` with `subtype="error_during_execution"` and the reason in `errors`. Because this is a single-shot `query()` call, the SDK raises after yielding that error result, so wrap the loop in a try block to continue past it. See [Handle the result](</docs/en/agent-sdk/agent-loop#handle-the-result>) for the error contract.
+The sandbox depends on platform support and, on Linux, tools like `bubblewrap` and `socat`. By default, when `enabled` is `True` but the sandbox can’t start, commands run unsandboxed with a warning on stderr. This default differs from the TypeScript SDK, where `failIfUnavailable` defaults to `true`.Set `"failIfUnavailable": True` in your sandbox settings to stop instead. With `failIfUnavailable` set, `query()` raises a `ResultError` when the sandbox can’t start, so wrap your `async for` loop in a `try` block. The reason is in the exception’s `errors` list. The SDK forwards `failIfUnavailable` to Claude Code along with the declared `SandboxSettings` fields.
 
 To keep sandboxed commands from writing to a file, list its absolute path under [`denyWrite`](</docs/en/settings-reference#sandbox-filesystem-denywrite>) in your sandbox settings, such as `"filesystem": {"denyWrite": ["/home/user/project/.env"]}`. The SDK forwards `filesystem` to Claude Code along with the declared `SandboxSettings` fields. Once the sandbox starts, it blocks writes to each absolute path you listed.
 
@@ -3100,8 +3100,8 @@ To keep sandboxed commands from writing to a file, list its absolute path under 
             ):
                 print(message)
         except Exception as error:
-            # A single-shot query() raises after yielding an error result,
-            # such as when failIfUnavailable is set and the sandbox can't start.
+            # query() raises, for example, when failIfUnavailable is set
+            # and the sandbox can't start.
             print(f"Session ended with an error: {error}")
 
     asyncio.run(main())

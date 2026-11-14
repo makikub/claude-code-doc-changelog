@@ -103,6 +103,7 @@ Actions| Read and write
 Administration| Read
 Checks| Read and write
 Contents| Read and write
+Dependabot alerts| Read
 Discussions| Read and write
 Issues| Read and write
 Members| Read

@@ -4,7 +4,7 @@ File checkpointing tracks file modifications made through the [Write](</docs/en/
 
 ## How checkpointing works
 
-When you enable file checkpointing, the SDK creates backups of files before modifying them through the Write, Edit, or NotebookEdit tools. User messages in the response stream include a checkpoint UUID that you can use as a restore point.
+When you enable file checkpointing, the SDK creates backups of files before modifying them through the Write, Edit, or NotebookEdit tools. Each prompt that starts a turn is a checkpoint, and its user message’s UUID is the restore point.
 
 File rewinding restores files on disk to a previous state. It does not rewind the conversation itself. The conversation history and context remain intact after calling `rewindFiles()` (TypeScript) or `rewind_files()` (Python).
 
@@ -133,7 +133,7 @@ The lead example under Implement checkpointing also sets the permission mode to 
 
 Capture checkpoint UUID and session ID
 
-With the `replay-user-messages` option set, each user message in the response stream has a UUID that serves as a checkpoint.For most use cases, capture the first user message UUID (`message.uuid`); rewinding to it restores the tracked files to their original state. To store multiple checkpoints and rewind to intermediate states, see Multiple restore points.Capturing the session ID (`message.session_id`) is optional; you only need it if you want to rewind later, after the stream completes. If you’re calling `rewindFiles()` immediately while still processing messages (as the example in Checkpoint before risky operations does), you can skip capturing the session ID.
+With the `replay-user-messages` option set, the user message for each prompt that starts a turn has a UUID that serves as a checkpoint. User messages that carry tool results have a UUID too, but it isn’t a checkpoint.For most use cases, capture the first user message UUID (`message.uuid`); rewinding to it restores the tracked files to their original state. To store multiple checkpoints and rewind to intermediate states, see Multiple restore points.Capturing the session ID (`message.session_id`) is optional; you only need it if you want to rewind later, after the stream completes. If you’re calling `rewindFiles()` immediately while still processing messages (as the example in Checkpoint before risky operations does), you can skip capturing the session ID.
 
 3
 
@@ -151,7 +151,7 @@ These patterns show different ways to capture and use checkpoint UUIDs depending
 
 ### Checkpoint before risky operations
 
-This pattern keeps only the most recent checkpoint UUID, updating it before each agent turn. If something goes wrong during processing, you can immediately rewind to the last safe state and break out of the loop. Before running this example, replace `your_revert_condition` (Python) or `yourRevertCondition` (TypeScript) with your own check, such as error detection or a validation failure; the placeholder is not defined in the example.
+This pattern keeps only the most recent checkpoint UUID, updating it at each prompt that starts a turn. If something goes wrong during processing, you can immediately rewind to the last safe state and break out of the loop. Before running this example, replace `your_revert_condition` (Python) or `yourRevertCondition` (TypeScript) with your own check, such as error detection or a validation failure; the placeholder is not defined in the example.
 
 Python
 
@@ -173,9 +173,14 @@ TypeScript
             await client.query("Refactor the authentication module")
 
             async for message in client.receive_response():
-                # Update checkpoint before each agent turn starts
+                # Update checkpoint at each prompt you send; a tool result isn't one
                 # This overwrites the previous checkpoint. Only keep the latest
-                if isinstance(message, UserMessage) and message.uuid:
+                if (
+                    isinstance(message, UserMessage)
+                    and message.uuid
+                    and message.tool_use_result is None
+                    and message.parent_tool_use_id is None
+                ):
                     safe_checkpoint = message.uuid
 
                 # Decide when to revert based on your own logic
@@ -202,9 +207,9 @@ TypeScript
       let safeCheckpoint: string | undefined;
 
       for await (const message of response) {
-        // Update checkpoint before each agent turn starts
+        // Update checkpoint at each prompt you send; a tool result isn't one
         // This overwrites the previous checkpoint. Only keep the latest
-        if (message.type === "user" && message.uuid) {
+        if (message.type === "user" && "isReplay" in message && message.isReplay && message.uuid) {
           safeCheckpoint = message.uuid;
         }
 
@@ -222,7 +227,7 @@ TypeScript
 
 ### Multiple restore points
 
-If Claude makes changes across multiple turns, you might want to rewind to a specific point rather than all the way back. For example, if Claude refactors a file in turn one and adds tests in turn two, you might want to keep the refactor but undo the tests. This pattern stores all checkpoint UUIDs in an array with metadata. After the session completes, you can rewind to any previous checkpoint:
+If Claude makes changes across several prompts, you might want to rewind to a specific point rather than all the way back. For example, if your first prompt refactors a file and your second adds tests, rewind to your second prompt’s checkpoint to keep the refactor and undo the tests. This pattern stores each checkpoint UUID in an array with metadata. After the session completes, you can rewind to any previous checkpoint:
 
 Python
 
@@ -259,7 +264,12 @@ TypeScript
             await client.query("Refactor the authentication module")
 
             async for message in client.receive_response():
-                if isinstance(message, UserMessage) and message.uuid:
+                if (
+                    isinstance(message, UserMessage)
+                    and message.uuid
+                    and message.tool_use_result is None
+                    and message.parent_tool_use_id is None
+                ):
                     checkpoints.append(
                         Checkpoint(
                             id=message.uuid,
@@ -310,7 +320,7 @@ TypeScript
 
       try {
         for await (const message of response) {
-          if (message.type === "user" && message.uuid) {
+          if (message.type === "user" && "isReplay" in message && message.isReplay && message.uuid) {
             checkpoints.push({
               id: message.uuid,
               description: `After turn ${checkpoints.length + 1}`,
@@ -592,6 +602,7 @@ This error occurs when the checkpoint data doesn’t exist for the specified use
 
   * File checkpointing was not enabled on the original session (`enable_file_checkpointing` or `enableFileCheckpointing` was not set to `true`)
   * The session wasn’t properly completed before attempting to resume and rewind
+  * The UUID came from a user message that carries a tool result, which isn’t a checkpoint
 
 **Solution** : Ensure `enable_file_checkpointing=True` (Python) or `enableFileCheckpointing: true` (TypeScript) was set on the original session, then use the pattern shown in the examples: capture the first user message UUID, complete the session fully, then resume with an empty prompt and call `rewindFiles()` once.
 

@@ -8,7 +8,8 @@ How you authenticate determines which features Claude Code can reach. For a sing
   * **Anthropic Console** : you authenticate with an Anthropic API key or by [signing in to a Console account without one](</docs/en/authentication#sign-in-without-an-api-key>)
   * **Amazon Bedrock** : you use Claude models from the Amazon Bedrock model catalog and set `CLAUDE_CODE_USE_BEDROCK`. The [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>) (`CLAUDE_CODE_USE_MANTLE`) is covered by this column
   * **Claude Platform on AWS** : you bought Claude through AWS Marketplace but call the Anthropic API, and set `CLAUDE_CODE_USE_ANTHROPIC_AWS`
-  * **Google Cloud’s Agent Platform** : Google-operated; you set `CLAUDE_CODE_USE_VERTEX`
+  * **Google Cloud (Anthropic managed)** : you use Claude Models on Google Cloud (Anthropic managed). You reach the Anthropic-operated Claude API through your Google Cloud project. To tell the two Google Cloud offerings apart, see [Which offering are you using?](<https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/overview#which-offering-are-you-using>)
+  * **Google Cloud (Google managed)** : Google-operated as part of Google Cloud’s Agent Platform, formerly Vertex AI; you set `CLAUDE_CODE_USE_VERTEX` and use Claude Models on Google Cloud (Google managed)
   * **Microsoft Foundry** : Anthropic-operated; you set `CLAUDE_CODE_USE_FOUNDRY`
 
 ### Features available on every provider
@@ -24,10 +25,10 @@ These work on every provider:
 
 These have provider-specific differences:
 
-  * **MCP servers** : [connectors from claude.ai](</docs/en/mcp#use-mcp-servers-from-claude-ai>) load only when your claude.ai subscription is the active authentication method. [Tool search](</docs/en/mcp#configure-tool-search>) isn’t supported on Microsoft Foundry [deployments hosted on Azure](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>). On Google Cloud’s Agent Platform, tool search isn’t supported on models earlier than Claude Opus 4.5, Claude Sonnet 4.5, and Claude Haiku 4.5
-  * **Subagents** : when the main conversation runs Fable, the built-in [Explore subagent](</docs/en/sub-agents#built-in-subagents>) runs on Opus with a Claude subscription, an Anthropic Console account, or an [LLM gateway](</docs/en/llm-gateway>) reached through `ANTHROPIC_BASE_URL`. On other providers, including Claude Platform on AWS, it runs on Fable
+  * **MCP servers** : [connectors from claude.ai](</docs/en/mcp#use-mcp-servers-from-claude-ai>) load only when your claude.ai subscription is the active authentication method. [Tool search](</docs/en/mcp#configure-tool-search>) isn’t supported on Microsoft Foundry [deployments hosted on Azure](<https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options>). On Google Cloud (Google managed), tool search isn’t supported on models earlier than Claude Opus 4.5, Claude Sonnet 4.5, and Claude Haiku 4.5
+  * **Subagents** : when the parent conversation runs Fable, the built-in [Explore subagent](</docs/en/sub-agents#built-in-subagents>) runs on Opus with a Claude subscription, an Anthropic Console account, or an [LLM gateway](</docs/en/llm-gateway>) reached through `ANTHROPIC_BASE_URL`. On other providers, including Claude Platform on AWS, it runs on Fable
   * **[Commands](</docs/en/commands#all-commands>)** :
-    * `/design-sync` and `/import` with its `claude import` subcommand form are unavailable on Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and Claude Platform on AWS, and through a [Claude apps gateway](</docs/en/claude-apps-gateway#availability-and-limitations>)
+    * `/design-sync` and `/import` with its `claude import` subcommand form are unavailable on cloud providers and through a [Claude apps gateway](</docs/en/claude-apps-gateway#availability-and-limitations>)
     * `/voice` requires a claude.ai account
     * `/list-agents` and its alias `/peers` are available only in sessions where [cross-session messaging is enabled](</docs/en/cross-session-messaging#availability>)
 
@@ -51,47 +52,50 @@ Desktop is the partial exception: [gateway routing can be configured in the app 
 
 ### CLI capabilities that vary by provider
 
-These features work in the local CLI but depend on a server-side capability that not every provider exposes. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud’s Agent Platform| Microsoft Foundry
----|---|---|---|---|---|---
-[Web search](</docs/en/tools-reference#websearch-tool-behavior>)| ✓| ✓| ✗| ✓| See note 1| ✓
-[Fast mode](</docs/en/fast-mode>)| ✓ ([Owner-enabled](</docs/en/fast-mode#enable-fast-mode-for-your-organization>) on Team and Enterprise)| ✓ (Opus 5 and 4.8 need provisioning)| ✗| ✗| ✓ ([Fable 5.2, with conditions](</docs/en/fast-mode#use-fast-mode-on-agent-platform>))| ✗
-[Auto mode](</docs/en/auto-mode-config>)| ✓| ✓| See note 2| ✓| See note 2| See note 2
-[Advisor](</docs/en/advisor>)| ✓| ✓| ✗| ✓ (Claude Code v2.1.300 or later)| ✗| ✗
-[Cross-session messaging](</docs/en/cross-session-messaging>)| ✓ 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5
-[Channels](</docs/en/channels>)| ✓| ✓| ✗| ✗| ✗| ✗
-[GitHub Actions](</docs/en/github-actions>)| ✓| ✓| ✓| ✗| ✓| ✓
-[GitLab CI/CD](</docs/en/gitlab-ci-cd>)| ✓| ✓| ✓| ✓| ✓| ✗
+These features work in the local CLI but depend on a server-side capability that not every provider exposes. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud (Anthropic managed)| Google Cloud (Google managed)| Microsoft Foundry
+---|---|---|---|---|---|---|---
+[Web search](</docs/en/tools-reference#websearch-tool-behavior>)| ✓| ✓| ✗| ✓| ✓| See note 1| ✓
+[Fast mode](</docs/en/fast-mode>)| ✓ ([Owner-enabled](</docs/en/fast-mode#enable-fast-mode-for-your-organization>) on Team and Enterprise)| ✓ (Opus 5 and 4.8 need provisioning)| ✗| ✗| ✗| ✓ ([Fable 5.2, with conditions](</docs/en/fast-mode#use-fast-mode-on-agent-platform>))| ✗
+[Auto mode](</docs/en/auto-mode-config>)| ✓| ✓| See note 2| ✓| ✓| See note 2| See note 2
+[Advisor](</docs/en/advisor>)| ✓| ✓| ✗| ✓ (Claude Code v2.1.300 or later)| ✓ (Claude Code v2.1.300 or later)| ✗| ✗
+[Code Mode](</docs/en/code-mode>)| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✗| ✗| ✗| ✗| ✗
+[Cross-session messaging](</docs/en/cross-session-messaging>)| ✓ 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5
+[Channels](</docs/en/channels>)| ✓| ✓| ✗| ✗| ✗| ✗| ✗
+[GitHub Actions](</docs/en/github-actions>)| ✓| ✓| ✓| ✗| ✗| ✓| ✓
+[GitLab CI/CD](</docs/en/gitlab-ci-cd>)| ✓| ✓| ✓| ✓| ✓| ✓| ✗
 
 ### Admin and analytics
 
-Organization-level controls and usage visibility. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud’s Agent Platform| Microsoft Foundry
----|---|---|---|---|---|---
-[Analytics dashboard and API](</docs/en/analytics>)| ✓ (dashboard: Team and Enterprise; API: Enterprise)| ✓ 4| ✗| ✗| ✗| ✗
-[Server-managed settings](</docs/en/server-managed-settings>)| ✓ (Team and Enterprise)| See [Platform availability](</docs/en/server-managed-settings#platform-availability>)| ✗| ✗| ✗| ✗
-[Zero Data Retention](</docs/en/zero-data-retention>)| ✓ (qualified Enterprise accounts)| ✓ (qualified accounts)| See note 3| ✓ (qualified accounts)| See note 3| See note 3
-1 On Google Cloud’s Agent Platform, web search is available for Opus 4, Sonnet 4, Haiku 4.5, and later models.
+Organization-level controls and usage visibility. Feature| Claude subscription| Anthropic Console| Amazon Bedrock| Claude Platform on AWS| Google Cloud (Anthropic managed)| Google Cloud (Google managed)| Microsoft Foundry
+---|---|---|---|---|---|---|---
+[Analytics dashboard and API](</docs/en/analytics>)| ✓ (dashboard: Team and Enterprise; API: Enterprise)| ✓ 4| ✗| ✗| ✗| ✗| ✗
+[Server-managed settings](</docs/en/server-managed-settings>)| ✓ (Team and Enterprise)| See [Platform availability](</docs/en/server-managed-settings#platform-availability>)| ✗| ✗| ✗| ✗| ✗
+[Zero Data Retention](</docs/en/zero-data-retention>)| ✓ (qualified Enterprise accounts)| ✓ (qualified accounts)| See note 3| ✓ (qualified accounts)| ✓ (on request)| See note 3| See note 3
+1 On Google Cloud (Google managed), web search is available for Opus 4, Sonnet 4, Haiku 4.5, and later models.
 2 On these providers, auto mode supports only Claude Sonnet 5 or later, Opus 4.7 or later, Haiku 5.5, and the Fable models. See [Auto mode configuration](</docs/en/auto-mode-config>). For the permission mode a session on these providers starts in, see [Which mode a session starts in](</docs/en/permission-modes#which-mode-a-session-starts-in>).
 3 Subject to your agreement with the cloud provider.
 4 Dashboard and API only. [Contribution metrics](</docs/en/analytics#enable-contribution-metrics>) requires a claude.ai Team or Enterprise organization.
-5 Requires Claude Code v2.1.224 or later on macOS and Linux, including Linux inside WSL 2. On native Windows, requires Claude Code v2.1.234 or later. With API key authentication, messaging is same-machine only. On Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, and Microsoft Foundry, messaging is same-machine only and requires Claude Code v2.1.248 or later. Claude can find your [cloud sessions](</docs/en/claude-code-on-the-web>) and your sessions on other machines only from a session that is connected to [Remote Control](</docs/en/remote-control>). To connect, you need a claude.ai sign-in and the other [Remote Control requirements](</docs/en/remote-control#requirements>). See [Message sessions on other machines](</docs/en/cross-session-messaging#message-sessions-on-other-machines>).
+5 Requires Claude Code v2.1.224 or later on macOS and Linux, including Linux inside WSL 2. On native Windows, requires Claude Code v2.1.234 or later. With API key authentication, messaging is same-machine only. On Amazon Bedrock, Claude Platform on AWS, Google Cloud (Anthropic managed), Google Cloud (Google managed), and Microsoft Foundry, messaging is same-machine only and requires Claude Code v2.1.248 or later. Claude can find your [cloud sessions](</docs/en/claude-code-on-the-web>) and your sessions on other machines only from a session that is connected to [Remote Control](</docs/en/remote-control>). To connect, you need a claude.ai sign-in and the other [Remote Control requirements](</docs/en/remote-control#requirements>). See [Message sessions on other machines](</docs/en/cross-session-messaging#message-sessions-on-other-machines>).
 
 If you authenticate through an [LLM gateway](</docs/en/llm-gateway>), feature availability matches the underlying provider the gateway forwards to, except for the features Claude Code itself turns off. Whenever `ANTHROPIC_BASE_URL` points at a host other than `api.anthropic.com`, Claude Code turns off features such as [Remote Control](</docs/en/remote-control#requirements>) and [server-managed settings](</docs/en/server-managed-settings#platform-availability>), whatever the gateway forwards. Some features, such as the [Advisor](</docs/en/advisor#requirements>), work only if the gateway forwards requests intact.For how the requests Claude Code sends differ between an Amazon Bedrock- or Agent Platform-format gateway, an `ANTHROPIC_BASE_URL` gateway, and a Claude apps gateway sign-in, see [client behavior by connection method](</docs/en/llm-gateway-protocol#how-the-connection-method-changes-client-behavior>).
 
 ### Summary by provider
 
-Each tab lists what is unavailable or partially supported on that provider, with alternatives where one exists. Everything not listed works the same as on a Claude subscription, apart from the provider-specific differences noted above. On Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, and Claude Platform on AWS, error reporting and telemetry to Anthropic are off by default. See [default behaviors by API provider](</docs/en/data-usage#default-behaviors-by-api-provider>) for what traffic still reaches Anthropic and how to opt out.
+Each tab lists what is unavailable or partially supported on that provider, with alternatives where one exists. See also the provider-specific differences. On Amazon Bedrock, Google Cloud (Google managed), Microsoft Foundry, and Claude Platform on AWS, error reporting and telemetry to Anthropic are off by default. See [default behaviors by API provider](</docs/en/data-usage#default-behaviors-by-api-provider>) for what traffic still reaches Anthropic and how to opt out.
 
   * Amazon Bedrock
 
   * Claude Platform on AWS
 
-  * Google Cloud's Agent Platform
+  * Google Cloud (Anthropic managed)
+
+  * Google Cloud (Google managed)
 
   * Microsoft Foundry
 
   * Anthropic Console
 
-**Not available:** all features that require a Claude subscription, plus [web search](</docs/en/tools-reference#websearch-tool-behavior>), [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [web search](</docs/en/tools-reference#websearch-tool-behavior>), [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): only via [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Auto mode](</docs/en/auto-mode-config>): Sonnet 5 or later, Opus 4.7 or later, Haiku 5.5, and Fable models only
@@ -100,13 +104,20 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>) or [GitLab CI/CD](</docs/en/gitlab-ci-cd>). For web lookups, use the [WebFetch tool](</docs/en/tools-reference#webfetch-tool-behavior>) with a specific URL.
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available here, not on Amazon Bedrock:** [web search](</docs/en/tools-reference#websearch-tool-behavior>), plus the [Advisor](</docs/en/advisor>) in Claude Code v2.1.300 or later.**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available here, not on Amazon Bedrock:** [web search](</docs/en/tools-reference#websearch-tool-behavior>), plus the [Advisor](</docs/en/advisor>) in Claude Code v2.1.300 or later.**Partial support:**
 
   * [Cross-session messaging](</docs/en/cross-session-messaging>): between your sessions on this machine only 5
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitLab CI/CD](</docs/en/gitlab-ci-cd>).
 
-**Not available:** all features that require a Claude subscription, plus [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available here, not on Google Cloud (Google managed):** the [Advisor](</docs/en/advisor>) in Claude Code v2.1.300 or later.**Partial support:**
+
+  * [Cross-session messaging](</docs/en/cross-session-messaging>): between your sessions on this machine only 5
+  * [Zero Data Retention](<https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed#data-retention>): available on request. Contact your Anthropic account representative
+
+**Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`.
+
+If you set `CLAUDE_CODE_USE_VERTEX` to use Claude Code with Google Cloud’s Agent Platform, you’re on this provider.**Not available:** all features that require a Claude subscription, plus [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): via [managed settings](<https://claude.com/docs/third-party/claude-desktop/configuration>) or [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Web search](</docs/en/tools-reference#websearch-tool-behavior>): Opus 4, Sonnet 4, Haiku 4.5, and later models
@@ -117,7 +128,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>) or [GitLab CI/CD](</docs/en/gitlab-ci-cd>).
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitLab CI/CD](</docs/en/gitlab-ci-cd>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitLab CI/CD](</docs/en/gitlab-ci-cd>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): only via [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Auto mode](</docs/en/auto-mode-config>): Sonnet 5 or later, Opus 4.7 or later, Haiku 5.5, and Fable models only
@@ -132,7 +143,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 ## Availability by subscription plan
 
-If you authenticate through Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, or an Anthropic Console API key, this section does not apply to you. When you sign in with a claude.ai account, your plan determines which of the features below are available. In Enterprise organizations with the [HIPAA configuration](</docs/en/hipaa-setup>) applied, some features in this table are turned off.
+If you authenticate through a cloud provider or an Anthropic Console API key, this section does not apply to you. When you sign in with a claude.ai account, your plan determines which of the features below are available. In Enterprise organizations with the [HIPAA configuration](</docs/en/hipaa-setup>) applied, some features in this table are turned off.
 
 Feature| Pro| Max| Ultra| Team| Enterprise
 ---|---|---|---|---|---

@@ -190,7 +190,7 @@ The Bash examples on this page use `jq` for JSON parsing. Install it with `brew 
 
 ### Block edits to protected files
 
-Prevent Claude from modifying sensitive files like `.env`, `package-lock.json`, or anything in `.git/`. Claude receives feedback explaining why the edit was blocked, so it can adjust its approach. This example uses a separate script file that the hook calls. The script checks the target file path against a list of protected patterns and exits with code 2 to block the edit.
+Stop Claude’s `Edit` and `Write` tools from modifying sensitive files like `.env`, `package-lock.json`, or anything in `.git/`. Claude receives feedback explaining why the edit was blocked, so it can adjust its approach. This example uses a separate script file that the hook calls. The script checks the target file path against a list of protected patterns and exits with code 2 to block the edit.
 
 1
 
@@ -253,6 +253,8 @@ Add a `PreToolUse` hook to `.claude/settings.json` that runs the script before a
 Test the hook
 
 Ask Claude to add a comment to your `.env` file. Claude Code blocks the edit before it runs and passes the script’s `Blocked:` message to Claude as feedback.
+
+Claude can still change the protected files with shell commands. To block some of those commands, add an [`Edit` deny rule](</docs/en/permissions#what-read-and-edit-rules-cover>) per path under `permissions.deny` in `.claude/settings.json`, like `Edit(/.env)` for the project root’s `.env`. Even with those rules, Claude can change `.env` in other ways. To limit which files commands can write to, see [Configure sandboxing](</docs/en/sandboxing#configure-sandboxing>).
 
 ### Re-inject context after compaction
 
@@ -769,7 +771,7 @@ Use `type: "http"` hooks to POST event data to an HTTP endpoint instead of runni
 Your endpoint responds with a JSON body in the same [output format](</docs/en/hooks#json-output>) as command hooks, and Claude Code also checks the response status:
 
   * **2xx status** : to block a tool call, return the appropriate `hookSpecificOutput` fields in the body.
-  * **Any other status, or the request fails** : Claude Code reports a [non-blocking error](</docs/en/hooks#exit-code-output>) and lets the action continue. To make a failed endpoint block the action, set [`onFailure: "block"`](</docs/en/hooks#block-the-action-when-a-hook-fails>) on the hook.
+  * **Any other status, or the request fails** : Claude Code reports a [non-blocking error](</docs/en/hooks#exit-code-output>) and lets the action continue, unless the hook is one [whose failure blocks the action](</docs/en/hooks#block-the-action-when-a-hook-fails>). To make a failed endpoint block the action, set [`onFailure: "block"`](</docs/en/hooks#block-the-action-when-a-hook-fails>) on the hook.
 
 Header values support environment variable interpolation using `$VAR_NAME` or `${VAR_NAME}` syntax. Only variables listed in the `allowedEnvVars` array are resolved; all other `$VAR` references remain empty. For full configuration options and response handling, see [HTTP hooks](</docs/en/hooks#http-hook-fields>) in the reference.
 

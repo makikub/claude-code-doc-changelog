@@ -178,7 +178,7 @@ Key| Description| Topic| Scope
 `sandbox.enableWeakerNestedSandbox`| Run the Linux [sandbox](</docs/en/sandboxing>) inside an unprivileged container| Sandbox settings| Any file
 `sandbox.enableWeakerNetworkIsolation`| Let `gh`, `gcloud`, and `terraform` verify TLS behind a MITM proxy inside the [sandbox](</docs/en/sandboxing#go-based-clis-fail-tls-verification-on-macos>) on macOS| Sandbox settings| Any file
 `sandbox.excludedCommands`| Name commands Claude Code can run outside the [sandbox](</docs/en/sandboxing>)| Sandbox settings| Any file
-`sandbox.failIfUnavailable`| Refuse to start when the [sandbox](</docs/en/sandboxing>) can’t, instead of running unsandboxed| Sandbox settings| Any file
+`sandbox.failIfUnavailable`| Refuse to start when the [sandbox](</docs/en/sandboxing>) can’t, instead of running unsandboxed, except in an Anthropic-hosted environment| Sandbox settings| Any file
 `sandbox.filesystem`| Control which paths [sandboxed](</docs/en/sandboxing#filesystem-isolation>) commands can read and write| Sandbox settings| Any file
 `sandbox.filesystem.allowManagedReadPathsOnly`| Stop developers from re-opening [read paths your organization blocked](</docs/en/sandboxing#keep-developers-from-widening-the-policy>)| Sandbox settings| Managed
 `sandbox.filesystem.allowRead`| Re-open reading inside a region `denyRead` blocks| Sandbox settings| Any file
@@ -275,7 +275,7 @@ settings.json
       "advisorModel": "opus"
     }
 
-The key has no effect on providers where the advisor [isn’t available](</docs/en/advisor#requirements>), such as Amazon Bedrock. On Claude Platform on AWS, the key requires Claude Code v2.1.300 or later. `"fable"` requires [Fable access](</docs/en/advisor#choose-an-advisor-model>).
+The key has no effect on providers where the advisor [isn’t available](</docs/en/advisor#requirements>), such as Amazon Bedrock. On Claude Platform on AWS or [Claude Models on Google Cloud (Anthropic managed)](</docs/en/feature-availability#availability-by-model-provider>), the key requires Claude Code v2.1.300 or later. `"fable"` requires [Fable access](</docs/en/advisor#choose-an-advisor-model>).
 
 ### `alwaysThinkingEnabled`
 
@@ -407,12 +407,12 @@ Name backup models for Claude Code to try, in order, when your primary model is 
   * **Default** : unset, so a failed request isn’t retried on another model
   * **Per-session overrides** : `--fallback-model` takes precedence over this key for one session
 
-This example tries Sonnet 5 first, then Haiku 4.5, when your primary model fails:
+This example tries Sonnet 5 first, then Haiku 5.5, when your primary model fails:
 
 settings.json
 
     {
-      "fallbackModel": ["claude-sonnet-5", "claude-haiku-4-5"]
+      "fallbackModel": ["claude-sonnet-5", "claude-haiku-5-5"]
     }
 
 Unlike most array settings, this key doesn’t merge across settings files: the highest-precedence file that defines it supplies the whole chain. If your project file sets `["claude-sonnet-5"]` and your user file sets `["claude-haiku-4-5"]`, the chain is `["claude-sonnet-5"]` only. Claude Code keeps at most three distinct allowed models from the list and ignores the rest. See [Fallback model chains](</docs/en/model-config#fallback-model-chains>).
@@ -824,7 +824,7 @@ settings.json
       }
     }
 
-See [Route all shell commands through the classifier](</docs/en/auto-mode-config#route-all-shell-commands-through-the-classifier>).
+This key works differently in a Code Mode session. See [Suspend shell allow rules](</docs/en/auto-mode-config#route-all-shell-commands-through-the-classifier>).
 
 ### `disableAutoMode`
 
@@ -1238,7 +1238,7 @@ Make Claude Code exit with an error at startup when `sandbox.enabled` is `true` 
 
   * **Scope** : `Any file`, with [limits on project and local settings](</docs/en/sandboxing#repository-settings-under-an-admin-required-sandbox>)
   * **Type** : Boolean
-    * `true`: Claude Code exits with an error at startup when `sandbox.enabled` is `true` but the sandbox can’t start. If the sandbox passes that check and then fails to initialize, the session keeps running and Claude Code [refuses each sandboxed command](</docs/en/sandboxing#commands-refused-with-sandbox-is-required>)
+    * `true`: Claude Code exits with an error at startup when `sandbox.enabled` is `true` but the sandbox can’t start. If the sandbox passes that check and then fails to initialize, the session keeps running. Claude Code then [refuses each sandboxed command](</docs/en/sandboxing#commands-refused-with-sandbox-is-required>). A session in an Anthropic-hosted environment can start anyway, with a warning, and doesn’t enforce your `sandbox.filesystem` or `sandbox.network` rules
     * `false`: Claude Code runs commands unsandboxed when the sandbox can’t start
   * **Default** : `false`
 
@@ -1257,22 +1257,22 @@ See [Enforce sandboxing with managed settings](</docs/en/sandboxing#enforce-sand
 
 ### `sandbox.autoAllowBashIfSandboxed`
 
-Let Claude Code run sandboxed Bash commands without a permission prompt. Commands that can’t run in the sandbox still go through the regular permission flow, and `deny` rules and content-scoped `ask` rules such as `Bash(git push *)` still apply; a bare `Bash` ask rule is skipped for sandboxed commands. Set it to `false` to send sandboxed commands through the regular permission flow too, which the `/sandbox` **Mode** tab calls regular permissions mode.
+Let Claude Code run sandboxed Bash commands without a permission prompt. Commands that can’t run in the sandbox still go through the regular permission flow. `deny` rules and content-scoped `ask` rules such as `Bash(git push *)` still apply, but a bare `Bash` ask rule is skipped for sandboxed commands. To set it to `true` in managed settings, add it to the `sandbox` block of your [highest-ranked managed source](</docs/en/managed-settings#how-claude-code-combines-managed-sources>).
 
   * **Scope** : `Any file`
   * **Type** : Boolean
     * `true`: Claude Code runs sandboxed Bash commands without a permission prompt, except in the cases that [Auto-allow mode](</docs/en/sandboxing#auto-allow-mode>) describes; `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` turns auto-allow off
     * `false`: sandboxed commands go through the regular permission flow, so your allow rules and permission mode decide. The `/sandbox` **Mode** tab calls this regular permissions mode
-  * **Default** : `true`
+  * **Default** : `false`. Before v2.1.324, the default was `true`
 
-This keeps the sandbox on and sends sandboxed commands through the regular permission flow:
+To keep the sandbox on and run sandboxed commands without a permission prompt, set both keys in your `sandbox` block:
 
 settings.json
 
     {
       "sandbox": {
         "enabled": true,
-        "autoAllowBashIfSandboxed": false
+        "autoAllowBashIfSandboxed": true
       }
     }
 
@@ -1533,7 +1533,7 @@ settings.json
       }
     }
 
-With the layer off, Claude Code doesn’t enforce `denyRead` or `credentials.files` `deny` entries, while `credentials.envVars` entries and applied `mask` entries keep working. `autoAllowBashIfSandboxed` still defaults to `true`, so set it to `false` to keep prompting. See [Disable filesystem isolation](</docs/en/sandboxing#disable-filesystem-isolation>) for the full list of sources that can set it and what changes when isolation is off.
+With the layer off, Claude Code doesn’t enforce `denyRead` or `credentials.files` `deny` entries, while `credentials.envVars` entries and applied `mask` entries keep working. See [Disable filesystem isolation](</docs/en/sandboxing#disable-filesystem-isolation>) for the full list of sources that can set it and what changes when isolation is off.
 
 ### `sandbox.ignoreViolations`
 
@@ -2324,8 +2324,8 @@ settings.json
 
 #### How `env` values interact with your shell
 
-  * A value here overwrites the same variable exported in your shell, and when more than one settings file sets a variable, the [highest-precedence](</docs/en/settings#settings-precedence>) one applies. Variables Claude Code ignores in `env` lists the exceptions for project and local settings.
-  * When the Claude Desktop app or a [self-hosted environment](</docs/en/self-hosted-environments>) runner starts the session, the launch environment it builds takes precedence instead: Claude Code ignores an `env` value from any settings file for a variable the launch environment already sets. The [debug log](</docs/en/debug-your-config>) names each ignored variable.
+  * A value here overwrites the same variable exported in your shell, and when more than one settings file sets a variable, the [highest-precedence](</docs/en/settings#settings-precedence>) one applies. Variables Claude Code ignores in `env` lists the exceptions.
+  * When the Claude Desktop app or a [self-hosted environment](</docs/en/self-hosted-environments>) runner starts the session, the launch environment it builds takes precedence instead. Claude Code ignores an `env` value from a settings file for a variable that environment already sets. The [debug log](</docs/en/debug-your-config>) can name an ignored variable.
   * To cancel a shell export, set the variable to `""`. Claude Code treats an empty value as unset for provider selection, and subprocesses inherit the empty value.
   * `NO_COLOR` and `FORCE_COLOR` set here reach only subprocesses. To change Claude Code’s own interface colors, set them in your shell before launching `claude`.
   * Values here are plain text in the settings file and reach every subprocess Claude Code starts. For an OTLP bearer token that rotates, use `otelHeadersHelper`; for API credentials, use `apiKeyHelper`.
@@ -2357,6 +2357,7 @@ Only these values still apply from project and local settings, because they turn
     * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](</docs/en/env-vars#variables>), which turns off attachment processing.
     * [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](</docs/en/env-vars#variables>), which stops Claude Code from expanding `@` mentions of files and directories.
 Before v2.1.251, project and local settings could also set the variables in this list that choose where Claude Code writes its files or that export session content, except `HOME` and `XDG_CONFIG_HOME`. Before v2.1.290, they could also set the dialog timer variables and `CLAUDE_CODE_DISABLE_ATTACHMENTS`.
+  * You can turn on [Code Mode](</docs/en/code-mode>) with [`CLAUDE_CODE_EXPERIMENTAL_CODE_MODE`](</docs/en/env-vars#variables>) from your shell, user settings, or a `--settings` file, and not from managed, project, or local settings. With a `0` in any of the first three or in managed settings, Code Mode stays off whatever you set elsewhere. When managed settings contain a `1`, set your own `1` in user settings, because a `1` in your shell is ignored
   * Identity variables that Claude Code’s hosting environments own, such as `CLAUDE_CODE_REMOTE` and `CLAUDE_CODE_ACCOUNT_UUID`, are ignored from every file.
   * [`CLAUDE_CODE_MESSAGING_SOCKET` and `CLAUDE_CODE_MESSAGING_TOKEN`](</docs/en/env-vars#variables>), which Claude Code exports itself, are ignored from every file. Ignoring the socket variable requires Claude Code v2.1.224 or later, and ignoring the token requires v2.1.228 or later.
   * [`CLAUDE_CODE_PROJECT_DIR_NAME`](</docs/en/sessions#name-the-project-directory-yourself>), which Claude Code reads from the launch environment only, is ignored from every file; requires v2.1.234 or later.
@@ -3842,7 +3843,7 @@ Each entry below shows one allowlist entry per source type and the fields it acc
 
 Source| Example entry| Fields
 ---|---|---
-`github`| `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": "marketplace" }`| `repo` required; `ref` is a branch or tag; `path` is a subdirectory
+`github`| `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": "marketplace" }`| `repo` required; `ref` is a branch, tag, or commit SHA; `path` is a subdirectory
 `git`| `{ "source": "git", "url": "https://gitlab.example.com/tools/plugins.git", "ref": "production" }`| `url` required; `ref` and `path` as for `github`
 `url`| `{ "source": "url", "url": "https://plugins.example.com/marketplace.json", "headers": { "Authorization": "Bearer ${TOKEN}" } }`| `url` required; `headers` adds HTTP headers for authenticated access
 `file`| `{ "source": "file", "path": "/opt/acme-corp/plugins/marketplace.json" }`| `path` required, the absolute path to a `marketplace.json` file
@@ -4635,7 +4636,7 @@ Configure Remote Control, cloud environments, the desktop app, and the notificat
 
 ### `agentPushNotifEnabled`
 
-Allow Claude to send a push notification to your phone when it decides one is worth sending, for example when a long task finishes. In a local session, Claude can send one while [Remote Control](</docs/en/remote-control>) is connected. Appears in `/config` as **Push when Claude decides**. When you change it there, Claude Code also saves the value to your account.
+Allow Claude to send a push notification to your phone when it decides one is worth sending, for example when a long task finishes. In a local session, Claude can send one while [Remote Control](</docs/en/remote-control>) is connected. Appears in `/config` as **Push when Claude decides**.
 
   * **Scope** : `Any file`. Claude Code also reads a value left in `~/.claude.json` by older versions.
   * **Type** : Boolean
@@ -4649,7 +4650,7 @@ settings.json
       "agentPushNotifEnabled": true
     }
 
-If you run sessions under a [`claude remote-control`](</docs/en/remote-control#start-a-remote-control-session>) server, they follow the value saved to your account rather than this key. To change that value, run `/config` in a Claude Code session in your terminal and turn **Push when Claude decides** on or off. If the toggle already shows the value you want, change it and change it back so that Claude Code saves that value to your account. See [Mobile push notifications](</docs/en/remote-control#mobile-push-notifications>).
+You don’t receive notifications with this key alone. To set them up, follow the steps in [Mobile push notifications](</docs/en/remote-control#mobile-push-notifications>). If you run sessions under a [`claude remote-control`](</docs/en/remote-control#start-a-remote-control-session>) server, they follow the value saved to your account rather than this key. To change that value, run `/config` in a Claude Code session in your terminal and turn **Push when Claude decides** on or off. If the toggle already shows the value you want, change it and change it back so that Claude Code saves that value to your account.
 
 ### `awaySummaryEnabled`
 
@@ -4798,7 +4799,7 @@ settings.json
       "inputNeededNotifEnabled": true
     }
 
-See [Mobile push notifications](</docs/en/remote-control#mobile-push-notifications>).
+You don’t receive notifications with this key alone. To set them up, follow the steps in [Mobile push notifications](</docs/en/remote-control#mobile-push-notifications>).
 
 ### `preferredNotifChannel`
 
@@ -4935,11 +4936,12 @@ List the services a machine may reach Claude through, such as the Anthropic API,
 
   * **Scope** : `Managed`. A list that the machine’s own admin sources set, MDM policies and managed settings files, keeps applying when server-managed settings also deliver one: a session may then use only the providers on both lists, so a server-managed list can narrow what the machine allows but never widen it. Which machine source’s `allowedProviders` counts follows [how Claude Code combines managed sources](</docs/en/managed-settings#how-claude-code-combines-managed-sources>). A list delivered through server-managed settings alone reaches only the sessions that [fetch server-managed settings](</docs/en/server-managed-settings#platform-availability>).
   * **Type** : array of strings, each one of:
-    * `"anthropic"`: the Anthropic API on Anthropic’s own host, through a claude.ai or Console sign-in or an API key. Pair it with `forceLoginMethod` or `forceLoginOrgUUID` to also restrict the sign-in
+    * `"anthropic"`: the Anthropic API on Anthropic’s own host, through a claude.ai or Console sign-in or an API key. Pair it with `forceLoginMethod` or `forceLoginOrgUUID` to also restrict the sign-in. Desktop’s Cowork [on the user’s machine](</docs/en/managed-settings#where-and-when-a-policy-applies>) counts as `"anthropic"` when signed in to claude.ai, so without it in the machine’s list, Cowork [is refused at start](</docs/en/errors#managed-settings-dont-allow-this-api-provider>). To let Cowork start, add it, which also opens this list to direct Anthropic sessions.
     * `"bedrock"`: [Amazon Bedrock](</docs/en/amazon-bedrock>)
     * `"vertex"`: [Google Cloud’s Agent Platform](</docs/en/google-vertex-ai>), formerly Vertex AI
     * `"foundry"`: [Microsoft Foundry](</docs/en/microsoft-foundry>)
     * `"anthropicAws"`: [Claude Platform on AWS](</docs/en/claude-platform-on-aws>)
+    * `"anthropicGoogleCloud"`: [Claude Models on Google Cloud (Anthropic managed)](</docs/en/claude-models-on-google-cloud-anthropic-managed>)
     * `"mantle"`: the Amazon Bedrock [Mantle endpoint](</docs/en/amazon-bedrock#use-the-mantle-endpoint>). A session that [runs Mantle alongside the Invoke API](</docs/en/amazon-bedrock#run-mantle-alongside-the-invoke-api>) uses both providers, so list `"bedrock"` and `"mantle"` together for it
     * `"customEndpoint"`: the Anthropic API or a cloud provider’s API sent to another host, such as an [LLM gateway](</docs/en/llm-gateway>) named by `ANTHROPIC_BASE_URL` or by a provider’s endpoint variable such as `ANTHROPIC_BEDROCK_BASE_URL`. Claude Code admits it only for the exact value a managed `env` block pins
     * `"gateway"`: a [Cloud gateway](</docs/en/claude-apps-gateway>) sign-in
@@ -5148,19 +5150,19 @@ Claude Code writes `"stable"` to your user settings when you pick it under **Aut
 
 ### `minimumVersion`
 
-Keep background auto-updates and `claude update` from installing any version below this one, so moving to the `"stable"` channel doesn’t downgrade you from a newer `"latest"` build. Claude Code writes this key for you when you choose to stay on your current version while switching channels in `/config`, and clears it when you switch back to `"latest"`.
+Keep background auto-updates and `claude update` from installing any version below the one you set. Claude Code writes this key for you when you choose to stay on your current version while switching channels in `/config`. Claude Code clears the key when you switch back to `"latest"` in `/config`.
 
-  * **Scope** : `Any file`. Set it in managed settings to pin an organization-wide minimum that user and project settings can’t lower.
-  * **Type** : string, a version number such as `"2.1.100"`; a value that isn’t a valid version is ignored
+  * **Scope** : `Any file`. Set this key in managed settings to pin an organization-wide minimum that user and project settings can’t override.
+  * **Type** : string, a version number such as `"2.1.323"`; a value that isn’t a valid version is ignored
   * **Default** : unset, so updates can install any version the channel offers
 
-This example follows the stable channel and refuses to install any version below 2.1.100:
+This example follows the stable channel and refuses to install any version below 2.1.323:
 
 settings.json
 
     {
       "autoUpdatesChannel": "stable",
-      "minimumVersion": "2.1.100"
+      "minimumVersion": "2.1.323"
     }
 
 This key only constrains updates. To make Claude Code refuse to start below a version, use `requiredMinimumVersion` instead. See [Pin a minimum version](</docs/en/setup#pin-a-minimum-version>).

@@ -5,8 +5,8 @@ When a mod’s module or one of its hooks fails, Claude Code skips it and the se
 When a mod does nothing, check what Claude Code reads from the mod’s files, and the line it writes when it skips something. For the first, in your shell run [`claude plugin validate`](</docs/en/plugins/mods/create#check-what-claude-code-reads-from-your-mod>) with the mod’s directory, as in `claude plugin validate ./first-mod`. It catches a misspelled event, a bad manifest, and a module Claude Code can’t read, without starting a session. When a module doesn’t load, a hook is skipped, or another mod refuses yours, Claude Code writes one line that names your mod. Where you read that line depends on the session:
 
   * **A session that hot-reloads a plugin directory** : a dim line in the transcript. That’s an interactive session you started with `--plugin-dir`, or one where [hot reloading is on](</docs/en/plugins/mods/create#ask-claude-for-a-mod>) for mods Claude wrote.
-  * **Any other interactive session, such as one that runs a mod you installed from a marketplace** : the debug log only. To get one, start the session with `claude --debug`.
-  * **A`claude -p` run with `--plugin-dir`**: stderr, in the default text output format. A refusal by another mod goes to the debug log only.
+  * **Any other interactive session, such as one that runs a mod you installed from a marketplace** : the debug log. To get one, start the session with `claude --debug`.
+  * **A`claude -p` run with `--plugin-dir`**: stderr, in the default text output format. A refusal by another mod goes to the debug log.
 
 ## Check whether mods can load
 
@@ -52,13 +52,13 @@ Message starts with| What it means
 
 ### Messages from the built-in guard
 
-Where the [built-in guard](</docs/en/plugins/mods/admin#know-what-happens-by-default>) loads, it can refuse a mod or one of its answers. Each message names the option your organization’s administrator sets to change the rule.
+Where the [built-in guard](</docs/en/plugins/mods/admin#know-what-happens-by-default>) loads, it can refuse a mod or one of its answers. Some messages name the option your organization’s administrator sets to change the rule.
 
 Message contains| What it means| Where it appears
 ---|---|---
 `mods are limited to your organization's by policy (allowManagedModsOnly)`| Your organization allows only [its own mods](</docs/en/plugins/mods/admin#install-your-organizations-mods>), so yours was refused| The debug log, and the transcript in a session that hot-reloads a plugin directory
-`tried to lift a deny rule in your settings`| Your mod’s [`tool.check`](</docs/en/plugins/mods/reference#tools>) hook approved a call that a `deny` rule refuses. The call stays denied.| The transcript and the debug log, once for each mod in a session. In a `claude -p` run, the debug log only.
-`the deny rules in your settings could not be checked for this call, so it is refused`| The guard failed while checking a call that a mod approved, so it refused the call| The reason Claude reads for the denied call
+`tried to lift a deny rule in your settings`| Your mod’s [`tool.check`](</docs/en/plugins/mods/reference#tools>) hook approved a call that a `deny` rule refuses. The call stays denied.| The transcript and the debug log, once for each mod in a session. In a `claude -p` run, the debug log.
+`the rules and hooks in your settings could not be checked for this call, so it is refused`| The guard failed while checking a call that a mod approved, so it refused the call| The reason Claude reads for the denied call
 
 ### `validate` passes and lists no `hooks` line
 
@@ -103,8 +103,6 @@ Claude writes a mod in an interactive session, nothing loads, and Claude Code do
 
 ## A hook is skipped or a mod is unloaded
 
-The mod loaded, and then Claude Code skipped one of its hooks or unloaded it.
-
 ### `hook skipped`
 
 The line names the mod and the event, then says `hook skipped:` and a reason, as in `first-mod: tool.call hook skipped: threw Error: boom`. A hook threw, exceeded its [time limit](</docs/en/plugins/mods/reference#limits>), or returned a result of the wrong shape. The line appears once for each event and kind of failure until the mod reloads. Fix the error. The debug log has a line for every occurrence.
@@ -135,6 +133,15 @@ A change to a [mod Claude wrote in this session](</docs/en/plugins/mods/create#a
 
 Claude doesn’t see this line, so paste it into your next message when you ask Claude for a fix.
 
+### `reload failed`
+
+Match the line to find out whether your mod’s last working version is still loaded:
+
+  * `reload failed, the previous version stays loaded: <reason>`: your mod keeps running its last working version. If your change still fails to load the next time Claude Code reloads all plugins, such as when you run `/reload-plugins`, the last working version unloads.
+  * `reload failed: <reason>`: run `/plugin` at the Claude Code prompt, and widen the terminal if the [`mods active` line](</docs/en/plugins/mods/overview#see-which-mods-a-session-loaded>) cuts off names. If it names the mod, its last working version is still loaded. If it doesn’t, or there’s no such line, no version is.
+
+Fix what the reason names and save your change. A `reloaded` line shows that it loaded.
+
 ### `$.agent.register refused: the hooks module that made the call is no longer loaded`
 
 The line starts with your mod’s name, as in `first-mod: $.agent.register refused: the hooks module that made the call is no longer loaded (it was reloaded or removed)`, and the agent isn’t registered. Your mod was reloaded or unloaded before the call. A reload loads a fresh copy of the hooks module, and this call came from code still running in the old copy, such as a hook that hadn’t returned yet. If that hook doesn’t catch the rejection, it fails and Claude Code skips it. To register the agent from the copy that stays loaded, make the call in your [`session.start`](</docs/en/plugins/mods/reference#session>) hook, which runs again in each fresh copy after a reload.
@@ -155,7 +162,7 @@ In [some interactive terminal sessions and VS Code sessions](</docs/en/hooks#pre
 
 ### A message about the deny rules in your settings
 
-`tried to lift a deny rule in your settings` and `the deny rules in your settings could not be checked for this call, so it is refused` both come from the built-in guard. Look them up in Messages from the built-in guard.
+`tried to lift a deny rule in your settings` and `the rules and hooks in your settings could not be checked for this call, so it is refused` both come from the built-in guard. Look them up in Messages from the built-in guard.
 
 ## A toast appears after a turn is stopped
 
@@ -169,12 +176,16 @@ The mod loaded, and its pane, band, toast, or controls don’t behave as you exp
 
 ### Another mod’s band shows and yours doesn’t
 
-There is one band above the prompt, and every mod shares it. A mod that runs [before yours](</docs/en/plugins/mods/events#the-order-mods-run-in>) replaces your band when it returns a tree without the result of `next(e)` in it. To show both bands, change that mod’s hook, or ask its author to:
+Each mod that draws above the prompt gets its own row, so when yours is missing while another’s shows, check for these causes:
 
-  * **Keep the bands after it** : put the result of `await next(e)` among the children of a `Box` in its tree, as in the Band above the prompt tab of [Pick where to draw](</docs/en/plugins/mods/interface#pick-where-to-draw>)
+  * **Your tree doesn’t validate** : write a debug log, search it for `ui.render hook skipped` or `does not validate`, and fix what the line names.
+  * **The rows together exceed a limit** : write a debug log and search it for `past the limits of the band`. The rows [share one tree’s limits](</docs/en/plugins/mods/reference#limits>), so draw a smaller tree, or ask the other mods’ authors to.
+  * **Another mod hides or draws over your row** : if the log has none of these lines, [turn off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>) the other mods one at a time. If your row comes back, ask that mod’s author to change it.
+
+Before v2.1.323, all mods shared one drawing in the band. A mod that ran [before yours](</docs/en/plugins/mods/events#the-order-mods-run-in>) replaced your drawing when it returned a tree without the result of `next(e)` in it. Update Claude Code, or ask that mod’s author to make these changes:
+
+  * **Keep later mods’ drawings** : put the result of `await next(e)` among the children of a `Box` in its tree
   * **Keep the tree valid** : don’t give that `Box`, or any `Box` around it, a `width`, `height`, `minWidth`, `minHeight`, `position`, `top`, `left`, `right`, `bottom`, `display`, or `overflow` prop
-
-To find that mod, write a debug log and search it for `answered ui.render without next()`. A line such as `other-mod (user) answered ui.render without next()` names a mod that returned its tree without calling `next(e)`. It doesn’t name the [render site](</docs/en/plugins/mods/reference#render-sites>), so a pane-only mod can appear too. A mod that calls `next(e)` and drops the result gets no line, so check the hooks before yours too. A mod’s band is also missing when the tree its own hook returned doesn’t validate, and the other mods’ bands stay. To find which mod and why, write a debug log and search it for `ui.render hook skipped`.
 
 ### A pane or band is empty or shows Claude Code’s usual content
 
@@ -186,11 +197,11 @@ Fix what the reason names. If the reason is cut short, write a debug log and sea
 
 ### A `ui.render` line says `refused`
 
-`ui.render (<site>) refused:`, or `ui.render (<site>): the chain settled on a tree that does not validate` in the debug log, means the [tree](</docs/en/plugins/mods/interface#build-a-tree-from-elements>) at that site exceeds a [size limit](</docs/en/plugins/mods/reference#limits>). Either line names the [render site](</docs/en/plugins/mods/reference#render-sites>) and then the reason, and the reason names the limit. Change the mods that draw at that site so their [`ui.render`](</docs/en/plugins/mods/reference#interface>) hooks return smaller trees, or ask their authors to. If the transcript line starts with `hooks`, more than one loaded mod has a `ui.render` hook for that site, so check each of those mods’ trees. For several mods whose bands above the prompt nest into a tree more than 32 levels deep, the line reads:
+`ui.render (<site>) refused:`, or `ui.render (<site>): the chain settled on a tree that does not validate` in the debug log, means the [tree](</docs/en/plugins/mods/interface#build-a-tree-from-elements>) at that site exceeds a [size limit](</docs/en/plugins/mods/reference#limits>). Either line names the [render site](</docs/en/plugins/mods/reference#render-sites>) and then the reason. Change the mods that draw at that site so their [`ui.render`](</docs/en/plugins/mods/reference#interface>) hooks return smaller trees, or ask their authors to. If the transcript line starts with `hooks`, more than one loaded mod has a `ui.render` hook for that site, so check each of those mods’ trees. For rows above the prompt that don’t fit the band’s limits together, the line reads:
 
-    hooks: ui.render (AbovePrompt) refused: deeper than 32; nothing was drawn
+    hooks: ui.render (AbovePrompt) refused: a row past the limits of the band; nothing was drawn
 
-Before v2.1.307, a `refused:` line for any site reported any tree that didn’t validate, and for `Pane` and `AbovePrompt` it ended `; the engine drew its own`. On those releases, fix what the reason names.
+Despite that ending, the rows that fit still draw. Before v2.1.307, a `refused:` line for any site reported any tree that didn’t validate, and for `Pane` and `AbovePrompt` it ended `; the engine drew its own`. On those releases, fix what the reason names.
 
 ### `needs a key`, `is drawn twice`, or `key each once`
 
@@ -231,11 +242,12 @@ The band is [collapsed](</docs/en/plugins/mods/interface#when-the-user-collapses
 
 ### Hotkeys do nothing
 
-Your pane or band doesn’t have keyboard focus, your button is in a collapsed band, or the drawing is in the VS Code extension, where buttons have no hotkeys. Do the one that matches:
+Your pane or band doesn’t have keyboard focus, your button is in a collapsed band, another mod uses the same key, or the drawing is in the VS Code extension.
 
   * **No keyboard focus** : press Ctrl+X then Tab or, in [fullscreen rendering](</docs/en/fullscreen>), click the pane or band. To have the pane take focus when it opens, open it with `focus: true` from a command.
   * **The button is in a collapsed band** : the band shows one dim row that starts with `▸ plugin panel hidden`. Press the keys the row names, Ctrl+X then Ctrl+A by default, to expand it.
-  * **In the VS Code extension** : click the button, or press Enter on it once it has focus
+  * **Another mod’s row in the band uses the same hotkey** : in the terminal, the key presses neither button. To check, [turn off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>) the other mods that draw rows, one at a time, until the key works. Change your button’s `hotkey`, or ask that mod’s author to change theirs.
+  * **In the VS Code extension, where buttons have no hotkeys** : click the button, or press Enter on it once it has focus
 
 ### A drawing works in the terminal and not in the Desktop app or VS Code
 
@@ -318,7 +330,7 @@ A mod that loaded has a line that names it and lists the events it handles. A mo
 
     hooks module first-mod@inline loaded (worker, environment 2, tier user); events: session.start,tool.call,command.run,ui.render
 
-To write your own lines in the log, call [`$.ui.log`](</docs/en/plugins/mods/api#show-something-without-starting-a-turn>) with a second argument, as in `$.ui.log('message', { to: 'debug' })`. Without the second argument, `$.ui.log` adds a dim line to the transcript. While you edit a mod loaded with `--plugin-dir`, the transcript shows a line for each reload that names the mod and lists its hooks. If a save breaks the module, the line says `reload failed, the previous version stays loaded:` with the reason, and the last working version keeps running until Claude Code next reloads plugins, such as when you run `/reload-plugins`.
+To write your own lines in the log, call [`$.ui.log`](</docs/en/plugins/mods/api#show-something-without-starting-a-turn>) with a second argument, as in `$.ui.log('message', { to: 'debug' })`. Without the second argument, `$.ui.log` adds a dim line to the transcript.
 
 ## Next steps
 
