@@ -340,6 +340,10 @@ NotebookEdit modifies a Jupyter notebook one cell at a time, targeting cells by 
 
 NotebookEdit refuses a notebook file that doesn’t decode as UTF-8, under the same rule as Edit, and writes nothing. Permission rules use the `Edit(...)` path format. A rule like `Edit(notebooks/**)` covers NotebookEdit calls on files in that directory.
 
+### Replacing a cell clears its saved outputs in the file
+
+When NotebookEdit replaces a code cell, its execution count and saved outputs are cleared. To get the output back, re-run the cell and any cells that use the functions or variables it defines. See [Work with Jupyter notebooks](</docs/en/vs-code#work-with-jupyter-notebooks>) for the VS Code workflow.
+
 ## PowerShell tool
 
 The PowerShell tool lets Claude run PowerShell commands natively. On Windows, this means commands run in PowerShell instead of routing through Git Bash. How the tool becomes available depends on your platform:
@@ -522,7 +526,7 @@ On Claude Code v2.1.285 or later, set [`CLAUDE_CODE_DISABLE_WEB_FETCH`](</docs/e
 
 WebSearch runs a query against Anthropic’s [web search](<https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool>) backend and returns result titles and URLs. It doesn’t fetch the result pages. To read a page Claude finds in search results, it follows up with WebFetch. The tool may issue up to eight backend searches per call, refining the search internally before returning results. Claude can scope results with `allowed_domains` to include only certain hosts, or `blocked_domains` to exclude them. The two lists can’t be combined in a single call. When the search request hits an overloaded API, Claude Code retries it with backoff; a call that still fails returns an error result. WebSearch permission rules take no specifier. A bare `WebSearch` entry in `allow` or `deny` is the only form. The search backend is not configurable. To search with a different provider, add an [MCP server](</docs/en/mcp>) that exposes a search tool.
 
-WebSearch is available on the Claude API, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), [Claude Models on Google Cloud (Anthropic managed)](</docs/en/feature-availability#availability-by-model-provider>), and Microsoft Foundry. On Google Cloud’s Agent Platform it works with Opus 4, Sonnet 4, Haiku 4.5, and later models. Amazon Bedrock doesn’t expose the server-side web search tool.
+WebSearch is available on the Claude API, [Claude Platform on AWS](</docs/en/claude-platform-on-aws>), [Claude Models on Google Cloud (Anthropic managed)](</docs/en/claude-models-on-google-cloud-anthropic-managed>), and Microsoft Foundry. On Google Cloud’s Agent Platform it works with Opus 4, Sonnet 4, Haiku 4.5, and later models. Amazon Bedrock doesn’t expose the server-side web search tool.
 
 ### Session search limit
 

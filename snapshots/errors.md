@@ -34,7 +34,8 @@ Message| Section
 `Agent terminated early due to an API error`| Server errors
 `You've hit your session limit` / `You've hit your weekly limit` / `You've hit your Opus limit` / `You've hit your Sonnet limit`| Usage limits
 `Usage credits required for 1M context`| Usage limits
-`the prompt to confirm went unanswered — nothing was sent`| Usage limits
+`the prompt to confirm went unanswered · nothing was sent`, from v2.1.324| Usage limits
+`Claude stopped here · send a message to be asked again`| Usage limits
 `Server is temporarily limiting requests`| Usage limits
 `Request rejected (429)`| Usage limits
 `Credit balance is too low`| Usage limits
@@ -72,6 +73,7 @@ Message| Section
 `Remote Control stopped — the app running this session is now signed in to a different Claude account`| Authentication
 `Remote Control stopped — the app running this session is signed out of Claude`| Authentication
 `Couldn't verify your organization's policy for remote control`| [Troubleshoot Remote Control](</docs/en/remote-control#couldnt-verify-your-organizations-policy-for-remote-control>)
+`Remote Control didn't finish connecting`| [Start a Remote Control session](</docs/en/remote-control#start-a-remote-control-session>)
 `Remote Control is disabled by your organization's policy`| [Troubleshoot Remote Control](</docs/en/remote-control#remote-control-is-disabled-by-your-organizations-policy>)
 `Remote Control was turned off by your organization's policy`| [Troubleshoot Remote Control](</docs/en/remote-control#remote-control-was-turned-off-by-your-organizations-policy>)
 `Session failed: working folder not found:`| [Troubleshoot Remote Control](</docs/en/remote-control#working-folder-not-found>)
@@ -130,11 +132,13 @@ Message| Section
 `Unable to connect to API`| Network
 `Connection refused —` / `Can't reach the API server —` / `No internet route —` / `Couldn't connect through your proxy` / `Connection dropped`, each with an error code in parentheses| Network
 `Unable to connect to Anthropic services` during setup| Network
+`Unable to fetch your privacy settings at this time`| [Privacy settings on claude.ai](<https://claude.ai/settings/data-privacy-controls>)
 `Socket is closed`| Network
 `Waiting for API response · will retry in`| Automatic retries, or Network if it persists
 `API returned an empty or malformed response`| Network
 `Streaming response ended before any complete data was received`| Network
 `Bedrock streaming response has content-type "..."; expected "application/vnd.amazon.eventstream"`| Network
+`Claude Code used only the certificates that it could read in full from the NODE_EXTRA_CA_CERTS file` / `Claude Code ignored all of the NODE_EXTRA_CA_CERTS file: it holds no certificate that Claude Code can read`| [Custom CA certificates](</docs/en/network-config#custom-ca-certificates>)
 `SSL certificate verification failed`| Network
 `SSL certificate error (...)` during login or startup| Network
 `unable to get local issuer certificate`| Network
@@ -265,6 +269,7 @@ Message| Section
 `Couldn't run `<command>` for <name>. A file named HEAD or .git in this folder or one above it may not be yours`, from a skill that injects dynamic context| [Permission checks on injected commands](</docs/en/skills#permission-checks-on-injected-commands>)
 `Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`| Command-line errors
 `No shell command in <name> was run, because the <tool> tool does not accept one of them`| Command-line errors
+`This skill, command or hook and the arguments filled into it add up to more than 4,000,000 characters`| Command-line errors
 `Input must be provided either through stdin or as a prompt argument when using --print`| Command-line errors
 `Claude Code can't read the keyboard here: stdin is not a terminal`| Command-line errors
 `Error: Input contained only whitespace`| Command-line errors
@@ -278,6 +283,7 @@ Message| Section
 `Your connected GitHub account can't see <owner>/<repo>`| Command-line errors
 `The GitHub App preflight failed transiently (network or service hiccup) — retry in a moment to start from GitHub instead`| Command-line errors
 `Not uploading this working tree` with `the upload cannot follow that setting`| Command-line errors
+`Not uploading this working tree` with another cause / `Git will not work in this checkout because its folder, or the .git in it, belongs to another user`| [Send local repositories without GitHub](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>)
 `GitHub isn't connected to your Claude account, so this repository can't be cloned in the cloud`| Command-line errors
 `Your GitHub organization has an IP allowlist that is blocking Claude`| Command-line errors
 `Your GitHub organization requires single sign-on`| Command-line errors
@@ -301,6 +307,7 @@ Message| Section
 `/recap only runs when you ask for it yourself in this session`| Command-line errors
 `/feedback is disabled by your organization's policy`, or the same for `/bug` or `/share`| Command-line errors
 ``plugin eval` is currently in early access` / ``plugin eval` is currently unavailable`| Plugin errors
+`credential store on this machine holds a symbolic link inside it`| [Grant tools](</docs/en/plugin-evals#grant-tools>)
 `cannot be evaluated where sessions load it`| [Test plugins with evals](</docs/en/plugin-evals#cannot-be-evaluated-where-sessions-load-it>)
 `Marketplace "<name>" is registered from an untrusted source`| Plugin errors
 `Claude Code refuses the marketplace name "<name>"`| Plugin errors
@@ -347,7 +354,7 @@ Message| Section
 `cannot contain null bytes (\0)`| Tool errors
 `Path contains null bytes`| Tool errors
 `command contains the invisible character U+FEFF (byte order mark) or U+180E (Mongolian vowel separator), and was not run`| Tool errors
-`This call was not run. The command was approved before Claude Code restarted`| Tool errors
+`This call was not run. Claude Code could not confirm that the shell is back in the directory`, from v2.1.323| Tool errors
 `File is too large to read as an image (the limit is 128MB)`| Tool errors
 `Cannot read this as an image: <path> is a pipe or a device`| Tool errors
 `subagent_type is required: the general-purpose agent is not available in this session`| Tool errors
@@ -436,6 +443,7 @@ Message| Section
 `Claude Code's fullscreen renderer didn't finish starting last time on this machine` / `Claude Code's fullscreen renderer has repeatedly failed to start on this machine`| [Fullscreen rendering](</docs/en/fullscreen#fullscreen-renderer-didnt-finish-starting>)
 `Claude Code exited after an unrecoverable interface error (...)`| Configuration warnings
 `Agent descriptions are over the 15.0k-token limit`| Configuration warnings
+`declares type "claudeai-proxy", which only claude.ai connectors use`| Remove the entry from your MCP config. See [Use MCP servers from claude.ai](</docs/en/mcp#use-mcp-servers-from-claude-ai>).
 `hook needs quotes around a path with a space`| Configuration warnings
 `Instruction file not loaded`| Configuration warnings
 `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account`| Configuration warnings
@@ -477,8 +485,7 @@ Message| Section
 `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" reads as <N> tokens, so Claude Code treats it as the 100k minimum`| [Values and warnings for `CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/model-config#claude_code_auto_compact_window-values>)
 `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" is too large, so Claude Code treats it as the 1M maximum`| [Values and warnings for `CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/model-config#claude_code_auto_compact_window-values>)
 `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" isn't a usable size, so Claude Code ignores it`| [Values and warnings for `CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/model-config#claude_code_auto_compact_window-values>)
-`Model "<model>" isn't recognized · context assumed to be 200k tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
-`Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
+`Model "<model>" isn't recognized · context assumed to be <N> tokens` / `Claude Code doesn't recognize the model "<model>", so it assumes a context window of <N> tokens`| [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
 `Model "<model>" isn't recognized · did you mean "<suggestion>"?` / `Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?`| [Fix a mistyped model name](</docs/en/model-config#fix-a-mistyped-model-name>)
 `[claude-code:unrecognized_model]`| Configuration warnings
 `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly`| Configuration warnings
@@ -828,12 +835,12 @@ Before v2.1.268, the message ended with `run /usage-credits to turn them on, or 
 
 When the [Fable usage-credits consent prompt](</docs/en/model-config#fable-and-usage-credits>) closes with nobody answering it, Claude Code ends the turn with one of these messages:
 
-    Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
-    Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
+    Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered · nothing was sent · answer it where this session is running, or /model to change
+    Fable 5.1 now uses usage credits · the prompt to confirm went unanswered · nothing was sent · answer it where this session is running, or /model to change
 
-The messages name the session’s Fable model, so on Fable 5.2 they read `continuing on Fable 5.2` and `Fable 5.2 now uses usage credits`. Before v2.1.257, the first message began `Fable 5 limit reached`. This happens in [Remote Control](</docs/en/remote-control>) sessions, [background sessions](</docs/en/agent-view>), [agent team](</docs/en/agent-teams>) teammate sessions, and sessions that another application hosts through the Agent SDK. For when Claude Code closes the prompt, see [Fable and usage credits](</docs/en/model-config#fable-and-usage-credits>). **What to do:**
+The messages name the session’s Fable model, so on Fable 5.2 they read `continuing on Fable 5.2` and `Fable 5.2 now uses usage credits`. With [Remote Control](</docs/en/remote-control>) connected, each message can instead end `Claude stopped here · send a message to be asked again, or switch models`. Before v2.1.257, the first message began `Fable 5 limit reached`. This happens in [Remote Control](</docs/en/remote-control>) sessions, [background sessions](</docs/en/agent-view>), [agent team](</docs/en/agent-teams>) teammate sessions, and sessions that another application hosts through the Agent SDK. For when Claude Code closes the prompt, see [Fable and usage credits](</docs/en/model-config#fable-and-usage-credits>). **What to do:**
 
-  * Where the session runs, at the terminal or in the application hosting it, send another prompt and answer the consent prompt when it reappears. For a background session, attach to it from the [agents view](</docs/en/agent-view>) first. Resending from a Remote Control client shows this message again, because the client can’t display the prompt.
+  * Where the session runs, at the terminal or in the application hosting it, send another prompt and answer the consent prompt when it reappears. For a background session, attach to it from the [agents view](</docs/en/agent-view>) first. If the message says `Claude stopped here`, you can also reply from your connected device and answer the consent prompt there.
   * Run `/model` to switch to a model that doesn’t bill usage credits
   * To give yourself more time, set [`dialogExpiry`](</docs/en/settings-reference#dialogexpiry>) to a longer value or `"never"`
 
@@ -1974,7 +1981,7 @@ Before v2.1.162, Claude Code attempted the compaction anyway and surfaced the ba
   * Disable MCP servers you are not using with `/mcp disable <name>` to remove their tool definitions from context
   * Trim large `CLAUDE.md` memory files, or move instructions into [path-scoped rules](</docs/en/memory#path-specific-rules>) that load only when relevant
   * Auto-compact is on by default and normally prevents this error. If you turned it off in `/config` or with [`DISABLE_AUTO_COMPACT`](</docs/en/env-vars>), turn it back on. If you keep it off, run `/compact` yourself before the window fills.
-  * If the error appears near 200K tokens on a model that accepts more, one cause is a model ID that Claude Code doesn’t recognize. Claude Code assumes a 200K window for such an ID, so to keep working past that point, [give it the model’s real context window](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>).
+  * If Claude Code warned that it doesn’t recognize your model ID, the warning can name the window it assumed. When the model’s real window differs, [give Claude Code the real window](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>).
     * If you use a custom [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) and the error starts with `Prompt is too long · automatic compaction failed`, [set the model’s context window](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>) or [update](</docs/en/setup#update-claude-code>) to v2.1.299 or later. Before v2.1.299, Claude Code ended the turn with that message near the assumed 200K window instead of sending the request.
   * If the error appeared right after you stopped Claude while it was compacting the conversation, your conversation is unchanged and still large enough to need compacting. Run `/compact` and send your message again. To keep the error from recurring, [update Claude Code](</docs/en/setup#update-claude-code>) to v2.1.304 or later. Before v2.1.304, stopping at that moment could end the turn with this error.
   * On v2.1.305, with many MCP tools and a direct connection to the Anthropic API, this error can hide an unrelated 400 or 422 error from the API. [Update Claude Code](</docs/en/setup#update-claude-code>) to v2.1.306 or later to see the original error.
@@ -3045,6 +3052,10 @@ The message ends with the refused command, showing each refused character as `�
 
   * Find each `�` in the command quoted at the end of the message. Remove the character it stands for from the [skill or command file](</docs/en/skills#where-skills-live>), or from the arguments or [options](</docs/en/plugins/manifest-reference#user-configuration>) substituted into the file.
 
+### Skill, command, or hook over the 4,000,000-character limit
+
+A message with `more than 4,000,000 characters` means a skill, a command, or a [prompt or agent hook](</docs/en/hooks#prompt-and-agent-hook-fields>) didn’t run. If you pasted long text as arguments, save it to a file, run `/clear`, since the text stays in the conversation, then pass its path. Outside [Code Mode](</docs/en/code-mode#tool-call-refused-by-a-hook>), a `PreToolUse` prompt or agent hook over the limit doesn’t block the call. Use a [command hook](</docs/en/hooks#command-hook-fields>), which has no such limit.
+
 ### Input must be provided when using `--print`
 
 Bare `claude` needs stdout to be a terminal to start the interactive UI. When stdout is redirected, or the console isn’t a real terminal, such as PowerShell ISE and some IDE output panes, `claude` runs [non-interactively](</docs/en/headless>) instead. That is the same mode as `claude -p`, which requires a prompt, so the message names `--print` even when you didn’t pass the flag. Passing `-p`/`--print` with no prompt and nothing piped on stdin produces the same error anywhere.
@@ -3866,11 +3877,11 @@ The [PowerShell tool](</docs/en/tools-reference#powershell-tool>) refused to run
   * **For a command Claude wrote** : you have nothing to fix. The message tells Claude how to rewrite the command.
   * **For a skill or command file** : the message follows `No shell command in <name> was run`. See where to find the character and remove it.
 
-### Command approved before Claude Code restarted was not run
+### Approved command was not run after Claude Code restarted
 
 A shell command you approved didn’t run, and Claude receives this message as the command’s result:
 
-    This call was not run. The command was approved before Claude Code restarted, and Claude Code could not confirm that the shell is back in the directory where it was approved. That directory may be gone or replaced, lie outside the directory where the session started, or be one that Claude Code needs approval to enter or is not allowed to examine. The shell's directory is <directory>. If the command still makes sense, cd to the directory it was meant for and make the call again; it may need approval again.
+    This call was not run. Claude Code could not confirm that the shell is back in the directory where it was approved. That directory may be gone or replaced, lie outside the directory where the session started, or be one that Claude Code needs approval to enter or is not allowed to examine. The shell's directory is <directory>. If the command still makes sense, cd to the directory it was meant for and make the call again; it may need approval again.
 
 The message’s third sentence can instead read `It does not keep track of that directory across a restart in a session that has been in a worktree.` **What to do:**
 
@@ -4823,7 +4834,7 @@ Before v2.1.257, Claude Code accepted a reachable network path as a working dire
 Your session is eligible for [server-managed settings](</docs/en/server-managed-settings>), but Claude Code couldn’t fetch them or couldn’t apply what the server returned, so it shows this warning in interactive sessions and in Claude Desktop’s Code tab. The parenthesized cause names what failed, such as `network error`, `request timed out`, or `authentication rejected (401)`. The cause `no setting in the server response could be applied as written` means the server answered but none of the settings it returned passed [validation](</docs/en/server-managed-settings#invalid-entries-in-delivered-settings>). Before v2.1.282, this cause read `server returned invalid settings`. The rest of the line says which policy the session runs on:
 
   * **Settings cached from an earlier successful fetch** : Claude Code runs the session on that cached policy, except the [withheld environment variables](</docs/en/server-managed-settings#fetch-and-caching-behavior>), and the line reads `using cached policy`.
-  * **No cache** : Claude Code runs the session without server-managed settings, and the line reads `no remote policy applied`.
+  * **No cached settings to apply** : Claude Code runs the session without server-managed settings, and the line reads `no remote policy applied`. For example, the machine hasn’t fetched settings yet, or last fetched them more than [24 hours](</docs/en/server-managed-settings#fetch-and-caching-behavior>) ago.
 
 In the Code tab, the warning appears as a line in the conversation when you send a message, and a new line appears when the state of the fetch changes. Three related messages appear the same way:
 

@@ -275,7 +275,7 @@ settings.json
       "advisorModel": "opus"
     }
 
-The key has no effect on providers where the advisor [isn’t available](</docs/en/advisor#requirements>), such as Amazon Bedrock. On Claude Platform on AWS or [Claude Models on Google Cloud (Anthropic managed)](</docs/en/feature-availability#availability-by-model-provider>), the key requires Claude Code v2.1.300 or later. `"fable"` requires [Fable access](</docs/en/advisor#choose-an-advisor-model>).
+The key has no effect on providers where the advisor [isn’t available](</docs/en/advisor#requirements>), such as Amazon Bedrock. On Claude Platform on AWS or [Claude Models on Google Cloud (Anthropic managed)](</docs/en/claude-models-on-google-cloud-anthropic-managed>), the key requires Claude Code v2.1.300 or later. `"fable"` requires [Fable access](</docs/en/advisor#choose-an-advisor-model>).
 
 ### `alwaysThinkingEnabled`
 
