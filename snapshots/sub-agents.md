@@ -259,7 +259,7 @@ To see the debug log, run Claude Code with `--debug`. A [plugin subagent](</docs
 
 ##### Check an `agents` directory before a session
 
-To find files in an `agents` directory whose frontmatter doesn’t parse, run `claude plugin validate` against the directory, for example `.claude/agents` or `~/.claude/agents`. Claude Code checks only [the directory you name](</docs/en/plugins/cli-reference#validate-a-directory>), and doesn’t flag a file whose frontmatter parses but has no `name`. Requires Claude Code v2.1.233 or later.
+To find files in an `agents` directory whose frontmatter doesn’t parse, run `claude plugin validate` against the directory, for example `.claude/agents` or `~/.claude/agents`. Claude Code checks only [the directory you name](</docs/en/plugins/cli-reference#validate-a-directory>), and doesn’t flag a file whose frontmatter parses but has no `name`.
 
 ### Choose a model
 
@@ -687,7 +687,7 @@ Claude automatically delegates tasks based on the task description in your reque
 When automatic delegation isn’t enough, you can request a subagent yourself. Three patterns escalate from a one-off suggestion to a session-wide default:
 
   * **Natural language** : name the subagent in your prompt; Claude decides whether to delegate
-  * **@-mention** : guarantees the subagent runs for one task
+  * **@-mention** : tells Claude to run the subagent for one task
   * **Session-wide** : the whole session runs as that subagent via the `--agent` flag or the `agent` setting
 
 For natural language, there’s no special syntax. Name the subagent and Claude typically delegates:
@@ -695,11 +695,11 @@ For natural language, there’s no special syntax. Name the subagent and Claude 
     Use the test-runner subagent to fix failing tests
     Have the code-reviewer subagent look at my recent changes
 
-**@-mention the subagent.** Type `@` and pick the subagent from the typeahead, the same way you @-mention files. This ensures that specific subagent runs rather than leaving the choice to Claude:
+**@-mention the subagent.** Type `@` and pick the subagent from the typeahead, the same way you @-mention files:
 
     @"code-reviewer (agent)" look at the auth changes
 
-Your full message still goes to Claude, which writes the subagent’s task prompt based on what you asked. The @-mention controls which subagent Claude invokes, not what prompt it receives. Subagents provided by an enabled [plugin](</docs/en/plugins/overview>) appear in the typeahead under their scoped name, such as `my-plugin:code-reviewer` or `my-plugin:review:security` when the plugin organizes agents into subfolders. Named background subagents currently running in the session also appear in the typeahead, showing their status next to the name. You can also type the mention manually without using the picker: `@agent-<name>` for local subagents, or `@agent-` followed by the scoped name for plugin subagents, for example `@agent-my-plugin:code-reviewer`. While you type this form the typeahead shows file matches rather than agents. The agent mention still resolves when you submit. **Run the whole session as a subagent.** Pass [`--agent <name>`](</docs/en/cli-reference>) to start a session where the main thread itself takes on that subagent’s tool restrictions and model:
+Your full message still goes to Claude, which writes the subagent’s task prompt based on what you asked. Subagents provided by an enabled [plugin](</docs/en/plugins/overview>) appear in the typeahead under their scoped name, such as `my-plugin:code-reviewer` or `my-plugin:review:security` when the plugin organizes agents into subfolders. Named background subagents currently running in the session also appear in the typeahead, showing their status next to the name. You can also type the mention manually without using the picker: `@agent-<name>` for local subagents, or `@agent-` followed by the scoped name for plugin subagents, for example `@agent-my-plugin:code-reviewer`. While you type this form the typeahead shows file matches rather than agents. The agent mention still resolves when you submit. **Run the whole session as a subagent.** Pass [`--agent <name>`](</docs/en/cli-reference>) to start a session where the main thread itself takes on that subagent’s tool restrictions and model:
 
     claude --agent code-reviewer
 

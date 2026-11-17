@@ -546,7 +546,7 @@ The Write tool creates a new file or overwrites an existing one with the full co
   * Newer models can overwrite a file they never read this session under the same conditions as read-before-edit: reading it wouldn’t need a permission prompt and the Read tool is available.
   * Jupyter notebooks, and files Claude has read only partially with a `PARTIAL view` notice, require the read on every model.
 
-This constraint doesn’t apply to new files. Before v2.1.228, every model required the read before overwriting an existing file. Viewing the file with Bash also satisfies this requirement under the same rules described in Edit tool behavior. For partial changes to an existing file, Claude uses Edit instead of Write.
+This constraint doesn’t apply to new files. Viewing the file with Bash also satisfies this requirement under the same rules described in Edit tool behavior. For partial changes to an existing file, Claude uses Edit instead of Write.
 
 ## Check which tools are available
 

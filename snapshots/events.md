@@ -378,7 +378,7 @@ When `guard` throws or times out on a Bash call, Claude Code calls the handler w
 The handler has a shorter [time limit](</docs/en/plugins/mods/reference#limits>) of its own. If the handler itself throws or times out, Claude Code skips the hook as if it had no handler. When `guard` hadn’t called `next`, the command then goes on as it would without the mod. The same handler shape fits a guard on `prompt.submit` or `config.set`. When `next.called` is false, return the refusal that the [events reference](</docs/en/plugins/mods/reference#events>) lists for that event: `{ drop: 'the reason' }` for `prompt.submit`, `{ deny: 'the reason' }` for `config.set`. At `tool.check` and `plugin.register`, a refusal returned after `next` resolved still holds, so return it without testing `next.called`:
 
   * **`tool.check`** : return `{ decision: 'deny', reason: 'the reason' }`
-  * **`plugin.register`** : return `{ refuse: 'the reason' }`, as [Refuse mods when your check fails](</docs/en/plugins/mods/admin#refuse-mods-when-your-check-fails>) shows
+  * **`plugin.register`** : return `{ refuse: 'the reason' }`. On v2.1.326 or later, the other mod’s whole plugin then stays out. To stop only the mod, see [Refuse mods when your check fails](</docs/en/plugins/mods/admin#refuse-mods-when-your-check-fails>).
 
 At `tool.call`, a `deny` returned after `next` resolved withholds the result from Claude.
 

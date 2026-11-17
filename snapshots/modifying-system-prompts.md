@@ -336,7 +336,7 @@ While you iterate on prompt wording and want each edit to reach a session you re
 
 ## Context Claude Code adds outside the system prompt
 
-System reminders are messages Claude Code adds to the conversation during a session to give Claude context, such as the contents of your CLAUDE.md files or a note that a file changed on disk. Claude Code sends them in the conversation, not in the system prompt, so most reach Claude whether you use the `claude_code` preset or pass your own string as `systemPrompt`. This section covers the reminders most likely to change how your agent behaves, how to turn off the ones your agent replaces, and how to see what Claude received in a specific request.
+System reminders are messages Claude Code adds to the conversation during a session to give Claude context, such as the contents of your CLAUDE.md files. Claude Code sends them in the conversation, not in the system prompt, so most reach Claude whether you use the `claude_code` preset or pass your own string as `systemPrompt`. This section covers the reminders most likely to change how your agent behaves, how to turn off the ones your agent replaces, and how to see what Claude received in a specific request.
 
 ### Reminders Claude Code adds to the conversation
 
@@ -349,7 +349,7 @@ System reminders are text Claude Code adds to the conversation alongside the pro
   * **Available skills** : the names and descriptions of the [skills](</docs/en/agent-sdk/skills>) Claude can call
   * **Available subagents** : the names and descriptions of the [subagents](</docs/en/agent-sdk/subagents>) Claude can start
   * **Task list nudges** : in a [session that has the task-tracking tools](</docs/en/agent-sdk/todo-tracking#model-availability>), a prompt to update the task list when Claude hasn’t touched it for several turns
-  * **File-changed notes** : a note that a file Claude read earlier has changed on disk
+  * **File-changed notes** : a note that a file Claude edited earlier has since changed on disk
 
 Claude Code introduces your CLAUDE.md files with a line telling Claude that the instructions override default behavior. If you pass your own string as `systemPrompt`, add a sentence to it that says what a system reminder is. The `claude_code` preset has one, and your string replaces the whole preset. Without it, nothing in your prompt tells Claude that reminders such as CLAUDE.md content and hook output come from the application rather than the user. For example:
 

@@ -84,7 +84,7 @@ These requirements decide whether you can add a secret and whether the agent pro
 
 #### Add a secret
 
-You add secrets one at a time. To change a secret’s hosts or value, delete it and add it again. To add a secret to a shared environment, open it for editing from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>), then continue from step 2 in its **Network secrets** section. If you’re on a Team or Enterprise plan and don’t hold an organization admin role, follow step 1 on your own environment, then fill in the shorter form.
+You add secrets one at a time. To change a secret’s hosts or value, delete it and add it again. To add a secret to a shared environment, open it for editing from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>), select its **Network secrets** row, then continue from step 2. If you’re on a Team or Enterprise plan and don’t hold an organization admin role, follow step 1 on your own environment, then fill in the shorter form.
 
 1
 
@@ -96,7 +96,7 @@ Open the environment for editing at [claude.ai/code](<https://claude.ai/code>). 
 
 Add the secret
 
-Select **Add secret** , labeled **Add** in admin settings, and fill in the form. Keep the default **Secret type** , **Bearer** , for an API key that travels in a request header, and fill in these fields:
+Select **Add secret** and fill in the form. Keep the default **Secret type** , **Bearer** , for an API key that travels in a request header, and fill in these fields:
 
   * **Allowed websites** : the API’s hosts, such as `api.example.com`. A leading `*.` matches every subdomain
   * **Custom headers** : one row for the header that carries the key. The row already has `Authorization` as the **Header name** and `Bearer` as the **Prefix** ; paste the key itself as the **Value**. For a header like `X-Api-Key` that takes the bare value, change the name and clear the prefix
@@ -166,7 +166,7 @@ In [Claude Tag](<https://claude.com/docs/claude-tag/overview>) channels, Claude 
 
 ## Network access
 
-Each environment sets one network access level, which controls the outbound connections its sessions can make. A new environment starts at **Limited** with **Allow package managers** checked, so its sessions reach package registries and other allowlisted domains. To change an environment’s network access, open it for editing and use the **Network access** selector in the dialog. A shared environment opens read-only there, so an Owner changes its network access from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>) instead. The control that opens the selector appears on the app surfaces listed under The Default environment and in the [cloud scheduled task editor](</docs/en/routines#environments-and-network-access>). Personal environments don’t have a separate page in your claude.ai account settings. When you change an Anthropic-hosted environment’s network access, its existing sessions follow the new setting within about a minute, for requests that go through the session’s network allowlist. You don’t need to start a new session.
+Each environment sets one network access level, which controls the outbound connections its sessions can make. A new environment starts at **Limited** with **Allow package managers** checked, so its sessions reach package registries and other allowlisted domains. To change an environment’s network access, open it for editing and use the **Network access** selector in the dialog. A shared environment opens read-only there, so an Owner changes its network access from the **Cloud environments** page in [admin settings](<https://claude.ai/admin-settings>) instead. The control that opens the selector appears on the app surfaces listed under The Default environment and in the [cloud scheduled task editor](</docs/en/routines#environments-and-network-access>). When you change an Anthropic-hosted environment’s network access, its existing sessions follow the new setting within about a minute, for requests that go through the session’s network allowlist. You don’t need to start a new session.
 
 MCP connectors you enable on a session or scheduled task work without adding their hosts to **Allowed domains** , because connector traffic travels through Anthropic’s servers rather than the session’s network. This relies on the same Anthropic-bound channel noted under [Security and isolation](</docs/en/claude-code-on-the-web#security-and-isolation>). Turn off any connector you don’t need to limit which tools Claude can reach.
 
@@ -250,7 +250,7 @@ Your organization’s [server-managed settings](</docs/en/server-managed-setting
 Your user `~/.claude/CLAUDE.md`| No| Lives on your machine, not in the repo. See Add personal preferences without committing to the repo
 Your user `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/commands/`| No| Live on your machine, not in the repo. Commit them to the repo’s `.claude/` directory instead. Cloud sessions automatically load [skills you enable on claude.ai](</docs/en/skills#skills-in-cowork-and-cloud-sessions>)
 Plugins enabled only in your user settings| No| User-scoped `enabledPlugins` lives in `~/.claude/settings.json` on your machine
-MCP servers you added with `claude mcp add` at the default local scope or the user scope| No| Those write to `~/.claude.json` on your machine, not the repo. Add the server with `claude mcp add --scope project`, which writes the repo’s [`.mcp.json`](</docs/en/mcp#project-scope>), and commit that file. A session with one repository loads it
+MCP servers you added with `claude mcp add` at the default local scope or the user scope| No| At those scopes, the command writes to `~/.claude.json` on your machine. Run `claude mcp add --scope project` from the repository root to write the repo’s [`.mcp.json`](</docs/en/mcp#project-scope>), and commit that file. A session with one repository loads it
 Transport variables in your repo’s `.claude/settings.json` `env` block, such as `NODE_EXTRA_CA_CERTS` and the [mTLS client certificate variables](</docs/en/network-config#mtls-authentication>)| No| The hosting environment manages the session’s API connection, so Claude Code ignores these keys and notes each ignored key in the session’s debug log
 API keys and tokens for services Claude calls| In an Anthropic-hosted environment, as network secrets| You add the key once on the environment and the agent proxy attaches it to requests for the hosts you list. A key the agent proxy can’t attach stays in an environment variable
 Interactive auth like AWS SSO| No| Not supported. SSO requires browser-based login that can’t run in a cloud session

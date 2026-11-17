@@ -274,7 +274,7 @@ For full details on how checkpoints work and their limitations, see [Checkpointi
 
 ## Customize your workflow
 
-You can reposition the Claude panel, run multiple conversations, group or filter the sessions list, or switch to terminal mode.
+You can reposition the Claude panel and change its font. You can also run multiple conversations, group or filter the sessions list, or switch to terminal mode.
 
 ### Choose where Claude lives
 
@@ -287,6 +287,19 @@ You can drag the Claude panel to reposition it anywhere in VS Code. Grab the pan
 When Claude opens a tab in a new editor group, the extension locks that group. Files you open while the Claude tab is focused then go to another group instead of next to it. To stop the extension from locking groups, turn off the [Lock Editor Groups setting](<vscode://settings/claudeCode.lockEditorGroups>). Groups that are already locked stay locked until you unlock them. The setting requires Claude Code v2.1.274 or later.
 
 Use the sidebar for your main Claude session and open additional tabs for side tasks. Claude remembers your preferred location. The Activity Bar sessions list icon is separate from the Claude panel. The sessions list is always visible in the Activity Bar, while the Claude panel icon only appears there when the panel is docked to the left sidebar.
+
+### Change the font
+
+The Claude panel uses VS Code’s chat font settings, the same ones that style VS Code’s built-in chat view. Open VS Code settings with `Cmd+,` on Mac or `Ctrl+,` on Windows and Linux, then search for `chat font`.
+
+Setting| Applies to
+---|---
+[`chat.fontSize`](<vscode://settings/chat.fontSize>)| Size of the conversation text and the prompt box, in pixels. Code blocks and tool output scale with it. Requires VS Code 1.104 or later
+[`chat.fontFamily`](<vscode://settings/chat.fontFamily>)| Font of the conversation text and the prompt box. Requires VS Code 1.104 or later
+[`chat.editor.fontSize`](<vscode://settings/chat.editor.fontSize>)| Size of diffs, in pixels. Requires Claude Code v2.1.300 or later
+[`chat.editor.fontFamily`](<vscode://settings/chat.editor.fontFamily>)| Font of code blocks and tool output
+
+To scale all of VS Code along with the Claude panel, zoom the window with `Cmd+=` on Mac or `Ctrl+=` on Windows and Linux.
 
 ### Continue conversations after a reload
 
@@ -568,7 +581,7 @@ The extension also handles `vscode://anthropic.claude-code/install-plugin`, whic
 
 ## Configure settings
 
-You configure the extension in two places, VS Code’s extension settings and the Claude Code settings file:
+You configure the extension in VS Code’s extension settings and the Claude Code settings file:
 
   * **Extension settings** in VS Code: control the extension’s behavior within VS Code. Open with `Cmd+,` (Mac) or `Ctrl+,` (Windows/Linux), then go to **Extensions > Claude Code**. You can also type `/` and select **General config…** to open settings.
   * **Claude Code settings** in `~/.claude/settings.json`: shared between the extension and CLI. Use it for allowed commands, environment variables, hooks, and MCP servers. With Claude Code v2.1.283 or later, you can also use it as one input to the permission mode conversations start in. On earlier versions, you can do this only on Pro, Max, Ultra, and Team plans. [Switch permission modes](</docs/en/permission-modes#switch-permission-modes>) lists the order. See [Settings](</docs/en/settings>) for details.

@@ -115,7 +115,11 @@ These actions are rebindable. See [Scroll actions](</docs/en/keybindings#scroll-
 
 ### Auto-follow
 
-Scrolling up pauses auto-follow so new output doesn’t pull you back to the bottom. A `Jump to bottom` button floats over the bottom edge of the transcript while you’re scrolled up, and shows a count such as `3 new messages` when new output arrives. Click it, press `Ctrl+End`, or scroll to the bottom to resume following. While auto-follow is paused, the view also stays where you scrolled it when a response finishes streaming. The button’s keyboard hint reflects what your keyboard can send. On macOS it suggests clicking, or `Fn+↓` to scroll, because `Ctrl+End` doesn’t reach Claude Code from a Mac keyboard. Rebind [`scroll:bottom`](</docs/en/keybindings#scroll-actions>) and the button shows your chord on every platform. On a terminal too narrow for the full label, the button shortens the hint instead of wrapping onto the transcript row underneath. To turn auto-follow off entirely so the view stays where you leave it, open `/config` and set Auto-scroll to off. With auto-scroll disabled, the view never jumps to the bottom on its own. Permission prompts and other dialogs that need a response still scroll into view regardless of this setting.
+Scrolling up pauses auto-follow so new output doesn’t pull you back to the bottom. A `Jump to bottom` button floats over the bottom edge of the transcript while you’re scrolled up, and shows a count such as `3 new messages` when new output arrives. Click it, press `Ctrl+End`, or scroll to the bottom to resume following. While auto-follow is paused, the view also stays where you scrolled it when a response finishes streaming. The button’s keyboard hint reflects what your keyboard can send. On macOS it suggests clicking, or `Fn+↓` to scroll, because `Ctrl+End` doesn’t reach Claude Code from a Mac keyboard. Rebind [`scroll:bottom`](</docs/en/keybindings#scroll-actions>) and the button shows your chord on every platform. On a terminal too narrow for the full label, the button shortens the hint instead of wrapping onto the transcript row underneath.
+
+#### Turn off Auto-scroll
+
+To keep auto-follow paused after you send a message or scroll to the bottom, open `/config` and set [Auto-scroll](</docs/en/settings-reference#autoscrollenabled>) to off.
 
 ### Mouse wheel scrolling
 
@@ -155,15 +159,15 @@ In fullscreen rendering, [`/diff`](</docs/en/interactive-mode#review-changes-wit
 
 ## Clear the conversation
 
-Run `/clear` to start a new conversation. If the display looks garbled or partially blank, press `Ctrl+L` to redraw the screen. The redraw keeps the conversation and your input in place. `Cmd+K` does the same as `Ctrl+L` when your terminal passes it through to Claude Code. iTerm2 and Terminal.app handle `Cmd+K` themselves and clear their own screen, and Claude Code detects the cleared screen and repaints the conversation. Before v2.1.280, starting with v2.1.260, pressing `Ctrl+L`, or `Cmd+K` where it reaches Claude Code, cleared the screen in fullscreen rendering. Before v2.1.238, pressing `Ctrl+L` twice within two seconds ran `/clear`.
+Run `/clear` to start a new conversation. If the display looks garbled or partially blank, press `Ctrl+L` to redraw the screen. The redraw keeps the conversation and your input in place. `Cmd+K` does the same as `Ctrl+L` when your terminal passes it through to Claude Code. iTerm2 handles `Cmd+K` itself and clears its own screen, and Claude Code detects the cleared screen and repaints the conversation. Before v2.1.280, starting with v2.1.260, pressing `Ctrl+L`, or `Cmd+K` where it reaches Claude Code, cleared the screen in fullscreen rendering. Before v2.1.238, pressing `Ctrl+L` twice within two seconds ran `/clear`.
 
 ## Use with tmux
 
-Fullscreen rendering works inside tmux, with three caveats. Mouse wheel scrolling requires tmux’s mouse mode. If your `~/.tmux.conf` doesn’t already enable it, add this line and reload your config:
+Fullscreen rendering works inside tmux, with three caveats. To scroll Claude Code with the mouse wheel while another tmux pane is active, turn on tmux’s mouse mode in `~/.tmux.conf` and reload your config:
 
     set -g mouse on
 
-Without mouse mode, wheel events go to tmux instead of Claude Code. Keyboard scrolling with `PgUp` and `PgDn` works either way. Claude Code prints a one-time hint at startup if it detects tmux with mouse mode off. Fullscreen rendering is incompatible with iTerm2’s tmux integration mode, which is the mode you enter with `tmux -CC`. In integration mode, iTerm2 renders each tmux pane as a native split rather than letting tmux draw to the terminal. The alternate screen buffer and mouse tracking don’t work correctly there: the mouse wheel does nothing, and double-click can corrupt the terminal state. Don’t enable fullscreen rendering in `tmux -CC` sessions. Regular tmux inside iTerm2, without `-CC`, works fine. tmux releases through the 3.6 series don’t implement synchronized output, so under those versions you may see more flicker during redraws than when running Claude Code directly in your terminal. Claude Code probes the terminal for synchronized-output support at startup and uses it when the terminal reports it. If you see flicker under tmux, upgrade to the newest tmux or run Claude Code in its own terminal tab outside tmux.
+Fullscreen rendering is incompatible with iTerm2’s tmux integration mode, which is the mode you enter with `tmux -CC`. In integration mode, iTerm2 renders each tmux pane as a native split rather than letting tmux draw to the terminal. The alternate screen buffer and mouse tracking don’t work correctly there: the mouse wheel does nothing, and double-click can corrupt the terminal state. Don’t enable fullscreen rendering in `tmux -CC` sessions. Regular tmux inside iTerm2, without `-CC`, works fine. tmux releases through the 3.6 series don’t implement synchronized output, so under those versions you may see more flicker during redraws than when running Claude Code directly in your terminal. Claude Code probes the terminal for synchronized-output support at startup and uses it when the terminal reports it. If you see flicker under tmux, upgrade to the newest tmux or run Claude Code in its own terminal tab outside tmux.
 
 ## Keep native text selection
 

@@ -60,7 +60,7 @@ File| Scope| Commit| What it does| Reference
 `commands/*.md`| Project and global| ✓| Single-file prompts; same mechanism as skills| [Skills](</docs/en/skills>)
 `output-styles/*.md`| Project and global| ✓| Custom instruction sets that adjust how Claude works| [Output styles](</docs/en/output-styles>)
 `agents/*.md`| Project and global| ✓| Subagent definitions with their own prompt and tools| [Subagents](</docs/en/sub-agents>)
-`workflows/*.js`| Project and global| ✓| Dynamic workflow scripts written by Claude and saved from `/workflows`; each file becomes a `/<name>` command| [Dynamic workflows](</docs/en/workflows>)
+`workflows/*.js`| Project and global| ✓| Dynamic workflow scripts written by Claude and saved from `/workflows`; each saved workflow runs as a `/<name>` command| [Dynamic workflows](</docs/en/workflows>)
 `agent-memory/<name>/`| Project and global| ✓| Persistent memory for subagents| [Persistent memory](</docs/en/sub-agents#enable-persistent-memory>)
 `~/.claude.json`| Global only| | App state, account details, UI toggles, personal MCP servers. If it’s missing, Claude Code creates it when you start a session or run a subcommand such as `claude auth status`, but not for `--version` or `--help`.| [Global config](</docs/en/settings-reference#global-config-settings>)
 `projects/<project>/memory/`| Global only| | Auto memory: Claude’s notes to itself across sessions| [Auto memory](</docs/en/memory#auto-memory>)

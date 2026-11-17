@@ -178,7 +178,7 @@ Three additional fields let you replace the classifier’s built-in rule lists:
 
 Each is an array of prose descriptions, read as natural-language rules. For tool-pattern-based hard blocks that run before the classifier, use [`permissions.deny`](</docs/en/permissions>).
 
-In a [Code Mode](</docs/en/code-mode#permission-checks>) session, the classifier applies `hard_deny` and `soft_deny` when it reviews Claude’s code, and not to each tool call the code makes. `permissions.deny` rules apply to each call.
+In a [Code Mode](</docs/en/code-mode#permission-checks>) session, the classifier applies `hard_deny` and `soft_deny` to each piece of code as a whole, before the code runs. To block a specific tool call that the code makes, use a `permissions.deny` rule.
 
 Inside the classifier, precedence works in four tiers:
 

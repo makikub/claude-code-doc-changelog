@@ -356,7 +356,7 @@ You can percent-encode any character, not only the excluded ones. This example e
 
     export OTEL_RESOURCE_ATTRIBUTES="org.name=John%27s%20Organization"
 
-Wrapping values in quotes doesn’t escape spaces. For example, `org.name="My Company"` results in the literal value `"My Company"` with the quotes included, not `My Company`.
+Wrapping values in quotes doesn’t escape spaces.
 
 ### Attribute telemetry to Desktop SSH sessions
 

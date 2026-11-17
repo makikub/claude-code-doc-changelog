@@ -88,7 +88,7 @@ For the features each connection supports and the telemetry it sends to Anthropi
 
 Two client-side settings change what Claude Code assumes for a model ID it doesn’t recognize, whichever connection method the developer uses:
 
-  * **Context window** : Claude Code assumes a 1M token context window by default. To declare the real window, see [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
+  * **Context window** : Claude Code assumes a 1M token context window by default since v2.1.323. To declare the real window, see [Correct the window for a gateway or custom model ID](</docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id>)
   * **Capabilities** : to give a gateway alias the capabilities of the model behind it, map that model’s Anthropic ID to your alias with a [`modelOverrides`](</docs/en/errors#unrecognized-model-id-on-a-request>) entry in the settings you distribute. For where the `ANTHROPIC_DEFAULT_*_MODEL_SUPPORTED_CAPABILITIES` variables apply, see feature pass-through
 
 ## Request headers
@@ -173,7 +173,7 @@ Claude Code treats an `ANTHROPIC_BASE_URL` gateway as an Anthropic-format endpoi
 
 ### Beta header and body field pairs
 
-Capabilities that add body fields pair them with a beta header, and the pair travels together. A gateway that strips the header while passing the body, or forwards an Anthropic-format body to an upstream with a different schema, produces `400` errors. When both halves are absent together, the feature turns off quietly. A gateway that rewrites or redacts request bodies for content inspection breaks the pairing the same way stripping does, so inspect without modifying. The table notes where a feature deviates from the pairing.
+Capabilities that add body fields pair them with a beta header, and the pair travels together. A gateway that strips the header while passing the body, or forwards an Anthropic-format body to an upstream with a different schema, produces `400` errors. A gateway that rewrites or redacts request bodies for content inspection breaks the pairing the same way stripping does, so inspect without modifying. The table notes where a feature deviates from the pairing.
 
 Feature| Header and body pair| Symptom when broken| Remediation
 ---|---|---|---

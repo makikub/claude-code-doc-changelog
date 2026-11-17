@@ -285,6 +285,7 @@ When a query ends on an error result:
 
   * A single-shot `query()` call yields the final result message, then raises an error that includes the failure text, such as `Reached maximum number of turns`. The raise is intentional. Wrap the loop in a try block if your code needs to continue past it. The underlying Claude Code process also exits with a nonzero code.
   * A streaming input session stays alive, and you can keep sending messages, except after a session crash, which emits a final `error_during_execution` result and exits the process.
+  * In TypeScript, the loop over `query()` in a streaming input session throws when the last response ends in an error result. Wrap the loop in a try block if your code needs to continue past it.
 
 The result also includes a `stop_reason` field (`string | null` in TypeScript, `str | None` in Python) indicating why the model stopped generating on its final turn. Common values are `end_turn` (model finished normally), `max_tokens` (hit the output token limit), and `refusal` (the model declined the request). On error results that the loop produced, `stop_reason` carries the value from the last assistant response before the loop ended; the result Claude Code synthesizes after a session crash carries `null`. To detect refusals, check `stop_reason === "refusal"` (TypeScript) or `stop_reason == "refusal"` (Python). See [`SDKResultMessage`](</docs/en/agent-sdk/typescript#sdkresultmessage>) (TypeScript) or [`ResultMessage`](</docs/en/agent-sdk/python#resultmessage>) (Python) for the full type.
 

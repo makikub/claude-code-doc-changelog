@@ -145,7 +145,7 @@ For what it costs to resume a conversation you started before the upgrade, see R
 
 ## Actions that keep the cache
 
-These actions either append to the end of the conversation or don’t touch the request at all. Some of them, such as editing CLAUDE.md, keep the cache for the same reason the change doesn’t reach the running session until `/clear`, `/compact`, or a restart.
+These actions either append to the end of the conversation or don’t touch the request at all.
 
   * Editing files in your repository
   * Editing CLAUDE.md mid-session
@@ -158,11 +158,11 @@ These actions either append to the end of the conversation or don’t touch the 
 
 ### Editing files in your repository
 
-File contents enter context only when Claude reads them, and reads append to the conversation. Editing a file Claude previously read does not retroactively change the earlier read in history. Instead, Claude Code appends a [`<system-reminder>`](</docs/en/glossary#system-reminder>) noting the file changed, and Claude re-reads it if needed.
+When you edit a source file Claude already read, the cached prefix stays intact, because your edit doesn’t change the copy already in the conversation.
 
 ### Editing CLAUDE.md mid-session
 
-Your project-root and user-level CLAUDE.md files are read once at session start and held in memory. Editing them mid-session does not invalidate the cache, but the edit also doesn’t apply. Claude keeps working with the version that was loaded at session start. The new content loads on the next `/clear`, `/compact`, or restart. [Nested CLAUDE.md files in subdirectories](</docs/en/memory>) and [rules with `paths:` frontmatter](</docs/en/memory#path-specific-rules>) load later, on demand. Editing one yourself before it loads does take effect. After it loads, the content is part of the conversation history, so a mid-session edit doesn’t retroactively change it.
+When you edit your project-root or user-level CLAUDE.md mid-session, the cached prefix stays intact. Claude Code reads these files at session start and holds them in memory. To reload them, run `/clear` or `/compact`, or restart Claude Code. [Nested CLAUDE.md files in subdirectories](</docs/en/memory>) and [rules with `paths:` frontmatter](</docs/en/memory#path-specific-rules>) load later, on demand. Editing one yourself before it loads takes effect. After it loads, the content is part of the conversation history, so a mid-session edit doesn’t retroactively change it.
 
 ### Changing permission mode
 
@@ -182,7 +182,7 @@ When you switch [output styles](</docs/en/output-styles>) mid-session with [`/ou
 
 ### Rewinding the conversation
 
-[`/rewind`](</docs/en/checkpointing>) truncates your conversation back to an earlier turn. The remaining history is the same content the cache was built from at that point, and the system prompt and project context layers are unchanged, so the next request hits the earlier cache entry. Every turn since then has read through that prefix, which kept the entry warm even if the original turn was longer ago than the TTL. Restoring file checkpoints alongside the conversation has no separate effect on the cache. File contents enter context only when Claude reads them, the same as editing files in your repository.
+[`/rewind`](</docs/en/checkpointing>) truncates your conversation back to an earlier turn. The remaining history is the same content the cache was built from at that point, and the system prompt and project context layers are unchanged, so the next request hits the earlier cache entry. Every turn since then has read through that prefix, which kept the entry warm even if the original turn was longer ago than the TTL. Restoring file checkpoints alongside the conversation has no separate effect on the cache.
 
 ## Resuming a session
 

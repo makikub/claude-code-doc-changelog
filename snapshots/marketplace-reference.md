@@ -65,6 +65,7 @@ Field| Type| Description
 `strict`| boolean| Default `true`. Whether `plugin.json` is the definitive source for the plugin’s components. See Strict mode
 `relevance`| object| Signals that tell Claude Code when to suggest the plugin. See [Recommend plugins for your org](</docs/en/plugins/relevance>)
 `dependencies`| array| Plugins that must be enabled for this one to work. Each item is `"name"`, `"name@marketplace"`, or an object. See [Plugin dependencies](</docs/en/plugins/dependencies>)
+`engines`| object| The Claude Code versions that the plugin works on, as a [semver range](<https://github.com/npm/node-semver#ranges>) under the `claude-code` key, such as `"engines": { "claude-code": ">=2.1.400" }`. Requires Claude Code v2.1.323 or later. To keep the marketplace working on v2.0.15 through v2.1.75, omit `engines` from every entry. Those versions reject the whole `marketplace.json` when any entry has the field
 `defaultEnabled`| boolean| Default `true`. Whether the plugin starts enabled when the user hasn’t set it in [`enabledPlugins`](</docs/en/settings-reference#enabledplugins>). The entry value takes precedence over `plugin.json`
 `displayName`| string| Human-readable name shown in the UI. When neither the entry nor the plugin’s `plugin.json` sets one, users see the plugin’s `name`
 `metadata`| object| Free-form object for your own fields. Claude Code doesn’t read it
@@ -114,7 +115,7 @@ Relative path| the string itself| A directory inside the marketplace, resolved f
 `git-subdir`| `url`, `path`, `ref`, `sha`| One subdirectory of a git repository, fetched with a sparse checkout
 `npm`| `package`, `version`, `registry`| npm registry package or tarball link, fetched with your npm client and unpacked without running install scripts
 `archive`| `url`, `sha256`| Zip archive over HTTPS
-`command`| `command`, `timeout`, `mode`| Directory printed by a command Claude Code runs on the user’s machine. Requires Claude Code v2.1.229 or later
+`command`| `command`, `timeout`, `mode`| Directory printed by a command Claude Code runs on the user’s machine
 
 The names `url` and `github` are also marketplace source types, where `url` means a direct link to a `marketplace.json` file rather than a git repository. `git` exists only as a marketplace source, and `npm` exists as both. `git-subdir`, `archive`, and `command` exist only as plugin sources. Use a relative path for a plugin in a subdirectory of the marketplace repository itself. Use `git-subdir` for a subdirectory of some other repository. `github`, `url`, and `git-subdir` sources share the `ref` and `sha` fields:
 
@@ -408,6 +409,7 @@ Message| Level| Field
 `Claude Code cannot install plugins from marketplace "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change the marketplace's "name".`| Error| `name`
 `Claude Code cannot install plugin "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change this entry's "name".`| Error| `plugins[i].name`
 `Duplicate plugin name "x" found in marketplace`| Error| Two entries share a `name`
+`Must be a version range such as ">=2.1.0"; got "<value>". It will be ignored at load time.`| Error| `plugins[i].engines.claude-code`
 `plugins.i.source: Invalid input`| Error| The entry’s `source` matches no type. See Invalid input on a source
 `plugins.i.source: Invalid string: must start with "./"`| Error| A relative-path `source` without the leading `./`. Before v2.1.285, this mistake printed `Invalid input` instead
 `plugins[i].source: Path contains "..": <path>`| Error| A relative `source` that escapes the marketplace root
@@ -416,6 +418,7 @@ Message| Level| Field
 `chain does not resolve (<reason>) — target must be a name in plugins[], a key in renames, or null`| Error| `renames.<old>`
 `target "x" is not a valid plugin name (PluginIdSchema)`| Error| `renames.<old>`
 `Unknown field 'x'. Claude Code ignores it at load time.`| Warning| The named key at the top level, under `metadata`, in an entry, or under an entry’s `relevance`
+`'engines' must be an object such as { "claude-code": ">=2.1.0" }; got <type>. It will be ignored at load time.`| Warning| `plugins[i].engines`
 `Marketplace has no plugins defined`| Warning| `plugins` is empty
 `Plugin "x" sets headers/headersHelper, which only apply to "archive" sources; they have no effect on this entry.`| Warning| `plugins[i].headers` or `plugins[i].headersHelper`, on an entry whose `source` isn’t `archive`
 `Plugin "x" fetches its archive with a headersHelper but sets no sha256 pin`| Warning| `plugins[i].source.sha256`

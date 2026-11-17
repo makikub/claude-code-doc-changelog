@@ -144,7 +144,7 @@ Claude Code reads only the number from the URL. It always fetches from your repo
   * **gitlab.com** : fetches `merge-requests/<number>/head`
   * **GitHub Enterprise, self-managed GitLab, or any other host** : tries `pull/<number>/head` first, then `merge-requests/<number>/head`
 
-This fetch never waits for input in your terminal. If git or ssh would ask for a password, a key passphrase, or confirmation of a new SSH host, the fetch fails instead and Claude Code exits with an `Error creating worktree: Failed to fetch PR/MR #<number>` message. A key that `ssh-agent` holds still works, so load your key there and run `git fetch` once by hand to record a new host before you start. Before v2.1.233, Claude Code accepted only `#<number>` and GitHub-style pull request URLs for `--worktree`, and always fetched `pull/<number>/head`.
+This fetch never waits for input in your terminal. If git or ssh would ask for a password, a key passphrase, or confirmation of a new SSH host, the fetch fails instead and Claude Code exits with an `Error creating worktree: Failed to fetch PR/MR #<number>` message. A key that `ssh-agent` holds still works, so load your key there and run `git fetch` once by hand to record a new host before you start.
 
 ### Copy gitignored files into worktrees
 
