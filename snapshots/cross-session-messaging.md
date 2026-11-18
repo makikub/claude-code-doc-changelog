@@ -110,11 +110,11 @@ Starting a conversation with a session on another of your machines requires Clau
   * **`offline`** : that session’s Remote Control connection has dropped. The message goes through, but arrives only after that session’s machine reconnects.
   * **`can't receive cross-session messages (off in that session)`** : messaging isn’t available in that session, or its [`crossSessionInbound`](</docs/en/settings-reference#crosssessioninbound>) value is `refuse`. Claude Code refuses a message to that session before the message leaves this machine. The result under Claude’s `SendMessage` call begins `Not sent` and names the reason. Once the cause is fixed in that session, a later listing no longer shows this condition, and Claude can message that session.
 
-A session inside a container and a session on the host can’t reach each other. Two sessions inside the same container can still message each other, including on a [self-hosted runner](</docs/en/self-hosted-environments>). A session inside WSL 2 and a native Windows session on the same computer can’t reach each other either. To require your approval before any message goes beyond this machine, set `isolatePeerMachines`.
+A session inside a container and a session on the host can’t reach each other. Two sessions inside the same container can still message each other, including on a [self-hosted runner](</docs/en/self-hosted-environments>). A session inside WSL 2 and a native Windows session on the same computer can’t reach each other either. To require your approval before Claude’s messages go beyond this machine, set `isolatePeerMachines`.
 
 #### Replies from other machines and cloud sessions
 
-A [cloud session](</docs/en/claude-code-on-the-web>), including one on a [self-hosted runner](</docs/en/self-hosted-environments>), can’t use `SendMessage` to answer a message from another machine, even when the message carries a reply address. The message still arrives. Read the cloud session’s response in its transcript at [claude.ai/code](<https://claude.ai/code>). If this session isn’t connected to Remote Control when Claude sends to a session beyond this machine, the message still goes through, but without a reply address. The receiving Claude can’t answer it.
+A [cloud session](</docs/en/claude-code-on-the-web>), including one on a [self-hosted runner](</docs/en/self-hosted-environments>), can’t use `SendMessage` to answer a message from another machine, even when the message carries a reply address. The message still arrives. Read the cloud session’s response in its transcript at [claude.ai/code](<https://claude.ai/code>). To receive a reply from a session on another of your machines, connect your session to Remote Control before Claude sends. Otherwise the message carries no reply address, and the receiving Claude can’t answer it.
 
 ## How a session treats an incoming message
 
@@ -195,11 +195,11 @@ Open the connection only when the message you’re posting is ready. Claude Code
 
 ## Restrict cross-session messaging
 
-Beyond the per-message defaults, you can narrow messaging in two ways. Require your approval before any message leaves the machine, or turn messaging off for a session or an organization.
+Beyond the per-message defaults, you can narrow messaging in two ways. Require your approval before Claude’s messages leave the machine, or turn messaging off for a session or an organization.
 
 ### Require approval for cross-machine messages
 
-Set [`isolatePeerMachines`](</docs/en/settings-reference#isolatepeermachines>) to `true` to require your explicit approval before any `SendMessage` reaches a session beyond this machine:
+Set [`isolatePeerMachines`](</docs/en/settings-reference#isolatepeermachines>) to `true` to require your explicit approval before Claude’s `SendMessage` reaches a session beyond this machine:
 
     {
       "isolatePeerMachines": true

@@ -509,7 +509,7 @@ This is the inverse of [running a skill in a subagent](</docs/en/skills#run-skil
 
 #### Enable persistent memory
 
-The `memory` field gives the subagent a persistent directory that survives across conversations. The subagent uses this directory to build up knowledge over time, such as codebase patterns, debugging insights, and architectural decisions.
+The `memory` field gives the subagent a persistent directory that survives across conversations. The subagent uses this directory to build up knowledge over time, such as your preferences, your corrections, and project decisions.
 
     ---
     name: code-reviewer
@@ -518,7 +518,7 @@ The `memory` field gives the subagent a persistent directory that survives acros
     ---
 
     You are a code reviewer. As you review code, update your agent memory with
-    patterns, conventions, and recurring issues you discover.
+    the review preferences and corrections you're given.
 
 Choose a scope based on how broadly the memory should apply:
 
@@ -541,10 +541,10 @@ Subagent memory is part of [auto memory](</docs/en/memory#auto-memory>): if you 
   * Ask the subagent to update its memory after completing a task: “Now that you’re done, save what you learned to your memory.” Over time, this builds a knowledge base that makes the subagent more effective.
   * Include memory instructions directly in the subagent’s markdown file so it proactively maintains its own knowledge base:
 
-        Update your agent memory as you discover codepaths, patterns, library
-        locations, and key architectural decisions. This builds up institutional
-        knowledge across conversations. Write concise notes about what you found
-        and where.
+        Update your agent memory as you learn the team's preferences, project
+        constraints, and the reasons behind key decisions. This builds up
+        institutional knowledge across conversations. Write concise notes about
+        what you learned and why it matters.
 
 #### Conditional rules with hooks
 

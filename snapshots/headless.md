@@ -85,7 +85,7 @@ These examples highlight common CLI patterns. Where a command names a file such 
 
 ### Pipe data through Claude
 
-Non-interactive mode reads stdin, so you can pipe data in and redirect the response out like any other command-line tool. This example pipes a build log into Claude and writes the explanation to a file:
+Non-interactive mode reads stdin, so you can pipe data in and redirect the response out. This example pipes a build log into Claude and writes the explanation to a file:
 
     cat build-error.txt | claude -p 'concisely explain the root cause of this build error' > output.txt
 
@@ -268,7 +268,7 @@ This example reviews staged changes and creates a commit with an appropriate mes
     claude -p "Look at my staged changes and create an appropriate commit" \
       --allowedTools "Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)"
 
-The `--allowedTools` flag uses [permission rule syntax](</docs/en/settings-reference#permission-rule-syntax>). The trailing ` *` enables prefix matching, so `Bash(git diff *)` allows any command starting with `git diff`. The space before `*` is important: without it, `Bash(git diff*)` would also match `git diff-index`.
+The `--allowedTools` flag uses [permission rule syntax](</docs/en/settings-reference#permission-rule-syntax>). With the trailing ` *`, `Bash(git diff *)` matches `git diff` with or without arguments. The space before `*` is important: without it, `Bash(git diff*)` would also match `git diff-index`.
 
 Command support differs in `-p` mode:
 

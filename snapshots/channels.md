@@ -92,6 +92,7 @@ Go to **OAuth2 > URL Generator**. Select the `bot` scope and enable these permis
   * View Channels
   * Send Messages
   * Send Messages in Threads
+  * Create Public Threads
   * Read Message History
   * Attach Files
   * Add Reactions

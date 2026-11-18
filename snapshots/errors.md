@@ -93,6 +93,9 @@ Message| Section
 `Not signed in to the Cloud gateway — run /login.`| Authentication
 `Administrator policy requires a Cloud gateway sign-in on this machine`| Authentication
 `Failed to authenticate: OAuth session expired and could not be refreshed`| Authentication
+`Login reached its time limit · Please run /login` / `Failed to authenticate: this login reached its time limit`| Authentication
+`Failed to authenticate: your claude.ai login expired`| [After the login expires](</docs/en/authentication#after-the-login-expires>)
+`claude.ai login ended · usage now billed to` / `Warning: the claude.ai login on this machine has ended`| [After the login expires](</docs/en/authentication#after-the-login-expires>)
 `Could not refresh your login because another Claude Code process is refreshing it`| Authentication
 `Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh`| Authentication
 `Could not refresh your login: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full`| Authentication
@@ -357,6 +360,7 @@ Message| Section
 `This call was not run. Claude Code could not confirm that the shell is back in the directory`, from v2.1.323| Tool errors
 `File is too large to read as an image (the limit is 128MB)`| Tool errors
 `Cannot read this as an image: <path> is a pipe or a device`| Tool errors
+`could not fully check your permission rules`| [Actions no mode auto-approves](</docs/en/permission-modes#actions-no-mode-auto-approves>)
 `subagent_type is required: the general-purpose agent is not available in this session`| Tool errors
 `Error: this write left the memory index at MEMORY.md at ..., over its ... read limit`| Tool errors
 `Sandbox is required but failed to initialize: <reason>`| [Sandboxing troubleshooting](</docs/en/sandboxing#commands-refused-with-sandbox-is-required>)
@@ -676,7 +680,7 @@ In four cases, Claude Code handles the failure without showing this notice right
 
 ### Auto mode cannot determine the safety of an action
 
-The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) uses to classify actions couldn’t produce a decision, so auto mode didn’t approve the action automatically. The message you see depends on how the classifier failed. Reads, searches, and edits inside your working directory skip the classifier, so they keep working in all of these cases. When the classifier model is unavailable:
+The model that [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) uses to classify actions couldn’t produce a decision, so auto mode didn’t approve the action automatically. The message you see depends on how the classifier failed. When the classifier model is unavailable:
 
     <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait a moment and then try this action again.
 
@@ -917,6 +921,7 @@ A related message, `spend limit unavailable`, means the gateway could not read i
 Your Console organization has run out of prepaid credits, or Claude Code is sending your requests with a Console API key when you meant to use your subscription.
 
     Credit balance is too low
+    Credit balance too low · Add funds: https://platform.claude.com/settings/billing
 
 **What to do:**
 
@@ -1185,7 +1190,7 @@ Before v2.1.238, Claude Code sent the app the `run /login` messages listed under
 
 ### OAuth token revoked or expired
 
-Your saved login is no longer valid. A revoked token means you signed out everywhere or an admin removed access; an expired token means the automatic refresh failed mid-session. Both messages report a rejection the API returned for a request Claude Code sent. When the saved login has already been cleared after a failed refresh, you see Login expired instead. If you authenticate with a long-lived token in [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), you see the same messages when that token expires or is revoked.
+Your saved login is no longer valid. A revoked token means you signed out everywhere or an admin removed access; an expired token means the automatic refresh failed mid-session. Both messages report a rejection the API returned for a request Claude Code sent. When the saved login has already been cleared after a failed refresh, see Login expired instead. If you authenticate with a long-lived token in [`CLAUDE_CODE_OAUTH_TOKEN`](</docs/en/env-vars>), you see the same messages when that token expires or is revoked.
 
     OAuth token revoked · Please run /login
     Please run /login · API Error: 401 OAuth token has expired ...
@@ -1219,7 +1224,7 @@ The API recognized the format of your credential but rejected the account or org
 
 ### Login expired
 
-Claude Code tried to renew your saved claude.ai login and the OAuth service rejected the stored refresh token, so Claude Code cleared the saved credentials. After that, each model request stops locally with this message before it reaches the API, because only `/login` can create new credentials. Before v2.1.206, Claude Code sent the model request anyway with whatever credential remained in the environment, and every model then failed with There’s an issue with the selected model or a 401 instead of a prompt to sign in.
+Claude Code tried to renew your saved claude.ai login and the OAuth service rejected the stored refresh token, so Claude Code cleared the saved credentials. With no [other saved credential](</docs/en/authentication#after-the-login-expires>), model requests then stop with this message:
 
     Login expired · Please run /login
 
@@ -1227,9 +1232,9 @@ In [non-interactive mode](</docs/en/headless>) (`-p`) and the [Agent SDK](</docs
 
     Failed to authenticate: OAuth session expired and could not be refreshed
 
-For a `Login expired` message that ends with `or re-authenticate your Anthropic profile`, see Anthropic profile login expired. This is not the same state as OAuth token revoked or expired. Those messages report a rejection the API returned. Claude Code itself produces `Login expired` for a login it already failed to renew, so it sends no request. When the renewal fails because the account itself is suspended rather than the login being stale, Claude Code shows Your account is on hold instead. You can check for this state before a request fails: [`/status`](</docs/en/commands>) shows a `Login` row reading `Expired — log in again`, plus the organization and email it has saved for the expired login. The row appears only when the saved login is your active credential and can no longer be refreshed. Sessions authenticated another way don’t show the row, even if an expired login remains saved. Before v2.1.210, `/status` gave no indication in this state that a login had ever existed, because the cleared credential left it nothing to report. **What to do:**
+If the login reached its time limit, both messages say `reached its time limit` instead on Claude Code v2.1.318 or later. For a `Login expired` message that ends with `or re-authenticate your Anthropic profile`, see Anthropic profile login expired. When the renewal fails because the account itself is suspended, Claude Code shows Your account is on hold instead. **What to do:**
 
-  * Run `/login` to sign in again. Retrying without signing in shows the same message on every request.
+  * Run `/login` to sign in again.
   * If you sign in with your claude.ai account in another Claude Code window, see Not logged in for when this session starts using that login on its own.
   * In non-interactive mode, run `claude` in the same environment, complete `/login`, then rerun your command. For automation that can’t sign in interactively, authenticate with `ANTHROPIC_API_KEY` or [generate a long-lived token with `claude setup-token`](</docs/en/authentication#generate-a-long-lived-token>).
   * If signing in keeps failing, see [Login and authentication](</docs/en/troubleshoot-install#login-and-authentication>)
@@ -1889,7 +1894,7 @@ After you agree to share your session transcript from a survey prompt, such as t
 
     Couldn't share the transcript.
 
-The upload must fit an 8 MiB limit. On a long session, Claude Code progressively drops parts of the share, the last request’s model settings first, then the structured conversation and subagent transcripts, and shows this message when no reduced version can be sent or a network or server error stops the upload. When Claude Code saves a local archive instead, the message means it couldn’t write the archive. **What to do:**
+The upload must fit an 8 MiB limit. On a long session, Claude Code progressively drops parts of the share. You see this message when no reduced version can be sent or a network or server error stops the upload. When Claude Code saves a local archive instead, the message means it couldn’t write the archive. **What to do:**
 
   * Run `/feedback` to send the transcript with a description of what happened. See Report an error if `/feedback` is unavailable in your environment
   * If other requests are failing too, check your network connection and see Unable to connect to API
@@ -2167,7 +2172,7 @@ The configured model name was not recognized or your account lacks access to it.
   * **Agent SDK** : the error text omits the hint because the model is set programmatically. Set [`model` on `Options`](</docs/en/agent-sdk/typescript#options>) in TypeScript or [`ClaudeAgentOptions(model=...)`](</docs/en/agent-sdk/python#claudeagentoptions>) in Python, and handle the structured `model_not_found` error to surface your own retry or model picker.
   * Use an alias such as `sonnet` or `opus` instead of a full versioned ID. Aliases resolve to a maintained default so they don’t go stale. See [Model configuration](</docs/en/model-config>).
   * If the wrong model keeps coming back in the CLI, a stale ID is set somewhere. Check the places you can set a model in [priority order](</docs/en/model-config#setting-your-model>) and remove the stale value.
-  * Claude Code reports an expired claude.ai login as Login expired, not as this error. Before v2.1.206, an expired login that could no longer be refreshed failed every model with this error; run `/login` if you see that on an older version.
+  * Before v2.1.206, an expired claude.ai login that could no longer be refreshed failed every model with this error. Run `/login` on those versions.
   * If [`ANTHROPIC_BASE_URL`](</docs/en/env-vars>) points at an [LLM gateway](</docs/en/llm-gateway>) and every model fails this way, check that your gateway and its upstream accept [tool search](</docs/en/mcp#tool-search-through-a-gateway>) fields. By default, Claude Code sends `defer_loading` tool fields and `tool_reference` blocks, with the `anthropic-beta` header that enables them. Before v2.1.304, tool search was off behind a gateway unless you turned it on with `ENABLE_TOOL_SEARCH`.
   * For Google Cloud’s Agent Platform deployments, see [Google Cloud’s Agent Platform troubleshooting](</docs/en/google-vertex-ai#troubleshooting>).
 

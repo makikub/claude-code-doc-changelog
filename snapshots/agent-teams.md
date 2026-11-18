@@ -247,7 +247,7 @@ Teammate permission prompts appear in the lead session, so approve them there yo
 When one agent sends another a message over `SendMessage`, Claude Code tells the receiving agent the message came from another Claude session, not from you. A teammate can’t approve a permission prompt or supply consent on your behalf, and a teammate that was denied an action can’t relay it to another teammate to bypass the check. The same rules apply to a message that arrives from [one of your other Claude Code sessions](</docs/en/cross-session-messaging#how-a-session-treats-an-incoming-message>), outside the team entirely. In [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), the classifier applies two checks to messages between agents:
 
   * It treats an approval claim relayed from another agent as untrusted input rather than confirmation from you.
-  * It reviews each message before Claude Code delivers it, whether a plain message or a structured protocol message such as a shutdown request or plan approval response. A message it blocks never reaches the recipient.
+  * It reviews messages before Claude Code delivers them, including structured protocol messages such as a shutdown request. A message it blocks isn’t delivered. Before you rely on this review, check [which messages skip it](</docs/en/permission-modes#how-the-classifier-evaluates-actions>).
 
 ### Context and communication
 

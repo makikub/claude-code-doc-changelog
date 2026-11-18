@@ -66,7 +66,7 @@ Message contains| What it means| Where it appears
 
 ### `hooks module did not load`
 
-The line starts with the mod’s name, then `hooks module did not load:` and a reason, which gives the file and line when the problem is in your code. Claude Code couldn’t load the module, for example because its top-level code threw. Fix the error the reason names. If the reason ends with `; the version loaded before is unloaded`, no version of the mod is running now. Once you fix the error, run [`/reload-plugins`](</docs/en/plugins/cli-reference#reload-plugins>) in the session to load the mod again. If you installed the mod and didn’t write it, ask its author to fix the error.
+The line starts with the mod’s name, then `hooks module did not load:` and a reason, which gives the file and line for a syntax error. Claude Code couldn’t load the module, for example because its top-level code threw. Fix the error the reason names. If the reason ends with `; the version loaded before is unloaded`, no version of the mod is running now. Once you fix the error, run [`/reload-plugins`](</docs/en/plugins/cli-reference#reload-plugins>) in the session to load the mod again. If you installed the mod and didn’t write it, ask its author to fix the error.
 
 ### `options do not fit plugin.json userConfig`
 

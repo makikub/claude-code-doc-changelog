@@ -158,7 +158,7 @@ The installation stays on 2.1.323 until the stable channel serves a newer versio
 
 #### Set version limits for your organization
 
-In [managed settings](</docs/en/managed-settings>), `minimumVersion` enforces an organization-wide minimum that user and project settings can’t override. The `minimumVersion` pin only constrains updates. To make Claude Code refuse to start outside a version range, use the managed settings `requiredMinimumVersion` and `requiredMaximumVersion` instead. Updates also respect the `requiredMaximumVersion` ceiling. See [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>) and [`requiredMaximumVersion`](</docs/en/settings-reference#requiredmaximumversion>).
+In [managed settings](</docs/en/managed-settings>), `minimumVersion` enforces an organization-wide minimum that user and project settings can’t override. The `minimumVersion` pin only constrains updates. To make Claude Code refuse to start outside a version range, use the managed settings `requiredMinimumVersion` and `requiredMaximumVersion` instead. See [`requiredMinimumVersion`](</docs/en/settings-reference#requiredminimumversion>) and [`requiredMaximumVersion`](</docs/en/settings-reference#requiredmaximumversion>).
 
 ### Disable auto-updates
 

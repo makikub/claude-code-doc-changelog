@@ -325,7 +325,7 @@ Reference MCP resources
 
     Show me the data from @github:repos/owner/repo/issues
 
-This fetches data from connected MCP servers using the format @server:resource. See [MCP resources](</docs/en/mcp#use-mcp-resources>) for details.
+See [MCP resources](</docs/en/mcp#use-mcp-resources>) for details.
 
 Tips:
 
@@ -418,7 +418,7 @@ The subagent reads files in its own context window and reports a summary. See [S
 
 ## Pipe Claude into scripts
 
-Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdin and stdout work like any Unix tool.
+Run Claude non-interactively for CI, pre-commit hooks, or batch processing.
 
     git log --oneline -20 | claude -p "summarize these recent commits"
 
