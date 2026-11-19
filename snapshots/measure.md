@@ -68,13 +68,13 @@ For usage of a plugin listed in Anthropic’s directory, see [Track published pl
 
 ### Not used recently in `/plugin`
 
-On the **Installed** tab of `/plugin`, a plugin the user installed from a marketplace moves under a **Not used recently** header once it has gone unused for at least 14 days and 10 sessions. The plugin’s details also show a `Last used:` line. For what users do with that header and line, see [Find plugins you no longer use](</docs/en/plugins/install#find-plugins-you-no-longer-use>). The **Not used recently** header never appears for:
+On the **Installed** tab of `/plugin`, an enabled marketplace plugin the user installed moves under a **Not used recently** header after at least 14 days and 10 sessions unused. The plugin’s details also show a last-used time. The **Not used recently** header never appears for:
 
   * Plugins loaded with `--plugin-dir` or from a skills directory
   * Plugins enabled through managed settings, or mounted from a [seed directory](</docs/en/plugins/org#seed-containers-and-ci>)
   * Plugins that include a theme, output style, monitor, or workflow, because those are in use without a tracked invocation
 
-A plugin’s [language server](</docs/en/plugins/components#lsp-servers>) counts as used when it delivers diagnostics or answers a code navigation request, so an LSP plugin whose server is active in your sessions isn’t listed as unused. When the user’s organization sets [`strictKnownMarketplaces`](</docs/en/plugins/org#restrict-what-users-can-install>), neither the header nor the `Last used:` line appears.
+A plugin’s [language server](</docs/en/plugins/components#lsp-servers>) counts as used when it delivers diagnostics or answers a code navigation request, so an LSP plugin whose server is active in your sessions isn’t listed as unused. When the user’s organization sets [`strictKnownMarketplaces`](</docs/en/plugins/org#restrict-what-users-can-install>), neither the header nor the last-used time appears.
 
 ### Find skills that never run
 

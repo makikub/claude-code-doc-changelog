@@ -133,7 +133,7 @@ Key| Description| Topic| Scope
 `permissions`| Set allow, ask, and deny rules and the default [permission mode](</docs/en/permission-modes>)| Permission settings| Any file
 `permissions.additionalDirectories`| Give Claude file access to [directories outside the current one](</docs/en/permissions#working-directories>)| Permission settings| Any file
 `permissions.allow`| Approve listed [tool uses](</docs/en/permissions#permission-rule-syntax>) without a prompt| Permission settings| Any file
-`permissions.ask`| Always prompt before listed [tool uses](</docs/en/permissions#permission-rule-syntax>)| Permission settings| Any file
+`permissions.ask`| Prompt before listed [tool uses](</docs/en/permissions#permission-rule-syntax>)| Permission settings| Any file
 `permissions.blockReadsOutsideWorkingDirectories`| Make the file tools refuse reads outside the [working directories](</docs/en/permissions#working-directories>) in every permission mode| Permission settings| Any file
 `permissions.blockWritesOutsideWorkingDirectories`| Make the `Write`, `Edit`, and `NotebookEdit` tools refuse paths outside the [working directories](</docs/en/permissions#working-directories>) in every permission mode, apart from some of Claude Code’s own files| Permission settings| Any file
 `permissions.defaultMode`| Set the default [permission mode](</docs/en/permission-modes#which-mode-a-session-starts-in>) for new sessions| Permission settings| Any file
@@ -622,7 +622,7 @@ Save an [effort level](</docs/en/model-config#adjust-effort-level>) for each mod
   * **Type** : object mapping a model name to an object with any of these fields:
     * `effortLevel`: one of `"low"`, `"medium"`, `"high"`, or `"xhigh"`
     * `maxEffortLevel`: the highest effort level the model may run at
-    * `autoCompactWindow`: a number of tokens from `100000` to `1000000`, or `"auto"` for the window tuned for the model. [`/autocompact`](</docs/en/model-config#set-the-auto-compact-window>) saves here. For that model, the value takes precedence over a top-level `autoCompactWindow` in the same settings file. Requires Claude Code v2.1.288 or later
+    * `autoCompactWindow`: a token count of `100000` or more, or `"auto"` for the window tuned for the model. [`/autocompact`](</docs/en/model-config#set-the-auto-compact-window>) saves here. For that model, the value takes precedence over a top-level `autoCompactWindow` in the same settings file. Requires Claude Code v2.1.288 or later
   * **Default** : unset
 
 Claude Code writes each entry under the model’s canonical name, such as `claude-opus-5-5`, and matches that model’s alias, date-suffixed, `[1m]`, and recognized provider-specific IDs to the same entry. This example keeps Opus 5.5 at `high` while other models use their own saved or default levels:
@@ -916,7 +916,7 @@ For the complete rule syntax, including wildcard behavior, tool-specific pattern
 
 ### `permissions.ask`
 
-List the tool uses that prompt you for confirmation even in a permission mode that would otherwise approve them, such as `acceptEdits` or `bypassPermissions`. In `dontAsk` mode Claude Code denies a matching tool use instead of prompting.
+List the tool uses that prompt you for confirmation even in a permission mode that would otherwise approve them, such as `acceptEdits` or `bypassPermissions`. In `dontAsk` mode Claude Code denies a matching tool use instead of prompting. A matching tool use can still run without your approval if a [`PermissionRequest` hook](</docs/en/hooks#permissionrequest>) or a [mod](</docs/en/plugins/mods/overview#what-a-mod-can-reach>) allows it. With [sandbox auto-allow](</docs/en/permissions#how-permissions-interact-with-sandboxing>), sandboxed commands can skip a bare `Bash` ask rule.
 
   * **Scope** : `Any file`
   * **Type** : array of permission rule strings
@@ -2208,7 +2208,7 @@ The manual `/compact` command keeps working while auto-compact is off. If you tu
 Set how full the context window gets before Claude Code [compacts automatically](</docs/en/context-window#when-your-context-fills-up>).
 
   * **Scope** : `Any file`
-  * **Type** : number of tokens, from `100000` to `1000000`. Claude Code caps the value at your model’s context window; the [models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>) lists each model’s window
+  * **Type** : number of tokens, at least `100000`. Claude Code caps the value at your model’s context window; the [models overview](<https://platform.claude.com/docs/en/about-claude/models/overview>) lists each model’s window
   * **Default** : unset, so Claude Code picks a window tuned for your model
   * **Per-session overrides** : [`--autocompact`](</docs/en/cli-reference#cli-flags>) takes precedence over this key for one session, and [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](</docs/en/env-vars>) takes precedence over both unless Claude Code [ignores the variable’s value](</docs/en/model-config#claude_code_auto_compact_window-values>)
 
@@ -2349,6 +2349,7 @@ settings.json
       * The content variables `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_ASSISTANT_RESPONSES`, `OTEL_LOG_TOOL_CONTENT`, and `OTEL_LOG_TOOL_DETAILS`
       * `OTEL_EXPORTER_OTLP_*` variables whose names end in `_ENDPOINT`, `_HEADERS`, `_PROTOCOL`, `_CERTIFICATE`, `_CLIENT_KEY`, or `_INSECURE`, in the generic and per-signal forms, such as `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_METRICS_HEADERS`
       * `OTEL_EXPORTER_PROMETHEUS_HOST` and `OTEL_EXPORTER_PROMETHEUS_PORT`
+      * `OTEL_RESOURCE_INCLUDE_HOST`, which [adds the machine’s name and ID](</docs/en/monitoring-usage#identify-the-machine-a-session-ran-on>)
 Only these values still apply from project and local settings, because they turn something off: `none` for the three exporter selectors, and an off value such as `0` for `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_CONTENT`, and `OTEL_LOG_TOOL_DETAILS`. Such a value overrides the same variable in your user settings, but not one that the environment you start Claude Code from, a `--settings` file, or managed settings sets. When a project or local settings file sets a variable in this group, a local interactive session shows a notice at startup. Run `/status` or `claude doctor` to see which ones Claude Code ignored and which turned telemetry off; both list names, never values. A non-interactive run with `-p` or an Agent SDK session shows no notice, so check that your collector still receives data after you upgrade. If it doesn’t, set the variables in your user settings, managed settings, the job’s environment, or a file you pass with `--settings`. Ignoring this group in project and local settings requires Claude Code v2.1.282 or later.
     * Variables that change how Claude Code starts or syncs, such as `CLAUDE_CODE_PROCESS_WRAPPER`, `CLAUDE_CODE_SYNC_SKILLS`, `CLAUDE_CODE_SYNC_PLUGINS`, `CLAUDE_CODE_PLUGIN_CACHE_DIR`, and `CLAUDE_CODE_PLUGIN_SEED_DIR`.
     * Variables that set your claude.ai sign-in, such as [`CLAUDE_CODE_OAUTH_TOKEN`, `CLAUDE_CODE_OAUTH_REFRESH_TOKEN`, and `CLAUDE_CODE_OAUTH_SCOPES`](</docs/en/env-vars#variables>).
@@ -2363,7 +2364,7 @@ Before v2.1.251, project and local settings could also set the variables in this
   * [`CLAUDE_CODE_PROJECT_DIR_NAME`](</docs/en/sessions#name-the-project-directory-yourself>), which Claude Code reads from the launch environment only, is ignored from every file; requires v2.1.234 or later.
   * [`CLAUDE_CODE_RESTRICTED`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file.
   * [`CLAUDE_CODE_DISABLE_POWERSHELL_CMD_RM_DENY`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file. The variable requires Claude Code v2.1.283 or later.
-  * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`, `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`, `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT`, and `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file.
+  * [`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`, `CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`, `CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT`, `CLAUDE_CODE_STRICT_INLINE_SHELL_RM_PROMPT`, `CLAUDE_CODE_DISABLE_MOUNTED_DRIVE_RM_PROMPT`, and `CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file.
   * [`CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, is ignored from every file.
   * [`CLAUDE_CODE_WARN_DISK_FREE_GIB` and `CLAUDE_CODE_WARN_MEMORY_FREE_GIB`](</docs/en/env-vars#variables>), which Claude Code reads from the launch environment only, are ignored from every file. The variables require Claude Code v2.1.304 or later.
 
@@ -3843,7 +3844,7 @@ Each entry below shows one allowlist entry per source type and the fields it acc
 
 Source| Example entry| Fields
 ---|---|---
-`github`| `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": "marketplace" }`| `repo` required; `ref` is a branch, tag, or commit SHA; `path` is a subdirectory
+`github`| `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": ".claude-plugin/marketplace.json" }`| `repo` required; `ref` is a branch, tag, or commit SHA; `path` is the [marketplace file’s path](</docs/en/plugins/marketplace-reference#fields-by-type>) in the repository
 `git`| `{ "source": "git", "url": "https://gitlab.example.com/tools/plugins.git", "ref": "production" }`| `url` required; `ref` and `path` as for `github`
 `url`| `{ "source": "url", "url": "https://plugins.example.com/marketplace.json", "headers": { "Authorization": "Bearer ${TOKEN}" } }`| `url` required; `headers` adds HTTP headers for authenticated access
 `file`| `{ "source": "file", "path": "/opt/acme-corp/plugins/marketplace.json" }`| `path` required, the absolute path to a `marketplace.json` file
@@ -3895,7 +3896,7 @@ For every source type except owner-wildcard `github` entries and the regex-match
 For example, Claude Code treats each pair below as two different sources:
 
   * `{ "source": "github", "repo": "acme-corp/plugins" }` and `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main" }`
-  * `{ "source": "github", "repo": "acme-corp/plugins", "path": "marketplace" }` and `{ "source": "github", "repo": "acme-corp/plugins" }`
+  * `{ "source": "github", "repo": "acme-corp/plugins", "path": ".claude-plugin/marketplace.json" }` and `{ "source": "github", "repo": "acme-corp/plugins" }`
 
 #### Allow only the official marketplace
 
@@ -5607,7 +5608,7 @@ Claude Code ignores this key in `settings.json`.
 
 ### `claudeInChromeDefaultEnabled`
 
-Start every interactive CLI session with [Chrome integration](</docs/en/chrome>) on, without passing `--chrome` each time. If you run [`claude remote-control`](</docs/en/remote-control>), a session it starts for one of your [project](</docs/en/claude-projects>) threads follows this key too, except in `bypassPermissions` mode. With Claude Code v2.1.287 or later, this key also applies to sessions in the [VS Code extension](</docs/en/vs-code#automate-browser-tasks-with-chrome>): see [Enable Chrome by default](</docs/en/chrome#enable-chrome-by-default>). Running `/chrome` and selecting **Enabled by default** sets this key for you, as does answering the [“Claude in Chrome extension detected” dialog](</docs/en/chrome#answer-the-startup-dialog>). Appears in `/config` as **Claude in Chrome enabled by default**.
+Start every interactive CLI session with [Chrome integration](</docs/en/chrome>) on, without passing `--chrome` each time. If you run [`claude remote-control`](</docs/en/remote-control>), a session it starts for one of your [project](</docs/en/claude-projects>) threads follows this key too, except in `bypassPermissions` mode. With Claude Code v2.1.287 or later, this key also applies to sessions in the [VS Code extension](</docs/en/vs-code#automate-browser-tasks-with-chrome>): see [Enable Chrome by default](</docs/en/chrome#enable-chrome-by-default>). You set this key when you turn Chrome on by default from `/chrome` or answer the [“Claude in Chrome extension detected” dialog](</docs/en/chrome#answer-the-startup-dialog>). Appears in `/config` as **Claude in Chrome enabled by default**.
 
   * **Scope** : `Global config`
   * **Type** : Boolean

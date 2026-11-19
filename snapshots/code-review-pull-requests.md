@@ -4,7 +4,7 @@ If your plan doesn’t include Code Review, you can still have Claude review you
 
 ## Severity levels
 
-Claude posts each finding as an inline comment on the lines concerned and marks it with one of three severity levels:
+Claude marks each finding with one of three severity levels:
 
 Marker| Severity| Meaning
 ---|---|---
@@ -12,7 +12,7 @@ Marker| Severity| Meaning
 🟡| Nit| A minor issue, worth fixing but not blocking
 🟣| Pre-existing| A bug that exists in the codebase but wasn’t introduced by this PR
 
-When the review recorded its reasoning, the finding has a collapsed **Why this was flagged** section. Expand it to read why Claude flagged the issue and how it verified the problem. To change what Claude flags in your repository or how it ranks severity, see [Customize Code Review](</docs/en/code-review-customize>).
+When the review recorded its reasoning, a finding has a collapsed **Why this was flagged** section. Expand it to read why Claude flagged the issue and how it verified the problem. To change what Claude flags in your repository or how it ranks severity, see [Customize Code Review](</docs/en/code-review-customize>).
 
 ## Respond to findings
 

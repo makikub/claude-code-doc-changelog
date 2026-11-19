@@ -262,7 +262,7 @@ Some refused calls| Result
 `$.session.send` to an [agent team](</docs/en/agent-teams>) teammate| Resolves with `{ isDelivered: false, reason: 'Teammate "<name>" was not messaged: <reason>.' }`, where `<name>` is the teammate’s name
 [`$.tool.call`](</docs/en/plugins/mods/reference#mods-api-methods>) of Bash with `run_in_background: true`, Monitor, or CronCreate| Resolves with `{ deny: '<tool> was not run: it starts background work, a schedule or a goal, and <reason>' }`, where `<tool>` is the tool’s name
 
-When one of these `$.session.send` or `$.tool.call` calls is refused after an interruption in an interactive session, the user can see the [`Stopped:` toast](</docs/en/plugins/mods/troubleshoot#stopped-type-a-message-to-continue>).
+When one of these `$.session.send` or `$.tool.call` calls is refused after an interruption in an interactive session, the user can see the [`type a message to continue` toast](</docs/en/plugins/mods/troubleshoot#stopped-type-a-message-to-continue>).
 
 #### Work your mod started before the interruption
 
@@ -277,8 +277,6 @@ A recurring job scheduled with a tool such as CronCreate that comes due before t
 An event from a monitor your mod started| The monitor keeps running, and Claude Code drops the events the monitor raises while running.| Nothing can be done
 A subagent your mod spawned and later resumed with `$.session.send` that finishes before the user’s next input| Its finish notice waits, and reaches the conversation after that input| Nothing needed
 A foreground Bash or PowerShell command from `$.tool.call` that was already running when the user stopped the turn and reaches its timeout before their next input| Stopped at its timeout instead of [moving to the background](</docs/en/tools-reference#foreground-commands-that-move-to-the-background>). The call resolves with `isError` set, and the output includes the line `Ended instead of moving to the background: plugins' input is held, by a Stop or by the host's limits.`| Run it again after the user’s next input, as Retry a refused or dropped call shows
-
-When a scheduled job comes due or a monitor raises an event before the user’s next input, the user can see the [`Stopped:` toast](</docs/en/plugins/mods/troubleshoot#stopped-type-a-message-to-continue>).
 
 ### Calls refused in `claude -p` runs and Agent SDK sessions
 

@@ -40,7 +40,7 @@ Message| Section
 `Request rejected (429)`| Usage limits
 `Credit balance is too low`| Usage limits
 `You've hit your monthly spend limit` / `You've hit your individual spend limit` / `You've hit your org's monthly spend limit` / `You've hit your channel's monthly spend limit` / `You've hit your team's shared budget` / `You've hit your individual usage limit`| Usage limits
-`Could not update your spend limit`| Usage limits
+`Could not update your spend limit` / `Could not remove your spend limit`| Usage limits
 `spend limit reached` / `spend limit unavailable` / `This request exceeds your group's budget`| Usage limits
 `Not logged in · Please run /login`| Authentication
 `Couldn't save your login`| Authentication
@@ -92,6 +92,7 @@ Message| Section
 `Artifacts need a claude.ai login`| Authentication
 `Not signed in to the Cloud gateway — run /login.`| Authentication
 `Administrator policy requires a Cloud gateway sign-in on this machine`| Authentication
+`Managed settings on this machine configure a Cloud gateway sign-in; run interactive /login to authenticate.`| [`claude auth login`](</docs/en/cli-reference#cli-commands>)
 `Failed to authenticate: OAuth session expired and could not be refreshed`| Authentication
 `Login reached its time limit · Please run /login` / `Failed to authenticate: this login reached its time limit`| Authentication
 `Failed to authenticate: your claude.ai login expired`| [After the login expires](</docs/en/authentication#after-the-login-expires>)
@@ -225,6 +226,8 @@ Message| Section
 `--bg and --print conflict`| Command-line errors
 `Couldn't tell whether --bg is a flag or text here, so nothing was started`| Command-line errors
 `Error: Cannot use both --append-subagent-system-prompt and --append-subagent-system-prompt-file. Please use only one.`| Command-line errors
+`Error: bypassPermissions not supported in restricted mode`| [Restricted mode](</docs/en/permission-modes#restricted-mode-refuses-bypasspermissions>)
+`Session was started with bypass permissions, so plan mode won't ask before most edits or commands`| [Plan mode](</docs/en/permission-modes#analyze-before-you-edit-with-plan-mode>)
 `Cloud sessions cannot be created from a --restricted session`| Command-line errors
 `Cloud sessions are disabled by your organization's policy`| Command-line errors
 `Cloud sessions use your claude.ai login`, at the end of a policy denial that names a credential| Command-line errors
@@ -259,6 +262,7 @@ Message| Section
 `Cannot add MCP server to scope: managed`| Command-line errors
 `Cannot add MCP server: your organization's managed settings allow only MCP servers that plugins provide`| Command-line errors
 `is Anthropic-hosted and doesn't support local OAuth`| Command-line errors
+`Can't add to .mcp.json: it lists servers at the top level`| Move the servers under an `mcpServers` key, as in the [project-scope format](</docs/en/mcp#project-scope>).
 `Can't read .mcp.json: it isn't a regular file or is larger than 2097152 bytes`| Command-line errors
 `MCP server "<name>" was not saved to` / `was not removed from`| Command-line errors
 `MCP server "<name>" may not have been saved` / `may not have been removed`| Command-line errors
@@ -297,7 +301,7 @@ Message| Section
 `Windows reported an error (EBADF) when Claude Code read this session's transcript file`| Command-line errors
 `Cannot switch renderers in this session`| Command-line errors
 `Cannot switch renderers while work is running in the background`| Command-line errors
-`Can't restart while work is running in the background — wait for it to finish (or stop it via /tasks), then try again.`| Command-line errors
+`Can't restart while work is running in the background`| Command-line errors
 `Can't restart while Remote Control is connected. To use the installed version, exit and start Claude Code again, then run /resume.`| Command-line errors
 `Claude Code couldn't restart`| Command-line errors
 `Couldn't open Claude Desktop`| Command-line errors
@@ -331,7 +335,7 @@ Message| Section
 `path escapes plugin directory`| Plugin errors
 `path not read: <path> is absolute or has a ".." part`| Plugin errors
 `Plugin not loaded: its manifest <path> was not read`| Plugin errors
-`path could not be checked`| Plugin errors
+`path couldn't be checked` / `path could not be checked`| Plugin errors
 `its marketplace entry path does not stay inside the marketplace directory`| Plugin errors
 `Plugin source path refused`| Plugin errors
 `Failed to load marketplace configuration`| Plugin errors
@@ -357,6 +361,7 @@ Message| Section
 `cannot contain null bytes (\0)`| Tool errors
 `Path contains null bytes`| Tool errors
 `command contains the invisible character U+FEFF (byte order mark) or U+180E (Mongolian vowel separator), and was not run`| Tool errors
+`This command's variables and substitutions expand to more text than the permission check reads, so it was not run`| Ask Claude to use fewer or shorter variables and substitutions.
 `This call was not run. Claude Code could not confirm that the shell is back in the directory`, from v2.1.323| Tool errors
 `File is too large to read as an image (the limit is 128MB)`| Tool errors
 `Cannot read this as an image: <path> is a pipe or a device`| Tool errors
@@ -366,11 +371,12 @@ Message| Section
 `Sandbox is required but failed to initialize: <reason>`| [Sandboxing troubleshooting](</docs/en/sandboxing#commands-refused-with-sandbox-is-required>)
 `Sandbox is required (sandbox.failIfUnavailable) and stopped being available in this session: <reason>`| [Sandboxing troubleshooting](</docs/en/sandboxing#commands-refused-with-sandbox-is-required>)
 `pkill: refusing to run`| Tool errors
+`Sandbox settings can't be changed here` / `Sandbox settings are overridden by a higher-priority configuration`| [Sandboxing troubleshooting](</docs/en/sandboxing#sandbox-settings-overridden>)
 `Failed to write to <name>'s inbox — nothing was sent`| Tool errors
 `Failed to write the plan approval request to the lead's inbox — plan not submitted`| Tool errors
 `Its agent definition was not restored: the folder its definition file came from is not trusted`| Tool errors
 `Only a teammate can approve a shutdown request`| Tool errors
-`A command-line deny rule cannot be handed to a teammate intact`| Tool errors
+`cannot be handed to a teammate intact`| Tool errors
 `Message too large for cross-session delivery`| Tool errors
 `Too many messages to this session just now`| Tool errors
 `Cross-session message was dropped at the recipient session's inbox`| Tool errors
@@ -441,6 +447,7 @@ Message| Section
 `The Claude Code program for this computer, the <build> build, could not be found`| Wrapper and IDE errors
 `Restored the code, but skipped N files`| Rewind warnings and errors
 `No files were restored: N files failed (backup missing, or the file could not be updated)`| Rewind warnings and errors
+`Couldn't restore N files: the backup is missing or the file can't be written`| Make the files that failed writable, then restore them from version control.
 `The file backups are still being copied. Nothing was changed. Try again in a moment.`| Select the same point in [`/rewind`](</docs/en/checkpointing>) again. When you restore code soon after [`/branch`](</docs/en/sessions#branch-a-session>), Claude Code can still be copying the file backups to the new session.
 `Transcript writes are failing (...)`| Session saving warnings
 `Transcript saving is off — CLAUDE_CODE_SKIP_PROMPT_HISTORY is set`| Session saving warnings
@@ -455,6 +462,7 @@ Message| Section
 `N skill or command names refused: run with --debug to see which ([names]), rename, then restart`| Configuration warnings
 `Ignoring N permissions.allow entries from ... this workspace has not been trusted`| Configuration warnings
 `Two Claude Code config files exist: this run uses <path>, not <path>`| Configuration warnings
+`a settings change wasn't saved`| Make `~/.claude/settings.json` and the project’s `.claude/settings.local.json` writable, then make the change again. If another tool generates the file, see [A change is lost in new sessions](</docs/en/settings#a-change-you-made-in-claude-code-is-lost-in-new-sessions>). If a file isn’t valid, see [Fix a broken settings file](</docs/en/settings#fix-a-broken-settings-file>).
 `Make this change again later: <path> could not be updated, so it applies to this session only`| Configuration warnings
 `is a network path, which cannot be added as a working directory`| Configuration warnings
 `Remote managed settings failed to load (<cause>)`| Configuration warnings
@@ -935,7 +943,7 @@ The server rejected a spend limit change you made from the prompt that appears w
 
     Could not update your spend limit: <reason from the server>
 
-When the server explains the rejection, the message ends with that reason, and retrying the same value fails again. When the failure has no server-provided reason, such as a dropped connection, the message reads `Could not update your spend limit. Press Enter to retry.` and retrying can succeed. Before v2.1.216, Claude Code showed the generic form for every failure. **What to do:**
+When the server explains the rejection, the message ends with that reason, and retrying the same value fails again. When the failure has no server-provided reason, such as a dropped connection, the message reads `Could not update your spend limit. Press Enter to retry.` and retrying can succeed. Before v2.1.216, Claude Code showed the generic form for every failure. If you remove the limit, the generic form starts `Could not remove your spend limit` on v2.1.327 or later. **What to do:**
 
   * If the message includes a reason, choose a limit that satisfies it, such as a lower amount
   * If the message shows only the generic form, retry; the failure may be transient
@@ -2752,7 +2760,7 @@ Two variants that also begin with `Error: Workspace not trusted.` appear in a te
 
 If you answer `n` or press Enter at the [`Trust <directory>?` question](</docs/en/remote-control#requirements>), the command prints a `Remote Control did not start` message that names the directory and exits with code 1. Run `claude rc` again to answer `y`. **What to do:**
 
-  * Trust the directory from a terminal first: run `claude rc` there and answer `y`, or run `claude` there and accept the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>), then run your original command again
+  * Trust the directory from a terminal first: run `claude` there and accept the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>), then run your original command again
   * In your home directory, change to a project directory and start Remote Control there
 
 Before v2.1.284, the command never asked, even in a terminal.
@@ -2768,7 +2776,7 @@ For example, the subcommand can’t ask when its standard input or standard outp
   * In a script or CI job, append `--trust-workspace` to trust the folder for that run: `claude ultrareview --trust-workspace`. Append it only for code you trust, because git and Claude Code can then run programs named in the folder’s git configuration and project settings. For a pull request whose code you don’t trust, [run the review from a branch you trust](</docs/en/ultrareview#trust-the-folder-before-the-review-runs>).
   * On your own machine, run `claude` in that folder and accept the [workspace trust dialog](</docs/en/permissions#project-allow-rules-and-workspace-trust>), then run your original command again
 
-Each of these messages from `claude ultrareview` means that no review started and the exit code is 1:
+In a session, `/ultrareview` and `/code-review ultra` can stop with `Ultrareview did not start: "<folder>" is not trusted, and this session started without asking whether you trust it`. Start `claude` in that folder without [`IS_DEMO`](</docs/en/env-vars#variables>) set, accept the workspace trust dialog, and run the command in the new session. Each of these messages from `claude ultrareview` means that no review started and the exit code is 1:
 
   * **`Error: Workspace not trusted. This terminal ...`** : the terminal reported no row and column count, or can’t fit the trust question and its warnings. Enlarge it or use a terminal that reports its size, then run `claude ultrareview` again. Outside your home directory, you can also run `claude` in that folder once and accept the trust dialog, so later runs there don’t ask.
   * **`Error: Workspace not trusted.<folder> is your home directory`**: because trust for your home directory is never saved, running `claude` there first can’t help. Run `claude ultrareview` from a project directory instead, after running `claude` there once to accept the trust dialog, or append `--trust-workspace`.
@@ -3628,7 +3636,7 @@ Claude Code asked the operating system whether a plugin path exists and got an e
 
 You don’t see this error for a path that doesn’t exist at all. In `/plugin`, the error appears under the plugin and names the path and the code the operating system returned:
 
-    skills path could not be checked: /home/user/my-plugin/skills (ELOOP)
+    skills path couldn't be checked: /home/user/my-plugin/skills (ELOOP)
 
 In `claude plugin list`, the same error reads `Path not found: /home/user/my-plugin/skills (skills, ELOOP)`. Causes that produce this error include:
 
@@ -3992,11 +4000,11 @@ Claude Code refused an [agent team](</docs/en/agent-teams>) shutdown approval be
 
 This message means Claude Code didn’t start a [split-pane](</docs/en/agent-teams#choose-a-display-mode>) teammate in your [agent team](</docs/en/agent-teams>). Claude Code passes the lead’s command-line deny rules to a split-pane teammate on the teammate’s own command line, and stops when the teammate would read one of them differently:
 
-    A command-line deny rule cannot be handed to a teammate intact, so the teammate would not enforce it — spawn aborted
+    The deny rule "<rule>" cannot be handed to a teammate intact, so the teammate was not started. Remove that rule or move it to permissions.deny in settings, then try again.
 
 **What to do:**
 
-  * Run `/config` in the lead session and set **Teammate mode** to `in-process`, then ask Claude to start the teammate again. You don’t need to find the rule or restart the lead. An in-process teammate [runs under the lead’s live deny rules](</docs/en/agent-teams#permissions>).
+  * Run `/config` in the lead session and set **Teammate mode** to `in-process`. If the row says `overridden` and already shows `in-process`, cycle through the values back to it. Then ask Claude to start the teammate again. An in-process teammate [runs under the lead’s live deny rules](</docs/en/agent-teams#permissions>).
   * Later sessions that take [`teammateMode`](</docs/en/settings-reference#teammatemode>) from your user settings start teammates in-process too, because `/config` saves the choice there. To go back to split panes in a later session, set **Teammate mode** to `auto`, `tmux`, or `iterm2`, whichever you used before.
 
 ### Message too large for cross-session delivery
@@ -4036,7 +4044,7 @@ One line can cover several dropped messages. It then starts in the plural, for e
   * `its queue of undelivered peer messages was full`: the recipient already held as many undelivered messages from other sessions as its queue allows
   * `you sent faster than that session accepts`: the sending session’s messages arrived faster than the recipient accepts from one sender
   * `it repeated your previous message`: the message was identical to one the sending session sent this recipient shortly before
-  * `a relay loop between sessions was cut`: the message continued a chain of sessions messaging each other, and the chain had passed through the recipient too many times or grown too long
+  * `a relay loop between sessions was cut`: the message continued a long [chain of replies that can be cut off](</docs/en/cross-session-messaging#limitations>), such as one that includes a session beyond this machine
 
 **What to do:**
 

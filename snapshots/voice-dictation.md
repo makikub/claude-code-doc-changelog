@@ -15,7 +15,7 @@ Transcription does not consume Claude messages or tokens and does not count towa
 Run `/voice` to enable dictation. When you enable it, Claude Code runs a microphone check. On macOS, this triggers the system microphone permission prompt for your terminal if it has never been granted.
 
     /voice
-    Voice mode enabled (hold). Hold space to record. Dictation language: en (/config to change).
+    Turned on voice mode (hold). Hold space to record. Dictation language: en (/config to change).
 
 `/voice` accepts an optional mode argument:
 

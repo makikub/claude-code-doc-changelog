@@ -272,7 +272,7 @@ When you grant `Bash` in any form, every command runs under Claude Code’s [OS-
 
 #### Shell grants refused on a managed machine
 
-When shell-granting runs are refused on a machine your organization manages, a `sandbox` key in its [managed settings](</docs/en/managed-settings>) can be the cause. The error begins `A shell tool (Bash or PowerShell) was granted but this machine cannot confine it (no sandbox backend on this platform, or it is not installed)`. It names a missing backend even where one is installed. When a managed key is the cause, the message ends with `this machine's managed settings:` and the key, which the per-run progress line cuts off:
+When shell-granting runs are refused on a machine your organization manages, a `sandbox` key in its [managed settings](</docs/en/managed-settings>) can be the cause. The error begins `A shell tool (Bash or PowerShell) was granted but this machine cannot confine it (no sandbox backend on this platform, or it is not installed)`. When a managed key is the cause, the message ends with `this machine's managed settings:` and the key, which the per-run progress line cuts off:
 
   * **Without`--json`**: read it from the summary table’s `NOTES` column, as in `sandbox.enabled is false`
   * **Under`--json`**: read it from the JSON result, in the run’s `error` field
