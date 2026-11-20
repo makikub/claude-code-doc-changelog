@@ -1,4 +1,4 @@
-The Claude Agent SDK provides permission controls to manage how Claude uses tools. Use permission modes and rules to define what’s allowed automatically, and the [`canUseTool` callback](</docs/en/agent-sdk/user-input>) to handle everything else at runtime.
+The Claude Agent SDK provides permission controls to manage how Claude uses tools. Use permission modes and rules to define what’s allowed automatically, and the [`canUseTool` callback](</docs/en/agent-sdk/user-input>) to handle calls that still need approval.
 
 ## How permissions are evaluated
 

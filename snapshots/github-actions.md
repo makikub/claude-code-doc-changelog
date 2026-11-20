@@ -60,10 +60,10 @@ Create and merge the pull request
 
 Claude Code pushes a branch with the workflow files, already set to use your secret, and opens GitHub with a pull request ready for you to create. Create and merge that pull request to turn on the workflows. To test mentions, tag `@claude` in an issue comment.
 
-To stop setup partway through, press Esc in Claude Code. Claude Code finishes any change it’s already writing to the repository and doesn’t start new ones. The closing message lists what already happened in the repository, such as a pushed branch or a saved secret. If you select the review workflow, Claude posts each review on the pull request itself, as an inline comment on each issue it finds or as one summary comment when it finds none. Claude skips some pull requests, such as drafts. The review workflow example uses the same skill and lists them. Before v2.1.229, Claude wrote its review only to the workflow run log. To update a review workflow that an earlier version generated, do one of the following:
+To stop setup partway through, press Esc in Claude Code. Claude Code finishes any change it’s already writing to the repository and doesn’t start new ones. The closing message lists what already happened in the repository, such as a pushed branch or a saved secret. If you select the review workflow, Claude posts each review on the pull request itself, as an inline comment on each issue it finds or as one summary comment when it finds none. Claude skips some pull requests, such as drafts. The review workflow example uses the same skill and lists them. Before v2.1.229, Claude wrote its review only to the workflow run log. To update a review workflow file made before v2.1.229, add:
 
-  * Run `/install-github-app` again. When the repository already has a `claude.yml`, select **Update workflow file with latest version**. Claude Code pushes fresh copies of the workflow files to a new branch and opens the pull request, the same as a first install.
-  * Add the `--comment` argument and the `claude_args` line from the review workflow example to the checked-in file yourself, which keeps any other edits you made to it.
+  * `--comment` to the `prompt` line, as in the review example
+  * The example’s `claude_args` line
 
   * When you install the GitHub App, you grant it several permissions. See GitHub App permissions for the full set
   * Quick setup works with the Claude API and Claude subscriptions. If you use Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, see [Use Claude Code GitHub Actions with cloud providers](</docs/en/github-actions-cloud-providers>)

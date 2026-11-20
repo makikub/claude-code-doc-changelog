@@ -34,6 +34,7 @@ Message| Section
 `Agent terminated early due to an API error`| Server errors
 `You've hit your session limit` / `You've hit your weekly limit` / `You've hit your Opus limit` / `You've hit your Sonnet limit`| Usage limits
 `Usage credits required for 1M context`| Usage limits
+`Usage credits ran out before the response was finished.`| [Add usage credits](</docs/en/costs#add-usage-credits-to-your-subscription>)
 `the prompt to confirm went unanswered · nothing was sent`, from v2.1.324| Usage limits
 `Claude stopped here · send a message to be asked again`| Usage limits
 `Server is temporarily limiting requests`| Usage limits
@@ -78,6 +79,7 @@ Message| Section
 `Remote Control was turned off by your organization's policy`| [Troubleshoot Remote Control](</docs/en/remote-control#remote-control-was-turned-off-by-your-organizations-policy>)
 `Session failed: working folder not found:`| [Troubleshoot Remote Control](</docs/en/remote-control#working-folder-not-found>)
 `The program file this Remote Control started from is gone`| [Troubleshoot Remote Control](</docs/en/remote-control#program-file-is-gone>)
+`Session failed: program not found:`| [Troubleshoot Remote Control](</docs/en/remote-control#program-file-is-gone>)
 `Session failed: spawn error:` followed by an `ENOENT` message| [Troubleshoot Remote Control](</docs/en/remote-control#program-file-is-gone>)
 `Remote Control disconnected:` followed by a reason that mentions a `share link`| [Remote Control](</docs/en/remote-control#what-connected-devices-see>)
 `OAuth token revoked` / `OAuth token has expired`| Authentication
@@ -85,6 +87,7 @@ Message| Section
 `Your account does not have access to Claude. Please login again or contact your administrator.`| Authentication
 `API Error: 401 Invalid authentication credentials`| Authentication
 `Login expired · Please run /login`| Authentication
+`Warning: this sign-in`| [Check when a stored login ends](</docs/en/authentication#check-when-a-stored-login-ends>)
 `The browser can't return the sign-in to Claude Code automatically`| Authentication
 `Couldn't start the local listener that receives the browser sign-in. Try again.`| Authentication
 `Failed to start OAuth callback server`| Authentication
@@ -97,6 +100,7 @@ Message| Section
 `Login reached its time limit · Please run /login` / `Failed to authenticate: this login reached its time limit`| Authentication
 `Failed to authenticate: your claude.ai login expired`| [After the login expires](</docs/en/authentication#after-the-login-expires>)
 `claude.ai login ended · usage now billed to` / `Warning: the claude.ai login on this machine has ended`| [After the login expires](</docs/en/authentication#after-the-login-expires>)
+`The refresh token in CLAUDE_CODE_OAUTH_REFRESH_TOKEN was used for this attempt`| Fix the refusal printed above it, then set [`CLAUDE_CODE_OAUTH_REFRESH_TOKEN`](</docs/en/env-vars#variables>) to a new token.
 `Could not refresh your login because another Claude Code process is refreshing it`| Authentication
 `Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh`| Authentication
 `Could not refresh your login: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full`| Authentication
@@ -149,10 +153,11 @@ Message| Section
 `403` with `x-deny-reason: host_not_allowed` in a cloud session or cloud scheduled task| Network
 `proxy refused the connection`| Network
 `403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session| [GitHub proxy](</docs/en/cloud-environments#github-proxy>)
+`ENOTFOUND` with `In this cloud session a host fails to resolve like this`| Network
 `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format`| Network
 `Failed to fetch session from Sessions API: Failed to fetch session logs`| Network
 `Couldn't load the history of cloud session`| Network
-`Couldn't reconnect to your Remote Control session`| Network
+`Couldn't reconnect to your Remote Control session`| [Troubleshoot Remote Control](</docs/en/remote-control#couldnt-reconnect-to-your-remote-control-session>)
 `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.`| Network
 `Couldn't share the transcript.`| Network
 `Couldn't send feedback`| Network
@@ -200,6 +205,7 @@ Message| Section
 `thinking.type.enabled is not supported for this model`| Request errors
 `Effort '<level>' isn't available with thinking turned off on this model`| Request errors
 `effort '<level>' is not supported when thinking is disabled`| Request errors
+`API Error: 400 Invalid effort level` / `Your organization limits effort for <model>, so Claude Code is using '<level>' instead of '<level>'`| [Organization effort limits](</docs/en/model-config#organization-effort-limits>)
 `max_tokens must be greater than thinking.budget_tokens`| Request errors
 `Claude's response exceeded the ... output token maximum`| Request errors
 `API Error: 400 due to tool use concurrency issues`| Request errors
@@ -306,7 +312,7 @@ Message| Section
 `Claude Code couldn't restart`| Command-line errors
 `Couldn't open Claude Desktop`| Command-line errors
 `Failed to open Claude Desktop. Please try opening it manually.`| Command-line errors
-`Couldn't read your Zed keymap` / `Couldn't back up your Zed keymap` / `Couldn't update your Zed keymap`| Command-line errors
+`Couldn't read your Zed keymap` / `Couldn't back up your Zed keymap` / `Couldn't update your Zed keymap` / `Your Zed keymap is a symbolic link`| Command-line errors
 `Your Zed keymap isn't a readable list of keybindings`| Command-line errors
 `Skill usage reports are not available on this connection.`| Command-line errors
 `Custom output styles can't be selected over Remote Control or from a relayed message`| Command-line errors
@@ -324,6 +330,8 @@ Message| Section
 `Cannot add marketplace "<name>": Claude Code cannot install plugins from a marketplace with this name`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#cannot-install-plugins-from-a-marketplace-with-this-name>)
 `Cannot add marketplace "<name>": Claude Code reserves this name and cannot register a marketplace under it`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#claude-code-reserves-this-name>)
 `Marketplace "<name>" is added but ignored`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#marketplace-is-added-but-ignored>)
+`Marketplace "<name>", which managed settings declare, stands from another source and cannot be taken back while its declared source is unreachable`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#marketplace-cannot-be-taken-back-while-its-declared-source-is-unreachable>)
+`The list of installed plugins (installed_plugins.json) could not be read, so marketplace "<name>", which managed settings declare, cannot be taken back from another source`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#installed-plugins-could-not-be-read-so-marketplace-cannot-be-taken-back>)
 `Marketplace "<name>" is registered but was refused (see the debug log)`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#marketplace-is-added-but-ignored>)
 `references ${user_config.*} in a shell-form command`| Plugin errors
 `Monitor "<name>" from plugin <plugin> references ${user_config.*} in its command`| Plugin errors
@@ -344,6 +352,7 @@ Message| Section
 `"<plugin>" was not uninstalled: it is still switched on in <file>`| Plugin errors
 `"<plugin>" was not uninstalled: <file> is there and could not be read`| Plugin errors
 `Plugin "<plugin>" was not uninstalled: installed_plugins.json`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#installed-plugins-json-holds-a-record-this-version-cannot-read>)
+`was updated or removed, so this hook did not run`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#plugin-directory-does-not-exist>)
 `Plugin directory does not exist: <path>`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#plugin-directory-does-not-exist>)
 `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)`| Plugin errors
 `is not added on this machine, so your organization's marketplace policy keeps its plugins off`| [Add a marketplace](</docs/en/plugins/install#add-a-marketplace>)
@@ -379,6 +388,7 @@ Message| Section
 `cannot be handed to a teammate intact`| Tool errors
 `Message too large for cross-session delivery`| Tool errors
 `Too many messages to this session just now`| Tool errors
+`Held a message from <sender>` / `Dropped the held message from <sender> without delivering it`| [Control inbound messages](</docs/en/cross-session-messaging#control-inbound-messages>), or [Non-interactive sessions](</docs/en/cross-session-messaging#non-interactive-sessions>) for `claude -p`
 `Cross-session message was dropped at the recipient session's inbox`| Tool errors
 `Refusing to send: reply target is a symlink` / `Refusing to send: cannot vet reply target`| Tool errors
 `Refusing to read <path>: its symlink resolution changed after permission was checked (<reason>)` / `Refusing to search <path>: its symlink resolution changed after permission was checked`| Tool errors
@@ -398,6 +408,7 @@ Message| Section
 `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary`| Tool errors
 `git is not installed on this Mac. To install it, run xcode-select --install, then try again.`| Tool errors
 `Refusing to apply edits to <path>: a hook is configured for file edits in this session`| Tool errors
+`blocking because onFailure is "block"`| [Block the action when a hook fails](</docs/en/hooks#block-the-action-when-a-hook-fails>)
 `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text`| Tool errors
 `the source file has the replacement character U+FFFD`| Tool errors
 `Not published: that file is on a network share`| Tool errors
@@ -584,7 +595,7 @@ Variable| Default| Effect
 A non-streaming attempt ends at its request timeout or at the body idle timeout, whichever comes first:
 
   * **Request timeout** : `API_TIMEOUT_MS` when you set a positive value, otherwise 300 seconds in a local session.
-  * **[Body idle timeout](</docs/en/network-config#streaming-idle-watchdogs>)** : 5 to 6 minutes without a response, however high you set `API_TIMEOUT_MS`, where it runs and you haven’t turned it off.
+  * **[Body idle timeout](</docs/en/network-config#streaming-idle-watchdogs>) where it runs**: by default, 5 to 6 minutes without a response, however high you set `API_TIMEOUT_MS`.
 
 ## Server errors
 
@@ -625,7 +636,8 @@ The default request timeout is 10 minutes. If you set [`API_TIMEOUT_MS`](</docs/
 
   * If every request fails with this message and you set `API_TIMEOUT_MS` to `0`, check `claude --version`. On a version before v2.1.305, update Claude Code or set a positive value.
   * Retry the request
-  * If a slow network or proxy is the cause, raise `API_TIMEOUT_MS` as described in Automatic retries
+  * If the message continues past `Request timed out` and names an [environment variable](</docs/en/env-vars#set-environment-variables>), do what the message says. `No data arrived` means the [body idle timeout](</docs/en/network-config#streaming-idle-watchdogs>) ended the request.
+  * With a slow network or proxy on a version before v2.1.328, raise `API_TIMEOUT_MS`. If the request still times out, [update to v2.1.328 or later](</docs/en/setup#update-claude-code>) and set any variable the next timeout message names. If you can’t update, set [`API_FORCE_IDLE_TIMEOUT`](</docs/en/env-vars>) to `0`.
   * If timeouts are frequent and your network is otherwise healthy, see Network and connection errors below
 
 ### No response from API
@@ -998,7 +1010,7 @@ When the message continues past `Fix external API key` with a description such a
 
 ### Your apiKeyHelper script is failing
 
-Claude Code ran the command in your [`apiKeyHelper`](</docs/en/settings-reference#apikeyhelper>) setting and didn’t get a key back. Without one, the request reaches the API with a placeholder credential, and the API rejects it with `401`. The `Authentication` panel in the terminal shows which of these happened:
+Claude Code ran the command in your [`apiKeyHelper`](</docs/en/settings-reference#apikeyhelper>) setting and didn’t get a key back. Without one, the request reaches the API with a placeholder credential, and the API rejects it with `401`. A panel in the terminal shows which of these happened:
 
   * The command exited with an error or timed out
   * The command printed nothing to stdout
@@ -1012,7 +1024,6 @@ In [non-interactive mode](</docs/en/headless>), stderr also carries the specific
   * If the command reports an expired session, re-authenticate with your credential provider, for example by signing in to your SSO or secrets vault again
   * Fix the command so it prints only the key to stdout, as a single token of printable ASCII up to 16,384 characters, and exits with code 0. See [rotate credentials with apiKeyHelper](</docs/en/llm-gateway-connect#rotate-credentials-with-apikeyhelper>) for a working setup.
   * Run `/status` to see the failure and confirm `apiKeyHelper` is the active credential source. The `apiKeyHelper` row shows `Failing` with the last failure’s detail, such as the exit code and the command’s error output, and disappears after the next successful run. Before v2.1.274, `/status` showed only the credential source, not the failure.
-  * Each time the command fails, its exit code and error output also appear in an `Authentication` panel in the terminal. Before v2.1.212, the panel was titled `Cloud authentication`.
 
 ### Claude Code didn’t send your claude.ai login
 
@@ -1309,7 +1320,7 @@ You ran `/logout` or `claude auth logout`, and Claude Code signed this process o
 
 An API key may still be in `~/.claude.json` too if a Console login created one on Linux or Windows. **What to do:**
 
-  * Run `claude auth logout` in your shell to try the save again. When the save goes through, the command prints `Successfully logged out from your Anthropic account.`
+  * Run `claude auth logout` in your shell to try the save again
 
 ### Couldn’t start the local listener that receives the browser sign-in
 
@@ -1844,7 +1855,7 @@ Claude Code requests your [cloud environments](</docs/en/cloud-environments>) li
     The cloud environments service returned a response in an unexpected format (HTTP 200 with a non-JSON body). This is usually temporary — try again in a moment.
     The cloud environments service returned a response in an unexpected format (HTTP 200 without a usable environments list). This is usually temporary — try again in a moment.
 
-The server accepted the request but answered with a body that isn’t the environments list: empty, not JSON, or JSON without the list. This usually accompanies a service-side disruption and clears on its own. Depending on the surface that requested the list, Claude Code may add a prefix, such as `couldn't list environments:` in the `/remote-env` dialog. **What to do:**
+**What to do:**
 
   * Retry the action. Claude Code requests the list again each time
   * If the message keeps appearing, check [status.claude.com](<https://status.claude.com>) for active incidents
@@ -1875,15 +1886,7 @@ This message means Claude Code found the [cloud session you asked to pull into y
 
 ### Couldn’t reconnect to your Remote Control session
 
-    Couldn't reconnect to your Remote Control session. Retry, or start a fresh session without --resume.
-
-Resuming with `claude --resume` or `claude --continue` reconnects to the [Remote Control](</docs/en/remote-control>) session recorded in that conversation. This message means the reconnection failed for a reason that may be temporary, such as a network interruption or a server error, so Claude Code can’t confirm whether the remote session still exists. Your local session keeps running without Remote Control. **What to do:**
-
-  * Run `/remote-control` to retry the connection
-  * Start a new session with `claude --remote-control` to create a new Remote Control session
-  * For other Remote Control startup messages, see [Troubleshoot Remote Control](</docs/en/remote-control#troubleshooting>)
-
-If the server reports instead that the previous session is gone, you don’t see this message. Claude Code starts a new session in its place or shows [`Previous session is unavailable — run /remote-control to start a new one`](</docs/en/remote-control#previous-session-is-unavailable>).
+For the cause and the fix, see [this message in Remote Control troubleshooting](</docs/en/remote-control#couldnt-reconnect-to-your-remote-control-session>).
 
 ### Sessions ended while this machine was offline
 
@@ -2135,7 +2138,12 @@ A tool in the request declared an `input_schema` that fails the API’s JSON Sch
     API Error: 400 ... tools.N.custom.input_schema: JSON schema is invalid
     API Error: 400 ... tools.N.custom.input_schema.properties: Property keys should match pattern '^[a-zA-Z0-9_.-]{1,64}$'
 
-The first form means the schema isn’t valid JSON Schema draft 2020-12. The second means a top-level property name doesn’t match the pattern the message quotes. Claude Code [excludes MCP tools whose input schema would fail this validation](</docs/en/mcp#tools-with-invalid-input-schemas>) when it loads a server’s tools, so requests normally never include one. On a [deployment where flag fetching is off](</docs/en/env-vars#features-that-need-feature-flag-fetching>), or on a machine whose flags have never arrived, Claude Code records in the server’s log which tool would be rejected but sends it anyway, so this error can still occur. The error can also occur for a tool whose schema declares a JSON Schema dialect other than draft 2020-12 in `$schema`. Claude Code doesn’t check those schemas against the JSON Schema meta-schema, though the top-level property-name check still applies. Before v2.1.216, no deployment ran the exclusion checks. **What to do:**
+The first form means the schema isn’t valid JSON Schema draft 2020-12. The second means a top-level property name doesn’t match the pattern the message quotes. Claude Code [excludes MCP tools whose input schema would fail this validation](</docs/en/mcp#tools-with-invalid-input-schemas>) when it loads a server’s tools, so requests normally never include one. The error can still occur, such as when:
+
+  * [Feature flag fetching](</docs/en/env-vars#features-that-need-feature-flag-fetching>) is on but the [flags haven’t arrived](</docs/en/env-vars#first-session-after-an-install-or-upgrade>). Before v2.1.328, the error could also occur with fetching off.
+  * The tool’s schema declares a JSON Schema dialect other than draft 2020-12 in `$schema`.
+
+**What to do:**
 
   * If your Claude Code version is earlier than v2.1.300, run [`claude update`](</docs/en/setup#update-claude-code>) in your shell. Before v2.1.300, Claude Code didn’t [retry the request without the rejected tool’s parameters](</docs/en/mcp#tools-whose-input-schema-the-api-refuses>), so this error repeated on every request that included the tool.
   * Remove or [disable](</docs/en/mcp#disable-a-server-without-removing-it>) the MCP server that declares the invalid schema. The error names the tool only by position. On v2.1.216 or later, check each server’s log for a line naming a tool whose input schema would be rejected. If no log names one, disable servers one at a time.
@@ -3382,7 +3390,7 @@ Before v2.1.285, the message ended `Open Claude Desktop and run /desktop again.`
 
 ### /terminal-setup left your Zed keymap unchanged
 
-You ran [`/terminal-setup`](</docs/en/terminal-config#enter-multiline-prompts>) in Zed, and Claude Code couldn’t complete the update to your Zed `keymap.json`, so it left the file as it was. Each message names the path to your keymap and ends with the keybinding block to add yourself:
+You ran [`/terminal-setup`](</docs/en/terminal-config#enter-multiline-prompts>) in Zed, and Claude Code couldn’t complete the update to your Zed `keymap.json`, so it left the file as it was. Each message names the path to your keymap and includes the keybinding block to add yourself:
 
     Couldn't update your Zed keymap, so it was left unchanged.
     To add the binding yourself, add this block to the keymap array in <path to keymap.json>:
@@ -3392,6 +3400,7 @@ The first line of the message names the cause:
 
   * `Couldn't read your Zed keymap, so it was left unchanged.`: Claude Code couldn’t read the file, for example because of file permissions
   * `Your Zed keymap isn't a readable list of keybindings, so it was left unchanged.`: the file read fine but doesn’t parse as an array of keybinding blocks, even with `//` comments and trailing commas allowed
+  * `Your Zed keymap is a symbolic link, so it was left unchanged.`: `keymap.json` links to another file
   * `Couldn't back up your Zed keymap; not modifying it.`: Claude Code couldn’t copy the file to a `.bak` backup beside it, so it changed nothing
   * `Couldn't update your Zed keymap, so it was left unchanged.`: the merged result didn’t verify as a valid keymap carrying the binding, so Claude Code discarded it instead of writing. A keybinding block with a duplicated key can cause this
 
@@ -3482,15 +3491,7 @@ The first message means your build is older than v2.1.269, the first version whe
 
 ### Marketplace is registered from an untrusted source
 
-The marketplace is registered under a name that is [reserved for official Anthropic marketplaces](</docs/en/plugins/marketplace-reference#marketplace-file>), but its registered source isn’t an `anthropics` GitHub repository. Claude Code re-checks reserved names every time it loads or refreshes a marketplace, so the marketplace and the plugins installed from it stop loading. Before v2.1.205, an entry registered before its name became reserved kept loading.
-
-    Marketplace "claude-community" is registered from an untrusted source: The name 'claude-community' is reserved for official Anthropic marketplaces. Only repositories from 'github.com/anthropics/' can use this name. To fix it, remove the marketplace and re-add it from the official source.
-
-For a marketplace whose source isn’t a GitHub repository or a Git URL, such as a local directory, the middle sentence reads `can only be used with GitHub sources from the 'anthropics' organization` instead. `claude plugin marketplace add` runs the same check, and refuses a reserved name with `Failed to add marketplace:` followed by the same reserved-name sentence. **What to do:**
-
-  * If the marketplace is already registered, run `claude plugin marketplace remove <name>`, then add it again from the official `github.com/anthropics` repository
-  * If you publish a third-party marketplace that used the name before it became reserved, rename it and ask users to re-add it from your source
-  * See the reserved name list under [Marketplace schema](</docs/en/plugins/marketplace-reference#marketplace-file>)
+For the cause and the fix, see [this message in plugin troubleshooting](</docs/en/plugins/troubleshooting#marketplace-is-registered-from-an-untrusted-source>).
 
 ### Marketplace name is another spelling of a reserved name
 
@@ -3556,19 +3557,7 @@ An MCP `headersHelper` reports:
 
 ### Plugin archive integrity check failed
 
-The plugin’s marketplace entry uses an [`archive` source](</docs/en/plugins/marketplace-reference#archive-plugin-source>) with a `sha256` pin, and the digest of the downloaded file doesn’t match the pin. Claude Code refuses the install, so nothing changes in the plugin cache. The mismatch has three possible causes:
-
-  * The file at the URL changed after the author computed the pin
-  * The author entered the wrong digest in the marketplace entry
-  * The URL serves a different file than the author pinned
-
-    Plugin archive integrity check failed for https://artifacts.example.com/claude-plugins/my-plugin.zip: expected sha256 6bfa50e3d2e00c052b46abe51fff89346ac803e45771f76dcf6df1ab74cca5e1, got ac52220c0914ef8ca6a602e4a7362f88d30fb021110f72a6d15b68c3fe7df2b7. The archive was not installed. Verify the sha256 in the marketplace entry, or that the URL serves the intended file.
-
-**What to do:**
-
-  * If you publish the plugin, recompute the digest of the exact file the URL serves, for example with `shasum -a 256 my-plugin.zip`, or `Get-FileHash -Algorithm SHA256 my-plugin.zip` in PowerShell, and update the `sha256` in the marketplace entry
-  * If you install the plugin, run `/plugin marketplace update <name>` to refresh the catalog in case the entry was corrected, then retry the install
-  * If the digests still disagree after a refresh, ask the marketplace owner which file they pinned before installing
+For the causes and the fix, see [this message in plugin troubleshooting](</docs/en/plugins/troubleshooting#plugin-archive-integrity-check-failed>).
 
 ### Path escapes plugin directory
 
@@ -5221,12 +5210,7 @@ For the network lock, the warning names `sandbox.network.allowedDomains` and `al
 
 ### Sandbox mask files left behind at write-deny paths
 
-This warning in `claude doctor` and `/status` lists mask files: 0-byte read-only placeholder files at paths the [sandbox](</docs/en/sandboxing>) denies writes to. It appears on Linux and WSL2 when sandboxing is enabled with filesystem isolation on. Delete them from your shell once no Claude Code session is open in the project that holds them. The sandbox creates a placeholder while a sandboxed command runs and removes it when the command ends. One stays behind in cases such as these:
-
-  * The session is killed before the command ends, for example by SIGKILL
-  * You quit the session while a sandboxed command is still running, such as one in the background
-
-In `claude doctor`, the warning reads:
+This warning in `claude doctor` and `/status` lists mask files: 0-byte read-only placeholder files at paths the [sandbox](</docs/en/sandboxing>) denies writes to. It appears on Linux and WSL2 when sandboxing is enabled with filesystem isolation on. Delete them from your shell once no Claude Code session is open in the project that holds them. In `claude doctor`, the warning reads:
 
     - Sandbox mask files left behind at write-deny paths: /home/you/project/.claude/settings.local.json
       Fix: A session leaves one where it was killed, or where it exited while a sandboxed command was still running. Remove each with `rm <path>` while no other Claude Code session is running in that project — a 0-byte read-only file where a settings file belongs makes "Yes, and don't ask again" fail to save, and the sandbox binds it read-only again on every start

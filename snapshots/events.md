@@ -61,7 +61,7 @@ To run a hook for some events only, pass a filter as the second argument to `on`
     // A regular expression matches by pattern: every tool of one MCP server
     on('tool.call', { tool: /^mcp__github__/ }, hook)
 
-`hook` runs once for a Bash, Edit, or Write call, and once for a call to a tool whose name starts with `mcp__github__`. A call to any other tool, such as Read, matches none of the three, so `hook` doesn’t run for it. The event name can be a wildcard. `'classic.*'` matches every settings hook event. `'*'` matches every event except the [telemetry events](</docs/en/plugins/mods/reference#telemetry>), which take their own name and a `{ to: 'collector' }` filter. Register each event once per matcher. If you call `on` twice for `session.start` with no matcher, the module fails to load with `on("session.start") is registered twice without a matcher`. Put everything your mod does at session start in one hook.
+`hook` runs once for a Bash, Edit, or Write call, and once for a call to a tool whose name starts with `mcp__github__`. A call to any other tool, such as Read, matches none of the three, so `hook` doesn’t run for it. The event name can be a wildcard. `'classic.*'` matches every settings hook event. `'*'` matches most events, but not the [telemetry events](</docs/en/plugins/mods/reference#telemetry>), which take their own name and a `{ to: 'collector' }` filter. Register each event once per matcher. If you call `on` twice for `session.start` with no matcher, the module fails to load with `on("session.start") is registered twice without a matcher`. Put everything your mod does at session start in one hook.
 
 #### Hook other mods’ drawings and controls
 

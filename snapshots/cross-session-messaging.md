@@ -105,7 +105,7 @@ On this machine| Over a per-session socket on macOS and Linux, or a per-session 
 On another of your machines| Through Anthropic servers, arriving over that machine’s [Remote Control](</docs/en/remote-control>) connection
 In the [cloud](</docs/en/claude-code-on-the-web>)| Through Anthropic servers, straight to the cloud session
 
-Starting a conversation with a session on another of your machines requires Claude Code v2.1.225 or later and a target that appears in the listing. A session’s row in the listing can show a condition that changes what happens when Claude messages that session:
+Starting a conversation with a session on another of your machines requires Claude Code v2.1.225 or later. A session’s row in the listing can show a condition that changes what happens when Claude messages that session:
 
   * **`offline`** : that session’s Remote Control connection has dropped. The message goes through, but arrives only after that session’s machine reconnects.
   * **`can't receive cross-session messages (off in that session)`** : messaging isn’t available in that session, or its [`crossSessionInbound`](</docs/en/settings-reference#crosssessioninbound>) value is `refuse`. Claude Code refuses a message to that session before the message leaves this machine. The result under Claude’s `SendMessage` call begins `Not sent` and names the reason. Once the cause is fixed in that session, a later listing no longer shows this condition, and Claude can message that session.

@@ -4,7 +4,7 @@ For the broader security model, see [Security](</docs/en/security>). For Agent S
 
 ## Compare sandboxing approaches
 
-The first two approaches in the table below run on the host operating system without containers. The rest place Claude Code inside a container or virtual machine.
+The first two approaches in the table below run on the host operating system without containers. The rest use a container or virtual machine.
 
 Approach| What is isolated| Requires Docker| Setup effort
 ---|---|---|---
@@ -13,9 +13,9 @@ Sandbox runtime| The whole Claude Code process, including file tools, MCP server
 Dev container| Full development environment| Yes| Medium
 Custom container| Full development environment| Yes| Medium to high
 Virtual machine| Full operating system| No| High
-Cloud sessions| Full operating system, hosted by Anthropic| No| None; requires a Claude subscription, and a connected GitHub account to clone a GitHub repository
+Cloud sessions| By default, shell commands and file edits in a VM hosted by Anthropic| No| None; requires a Claude subscription, and a connected GitHub account to clone a GitHub repository
 
-The [sandboxed Bash tool](</docs/en/sandboxing>) is built into Claude Code and restricts Bash commands. Built-in file tools, MCP servers, and hooks still run directly on your host. Every other approach in the table puts the whole Claude Code process inside the isolation boundary, so file tools, MCP servers, and hooks are restricted too.
+The [sandboxed Bash tool](</docs/en/sandboxing>) is built into Claude Code and restricts Bash commands. Built-in file tools, MCP servers, and hooks still run directly on your host. The sandbox runtime and your own container or VM put the whole Claude Code process inside the isolation boundary, so file tools, MCP servers, and hooks are restricted too.
 
 Sandbox isolation reduces the impact of a breach, but it does not eliminate risk. Any approach that allows network egress can still leak data the agent can read, and any approach that mounts your project directory writable can still modify that code. Review the [security limitations](</docs/en/sandboxing#security-limitations>) before relying on a sandbox as a hard control.Isolation also does not change what is sent to the model. Your prompts and the files Claude reads are transmitted to the Anthropic API or your configured provider with or without a sandbox. See [Data usage](</docs/en/data-usage>) for what Claude Code sends and how to reduce it.
 
@@ -112,7 +112,7 @@ A dedicated virtual machine provides the strongest separation, with its own kern
 
 ## Cloud sessions
 
-A [cloud session](</docs/en/claude-code-on-the-web>) runs in an isolated, Anthropic-managed virtual machine. A network proxy enforces a default allowlist, and a separate proxy holds your GitHub token outside the sandbox while issuing scoped credentials for repository access inside it. Sessions your organization routes to a [self-hosted environment](</docs/en/self-hosted-environments>) run on infrastructure you provision instead, where isolation, egress control, and git credentials are your deployment’s responsibility. Use this approach when you want full VM isolation without provisioning infrastructure yourself, or when you are delegating tasks from a device that does not have a local development environment. It requires:
+By default, a [cloud session](</docs/en/claude-code-on-the-web>) runs its shell commands and file edits in an isolated, Anthropic-managed virtual machine. A network proxy enforces a default allowlist, and a separate proxy holds your GitHub token outside the sandbox while issuing scoped credentials for repository access inside it. Sessions your organization routes to a [self-hosted environment](</docs/en/self-hosted-environments>) run on infrastructure you provision instead, where isolation, egress control, and git credentials are your deployment’s responsibility. Use this approach when you want commands to run in a VM without provisioning infrastructure, or when you delegate tasks from a device with no local development environment. It requires:
 
   * **Subscription** : a Claude subscription
   * **GitHub** : a connected GitHub account to work in a GitHub repository. When you launch from the CLI with `--cloud`, you don’t need one if Claude Code [bundles and uploads your local repository](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>)

@@ -246,7 +246,7 @@ If Claude hits a permission prompt while you’re away from the terminal, the se
 
 ## Security
 
-Every approved channel plugin maintains a sender allowlist: only IDs you’ve added can push messages, and everyone else is silently dropped. Telegram and Discord bootstrap the list by pairing:
+The Telegram, Discord, and iMessage channel plugins check direct messages against a sender allowlist. Other people’s direct messages reach your session only after you add those people to the list. Telegram and Discord bootstrap the list by pairing:
 
   1. Find your bot in Telegram or Discord and send it any message
   2. The bot replies with a pairing code

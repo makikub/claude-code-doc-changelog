@@ -121,6 +121,7 @@ Path under `~/.claude/`| Contents
 `usage-data/`| `report.html` and timestamped report copies written by [`/insights`](</docs/en/costs#analyze-your-usage-patterns>), plus cached per-session analysis data used to build them
 `skills/.trash/`, `plugins/.trash/`| [Skills](</docs/en/skills#how-synced-skills-behave>) and [plugins](</docs/en/plugins/loading#synced-plugins>) that the claude.ai sync removed, such as after you turn one off on claude.ai or stop syncing. The files stay here so you can recover them until the sweep deletes them
 `plugins/installed_plugins.set-aside.<date>.<hash>.json`, `plugins/installed_plugins.unreadable.<date>.<hash>.kept`| Dated copies Claude Code makes before rewriting [`installed_plugins.json`](</docs/en/plugins/loading#find-plugins-on-disk>): install records it dropped, and the contents of a file it couldn’t read.
+`plugins/data/.set-aside/`| Data directories of plugins from a marketplace that your organization replaced with one of the same name. Their age counts from the day Claude Code moved them, and a shorter `cleanupPeriodDays` in project settings doesn’t apply. To keep one, move it somewhere else before the sweep deletes it.
 `plugins/mcpb/`| The files Claude Code extracted from the [MCP bundles](</docs/en/plugins/components#include-a-packaged-mcpb-server>) that plugins declare. A bundle’s age counts from the last session that used it.
 `todos/`, `statsig/`, `logs/`| Legacy directories from older versions. No longer written. The sweep removes their contents and then the empty directory.
 
@@ -136,7 +137,7 @@ Session files in `sessions/`, auto memory, and Claude Desktop and Cowork transcr
 Claude Code skips the age-based sweep in these cases:
 
   * **Bare mode** : when you run `claude -p` with [`--bare`](</docs/en/headless#start-faster-with-bare-mode>), Claude Code doesn’t run the sweep in that session.
-  * **Paused sweep** : if Claude Code can’t safely determine the retention period, it pauses the sweep; the [`retention_sweep` event](</docs/en/monitoring-usage#retention-sweep-event>) lists each configuration that pauses it. When the cause is a settings file that can’t be read or parsed, or settings errors with `cleanupPeriodDays` or `desktopSessionCleanupPeriodDays` set, `/status` shows a warning until you fix the cause.
+  * **Paused sweep** : if Claude Code can’t safely determine the retention period, it pauses the sweep; the [`retention_sweep` event](</docs/en/monitoring-usage#retention-sweep-event>) reports why. When the cause is a settings file that can’t be read or parsed, or settings errors with `cleanupPeriodDays` or `desktopSessionCleanupPeriodDays` set, `/status` shows a warning until you fix the cause.
 
 When [managed settings](</docs/en/managed-settings>) provide `cleanupPeriodDays`, Claude Code runs the sweep at the managed value even when a lower-priority settings file has errors. To check that the machines in your organization run the sweep with the retention period you set, see [Check the retention sweep](</docs/en/monitoring-usage#check-the-retention-sweep>).
 

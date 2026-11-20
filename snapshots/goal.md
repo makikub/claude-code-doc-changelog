@@ -12,7 +12,7 @@ Three approaches keep the current session running between prompts. Pick based on
 Approach| Next turn starts when| Stops when
 ---|---|---
 `/goal`| The previous turn finishes, or, in an interactive session, an idle check-in or an automatic retry comes due| A model confirms the condition is met or judges it impossible, or a turn fails on an error you have to fix, or you run `/goal clear`
-[`/loop`](</docs/en/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop>)| A time interval elapses| You stop it, or Claude decides the work is done
+[`/loop`](</docs/en/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop>)| A time interval elapses| You stop it, or [the loop ends on its own](</docs/en/scheduled-tasks#stop-a-loop>)
 [Stop hook](</docs/en/hooks-guide#prompt-based-hooks>)| The previous turn finishes| Your own script or prompt decides
 
 `/goal` and a Stop hook both fire after every turn. `/goal` is a session-scoped shortcut: you type a condition and it’s active for the current session only. A Stop hook lives in your settings file, applies to every session in its scope, and can run a script for deterministic checks or a prompt for model-evaluated ones. [Auto mode](</docs/en/auto-mode-config>) on its own approves tool calls within a single turn but doesn’t start a new one. Claude stops when it judges the work done. `/goal` adds a separate evaluator that checks your condition after every turn, so completion is decided by a fresh model rather than the one doing the work. The two are complementary: auto mode removes per-tool prompts, and `/goal` removes per-turn prompts.

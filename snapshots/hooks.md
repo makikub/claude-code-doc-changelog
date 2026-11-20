@@ -69,7 +69,7 @@ TypeScript
                 }
             }
 
-        # Return empty object to allow the operation
+        # Empty object: no decision, normal permissions apply
         return {}
 
     async def main():
@@ -113,7 +113,7 @@ TypeScript
         };
       }
 
-      // Return empty object to allow the operation
+      // Empty object: no decision, normal permissions apply
       return {};
     };
 
@@ -133,7 +133,7 @@ TypeScript
       }
     }
 
-The hook denies a Write or Edit call whose `file_path` ends in `/.env`, in any letter case. On Windows, `file_path` uses backslashes, such as `C:\project\.env`, and this hook allows a Write or Edit call to `C:\project\.env`.
+The hook denies a Write or Edit call whose `file_path` ends in `/.env`, in any letter case. On Windows, `file_path` uses backslashes, such as `C:\project\.env`, and this hook doesn’t block a Write or Edit call to `C:\project\.env`.
 
 The `Write|Edit` matcher limits this hook to the Write and Edit tools. If Claude writes `.env` with a Bash command, the hook doesn’t run. To block Bash writes to a file where [the sandbox runs](</docs/en/sandboxing>), see the sandbox configuration for [Python](</docs/en/agent-sdk/python#sandbox-configuration>) or [TypeScript](</docs/en/agent-sdk/typescript#sandbox-configuration>).
 
@@ -245,7 +245,7 @@ Your callback returns an object with two categories of fields:
     * For `PostToolUse` hooks, you can set `additionalContext` to append information to the tool result. To replace the tool’s output before Claude sees it, set `updatedToolOutput`, which works for built-in and MCP tools in both SDKs. The older `updatedMCPToolOutput` field replaces MCP tool output only.
     * In the TypeScript SDK, a `PostToolUse` callback can also return `classifierContext`, a short note about the tool call’s result for the [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) permission classifier. Because your callback runs in your application’s own process, the classifier may weigh a user statement you relay in the note as user intent. The field requires TypeScript Agent SDK v0.3.236 or later. [Annotate a result for the auto mode classifier](</docs/en/hooks#annotate-a-result-for-the-auto-mode-classifier>) covers the length cap, the synchronous-only rule, and what not to put in the note.
 
-Return `{}` to allow the operation without changes. SDK callback hooks use the same JSON output format as [Claude Code shell command hooks](</docs/en/hooks#json-output>), which documents every field and event-specific option. For the SDK type definitions, see the [TypeScript](</docs/en/agent-sdk/typescript#synchookjsonoutput>) and [Python](</docs/en/agent-sdk/python#synchookjsonoutput>) SDK references.
+For `PreToolUse`, return `{}` to make no decision, so the normal [permission flow](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) applies. SDK callback hooks use the same JSON output format as [Claude Code shell command hooks](</docs/en/hooks#json-output>), which documents every field and event-specific option. For the SDK type definitions, see the [TypeScript](</docs/en/agent-sdk/typescript#synchookjsonoutput>) and [Python](</docs/en/agent-sdk/python#synchookjsonoutput>) SDK references.
 
 When multiple `PreToolUse` hooks return different [decisions](</docs/en/hooks#pretooluse-decision-control>), `deny` takes priority over `defer`, which takes priority over `ask`, which takes priority over `allow`.
 

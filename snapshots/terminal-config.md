@@ -25,6 +25,7 @@ For VS Code, Cursor, Devin Desktop, Alacritty before 0.16, and Zed, `/terminal-s
 
   * If the keymap already has bindings and none of them is a Terminal `shift-enter`, Claude Code first backs it up to a copy in the same directory, such as `keymap.json.1a2b3c4d.bak`, then merges the Shift+Enter binding into your keymap, keeping your other keybindings and comments
   * If Claude Code can’t read or parse the keymap, can’t back it up, or can’t verify the merged result, it [leaves the file unchanged and prints the keybinding block to add yourself](</docs/en/errors#terminal-setup-left-your-zed-keymap-unchanged>)
+  * If the keymap is a symlink, [add the keybinding yourself](</docs/en/errors#terminal-setup-left-your-zed-keymap-unchanged>)
 
 If you are running inside tmux, Shift+Enter also requires the tmux configuration below even when the outer terminal supports it. To bind newline to a different key, or to swap behavior so Enter inserts a newline and Shift+Enter submits, map the `chat:newline` and `chat:submit` actions in your [keybindings file](</docs/en/keybindings>).
 
@@ -38,7 +39,7 @@ Some Claude Code shortcuts use the Option key, such as Option+Enter for a newlin
 
   * VS Code
 
-Open Settings → Profiles → Keyboard and check “Use Option as Meta Key”.If you accepted Claude Code’s first-run terminal setup prompt, this is already done. That prompt runs `/terminal-setup` for you, which enables Option as Meta and turns off the audible bell in your Apple Terminal profile.In [screen reader mode](</docs/en/accessibility>), `/terminal-setup` leaves the bell setting unchanged so the terminal bell stays audible. If an earlier run turned the bell off, turn it back on under Settings → Profiles → Advanced → “Audible bell”.
+Open Settings → Profiles → Keyboard and check “Use Option as Meta Key”.`/terminal-setup` and the first-run terminal setup prompt enable this setting only on macOS 26 and earlier. Both also turn off your profile’s audible bell.In [screen reader mode](</docs/en/accessibility>), `/terminal-setup` leaves the bell setting unchanged so the terminal bell stays audible. If an earlier run turned the bell off, turn it back on under Settings → Profiles → Advanced → “Audible bell”.
 
 Open Settings → Profiles → Keys → General and set Left Option key and Right Option key to “Esc+”.Running `/terminal-setup` in iTerm2 enables “Applications in terminal may access clipboard” under Settings → General → Selection so the `/copy` command can write to your system clipboard. The command detects iTerm2 even when run from inside tmux. Restart iTerm2 for the change to take effect.
 
@@ -290,7 +291,7 @@ When you paste more than 800 characters or more than three lines into the prompt
 
 ### How Claude treats pasted text
 
-When you submit, Claude sees the content behind each `[Pasted text #N]` placeholder marked as text you pasted from somewhere else rather than typed. Claude is told that a paste can contain instructions you didn’t write, and to follow instructions inside it only where the message you typed asks it to. In sessions that don’t [fetch feature flags](</docs/en/env-vars#features-that-need-feature-flag-fetching>), pastes aren’t marked.
+When you submit, Claude sees the content behind each `[Pasted text #N]` placeholder marked as text you pasted from somewhere else rather than typed. Claude is told that a paste can contain instructions you didn’t write, and to follow instructions inside it only where the message you typed asks it to. Pastes can reach Claude unmarked, such as in your [first session after an install](</docs/en/env-vars#first-session-after-an-install-or-upgrade>).
 
 ### Delete and restore a collapsed paste
 

@@ -17,7 +17,7 @@ Skills are discovered through the filesystem setting sources. With default `quer
 
 ## Use skills with the Agent SDK
 
-Set the `skills` option on `query()` to control which skills Claude can invoke in the session. When omitted, discovered skills are enabled and the Skill tool is available, matching CLI behavior. Pass `"all"` to let Claude invoke every discovered skill, a list of skill names to allow only those, or `[]` to let Claude invoke none. For example, to let Claude invoke only two named skills:
+Set the `skills` option on `query()` to control which skills Claude can invoke in the main conversation. When omitted, discovered skills are enabled and the Skill tool is available, matching CLI behavior. Pass `"all"` to let Claude invoke every discovered skill, a list of skill names to allow only those, or `[]` to let Claude invoke none. For example, to let Claude invoke only two named skills:
 
 Python
 
@@ -29,7 +29,7 @@ TypeScript
 
 ### Set up skills in a session
 
-When you set `skills`, the SDK adds the Skill tool to `allowedTools` automatically. If you also pass an explicit `tools` list, include `"Skill"` in that list so Claude can invoke skills. Once configured, Claude automatically discovers skills from the filesystem and invokes them when relevant to the user’s request. The following example enables every discovered skill in a session and pre-approves the tools that skills commonly need. The example sets `cwd` to the process’s current working directory, so run it from inside a project that has a `.claude/skills/` directory in the current directory or any parent up to the repository root:
+When you set `skills`, the SDK adds the skills you enable to `allowedTools` automatically. If you also pass an explicit `tools` list, include `"Skill"` in that list so Claude can invoke skills. Once configured, Claude automatically discovers skills from the filesystem and invokes them when relevant to the user’s request. The following example enables every discovered skill in a session and pre-approves the tools that skills commonly need. The example sets `cwd` to the process’s current working directory, so run it from inside a project that has a `.claude/skills/` directory in the current directory or any parent up to the repository root:
 
 Python
 
@@ -81,7 +81,7 @@ To let Claude invoke only specific skills, pass their names in the `skills` list
   * **Plugin skills** : `plugin:skill`
   * **Name clashes in`additionalDirectories` or `add_dirs`**: a skill in one of those directories gets a [prefixed name](</docs/en/skills#how-a-skill-gets-its-command-name>) when its name clashes with an enterprise, personal, or project skill, or one in a directory added earlier. List it by that name. With a `verify` skill in `../api` and `../web`, added in that order, and no other `verify` skill, list them as `verify` and `web:verify`. Requires Claude Code v2.1.309 or later
 
-The list takes exact skill names only. If an entry can’t work as an exact name, `query()` rejects the list before the session starts. See Invalid skill name error for the name rules and the error each SDK raises. The model doesn’t see unlisted skills and the Skill tool rejects them, while their files remain on disk and stay reachable through Read and Bash. Restricting the list doesn’t restrict dispatch by name. To let Claude invoke every discovered skill, pass `skills: "all"` rather than a wildcard.
+The list takes exact skill names only. If an entry can’t work as an exact name, `query()` rejects the list before the session starts. See Invalid skill name error for the name rules and the error each SDK raises. The model doesn’t see unlisted skills and the Skill tool rejects them, while their files remain on disk and stay reachable through Read and Bash. Restricting the list doesn’t restrict subagents or dispatch by name. To let Claude invoke every discovered skill, pass `skills: "all"` rather than a wildcard.
 
 ## Commands in Agent SDK sessions
 

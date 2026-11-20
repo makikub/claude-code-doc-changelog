@@ -67,7 +67,7 @@ When Claude enters or exits a worktree that Claude Code created with git, the tr
 
 ## How Claude Code enforces isolation
 
-While a session is isolated in a worktree, Claude Code blocks the tool calls the checks below define. The same rules apply whether you started the session with `--worktree`, Claude entered a worktree with `EnterWorktree`, or you resumed a worktree session. The same enforcement covers every subagent Claude spawns from the isolated session. It applies whether the session is interactive or runs in the [background](</docs/en/agent-view#how-file-edits-are-isolated>). Subagents that run in their own worktree carry the same checks. Their version history is under [Write subagent files](</docs/en/sub-agents#write-subagent-files>). Claude Code applies four checks:
+While a session is isolated in a worktree, Claude Code blocks the tool calls the checks below define. The same rules apply whether you started the session with `--worktree`, Claude entered a worktree with `EnterWorktree`, or you resumed a worktree session. The same enforcement covers every subagent Claude spawns from the isolated session. It applies whether the session is interactive or runs in the [background](</docs/en/agent-view#how-file-edits-are-isolated>). Subagents that run in their own worktree carry the same checks. Claude Code applies four checks:
 
   * **File edits** : Claude Code blocks an `Edit`, `Write`, or `NotebookEdit` that targets a path in the main checkout. To change a file in the main checkout, edit it yourself or start an interactive session there.
   * **Command working directory** : Claude Code blocks a Bash, PowerShell, or Monitor command whose working directory resolves to the main checkout, or whose working directory it can’t verify stays outside it.

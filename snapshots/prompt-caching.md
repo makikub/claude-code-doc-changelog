@@ -79,7 +79,7 @@ Without tool search, whether a mid-session server change invalidates the cache d
 Mid-session change| Cache| Tool definitions in the next request
 ---|---|---
 A server connects, or a [dynamic tool update](</docs/en/mcp#dynamic-tool-updates>) adds tools| Invalidated| The new definitions are added
-A server drops out with no action on your part, such as a stdio server’s process exiting| Kept| The server’s definitions stay unchanged. A call to one of its tools returns an error instead of running, unless Claude Code [starts the server again](</docs/en/mcp#stdio-servers-that-exit-or-fail-to-start>) for that call
+A server drops out with no action on your part, such as a stdio server’s process exiting| Kept| The server’s definitions stay unchanged
 A remote server [reconnects automatically](</docs/en/mcp#automatic-reconnection>) after its connection drops| Kept, unless a request sent while the server reconnects adds the `WaitForMcpServers` tool, which invalidates the cache once| The server’s definitions stay unchanged. A request sent while the server reconnects can add `WaitForMcpServers` when the conversation hasn’t listed it yet, and the tool then stays listed for the rest of the conversation
 You remove a tool on purpose, such as with a deny rule or by disabling its server in `/mcp`| Invalidated| The definition is removed
 
@@ -124,7 +124,7 @@ If you add a bare tool name like `Bash` or `WebFetch` as a [deny rule](</docs/en
 
 [Compaction](</docs/en/context-window#what-survives-compaction>) replaces your message history with a summary. By design, this invalidates the conversation layer: the next request has a new, shorter history that doesn’t share a prefix with the old one.
 
-  * **System prompt** : the next request reads this layer from the cache, unless a resumed conversation kept a system prompt that is now out of date. The first time that conversation is compacted, Claude Code switches it to the current prompt, and the next request rebuilds this layer’s cache once.
+  * **System prompt** : when the conversation’s prompt is current, the next request reads this layer from the cache. If that prompt is out of date, such as after you resume the conversation, Claude Code switches to the current prompt and the next request rebuilds this layer’s cache once.
   * **Project context** : Claude Code reloads this layer from disk. It’s cached together with the conversation, so after `/compact` or automatic compaction its cache is rebuilt even if its files are unchanged.
 
 To produce the summary, Claude Code sends a separate request. The request repeats your conversation’s system prompt, tools, and the history being summarized. It ends with a summarization instruction. While the cache is warm, that request reads your prefix from the cache. A mid-session `/compact` then costs a fraction of what the context size suggests and spends most of its time generating the summary. After a break longer than the cache lifetime, there is no cache left to read, so the summarization request reprocesses that history as uncached input. This is why `/compact` costs the most when you [resume an old session](</docs/en/sessions#resume-a-session>). In both the warm and cold cases, the turn after compaction rebuilds the conversation cache for only the much shorter history, so that turn isn’t the slow part.

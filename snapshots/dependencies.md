@@ -39,7 +39,7 @@ A range doesn’t match pre-release versions such as `2.0.0-beta.1` unless you o
 
 ### Bundle plugins for a team
 
-To let engineers install a curated set of plugins with one command, publish a plugin whose manifest contains a `name` and a `dependencies` array. A plugin manifest needs only `name`, so this is a valid plugin, and installing it installs every dependency. For example, a platform team can publish role-specific bundles in an internal marketplace so engineers run one `claude plugin install` instead of installing each plugin separately:
+To let users install a curated set of plugins with one command, publish a plugin whose manifest contains a `name` and a `dependencies` array. A plugin manifest needs only `name`, so this is a valid plugin. For example, a platform team can publish role-specific bundles in an internal marketplace so users run one `claude plugin install` instead of installing each plugin separately:
 
 .claude-plugin/plugin.json
 
@@ -55,12 +55,12 @@ To let engineers install a curated set of plugins with one command, publish a pl
       ]
     }
 
-To add a plugin to the standard set later, publish a new `backend-standard` version with the extra dependency. When the marketplace doesn’t [auto-update by default](</docs/en/plugins/loading#which-marketplaces-and-plugins-auto-update>), engineers either turn on auto-update for the marketplace or update manually:
+To add a plugin to the standard set later, publish a new `backend-standard` version with the extra dependency. When the marketplace doesn’t [auto-update by default](</docs/en/plugins/loading#which-marketplaces-and-plugins-auto-update>), users either turn on auto-update for the marketplace or update manually:
 
-  * **Turn on auto-update for the marketplace** : the next auto-update moves the bundle to the new version and installs any dependencies it adds.
+  * **Turn on auto-update for the marketplace** : the next auto-update moves the bundle to the new version and installs the added dependency. That install requires Claude Code v2.1.319 or later.
   * **Update manually** : run `claude plugin update backend-standard` in a shell, then `/reload-plugins` in an open session to install the newly added dependencies.
 
-For the engineer-side steps, see [Keep plugins updated](</docs/en/plugins/install#keep-plugins-updated>). To deploy a bundle to everyone in an organization, an administrator adds it to `enabledPlugins` in managed settings. See [Pre-install and require plugins](</docs/en/plugins/org#pre-install-and-require-plugins>).
+Your users follow the steps in [Keep plugins updated](</docs/en/plugins/install#keep-plugins-updated>). To deploy a bundle to everyone in an organization, an administrator adds it to `enabledPlugins` in managed settings. See [Pre-install and require plugins](</docs/en/plugins/org#pre-install-and-require-plugins>).
 
 ### Depend on a plugin from another marketplace
 
@@ -101,7 +101,7 @@ Until you install the dependency from its marketplace, your plugin stops loading
   * **You disabled the local copy** : your plugin is disabled at the next plugin load, with an error that ends `is disabled — enable it or remove the dependency`. When the error names the dependency as `<name>@inline`, that identifier refers to the `--plugin-dir` copy.
   * **You started a session without the dependency’s`--plugin-dir` flag**: the error reports the dependency as not installed. Pass the flag again, or install the dependency from its marketplace.
 
-When both plugins are in one parent folder, you can pass that folder to `--plugin-dir` once. If the folder isn’t itself a plugin, Claude Code loads each child folder that has a `.claude-plugin/plugin.json`. Requires Claude Code v2.1.265 or later.
+When both plugins are in one parent folder, you can pass that folder to `--plugin-dir` once. If the folder isn’t itself a plugin, Claude Code loads it as a [folder of plugins](</docs/en/plugins/create#load-a-folder-of-plugins>). Requires Claude Code v2.1.265 or later.
 
 ## Release a plugin that others depend on
 
@@ -127,11 +127,16 @@ A successful run prints `Created tag secrets-vault--v2.1.0`. With `--push`, it a
 
 ### Constrain a dependency that has a non-git source
 
-Tag-based resolution applies only to git-backed sources. For a dependency with an `npm`, `archive`, or `command` [plugin source](</docs/en/plugins/marketplace-reference#plugin-sources>), the constraint doesn’t control which version is fetched. It’s still checked when the plugin loads, and the dependent plugin is disabled if the installed version doesn’t satisfy it. For `npm`, `archive`, and `command` sources, the version checked is the `version` in the dependency’s `plugin.json`. Set one there before you constrain that dependency, because a `plugin.json` that sets no version satisfies no constraint. Claude Code never installs a dependency with a `command` source itself, so users [install it first](</docs/en/plugins/marketplace-reference#command-plugin-source>). It also never runs a dependency’s [`headersHelper`](</docs/en/plugins/host-marketplace#authenticate-archive-downloads>), so users also install a dependency whose marketplace entry sets one before they install your plugin. Besides `claude plugin install`, these operations also install any missing declared dependency, and the `command` and `headersHelper` limits apply to them too:
+Tag-based resolution applies only to git-backed sources. For a dependency with an `npm`, `archive`, or `command` [plugin source](</docs/en/plugins/marketplace-reference#plugin-sources>), the constraint doesn’t control which version is fetched. It’s still checked when the plugin loads, and the dependent plugin is disabled if the installed version doesn’t satisfy it. For `npm`, `archive`, and `command` sources, the version checked is the `version` in the dependency’s `plugin.json`. Set one there before you constrain that dependency, because a `plugin.json` that sets no version satisfies no constraint. Claude Code never installs a dependency with a `command` source itself, so users [install it first](</docs/en/plugins/marketplace-reference#command-plugin-source>). It also never runs a dependency’s [`headersHelper`](</docs/en/plugins/host-marketplace#authenticate-archive-downloads>), so users also install a dependency whose marketplace entry sets one before they install your plugin.
+
+### When a dependency installs automatically
+
+Besides `claude plugin install`, these operations also install a missing declared dependency, and the `command` and `headersHelper` limits apply to them too:
 
   * `/reload-plugins`
   * Auto-update of the dependent plugin’s marketplace
   * Re-running `claude plugin install` on the dependent plugin
+  * Updating the dependent plugin with `claude plugin update` or **Update now** in `/plugin`, unless [non-essential traffic is turned off](</docs/en/plugins/troubleshooting#dependency-errors>). Requires Claude Code v2.1.319 or later
   * `claude plugin marketplace add`
 
 ## How dependencies behave for your users

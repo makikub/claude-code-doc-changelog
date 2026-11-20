@@ -305,7 +305,7 @@ The early-access group receives `latest-tools` instead. To set up the two market
 
 Marketplace owners can attach `relevance` signals to entries so Claude Code suggests the plugin when a project matches. Suggestions from a marketplace appear only when it’s registered on the user’s machine, you list its name in `pluginSuggestionMarketplaces` in managed settings, and you declare its source in the same policy. Declare the source either as the marketplace’s `extraKnownMarketplaces` entry or as an allowlist entry. The official marketplace needs only the name. See [Enable suggestions in managed settings](</docs/en/plugins/relevance#enable-suggestions-in-managed-settings>).
 
-In a cloud session’s conversation, Claude can suggest plugins whether or not you set `pluginSuggestionMarketplaces`. To turn those suggestions off, see [Turn off plugin suggestions](</docs/en/claude-code-on-the-web#turn-off-plugin-suggestions>).
+In a cloud session’s conversation or the desktop app’s Code tab, Claude can suggest plugins whether or not you set `pluginSuggestionMarketplaces`. To turn those suggestions off, see [Turn off plugin suggestions](</docs/en/claude-code-on-the-web#turn-off-plugin-suggestions>).
 
 ## Audit and review
 

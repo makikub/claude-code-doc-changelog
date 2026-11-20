@@ -804,7 +804,7 @@ Property| Type| Default| Description
 `plugins`| `list[SdkPluginConfig]`| `[]`| Load custom plugins from local paths. See [Plugins](</docs/en/agent-sdk/plugins>) for details
 `sandbox`| `SandboxSettings` ` | None`| `None`| Configure sandbox behavior programmatically. See Sandbox settings for details
 `setting_sources`| `list[SettingSource] | None`| `None` (CLI defaults: all sources)| Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. With `skills` set and this field unset, only user and project sources load. Set `setting_sources` explicitly to keep local settings. Endpoint-managed policy loads regardless; server-managed settings are fetched when the session authenticates with an organization credential on an [eligible configuration](</docs/en/server-managed-settings#platform-availability>). For inputs read regardless of this option, see [What settingSources does not control](</docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control>)
-`skills`| `list[str] | Literal["all"] | None`| `None`| Skills available to the session. Pass `"all"` to enable every discovered skill, or a list of skill names. Pass exact names only. The SDK rejects malformed and wildcard-form names with a `ValueError` before starting the Claude Code process; this check requires Python Agent SDK 0.2.129 or later. When set, the SDK adds the Skill tool to `allowed_tools` automatically. If you also pass `tools`, include `"Skill"` in that list. See [Skills](</docs/en/agent-sdk/skills>)
+`skills`| `list[str] | Literal["all"] | None`| `None`| Limits the main agent’s skills. Pass `"all"` to enable every discovered skill, or a list of skill names. Pass exact names only. The SDK rejects malformed and wildcard-form names with a `ValueError` before starting the Claude Code process; this check requires Python Agent SDK 0.2.129 or later. If you also pass `tools`, include `"Skill"` in that list. See [Skills](</docs/en/agent-sdk/skills>)
 `max_thinking_tokens`| `int | None`| `None`|  _Deprecated_ \- Maximum tokens for thinking blocks. Use `thinking` instead
 `thinking`| `ThinkingConfig` ` | None`| `None`| Controls extended thinking behavior. Takes precedence over `max_thinking_tokens`
 `effort`| `EffortLevel` ` | None`| `None`| Effort level for thinking depth. See [adjust the effort level](</docs/en/model-config#adjust-effort-level>)
@@ -983,7 +983,7 @@ When multiple sources are loaded, settings are merged with this precedence (high
   2. Project settings (`.claude/settings.json`)
   3. User settings (`~/.claude/settings.json`)
 
-Programmatic options such as `agents`, `allowed_tools`, and `settings` override user, project, and local filesystem settings. Managed policy settings take precedence over programmatic options.
+Permission rules you pass in `allowed_tools` or `settings` [add to](</docs/en/settings#lists-merge-instead-of-overriding>) these files’ rules. For most single values, Claude Code takes the one in `settings` over these files. Managed policy settings take precedence over most programmatic options.
 
 ### `AgentDefinition`
 
@@ -1031,7 +1031,7 @@ Permission modes for controlling tool execution.
         "default",  # Standard permission behavior
         "acceptEdits",  # Auto-accept file edits
         "plan",  # Planning mode - Claude explores and plans
-        "dontAsk",  # Deny anything not pre-approved instead of prompting
+        "dontAsk",  # Deny calls that would otherwise prompt
         "bypassPermissions",  # Bypass permission checks; explicit ask rules still prompt (use with caution)
         "auto",  # A model classifier reviews actions such as shell commands and network requests
     ]
@@ -2268,7 +2268,7 @@ Documentation of input/output schemas for built-in Claude Code tools. While the 
 Launches a new agent to handle complex, multi-step tasks autonomously. When Claude leaves `run_in_background` out of an `Agent` call, by default your main agent doesn’t wait for the new agent and a subagent waits:
 
   * **From your main agent** : the new agent runs in the background, and the result has `status: "async_launched"`. To make your main agent wait for the new agent instead, see [Choose whether Claude waits for subagents](</docs/en/agent-sdk/subagents#choose-whether-claude-waits-for-subagents>).
-  * **From one of your subagents** : the calling subagent [waits for the new agent](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>). The new agent runs in the background instead when its definition sets `background` to `True`, or when you [turn fork mode off](</docs/en/sub-agents#turn-fork-mode-on-or-off>) by setting `CLAUDE_CODE_FORK_SUBAGENT` to `0`.
+  * **From one of your subagents** : the calling subagent [waits for the new agent](</docs/en/sub-agents#let-subagents-spawn-their-own-subagents>). The new agent runs in the background instead when its definition sets `background` to `True`.
 
 Before Python SDK v0.2.169, agents that your subagents started also ran in the background by default. That release is the first to bundle Claude Code v2.1.302 or later. **Output (status:`"completed"`):**
 
@@ -2285,7 +2285,7 @@ Before Python SDK v0.2.169, agents that your subagents started also ran in the b
         ],
         "resolvedModel": str | None,  # Model the subagent started on
         "modelsUsed": list[str] | None,  # Models used in order, with consecutive repeats collapsed
-        "totalToolUseCount": int,  # Number of tool calls the agent made
+        "totalToolUseCount": int,  # Number of tool calls the agent made, excluding SubagentHandback calls
         "totalDurationMs": int,  # Execution duration in milliseconds
         "totalTokens": int,  # Token count from the final API request, not the whole run
         "usage": {  # Token usage statistics

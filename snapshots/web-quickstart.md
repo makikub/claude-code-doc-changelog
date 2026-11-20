@@ -1,6 +1,6 @@
 Cloud sessions are available on Pro, Max, Ultra, and Team plans, and for Enterprise users with premium seats or Chat + Claude Code seats.
 
-A cloud session runs Claude Code on cloud infrastructure instead of your machine, Anthropic-managed by default. This quickstart starts one from [claude.ai/code](<https://claude.ai/code>) in your browser. You can also start one from the Claude mobile app, the Desktop app, or your terminal with `claude --cloud`. Claude clones the GitHub repository you select into an isolated virtual machine, makes changes, and pushes a branch for you to review. Sessions persist across devices, so a task you start on your laptop is ready to review from your phone later. Each session counts toward your plan’s usage limits alongside the rest of your Claude and Claude Code usage, and there’s no separate charge for the cloud VM. Cloud sessions work well for:
+A cloud session runs Claude Code on cloud infrastructure, Anthropic-managed by default. This quickstart starts one from [claude.ai/code](<https://claude.ai/code>) in your browser. You can also start one from the Claude mobile app, the Desktop app, or your terminal with `claude --cloud`. Claude clones the GitHub repository you select into an isolated virtual machine, makes changes, and pushes a branch for you to review. Sessions persist across devices, so a task you start on your laptop is ready to review from your phone later. Each session counts toward your plan’s usage limits alongside the rest of your Claude and Claude Code usage, and there’s no separate charge for the cloud VM. Cloud sessions work well for:
 
   * **Parallel tasks** : run several independent tasks at once, each in its own session and branch, without managing multiple worktrees
   * **Repos you don’t have locally** : Claude clones the repo fresh every session, so you don’t need it checked out
@@ -108,7 +108,7 @@ With GitHub connected and an environment created, you’re ready to submit tasks
 
 Select a repository and branch
 
-From [claude.ai/code](<https://claude.ai/code>) or the Code tab in the Claude mobile app, click the repository selector below the input box and choose a repository for Claude to work in. You can add multiple repositories to work across them in one session.At claude.ai/code, to start Claude from a feature branch instead of the default, change the branch in the control after the repository selector.
+From [claude.ai/code](<https://claude.ai/code>) or the Code tab in the Claude mobile app, click the repository selector below the input box and choose a repository for Claude to work in. You can add multiple repositories to work across them in one session.At claude.ai/code, to start Claude from a feature branch instead of the default, change the branch in the control after the repository selector. To start without a repository at claude.ai/code, select **No repository** in the repository selector.
 
 2
 
@@ -159,8 +159,8 @@ Open the diff view
 
 After Claude pushes its changes to a branch, the **Changes** card in the panel beside the chat shows the lines added and removed across the session, for example `+42 -18`. Click those counts to open the diff view.
 
-  * You can also click **Changes** in the session’s title bar, or in the bar’s **⋮** menu.
-  * To show the panel when it’s hidden, click the **Show session rail** icon in the session’s title bar, or in the bar’s **⋮** menu.
+  * To show the panel when it’s hidden, click **Activity panel** or **Show session rail** in the session’s title bar, or **Show session rail** in the bar’s **⋮** menu.
+  * You can also [open **Changes** as a pane](</docs/en/desktop#arrange-your-workspace>).
 
 The diff compares the session’s changes against its base branch by default. To compare against a different branch, select **Compare against** and pick one. Against the base branch, the diff can [leave out changes that aren’t pushed yet](</docs/en/claude-code-on-the-web#troubleshoot-a-missing-file-in-the-diff-view>).
 

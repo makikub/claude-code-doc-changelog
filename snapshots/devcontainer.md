@@ -71,7 +71,7 @@ To isolate state per project rather than sharing one volume across all repositor
 
 ## Enforce organization policy
 
-A dev container is a convenient place to apply organization policy, because the same image and configuration run on every engineer’s machine. Claude Code reads `/etc/claude-code/managed-settings.json` on Linux and applies it at the highest precedence in the [settings hierarchy](</docs/en/settings#settings-precedence>), so values there override anything an engineer sets in `~/.claude` or the project’s `.claude/` directory. Copy the file into place from your Dockerfile:
+A dev container is a convenient place to apply organization policy, because the same image and configuration run on every engineer’s machine. Claude Code reads `/etc/claude-code/managed-settings.json` on Linux and applies it at the highest precedence in the [settings hierarchy](</docs/en/settings#settings-precedence>). Copy the file into place from your Dockerfile:
 
 Dockerfile
 

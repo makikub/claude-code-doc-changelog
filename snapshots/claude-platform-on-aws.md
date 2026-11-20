@@ -35,7 +35,7 @@ For CI and automation, give the runner an IAM role with permission to invoke the
       "awsAuthRefresh": "aws sso login --profile my-profile"
     }
 
-Claude Code also runs this command at startup when it can’t validate your existing AWS credentials, and shows the command’s output in an `Authentication` panel until the login completes. With `awsAuthRefresh` configured, run `/login`, select **3rd-party platform** , then select **Claude Platform on AWS · refresh credentials** under **Using 3rd-party platforms**. Claude Code runs the configured command and re-reads your AWS credentials without a restart.
+Claude Code also runs this command at startup when it can’t validate your existing AWS credentials. With `awsAuthRefresh` configured, run `/login`, select **3rd-party platform** , then select **Claude Platform on AWS · refresh credentials** under **Using 3rd-party platforms**. Claude Code runs the configured command and re-reads your AWS credentials without a restart.
 
 #### Use a workspace API key
 

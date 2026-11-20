@@ -2,7 +2,7 @@ The Agent SDK spawns and supervises a `claude` CLI subprocess that owns a shell,
 
 ## The subprocess model
 
-Every hosting decision on this page follows from how the SDK runs the agent. When your code calls `query()`, the SDK spawns a separate `claude` CLI process and talks to it over stdio. That subprocess owns the shell, the working directory, and the JSONL session transcripts on local disk. One agent session maps to one subprocess. Running N concurrent sessions means N subprocesses, each with its own process tree and transcript file. By default they all inherit your application’s working directory. When sessions need separate filesystems, pass a distinct `cwd` in the options of each session’s `query()` call:
+Every hosting decision on this page follows from how the SDK runs the agent. When your code calls `query()`, the SDK spawns a separate `claude` CLI process and talks to it over stdio. That subprocess owns the shell, the working directory, and the JSONL session transcripts on local disk. One agent session maps to one subprocess. Running N concurrent sessions takes N subprocesses, each with its own process tree and transcript file. By default they all inherit your application’s working directory. When sessions need separate working directories, pass a distinct `cwd` in the options of each session’s `query()` call:
 
 TypeScript
 

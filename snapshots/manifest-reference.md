@@ -105,7 +105,7 @@ Field| Type| Description
 `version`| String| Version string. Setting it keeps users on that version until you change it
 `description`| String| Short explanation of what the plugin provides
 `author`| Object| `name`, which is required, plus optional `email` and `url`
-`homepage`| String| Documentation URL. Must parse as a URL, or the plugin fails to load
+`homepage`| String| Documentation URL. Must parse as a URL
 `repository`| String| Source repository URL. Not validated
 `license`| String| SPDX identifier such as `MIT` or `Apache-2.0`
 `keywords`| Array of strings| Discovery tags
@@ -118,6 +118,7 @@ Field| Type| Description
 `defaultEnabled`| Boolean| Whether the plugin starts enabled when the user hasn’t set it. Defaults to `true`
 `engines`| Object| The Claude Code versions that the plugin works on, as a [semver range](<https://github.com/npm/node-semver#ranges>) under the `claude-code` key, such as `"engines": { "claude-code": ">=2.1.400" }`. Requires Claude Code v2.1.323 or later. To keep the plugin working on v2.0.15 through v2.1.75, omit `engines`. Those versions reject the manifest with an `Unrecognized key` error when it has the field
 `dependencies`| Array of strings or objects| Plugins that must be enabled for this one to work
+`network`| Object| The hosts your plugin reaches, such as `"network": { "hosts": ["api.example.com"] }`, in [`sandbox.network.allowedDomains`](</docs/en/settings-reference#sandbox-network-alloweddomains>) syntax. `claude plugin validate` lists them. The field doesn’t allow or block any host. Requires Claude Code v2.1.328 or later
 `userConfig`| Object| Values Claude Code prompts the user for when the plugin is enabled
 `types`| Path| A `.d.ts` file that declares the `$.state` values and `$` nouns of a [mod](</docs/en/plugins/mods/reference#files>)
 `channels`| Array of objects| Message channels the plugin provides, each bound to one of its MCP servers

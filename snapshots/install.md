@@ -53,7 +53,7 @@ Select one of the three install options:
   * **Install for all collaborators on this repository (project scope)** : it’s enabled for everyone who works in this repository
   * **Install for you, in this repo only (local scope)** : you get it in this repository only
 
-Choose an install scope says which settings file each one writes to and which applies when the same plugin is set at more than one.After you select a scope, Claude Code installs the plugin along with any dependencies it declares, then prints an install summary.
+Choose an install scope says which settings file each one writes to and which applies when the same plugin is set at more than one.After you select a scope, Claude Code installs the plugin, then prints an install summary.
 
 4
 
@@ -167,7 +167,7 @@ Run `claude plugin install` in your shell to install a plugin without starting a
 
     claude plugin install formatter@your-org --scope project
 
-The command prints `Successfully installed plugin: formatter@your-org (scope: project)` when it finishes. Some plugins install by running a command that their marketplace names, called a [`command` source](</docs/en/plugins/marketplace-reference#command-plugin-source>). Claude Code shows you that command and asks you to accept it before it runs. A script has no one to answer that prompt, so pass `--yes` there to accept it. For the other `claude plugin install` flags, see [plugin install](</docs/en/plugins/cli-reference#plugin-install>).
+In a terminal, the command prints `Installed plugin: formatter@your-org (scope: project)` when it finishes. Some plugins install by running a command that their marketplace names, called a [`command` source](</docs/en/plugins/marketplace-reference#command-plugin-source>). Claude Code shows you that command and asks you to accept it before it runs. A script has no one to answer that prompt, so pass `--yes` there to accept it. For the other `claude plugin install` flags, see [plugin install](</docs/en/plugins/cli-reference#plugin-install>).
 
 ## Add a marketplace
 
@@ -204,7 +204,7 @@ In your shell, without starting a session, run `claude plugin install` with the 
 
     claude plugin install deploy-helper --marketplace your-org/plugins
 
-The shell command adds the marketplace without a confirmation step. A marketplace you’ve already added from that source is reused. A new one is added under the same [organization policy checks](</docs/en/plugins/org#restrict-what-users-can-install>) as `claude plugin marketplace add`, and is declared in your user settings even when you pass `--scope project`. If you haven’t added that marketplace yet, the command prints `Successfully added marketplace: <name> (declared in user settings)` and then installs the plugin.
+The shell command adds the marketplace without a confirmation step. A marketplace you’ve already added from that source is reused. A new one is added under the same [organization policy checks](</docs/en/plugins/org#restrict-what-users-can-install>) as `claude plugin marketplace add`, and is declared in your user settings even when you pass `--scope project`. If you haven’t added that marketplace yet, your terminal shows `Added marketplace: <name> (declared in user settings)`, and the command then installs the plugin.
 
 ### Add a private marketplace
 
@@ -257,8 +257,8 @@ When Claude Code syncs an added, updated, or removed plugin into an interactive 
 
 When you choose **Uninstall** for a plugin that this repository’s `.claude/settings.json` enables, whether from the **Installed** tab or with `/plugin uninstall`, Claude Code asks whether to disable it for you or uninstall it for everyone:
 
-  * **Disable for me** : press **y**. Claude Code writes `false` for the plugin in your `.claude/settings.local.json` and leaves it installed for the project.
-  * **Uninstall for everyone** : press **u**. Claude Code removes the plugin from the shared `.claude/settings.json`.
+  * **Disable for me** : Claude Code writes `false` for the plugin in your `.claude/settings.local.json` and leaves it installed for the project.
+  * **Uninstall for everyone** : Claude Code removes the plugin from the shared `.claude/settings.json`.
 
 ### See what an installed plugin adds to your sessions
 
@@ -294,7 +294,7 @@ For example, these commands disable and re-enable a plugin, then uninstall it at
 
 ## Keep plugins updated
 
-Plugins update automatically when the marketplace they came from has auto-update turned on. After a session starts, Claude Code refreshes those marketplaces and updates the on-disk copies of the plugins you installed from them. The running session keeps the versions it already loaded. After an update, you see `Plugin updated: <name> · Run /reload-plugins to apply`, and the next session loads the new versions automatically. These are the auto-update defaults for each kind of marketplace:
+Plugins update automatically when the marketplace they came from has auto-update turned on. After a session starts, Claude Code refreshes those marketplaces and updates the on-disk copies of the plugins you installed from them. When you see `Plugin updated: <name> · Run /reload-plugins to apply`, run [`/reload-plugins`](</docs/en/plugins/cli-reference#reload-plugins>) in that session. Whether or not you reload, the new versions load on your next launch. These are the auto-update defaults for each kind of marketplace:
 
   * **On by default** : `claude-plugins-official` and the other [official marketplace names](</docs/en/plugins/security#official-marketplace-names>) except `knowledge-work-plugins` and `first-party-plugins`, plus marketplaces added from claude.ai.
   * **Off by default** : every other marketplace, including the community marketplace, third-party marketplaces, and local development marketplaces.
