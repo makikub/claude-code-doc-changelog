@@ -296,9 +296,9 @@ In either layout, type `/context` in the prompt box to print a per-category brea
 
 Computer use lets Claude open your apps, control your screen, and work directly on your machine the way you would. Ask Claude to interact with a desktop tool that has no CLI, or automate something that only works through a GUI. For running and testing iOS apps, Desktop opens the dedicated [iOS Simulator pane](</docs/en/desktop-ios-simulator>) instead of controlling your screen; the pane works without enabling computer use.
 
-Computer use is a research preview on macOS and Windows that requires a Pro, Max, or Ultra plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running. On macOS, computer use requires macOS 14 or later.
+Computer use in the Code tab is available on macOS and Windows and requires a Pro, Max, or Ultra plan. It is not available on Team or Enterprise plans. The Claude Desktop app must be running. On macOS, computer use requires macOS 14 or later.
 
-Computer use is off by default. Enable it in Settings before Claude can control your screen. On macOS, you also need to grant Accessibility and Screen Recording permissions. On macOS, computer use can also run in the background: Claude works in the apps you’ve approved while you keep working.
+Check that computer use is on in Settings before you ask Claude to control your screen. On macOS, you also need to grant Accessibility and Screen Recording permissions. On macOS, computer use can also run in the background: Claude works in the apps you’ve approved while you keep working.
 
 Unlike the [sandboxed Bash tool](</docs/en/sandboxing>), computer use runs on your actual desktop with access to whatever you approve. Claude checks each action and flags potential prompt injection from on-screen content, but the trust boundary is different. See the [computer use safety guide](<https://support.claude.com/en/articles/14128542>) for best practices.
 
@@ -315,8 +315,6 @@ Claude has several ways to interact with an app or service, and computer use is 
 The per-app access tiers reinforce this: browsers are capped at view-only, and terminals and IDEs at click-only, steering Claude toward the dedicated tool even when computer use is active. Screen control is reserved for things nothing else can reach, like native apps, hardware control panels, or proprietary tools without an API.
 
 ### Enable computer use
-
-Computer use is off by default.
 
 1
 
@@ -361,7 +359,7 @@ View only| See the app in screenshots| Browsers, trading platforms
 Click only| Click and scroll, but not type or use keyboard shortcuts| Terminals, IDEs
 Full access| Click, type, drag, and use keyboard shortcuts| Most other apps
 
-Apps with broad reach, like terminals, Finder or File Explorer, and System Settings or Settings, show an extra warning in the prompt so you know what approving them grants. In Settings, the **Computer use** section where you turned computer use on includes these options:
+Apps with broad reach, like terminals, Finder or File Explorer, and System Settings or Settings, show an extra warning in the prompt so you know what approving them grants. In Settings, the **Computer use** section where you turn computer use on includes these options:
 
   * **Denied apps** : add apps here to reject them without prompting. Claude may still affect a denied app indirectly through actions in an allowed app, but it can’t interact with the denied app directly.
   * **Unhide apps when Claude finishes** : when computer use isn’t running in the background, Claude hides your other windows while it works so it interacts with only the approved app. When Claude finishes, hidden windows are restored unless you turn this setting off.
@@ -498,6 +496,8 @@ Turn Remote Control off for one session, for sessions on this computer, or for c
 To hide a session that already appears on your other devices, archive it in Desktop. Desktop archives the session’s Remote Control copy too, so it leaves the default session list on those devices. To view or delete it there, see [Archive sessions](</docs/en/claude-code-on-the-web#archive-sessions>).
 
 ### Sessions from Dispatch
+
+Dispatch isn’t available to new users. If it doesn’t appear in your Claude app, see [other ways to work away from your terminal](</docs/en/platforms#work-when-you-are-away-from-your-terminal>).
 
 [Dispatch](<https://support.claude.com/en/articles/13947068>) is a persistent conversation with Claude that lives in [Cowork](<https://claude.com/product/cowork>). You message Dispatch a task, and it decides how to handle it. A task can end up as a Code session in two ways: you ask for one directly, such as “open a Claude Code session and fix the login bug”, or Dispatch decides the task is development work and spawns one on its own. Tasks that typically route to Code include fixing bugs, updating dependencies, running tests, or opening pull requests. Research, document editing, and spreadsheet work stay in Cowork.
 
@@ -2037,7 +2037,7 @@ To see which version of the desktop app you’re running:
   * **macOS** : click **Claude** in the menu bar, then **About Claude**
   * **Windows** : click **Help** , then **About Claude**
 
-Click the version number to copy it to your clipboard.
+Click the version number to copy it to your clipboard. To get new versions sooner on Claude Desktop v4.29.0 or later, set **Release channel** to **Latest**. Go to **Settings > This computer > System**, or to **Settings > Desktop app** if the menu doesn’t list **This computer**. For where the setting is available and what to expect when you switch back to **Stable** , see [Choose a release channel](<https://support.claude.com/en/articles/10065433-install-claude-desktop#h_ac219b3bde>).
 
 #### Claude Code version in the Code tab
 

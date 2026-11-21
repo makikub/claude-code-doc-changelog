@@ -1,4 +1,4 @@
-Each Claude Code session begins with a fresh context window. Two mechanisms carry knowledge across sessions:
+Each Claude Code session begins with a fresh context window. CLAUDE.md files and auto memory carry knowledge across sessions:
 
   * **CLAUDE.md files** : instructions you write to give Claude persistent context. Claude can also read a repository’s `AGENTS.md` files in place of CLAUDE.md
   * **Auto memory** : notes Claude writes itself based on your corrections and preferences
@@ -13,17 +13,17 @@ This page covers how to:
 
 ## CLAUDE.md vs auto memory
 
-Claude Code has two complementary memory systems. Both are loaded at the start of every conversation. Claude treats them as context, not enforced configuration. To block an action regardless of what Claude decides, use a [PreToolUse hook](</docs/en/hooks-guide>) instead. The more specific and concise your instructions, the more consistently Claude follows them.
+Use CLAUDE.md files when you want to guide Claude’s behavior. Auto memory lets Claude learn from your corrections without manual effort.
 
 | CLAUDE.md files| Auto memory
 ---|---|---
 **Who writes it**|  You| Claude
 **What it contains**|  Instructions and rules| Learnings and patterns
 **Scope**|  Project, user, or org| Per repository, shared across worktrees
-**Loaded into**|  Every session| Every session (first 200 lines or 25KB)
+**Loaded into**|  Every session| Sessions with auto memory on, up to the first 200 lines or 25KB of `MEMORY.md`
 **Use for**|  Coding standards, workflows, project architecture| Your preferences, corrections you give Claude, project context Claude can’t derive from the code
 
-Use CLAUDE.md files when you want to guide Claude’s behavior. Auto memory lets Claude learn from your corrections without manual effort. Subagents can also maintain their own auto memory. See [subagent configuration](</docs/en/sub-agents#enable-persistent-memory>) for details.
+Subagents can also maintain their own auto memory. See [subagent configuration](</docs/en/sub-agents#enable-persistent-memory>) for details. Claude treats CLAUDE.md files and auto memory as context. They aren’t enforced configuration. To block an action regardless of what Claude decides, use a [PreToolUse hook](</docs/en/hooks-guide>) instead. The more specific and concise your instructions, the more consistently Claude follows them.
 
 ## CLAUDE.md files
 
@@ -410,7 +410,7 @@ Each project gets its own memory directory at `~/.claude/projects/<project>/memo
 The value must be an absolute path or start with `~/`. When you set it in a project’s `.claude/settings.json` or `.claude/settings.local.json`, Claude Code honors it under the same [workspace trust rule as hooks in settings files](</docs/en/permissions#what-runs-before-you-trust-a-folder>). While [`permissions.blockReadsOutsideWorkingDirectories`](</docs/en/settings-reference#permissions-blockreadsoutsideworkingdirectories>) is on, Claude Code loads no auto memory from a directory that a [repository-supplied settings file](</docs/en/permissions#when-your-local-settings-file-needs-trust>) chooses and saves none to it, wherever that directory sits. The directory contains a `MEMORY.md` index and one topic file per memory:
 
     ~/.claude/projects/<project>/memory/
-    ├── MEMORY.md           # Index, one line per memory, loaded into every session
+    ├── MEMORY.md           # Index, one line per memory, loaded at session start
     ├── user_role.md        # One memory
     ├── feedback_testing.md # One memory
     └── ...                 # Any other topic files Claude creates
@@ -419,7 +419,7 @@ The value must be an absolute path or start with `~/`. When you set it in a proj
 
 ### How it works
 
-The first 200 lines of `MEMORY.md`, or the first 25KB, whichever comes first, are loaded at the start of every conversation. Content beyond that threshold is not loaded at session start. Claude keeps `MEMORY.md` concise by moving detailed notes into separate topic files. After Claude writes to `MEMORY.md`, Claude Code measures the file against the 200-line and 25KB read limits. If the file is near a limit, Claude Code reminds Claude to shorten it: keep one line per entry, move detail into topic files, and merge or drop stale entries. If the file is over a limit, the write still succeeds, but Claude Code returns an [error telling Claude to rewrite the index](</docs/en/errors#memory-index-is-over-its-read-limit>), because everything past the limit is dropped on the next load.
+While auto memory is on, the first 200 lines or 25KB of `MEMORY.md`, whichever comes first, load at session start. Content beyond that threshold is not loaded at session start. Claude keeps `MEMORY.md` concise by moving detailed notes into separate topic files. After Claude writes to `MEMORY.md`, Claude Code measures the file against the 200-line and 25KB read limits. If the file is near a limit, Claude Code reminds Claude to shorten it: keep one line per entry, move detail into topic files, and merge or drop stale entries. If the file is over a limit, the write still succeeds, but Claude Code returns an [error telling Claude to rewrite the index](</docs/en/errors#memory-index-is-over-its-read-limit>), because everything past the limit is dropped on the next load.
 
 This limit applies only to `MEMORY.md`. Claude gets the whole of each CLAUDE.md file that loads at launch, as long as the file is 4 MiB or smaller. Claude Code skips a file over 4 MiB and loads none of it. Path-scoped rules and CLAUDE.md files in subdirectories have a smaller per-file limit of their own.
 

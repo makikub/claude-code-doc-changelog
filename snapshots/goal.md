@@ -127,7 +127,7 @@ Claude Code reads `ANTHROPIC_DEFAULT_HAIKU_MODEL` everywhere it uses the small f
 
 The evaluator runs on whichever provider your session is configured for. It does not call tools, so it can only judge what Claude has already surfaced in the conversation.
 
-Evaluation tokens are billed on the small fast model configured for your provider and are typically negligible compared to main-turn spend.
+Evaluation tokens are billed in addition to main-turn spend.
 
 ## Requirements
 

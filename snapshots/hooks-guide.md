@@ -642,7 +642,7 @@ The `SessionEnd` event supports matchers on the reason the session ended. This h
 
 #### Filter by tool name and arguments with the `if` field
 
-The `if` field uses [permission rule syntax](</docs/en/permissions>) to filter hooks by tool name and arguments together, so the hook process only spawns when the tool call matches. This goes beyond `matcher`, which filters at the group level by tool name only. For example, this configuration runs a hook only when Claude uses `git` commands rather than all Bash commands:
+The `if` field uses [permission rule syntax](</docs/en/permissions>) to filter hooks by tool name and arguments together. For example, this configuration runs a hook only when Claude uses `git` commands rather than all Bash commands:
 
     {
       "hooks": {
@@ -684,7 +684,7 @@ Location| Scope| Shareable
 `.claude/settings.local.json`| Single project| No, gitignored when Claude Code saves a setting to it
 Managed policy settings| Organization-wide| Yes, admin-controlled
 [Plugin](</docs/en/plugins/overview>) `hooks/hooks.json`| When plugin is enabled| Yes, bundled with the plugin
-[Skill](</docs/en/skills>) frontmatter| The rest of the session once the skill is invoked. See [Hooks in skills and agents](</docs/en/hooks#hooks-in-skills-and-agents>)| Yes, defined in the skill file
+[Skill](</docs/en/skills>) frontmatter| See [Hooks in skills and agents](</docs/en/hooks#hooks-in-skills-and-agents>)| Yes, defined in the skill file
 [Subagent](</docs/en/sub-agents>) frontmatter| While that subagent is running| Yes, defined in the subagent file
 
 Run [`/hooks`](</docs/en/hooks#the-%2Fhooks-menu>) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Claude Code reads the value left after [settings precedence](</docs/en/hooks#disable-or-remove-hooks>) applies, so a project’s settings file can override yours. Hooks configured in managed settings still run unless `disableAllHooks` is also set there. For the full reach of each level, see [`disableAllHooks`](</docs/en/settings-reference#disableallhooks>). If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.

@@ -143,7 +143,7 @@ Manual, accept edits| Every run, unless you’ve selected **Yes, and don’t ask
 Bypass permissions| Claude Code doesn’t prompt you. The run starts immediately
 `claude -p`, Agent SDK| Claude Code doesn’t prompt you
 
-In `claude -p` and the Agent SDK, Claude Code never shows this prompt. It runs the Workflow tool call through the same [permission evaluation](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) as the rest of the session, so deny rules, ask rules, and `dontAsk` mode apply to the launch as they apply to every tool call. To let the workflow start in these runs, use one of these:
+In `claude -p` and the Agent SDK, the Workflow tool call goes through the same [permission evaluation](</docs/en/agent-sdk/permissions#how-permissions-are-evaluated>) as the rest of the session. Deny rules, ask rules, and `dontAsk` mode apply to the call. To let the workflow start in these runs, use one of these:
 
   * **Permission rule** : add `Workflow` to your allow rules to approve every workflow, or `Workflow(<name>)` to approve one saved workflow by name.
   * **Auto permission mode** : run in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), where the classifier reviews the call and can approve it.
@@ -373,7 +373,7 @@ Workflows are available in the CLI, the Desktop app, the IDE extensions, [non-in
 
 To turn workflows off for your whole organization, set `"disableWorkflows": true` in [managed settings](</docs/en/server-managed-settings>), or use the toggle on the [Claude Code admin settings](<https://claude.ai/admin-settings/claude-code>) page. When workflows are disabled:
 
-  * `/workflows`, the workflow commands, and the `/workflow-authoring` skill are unavailable
+  * The `/workflows` progress view, the workflow commands, and the `/workflow-authoring` skill are unavailable
   * The `ultracode` keyword no longer triggers a run, and the **Ultracode** toggle is removed from `/effort`
 
 A run that was already in progress keeps going. Turning workflows off also makes ultracode unavailable. No managed setting rules out ultracode alone: wherever it’s [available](</docs/en/model-config#when-ultracode-is-available>), users can turn it on with `/effort ultracode`. An [effort cap](</docs/en/model-config#organization-effort-limits>) lowers the effort level a session with ultracode on runs at, but doesn’t turn ultracode off.

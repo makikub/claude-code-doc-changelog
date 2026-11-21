@@ -47,6 +47,7 @@ The file in the steps above is one of four ways to get managed settings onto a m
 
   * **Delivery controls** : [`policyHelper`](</docs/en/settings-reference#policyhelper>), [`wslInheritsWindowsSettings`](</docs/en/settings-reference#wslinheritswindowssettings>), and [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>)
   * **Gateway login keys** : [`forceLoginGatewayUrl`](</docs/en/settings-reference#forcelogingatewayurl>), [`gatewayInternalNetworks`](</docs/en/settings-reference#gatewayinternalnetworks>), and the `"gateway"` value of [`forceLoginMethod`](</docs/en/settings-reference#forceloginmethod>)
+  * **Sign-in requirement** : [`enforceAnthropicSignIn`](</docs/en/settings-reference#enforceanthropicsignin>)
 
 With a managed settings file or an MDM profile, everyone it reaches gets one policy. To give one group of developers a different policy, deploy a different file or profile to that group. On an Enterprise plan, you can also [give each group its own configuration](</docs/en/server-managed-settings#give-groups-different-settings>) in server-managed settings. A self-hosted [Claude apps gateway](</docs/en/claude-apps-gateway>) delivers managed settings per IdP group. When more than one mechanism delivers a policy to the same machine, Claude Code by default uses one and ignores the others. How Claude Code combines managed sources gives the order and the opt-in that applies every source. The MDM and file rows are together called endpoint-managed settings, because the policy is stored on the developer’s device, as opposed to the server-managed row, where Claude Code fetches it. Pick a mechanism by how you already manage devices, using the table below.
 
@@ -100,7 +101,7 @@ If several teams own parts of one policy, put each part in its own file in `mana
 
 ## How Claude Code combines managed sources
 
-When your organization delivers more than one managed source to the same machine, the [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>) key decides what Claude Code does with the others:
+If you set your provider or gateway at claude.ai under **Organization settings > Desktop 3P**, first read [which settings take priority](<https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority>) in the Enterprise Admin Console guide. When your organization delivers more than one managed source to the same machine, the [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>) key decides what Claude Code does with the others:
 
   * **`"first-wins"`, the default**: Claude Code uses the highest-ranked source that delivers at least one policy key and ignores the rest rather than merging them, apart from the keys in Keys read from every admin source. Claude Code shows no warning for the sources it skips; `/status` names the source it used and the ones it skipped.
   * **`"merge"`** : Claude Code applies every admin source that delivers a policy key and combines them by kind of key: on most keys the higher-ranked source’s value applies, lists union, and locks take the strictest value. Compose every managed source says where to set the key and how each kind of key combines. Requires Claude Code v2.1.242 or later.
@@ -183,7 +184,7 @@ To confirm which sources combined on a machine, read the `Setting sources` line 
 
 A [`policyHelper`](</docs/en/settings-reference#policyhelper>) is an executable your MDM policy or managed settings file names, and Claude Code runs it to compute managed settings at startup. When the selected source configures one and the helper emits a `managedSettings` object, that output changes what Claude Code reads:
 
-  * **The emitted`managedSettings` object is the only managed settings for the session**, including for the keys it otherwise reads from every admin source, apart from [`forceRemoteSettingsRefresh`, which has its own startup rule](</docs/en/settings-reference#forceremotesettingsrefresh>)
+  * **The emitted`managedSettings` object is the only managed settings for the session**, including for keys otherwise read from every admin source, apart from [a few keys](</docs/en/settings-reference#write-the-helper-output>)
 
 For which helper runs fail, and what Claude Code does when one does, see [Helper failures](</docs/en/settings-reference#helper-failures>).
 

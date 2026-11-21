@@ -609,7 +609,7 @@ When a claude.ai [usage limit](</docs/en/errors#youve-hit-your-session-limit>) s
     Usage limit reached · limit resets 3:45pm
     Continuing automatically at 3:45pm · Esc to cancel
 
-Either line can carry more after these words, such as a help link on the first or `/usage-credits to continue now` on the second. When the wait starts on its own, the conversation also records it with a line that reads `Usage limit reached · continuing automatically at 3:45pm · esc to cancel`. Keep the session open. What happens next depends on how the wait ends:
+Either line can carry more after these words, such as a help link on the first or `/usage-credits to continue now` on the second. Keep the session open. What happens next depends on how the wait ends:
 
   * **At the reset** : the second line changes to `Continuing shortly · Esc to cancel`. Then `Usage limit reset · Continuing automatically` appears in the conversation, and Claude Code prompts Claude to pick the task up where it stopped. It doesn’t resend your last message.
   * **After your computer slept** : if it slept for more than about 30 minutes and the limit reset while it slept, the first line reads `Your usage limit has reset` and the second reads `Press enter to continue`. Press `Enter` to continue. After a shorter sleep, or one that ended before the reset, Claude Code continues on its own.
