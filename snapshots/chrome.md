@@ -58,7 +58,7 @@ This example navigates to a page, interacts with it, and reports what it finds, 
 
 If Claude Code asks for permission before a browser action, approve it. The dialog starts with `Claude in Chrome wants to` and offers an option to allow all actions on that site for the session. Claude opens a new tab and starts the task.
 
-Run `/chrome` at any time to check the connection status, manage permissions, reconnect the extension, or choose which connected browser to use. The integration is working when the status panel shows “Status: Enabled” and “Extension: Installed”. If more than one browser is connected, you choose which one Claude uses. When a browser action starts before you’ve chosen, Claude prompts you to pick one. To switch browsers later, run `/chrome` and choose another browser. Claude keeps using your choice even when another browser connects. For VS Code, see [browser automation in VS Code](</docs/en/vs-code#automate-browser-tasks-with-chrome>).
+Run `/chrome` at any time to check the connection status, manage permissions, reconnect the extension, or choose which connected browser to use. If more than one browser is connected, you choose which one Claude uses. When a browser action starts before you’ve chosen, Claude prompts you to pick one. To switch browsers later, run `/chrome` and choose another browser. Claude keeps using your choice even when another browser connects. For VS Code, see [browser automation in VS Code](</docs/en/vs-code#automate-browser-tasks-with-chrome>).
 
 ### Install the extension when Claude asks
 
@@ -78,6 +78,8 @@ Two managed MCP policies turn the prompt off:
 To connect Chrome without passing `--chrome` each time, run `/chrome` in a CLI session and select the option that turns Chrome on by default. In the [VS Code extension](</docs/en/vs-code#automate-browser-tasks-with-chrome>), type `/chrome` in the prompt box and turn on the **Enabled by default** switch. The CLI and VS Code share one setting, so turning it on in either place turns it on for both. With the setting on and Claude Code v2.1.287 or later, each VS Code session connects to your browser as it starts, so Claude can use it before you type `@browser`. On earlier versions, or with the setting off, a VS Code session connects when you type `@browser`. Claude Code starts normally when Chrome isn’t running.
 
 Enabling Chrome by default increases context usage since the browser tools and their instructions are always loaded. If you notice increased context consumption, turn the setting off and connect only when needed, with `--chrome` in the CLI or by typing [`@browser`](</docs/en/vs-code#automate-browser-tasks-with-chrome>) in the VS Code prompt box.
+
+To start one CLI session without Chrome and leave the setting on, run [`claude --no-chrome`](</docs/en/cli-reference#cli-flags>) in your terminal.
 
 ### Answer the startup dialog
 

@@ -42,7 +42,7 @@ This step needs a running session. If you followed the earlier steps you don’t
 
 In a regular `claude` session, pressing `←` on an empty prompt opens agent view, and a `←` hint in the footer reports on your background sessions:
 
-  * **Hint** : the footer shows `← for agents` for ten seconds after the session opens. Pressing `←` still works after the hint disappears
+  * **Hint** : the footer shows `← for agents` for ten seconds after the session opens
   * **Waiting count** : while background sessions wait on your input, the same spot counts them, such as `← 2 agents`, or `← 99+ agents` when more than 99 wait. The count refreshes about every ten seconds while the terminal is focused and immediately when focus returns
   * **Finished count** : when background sessions finish successfully while none wait on your input, the footer briefly shows how many finished, such as `← 2 done` for two
 
@@ -613,7 +613,7 @@ Claude Code treats every session listed in agent view as a background session, w
 
 ### The supervisor process
 
-The supervisor is a background service that runs your background sessions so they keep working after you close agent view or your terminal. Claude Code starts it the first time you background a session or open agent view, and you don’t need to manage it yourself. Each session is its own Claude Code process under the supervisor, and what happens to that process depends on the session’s state:
+The supervisor is a background service that runs your background sessions so they keep working after you close agent view or your terminal. Claude Code starts it the first time you background a session or open agent view. Each session is its own Claude Code process under the supervisor, and what happens to that process depends on the session’s state:
 
   * **Working, paused on a permission prompt or other dialog, or attached** : the process keeps running. A running subagent, workflow, or monitor counts as working, and so does a pending [session-scoped scheduled task](</docs/en/scheduled-tasks>), such as a `/loop` wakeup.
   * **Finished or waiting for your next message, and unattached for about an hour** : the supervisor stops the process to free resources. A session that ended its turn by asking you a question counts as waiting for your next message. The conversation stays on disk, and the next time you attach or reply, the session resumes where it left off. Pin a session with `Ctrl+T` to keep its process running.
@@ -670,7 +670,7 @@ Run `/tasks` to see everything that’s running, then confirm to background anyw
 
 ### The conversation says a background agent `was carried into this session and not resumed`
 
-This notice names a background [subagent](</docs/en/sub-agents>) that isn’t running in this session. Claude sees the notice and replies on its own, so you don’t need to prompt it. If you still need that subagent’s work after reading Claude’s reply, ask Claude for it.
+This notice names a background [subagent](</docs/en/sub-agents>) that isn’t running in this session. Claude sees the notice and replies on its own. If you still need that subagent’s work after reading Claude’s reply, ask Claude for it.
 
 ### Prompt rejected as too short
 
@@ -683,7 +683,7 @@ Shutting down or restarting your machine stops running background sessions. A se
   * Within 48 hours, the session shows as failed. Attach or reply to it and it restarts from its saved conversation. To pick the interrupted work back up, send it a reply asking it to continue.
   * Past 48 hours, such as after the machine was off for days, the session shows as stopped with `ended while the background service was off`. Press `Enter` on the row and the footer shows `Press enter again to resume this session (it ended while the background service was off), or ctrl+x to remove it.` Press `Enter` on the same row again to resume its saved conversation. A reply, or `claude attach <id>`, resumes it without that footer prompt.
 
-When [transcript cleanup](</docs/en/settings-reference#cleanupperioddays>) has removed a stopped session’s saved conversation, Claude Code refuses to open the row: the message says there is nothing to resume. `claude rm <id>` deletes the row, unless Claude Code refuses, and `claude respawn <id>` runs its original prompt again. See [This session’s saved conversation is no longer on disk](</docs/en/errors#this-sessions-saved-conversation-is-no-longer-on-disk>). Sleep alone doesn’t stop sessions. Sessions are preserved across sleep and the supervisor reconnects to them on wake.
+When [transcript cleanup](</docs/en/settings-reference#cleanupperioddays>) has removed a stopped session’s saved conversation, Claude Code refuses to open the row: the message says there is nothing to resume. `claude rm <id>` deletes the row, unless Claude Code refuses, and `claude respawn <id>` runs its original prompt again. See [This session’s saved conversation is no longer on disk](</docs/en/errors#this-sessions-saved-conversation-is-no-longer-on-disk>). Sessions are preserved across sleep and the supervisor reconnects to them on wake.
 
 ### Opening a session says the conversation is already open
 
@@ -730,13 +730,13 @@ Message contains| Platform| Action
 `was not sent SIGKILL`| macOS, Linux| Run the stop command again. If the process remains, check it with `ps -ww -o args= -p <pid>`: Claude Code started with `daemon` is a supervisor, so run `kill -9 <pid>`. Leave anything else; if `claude agents` then can’t start a supervisor, delete `~/.claude/daemon.lock`.
 `supervisor (pid=<pid>) is still running`| Windows| End the process with `taskkill /PID <pid>`
 
-### Dispatch fails with `Could not resolve authentication method`
+### A background session shows `Not logged in`
 
-If a background dispatch fails with `Could not resolve authentication method` while interactive sessions authenticate normally, the worker that received the dispatch didn’t pick up credentials. Background sessions get their credentials from the supervisor, so this error means no stored credential was available to the supervisor process itself. Confirm you have run `/login` or configured an API key, then stop the supervisor:
+If a background session shows [`Not logged in`](</docs/en/errors#not-logged-in>) while interactive sessions authenticate normally, confirm you have run `/login` or configured an API key, then stop the supervisor:
 
     claude daemon stop --any --keep-workers
 
-Within about a minute, run `claude agents` or `claude --bg` in your shell to start a fresh supervisor that reads your stored credentials. If you authenticate with an environment variable such as `ANTHROPIC_API_KEY` rather than `/login`, run that next command from a shell where the variable is set. See the [error reference](</docs/en/errors#could-not-resolve-authentication-method>) for the full list of causes and fixes.
+Within about a minute of stopping it, run `claude agents` in your shell to start a fresh supervisor. If you authenticate with an environment variable such as `CLAUDE_CODE_OAUTH_TOKEN`, run `claude agents` from a shell where the variable is set. Then run `claude respawn <id>` to restart the session, and resend your message.
 
 ### A background session shows `No LLM gateway`
 

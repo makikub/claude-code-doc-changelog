@@ -42,7 +42,7 @@ Feature| What it does| When to use it| Example
 
 ### Build your setup over time
 
-You don’t need to configure everything up front. Each feature has a recognizable trigger, and most teams add them in roughly this order:
+Each feature has a recognizable trigger, and most teams add them in roughly this order:
 
 Trigger| Add
 ---|---

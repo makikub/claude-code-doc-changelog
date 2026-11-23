@@ -888,7 +888,7 @@ To launch one of your own subagents without the user, project, and local CLAUDE.
 
 #### Resume subagents
 
-Each subagent invocation creates a new instance rather than continuing an earlier one. To continue an existing subagent’s work instead of starting over, ask Claude to resume it. Resumed subagents retain their full conversation history, including all previous tool calls, results, and reasoning. If the subagent spawned background subagents of its own, that history includes the results they delivered while it ran. Before v2.1.304, a subagent that Claude messaged or resumed right after it finished could forget its most recent work.
+Each subagent invocation creates a new instance rather than continuing an earlier one. To continue an existing subagent’s work, ask Claude to resume it. Resumed subagents retain their full conversation history, including all previous tool calls, results, and reasoning. If the subagent spawned background subagents of its own, that history includes the results they delivered while it ran. Before v2.1.304, a subagent that Claude messaged or resumed right after it finished could forget its most recent work.
 
   * When a subagent completes, Claude receives its agent ID.
   * For work you’ll continue later, use `general-purpose` or a custom subagent. The built-in Explore and Plan agents can finish without giving Claude an ID to resume them with.

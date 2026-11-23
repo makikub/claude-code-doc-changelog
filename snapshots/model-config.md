@@ -267,14 +267,14 @@ The `model` setting is an initial selection, not enforcement. It sets which mode
   * **`model`** : sets the initial model selection when a session starts
   * **`ANTHROPIC_DEFAULT_SONNET_MODEL`** / **`ANTHROPIC_DEFAULT_OPUS_MODEL`** / **`ANTHROPIC_DEFAULT_HAIKU_MODEL`** / **`ANTHROPIC_DEFAULT_FABLE_MODEL`** : control what the `sonnet`, `opus`, `haiku`, and `fable` aliases resolve to, and which version the account-type default uses
 
-This example starts users on Sonnet 4.5, limits the picker to Sonnet and Haiku, and ensures Default resolves to a model on the allowlist rather than the tier default:
+This example starts users on Sonnet 5, limits the picker to Sonnet 5.x and Haiku, and ensures Default resolves to a model on the allowlist:
 
     {
-      "model": "claude-sonnet-4-5",
-      "availableModels": ["claude-sonnet-4-5", "haiku"],
+      "model": "claude-sonnet-5",
+      "availableModels": ["claude-sonnet-5", "haiku"],
       "enforceAvailableModels": true,
       "env": {
-        "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-5"
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5"
       }
     }
 
@@ -487,7 +487,7 @@ Claude Code saves the level per model, under the [`modelSettings`](</docs/en/set
 
 A level you pick from the effort control on a phone or browser connected through [Remote Control](</docs/en/remote-control#what-connected-devices-see>) applies to that session only.
 
-When you set a level with `/effort` in a [`-p` run](</docs/en/headless>), Claude Code applies it to that session only and doesn’t save it as your default. The `/effort` slider also has an **Ultracode** toggle. Ultracode is a Claude Code setting rather than a model effort level: with it on, Claude orchestrates [dynamic workflows](</docs/en/workflows>) for substantive tasks, at whichever effort level the session runs at. For where it can be set persistently, see the [`ultracode`](</docs/en/settings-reference#ultracode>) setting. Turning ultracode on or off with `/effort` or the `ultracode` setting leaves the effort level unchanged. The `--effort ultracode` flag and the Agent SDK `effortLevel: "ultracode"` value turn it on and also set the level to `xhigh`. Picking a level in the `/effort` slider or the `/model` picker leaves ultracode as it was. You can turn on ultracode through any of the following:
+When you set a level with `/effort` in a [`-p` run](</docs/en/headless>), Claude Code applies it to that session only. The `/effort` slider also has an **Ultracode** toggle. Ultracode is a Claude Code setting rather than a model effort level: with it on, Claude orchestrates [dynamic workflows](</docs/en/workflows>) for substantive tasks, at whichever effort level the session runs at. For where it can be set persistently, see the [`ultracode`](</docs/en/settings-reference#ultracode>) setting. Turning ultracode on or off with `/effort` or the `ultracode` setting leaves the effort level unchanged. The `--effort ultracode` flag and the Agent SDK `effortLevel: "ultracode"` value turn it on and also set the level to `xhigh`. Picking a level in the `/effort` slider or the `/model` picker leaves ultracode as it was. You can turn on ultracode through any of the following:
 
   * **`/effort`** : run `/effort ultracode` to turn it on for the current session or `/effort ultracode off` to turn it off. In the `/effort` slider, press `Tab` to flip the **Ultracode** toggle, then `Enter` to apply it
   * **`--effort` flag**: launch with `claude --effort ultracode`, which starts the session at `xhigh` effort with ultracode on

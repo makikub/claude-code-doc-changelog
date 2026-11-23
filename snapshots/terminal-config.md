@@ -1,4 +1,4 @@
-Claude Code works in any terminal without configuration. This page is for when something specific is not behaving the way you expect. Find your symptom below. If everything already feels right, you do not need this page.
+Claude Code works in any terminal without configuration. This page is for when something specific isn’t behaving the way you expect. Find your symptom below.
 
   * Shift+Enter submits instead of inserting a newline
   * Option-key shortcuts do nothing on macOS
@@ -27,7 +27,7 @@ For VS Code, Cursor, Devin Desktop, Alacritty before 0.16, and Zed, `/terminal-s
   * If Claude Code can’t read or parse the keymap, can’t back it up, or can’t verify the merged result, it [leaves the file unchanged and prints the keybinding block to add yourself](</docs/en/errors#terminal-setup-left-your-zed-keymap-unchanged>)
   * If the keymap is a symlink, [add the keybinding yourself](</docs/en/errors#terminal-setup-left-your-zed-keymap-unchanged>)
 
-If you are running inside tmux, Shift+Enter also requires the tmux configuration below even when the outer terminal supports it. To bind newline to a different key, or to swap behavior so Enter inserts a newline and Shift+Enter submits, map the `chat:newline` and `chat:submit` actions in your [keybindings file](</docs/en/keybindings>).
+If you are running inside tmux, Shift+Enter also requires the tmux configuration below. To bind newline to a different key, or to swap behavior so Enter inserts a newline and Shift+Enter submits, map the `chat:newline` and `chat:submit` actions in your [keybindings file](</docs/en/keybindings>).
 
 ## Enable Option key shortcuts on macOS
 
@@ -137,7 +137,7 @@ Field| Type| Description
 `base`| string| Built-in preset the theme starts from: `dark`, `light`, `dark-daltonized`, `light-daltonized`, `dark-ansi`, or `light-ansi`. Defaults to `dark`
 `overrides`| object| Map of color token names to color values. Tokens not listed here fall through to the base preset
 
-Color values accept `#rrggbb`, `#rgb`, `rgb(r,g,b)`, `ansi256(n)`, or `ansi:<name>` where `<name>` is one of the 16 standard ANSI color names such as `red` or `cyanBright`. Unknown tokens and invalid color values are ignored, so a typo cannot break rendering. The following example defines a theme that keeps the dark preset but recolors the prompt accent, error text, and success text:
+Color values accept `#rrggbb`, `#rgb`, `rgb(r,g,b)`, `ansi256(n)`, or `ansi:<name>` where `<name>` is one of the 16 standard ANSI color names such as `red` or `cyanBright`. Unknown tokens and invalid color values are ignored. The following example defines a theme that keeps the dark preset but recolors the prompt accent, error text, and success text:
 
 ~/.claude/themes/dracula.json
 
@@ -151,7 +151,7 @@ Color values accept `#rrggbb`, `#rgb`, `rgb(r,g,b)`, `ansi256(n)`, or `ansi:<nam
       }
     }
 
-Claude Code watches `~/.claude/themes/` and reloads when a file is added or changed, so edits made in your editor apply to a running session without a restart. If the `~/.claude/themes/` folder itself didn’t exist when Claude Code started, restart once after creating your first theme file. After that, changes apply without a restart. The reference below covers the tokens you can set in `overrides`. The interactive editor in `/theme` shows the same tokens with a live preview, plus a few single-purpose accents such as onboarding screen colors that are omitted here.
+Claude Code watches `~/.claude/themes/` and reloads when a file is added or changed, so edits made in your editor apply to a running session without a restart. If the `~/.claude/themes/` folder itself didn’t exist when Claude Code started, restart once after creating your first theme file. The reference below covers the tokens you can set in `overrides`. The interactive editor in `/theme` shows the same tokens with a live preview, plus a few single-purpose accents such as onboarding screen colors that are omitted here.
 
 Color token reference
 
@@ -291,7 +291,7 @@ When you paste more than 800 characters or more than three lines into the prompt
 
 ### How Claude treats pasted text
 
-When you submit, Claude sees the content behind each `[Pasted text #N]` placeholder marked as text you pasted from somewhere else rather than typed. Claude is told that a paste can contain instructions you didn’t write, and to follow instructions inside it only where the message you typed asks it to. Pastes can reach Claude unmarked, such as in your [first session after an install](</docs/en/env-vars#first-session-after-an-install-or-upgrade>).
+When you submit, Claude sees the content behind each `[Pasted text #N]` placeholder marked as text you pasted from somewhere else rather than typed. Pastes can reach Claude unmarked, such as in your [first session after an install](</docs/en/env-vars#first-session-after-an-install-or-upgrade>).
 
 ### Delete and restore a collapsed paste
 

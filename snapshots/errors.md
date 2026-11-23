@@ -1001,11 +1001,11 @@ If you are prompted to log in repeatedly, see [Not logged in or token expired](<
 
 ### Could not resolve authentication method
 
-The session reached the API client without any credential. [Background sessions](</docs/en/agent-view>) and cloud sessions show this message when the worker starts without a credential. Interactive, `-p`, and Agent SDK runs report the same condition as Not logged in and write this string only to their debug log, so if you found it there, follow that entry instead.
+The session reached the API client without any credential. If an interactive, `-p`, or Agent SDK run showed Not logged in and this string is in its debug log, follow that entry.
 
     Could not resolve authentication method. Expected one of apiKey, authToken, credentials, config, or profile to be set. Or for one of the "X-Api-Key" or "Authorization" headers to be explicitly omitted
 
-On current versions the error means no credential was available to the worker process. Before v2.1.174, a background session assigned to an idle pre-initialized worker could fail this way even when valid credentials were configured. Before v2.1.176, a cloud session that sat idle before being claimed could too. Upgrade to recover. **What to do:**
+Before v2.1.174, a background session assigned to an idle pre-initialized worker could fail this way even when valid credentials were configured. Before v2.1.176, a cloud session that sat idle before being claimed could too. Upgrade to recover. **What to do:**
 
   * Upgrade to v2.1.176 or later if this appears in a background or cloud session and your credentials are already configured
   * Confirm `ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN`, or your cloud provider credentials are set in the environment that launches the worker, not only in your interactive shell
@@ -4687,7 +4687,7 @@ Claude Code shows this message when you restore code with [`/rewind`](</docs/en/
 Claude Code deletes a session’s backups in the [retention sweep](</docs/en/claude-directory#cleaned-up-automatically>), by default about 30 days after the session last saved one. If you resume a session after that, `/rewind` still lists its checkpoints, but rewinding to one of them can fail with this error. If the message also says `N paths were skipped for link safety`, see Restored the code, but skipped files for those paths. When you fork a session, for example with [`--fork-session`](</docs/en/cli-reference#cli-flags>) or [`/branch`](</docs/en/sessions#branch-a-session>), Claude Code copies the original session’s backups into the fork. When Claude Code can’t copy a backup, for example because the disk is full, that backup is missing in the fork. Rewinding to a checkpoint that needs it can fail with this error. **What to do:**
 
   * Undo the changes another way: ask Claude to reverse its edits, or restore the files from version control. When the backups are gone, running `/rewind` again fails the same way.
-  * If Claude Code couldn’t write or delete a file, fix what blocks the write, such as file permissions, then run `/rewind` again.
+  * If Claude Code couldn’t write or delete a file after you chose **Restore code** , fix what blocks the write, such as file permissions. Then run `/rewind` again.
   * To keep backups longer in future sessions, raise [`cleanupPeriodDays`](</docs/en/settings-reference#cleanupperioddays>).
 
 Before v2.1.260, Claude Code silently skipped files whose backups were missing, and the rewind appeared to succeed.
@@ -4710,7 +4710,7 @@ The warning appears at different points depending on the error:
 Before v2.1.217, Claude Code dropped the failing writes without a warning, and a later `--resume` missing recent messages was the first sign. **What to do:**
 
   * Fix the condition the error code names: free disk space for `ENOSPC`; raise or clear the quota for `EDQUOT`; restore write access to the transcript location for `EACCES`, `EPERM`, or `EROFS`
-  * The warning clears on its own at the next successful write; no restart is needed
+  * The warning clears on its own at the next successful write
   * Messages sent while the warning was showing may still be missing when you resume the session later
 
 ### Transcript saving is off because CLAUDE_CODE_SKIP_PROMPT_HISTORY is set

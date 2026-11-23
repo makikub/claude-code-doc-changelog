@@ -81,13 +81,13 @@ Select **API** here. When you click **Create** , the **API token** dialog shows 
 
 Select repositories
 
-Expand **Advanced settings**. Under **Repository** on the **General** tab, select one or more GitHub repositories for Claude to work in.Each repository is cloned at the start of a run. Claude creates `claude/`-prefixed branches for its changes.
+In the **Repository** row below **Trigger** , select one or more GitHub repositories for Claude to work in. If the row isn’t there, expand **Advanced settings** and find **Repository** on the **General** tab.Each repository is cloned at the start of a run. Claude creates `claude/`-prefixed branches for its changes.
 
 5
 
 Select an environment
 
-After you select a repository, **Cloud environment** appears below it. Pick a [cloud environment](</docs/en/cloud-environments>) for the task. If an environment is already selected, you can keep it or select a different one. Environments control what the cloud session has access to:
+Find **Cloud environment** below **Trigger** , or under **Advanced settings > General** if it isn’t there, and pick a [cloud environment](</docs/en/cloud-environments>) for the task. If an environment is already selected, you can keep it or select a different one. Environments control what the cloud session has access to:
 
   * **Network access** : set the level of internet access available during each run
   * **Environment variables** : provide values Claude can use during each run. They’re [visible to anyone who uses the environment](</docs/en/cloud-environments#what-carries-over-from-your-setup>), so in an Anthropic-hosted environment, store keys for the APIs Claude calls during a run as [network secrets](</docs/en/cloud-environments#add-network-secrets>) instead. That section also lists the requests that never get a secret
@@ -105,7 +105,7 @@ Select a model in the prompt input’s model selector for Claude to use on every
 
 Review connectors
 
-Switch to the **Connectors** tab of **Advanced settings**. All of your connected [MCP connectors](</docs/en/mcp>) are included by default. Remove any the task doesn’t need: Claude can use an included connector during a run, including writes. For when a run stops to ask you first, see Permission prompts during a run.
+Expand **Advanced settings** and open the **Connectors** tab. All of your connected [MCP connectors](</docs/en/mcp>) are included by default. Remove any the task doesn’t need: Claude can use an included connector during a run, including writes. For when a run stops to ask you first, see Permission prompts during a run.
 
 8
 
@@ -375,7 +375,7 @@ Go to [claude.ai/code/routines](<https://claude.ai/code/routines>), click the sc
 
 Open the environment selector
 
-Go to **Advanced settings > General > Cloud environment**, expanding **Advanced settings** first if it’s collapsed. Click the cloud icon showing your environment’s name, such as **Default**.
+Find **Cloud environment** below **Trigger** , or under **Advanced settings > General** if it isn’t there. Click the cloud icon showing your environment’s name, such as **Default**.
 
 3
 
@@ -413,7 +413,7 @@ None of these hourly limits has overage. When a scheduled task hits your subscri
 
 ## Where the name routines still appears
 
-Scheduled tasks were previously called routines, and these places keep the earlier name. Each one refers to the same feature:
+Scheduled tasks were previously called routines, and these places keep the earlier name:
 
   * **App** : in some accounts the sidebar entry and page title read **Routines** , the button reads **New routine** , and other labels say routine. To create a task there, see Full-page form.
   * **Web address** : `claude.ai/code/routines`

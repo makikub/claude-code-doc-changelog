@@ -79,7 +79,7 @@ If the runner can’t create or write to the base directory, it exits at startup
 
     claude self-hosted-runner --environment-secret-file '/etc/claude/environment-secret' --base-dir '<writable-dir>'
 
-The runner logs `Registered: runner_id=<runner-id>` once it has registered with your environment, then begins polling for work. Started with this command, it exits by design after serving one session, not after each turn. To serve more sessions, start the runner again each time it exits. See If the runner exits for when that happens and what the runner logs.
+The runner logs `Registered: runner_id=<runner-id>` once it has registered with your environment, then begins polling for work. Started with this command, it exits after serving one session, not after each turn. To serve more sessions, start the runner again each time it exits. See If the runner exits for when that happens and what the runner logs.
 
 3
 

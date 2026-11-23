@@ -224,7 +224,7 @@ TypeScript
       return { behavior: "deny", message: "User declined" };
     };
 
-The user approves but wants to modify the request first. You can change the input before the tool executes. Claude sees the result but isn’t told you changed anything. Useful for sanitizing parameters, adding constraints, or scoping access.
+The user approves but wants to modify the request first. You can change the input before the tool executes. Useful for sanitizing parameters, adding constraints, or scoping access.
 
 Python
 

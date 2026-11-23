@@ -164,7 +164,7 @@ A bare name is a single directory name with no `/`, such as `"formatter"`. To wr
 
   * It must itself be a relative path inside the marketplace.
   * It has no effect on a source that already starts with `./`.
-  * A source that contains a `/`, such as `team-a/formatter`, isn’t a bare name and still needs the `./` prefix, even when `metadata.pluginRoot` is set.
+  * A source that contains a `/`, such as `team-a/formatter`, isn’t a bare name and still needs the `./` prefix.
 
 ### github plugin source
 

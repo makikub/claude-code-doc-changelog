@@ -117,8 +117,6 @@ Parameter| Type| Description
 `options`| `Options`| Optional configuration object, the same type that `startup()` takes
 `initializeTimeoutMs`| `number`| Maximum time in milliseconds to wait for the spare’s initialization. Defaults to `60000`. If initialization doesn’t complete in time, the promise rejects with a timeout error
 
-`prewarm()` counts time spent in [Setup](</docs/en/hooks#setup>) hooks toward `initializeTimeoutMs`, even when you leave it unset. To give slow Setup hooks more time, set a longer value.
-
 #### Returns
 
 Returns a `Promise<``SpareProcess``>` that resolves once the spare is ready to claim. The promise rejects if you ask for `resume`, `continue`, or `forkSession` in `options`, because a spare has no session yet.
@@ -1119,7 +1117,7 @@ Field| Required| Description
 `disallowedTools`| No| Array of tool names to explicitly disallow for this agent. MCP server-level patterns are also accepted: `mcp__server` or `mcp__server__*` removes every tool from that server, and `mcp__*` removes every MCP tool from any server
 `prompt`| Yes| The agent’s system prompt
 `model`| No| Model override for this agent. Accepts an alias such as `'fable'`, `'opus'`, `'sonnet'`, `'haiku'`, `'inherit'`, or a full model ID. `'inherit'` uses the model of the agent that spawned this one. When you omit `model`, Claude Code picks the model in the [subagent model order](</docs/en/sub-agents#choose-a-model>)
-`mcpServers`| No| MCP server specifications for this agent
+`mcpServers`| No| MCP server specifications for this agent. Put a `createSdkMcpServer()` server in the `mcpServers` field of `Options`. If you pass the server object in this field instead, TypeScript Agent SDK v0.3.327 or later ignores it and emits a `CLAUDE_SDK_AGENT_IN_PROCESS_SERVER` warning
 `skills`| No| Array of skill names to preload into the agent context
 `initialPrompt`| No| Auto-submitted as the first user turn when this agent runs as the main thread agent
 `maxTurns`| No| Maximum number of agentic turns (API round-trips) before stopping
@@ -3727,6 +3725,7 @@ Field| What it carries
       taskId: string;
       timeoutMs: number;
       persistent?: boolean;
+      keptInSandboxByCheck?: boolean;
     };
 
 Returns the background task ID for the running monitor. Use this ID with `TaskStop` to cancel the watch early.

@@ -13,11 +13,11 @@ In a terminal Claude Code session, install from the [official Anthropic marketpl
 
     /plugin install security-guidance@claude-plugins-official
 
-`/plugin` opens an interactive panel in the terminal CLI. If Claude replies that `/plugin` isn’t available in this environment, install another way:
+`/plugin` opens an interactive panel in the terminal CLI. Outside the terminal, install another way:
 
   * **Claude desktop app, local or SSH session** : use the **Desktop app** tab under [Install a plugin](</docs/en/plugins/install#install-a-plugin>)
   * **VS Code extension** : install from the [**Manage plugins** dialog](</docs/en/vs-code#manage-plugins>)
-  * **Cloud sessions** : a cloud session doesn’t load plugins from your user settings or from the repository’s `.claude/settings.json`, as [What carries over from your setup](</docs/en/cloud-environments#what-carries-over-from-your-setup>) explains. For plugins your organization distributes through managed settings, see [Manage plugins for your organization](</docs/en/plugins/org>)
+  * **Cloud sessions** : a cloud session doesn’t load plugins from your user settings, as [What carries over from your setup](</docs/en/cloud-environments#what-carries-over-from-your-setup>) explains. For plugins your organization distributes through managed settings, see [Manage plugins for your organization](</docs/en/plugins/org>)
 
 The terminal install prompts for a scope. Choose user scope to write the plugin to your user settings, so it loads in every new local session you start on this machine. If the install fails, match the message Claude Code reports:
 

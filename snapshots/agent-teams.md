@@ -67,7 +67,7 @@ Tell the lead what you want in natural language. It handles team coordination, t
 
 Agent teams support two display modes:
 
-  * **In-process** : all teammates run inside your main terminal. Use the up and down arrow keys in the agent panel to select a teammate, then press Enter to view it and type to message it directly. Works in any terminal, no extra setup required.
+  * **In-process** : all teammates run inside your main terminal. Use the up and down arrow keys in the agent panel to select a teammate, then press Enter to view it and type to message it directly. Works in any terminal.
   * **Split panes** : each teammate gets its own pane. You can see everyone’s output at once and click into a pane to interact directly. Requires tmux, or iTerm2.
 
 `tmux` has known limitations on certain operating systems and traditionally works best on macOS. Using `tmux -CC` in iTerm2 is the suggested entrypoint into `tmux`.
@@ -253,7 +253,7 @@ When one agent sends another a message over `SendMessage`, Claude Code tells the
 
 Each teammate has its own context window. When spawned, a teammate loads the same project context as a regular session: CLAUDE.md, MCP servers, and skills. If you start the lead with [`--setting-sources`](</docs/en/cli-reference#cli-flags>), teammates load from the same restricted list of sources. Before v2.1.281, split-pane teammates loaded every settings source. A teammate also receives the spawn prompt from the lead. The lead’s conversation history does not carry over. **How teammates share information:**
 
-  * **Automatic message delivery** : when teammates send messages, they’re delivered automatically to recipients. The lead doesn’t need to poll for updates.
+  * **Automatic message delivery** : when teammates send messages, they’re delivered automatically to recipients.
   * **Idle notifications** : when a teammate finishes and stops, it automatically notifies the lead and includes its final answer in the notification. A teammate whose turn ends on an API error notifies the lead that it failed and includes the error text.
   * **Shared task list** : [agents that have the Task tools](</docs/en/tools-reference#task-tool-availability>) can see task status and claim available work.
   * **Teammate messaging** : send a message to one specific teammate by name. To reach everyone, send one message per recipient.

@@ -42,6 +42,8 @@ These require signing in with a claude.ai account and are not reachable with an 
   * [Cloud scheduled tasks](</docs/en/routines>) (`/schedule`)
   * [Ultrareview](</docs/en/ultrareview>)
   * [Code Review](</docs/en/code-review>): Team and Enterprise plans
+  * [PR Steward](</docs/en/pr-steward>): Team and Enterprise plans
+  * [Claude Approvals](</docs/en/approvals>): Team and Enterprise plans
   * [Remote Control](</docs/en/remote-control>)
   * [Chrome extension](</docs/en/chrome>)
   * [Computer use](</docs/en/computer-use>): Pro, Max, and Ultra plans
@@ -154,6 +156,8 @@ Feature| Pro| Max| Ultra| Team| Enterprise
 [Computer use](</docs/en/computer-use>)| ✓| ✓| ✓| ✗| ✗
 Dispatch ([Desktop](</docs/en/desktop#sessions-from-dispatch>))| Not available to new users| Not available to new users| Not available to new users| ✗| ✗
 [Code Review](</docs/en/code-review>)| ✗| ✗| ✗| ✓| ✓
+[PR Steward](</docs/en/pr-steward>)| ✗| ✗| ✗| ✓| ✓
+[Claude Approvals](</docs/en/approvals>)| ✗| ✗| ✗| ✓| ✓
 [Artifacts](</docs/en/artifacts>)| ✓| ✓| ✓| ✓| ✓
 [Analytics dashboard and contribution metrics](</docs/en/analytics>)| ✗| ✗| ✗| ✓| ✓
 [Enterprise Analytics API](</docs/en/analytics#access-data-programmatically>)| ✗| ✗| ✗| ✗| ✓

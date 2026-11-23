@@ -6,9 +6,9 @@ Claude Code charges by API token consumption. For subscription plan pricing (Pro
 
 The Session block in `/usage` shows API token usage and is intended for API users. Claude Pro, Max, and Ultra subscribers have usage included in their subscription, so the session cost figure isn’t relevant for billing purposes. Subscribers see plan usage bars, activity stats, and a usage breakdown on the same screen.
 
-Run `/usage` at the Claude Code prompt and look under the **Session** heading for your current session’s token usage. Claude Code computes the dollar figure locally from token counts at list price, unless a [`modelPricing`](</docs/en/settings-reference#modelpricing>) table is in effect. An administrator sets one in your organization’s managed settings so the figure uses your contracted rates, and while a table is in effect the `Total cost` line carries the note `at your organization's configured rates`. The figure is an estimate, so for authoritative billing see Manage costs for your organization.
+Run `/usage` at the Claude Code prompt and look under the **Session** heading for your current session’s token usage. Claude Code computes the dollar figure locally from token counts at list price, unless a [`modelPricing`](</docs/en/settings-reference#modelpricing>) table is in effect. An administrator sets one in your organization’s managed settings so the figure uses your contracted rates, and while a table is in effect the `Estimated cost` line carries the note `at your organization's configured rates`. The figure is an estimate, so for authoritative billing see Manage costs for your organization.
 
-    Total cost:            $0.55
+    Estimated cost:        $0.55
     Total duration (API):  6m 20s
     Total duration (wall): 6h 33m 10s
     Total code changes:    0 lines added, 0 lines removed
@@ -136,7 +136,7 @@ Deploy it through managed settings
 
 Deliver it as [managed settings](</docs/en/managed-settings>): server-managed settings, an MDM policy, `managed-settings.json`, or a [policy helper](</docs/en/managed-settings#compute-the-policy-with-a-helper-program>). Claude Code ignores the key in user, project, and local settings and in `--settings`.
 
-To confirm the rates are in effect, run `/usage` in a session that has [received the managed settings](</docs/en/managed-settings#read-the-source-in-%2Fstatus>): the Session block’s `Total cost` line carries the note `at your organization's configured rates`. The figures are still estimates, not an invoice. The per-million-token prices in the `/model` picker stay at list price.
+To confirm the rates are in effect, run `/usage` in a session that has [received the managed settings](</docs/en/managed-settings#read-the-source-in-%2Fstatus>): the Session block’s `Estimated cost` line carries the note `at your organization's configured rates`. The figures are still estimates, not an invoice. The per-million-token prices in the `/model` picker stay at list price.
 
 ### Claude for Teams and Enterprise
 

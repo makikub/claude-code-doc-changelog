@@ -1,4 +1,4 @@
-Code Review is a managed service that an Owner in your Claude organization turns on for a set of GitHub repositories. Once it’s on, Claude reviews pull requests in those repositories and posts its findings as inline comments, a summary in the review body, and a check run named **Claude Code Review**. A review never approves or blocks your pull request, and the check run never concludes as a failure. An Owner controls [when reviews run](</docs/en/code-review-setup#set-when-reviews-run>) and [how thorough they are](</docs/en/code-review-setup#set-the-default-review-level>) for each repository.
+Code Review is a managed service that an Owner in your Claude organization turns on for a set of GitHub repositories. Once it’s on, Claude reviews pull requests in those repositories. It posts its findings as inline comments, a summary in the review body, and a check run named **Claude Code Review**. An Owner controls [when reviews run](</docs/en/code-review-setup#set-when-reviews-run>) and [how thorough they are](</docs/en/code-review-setup#set-the-default-review-level>) for each repository. By itself, a review doesn’t approve or block your pull request, and the check run doesn’t conclude as a failure. Where a repository has a [Claude Approvals](</docs/en/approvals#keep-automatic-code-reviews>) policy file, the policy can use a review’s result to decide who has to approve. It can also change which pull requests get an automatic review.
 
 If your plan doesn’t include Code Review, you can still have Claude review your branch from a Claude Code session: see [Review locally with `/code-review`](</docs/en/code-review-local>).
 
@@ -18,8 +18,8 @@ When the review recorded its reasoning, a finding has a collapsed **Why this was
 
 You can merge without responding to a finding, unless your repository’s own rules require it. If its branch protection [requires conversation resolution](<https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches#require-conversation-resolution-before-merging>), resolve each finding’s thread before you merge. To clear a finding, resolve its thread or push a fix.
 
-  * **Dismiss it without a code change** : resolve the thread yourself on GitHub. Replying alone doesn’t dismiss a finding.
-  * **Fix the issue** : change the code and push. The next review of the pull request resolves its earlier thread when it judges the issue fixed, whether that review runs automatically on your push or you request it.
+  * **Dismiss it without a code change** : resolve the thread yourself on GitHub. Replying alone doesn’t dismiss a finding. If your pull request has a **Claude Approvals** check, that check [may not count your resolve](</docs/en/approvals-troubleshooting#approvals-doesn%E2%80%99t-pass-after-you-resolve-a-review-thread>).
+  * **Fix the issue** : change the code and push. The next review of the pull request resolves its earlier thread when it judges the issue fixed, whether that review runs automatically on your push or you request it. Where [PR Steward](</docs/en/pr-steward#what-pr-steward-fixes>) works on the pull request, it can push its own fix for an Important finding, so pull the branch before you start.
   * **Explain or disagree** : reply to the comment. Claude doesn’t respond right away, and a reply doesn’t start a review. The next review of the pull request reads the replies on its earlier findings, and can resolve the thread or post one follow-up reply. If the same kind of finding keeps coming back, ask a maintainer to add a rule to [`REVIEW.md`](</docs/en/code-review-customize#choose-what-to-write-in-review-md>).
 
 To get that next review without pushing, comment `@claude review` as a top-level pull request comment.
@@ -40,7 +40,7 @@ A finding that has a line but wasn’t posted as an inline comment appears as an
 If the check run has one of these titles after you push, Code Review kept the result of an earlier review instead of starting a new one:
 
   * **Code review skipped — no new changes** : no Important finding from the earlier review is still open, so you don’t need a new review
-  * **Code review not repeated — earlier findings still open** : to start a new review, push a fix for an open Important finding, or resolve its thread and push again
+  * **Code review not repeated — earlier findings still open** : to start a new review, push a fix for an open Important finding, or resolve its thread and push again. If Claude Approvals reopens the thread, the title stays after your next push. Push a fix, or ask someone [whose resolve counts](</docs/en/approvals-policy#findings>) to resolve it, then push again.
 
 On github.com, Code Review can keep a result when both of these hold:
 

@@ -100,7 +100,14 @@ Claude Code highlights the keyword in your input and Claude writes a workflow sc
 
 #### Dismiss or turn off the keyword
 
-If you didn’t mean to start a workflow, press `Option+W` on macOS or `Alt+W` on Windows and Linux to dismiss the highlight for this prompt, or press backspace while the cursor is right after the highlighted keyword. To stop the keyword from triggering at all, turn off Ultracode keyword trigger in `/config`.
+To use the word `ultracode` without asking for a workflow, skip the keyword for one prompt or turn the keyword off for every prompt:
+
+  * **One prompt, as you type** : put the word in backticks. For example, this prompt is a regular request to search your files:
+
+        find every file that mentions `ultracode`
+
+  * **One prompt, already highlighted in your terminal** : press Backspace right after the word, or press `Alt+W`. On macOS, that key is `Option+W` with [Option as Meta](</docs/en/terminal-config#enable-option-key-shortcuts-on-macos>).
+  * **Every prompt** : turn off [**Ultracode keyword trigger**](</docs/en/settings-reference#workflowkeywordtriggerenabled>) in `/config`.
 
 #### Where the keyword works
 
@@ -177,7 +184,7 @@ A saved workflow can accept input through the `args` parameter. The script reads
 
     Run /triage-issues on issues 1024, 1025, and 1030
 
-Claude passes the list as structured data, so the script can call array and object methods on `args` directly without parsing it first. If `args` is omitted, the global is `undefined` inside the script.
+Claude passes the list as structured data, so the script can call array and object methods on `args` directly. If `args` is omitted, the global is `undefined` inside the script.
 
 ## Example workflow prompts
 
@@ -221,7 +228,7 @@ Keep searching in rounds and stop when new rounds turn up nothing new.
 
 ### What the saved script looks like
 
-When you save a workflow, the file in `.claude/workflows/` holds a `meta` block followed by a script body that orchestrates subagents. You usually don’t need to edit it, but here is the shape of a small one so you can recognize what Claude generated:
+When you save a workflow, the file in `.claude/workflows/` holds a `meta` block followed by a script body that orchestrates subagents. Here is the shape of a small one so you can recognize what Claude generated:
 
     export const meta = {
       name: 'audit-routes',

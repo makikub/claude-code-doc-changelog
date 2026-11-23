@@ -134,7 +134,7 @@ After the restart, open an HTML file from an SSH or WSL session on that computer
 
 ### Browse external sites
 
-The Browser pane is a tabbed browser, so you can open documentation, issue trackers, or any other site next to your running app. To open the Browser, press **Cmd+Shift+B** on macOS or **Ctrl+Shift+B** on Windows, or select **Browser**. You can sign in to sites in the pane, including popup sign-in flows such as Google OAuth. The first time you click an external link in the chat, a dialog asks whether links open in the Browser pane or in your default browser. To change your choice later, use **Open links in built-in browser** in the Browser pane’s **⋮** menu. **Cmd** -click on macOS or **Ctrl** -click on Windows opens a link in your default browser directly. Claude can read and interact with external pages using the same tools it uses to verify your app, with two additional safety checks:
+The Browser pane is a tabbed browser, so you can open documentation, issue trackers, or any other site next to your running app. To open the Browser, press **Cmd+Shift+B** on macOS or **Ctrl+Shift+B** on Windows, or select **Browser**. You can sign in to sites in the pane, including popup sign-in flows such as Google OAuth. The first time you click an external link in the chat, a dialog asks whether links open in the Browser pane or in your default browser. To change your choice later, use **Open links in built-in browser** in the Browser pane’s **⋮** menu. If it isn’t there, open **More settings** in that menu. **Cmd** -click on macOS or **Ctrl** -click on Windows opens a link in your default browser directly. Claude can read and interact with external pages using the same tools it uses to verify your app, with two additional safety checks:
 
   * When auto mode is available for the session, its safety classifiers review Claude’s write actions on external pages, such as typing, in every permission mode. A flagged action is blocked, or prompts you after [repeated blocks](</docs/en/permission-modes#when-auto-mode-falls-back>).
   * In permission modes other than Auto and Bypass permissions, a domain allowlist check also applies before Claude navigates to a new site.
@@ -164,7 +164,7 @@ Claude reads your comments and makes the requested changes, which appear as a ne
 
 To have Claude review your changes before you commit, enter `/code-review` in the prompt box. The findings arrive in the conversation when the review completes. In local, SSH, and [WSL](</docs/en/desktop-wsl>) sessions, the findings appear as a **Code review** card, grouped by file. Use the card to act on them:
 
-  * Click **Walk through in Changes** to open the diff view and step through the findings one at a time. A finding in the current diff appears at its line, where you can click **Fix this one** or dismiss it.
+  * Click **Walk through in changes** to open the diff view and step through the findings one at a time. A finding in the current diff appears at its line, where you can click **Fix this one** or dismiss it.
   * Click **Apply fixes** to ask Claude to fix the findings that are still open.
 
 In any session, you can also ask Claude in the prompt box to fix what the review found. For what `/code-review` looks for and the arguments it takes, see [Review locally with `/code-review`](</docs/en/code-review-local>).
@@ -200,7 +200,7 @@ The session details panel is a set of cards beside the chat that show where the 
 
 #### Hide or show the session details panel
 
-To hide or show the panel, click **Hide session rail** or **Show session rail** in the session’s title bar, or in the bar’s **⋮** menu. If you see neither name, click **Activity panel** in the title bar. If you still don’t see the panel, check which Code tab layout you have.
+To hide or show the panel, click **Hide session rail** or **Show session rail** in the session’s title bar, or in the bar’s **⋮** menu. If you see neither name, click **Activity panel** in the title bar. If you still don’t see the panel, check which Code tab layout you have. If the panel disappears when a mod’s [backdrop](</docs/en/plugins/mods/interface#put-a-backdrop-behind-the-conversation>) shows, click **Show session rail** or **Activity panel** to bring it back.
 
 ### Minimize a pane
 
@@ -432,7 +432,7 @@ The desktop app sends an OS notification when a Code session finishes a task and
 
 ### Ask a side question without derailing the session
 
-A side chat lets you ask Claude a question that uses your session’s context but doesn’t add anything back to the main conversation. Use it when you want to understand a piece of code, check an assumption, or explore an idea without steering the session off course. Press **Cmd+;** on macOS or **Ctrl+;** on Windows to open a side chat, or type `/btw` in the prompt box. The side chat can read everything in the main thread up to that point. When you’re done, close the side chat and continue the main session where you left off. Side chats are available in local, SSH, and WSL sessions. The desktop app doesn’t save side chats to disk, so you can’t return to one after you close the app.
+A side chat lets you ask Claude a question about your session. Claude’s answers in a side chat aren’t added to the main conversation automatically. Use a side chat to understand a piece of code, check an assumption, or explore an idea. Press **Cmd+;** on macOS or **Ctrl+;** on Windows to open a side chat, or type `/btw` in the prompt box. The side chat can read everything in the main thread up to that point. When you’re done, close the side chat and return to the main session. Side chats are available in local, SSH, and WSL sessions.
 
 ### Watch background tasks
 
@@ -542,7 +542,11 @@ Once connected, Claude can read your calendar, send messages, create issues, and
   * **Add plugins** : select it
   * **Plugins** : select it, then **Browse plugins**. If that’s missing, select **Manage plugins**.
 
-To enable, disable, or uninstall plugins when the **+** menu shows **Plugins** , select **Plugins > Manage plugins**. In a local session, you can also click **Customize** or **Plugins** in the sidebar. You can scope plugins to your user account, a specific project, or local-only. If your organization manages plugins centrally, those plugins are available in desktop sessions the same way they are in the CLI, except the ones the desktop app [withholds under `disableSideloadFlags`](</docs/en/settings-reference#disablesideloadflags>). The plugin browser is not available in cloud sessions, and plugins you install from the desktop app aren’t available for cloud sessions. A cloud session also doesn’t install plugins that the repository’s `.claude/settings.json` declares, as [What carries over from your setup](</docs/en/cloud-environments#what-carries-over-from-your-setup>) explains. Plugins aren’t available in WSL sessions. For the full plugin reference including creating your own plugins, see [plugins](</docs/en/plugins/overview>).
+To enable, disable, or uninstall plugins when the **+** menu shows **Plugins** , select **Plugins > Manage plugins**. In a local session, you can also click **Customize** or **Plugins** in the sidebar. You can scope plugins to your user account, a specific project, or local-only. If your organization manages plugins centrally, those plugins are available in desktop sessions the same way they are in the CLI, except the ones the desktop app [withholds under `disableSideloadFlags`](</docs/en/settings-reference#disablesideloadflags>).
+
+Plugins you install on your computer at user or local scope aren’t available in cloud sessions. See [What carries over from your setup](</docs/en/cloud-environments#what-carries-over-from-your-setup>). Plugins aren’t available in WSL sessions.
+
+For the full plugin reference including creating your own plugins, see [plugins](</docs/en/plugins/overview>).
 
 ### Configure preview servers
 
@@ -564,7 +568,7 @@ You can define multiple configurations to run different servers from the same pr
 
 #### Auto-verify changes
 
-When `autoVerify` is enabled, Claude automatically verifies code changes after editing files. It takes screenshots, checks for errors, and confirms changes work before completing its response. Auto-verify is on by default. Disable it per-project by adding `"autoVerify": false` to `.claude/launch.json`, or turn off **Auto-verify changes** in the Browser pane’s **⋮** menu.
+When `autoVerify` is enabled, Claude automatically verifies code changes after editing files. It takes screenshots, checks for errors, and confirms changes work before completing its response. Auto-verify is on by default. Disable it per-project by adding `"autoVerify": false` to `.claude/launch.json`, or turn off **Auto-verify changes** in the Browser pane’s **⋮** menu. If it isn’t there, open **More settings** in that menu.
 
     {
       "version": "0.0.1",
@@ -1990,7 +1994,7 @@ Desktop and CLI read the same configuration files, so your setup carries over:
 
 #### MCP servers from the Claude Desktop chat app
 
-The Desktop app loads MCP servers from `claude_desktop_config.json` into local Code tab sessions, alongside servers from `~/.claude.json` and `.mcp.json`. A server you define in `claude_desktop_config.json` is available in both the Desktop chat surface and local Code tab sessions.
+The Desktop app loads MCP servers from `claude_desktop_config.json` into local Code tab sessions, alongside servers from `~/.claude.json` and `.mcp.json`. The servers from `claude_desktop_config.json` also load in a [WSL session](</docs/en/desktop-wsl>), unless the session [lacks connectors](</docs/en/desktop-wsl#check-for-the-terminal-and-connectors>). In a WSL session, those servers run on Windows.
 
 The standalone CLI does not read `claude_desktop_config.json`. On macOS and WSL, run `claude mcp add-from-claude-desktop` to copy those servers into `~/.claude.json`. See [Import MCP servers from Claude Desktop](</docs/en/mcp#import-mcp-servers-from-claude-desktop>) for the import flow and scope options.
 

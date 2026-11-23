@@ -129,7 +129,11 @@ Your script can print more than a single line of plain text:
 
 ### Size output to the terminal
 
-Claude Code captures your script’s output instead of connecting it directly to the terminal, so `tput cols` and language-level width detection cannot read the terminal size from inside the script. Read the `COLUMNS` and `LINES` environment variables instead. Claude Code sets these to the current terminal dimensions before running your script.
+To fit your status line to the terminal, read the size that Claude Code passes to your script. Claude Code puts the width in the `COLUMNS` environment variable and the height in `LINES`, and updates both each time it runs your script. Calls that ask the terminal directly, such as `stty size`, can fail because your script isn’t connected to the terminal. To keep a line from being cut off with `…`, make it at least four columns narrower than the terminal. Those four columns leave room for the spacing Claude Code adds on each side. This Bash example calculates the widest your output can be:
+
+    max_width=$((COLUMNS - 4))
+
+In an 80-column terminal, `max_width` is 76. If you set `padding`, also subtract twice its value from `max_width`. When you measure a line, count an emoji such as 📁 as two columns.
 
 ## Available data
 
@@ -171,7 +175,7 @@ Field| Description
 `agent.name`| Agent name when running with the `--agent` flag or agent settings configured
 `pr.number`, `pr.url`| Open pull request for the current branch. Mirrors the PR badge in the footer. In a repository with a GitLab remote, Claude Code fills these fields from the branch’s open [merge request](</docs/en/interactive-mode#gitlab-merge-requests>) instead, so `pr.number` is the merge request number. Merge request data requires Claude Code v2.1.234 or later. Absent when not in a git repository, until a pull request or merge request is found, or once it merges or closes
 `pr.review_state`| Review status of the open PR: `approved`, `pending`, `changes_requested`, or `draft`. May be independently absent even when `pr` is present
-`pr.kind`| `mr` when `pr` describes a [GitLab merge request](</docs/en/interactive-mode#gitlab-merge-requests>). Absent for GitHub pull requests, so scripts written before this field keep working. For a merge request, Claude Code sets `review_state` to `approved` when GitLab reports it mergeable, `pending` for any other open state, and `draft` for a draft. Requires Claude Code v2.1.234 or later
+`pr.kind`| `mr` when `pr` describes a [GitLab merge request](</docs/en/interactive-mode#gitlab-merge-requests>). Absent for GitHub pull requests. For a merge request, Claude Code sets `review_state` to `approved` when GitLab reports it mergeable, `pending` for any other open state, and `draft` for a draft. Requires Claude Code v2.1.234 or later
 `worktree.name`| Name of the active worktree. Present only while the session is in a [worktree session](</docs/en/worktrees>)
 `worktree.path`| Absolute path to the worktree directory
 `worktree.branch`| Git branch name for the worktree (for example, `"worktree-my-feature"`). Absent for hook-based worktrees
@@ -320,7 +324,7 @@ Handle missing fields with conditional access and null values with fallback defa
 The `context_window` object describes the live context window from the most recent API response.
 
   * **Combined totals** (`total_input_tokens`, `total_output_tokens`): tokens currently in the context window. `total_input_tokens` is the sum of `input_tokens`, `cache_creation_input_tokens`, and `cache_read_input_tokens`; `total_output_tokens` is the output tokens from the most recent response. Both are `0` before the first API response.
-  * **Per-component usage** (`current_usage`): the same token counts broken out by category. Use this when you need cache hits separate from fresh input. The object is `null` before the first API call in a session, and `null` or all zeros after `/compact` until the next API call. Treat both as empty.
+  * **Per-component usage** (`current_usage`): the same token counts broken out by category. Use this when you need cache hits separate from fresh input. `current_usage` is `null` until the conversation has an API response, and `null` or all zeros after `/compact` until the next API call. Treat both as empty.
 
 The `current_usage` object contains:
 
@@ -329,7 +333,7 @@ The `current_usage` object contains:
   * `cache_creation_input_tokens`: tokens written to cache
   * `cache_read_input_tokens`: tokens read from cache
 
-For what the cache fields mean and how they’re billed, see [check cache performance](</docs/en/prompt-caching#check-cache-performance>). The `used_percentage` field is calculated from input tokens only: `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`. It does not include `output_tokens`. If you calculate context percentage manually from `current_usage`, use the same input-only formula to match `used_percentage`.
+For what the cache fields mean and how they’re billed, see [check cache performance](</docs/en/prompt-caching#check-cache-performance>). The `used_percentage` field is calculated from input tokens only: `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`. If you calculate context percentage manually from `current_usage`, use the same input-only formula to match `used_percentage`.
 
 ### Spend limit fields
 
@@ -1088,4 +1092,4 @@ Outside [fullscreen rendering](</docs/en/fullscreen>), Claude Code shows notific
 
   * System notifications like MCP server errors and auto-updates display on the right side of the row. Transient notifications such as the context-low warning also cycle through this area.
   * Enabling verbose mode adds a token counter to this area, showing the size of your context as the last API response reported it, not the [per-turn count beside the spinner](</docs/en/costs#read-the-token-count-beside-the-spinner>)
-  * On narrow terminals, these notifications may truncate your status line output
+  * When a notification doesn’t fit beside your status line, the notification moves to a row below
