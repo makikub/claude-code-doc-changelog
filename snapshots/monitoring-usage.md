@@ -255,7 +255,7 @@ Attribute| Description| Gated by
 **`tool.output` span event on `claude_code.tool`** If you set `OTEL_LOG_TOOL_CONTENT=1`, Read and Bash calls can record a `tool.output` span event on the `claude_code.tool` span. Edit and Write calls record one only when you also set `OTEL_LOG_TOOL_DETAILS=1`. That variable isn’t scoped to those two tools, so check its row in the configuration table for the arguments it adds elsewhere. MCP tools, WebFetch, and WebSearch record this event too, on Claude Code v2.1.283 or later. Claude Code writes this event from a tool call’s successful return, so a call that raises an error records nothing, whatever the tool. Among the calls that do return, it records no `tool.output` event for:
 
   * A call to any tool other than Read, Edit, Write, Bash, WebFetch, WebSearch, and MCP tools
-  * A Read that returns anything other than file text, such as an image, a PDF, or a re-read of a file whose contents haven’t changed
+  * A Read that returns anything other than file text, such as an image or a PDF
   * An Edit or Write call, unless you also set `OTEL_LOG_TOOL_DETAILS=1`
   * A WebFetch or WebSearch call that Claude Code moved to the background while it ran so that a waiting message could reach Claude. The result that arrives later isn’t recorded either. To learn when Claude Code moves a call, see [When Claude Code sends what you queued](</docs/en/interactive-mode#when-claude-code-sends-what-you-queued>) for the terminal and the [`priority` field](</docs/en/agent-sdk/typescript#sdkusermessage>) for Agent SDK sessions
 

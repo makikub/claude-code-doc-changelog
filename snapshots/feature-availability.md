@@ -60,7 +60,7 @@ These features work in the local CLI but depend on a server-side capability that
 [Fast mode](</docs/en/fast-mode>)| ✓ ([Owner-enabled](</docs/en/fast-mode#enable-fast-mode-for-your-organization>) on Team and Enterprise)| ✓ (Opus 5 and 4.8 need provisioning)| ✗| ✗| ✗| ✓ ([Fable 5.2, with conditions](</docs/en/fast-mode#use-fast-mode-on-agent-platform>))| ✗
 [Auto mode](</docs/en/auto-mode-config>)| ✓| ✓| See note 2| ✓| ✓| See note 2| See note 2
 [Advisor](</docs/en/advisor>)| ✓| ✓| ✗| ✓ (Claude Code v2.1.300 or later)| ✓ (Claude Code v2.1.300 or later)| ✗| ✗
-[Code Mode](</docs/en/code-mode>)| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✗| ✗| ✗| ✗| ✗
+[Code Mode](</docs/en/code-mode>)| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))| ✓ (experimental, [requirements apply](</docs/en/code-mode#requirements>))
 [Cross-session messaging](</docs/en/cross-session-messaging>)| ✓ 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5| ✓ (same machine) 5
 [Channels](</docs/en/channels>)| ✓| ✓| ✗| ✗| ✗| ✗| ✗
 [GitHub Actions](</docs/en/github-actions>)| ✓| ✓| ✓| ✗| ✗| ✓| ✓
@@ -97,7 +97,7 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
   * Anthropic Console
 
-**Not available:** all features that require a Claude subscription, plus [web search](</docs/en/tools-reference#websearch-tool-behavior>), [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [web search](</docs/en/tools-reference#websearch-tool-behavior>), [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): only via [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Auto mode](</docs/en/auto-mode-config>): Sonnet 5 or later, Opus 4.7 or later, Haiku 5.5, and Fable models only
@@ -106,20 +106,20 @@ Each tab lists what is unavailable or partially supported on that provider, with
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>) or [GitLab CI/CD](</docs/en/gitlab-ci-cd>). For web lookups, use the [WebFetch tool](</docs/en/tools-reference#webfetch-tool-behavior>) with a specific URL.
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available here, not on Amazon Bedrock:** [web search](</docs/en/tools-reference#websearch-tool-behavior>), plus the [Advisor](</docs/en/advisor>) in Claude Code v2.1.300 or later.**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available here, not on Amazon Bedrock:** [web search](</docs/en/tools-reference#websearch-tool-behavior>), plus the [Advisor](</docs/en/advisor>) in Claude Code v2.1.300 or later.**Partial support:**
 
   * [Cross-session messaging](</docs/en/cross-session-messaging>): between your sessions on this machine only 5
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitLab CI/CD](</docs/en/gitlab-ci-cd>).
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available here, not on Google Cloud (Google managed):** the [Advisor](</docs/en/advisor>) in Claude Code v2.1.300 or later.**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Channels](</docs/en/channels>), [GitHub Actions](</docs/en/github-actions>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Available here, not on Google Cloud (Google managed):** the [Advisor](</docs/en/advisor>) in Claude Code v2.1.300 or later.**Partial support:**
 
   * [Cross-session messaging](</docs/en/cross-session-messaging>): between your sessions on this machine only 5
   * [Zero Data Retention](<https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed#data-retention>): available on request. Contact your Anthropic account representative
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`.
 
-If you set `CLAUDE_CODE_USE_VERTEX` to use Claude Code with Google Cloud’s Agent Platform, you’re on this provider.**Not available:** all features that require a Claude subscription, plus [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
+If you set `CLAUDE_CODE_USE_VERTEX` to use Claude Code with Google Cloud’s Agent Platform, you’re on this provider.**Not available:** all features that require a Claude subscription, plus [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): via [managed settings](<https://claude.com/docs/third-party/claude-desktop/configuration>) or [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Web search](</docs/en/tools-reference#websearch-tool-behavior>): Opus 4, Sonnet 4, Haiku 4.5, and later models
@@ -130,7 +130,7 @@ If you set `CLAUDE_CODE_USE_VERTEX` to use Claude Code with Google Cloud’s Age
 
 **Alternatives:** for scheduling, use [`/loop`](</docs/en/scheduled-tasks>) instead of `/schedule`. For cloud sessions, use [GitHub Actions](</docs/en/github-actions>) or [GitLab CI/CD](</docs/en/gitlab-ci-cd>).
 
-**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitLab CI/CD](</docs/en/gitlab-ci-cd>), [Code Mode](</docs/en/code-mode>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
+**Not available:** all features that require a Claude subscription, plus [fast mode](</docs/en/fast-mode>), [Advisor](</docs/en/advisor>), [Channels](</docs/en/channels>), [GitLab CI/CD](</docs/en/gitlab-ci-cd>), the [analytics dashboard](</docs/en/analytics>), [server-managed settings](</docs/en/server-managed-settings>), and the [`/design-sync` and `/import` commands](</docs/en/commands#all-commands>).**Partial support:**
 
   * [Desktop](</docs/en/desktop>): only via [Claude Desktop on 3P](<https://claude.com/docs/third-party/claude-desktop/overview>)
   * [Auto mode](</docs/en/auto-mode-config>): Sonnet 5 or later, Opus 4.7 or later, Haiku 5.5, and Fable models only
@@ -153,6 +153,7 @@ Feature| Pro| Max| Ultra| Team| Enterprise
 [Cloud scheduled tasks](</docs/en/routines>)| ✓| ✓| ✓| ✓| ✓
 [Remote Control](</docs/en/remote-control>)| ✓| ✓| ✓| Admin-enabled| Admin-enabled
 [Channels](</docs/en/channels>)| ✓| ✓| ✓| Admin-enabled| Admin-enabled
+[Skills from MCP servers](</docs/en/mcp#requirements-for-skills-from-mcp-servers>)| ✓| ✓| ✓| Admin-enabled| Admin-enabled
 [Computer use](</docs/en/computer-use>)| ✓| ✓| ✓| ✗| ✗
 Dispatch ([Desktop](</docs/en/desktop#sessions-from-dispatch>))| Not available to new users| Not available to new users| Not available to new users| ✗| ✗
 [Code Review](</docs/en/code-review>)| ✗| ✗| ✗| ✓| ✓

@@ -47,7 +47,7 @@ Select the repositories you want reviewed, then click the button that adds them,
 
 Click Turn on
 
-In the **Choose what Claude does on these repositories** dialog, leave **Code review** selected. If **Steward** is selected and you can change it, clear it unless you also want PR Steward on these repositories. Then click **Turn on** , which is the click that turns Code Review on.If you close the dialog any other way, your repositories stay added and nothing is turned on. To turn Code Review on then, use the switch under **Review** again.Each repository starts set to review after every push, which runs the most reviews. To run fewer, set when reviews run.
+In the **Choose what Claude does on these repositories** dialog, leave **Code review** selected. If **Steward** is selected and you can change it, clear it unless you also want [PR Steward](</docs/en/pr-steward>) on these repositories. Then click **Turn on** , which is the click that turns Code Review on.If you close the dialog any other way, your repositories stay added and nothing is turned on. To turn Code Review on then, use the switch under **Review** again.Each repository starts set to review after every push, which runs the most reviews. To run fewer, set when reviews run.
 
 6
 
@@ -82,7 +82,9 @@ Each repository has its own **Review runs** setting, which decides when its pull
   * **After every push** : a review runs on pushes to the pull request branch, catching new issues as the pull request evolves and auto-resolving threads when you fix flagged issues
   * **Manual (@claude review)** : opening or pushing to a pull request doesn’t start a review. Comment [`@claude review`](</docs/en/code-review-pull-requests#comment-commands>) to request one, or `@claude review always` to also subscribe the pull request to reviews on subsequent pushes.
 
-Manual is useful for high-traffic repositories where you want to opt specific pull requests into review, or to start reviewing pull requests only once they’re ready. To compare what each option does to spend, see [How often reviews run](</docs/en/code-review-costs#how-often-reviews-run>). To change the setting, click **Edit** on the repository’s row in the **Repositories** table and select a **Review runs** option. The choice saves as soon as you select it. The table’s **Code review** column shows it shortened to Once per PR, Every push, or Manual.
+Manual is useful for high-traffic repositories where you want to opt specific pull requests into review, or to start reviewing pull requests only once they’re ready. To compare what each option does to spend, see [How often reviews run](</docs/en/code-review-costs#how-often-reviews-run>). To change the setting on the [**Claude Ship**](<https://claude.ai/admin-settings/claude-code#code-review>) page, click **Edit** on the repository’s row in the **Repositories** table and select a **Review runs** option:
+
+Your choice saves as soon as you select it. The **Repositories** table’s **Code review** column shows it shortened to Once per PR, Every push, or Manual.
 
   * **Drafts and pull requests from forks** : whichever option you choose, [automatic reviews skip both](</docs/en/code-review-pull-requests#review-drafts-and-pull-requests-from-forks>)
   * **New repositories** : a repository you add from the **Add a repository** dialog starts at **After every push**. If its GitHub organization is covered as a whole, it takes that organization row’s setting instead.
@@ -142,11 +144,11 @@ To cover the organization, click **Edit** on its row, select a **Review runs** o
 In [**Organization settings > Claude Ship**](<https://claude.ai/admin-settings/claude-code#code-review>), pick the control that matches what you want to stop:
 
   * **One repository, keeping it in the list** : click **Edit** on its row and turn off **Code review**. The table shows the repository as Off.
-  * **One repository, removing it** : click **Edit** on its row, then **Remove repository** at the bottom of the dialog. Reviews stop there, and another Claude organization can then set that repository up. While the repository’s GitHub organization is covered as a whole, you can’t remove it; turn off its **Code review** switch instead.
+  * **One repository, removing it** : click **Edit** on its row, then **Remove repository** at the bottom of the dialog. Another Claude organization can then set that repository up. While the repository’s GitHub organization is covered as a whole, you can’t remove it; turn off its **Code review** switch instead.
   * **A whole GitHub organization** : click **Edit** on the organization’s row and select **Off**. This also turns off repositories in that organization that you added one at a time.
-  * **Everything** : turn off the switch under **Review**. No new reviews start in any repository, and your repository list stays so you can turn it back on later.
+  * **Everything** : turn off the switch under **Review**. Your repository list stays so you can turn the switch back on later.
 
-With a repository’s **Code review** switch off, or with **Allow code review** off, a [Claude Approvals](</docs/en/approvals-setup#what-approvals-costs>) policy can start billed reviews. To stop those, change the policy or [turn off Approvals](</docs/en/approvals-setup#turn-off-approvals>). Code Review’s spend limit applies to them.
+With a repository’s **Code review** switch off, or with the switch under **Review** off, a [Claude Approvals](</docs/en/approvals-setup#what-approvals-costs>) policy can start billed reviews. To stop those, change the policy or [turn off Approvals](</docs/en/approvals-setup#turn-off-approvals>). Code Review’s spend limit applies to them.
 
 ## Related resources
 

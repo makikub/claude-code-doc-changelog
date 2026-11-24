@@ -12,7 +12,7 @@ For x64 processors
 
 apt or .deb for Ubuntu and Debian
 
-For Windows ARM64, download the [ARM64 installer](<https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs>). On Linux, install with apt; see [Claude Desktop on Linux](</docs/en/desktop-linux>).
+For Windows ARM64, download the [ARM64 installer](<https://claude.ai/claude-code/desktop-download?platform=win-arm64&utm_source=claude_code&utm_medium=docs>). On Linux, install with apt; see [Claude Desktop on Linux](</docs/en/desktop-linux>).
 
 These cases are covered on other pages:
 

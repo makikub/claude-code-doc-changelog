@@ -156,7 +156,7 @@ If the selected source is an MDM policy or managed settings file whose `policyHe
 
 ### Per-key exceptions across managed sources
 
-These keys are exceptions to the no-merge rule:
+By default, Claude Code reads most keys from one managed source. Exceptions include:
 
   * **Cross-source lock keys** : a small set of keys, such as the sandbox allowlist locks, [listed on the managed settings page](</docs/en/managed-settings#precedence-within-the-managed-tier>). Claude Code honors them when any admin-controlled managed source sets them; the user-writable HKCU registry tier is excluded. When a [`policyHelper`](</docs/en/settings-reference#policyhelper>) supplies managed settings, its output is the only source these checks read, apart from [`forceRemoteSettingsRefresh`](</docs/en/settings-reference#forceremotesettingsrefresh>), which Claude Code reads from the admin sources directly at startup.
   * **The`env` block**: apart from the telemetry unit and routing variables paired with a credential key, both covered below, it merges per key across the admin-controlled sources. For each environment variable, the highest-priority source defining it wins, and lower admin sources fill in variables the higher sources leave unset. An endpoint-managed `env` entry therefore applies whenever the server-managed configuration leaves that variable unset, or while a cached server value for it is withheld pending server confirmation. Requires Claude Code v2.1.223 or later. Before v2.1.223, Claude Code applies the selected source’s whole `env` block only.

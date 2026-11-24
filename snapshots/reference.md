@@ -132,7 +132,7 @@ Event| Fires when| A hook can return
 `session.end`| The session ends, or `/clear`, `/resume`, or `/branch` runs. `e.reason` is `clear`, `resume`, `logout`, `prompt_input_exit`, or `other`. `/branch` reports `resume`.| `next(e)`
 `session.compact`| The conversation is about to be compacted| `{ skip: reason }`
 [`session.receive`](</docs/en/plugins/mods/api#send-and-receive-messages-between-sessions>), [`session.send`](</docs/en/plugins/mods/api#send-and-receive-messages-between-sessions>)| A message arrives from, or is about to go to, another agent or session. See [Send and receive messages between sessions](</docs/en/plugins/mods/api#send-and-receive-messages-between-sessions>).| `{ consumed: reason }` for `receive`, `{ isDelivered: false, reason }` for `send`
-`session.append`| Once for each row the conversation keeps, such as a prompt, a response block, a tool result, or a notice, before it’s stored| `next({ ...e, message })` with a changed `message.content`, to rewrite the row’s text blocks or the `content` of a `tool_result` block in it
+`session.append`| Once for each row the conversation keeps, such as a prompt, a response block, a tool result, or a notice, before it’s stored| `next({ ...e, message })` with a changed `message.content`, to rewrite the row’s text blocks or the `content` of a `tool_result` block in it. You can’t rewrite a row that holds a [skill from an MCP server](</docs/en/mcp#use-skills-from-mcp-servers>). To change that skill’s text, hook `skill.prompt` instead.
 `session.attach`, `session.detach`| Another app connects to or disconnects from the session| `next(e)`
 `session.measure`| After each turn, and when a plan limit’s percent used changes| `next(e)`
 `session.stop`| The user stops Claude, such as with Esc during a turn. Requires Claude Code v2.1.326 or later.| `next(e)`
@@ -185,7 +185,7 @@ Event| Fires when| A hook can return
 
 ### Settings hook events
 
-Each [settings hook event](</docs/en/hooks#hook-events>) is an event named `classic.<Event>`, such as `classic.Stop` or `classic.PostToolUse`. `e` is the hook’s stdin JSON.
+Each [settings hook event](</docs/en/hooks#hook-events>) is an event named `classic.<Event>`, such as `classic.Stop`. For the fields on `e`, see [Handle the settings hook events](</docs/en/plugins/mods/events#hook-the-settings-hook-events>).
 
 ### Mods API calls
 

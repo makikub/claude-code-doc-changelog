@@ -73,6 +73,7 @@ Key| Description| Topic| Scope
 `disableCommandPluginSources`| Block [plugins](</docs/en/plugins/overview>) that install by running a marketplace-declared command| Plugins and skills| Managed
 `disableDeepLinkRegistration`| Stop Claude Code from registering the [`claude-cli://` handler](</docs/en/deep-links>)| Remote, desktop, and notifications| Any file
 `disableDesktopLocalSessions`| Turn off [Desktop Code sessions](</docs/en/desktop#local-sessions-on-managed-devices>) that run on the device, leaving SSH to other hosts and cloud| Remote, desktop, and notifications| Managed
+`disableDirectMcpSkills`| Turn [skills from MCP servers](</docs/en/mcp#turn-on-skills-for-an-organization>) other than connectors on or off for your organization| MCP| Managed
 `disabledMcpjsonServers`| Reject specific servers from a project’s [`.mcp.json`](</docs/en/mcp#project-scope>)| MCP| Any file
 `disableMobileSimulatorTools`| Block Claude’s tools in the [desktop](</docs/en/desktop>) iOS Simulator pane| Tools| Managed
 `disableRemoteControl`| Turn off [Remote Control](</docs/en/remote-control>) everywhere it can start| Remote, desktop, and notifications| Any file
@@ -3969,7 +3970,7 @@ If you lock any surface, Claude Code also stops loading [skills-directory plugin
 
 ### `strictPluginOnlyCustomization.skills`
 
-Lock the `skills` surface. Claude Code stops loading skills from `~/.claude/skills/` and `.claude/skills/`, custom commands from `~/.claude/commands/` and `.claude/commands/`, skills and commands under `--add-dir` directories, and skills synced from your claude.ai account. It keeps loading bundled skills, skills in the managed policy directory, and skills from plugins other than [skills-directory plugins](</docs/en/plugins/loading#skills-directory-plugins-blocked-by-managed-settings>).
+Lock the `skills` surface. Claude Code stops loading skills from `~/.claude/skills/` and `.claude/skills/`, custom commands from `~/.claude/commands/` and `.claude/commands/`, skills and commands under `--add-dir` directories, and skills synced from your claude.ai account. It keeps loading bundled skills, skills in the managed policy directory, and skills from plugins other than [skills-directory plugins](</docs/en/plugins/loading#skills-directory-plugins-blocked-by-managed-settings>). With the lock on, [skills from MCP servers](</docs/en/mcp#use-skills-from-mcp-servers>) that users, projects, and `--mcp-config` add don’t load. Skills from claude.ai connectors still load.
 
   * **Scope** : `Managed`
   * **Type** : the string `"skills"` in the `strictPluginOnlyCustomization` array
@@ -4309,6 +4310,26 @@ settings.json
     }
 
 The denylist takes precedence over `allowedMcpServers`, so a server on both lists is blocked. See [Policy-based control with allowlists and denylists](</docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists>).
+
+### `disableDirectMcpSkills`
+
+Turn [skills from MCP servers](</docs/en/mcp#turn-on-skills-for-an-organization>) on or off for your organization. This key covers every server except claude.ai connectors. For connectors, an Owner uses the **Skills over MCP** switch in [**Organization settings > Connectors**](<https://claude.ai/admin-settings/connectors>) instead. Skills from MCP servers require Claude Code v2.1.331 or later.
+
+  * **Scope** : `Managed`. If you use several [managed sources](</docs/en/managed-settings#how-claude-code-combines-managed-sources>), set `false` in the highest-ranked one. Claude Code ignores a `false` in the Windows HKCU registry
+  * **Type** : Boolean
+    * `true`: Claude Code doesn’t list or load skills from these servers. The servers keep their tools, and claude.ai connectors keep their skills
+    * `false`: on Team and Enterprise plans, allows these skills. They stay off for servers you lock out with `strictPluginOnlyCustomization`, and if your organization isn’t [eligible](</docs/en/mcp#requirements-for-skills-from-mcp-servers>). On other plans, `false` is the same as unset
+  * **Default** : unset. These skills are off for Team and Enterprise members who sign in to claude.ai with `/login`. For other sign-ins, see [MCP skill availability](</docs/en/mcp#requirements-for-skills-from-mcp-servers>)
+
+This example allows these skills for Team and Enterprise members:
+
+managed-settings.json
+
+    {
+      "disableDirectMcpSkills": false
+    }
+
+If any [admin source](</docs/en/managed-settings#keys-read-from-every-admin-source>) sets `true`, the skills stay off. Anthropic doesn’t scan these skills. They can contain instructions or code that cause Claude to take unintended actions, including through [prompt injection](</docs/en/security#protect-against-prompt-injection>). Set this to `false` only if you trust the servers your members add.
 
 ### `disableClaudeAiConnectors`
 

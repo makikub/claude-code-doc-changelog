@@ -99,7 +99,9 @@ When PR Steward’s fixes match what your reviewers would do, set the repository
 
 ### Choose when PR Steward starts in each repository
 
-On the **Claude Ship** page, click **Edit** beside a repository and set **Steward** :
+On the **Claude Ship** page, click **Edit** beside a repository and open the **Steward** menu:
+
+Select when you want PR Steward to start:
 
 Option| When PR Steward starts
 ---|---
@@ -120,7 +122,7 @@ Billing [continues while usage credits are turned off](</docs/en/claude-ship#how
 
 ### See what PR Steward spent
 
-To see the average for each merged pull request, open a repository’s **Edit** dialog. For your organization’s total over the last 30 days, go to [claude.ai/analytics/pr-steward](<https://claude.ai/analytics/pr-steward>).
+To see a repository’s estimated spend on PR Steward, open its **Edit** dialog. For your organization’s estimated total over the last 30 days, go to [claude.ai/analytics/pr-steward](<https://claude.ai/analytics/pr-steward>).
 
 ### Set PR Steward’s spend limits
 
@@ -146,6 +148,32 @@ For the environment that PR Steward runs in, you can select a [self-hosted envir
 In a self-hosted environment, Claude can reach GitHub directly with [any GitHub credential that a session can read](</docs/en/self-hosted-environments-deploy#harden-your-deployment>). Anthropic’s service can’t refuse an approval that’s made that way. GitHub can count it toward the approvals that you require.
 
 In a self-hosted environment, PR Steward doesn’t load a `CLAUDE.md` or rules file from the runner or from the runner’s checkout of the pull request. It doesn’t load a [managed `CLAUDE.md`](</docs/en/memory#deploy-organization-wide-claude-md>). Put what PR Steward should follow [on the repository’s default branch](</docs/en/pr-steward-pull-requests#save-pr-steward-instructions-for-everyone-in-a-repository>).
+
+### Give PR Steward credentials from a Claude Tag bundle
+
+To give PR Steward a credential, such as a login for a private package registry, keep it in a [Claude Tag bundle](<https://claude.com/docs/claude-tag/concepts/glossary#bundle>) and turn on the bundle for PR Steward. PR Steward can use a bundle when it runs in an Anthropic-hosted environment, which is any environment other than a self-hosted one. To put a credential in a bundle, [set up Claude Tag](<https://claude.com/docs/claude-tag/admins/setup-overview>) and [create a bundle](<https://claude.com/docs/claude-tag/admins/add-connections#create-a-bundle>).
+
+PR Steward works unattended and [reads pull request text that other people write](</docs/en/pr-steward-security#pr-steward%E2%80%99s-session-environment>), which could steer how it uses a credential. [Limit each credential](<https://claude.com/docs/claude-tag/admins/add-connections#limit-access-to-specific-resources>) to the hosts and permissions that building and testing your code needs.
+
+To turn on the bundle for PR Steward:
+
+1
+
+Open the bundle
+
+Go to [**Organization settings > Claude Tag**](<https://claude.ai/admin-settings/claude-tag>), select the **Bundles** tab, and open the bundle.
+
+2
+
+Turn on PR Steward for the bundle
+
+Under **Where it applies** , turn on the switch in the **PR Steward** row and click **Save changes**.
+
+The bundle is then on for PR Steward across your organization, and the switch covers every credential in the bundle. An install or a test in a PR Steward session can fail with a 403 that starts with this text:
+
+    denied by policy: this host's bundle of logins and rules isn't turned on for PR Steward
+
+If PR Steward needs that host to build or test your code, turn on the **PR Steward** switch for the bundle that holds the host’s credential. That can be a bundle with **Everywhere** turned on, because the two switches are separate. If the bundle holds more than PR Steward needs, [create a bundle](<https://claude.com/docs/claude-tag/admins/add-connections#create-a-bundle>) with that credential alone, and turn on PR Steward for that one.
 
 ## Turn off PR Steward
 

@@ -144,7 +144,7 @@ Use `--output-format stream-json` with `--verbose` and `--include-partial-messag
 
     claude -p "Explain recursion" --output-format stream-json --verbose --include-partial-messages
 
-The last line of the stream is a `result` message with the final response text, cost, and session metadata. If your consumer reads the stream slowly, Claude Code waits for the queued output to drain before exiting, scaling the wait with how much is still queued, capped at 30 seconds. The following example uses [jq](<https://jqlang.org/>) to filter for text deltas and display only the streaming text. The `-r` flag outputs raw strings (no quotes) and `-j` joins without newlines so tokens stream continuously:
+Find each [`result` message](</docs/en/agent-sdk/typescript#sdkresultmessage>) by `type`, because a message such as a task notification can follow a result and start another turn. A successful `result` message holds any final response text, the running cost total, and session metadata. If your consumer reads the stream slowly, Claude Code waits for the queued output to drain before exiting, scaling the wait with how much is still queued, capped at 30 seconds. The following example uses [jq](<https://jqlang.org/>) to filter for text deltas and display only the streaming text. The `-r` flag outputs raw strings (no quotes) and `-j` joins without newlines so tokens stream continuously:
 
     claude -p "Write a poem" --output-format stream-json --verbose --include-partial-messages | \
       jq -rj 'select(.type == "stream_event" and .event.delta.type? == "text_delta") | .event.delta.text'
@@ -273,6 +273,7 @@ The `--allowedTools` flag uses [permission rule syntax](</docs/en/settings-refer
 Command support differs in `-p` mode:
 
   * User-invoked [skills](</docs/en/skills>) and custom commands work. Include `/skill-name` in the prompt string and Claude Code expands it before running.
+  * [Skills from MCP servers](</docs/en/mcp#requirements-for-skills-from-mcp-servers>) aren’t supported.
   * Built-in commands that only run in the terminal interface, such as `/login`, aren’t available.
   * `/model`, `/effort`, `/fast`, `/color`, and `/rename` accept the value as an argument, for example `/model sonnet`, and `/mcp` with no argument prints a text summary of server status. These forms follow each command’s [availability notes](</docs/en/commands#all-commands>).
   * To change a setting, pass `key=value` to `/config`, for example `/config verbose=true`.

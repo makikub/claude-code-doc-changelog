@@ -57,7 +57,7 @@ On Windows, the install command prints script text and nothing installs| Run the
 
 If your issue isn’t listed, work through the diagnostic checks below to narrow down the cause.
 
-If you’d rather skip the terminal entirely, the [Claude Code Desktop app](</docs/en/desktop-quickstart>) lets you install and use Claude Code through a graphical interface. Download it for [macOS](<https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs>) or [Windows](<https://claude.com/download?utm_source=claude_code&utm_medium=docs>) and start coding without any command-line setup. On Linux, install the app with apt by following the [Linux install instructions](</docs/en/desktop-linux>).
+If you’d rather skip the terminal entirely, the [Claude Code Desktop app](</docs/en/desktop-quickstart>) lets you install and use Claude Code through a graphical interface. Download it for [macOS](<https://claude.ai/claude-code/desktop-download?platform=mac&utm_source=claude_code&utm_medium=docs>) or [Windows](<https://claude.ai/claude-code/desktop-download?platform=win&utm_source=claude_code&utm_medium=docs>) and start coding without any command-line setup. On Linux, install the app with apt by following the [Linux install instructions](</docs/en/desktop-linux>).
 
 ## Run diagnostic checks
 

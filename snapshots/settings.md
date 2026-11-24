@@ -143,7 +143,19 @@ If you mistype JSON or set a key to a value Claude Code doesn’t accept, Claude
   * **Managed settings** : Claude Code keeps enforcing the rest of the file. [Invalid entries in managed settings](</docs/en/managed-settings#invalid-entries-in-managed-settings>) says what it drops and which keys fall back to a stricter value until you fix them. For a managed settings document that isn’t valid JSON, see [Managed settings document could not be parsed](</docs/en/errors#managed-settings-document-could-not-be-parsed>).
   * **Configuration error** : [`~/.claude.json`](</docs/en/claude-directory#ce-claude-json>) can’t be parsed. A `claude -p` run exits. See [Configuration error in ~/.claude.json](</docs/en/errors#configuration-error-in-claude-json>) to restore an earlier copy. Claude Code copies the broken file to `~/.claude/backups/.claude.json.corrupted.<timestamp>`, and in an interactive session asks whether to exit and fix it or reset to the default configuration. When the file is blank and there’s no backup to restore, Claude Code starts with default settings.
 
-After you continue, run `/status` to see the affected files and `claude doctor` for the details of each error. A `-p` run shows no dialog. Unless [a managed settings document can’t be parsed](</docs/en/errors#managed-settings-document-could-not-be-parsed>), Claude Code skips a broken user, project, or local file or its broken values and continues with the rest. After a `-p` run that ignores a setting, run `claude doctor` from your terminal to see what it dropped.
+After you continue, run `/status` to see the affected files and `claude doctor` for the details of each error.
+
+#### Broken settings in a `-p` run
+
+A `-p` run shows no dialog. Unless [a managed settings document can’t be parsed](</docs/en/errors#managed-settings-document-could-not-be-parsed>), Claude Code skips a broken user, project, or local file or its broken values and continues with the rest. With the default `text` [output format](</docs/en/headless#get-structured-output>), stderr lists what didn’t load or was skipped:
+
+    These settings did not load, so nothing in them is in effect, including hooks, permission rules and sandbox settings, though environment variables they already set can stay:
+      /home/you/.claude/settings.json (cleanupPeriodDays): Expected number, but received string
+    These settings entries were skipped; the rest of each source is in effect:
+      /home/you/app/.claude/settings.json (permissions.allow): Invalid permission rule "Bash(ls) x" was skipped: Malformed Tool(content) rule. Rules take the form Tool or Tool(content) and must end at the closing ")"; parentheses inside the content are literal
+    Fix each problem listed, then start Claude Code again. For settings sent with applyFlagSettings, shown as SDK inline settings, send them again instead.
+
+After a `-p` run that ignores a setting, run `claude doctor` from your terminal to see what it dropped.
 
 ## Settings precedence
 
@@ -250,7 +262,7 @@ A [cloud session](</docs/en/claude-code-on-the-web>) runs in a [cloud environmen
   * **Shared project settings with several repositories** : in an Anthropic-hosted environment, a session with several repositories starts above the clones and reads only the `enabledPlugins` and `extraKnownMarketplaces` keys from each repository’s `.claude/settings.json`, not permission rules, hooks, `env`, or other keys. The marketplaces a repository declares still [aren’t added in a cloud session](</docs/en/cloud-environments#what-carries-over-from-your-setup>). For a self-hosted environment, see [which repository’s settings apply](</docs/en/self-hosted-environments-configuration#repository-settings-in-sessions-with-several-repositories>).
   * **User and project local settings** (`~/.claude/settings.json` and `.claude/settings.local.json`): not read. Both stay on your machine, and the local file isn’t in the clone.
   * **Managed settings** : a `managed-settings.json` file or MDM profile on your device doesn’t reach a cloud session. Your organization’s [server-managed settings](</docs/en/server-managed-settings>) do; [surface coverage](</docs/en/model-config#surface-coverage>) lists which cloud sessions receive them. A [self-hosted environment](</docs/en/self-hosted-environments>) also reads the managed settings file in its runner image. [How Claude Code combines managed sources](</docs/en/managed-settings#how-claude-code-combines-managed-sources>) says when that file applies.
-  * **`/config`** : in your browser at claude.ai/code, opens your claude.ai **Code** or **Claude Code** settings page instead of changing a value. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a project’s threads, you can instead commit the key to that repository’s `.claude/settings.json`.
+  * **`/config`** : in your browser at claude.ai/code, opens **Settings > Code** instead of changing a value. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a project’s threads, you can instead commit the key to that repository’s `.claude/settings.json`.
 
 [What carries over from your setup](</docs/en/cloud-environments#what-carries-over-from-your-setup>) lists the rest: `CLAUDE.md`, skills, MCP servers, plugins, and credentials.
 

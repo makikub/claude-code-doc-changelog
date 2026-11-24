@@ -1,4 +1,4 @@
-[Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) lets Claude Code run without routine permission prompts by routing tool calls through a classifier that blocks anything irreversible, destructive, or aimed outside your environment. Deny and explicit ask rules are evaluated before the classifier and still block or prompt. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations.
+[Auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>) lets Claude Code run without routine permission prompts by routing tool calls through a classifier that blocks what it judges irreversible, destructive, or aimed outside your environment. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations.
 
 This page is the configuration reference. Turning auto mode on and off is covered on the Permission modes page:
 
@@ -35,7 +35,7 @@ Boundary| Mechanism| Behavior in auto mode
 ---|---|---
 Prompt before the action| `permissions.ask`| By default, prompts for a command that matches a content-scoped rule like the recipe above. The classifier cannot auto-approve a matching action.
 Never run the action| `permissions.deny`| Blocks before the classifier is consulted. Neither the classifier nor user intent can override it.
-One-off boundary for this session| State it in conversation, like “don’t push until I review”| The classifier blocks matching actions, but the boundary can be lost if [context compaction](</docs/en/costs#reduce-token-usage>) removes the message that stated it. Use an ask or deny rule for a durable guarantee.
+One-off boundary for this session| State it in conversation, like “don’t push until I review”| The classifier blocks matching actions it reviews, but the boundary can be lost if [context compaction](</docs/en/costs#reduce-token-usage>) removes the message that stated it. To keep the boundary from being lost, use an ask or deny rule instead.
 
 ## Where the classifier reads configuration
 

@@ -217,7 +217,7 @@ Cloud sessions support [built-in commands](</docs/en/commands>) that produce tex
 
   * **`/model`, `/effort`, `/color`, and `/rename`**: pass the value as an argument, for example `/model sonnet`, instead of opening the terminal picker or slider. The argument forms follow each command’s [availability notes](</docs/en/commands#all-commands>).
   * **`/fast`** : toggles [fast mode](</docs/en/fast-mode#use-fast-mode-in-cloud-sessions>) for the session when fast mode is [available on your account](</docs/en/fast-mode#requirements>). Requires Claude Code v2.1.271 or later in the session’s environment.
-  * **`/config`** : in your browser at claude.ai/code, opens **Settings > Code** or **Settings > Claude Code** instead of setting a value. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a [project](</docs/en/claude-projects>)’s threads, commit the key to that repository’s `.claude/settings.json` instead. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
+  * **`/config`** : in your browser at claude.ai/code, opens **Settings > Code** instead of setting a value. To change a setting for a cloud session, set an [environment variable](</docs/en/cloud-environments#set-environment-variables>) on the environment. In a session with one repository outside a [project](</docs/en/claude-projects>)’s threads, commit the key to that repository’s `.claude/settings.json` instead. [Settings in cloud sessions](</docs/en/settings#settings-in-cloud-sessions>) lists what each session reads.
 
 For context management in a cloud session outside a [project’s threads](</docs/en/claude-projects#choose-models-and-let-claude-manage-context>):
 
@@ -379,8 +379,8 @@ Message| What it means
 
 Cloud sessions stop after a period of inactivity and the session’s VM is reclaimed. A session counts as inactive while it waits for you to approve an [MCP connector](</docs/en/cloud-environments#network-access>) tool call or to sign in to an MCP server, and it can expire during that wait. Reopen the session from [claude.ai/code](<https://claude.ai/code>) to provision a fresh VM:
 
-  * **Restored** : your conversation history
-  * **Not restored** : background work that was still running or pending when the VM was reclaimed, including:
+  * **Restored** : your conversation history, and tracking of [MCP tasks](</docs/en/mcp#mcp-task-results-in-the-cloud>) still running on a connector
+  * **Not restored** : other background work that was still running or pending when the VM was reclaimed, including:
     * **Shell commands** : Claude Code tells Claude which commands stopped. Ask Claude to rerun the ones you still need.
     * **Subagents** : Claude Code tells Claude which subagents stopped, and which of those can be [resumed](</docs/en/sub-agents#resume-subagents>) instead of started over. Ask Claude to continue their work.
     * **Session-scoped scheduled tasks** : tasks you [scheduled in the session](</docs/en/scheduled-tasks>) and a `/loop` waiting for its next iteration don’t carry over to the reopened session. Ask Claude to schedule the tasks again, or run `/loop` again to restart the loop.
