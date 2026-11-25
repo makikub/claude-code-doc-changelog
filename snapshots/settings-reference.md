@@ -7,7 +7,7 @@ Every key below links to its entry. Scope lists the [files](</docs/en/settings#s
 Key| Description| Topic| Scope
 ---|---|---|---
 `advisorModel`| Pick which model answers when Claude asks the [advisor tool](</docs/en/advisor>)| Model and responses| Any file
-`agent`| Start every session as a named [subagent](</docs/en/sub-agents>) with its prompt, tools, and model| Agents, sessions, and worktrees| Any file
+`agent`| Start sessions as a named [subagent](</docs/en/sub-agents>) with its prompt, tools, and model| Agents, sessions, and worktrees| Any file
 `agentPushNotifEnabled`| Let Claude send a [push notification to your phone](</docs/en/remote-control#mobile-push-notifications>) when it decides to| Remote, desktop, and notifications| Any file
 `allowAllClaudeAiMcps`| Load the [claude.ai connectors](</docs/en/mcp>) Claude Code fetches itself alongside a deployed [`managed-mcp.json`](</docs/en/managed-mcp#exclusive-control-with-managed-mcp-json>)| MCP| Managed
 `allowClaudeInChromeWithManagedMcp`| Let the built-in [Claude in Chrome](</docs/en/chrome>) server run alongside a deployed [`managed-mcp.json`](</docs/en/managed-mcp#exclusive-control-with-managed-mcp-json>)| MCP| Managed
@@ -2387,7 +2387,7 @@ settings.json
       "fileCheckpointingEnabled": false
     }
 
-In a `-p` run or an Agent SDK session, Claude Code ignores this key. The SDK turns checkpointing on with its `enableFileCheckpointing` option, and a bare `-p` run needs `CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true`. See [File checkpointing in the Agent SDK](</docs/en/agent-sdk/file-checkpointing>).
+In a `-p` run or an Agent SDK session, Claude Code ignores this key unless your organization’s [managed settings](</docs/en/managed-settings>) set it to `false`, and then checkpointing stays off. That exception requires Claude Code v2.1.331 or later. Without that `false`, turn checkpointing on with the SDK’s `enableFileCheckpointing` option, or with `CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true` in a bare `-p` run. See [File checkpointing in the Agent SDK](</docs/en/agent-sdk/file-checkpointing>).
 
 ### `idleCompaction`
 

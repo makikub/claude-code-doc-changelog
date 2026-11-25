@@ -108,7 +108,7 @@ Identify the next champion| The colleague who asks you the most questions is usu
 
 ### Thirty-day playbook
 
-If a loose plan is helpful, the sequence below reflects what tends to work across most teams. Adjust freely to fit your context.
+If a loose plan is helpful, the sequence below reflects what tends to work across most teams.
 
 1
 

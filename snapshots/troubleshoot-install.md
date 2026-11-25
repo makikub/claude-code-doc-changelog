@@ -50,6 +50,7 @@ On Windows, the install command prints script text and nothing installs| Run the
 `unable to get local issuer certificate`| Configure corporate CA certificates
 `OAuth error`, `That doesn't look like the full code`, or `403 Forbidden`| Fix authentication
 `Claude Code access has not been granted for this account`| Get a role that includes Claude Code
+`That code wasn't accepted`| Sign in again and paste the new code
 `Unable to connect to Anthropic services` during setup| See [Unable to connect to Anthropic services](</docs/en/errors#unable-to-connect-to-anthropic-services>) in the Error reference
 `Could not load the default credentials` or `Could not load credentials from any providers`| Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry credentials
 `ChainedTokenCredential authentication failed` or `CredentialUnavailableError`| Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry credentials
@@ -893,7 +894,11 @@ If Claude Code prompts you to log in again after a session, your OAuth token may
 
 Check Keychain access
 
-Run `claude doctor` to check Keychain access. When the Keychain rejects writes, the report lists a warning that starts with `macOS Keychain is not writable`, followed by a suggested fix. When the report lists no Keychain warning, the Keychain is writable and you can skip to the last step.
+In the shell you run Claude Code from, run `claude doctor` and look for a warning that starts with `macOS Keychain is not writable`. What the report shows decides your next step:
+
+  * **No such warning** : skip to the last step
+  * **A warning whose fix says`Unlocking the Keychain won't help`**: follow that fix. If that shell is sandboxed, restart these steps outside the sandbox to move your login back
+  * **A warning with another fix** : go on to the next step
 
 2
 

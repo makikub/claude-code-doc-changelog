@@ -174,7 +174,7 @@ The same file with a comment above each key. Read it here; copy from the other t
           "Read(./secrets/**)"
         ]
       },
-      // Before every Bash command, run a script in the repo that can block it
+      // Before every Bash tool call, run a script in the repo that can block it
       "hooks": {
         "PreToolUse": [
           {

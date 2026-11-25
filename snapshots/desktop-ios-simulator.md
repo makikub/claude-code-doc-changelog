@@ -80,7 +80,7 @@ If your prompt doesn’t name a simulator, Claude uses one that’s already runn
 
 ## Grant Claude access to a device
 
-Claude asks for your consent before it controls a device, while building or launching the app or opening a URL on it follows your session’s permission mode. You or your organization can also turn Claude’s access off entirely.
+Claude asks for your consent before it controls a device, while building or launching the app or opening a URL on it follows your session’s permission mode. To remove Claude’s access entirely, turn off simulator access.
 
 ### Allow a device the first time
 

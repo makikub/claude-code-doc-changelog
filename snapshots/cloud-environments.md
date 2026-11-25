@@ -146,7 +146,7 @@ To archive one of your own environments, open it for editing, then select **Arch
     * **Saved CLI default** : if the environment was your saved CLI default, Claude Code starts CLI cloud sessions in the Anthropic-hosted environment when your list has one. Otherwise, it starts them in the first environment in your list that isn’t a Remote Control bridge environment.
     * **Configured explicitly** : anything configured with the environment explicitly, such as a [cloud scheduled task](</docs/en/routines#environments-and-network-access>), can’t start new sessions in it. Point it at another environment.
 
-When you no longer need an Anthropic-hosted environment, archive it. Neither the environment dialog nor the **Cloud environments** admin page has an option to delete an Anthropic-hosted environment. If the environment is [self-hosted](</docs/en/self-hosted-environments>), an Owner can delete it from the **Cloud environments** page in admin settings. If you aren’t an Owner, ask one to delete it.
+When you no longer need an Anthropic-hosted environment, archive it. Neither the environment dialog nor the **Cloud environments** admin page has an option to delete an Anthropic-hosted environment. If the environment is [self-hosted](</docs/en/self-hosted-environments>), an Owner can delete it from the **Cloud environments** page in admin settings.
 
 ### Organization-shared environments
 

@@ -222,7 +222,7 @@ With no approval prompt open, press `Shift+Tab` again to leave plan mode. At the
 
 When the plan is ready, Claude presents it and asks how to proceed. From that prompt you can choose:
 
-  * **Yes, and use auto mode** : approve and start in auto mode. If auto mode isn’t available to your session, for example because your organization turned it off, this option reads **Yes, auto-accept edits**. If you started the session with bypass permissions enabled, the option reads **Yes, and switch to BYPASS PERMISSIONS (no further prompts) for this session** instead.
+  * **Yes, and use auto mode** : approve and start in auto mode. If auto mode isn’t available to your session, this option reads **Yes, auto-accept edits**. If you started the session with bypass permissions enabled, the option reads **Yes, and switch to BYPASS PERMISSIONS (no further prompts) for this session** instead.
   * **Yes, manually approve edits** : approve and review each edit individually.
   * **No, keep planning** : stay in plan mode and tell Claude what to change.
 
@@ -288,7 +288,7 @@ Has an Anthropic-configured classifier model| The configured model. Check the de
 Runs on Claude Sonnet 4.6| Sonnet 4.6
 Has [`ANTHROPIC_DEFAULT_SONNET_MODEL`](</docs/en/model-config#environment-variables>) set| Its value, or Sonnet 5 if its value is Claude Sonnet 5.5 or Claude Opus 5.5
 
-If Sonnet 5 or the model in `ANTHROPIC_DEFAULT_SONNET_MODEL` is unavailable from your provider or excluded by your organization’s [model policy](</docs/en/model-config#restrict-model-selection>), Claude Code uses a fallback model. That’s your session’s model, or an Opus model in a [Fable session](</docs/en/model-config#work-with-fable>).
+If Sonnet 5 or the model in `ANTHROPIC_DEFAULT_SONNET_MODEL` is unavailable from your provider or excluded by a [model policy](</docs/en/model-config#restrict-model-selection>), Claude Code uses a fallback model. That’s your session’s model, or an Opus model in a [Fable session](</docs/en/model-config#work-with-fable>).
 
 ### Choose the classifier model
 
@@ -305,7 +305,7 @@ With Claude Code v2.1.302 or later, set [`CLAUDE_CODE_AUTO_MODE_MODEL`](</docs/e
 Situation| What happens| What to do
 ---|---|---
 The debug log reports an Anthropic-configured classifier model| That model reviews| None needed
-You set Claude Opus 5, Sonnet 5.5, Opus 5.5 or one your organization’s [model policy](</docs/en/model-config#restrict-model-selection>) excludes| The default classifier model reviews| Set another model
+You set Claude Opus 5, Sonnet 5.5, Opus 5.5, or one that a [model policy](</docs/en/model-config#restrict-model-selection>) excludes| The default classifier model reviews| Set another model
 Your provider can’t serve the model| Classifier checks fail, so Claude Code [denies each action it checks](</docs/en/errors#auto-mode-cannot-determine-the-safety-of-an-action>)| Set a model it serves, or remove the variable
 In a session, `/status` shows `Auto mode server` as `Enabled`| The server reviews without your model| None needed
 
@@ -505,7 +505,7 @@ An allow rule or `PreToolUse` hook can’t approve these:
 
 ## Skip all checks with bypassPermissions mode
 
-`bypassPermissions` mode disables permission prompts and safety checks so tool calls execute immediately, including writes to protected paths. Even in `bypassPermissions` mode, each of the actions no mode auto-approves gets a prompt or a denial, though you can turn off the prompt for dangerous `rm` commands. Reading [another organization’s public artifact](</docs/en/artifacts#read-an-artifact-shared-with-you>) needs your approval, and this mode doesn’t ask for it, so Claude can’t read one. The Remove-Item in PowerShell denies also apply in this mode. Two [cross-session messaging](</docs/en/cross-session-messaging>) safeguards still apply in this mode, and in interactive terminal plan-mode sessions where bypass permissions are available:
+`bypassPermissions` mode disables permission prompts and safety checks so tool calls execute immediately, including writes to protected paths. Even in `bypassPermissions` mode, each of the actions no mode auto-approves ends in a prompt or a denial, though you can turn off the prompt for dangerous `rm` commands. The Artifact tool can’t read [another organization’s public artifact](</docs/en/artifacts#read-an-artifact-shared-with-you>) that you haven’t approved in this conversation. The Remove-Item in PowerShell denies also apply in this mode. Two [cross-session messaging](</docs/en/cross-session-messaging>) safeguards still apply in this mode, and in interactive terminal plan-mode sessions where bypass permissions are available:
 
   * The [`isolatePeerMachines`](</docs/en/settings-reference#isolatepeermachines>) approval prompt for messages to your sessions beyond this machine still appears.
   * When no [`crossSessionInbound`](</docs/en/cross-session-messaging#control-inbound-messages>) value applies, Claude Code holds an inbound message from another of your sessions for your approval, and delivers without asking only when the sending session identifies itself as also bypassing permission prompts. If you leave the permission mode while messages are held, Claude Code re-applies the inbound rules and delivers any held message they now accept.
@@ -520,7 +520,7 @@ You can’t enter `bypassPermissions` from a session you started without it enab
 
 The `--dangerously-skip-permissions` flag is equivalent. The first time you start an interactive session with this mode enabled, Claude Code shows a warning dialog asking you to accept responsibility for actions taken without permission checks:
 
-  * **If you accept** : Claude Code sets `skipDangerousModePermissionPrompt` to `true` in `~/.claude/settings.json`, so later sessions skip the dialog. To see the dialog again, remove the key from that file or set it to `false`. The [`skipDangerousModePermissionPrompt` reference](</docs/en/settings-reference#skipdangerousmodepermissionprompt>) lists the other settings files where you or your organization can set it.
+  * **If you accept** : Claude Code sets `skipDangerousModePermissionPrompt` to `true` in `~/.claude/settings.json`, so later sessions skip the dialog. To see the dialog again, remove the key from that file or set it to `false`. If the dialog still doesn’t appear, check the other settings files that the [`skipDangerousModePermissionPrompt` reference](</docs/en/settings-reference#skipdangerousmodepermissionprompt>) lists.
   * **If you decline** : Claude Code exits.
 
 If you pass [`--setting-sources`](</docs/en/cli-reference#cli-flags>) without `user`, the dialog can appear again although you accepted it earlier. To skip it, add `user`, as in `--setting-sources user,project`. In [non-interactive mode](</docs/en/headless>) no dialog is shown. A [background session](</docs/en/agent-view>) honors your acceptance when it’s recorded in user or managed settings:

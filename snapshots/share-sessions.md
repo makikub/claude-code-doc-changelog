@@ -74,12 +74,12 @@ You can’t share some sessions because they may hold content that recipients sh
 If recipients can’t open a link, check for these causes:
 
   * **Visibility** : the session is **Private** , or the recipient isn’t signed in to claude.ai or is outside your organization on a **Team** link. Check who can open the link.
-  * **Free plan** : the recipient is signed in on a Free account and lands on the upgrade page. Ask them to sign in with an account that has [cloud sessions](</docs/en/claude-code-on-the-web>).
   * **Repository access** : the link requires repository access, and the recipient’s GitHub account can’t read the repository. Ask them to [connect an account](</docs/en/web-quickstart#connect-github>) that can.
   * **Uploaded or non-GitHub code** : the link requires repository access, and the code was [uploaded](</docs/en/claude-code-on-the-web#send-local-repositories-without-github>) or is on a Git host such as GitLab or Bitbucket. Share from a session whose repository is on github.com and wasn’t uploaded.
   * **Invalid link** : the share link may not match the address in your browser, and a **Public** link changes when you stop sharing and share again. Copy the current link from **Share** and send it.
   * **Organization setting** : **Share cloud sessions** is off for the organization. Ask an Owner to turn it back on.
   * **Upgraded plan** : you shared a **Public** link, then upgraded your plan to Team or Enterprise. The link follows the rules for Enterprise and Team accounts.
+  * **Downgraded plan** : you shared a **Public** link, then moved to the Free plan. [Upgrade](<https://claude.ai/upgrade>) to a Max, Ultra, or Pro plan, and the same link opens with no further step.
 
 You can’t restore the link in these cases:
 

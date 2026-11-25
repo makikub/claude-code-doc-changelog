@@ -32,6 +32,7 @@ Tool| Description| Permission required
 `Read`| Reads the contents of files. See Read tool behavior| No
 `ReadMcpResourceTool`| Reads a specific MCP resource by URI| No
 `RemoteTrigger`| Creates, updates, runs, and lists [cloud scheduled tasks](</docs/en/routines>), formerly routines, on claude.ai. Backs the `/schedule` command. The [`RemoteTrigger` input reference](</docs/en/agent-sdk/typescript#remotetrigger>) documents every action and the organization policies that remove the tool. Cloud scheduled tasks live on claude.ai and require a Pro, Max, Ultra, Team, or Enterprise plan. This tool is therefore not accessible from Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform, or Microsoft Foundry| No
+`REPL`| Runs the JavaScript that Claude writes in [Code Mode](</docs/en/code-mode>). Available only when Code Mode is on. For how Claude Code checks the tool calls in that code, see [Permission checks](</docs/en/code-mode#permission-checks>)| No
 `ReportFindings`| Reports code-review findings as a structured list, with a file, summary, and failure scenario per finding, so Claude Code can render them instead of printing them as text. Claude calls it when active code-review instructions tell it to. A finding can also carry an optional `category` slug, such as `correctness` or `test-coverage`, shown next to the file location in the rendered list| No
 `ScheduleWakeup`| Reschedules the next iteration of a [self-paced `/loop`](</docs/en/scheduled-tasks#let-claude-choose-the-interval>). Claude calls this at the end of each iteration to pick when the next one runs, between one minute and one hour out; you don’t call it directly. To end the loop instead, Claude calls it with `stop: true`, which cancels the pending wakeup. The pending wakeup appears in `session_crons` in [Stop hook input](</docs/en/hooks#stop-input>)| No
 `SearchPlugins`| Searches your claude.ai plugin catalog. Available in the same sessions as `ListPlugins`| No
@@ -118,10 +119,10 @@ The Bash tool runs each command in a separate process.
 
 ### What persists between commands
 
-  * When Claude runs `cd` in the main session, the new working directory carries over to later Bash commands as long as it stays inside the project directory or an [additional working directory](</docs/en/permissions#working-directories>) you added with `--add-dir`, `/add-dir`, or `additionalDirectories` in settings. This includes commands Claude runs in response to your later messages.
+  * In the main session, Claude’s `cd` carries over to later Bash commands only from a foreground command that exits 0. The command must also end inside the project directory or an [additional working directory](</docs/en/permissions#working-directories>), such as one you added with `--add-dir`, `/add-dir`, or `additionalDirectories` in settings.
+    * By default, if that command ends outside those directories, Claude Code resets to the project directory and appends `Shell cwd was reset to <dir>` to the tool result.
+    * To disable this carry-over, set `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`.
     * Subagent sessions never carry over working directory changes.
-    * If `cd` lands outside those directories, Claude Code resets to the project directory and appends `Shell cwd was reset to <dir>` to the tool result.
-    * To disable this carry-over so every Bash command starts in the project directory, set `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`.
   * Environment variables don’t persist. An `export` in one command won’t be available in the next.
   * Claude Code starts a non-interactive shell, sources `~/.zshrc` for Zsh or `~/.bashrc` for Bash, and applies the aliases, functions, and shell options it captures to Bash commands.
 
@@ -391,7 +392,9 @@ Three additional settings control where PowerShell is used:
   * `"shell": "powershell"` on individual [command hooks](</docs/en/hooks#command-hook-fields>): runs that hook in PowerShell. Hooks spawn PowerShell directly, so this works regardless of `CLAUDE_CODE_USE_POWERSHELL_TOOL`.
   * `shell: powershell` in [skill frontmatter](</docs/en/skills#frontmatter-reference>): runs `!`command`` blocks in PowerShell. Requires the PowerShell tool to be enabled.
 
-PowerShell commands follow the same main-session working-directory reset behavior as Bash commands, including the `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` environment variable. PowerShell commands also receive the variables hooks persist through `CLAUDE_ENV_FILE`, under the conditions in [Persisted variables in PowerShell commands](</docs/en/hooks#persisted-variables-in-powershell-commands>). Requires Claude Code v2.1.296 or later.
+### Working directory and variables in PowerShell commands
+
+By default, when a foreground PowerShell command in the main session ends outside your [working directories](</docs/en/permissions#working-directories>), Claude Code resets to the project directory. To reset after each command, set `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`. PowerShell commands receive the variables hooks persist through `CLAUDE_ENV_FILE`, under the conditions in [Persisted variables in PowerShell commands](</docs/en/hooks#persisted-variables-in-powershell-commands>). Requires Claude Code v2.1.296 or later.
 
 ### Exit code 1 from searches and `git diff` in PowerShell
 
@@ -532,36 +535,57 @@ With a `domain:` allow rule, [sandboxed Bash commands](</docs/en/sandboxing#netw
 
 ### Block a site or turn WebFetch off
 
-To| Do this
+Goal| What to do
 ---|---
 Block a domain| Add a `WebFetch(domain:...)` rule for it to `deny`
 Require a prompt for a domain| Add a `WebFetch(domain:...)` rule for it to `ask`
 Turn WebFetch off| Add `WebFetch` to `deny`, or set [`CLAUDE_CODE_DISABLE_WEB_FETCH`](</docs/en/env-vars#variables>) to `1`
-Do any of these for your organization| Put the rule in [managed settings](</docs/en/managed-settings>)
 
-Outside the sandbox, if Bash is allowed, Claude can still use `curl`, `wget`, or other tools to reach any URL. See [Tool-specific permission rules](</docs/en/permissions#tool-specific-permission-rules>).
+Outside the sandbox, if Bash is allowed, Claude can still use `curl`, `wget`, or other tools to reach any URL. See [Tool-specific permission rules](</docs/en/permissions#tool-specific-permission-rules>). To apply a `WebFetch` rule to your organization, put it in [managed settings](</docs/en/managed-settings>).
 
-### When a fetch prompts, fails, or WebFetch is missing
+### Fix unexpected WebFetch prompts and denials
 
-Claude’s reply can leave out anything on the page that Claude didn’t ask about. In the terminal, press `Ctrl+O` to see what Claude asked and the answer it received.
+If a fetch is blocked or denied, or you see a permission prompt you didn’t expect or none at all, find what you see in the first column.
 
-What you notice| What to do
+Symptom| Fix
 ---|---
-Claude says a page doesn’t cover something you know is there| Ask Claude to fetch the page again and tell it what to look for. For the raw page, ask it to run `curl` on the URL through the Bash tool.
-Claude leaves out the end of a long page, or says part of it wasn’t read| Ask Claude to fetch the next part of the page. This requires Claude Code v2.1.290 or later. The `web-fetch` subagent reads pages of up to about 48,000 characters in full, and WebFetch reads the first 100,000 when Claude calls it.
-Claude describes a page as it was before a recent change| WebFetch reuses its copy of a page for 15 minutes. To change how long, set [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](</docs/en/env-vars#variables>).
-Claude says the download ran out of time| A download fails after five minutes. To change the limit, set [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](</docs/en/env-vars#variables>).
-Claude reports a redirect and stops there| Ask Claude to fetch the new URL. When a redirect changes the host by more than adding or dropping `www.`, WebFetch returns the new URL and no page content.
-Claude can’t fetch a local or intranet server| WebFetch [refuses `localhost`](</docs/en/errors#webfetch-cannot-fetch-localhost>) and any other hostname without a dot. Ask Claude to reach the server with `curl` through the Bash tool.
-In a cloud session, Claude says the network blocks the domain| An allow rule isn’t enough there. Also [add the domain](</docs/en/cloud-environments#allow-specific-domains>) to the cloud environment’s network access.
+A fetch fails for a domain you allowed| The URL also has to pass the [WebFetch domain safety check](</docs/en/data-usage#webfetch-domain-safety-check>), unless you turn the check off with [`skipWebFetchPreflight`](</docs/en/settings-reference#skipwebfetchpreflight>). See [WebFetch domain safety check failed](</docs/en/errors#webfetch-domain-safety-check-failed>).
 In auto mode, a fetch is blocked and you see no prompt| Add an allow rule for the domain. If the classifier blocked the fetch, you can also open `/permissions` in the terminal and [approve the fetch](</docs/en/auto-mode-config#review-denials>) under the **Recently blocked** tab so Claude can retry.
 In `claude -p` or the Agent SDK, a fetch is denied| These runs [start in Manual mode](</docs/en/permission-modes#which-mode-a-non-interactive-run-starts-in>), and a call that needs approval is denied. Add an allow rule or start in auto mode.
-A fetch fails for a domain you allowed| The URL also has to pass the [WebFetch domain safety check](</docs/en/data-usage#webfetch-domain-safety-check>), unless you turn the check off with [`skipWebFetchPreflight`](</docs/en/settings-reference#skipwebfetchpreflight>). See [WebFetch domain safety check failed](</docs/en/errors#webfetch-domain-safety-check-failed>).
 A rule in your own settings file has no effect| If your organization sets [`allowManagedPermissionRulesOnly`](</docs/en/settings-reference#allowmanagedpermissionrulesonly>), Claude Code ignores the rule. Ask your administrator to add it to managed settings.
 Prompts continue after you add the domain to the sandbox’s [`allowedDomains`](</docs/en/settings-reference#sandbox-network-alloweddomains>)| WebFetch doesn’t read that list, so add a WebFetch allow rule
 No prompt for a domain you didn’t allow| Claude Code skips the prompt for a built-in set of preapproved documentation domains, and in `auto` and `bypassPermissions` modes. To require the prompt anyway, add an `ask` rule for the domain. Sandboxed Bash commands don’t inherit the preapproved set.
 A claude.ai artifact link brings another prompt| See [Read an artifact shared with you](</docs/en/artifacts#read-an-artifact-shared-with-you>)
-Claude can’t fetch any page| Run `/status` in the session. If the `Organization configuration` line lists `HIPAA`, WebFetch is off: see [What developers see in Claude Code](</docs/en/hipaa-setup#what-developers-see-in-claude-code>). If the `Organization policy` line reports that the policy didn’t load and names web fetch, follow any fix the line names. WebFetch becomes available again without a restart once a policy that allows it loads.
+
+### Fix a failed WebFetch request
+
+If Claude says it couldn’t fetch a page, find what happened in the first column.
+
+Symptom| Fix
+---|---
+In a cloud session, Claude says the network blocks the domain| An allow rule isn’t enough there. Also [add the domain](</docs/en/cloud-environments#allow-specific-domains>) to the cloud environment’s network access.
+Claude can’t fetch a local or intranet server| WebFetch [refuses `localhost`](</docs/en/errors#webfetch-cannot-fetch-localhost>) and any other hostname without a dot. Ask Claude to reach the server with `curl` through the Bash tool.
+Claude reports a redirect and stops there| Ask Claude to fetch the new URL. When a redirect changes the host by more than adding or dropping `www.`, WebFetch returns the new URL and no page content.
+Claude says the download ran out of time| A download fails after five minutes. To change the limit, set [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](</docs/en/env-vars#variables>).
+
+### Fix missing or outdated page content
+
+Claude’s reply can leave out anything on the page that Claude didn’t ask about. In the terminal, press `Ctrl+O` to see what Claude asked and the answer it received.
+
+Symptom| Fix
+---|---
+Claude says a page doesn’t cover something you know is there| Ask Claude to fetch the page again and tell it what to look for. For the raw page, ask it to run `curl` on the URL through the Bash tool.
+Claude leaves out the end of a long page, or says part of it wasn’t read| Ask Claude to fetch the next part of the page. This requires Claude Code v2.1.290 or later. The `web-fetch` subagent reads pages of up to about 48,000 characters in full, and WebFetch reads the first 100,000 when Claude calls it.
+Claude describes a page as it was before a recent change| WebFetch reuses its copy of a page for 15 minutes. To change how long, set [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](</docs/en/env-vars#variables>).
+
+### Find out why WebFetch is unavailable
+
+If Claude can’t fetch any page, run `/status` in the session and check the `Organization configuration` and `Organization policy` lines:
+
+  * **`Organization configuration` lists `HIPAA`**: WebFetch is off. See [What developers see in Claude Code](</docs/en/hipaa-setup#what-developers-see-in-claude-code>).
+  * **`Organization policy` reports that the policy didn’t load and names web fetch**: follow any fix the line names. WebFetch becomes available again without a restart once a policy that allows it loads.
+
+If `/status` shows neither, look for `WebFetch` under `deny` in a [settings file](</docs/en/settings#find-or-create-your-settings-files>), or for `CLAUDE_CODE_DISABLE_WEB_FETCH` set to `1`. To turn WebFetch back on, remove the rule, or unset the variable and start a new session. Ask your administrator to remove a rule that’s in [managed settings](</docs/en/settings#check-what-your-organization-enforces>).
 
 ### The web-fetch subagent
 
@@ -586,7 +610,7 @@ By default, the `web-fetch` subagent runs on the model that the `haiku` [model a
 
 Your `WebFetch` [permission rules](</docs/en/permissions#webfetch>) apply to the pages the `web-fetch` subagent fetches, and so do the `PreToolUse` and `PostToolUse` [hooks](</docs/en/hooks>) that match `WebFetch`.
 
-If you rely on| With the subagent| What to do
+Your configuration| What changes with the subagent| What to do
 ---|---|---
 CLAUDE.md instructions about which pages to fetch| The subagent starts without your CLAUDE.md files, including your organization’s managed one| Restrict fetches with `WebFetch` permission rules
 `SubagentStart` or `SubagentStop` hooks| Only the hooks defined in [managed settings](</docs/en/managed-settings>) run for this subagent| In any other settings file, use a `PreToolUse` or `PostToolUse` hook that matches `WebFetch`

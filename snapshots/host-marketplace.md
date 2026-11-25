@@ -3,7 +3,7 @@ Hosting a marketplace means putting your `marketplace.json` catalog where other 
 These cases are covered on other pages:
 
   * **You haven’t written the catalog file yet** : start with [Create a marketplace](</docs/en/plugins/create-marketplace>)
-  * **You’re an admin requiring, restricting, or pre-installing marketplaces across your organization’s machines** : read [Manage plugins for your organization](</docs/en/plugins/org>)
+  * **You want to require, restrict, or pre-install marketplaces across an organization’s machines** : read [Manage plugins for your organization](</docs/en/plugins/org>)
 
 Start with Host your marketplace to pick a host and the command your users run. Read Keep users up to date before your first release. Read Rename or remove a plugin before you change a plugin’s `name`.
 
@@ -87,7 +87,7 @@ Tell users what each protocol needs on their machine:
   * **SSH** : the key must work without a passphrase prompt, for example because it’s loaded in `ssh-agent`. The host must already be in `known_hosts`.
   * **HTTPS** : Claude Code leaves the user’s git credential helper enabled but forbids it from prompting, and doesn’t run askpass programs such as one set in `GIT_ASKPASS`. A credential the helper already stores works; one it would have to ask for fails. On GitHub, `gh auth login` followed by `gh auth setup-git` stores one.
 
-For a GitHub Enterprise Server host, users need git access to that host from their machine. See [Plugin marketplaces on GHES](</docs/en/github-enterprise-server#plugin-marketplaces-on-ghes>) for what each Claude Code surface needs to reach a GHES-hosted marketplace. If you distribute through **Organization settings > Plugins & skills** on claude.ai instead, your users’ git credentials aren’t involved. See Distribute through organization settings.
+For a GitHub Enterprise Server host, users need git access to that host from their machine. See [Plugin marketplaces on GHES](</docs/en/github-enterprise-server#plugin-marketplaces-on-ghes>) for what each Claude Code surface needs to reach a GHES-hosted marketplace. If you distribute through [**Organization settings > Plugins & skills**](<https://claude.ai/admin-settings/skills?tab=inventory>) on claude.ai instead, your users’ git credentials aren’t involved. See Distribute through organization settings.
 
 ### Serve users who have no git-host account
 

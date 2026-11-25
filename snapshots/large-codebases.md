@@ -23,7 +23,7 @@ For workflow techniques that keep context small in any repository, see [Best pra
 
 ### The example monorepo
 
-The examples throughout this page refer to a monorepo with three packages. The same patterns work in a large single-tree codebase: where an example uses `packages/api/`, substitute your own subsystem directory such as `src/backend/` or `lib/core/`.
+The examples throughout this page refer to a monorepo with three packages. Where an example uses `packages/api/`, substitute your own subsystem directory such as `src/backend/` or `lib/core/`.
 
     monorepo/
       CLAUDE.md                     # root instructions

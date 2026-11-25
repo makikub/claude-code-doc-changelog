@@ -68,12 +68,18 @@ Message| Fix
 ”no key of this name is read at this place”| Check the key’s spelling and its level against [Top-level keys](</docs/en/approvals-policy#top-level-keys>) and [Rule keys](</docs/en/approvals-policy#rule-keys>)
 ”this names no fact and no usable classifier”| Check the name against the [facts](</docs/en/approvals-policy#if>). For `repo/<name>`, check that `.claude/classifiers/<name>/def.yml` loads, beside the policy file or in a directory above it
 ”a condition has no NOT”| Write the opposite operator
+”a login goes in single quotes inside a condition”| If the word is a login, put it in single quotes, as in `"pr/opened_by = 'ana-acme'"`. For a bot, write `bot:` and its name with no quotes, as in `"pr/opened_by = bot:dependabot"`
 ”no local has this name”| Define the local in this file or a policy file above it. Write a login or a team with no `@`
 ”this is not YAML”| Look near the line that the message names for a quote or bracket that doesn’t close, or a tab. Indent with spaces
 
 ## A classifier gave no answer or its definition is refused
 
-To see each [classifier](</docs/en/approvals-classifiers>) run’s state and the reason for a missing answer, open **Classifier results** in Claude’s comment on the pull request. If a run reached its budget, split the pull request, or raise a `time` or `cost` that is under its [maximum](</docs/en/approvals-classifiers#budget>). Then find the **Claude Approvals** check’s title here:
+To see each [classifier](</docs/en/approvals-classifiers>) run’s state and the reason for a missing answer, open **Classifier results** in Claude’s comment on the pull request:
+
+  * **A run reached its budget** : split the pull request, or raise a `time` or `cost` that is under its [maximum](</docs/en/approvals-classifiers#budget>)
+  * **A run had more to read than one run can handle** , for example a large diff: try a smaller pull request
+
+Then find the **Claude Approvals** check’s title here:
 
 Title| What to do
 ---|---

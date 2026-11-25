@@ -48,6 +48,8 @@ Message| Section
 `Sign in again to take your previous account or API key off the config file.`| Authentication
 `Your account or API key may still be in the config file. Run claude auth logout.`| Authentication
 `Authentication required · Sign in again to continue`| Authentication
+`Sign in again to continue` followed by `For security, Claude Code needs a recent sign-in.`| Wrapper and IDE errors
+`Claude Code needs a recent sign-in. Signing in won’t stop sessions.`| Wrapper and IDE errors
 `Could not resolve authentication method`| Authentication
 `Invalid API key`| Authentication
 `Your apiKeyHelper script is failing`| Authentication
@@ -87,19 +89,22 @@ Message| Section
 `Your account does not have access to Claude. Please login again or contact your administrator.`| Authentication
 `API Error: 401 Invalid authentication credentials`| Authentication
 `Login expired · Please run /login`| Authentication
+`Authentication error · This may be a temporary network issue` in a cloud session| Send your message again.
+`login required — run /login` in agent view| If a message listed in this table follows it, use that row. Otherwise run `/login`.
 `Warning: this sign-in`| [Check when a stored login ends](</docs/en/authentication#check-when-a-stored-login-ends>)
 `The browser can't return the sign-in to Claude Code automatically`| Authentication
 `Couldn't start the local listener that receives the browser sign-in. Try again.`| Authentication
 `Failed to start OAuth callback server`| Authentication
 `Claude login not accepted · Run /login, then try again`| Authentication
 `Artifacts need a claude.ai login`| Authentication
+`Your authentication token belongs to organization`| [Restrict login to your organization](</docs/en/authentication#restrict-login-to-your-organization>)
 `Not signed in to the Cloud gateway — run /login.`| Authentication
 `Administrator policy requires a Cloud gateway sign-in on this machine`| Authentication
 `Managed settings on this machine configure a Cloud gateway sign-in; run interactive /login to authenticate.`| [`claude auth login`](</docs/en/cli-reference#cli-commands>)
 `You chose an organization that is managed in Anthropic's Enterprise Admin Console`| [Turn on sign-in from Claude Code](<https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#turn-on-sign-in-from-claude-code>)
 `The organization's settings won't apply on this computer`| [Which settings take priority](<https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority>)
 `no usable organization sign-in` / `no readable organization sign-in`| [When a sign-in ends](<https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#when-a-sign-in-ends>)
-`the session no longer runs under that sign-in` / `This Claude Code process ran under your organization` / `After a sign-in to your organization, only a new session sends requests`| [Log in to Claude Code](</docs/en/authentication#log-in-to-claude-code>)
+`the session no longer runs under that sign-in` / `This Claude Code process ran under your organization` / `After a sign-in to your organization, only a new session sends requests` / `Claude Code needs to restart to use it`| [Log in to Claude Code](</docs/en/authentication#log-in-to-claude-code>)
 `This conversation ran under organization` / `This conversation ran under more than one organization`| [Log in to Claude Code](</docs/en/authentication#log-in-to-claude-code>)
 `Claude Code could not read the managed settings that apply to this computer, which may require a sign-in to Anthropic`| [`enforceAnthropicSignIn`](</docs/en/settings-reference#enforceanthropicsignin>)
 `This computer's managed settings require a sign-in to Anthropic` / `This computer's settings require a sign-in to Anthropic that this app cannot use`| [Require the sign-in](<https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#require-the-sign-in-with-managed-settings>)
@@ -292,6 +297,7 @@ Message| Section
 `Shell command failed for pattern "..."`, from `/security-review` or any skill that injects dynamic context| Command-line errors
 `Shell command permission check failed for pattern "..."`, from a skill that injects dynamic context| Command-line errors
 `Couldn't run `<command>` for <name>. A file named HEAD or .git in this folder or one above it may not be yours`, from a skill that injects dynamic context| [Permission checks on injected commands](</docs/en/skills#permission-checks-on-injected-commands>)
+`Not run in /<name>` / `Ran anyway in /<name>` / `[not run: blocked by hook`, from `/security-review` or a skill that injects dynamic context| [PreSkillShellCommand decision control](</docs/en/hooks#preskillshellcommand-decision-control>)
 `Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`| Command-line errors
 `No shell command in <name> was run, because the <tool> tool does not accept one of them`| Command-line errors
 `This skill, command or hook and the arguments filled into it add up to more than 4,000,000 characters`| Command-line errors
@@ -337,6 +343,7 @@ Message| Section
 `/feedback is disabled by your organization's policy`, or the same for `/bug` or `/share`| Command-line errors
 ``plugin eval` is currently in early access` / ``plugin eval` is currently unavailable`| Plugin errors
 `credential store on this machine holds a symbolic link inside it`| [Grant tools](</docs/en/plugin-evals#grant-tools>)
+`cannot be disallowed`, from `claude plugin eval`| Use a built-in tool’s [exact name](</docs/en/plugin-evals#disallow-tools>), and [put the target before `--disallow-tools`](</docs/en/plugin-evals#choose-what-to-evaluate>)
 `cannot be evaluated where sessions load it`| [Test plugins with evals](</docs/en/plugin-evals#cannot-be-evaluated-where-sessions-load-it>)
 `Marketplace "<name>" is registered from an untrusted source`| Plugin errors
 `Claude Code refuses the marketplace name "<name>"`| Plugin errors
@@ -363,6 +370,8 @@ Message| Section
 `commands path not found: <path>`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#commands-path-not-found>)
 `Plugin not loaded: its manifest <path> was not read`| Plugin errors
 `path couldn't be checked` / `path could not be checked`| Plugin errors
+`Couldn't load hooks from <path>` / `Failed to load hooks from <path>` / `Hook load failed`| [Plugin troubleshooting](</docs/en/plugins/troubleshooting#failed-to-load-hooks-from-and-hooks-that-dont-fire>)
+`hooks.json declares PreToolUse/PermissionRequest`| Put the events under a `hooks` key, as in the [plugin hooks example](</docs/en/plugins/components#hooks>).
 `its marketplace entry path does not stay inside the marketplace directory`| Plugin errors
 `Plugin source path refused`| Plugin errors
 `Failed to load marketplace configuration`| Plugin errors
@@ -376,10 +385,16 @@ Message| Section
 `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)`| Plugin errors
 `is not added on this machine, so your organization's marketplace policy keeps its plugins off`| [Add a marketplace](</docs/en/plugins/install#add-a-marketplace>)
 `A mod's http.fetch hook stopped this request`| [Turn mods on or off](</docs/en/plugins/mods/overview#turn-mods-on-or-off>)
+`hook was skipped. "<mod>" runs first and sent the event on past it.`| If you listed the quoted mod in [`prependPlugins`](</docs/en/settings-reference#prependplugins>) in your user settings, change that mod. Otherwise, ask your administrator.
+`<file>: changed while it was read`| If `claude plugin validate` printed this, rerun it. Otherwise, restart the session.
+`installed mods are off for now`| [Check whether mods can load](</docs/en/plugins/mods/troubleshoot#check-whether-mods-can-load>)
+`the hooks worker was lost with <mod>'s <event> hook in flight`| Fix the named mod. For one cause, see [`it crashed the hooks worker`](</docs/en/plugins/mods/troubleshoot#it-crashed-the-hooks-worker>).
+`dispatches in a row for fills by <mods>`| Change the named mods so they fill the prompt box at most eight times in a row.
 `Error: No such tool available: <tool name>`| Tool errors
 `MCP server "<name>" connection closed before the tool call was answered`| Tool errors
 `MCP server "<name>" is disabled — re-enable it via /mcp to use its tools`| Tool errors
 `MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit.`| Tool errors
+`The server's response is not a valid MCP response, so it was not read`| Before retrying, check whether the request ran. Report the error to the MCP server’s author.
 `Permission prompt tool returned an invalid result`| Tool errors
 `would be spawned with zero tools — refusing`| Tool errors
 `File is covered by a Read deny rule in your permission settings`| Tool errors
@@ -425,6 +440,7 @@ Message| Section
 `Disk full: this computer's volume holding <dir> (Claude Code's temporary directory) has <n> MB free` / `Nearly out of inodes: this computer's volume holding <dir>`| Tool errors
 `Disk full: a test write beside this command's output file` / `Disk quota used up: a test write beside this command's output file`| Tool errors
 `The command was not started: this computer's disk is full (ENOSPC)` / `the user's disk quota is used up (EDQUOT)`| Tool errors
+`The sandbox could not create <dir>, a folder it must protect from the command, because the temp disk is full`| Free space on the temp disk or repair it, then have Claude run the command again.
 `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)` / `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)`| Tool errors
 `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes`| Tool errors
 `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary`| Tool errors
@@ -477,12 +493,19 @@ Message| Section
 `Subprocess initialization did not complete within 60000ms`| Wrapper and IDE errors
 `Claude Code did not finish starting`| Wrapper and IDE errors
 `The connection to Claude Code ended before this message completed`| Wrapper and IDE errors
+`Dictation error: The speech service refused the connection` / `Dictation error: The connection to the speech service was lost` / `Dictation error: Couldn’t connect to the speech service`, in VS Code| Run **Claude Code: Show Logs** from the Command Palette and search for `Speech-to-text`.
+`The last request was refused`, on the VS Code sign-in screen| Select **Cancel** , then look up the conversation’s error in this table.
+`Plan not copied: The new session starts without a plan file.`, in VS Code| If you need the plan, ask Claude to write it again in the new session.
+`A message is still queued` / `A /clear is still queued`, when you rewind code in VS Code| Stop Claude, then follow the rest of the message.
+`Couldn’t load the diff view or code colors`, in VS Code| Click a diff to try again, or reload the window.
+`Settings file is empty, and another program may still be writing it: <path>`, in VS Code| Try again in a minute. If the message repeats, put `{}` in the file.
 `Could not locate the Claude CLI on PATH`| Wrapper and IDE errors
 `Claude Code could not be started from <command>: it is the <system> build, and this computer needs the <build> build`| If you set [`claudeCode.claudeProcessWrapper`](</docs/en/vs-code#extension-settings>), point it at a program built for `<build>`. Otherwise, install the VS Code extension package for `<build>`.
 `The Claude Code program for this computer, the <build> build, could not be found`| Wrapper and IDE errors
 `Restored the code, but skipped N files`| Rewind warnings and errors
 `No files were restored: N files failed (backup missing, or the file could not be updated)`| Rewind warnings and errors
 `Couldn't restore N files: the backup is missing or the file can't be written`| Make the files that failed writable, then restore them from version control.
+`Kept N files created since then, because a restore failed`| If you don’t want the files Claude created after the checkpoint, delete them.
 `The file backups are still being copied. Nothing was changed. Try again in a moment.`| Select the same point in [`/rewind`](</docs/en/checkpointing>) again. When you restore code soon after [`/branch`](</docs/en/sessions#branch-a-session>), Claude Code can still be copying the file backups to the new session.
 `Transcript writes are failing (...)`| Session saving warnings
 `Transcript saving is off — CLAUDE_CODE_SKIP_PROMPT_HISTORY is set`| Session saving warnings
@@ -527,6 +550,7 @@ Message| Section
 `headersHelper not run — this workspace has no persisted trust`| Configuration warnings
 `Invalid permission rule "..." was skipped: Malformed Tool(content) rule`| Configuration warnings
 `matches no tool · check for typos` / `matches no known tool — check for typos`| Configuration warnings
+`lets <tool> run without asking only in the working directories` / `adds nothing to <tool>'s default`| [Allow a file tool outside the working directories](</docs/en/permissions#allow-a-file-tool-outside-the-working-directories>)
 `... is not matched by file permission checks`| Configuration warnings
 `Write(<path>) never matches · use Edit(<path>)` / `Glob(<path>) never matches · use Read(<path>)`| Configuration warnings
 `... has a wildcard before the rest of the command`| Configuration warnings
@@ -4673,6 +4697,25 @@ The [VS Code extension](</docs/en/vs-code>) sent your message to the `claude` pr
   * Send the message again. The next message starts a fresh `claude` process that resumes the conversation.
   * If it repeats, run `claude` in a terminal in the same project. A failure that keeps ending the process usually reproduces there with its real error message.
 
+### Claude Code needs a recent sign-in
+
+When a local, WSL, or SSH session in the Code tab needs a new saved sign-in and you haven’t signed in recently, the [Claude Desktop app](</docs/en/desktop>) shows this message:
+
+    For security, Claude Code needs a recent sign-in.
+
+For these sessions, being asked up to about once a month for each account and organization on each computer is routine, with or without single sign-on (SSO). **What to do:**
+
+  * Click **Sign in again** on the card, then sign in
+  * If a banner at the top of the Code tab says `Claude Code needs a recent sign-in. Signing in won’t stop sessions.`, click **Sign in again** on the banner
+  * If you’re asked again within three weeks for these sessions, with the same account and organization on the same computer, [check your version](</docs/en/desktop#check-your-version>) of Claude Desktop. If it’s older than v5.11492.0, update it:
+    * **macOS** : select **Claude > Check for Updates…**
+    * **Windows** : select **Help > Check for Updates…**, or update through the Microsoft Store if you installed the app from there
+    * **Linux** : [update through apt](</docs/en/desktop-linux#update>)
+    * **Managed updates** : if your organization [turns off auto-updates](</docs/en/desktop#device-management-policies>), ask your administrator for v5.11492.0 or later
+  * If that continues on v5.11492.0 or later, [contact support](</docs/en/desktop#still-stuck>)
+
+If you see the card in a Remote Control session, see [Trusted Devices](</docs/en/remote-control#trusted-devices>), which can ask for a more recent sign-in. Before Claude Desktop v5.11492.0, the Code tab could lose its saved sign-in when a company proxy or gateway answered its background renewal with a JSON error.
+
 ## Rewind warnings and errors
 
 These messages come from a [`/rewind`](</docs/en/checkpointing>) code restore. `Restored the code, but skipped N files` is a warning that Claude Code skipped some paths. `No files were restored` is an error that means it restored nothing.
@@ -4697,7 +4740,7 @@ Skipped paths keep their current contents. Before v2.1.216, `/rewind` wrote and 
 
 ### No files were restored
 
-Claude Code shows this message when you restore code with [`/rewind`](</docs/en/checkpointing>) and it can’t restore any of the files in that checkpoint. For each file, either the backup Claude Code saved before editing it is missing, or Claude Code couldn’t write to or delete the file.
+You see this message when a [`/rewind`](</docs/en/checkpointing>) code restore fails on at least one file and restores no files.
 
     Failed to restore the code:
     No files were restored: 1 file failed (backup missing, or the file could not be updated)

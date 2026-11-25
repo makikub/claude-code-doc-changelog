@@ -26,7 +26,7 @@ Setup for a whole team is on a separate page: [Set up Claude Code for your organ
 
 Every instruction you give Claude Code is one of these:
 
-  1. Non-deterministic: you write the instruction, and Claude (the model) reads it. This can be your prompt, `CLAUDE.md`, or a skill. The model then decides what to do with this information. It usually follows your commands, and current models are good at understanding your intent without much context, but there’s no _guarantee_ that it’ll follow your instructions. It can still decide not to do things, or do other things.
+  1. Non-deterministic: you write the instruction, and Claude (the model) reads it. This can be your prompt, `CLAUDE.md`, or a skill. The model then decides what to do with this information. It usually follows your commands, and current models are good at understanding your intent without much context, but there’s no _guarantee_ that it’ll follow your instructions.
   2. Deterministic: you configure the instruction, and Claude Code (the harness) _has_ to execute this. This can be a hook, a deny rule, or a managed setting. Claude Code applies this every time, no matter what the model decided to do.
 
 Most things in Claude Code come in both forms:
@@ -474,8 +474,7 @@ When you have separate pieces of work going at once, give each its own checkout 
 Keep it to small files: it copies rather than links, so `node_modules` in there would mean a full copy per worktree. For large directories there’s the [`worktree.symlinkDirectories`](</docs/en/settings-reference#worktree-symlinkdirectories>) setting, or keep the install command in `CLAUDE.md` so Claude runs it whenever it starts in a new checkout. You rarely have to clean any of this up yourself:
 
   * When you exit an unnamed worktree session, Claude Code [removes a worktree it created with git](</docs/en/worktrees#clean-up-worktrees>) if there’s nothing in it. For a named session, or one with changes, it asks what to do.
-  * Subagent worktrees disappear when the subagent finishes without changes.
-  * Subagent and background-session worktrees that do get left behind are swept once they’re older than `cleanupPeriodDays` and hold no work.
+  * Subagent and background-session worktrees that get left behind [can be removed automatically](</docs/en/worktrees#clean-up-subagent-and-background-session-worktrees>) once they’re older than `cleanupPeriodDays` and hold no work.
 
 A `claude -p --worktree` run is one you clean up yourself, since it exits without asking. Remove those with `git worktree remove <path>`, and if git refuses because the worktree is locked, `git worktree unlock <path>` first.
 

@@ -244,7 +244,7 @@ Custom [hooks](</docs/en/hooks>) can preprocess data before Claude sees it. Inst
 
   * filter-test-output.sh
 
-Add this to your [settings.json](</docs/en/settings#where-settings-live>) to run the hook before every Bash command:
+Add this to your [settings.json](</docs/en/settings#where-settings-live>) to run the hook before every Bash tool call:
 
     {
       "hooks": {

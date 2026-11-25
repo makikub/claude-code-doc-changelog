@@ -172,7 +172,7 @@ Teleport requires claude.ai subscription authentication. Find the case that matc
 
   * **You’re signed in with an API key or Console account** : run `claude auth login` in your shell, then sign in with claude.ai
   * **The error names your provider** : cloud sessions aren’t available through third-party providers. See the error table
-  * **You’re already signed in via claude.ai** : your organization may have disabled cloud sessions
+  * **You sign in to claude.ai through an organization** : ask an [Owner](</docs/en/server-managed-settings#access-control>) whether [cloud sessions are turned on](</docs/en/errors#cloud-sessions-are-disabled-by-your-organizations-policy>)
 
 ## Work with sessions
 

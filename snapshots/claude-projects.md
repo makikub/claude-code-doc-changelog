@@ -64,7 +64,7 @@ Before you create a project, check your plan, your GitHub setup, and what the wo
 
 ### Start a new project from scratch
 
-Starting a project from scratch means opening the **New project** dialog, naming the stream of work, and optionally giving it a goal and the repositories and files it works on. Only the name is required, so you can create the project first and fill in the rest as the work takes shape.
+Starting a project from scratch means opening the **New project** dialog, naming the stream of work, and optionally giving it a goal and the repositories and files it works on.
 
 1
 
@@ -250,7 +250,7 @@ Allow it on the card
 
 Claude answers with an **Allow Claude to work in a folder on your computer** card. Pick the folder if you connected several. Two threads working in one folder at the same time can overwrite each other’s changes. If the folder is a git repository, you can turn on **Worktree** in the folder’s options to give this thread its own worktree instead. Then click **Allow once**.
 
-The thread runs in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), so Claude runs commands and edits files in that folder without asking you each time. If auto mode is unavailable or turned off in that computer’s Claude Code, the thread runs without it, and any permission prompt it raises waits for your answer in the thread, as Unblock a thread waiting on approval describes. To run the thread in another mode, start `claude remote-control` with [`--settings`](</docs/en/remote-control#start-a-remote-control-session>). Then [`permissions.defaultMode`](</docs/en/permission-modes#start-in-a-different-mode>), in that file or in that computer’s settings, can pick another mode. While the thread runs, a laptop icon in its header shows whether your computer is connected. Click it to see which folder the thread is using or to turn the connection off. The thread pauses while that computer is asleep, and stops if the desktop app or `claude remote-control` quits.
+The thread runs in [auto mode](</docs/en/permission-modes#eliminate-prompts-with-auto-mode>), so Claude runs commands and edits files in that folder without asking you each time. If auto mode is unavailable or turned off in that computer’s Claude Code, the thread runs without it, and any permission prompt it raises waits for your answer in the thread, as Unblock a thread waiting on approval describes. To run the thread in another mode, start `claude remote-control` with [`--settings`](</docs/en/remote-control#start-a-remote-control-session>) and a file that sets [`disableAutoMode`](</docs/en/settings-reference#disableautomode>) to `"disable"`. Then [`permissions.defaultMode`](</docs/en/permission-modes#start-in-a-different-mode>), in that file or in that computer’s settings, can pick another mode, such as `default`, `plan`, or `dontAsk`. While the thread runs, a laptop icon in its header shows whether your computer is connected. Click it to see which folder the thread is using or to turn the connection off. The thread pauses while that computer is asleep, and stops if the desktop app or `claude remote-control` quits.
 
   * **To get the thread going again** : see Lost contact with your folder
   * **To keep the computer from sleeping on its own** : in the desktop app, turn on **Keep this computer awake for Remote Control** in **Settings > Code** or **Settings > Claude Code**

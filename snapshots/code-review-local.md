@@ -1,6 +1,6 @@
 `/code-review` is a command you type at the Claude Code prompt, in the session where you’re working. Claude reviews the changes on your branch, looks for correctness bugs, and reports what it found in your conversation. Depending on your model and effort level, the review also covers reuse, simplification, and efficiency cleanups. The command works on any plan. The review runs in your own session, so it counts toward your plan’s usage or API billing the same way the rest of the session does.
 
-To have every pull request in a repository reviewed automatically on GitHub, see [Code Review](</docs/en/code-review>), a managed service that an Owner turns on for your organization.
+To have every pull request in a repository reviewed automatically on GitHub, see [Code Review](</docs/en/code-review>), a managed service that an Owner of a Claude organization turns on.
 
 `/review` is an alias of `/code-review`.
 

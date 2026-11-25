@@ -101,7 +101,7 @@ If several teams own parts of one policy, put each part in its own file in `mana
 
 ## How Claude Code combines managed sources
 
-If you set your provider or gateway at claude.ai under **Organization settings > Desktop 3P**, first read [which settings take priority](<https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority>) in the Enterprise Admin Console guide. When your organization delivers more than one managed source to the same machine, the [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>) key decides what Claude Code does with the others:
+If you set your provider or gateway at claude.ai under [**Organization settings > Desktop 3P**](<https://claude.ai/admin-settings/desktop-deployment>), first read [which settings take priority](<https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority>) in the Enterprise Admin Console guide. When your organization delivers more than one managed source to the same machine, the [`managedSourcesBehavior`](</docs/en/settings-reference#managedsourcesbehavior>) key decides what Claude Code does with the others:
 
   * **`"first-wins"`, the default**: Claude Code uses the highest-ranked source that delivers at least one policy key and ignores the rest rather than merging them, apart from the keys in Keys read from every admin source. Claude Code shows no warning for the sources it skips; `/status` names the source it used and the ones it skipped.
   * **`"merge"`** : Claude Code applies every admin source that delivers a policy key and combines them by kind of key: on most keys the higher-ranked source’s value applies, lists union, and locks take the strictest value. Compose every managed source says where to set the key and how each kind of key combines. Requires Claude Code v2.1.242 or later.
@@ -113,7 +113,7 @@ Both settings rank the sources the same way. These terms recur in this section:
 
 Claude Code checks the sources in this order, highest priority first:
 
-  1. Remote settings, delivered from claude.ai as [server-managed settings](</docs/en/server-managed-settings>) or by a [Claude apps gateway](</docs/en/claude-apps-gateway>). Claude Code fetches this source only when the session meets one of these conditions:
+  1. Remote settings, delivered from claude.ai as [server-managed settings](</docs/en/server-managed-settings>) or by a [Claude apps gateway](</docs/en/claude-apps-gateway>). Claude Code can fetch this source when the session meets one of these conditions:
      * It has an [eligible credential](</docs/en/server-managed-settings#platform-availability>)
      * It signs in to a gateway with `/login`
      * It runs in Claude Desktop’s Code tab behind a gateway that [serves that session settings](</docs/en/claude-apps-gateway-config#apply-code-settings-in-the-code-tab>)
@@ -263,7 +263,7 @@ Three source states don’t cause this refusal:
   * An empty managed settings file counts as `{}`.
   * A malformed value in the user-writable HKCU registry key never blocks launch. Claude Code reports it as a notice in `/status` and `claude doctor` instead.
 
-When a managed settings file, drop-in file, `managed-settings.d/` directory, MDM profile, or HKLM registry value exists but can’t be read, and no admin source supplies a policy, what happens depends on why the read failed:
+If a managed settings file, drop-in file, `managed-settings.d/` directory, or MDM profile exists but can’t be read and no admin source supplies a policy, sessions exit unless access was denied:
 
   * If the operating system denied the read, for example on a root-only file, every session starts without that source’s policies. `/status` and `claude doctor` record the failure, and a run with `-p` also prints it to stderr.
   * For any other read failure, such as an I/O error, every session exits at startup with [a message to contact an administrator](</docs/en/errors#unable-to-read-managed-policy-settings>).

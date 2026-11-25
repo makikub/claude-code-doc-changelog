@@ -2432,6 +2432,7 @@ Returns the result from the subagent. The output is discriminated on the `status
         "taskId": str,  # ID of the background monitor task
         "timeoutMs": int,  # The watch's effective deadline in milliseconds
         "persistent": bool | None,  # False: every watch has a deadline
+        "keptInSandboxByCheck": bool | None,
     }
 
 ### Edit

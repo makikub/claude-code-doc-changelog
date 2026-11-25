@@ -1671,7 +1671,7 @@ An entry that you can’t select is gray. Hover over it to see the reason:
   * **A broken settings file** : while your own settings file is broken, your administrator’s entries may be gray, with a message that names the file. [Fix the file](</docs/en/settings#fix-a-broken-settings-file>).
   * **A new host** : **Create another** is gray for one minute after Desktop saves a host. Select it after that minute. Before Claude Desktop v4.4212.0, **Replace Dev box’s host** is gray for 10 minutes.
   * **Hooks are off or restricted** : your own entries work only where your own hooks can run. Remove `disableAllHooks` from your settings, or ask your administrator.
-  * **Settings are still loading** : every entry is gray until Desktop has loaded your organization’s [server-managed settings](</docs/en/server-managed-settings>), usually a few seconds after launch. If the entries stay gray, check your connection to claude.ai.
+  * **Settings are still loading** : every entry is gray until Desktop has loaded any [server-managed settings](</docs/en/server-managed-settings>), usually a few seconds after launch. If the entries stay gray, check your connection to claude.ai.
 
 #### Pre-configure SSH connections for your team
 
@@ -1844,6 +1844,23 @@ It stays off even when your [server-managed settings](</docs/en/server-managed-s
   * **[Cowork](<https://claude.com/docs/cowork/overview>) sessions**: in a Cowork session on this machine, Claude Code never fetches admin-console settings, even when the user signs in with a Team or Enterprise account, and reads policy deployed to the machine unless your Claude Desktop configuration sets `requireCoworkFullVmSandbox`. Remote Cowork sessions receive neither. See [where and when a policy applies](</docs/en/managed-settings#where-and-when-a-policy-applies>) for which device files reach Cowork, and [MCP permission rules](</docs/en/permissions#mcp>) for how `Bash` and `WebFetch` rules apply to Cowork’s tools.
 
 In local and SSH sessions, the desktop app delivers each user’s connected claude.ai connectors to Claude Code directly. No MCP setting or `managed-mcp.json` reaches those connectors, whichever settings source or file location you use. To block a connector’s tools in these sessions, use your organization’s [connector tool controls](</docs/en/mcp#organization-controls-on-connector-tools>). [How connectors reach Claude Code](</docs/en/mcp#how-connectors-reach-claude-code>) shows which settings govern connectors in each kind of session. To keep users from overriding `permissions.disableBypassPermissionsMode` or `disableAutoMode`, set it in managed settings. For the permission, plugin, and delivery keys only a managed source can set, see [Keys only managed settings can set](</docs/en/managed-settings#managed-only-settings>).
+
+#### Deploy skills for all users
+
+To give every user the same skills in local and SSH sessions, deploy them as [enterprise skills](</docs/en/skills#where-skills-live>), which you install once on a machine for all of its users. Install them on the machine where the session runs:
+
+  * **Local sessions** : each user’s computer
+  * **SSH sessions** : each remote host
+
+Install each skill at the path for that machine’s platform:
+
+Platform| Path
+---|---
+macOS| `/Library/Application Support/ClaudeCode/.claude/skills/<skill-name>/SKILL.md`
+Linux| `/etc/claude-code/.claude/skills/<skill-name>/SKILL.md`
+Windows| `C:\Program Files\ClaudeCode\.claude\skills\<skill-name>\SKILL.md`
+
+To confirm that your skills load, test with a skill whose [frontmatter](</docs/en/skills#frontmatter-reference>) sets only `name` and `description`. Start a new session and send a message, then type `/` and the first letters of the skill’s name in the prompt box. The skill appears in the list.
 
 #### Claude Code settings that behave differently in the Code tab
 
@@ -2026,6 +2043,7 @@ The following features aren’t available in Desktop, except where noted:
   * **Linux (beta)** : Computer Use isn’t yet available in the Linux desktop app. See [Claude Desktop on Linux](</docs/en/desktop-linux>).
   * **Inline code suggestions** : Desktop doesn’t offer autocomplete-style code completions. It works through conversational prompts and explicit code changes, and can suggest your next prompt after Claude replies.
   * **Agent teams** : coordinated teams, where Claude as the team lead assigns tasks to teammates from a shared task list, are available in the [CLI](</docs/en/agent-teams>), not in Desktop. For multi-agent work inside one session, use [dynamic workflows](</docs/en/workflows>), which run in Desktop; Claude can also message and manage your other sessions directly.
+  * **Code Mode** : Desktop sessions start without the experimental [Code Mode](</docs/en/code-mode>), even if you turn it on in your settings. To use it, run the CLI in a terminal.
   * **Terminal-dialog commands** : built-in commands that open an interactive panel in the terminal behave differently in the Code tab. Edit [settings files](</docs/en/settings>) directly to manage permission rules and configuration, or run the commands from the standalone CLI.
     * Commands with no argument form, such as `/permissions`, reply with `isn't available in this environment`.
     * `/config` opens **Settings > Code** or **Settings > Claude Code**.
@@ -2059,7 +2077,7 @@ In the earlier layout, choose the environment and any project folder or reposito
 
 ### 403 or authentication errors in the Code tab
 
-If you see `Error 403: Forbidden` or other authentication failures when using the Code tab:
+For a card that says `For security, Claude Code needs a recent sign-in.`, see [Claude Code needs a recent sign-in](</docs/en/errors#claude-code-needs-a-recent-sign-in>). If you see `Error 403: Forbidden` or other authentication failures when using the Code tab:
 
   1. Sign out and back in from the app menu. This is the most common fix.
   2. Verify you have an active paid subscription: Pro, Max, Ultra, Team, or Enterprise.

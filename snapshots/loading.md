@@ -164,7 +164,7 @@ Check which setting sources the session loads. You set them with [`--setting-sou
 
 By default, a plugin enabled only in your project’s `.claude/settings.json` doesn’t load at session start until you install it on your machine. With the marketplace on your machine when the session starts, the `/plugin` **Errors** tab shows a line ending in [`isn't installed here`](</docs/en/plugins/troubleshooting#plugin-is-enabled-in-project-settings-but-isnt-installed-here>).
 
-If the marketplace isn’t on your machine yet, [add it](</docs/en/plugins/install#add-a-marketplace>) before you install. Find its source in the `extraKnownMarketplaces` setting of `.claude/settings.json`, or ask your maintainer.
+If the marketplace isn’t on your machine yet, [add it](</docs/en/plugins/install#add-a-marketplace>) before you install. Find its source in the `extraKnownMarketplaces` setting of `.claude/settings.json`, or ask the project’s maintainer.
 
 To install, run this in a shell from the project, using the plugin’s key in `enabledPlugins`:
 
